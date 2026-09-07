@@ -1,0 +1,38 @@
+# Dependencias
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Entornos y secretos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Artefactos de build
+build/
+dist/
+out/
+.next/
+.expo/
+*.apk
+*.aab
+*.ipa
+coverage/
+
+# Obsidian: estado local del usuario (el vault abre en vault/)
+vault/.obsidian/workspace*
+vault/.obsidian/cache
+.obsidian/workspace*
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Claude Code local
+.claude/settings.local.json

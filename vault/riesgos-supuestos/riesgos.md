@@ -1,0 +1,20 @@
+---
+estado: vigente
+grado: mixto
+fuente: lectura del contrato v8 (A) y sesión 2026-09-07 (C)
+fecha: 2026-09-07
+dueño: Nadir Hadad Navarrete
+---
+# Riesgos
+
+| ID | Riesgo | Origen (grado + cita) | Prob. | Impacto | Señal temprana | Mitigación | Dueño | Revisión |
+|---|---|---|---|---|---|---|---|---|
+| R-001 | El instrumento disponible no tiene interlocutor único, fecha de firma ni RFCs de EL CLIENTE, y nombra a un segundo contratante distinto del que declara el brief | B: `vault/contrato/nota-de-saneamiento.md` | alta (ya ocurre) | alto: aceptación tácita (IV) y pagos 2–3 discutibles; CFDI (V) | — | DD-001 a DD-004 cerradas esta semana; no enviar nada al cliente hasta entonces | Nadir | 2026-09-13 |
+| R-002 | Los trámites del ANEXO B.10 (D-U-N-S hasta 30 días, cuenta Apple 1–2 semanas después, Conekta 1–3 semanas con cuenta bancaria empresarial, aviso de privacidad) se inician tarde y retrasan la publicación | A: `NSV-2026-001-v8.pdf:33-34:ANEXO B, Sección B.10`; p. 7 Cláusula IV | media | alto: fecha de publicación; el hito 2 se salva por IV pero la operación no | Semana 1 sin D-U-N-S ni cuenta Google iniciados | Tabla de trámites en cada reporte semanal; requerimiento escrito formal (XII) a la primera semana de atraso | Nadir | semanal |
+| R-003 | Apple exige sociedad constituida para cuenta a nombre de empresa (B.2); EL CLIENTE son personas físicas. Una cuenta individual publica con el nombre de la persona, no de la marca | A: `NSV-2026-001-v8.pdf:28:ANEXO B, Sección B.2` | media | medio: calendario B.10, presencia de marca en tiendas | DD-017 sin respuesta en semana 1 | Preguntar ahora (DD-017); documentar ambas rutas | Nadir | 2026-09-13 |
+| R-004 | El nombre de marca no está decidido y el proceso de branding del A.1 (12 días hábiles) arranca en la semana 1; sin nombre no hay logotipo ni dominio ni landing | C: acta C-05; A: p. 14 A.1; p. 5 Cláusula II | alta | alto: entregable 1 (semanas 1–3), hito 2 (landing en dominio activo) | Sin decisión de nombre al 2026-09-13 | Fase 3 esta misma semana; Nadir verifica dominio e IMPI de inmediato | Nadir | 2026-09-13 |
+| R-005 | El lado de la oferta (lavanderías) no se llena a tiempo: el reclutamiento es de EL CLIENTE y no hay meta numérica pactada | A: `NSV-2026-001-v8.pdf:42:ANEXO C, Sección C.8`; C: acta C-06 | media | alto: app vacía el día del lanzamiento; sin socios reales no se prueba el recorrido completo (A.4.3) | Sin lavanderías firmadas al cierre de la semana 5 | Hipótesis H-001 con umbral; requerimiento escrito de lista de socios | Nadir / EL CLIENTE | 2026-10-11 |
+| R-006 | Costo de mapas por uso (Google retiró el crédito gratuito) crece con exploración sin pedido | A: `NSV-2026-001-v8.pdf:29-30:ANEXO B, Sección B.5` | media | medio: costo mensual del cliente; reclamo | Consultas de geocodificación por pedido por encima del presupuesto | Decisión de arquitectura sobre caché y pantallas sin mapa dinámico (Fase 5) | Nadir | Fase 5 |
+| R-007 | Asueto de diciembre: revisión de tiendas y respuestas del cliente se alargan justo en las semanas 14–16 | A: `NSV-2026-001-v8.pdf:6:Cláusula II` | alta | medio: publicación; no imputable a EL PRESTADOR pero retrasa el pago 3 | — | Envío a tiendas en semana 14 como máximo; protocolo de notificación de entrega (Fase 7) | Nadir | semana 12 |
+| R-008 | La máquina de estados del pedido está descrita de forma inconsistente entre módulos (5 estados en A #12, 4 momentos en A #17, "En proceso de entrega" en B, "En tránsito" en C, "cinco momentos" en A.4.3) | A: pp. 16–18, 21 | alta | medio: criterio de aceptación ambiguo (A.4.3) | — | DD-011: acordar por escrito los cinco momentos antes del diseño de pantallas (semana 3) | Nadir | 2026-09-27 |
+| R-009 | Modelo económico sin definir: quién paga el reparto, cómo se cobra con peso estimado, cómo se liquida a lavanderías. Sin esto no hay unit economics ni flujo de pago que especificar | A: p. 16 #9–10; p. 18 exclusiones; C.6 ilustrativo | alta | alto: Fases 2, 5 y 6; alta en Conekta (semana 4) | — | DD-012 a DD-015 antes de la semana 4 | Nadir / EL CLIENTE | 2026-10-04 |
