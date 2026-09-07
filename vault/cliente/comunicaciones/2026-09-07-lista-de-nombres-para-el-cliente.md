@@ -1,7 +1,7 @@
 ---
 estado: borrador
 grado: B
-fuente: marca/candidatos-de-nombre.md; acta C-37 y C-38
+fuente: marca/candidatos-de-nombre.md; acta C-37, C-38 y C-39
 fecha: 2026-09-07
 dueño: Nadir Hadad Navarrete
 ---
@@ -22,29 +22,34 @@ Aquí van diez opciones, con lo que evoca cada una.
 
 **Palabras que todo el mundo escribe sin pensar**
 
-1. **Pinza** — la pinza de tender: sujetar la ropa y no soltarla.
-2. **Trama** — el tejido de la tela y, al mismo tiempo, la red de lavanderías.
+1. **Trama** — el tejido de la tela y, al mismo tiempo, la red de lavanderías.
+2. **Pinza** — la pinza de tender: sujetar la ropa y no soltarla.
 3. **Ronda** — la vuelta que recoge y entrega, siempre a la misma hora.
 4. **Manta** — lo textil, lo que abriga, lo de casa.
-5. **Tersa** — la ropa lisa, recién planchada.
+
+**Dos palabras de siempre, escritas juntas**
+
+5. **Alsol** — "al sol": la ropa secándose al sol.
+6. **Alpaso** — "al paso": lo que se resuelve sin que tengas que detenerte.
+7. **Enpunto** — "en punto": la hora que prometimos, cumplida.
 
 **Nombres con raíz clásica**
 
-6. **Nimbo** — la nube: suavidad y ropa fresca.
-7. **Vesta** — la diosa del hogar; comparte raíz con "vestir".
-8. **Orea** — de "orear", poner la ropa a tomar aire.
+8. **Nimbo** — la nube: suavidad y ropa fresca.
+9. **Orea** — de "orear", poner la ropa a tomar aire.
 
-**Nombres inventados**
+**Nombre inventado**
 
-9. **Tendo** — de "tender", colgar la ropa.
-10. **Lumo** — de "lumen": luz y limpieza.
+10. **Tendo** — de "tender", colgar la ropa.
 
-Algo práctico que conviene tener en mente al elegir. Los cinco primeros se dictan por teléfono sin
-deletrear, y eso pesa cuando estemos llamando lavanderías para invitarlas a sumarse. Los dos últimos son
-más fáciles de registrar y de conseguir la dirección en internet, pero hay que deletrearlos cada vez.
+Algo práctico al elegir. Los cuatro primeros se dictan por teléfono sin deletrear, y eso pesa cuando
+estemos llamando lavanderías para invitarlas. Los tres de en medio se entienden igual de rápido y solo
+piden decir "todo junto"; a cambio, es mucho más probable que consigamos su dirección en internet, que hoy
+es la parte más difícil. Los tres últimos hay que explicarlos o deletrearlos cada vez.
 
 Si me pides una recomendación: **Trama, Pinza y Ronda**. Las tres se entienden a la primera, dicen algo
-concreto del servicio, y funcionan igual hablándole a un cliente que a una lavandería.
+concreto del servicio, y funcionan igual hablándole a un cliente que a una lavandería. Y si te importa
+asegurar la dirección en internet desde el arranque, **Alsol** es la más sólida del grupo de en medio.
 
 ¿Cuál te convence? Mándame tu favorito, o dos o tres, antes del **miércoles 9 de septiembre**. Con eso
 verifico que el nombre esté libre y arrancamos el diseño de la marca.
@@ -56,30 +61,38 @@ Nadir
 
 ## Notas para Nadir (no se envían)
 
-**Lo que cambió.** La nota anterior proponía un nombre y pedía aprobación. Esta abre a diez, como pidió el
-cliente. Es su marca y su decisión, así que se hace. Vale la pena saber lo que se gana y lo que se pierde:
-se gana que se sienta dueño de la decisión, y con eso se gana velocidad después. Se pierde que la elección
-pase de criterios a gustos. La línea de recomendación es lo que protege el proceso: sin ella, esto es una
-encuesta.
+**Qué cambió respecto de la versión anterior.** Entró la familia de fusionados, que no estaba. Para que
+cupieran sin pasar de diez salieron Tersa, Vesta y Lumo. La lista quedó con cuatro familias en vez de tres,
+y con eso el cliente elige entre texturas distintas y no entre diez variaciones de lo mismo.
 
-**Por qué esos diez y no otros.** Cubren tres familias distintas a propósito, para que la elección no sea
-entre diez variaciones de lo mismo. Quedaron fuera Tambor, Prenda, Tendal, Percha, Pulcro, Vaivén y Ropero,
-que son buenos pero no aportan una familia nueva. Tambor es el primer suplente si alguno cae.
+**Por qué vale la pena la familia de fusionados.** Es el mejor arreglo del problema de fondo. Una palabra
+común se dicta perfecto pero su dominio ya está tomado y su registro es disputado. Una palabra inventada
+tiene dominio y registro limpios pero no evoca nada. El fusionado se queda con lo bueno de las dos: la
+frase ya está en la cabeza de quien la oye, y frente al registro y al dominio se comporta como inventada.
+Lo único que cuesta es decir "todo junto".
 
-**Por qué recomiendo Trama y ya no solo Pinza.** Trama nombra a la vez la tela y la red de lavanderías. Es
-la única de la lista que dice el material y el modelo de negocio en una palabra, y su dominio tiene más
-probabilidad de estar libre que el de Pinza, que ya sabemos que no lo está en `.com`. El riesgo de Trama es
-que "tramar" carga algo turbio; escúchala dicha en voz alta en una llamada antes de cerrar.
+**Dos palabras separadas quedaron descartadas de origen.** No por largas. Porque abren la pregunta "¿junto
+o separado?" en cada llamada, no caben en el ícono de la app que pide el contrato, y fragmentan los handles
+de redes en tres variantes según quién las escriba.
 
-**Lo que la nota deliberadamente no dice.** No lleva puntajes ni rúbrica. No explica qué descartamos ni por
-qué. No afirma nada sobre marcas registradas ni sobre dominios, porque todavía no está verificado y no
-quiero que el cliente se enamore de un nombre que después resulte ocupado. Por eso la última línea dice que
-verificamos **después** de que él elija.
+**La recomendación no cambió.** Trama sigue arriba. Agregué a Alsol como alternativa explícita para el caso
+de que el cliente le dé peso a asegurar el dominio, que es un criterio legítimo y que él puede entender sin
+explicaciones técnicas.
 
-**No verifiques los diez.** Es trabajo perdido. Espera a que acorte a dos o tres.
+**Sobre Alsol.** Tiene un argumento local fuerte que no está en la nota: Torreón y Durango son de los
+lugares más soleados del país y secar al sol es cultura local. No lo escribí porque ese mismo argumento se
+debilita fuera del norte, y la ambición es nacional. Si el cliente se inclina por Alsol, ahí sí conviene
+decírselo.
 
-**Fecha.** Puse el miércoles 9. Es apretado a propósito: el diseño de marca son doce días hábiles y tiene
-que caber antes de que termine la semana 3.
+**Lo que la nota deliberadamente no dice.** No lleva puntajes ni rúbrica. No explica qué descartamos. No
+afirma nada sobre marcas registradas ni dominios, porque no está verificado y no quiero que se enamore de
+un nombre que después resulte ocupado. Por eso la última línea dice que verificamos **después** de que él
+elija.
+
+**No verifiques los diez.** Espera a que acorte a dos o tres.
+
+**Fecha.** Miércoles 9, apretado a propósito. El diseño de marca son doce días hábiles y tiene que caber
+antes de que cierre la semana 3.
 
 ## Control interno
 

@@ -73,8 +73,8 @@ Para que nadie espere por lo que no hace falta:
 | Campo | Valor |
 |---|---|
 | **Nombre elegido** | `SIN RESPUESTA — bloquea: DD-023`. Pinza estuvo decidido el 2026-09-07 (C-36) y volvió a abrirse el mismo día porque EL CLIENTE pidió opciones (C-38) |
-| Lista enviada al cliente | Pinza, Trama, Ronda, Manta, Tersa, Nimbo, Vesta, Orea, Tendo, Lumo |
-| Recomendación de EL PRESTADOR | **Trama**, con Pinza y Ronda detrás (`candidatos-de-nombre.md`, sección 7) |
+| Lista enviada al cliente | Trama, Pinza, Ronda, Manta (español) · Alsol, Alpaso, Enpunto (fusionados) · Nimbo, Orea (raíz latina) · Tendo (acuñado) |
+| Recomendación de EL PRESTADOR | **Trama**, con Pinza y Ronda detrás; **Alsol** si pesa más asegurar el dominio (`candidatos-de-nombre.md`, sección 8) |
 | Candidatos descartados y motivo | `candidatos-de-nombre.md`, sección 8 |
 | **Dominio** | Solo verificado para Pinza: `pinza.com` **no disponible**, `pinza.mx` **disponible** (Nadir, 2026-09-07). Los demás se verifican cuando el cliente acorte |
 | Búsqueda fonética IMPI | `SIN RESPUESTA — bloquea: DD-030` |
