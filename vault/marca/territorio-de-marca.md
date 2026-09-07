@@ -1,7 +1,7 @@
 ---
 estado: borrador
 grado: mixto
-fuente: Fase 2 (propuesta-de-valor.md, competencia.md); acta C-05 a C-09, C-29, C-31, C-32; decisiones de esta nota son D pendientes de confirmación de Nadir
+fuente: Fase 2 (propuesta-de-valor.md, competencia.md); acta C-05 a C-09, C-31 a C-33; decisiones de esta nota son D pendientes de confirmación de Nadir
 fecha: 2026-09-07
 dueño: Nadir Hadad Navarrete
 ---
@@ -26,15 +26,15 @@ Registro: cercano y concreto, tutea, habla de "tu ropa", nunca de "prendas texti
 ## 2. Lo que debe sentir la lavandería socia
 
 Contexto: microempresas de menos de cinco personas (E, INEGI); el reclutamiento es por teléfono y WhatsApp
-(C-06); el operador de la plataforma también tiene lavanderías en Durango (C-29): la neutralidad hay que
-ganársela, no declararla.
+(C-06); la plataforma **no tiene lavanderías propias** (C-33), así que puede decir con verdad que no compite
+contra el socio. Ese es su mejor argumento y la marca tiene que sostenerlo.
 
 Sentimiento objetivo: **respeto por su oficio y más trabajo sin más broncas**. "Me mandan clientes que ya
 pagaron, yo lavo como sé, y la app no me estorba en el mostrador."
 
 - Respeto: la plataforma no lava; el oficio es del socio. La marca no suena a "la lavandería de alguien más".
-- Claridad: comisión clara, pago claro, reglas iguales para todos, incluidas las lavanderías del operador (S-004).
-- Lo que **no** debe sentir: que entra a competir contra la casa; que le imponen precios; que necesita contratar a alguien para atender la app.
+- Claridad: comisión clara, pago claro, reglas iguales para todos.
+- Lo que **no** debe sentir: que le imponen precios; que necesita contratar a alguien para atender la app; que la plataforma va a ser su competidora mañana.
 
 Registro: de negocio a negocio, de igual a igual. "Socio", nunca "proveedor". Por teléfono, "usted" al
 inicio y el registro que el socio marque después.
@@ -46,10 +46,15 @@ qué recoger, dónde, a qué hora, cuánto se paga.
 
 ## 4. La tensión que gobierna la marca
 
-En Durango la plataforma nace como canal de venta de las lavanderías del cliente; en La Laguna nace como
-marketplace (propuesta-de-valor.md). La marca no puede llamarse ni sentirse como "la app de las lavanderías
-de X": tiene que ser la marca de la **red**, con el oficio del lado del socio. Consecuencias para el nombre:
-no descriptivo, no apellido, no nombre ni derivado de una lavandería del cliente, no Nazmelia (C-09).
+La marca tiene que enamorar a dos públicos que quieren cosas opuestas. El usuario quiere que su ropa sea
+tratada como algo personal; el socio quiere que su negocio sea tratado como un negocio. Una marca demasiado
+tierna no la puede dictar por teléfono un dueño de lavandería sin sentirse ridículo; una marca demasiado
+corporativa no le da confianza a quien entrega su ropa a un desconocido.
+
+Además, la plataforma arranca en frío en las dos plazas: no hay lavanderías propias (C-33). El primer
+trabajo de la marca no es vender a usuarios, es **abrir la puerta en una llamada telefónica a una
+microempresa**. Consecuencias para el nombre: se dicta sin deletrear, se recuerda a la primera, no es
+descriptivo, no es apellido, no es Nazmelia (C-09), y no suena a competidor de lavanderías.
 
 ## 5. Las tres direcciones abiertas
 

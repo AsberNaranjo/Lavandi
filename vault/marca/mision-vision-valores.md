@@ -1,7 +1,7 @@
 ---
 estado: borrador
 grado: D
-fuente: territorio-de-marca.md; propuesta-de-valor.md; acta C-07, C-29, C-31. Pendiente de confirmación de Nadir y de EL CLIENTE
+fuente: territorio-de-marca.md; propuesta-de-valor.md; acta C-07, C-31, C-33. Pendiente de confirmación de Nadir y de EL CLIENTE
 fecha: 2026-09-07
 dueño: Nadir Hadad Navarrete
 ---
@@ -20,12 +20,11 @@ prometida", que es lo que el WhatsApp de siempre no da.
 ## Visión
 
 > Ser la red de lavanderías de barrio con recolección y entrega más confiable de México y Latinoamérica.
-> La ropa la lavan las lavanderías de cada ciudad, propias o socias; la plataforma se ocupa de que llegue y
-> vuelva a tiempo.
+> La ropa la lavan las lavanderías de cada ciudad; la plataforma se ocupa de que llegue y vuelva a tiempo.
 
-Por qué se sostiene: "red" y no "cadena" (no se construyen lavanderías, se conectan); "propias o socias"
-reconoce el caso de Durango (C-29) sin esconderlo; "más confiable" es medible con retención y puntualidad
-(A.5), no con "mejor".
+Por qué se sostiene: "red" y no "cadena", porque no se construyen lavanderías, se conectan; la plataforma no
+tiene lavanderías propias y no piensa tenerlas (C-33), lo que le permite decirle a cada socio que no compite
+contra él; y "más confiable" es medible con retención y puntualidad (A.5), no con "mejor".
 
 ## Valores
 
@@ -34,7 +33,7 @@ Cuatro, y cada uno cuesta algo. Si un valor no prohíbe ninguna decisión conven
 | Valor | Qué se hace | Qué prohíbe |
 |---|---|---|
 | **La hora prometida es la hora** | Ventanas de una hora que se cumplen; si no se va a cumplir, se avisa antes, no después | Ventanas "aproximadas"; culpar al tráfico después del hecho |
-| **El oficio es del socio** | La plataforma no lava ni impone precios; las reglas son iguales para todos, incluidas las lavanderías propias del operador | Ranking pagado; favoritismo silencioso; hablarle al socio como proveedor |
+| **El oficio es del socio** | La plataforma no lava, no abre lavanderías y no impone precios; las reglas son iguales para todos | Ranking pagado; favoritismo silencioso; hablarle al socio como proveedor; competir contra quien te da de comer |
 | **Precio claro antes de pesar** | El usuario sabe qué va a pagar antes de entregar su ropa; si el peso real cambia el precio, lo ve y lo acepta | Cargos sorpresa; "estimados" que siempre suben |
 | **Damos la cara** | Si algo sale mal con un pedido, responde la plataforma primero y después se arregla con el socio | "Eso es problema de la lavandería"; el usuario persiguiendo a tres personas |
 

@@ -1,7 +1,7 @@
 ---
 estado: borrador
 grado: mixto
-fuente: territorio-de-marca.md; acta C-05 a C-09, C-29, C-32; colisiones aparentes grado E (agente, 2026-09-07, pendiente de integrar)
+fuente: territorio-de-marca.md; acta C-05 a C-09, C-32, C-33; colisiones aparentes grado E pendientes (DD-028)
 fecha: 2026-09-07
 dueño: Nadir Hadad Navarrete
 ---

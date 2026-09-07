@@ -48,6 +48,23 @@ Transcripción de lo declarado en el brief. Citable por `C-NN` o por línea.
 - C-31. El reparto lo paga el **usuario**: **$35 MXN mínimo**. Si es por trayecto o por pedido, si es fijo o por distancia, y cuánto recibe el repartidor: no declarado.
 - C-32. Equipo en esta fase: Nadir y Claude Code, con subagentes especializados "para evitar resultados genéricos o de plantilla". No hay diseñador.
 
+### Tercer turno (correcciones de Nadir)
+- C-33. **Corrige C-29.** La plataforma **no** nace como canal de venta propio. La lavandería del dueño Alfredo Navarrete "nunca se ha mencionado" y **no debe considerarse en el contexto del proyecto**. En consecuencia: no hay oferta propia de EL CLIENTE dentro de la plataforma, ni en Durango ni en La Laguna. Todo lo derivado de C-29 queda sin efecto (ver lista de correcciones abajo).
+- C-34. El precio **no se pide como dato al cliente**: hay que **definir por consultoría cómo generarlo**. Es decir, se diseña el método de fijación de precio, no se pregunta un número.
+- C-35. Pregunta de Nadir: cuál es el primer paquete bloqueante para poder seleccionar el nombre. Respondida en `vault/marca/decision-de-marca.md`, sección "Paquete bloqueante P-1".
+
+### Correcciones derivadas de C-33 (aplicadas el 2026-09-07)
+| Artefacto | Qué decía | Qué dice ahora |
+|---|---|---|
+| `propuesta-de-valor.md` | "Dos negocios con una marca": canal de venta en Durango, marketplace en La Laguna | Marketplace desde cero en **las dos** plazas; arranque en frío total |
+| `territorio-de-marca.md`, sección 4 | Tensión entre Durango y La Laguna por la oferta propia | Tensión entre dos públicos (usuario y socio), no entre plazas |
+| `mision-vision-valores.md` | "propias o socias" en la visión | "las lavanderías de cada ciudad" |
+| `riesgos.md` R-010 | Neutralidad comprometida porque el operador tiene lavanderías | **Superseded**. Sustituido por R-010-bis: arranque en frío simultáneo en dos plazas |
+| `supuestos.md` S-004 | Las lavanderías propias operan como socios con las mismas reglas | **Cerrado sin efecto**: no hay lavanderías propias |
+| `brecha-ejecutivo-tecnico.md` BR-45 | Regla de neutralidad frente a lavanderías del operador | **Retirada** |
+| `deuda-de-decision.md` DD-018 | Cuántas lavanderías propias tiene el cliente | **Cerrada sin efecto** |
+| `deuda-de-decision.md` DD-020 | Comisión, y si aplica igual a las lavanderías propias | Solo comisión a socios |
+
 ## Decisiones tomadas en la sesión
 | # | Decisión | Opciones consideradas | Quién decide | ADR / nota resultante |
 |---|---|---|---|---|
