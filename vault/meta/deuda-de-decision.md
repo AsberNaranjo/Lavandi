@@ -30,6 +30,8 @@ Se cierra con la respuesta, la fecha y dónde quedó asentada (acta, ADR o nota)
 | DD-022 | ¿Una lavandería puede entregar con su propio reparto, sin repartidor de la plataforma? El botón "En proceso de entrega" del Módulo B lo sugiere | EL CLIENTE + Nadir | Máquina de estados (BR-22), Módulo C, unit economics | 2→5 | 2026-09-20 | abierta |
 | DD-023 | **Nombre de marca**: decisión final tras verificar `.com` e IMPI | Nadir | Logotipo (A.1), dominio, landing (hito 2), perfiles sociales (A.8) | 3 | **2026-09-10** (jueves, semana 1) | abierta — **parada dura** |
 | DD-024 | Flujo de producción de diseño sin diseñador: logotipo en AI/SVG/PDF/PNG, manual de 15–20 páginas, 12 plantillas en Canva o Figma. Herramientas y quién opera cada una | Nadir | O-01 a O-04; Fase 4 | 3→4 | 2026-09-13 | abierta (abre C-32) |
+| DD-025 | Estructura del envío: ¿$35 explícito, incluido en un pedido mínimo, o gratis por encima de un umbral? Al menos un competidor de Torreón anuncia domicilio sin costo (R-015) | EL CLIENTE | Conversión del usuario, unit economics, spec de precio del pedido | 2 | 2026-09-13 | abierta |
+| DD-026 | Llamadas de sondeo: diez negocios de Durango y Torreón para saber precio por kilo y si cobran el domicilio. El precio del territorio no está publicado en internet | EL CLIENTE o Nadir | DD-010, H-002, H-006, unit economics | 2 | 2026-09-13 | abierta |
 
 ## Cerradas
 

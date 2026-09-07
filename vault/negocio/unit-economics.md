@@ -80,6 +80,29 @@ Para que el modelo cierre hace falta al menos una de estas tres cosas, y ninguna
 Esto no es un veredicto sobre el negocio: es un veredicto sobre lo que **falta decidir**. Sin DD-010,
 DD-012, DD-013 y DD-015, los tres escenarios no se pueden escribir sin inventar.
 
+## 4-bis. El envío de $35 frente a lo que se observó en el mercado (E)
+
+Nadir declaró que el envío lo paga el usuario, $35 mínimo (C-31). El primer barrido de competencia
+(`competencia.md`) encontró dos señales que empujan en contra:
+
+| Señal (E, 2026-09-07) | Qué implica |
+|---|---|
+| Mommy's Laundry, Torreón: lavandería a domicilio con "atención personalizada sin costo adicional" | Al menos un competidor local **no cobra** el domicilio |
+| GoLaundry, Guadalajara: recolección de tintorería $60, **gratis con 5 o más piezas**; el lavado por kilos se vende en bloques de 5 kg desde $300, sin cargo de envío aparte | El operador con app más comparable **no cobra envío en el servicio principal**: lo mete en el precio del bloque y usa la prisa (12 h, 6 h) como sobreprecio |
+
+Tres estructuras posibles, ninguna decidida:
+
+| Estructura | Cómo se ve para el usuario | Efecto en el margen |
+|---|---|---|
+| **A. Envío explícito de $35** (lo declarado) | "Lavado $X + envío $35" | El reparto sale del margen si el repartidor recibe los $35 (S-003). Riesgo: el usuario compara contra el domicilio gratis del barrio (R-015) |
+| **B. Envío incluido con pedido mínimo** | "Desde $250 hasta 6 kg, recolección y entrega incluidas" | El costo del reparto entra en el precio; obliga a un mínimo que sostenga los ~$35. Es lo que hace GoLaundry |
+| **C. Envío gratis por encima de un umbral** | "Envío $35; gratis desde $X" | Sube el ticket promedio; el margen depende de dónde se ponga el umbral |
+
+Recomendación técnica, para decisión de Nadir y del cliente: **el sistema debe soportar las tres** desde el
+día uno, porque el precio se va a mover después del lanzamiento. En términos de producto: el envío es un
+concepto propio del pedido, con reglas por plaza (importe, umbral de gratuidad, mínimo), no un número
+grabado en el código. Eso no encarece nada ahora y evita rehacer el flujo de cobro en el mes de operación.
+
 ## 5. Tres escenarios (pendientes)
 
 | Variable | Conservador | Base | Optimista |
