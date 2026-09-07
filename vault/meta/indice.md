@@ -15,17 +15,24 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - Actas: [[acta-2026-09-07-fundacion]]
 
 ## Contrato (grado A leído)
-- [[nota-de-saneamiento]] — estado del instrumento (**bloqueante** al 2026-09-07)
+- [[nota-de-saneamiento]] — estado del instrumento (bloqueo levantado el 2026-09-07 por C-24 a C-27)
 - [[obligaciones-ejecutivas]] — qué se entrega y con qué criterio se acepta
 - [[brecha-ejecutivo-tecnico]] — qué NO dice el contrato y en qué fase se decide
 - [[restricciones-no-negociables]] — lo que toda arquitectura debe cumplir
 - [[calendario-contractual]] — semanas, fechas, trámites de terceros, hitos de pago
 
 ## Negocio (Fase 2)
-- [[propuesta-de-valor]] · [[competencia]] · [[unit-economics]] · [[hipotesis-criticas]]
+- [[propuesta-de-valor]] — dos negocios, una marca: canal de venta en Durango, marketplace en La Laguna
+- [[competencia]] — grado E: nadie nacional en el territorio; oferta pequeña y de microempresas
+- [[unit-economics]] — modelo, referencia contractual, sensibilidad, tres escenarios
+- [[hipotesis-criticas]] — H-001 a H-006
 
 ## Marca (Fase 3)
-- pendiente: territorio de marca, misión-visión-valores, candidatos de nombre, decisión de marca, tono de voz
+- [[territorio-de-marca]] — qué siente el usuario, qué siente el socio, la tensión Durango/Laguna
+- [[mision-vision-valores]] — versión corta, con lo que cada valor prohíbe
+- [[candidatos-de-nombre]] — rúbrica, diez candidatos, alternos, descartados, política de `.com`, recomendación
+- [[decision-de-marca]] — **pendiente de Nadir** (DD-023)
+- guía de tono de voz — se escribe con el nombre decidido
 
 ## Design system (Fase 4)
 - pendiente: tokens, cobertura del ANEXO A.1, `muestra/index.html`
@@ -37,7 +44,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - pendiente
 
 ## Riesgos y supuestos
-- [[riesgos]] · [[supuestos]]
+- [[riesgos]] — R-001 a R-014 · [[supuestos]] — S-002 a S-005 (S-001 cerrado)
 
 ## Cliente
 - `cliente/reportes-semanales/` · `cliente/notificaciones-de-entrega/` · `cliente/requerimientos/`

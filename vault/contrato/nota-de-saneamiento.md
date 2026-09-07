@@ -51,3 +51,18 @@ páginas rubricadas por ambas partes, o que el instrumento firmado sea un PDF ú
   resulta falso, la Fase 1 se rehace sobre el instrumento correcto.
 - Fase 2 (negocio) avanza: el bloqueo es para comprometer entregables, no para pensar.
 - **No se envía nada a EL CLIENTE** (ni reporte semanal ni notificación de entrega) hasta que DD-001 a DD-004 estén cerradas.
+
+## Actualización 2026-09-07, segundo turno: bloqueo levantado por declaración de Nadir
+
+Nadir respondió (acta C-24 a C-27, grado C):
+- Las páginas corregidas solo cambian el nombre; no hay cambio estructural. No se sube el PDF.
+- Segundo deudor solidario: **Itzel Leal** (nombre completo por confirmar). Christian Emmanuel Leal Cupich no es parte.
+- Interlocutor único: **Alfredo Navarrete**, "por lo pronto".
+- Firma: **5 de septiembre de 2026**. RFC de EL CLIENTE: no requerido.
+
+Efectos:
+- **Veredicto nuevo: bloqueo levantado.** Se pueden comprometer entregables y notificar entregas al interlocutor Alfredo Navarrete.
+- S-001 deja de ser supuesto: la Fase 1 queda vigente sobre el v8 disponible.
+- Riesgo residual R-001 (baja): el instrumento firmado no está en `legal/`. Recomendación, no bloqueo: archivar una copia cuando exista.
+- R-012: sin RFC, el CFDI de cada pago se emite conforme lo indique el contador de Nadir (público en general o con RFC recabado al facturar).
+- Toda notificación al cliente cita a EL CLIENTE como Alfredo Navarrete e Itzel Leal, y al interlocutor único como Alfredo Navarrete, hasta que se archive el instrumento firmado.

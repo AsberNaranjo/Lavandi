@@ -67,10 +67,10 @@ Reglas duras:
   `fuente`, `fecha`, `dueño`. Sin frontmatter, la nota no cuenta.
 - Nada nace en Notion. Notion es un espejo de solo lectura del vault.
 - Se espeja todo el vault **excepto** `legal/` (que además vive fuera de `vault/`).
-- **Audiencia del espejo.** Si el Notion lo consulta EL CLIENTE, quedan fuera además
-  `vault/negocio/` y `vault/riesgos-supuestos/`. La respuesta vigente está en
-  `vault/meta/convenciones.md`, sección "Espejo Notion". Mientras diga `SIN RESPUESTA`, rige la
-  opción restrictiva: **no** se espejan `negocio/` ni `riesgos-supuestos/`.
+- **Audiencia del espejo.** Nadir declaró el 2026-09-07 (acta C-28) que EL CLIENTE **no** consulta
+  el Notion: se espeja todo `vault/`. Si algún día se le da acceso al cliente, quedan fuera además
+  `vault/negocio/` y `vault/riesgos-supuestos/`, y el cambio se asienta en un acta antes de compartir.
+  La regla vigente vive en `vault/meta/convenciones.md`, sección "Espejo Notion".
 - Plantillas en `vault/plantillas/`. Toda nota nueva de un tipo con plantilla usa la plantilla.
 - Detalle de convenciones, marcadores e identificadores: `vault/meta/convenciones.md`.
 

@@ -75,11 +75,10 @@ Ver `CLAUDE.md`, sección 3. Formatos de cita:
 
 ## Espejo Notion
 - Regla base: se espeja todo `vault/`; `legal/` nunca.
-- **Audiencia: `SIN RESPUESTA — bloquea: DD-005`.** Pregunta hecha a Nadir el 2026-09-07: ¿EL CLIENTE
-  (Alfredo Navarrete e Itzel Leal) consulta el Notion?
-  - Si **sí**: se excluyen además `negocio/` y `riesgos-supuestos/`.
-  - Si **no**: se espeja todo `vault/`.
-- Mientras no haya respuesta rige la opción restrictiva: **no** se espejan `negocio/` ni `riesgos-supuestos/`.
+- **Audiencia (respondida el 2026-09-07, C-28): EL CLIENTE no consulta el Notion.** Por tanto se espeja
+  **todo** `vault/`, incluidos `negocio/` y `riesgos-supuestos/`.
+- Si en el futuro se le da acceso al cliente, la regla cambia a la opción restrictiva (se excluyen
+  `negocio/` y `riesgos-supuestos/`) y se registra en un acta antes de compartir nada.
 - Cadencia y responsable del espejo: se definen en `formas-de-trabajo/` (Fase 7). Nada nace en Notion.
 
 ## Git
