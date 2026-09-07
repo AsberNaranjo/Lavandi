@@ -72,10 +72,11 @@ Para que nadie espere por lo que no hace falta:
 
 | Campo | Valor |
 |---|---|
-| **Nombre elegido** | **Pinza** — decidido por Nadir el 2026-09-07 (acta C-36) |
-| Finalistas propuestos | Pinza (92), Tambor (89), Ondea (79) como alterno acuñado |
-| Candidatos descartados y motivo | `candidatos-de-nombre.md`, secciones 3 a 5 |
-| **Dominio** | `pinza.com`: **no disponible** (verificado por Nadir, 2026-09-07). `pinza.mx`: **disponible**, se toma como dominio primario |
+| **Nombre elegido** | `SIN RESPUESTA — bloquea: DD-023`. Pinza estuvo decidido el 2026-09-07 (C-36) y volvió a abrirse el mismo día porque EL CLIENTE pidió opciones (C-38) |
+| Lista enviada al cliente | Pinza, Trama, Ronda, Manta, Tersa, Nimbo, Vesta, Orea, Tendo, Lumo |
+| Recomendación de EL PRESTADOR | **Trama**, con Pinza y Ronda detrás (`candidatos-de-nombre.md`, sección 7) |
+| Candidatos descartados y motivo | `candidatos-de-nombre.md`, sección 8 |
+| **Dominio** | Solo verificado para Pinza: `pinza.com` **no disponible**, `pinza.mx` **disponible** (Nadir, 2026-09-07). Los demás se verifican cuando el cliente acorte |
 | Búsqueda fonética IMPI | `SIN RESPUESTA — bloquea: DD-030` |
 | Colisiones de uso | `SIN RESPUESTA — bloquea: DD-028` |
 | Aprobación del interlocutor único | nota redactada el 2026-09-07 (`cliente/comunicaciones/2026-09-07-aprobacion-nombre-de-marca.md`), pendiente de envío y de respuesta |
@@ -84,9 +85,9 @@ Para que nadie espere por lo que no hace falta:
 | **Riesgos aceptados** | (1) Sin `.com` exacto, con la ambición nacional y luego Latinoamericana declarada en C-07 — mitigación propuesta: monitorear `pinza.com` para adquisición futura (DD-031, sin resolver). (2) La nota ejecutiva al cliente se redactó antes de cerrar IMPI y colisiones; si alguna resulta desfavorable después de que el cliente ya aprobó, hay que volver con él |
 | Decidido por | Nadir Hadad Navarrete — acta C-36 (nombre y dominio). Falta cierre completo (IMPI + aprobación del cliente) |
 
-**Estado del documento: sigue en `borrador`.** El nombre y el dominio ya están decididos, pero el paquete
-completo (IMPI, colisiones, aprobación del cliente) no ha cerrado. Pasa a `vigente` cuando cierren los tres.
+**Estado del documento: `borrador`.** El nombre volvió a abrirse el 2026-09-07 (C-38). La secuencia que
+queda es: el cliente acorta la lista de diez → Nadir verifica dominio e IMPI de esos dos o tres → se elige
+→ el cliente confirma por escrito.
 
-Al pasar a `vigente`: reemplazar `{{MARCA}}` por Pinza y `{{DOMINIO}}` por pinza.mx en el vault, cerrar
-DD-023, comprar el dominio a nombre de EL CLIENTE y escribir la guía de tono de voz del A.1 en
-`guia-de-tono-de-voz.md`.
+Al pasar a `vigente`: reemplazar `{{MARCA}}` y `{{DOMINIO}}` en el vault, cerrar DD-023, comprar el dominio
+a nombre de EL CLIENTE y escribir la guía de tono de voz del A.1 en `guia-de-tono-de-voz.md`.

@@ -58,7 +58,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 ## Cliente
 
 - `cliente/reportes-semanales/` · `cliente/notificaciones-de-entrega/` · `cliente/requerimientos/` · `cliente/comunicaciones/`
-- [[2026-09-07-aprobacion-nombre-de-marca]] — nota ejecutiva en borrador, pendiente de enviar
+- [[2026-09-07-lista-de-nombres-para-el-cliente]] — diez nombres para que el cliente elija, en borrador, pendiente de enviar
 
 ## Plantillas
 

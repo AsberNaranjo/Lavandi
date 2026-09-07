@@ -1,14 +1,15 @@
 ---
-estado: borrador
+estado: superseded
 grado: B
 fuente: marca/decision-de-marca.md; acta C-36 y C-37
 fecha: 2026-09-07
 dueño: Nadir Hadad Navarrete
 ---
-# Nota ejecutiva — Aprobación del nombre de marca
+> **Superseded por `2026-09-07-lista-de-nombres-para-el-cliente.md`.** Esta nota proponía un solo nombre.
+> EL CLIENTE pidió más opciones (C-38) y se reemplazó por una lista de diez. Nunca se envió. Se conserva
+> por trazabilidad del razonamiento sobre por qué no conviene abrir el menú.
 
-**BORRADOR. No se ha enviado.** Revísala, ajusta la fecha límite y envíala tú por el canal que uses con
-Alfredo. Yo no envío nada al cliente.
+# Nota ejecutiva — Aprobación del nombre de marca (no enviada)
 
 ---
 
