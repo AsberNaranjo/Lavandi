@@ -47,6 +47,8 @@ Transcripción de lo declarado en el brief. Citable por `C-NN` o por línea.
 - C-30. Precio por kilo y alternativa actual del usuario: queda pendiente del lado del cliente. Nadir pide investigar en la red para Durango y Torreón (grado E).
 - C-31. El reparto lo paga el **usuario**: **$35 MXN mínimo**. Si es por trayecto o por pedido, si es fijo o por distancia, y cuánto recibe el repartidor: no declarado.
 - C-32. Equipo en esta fase: Nadir y Claude Code, con subagentes especializados "para evitar resultados genéricos o de plantilla". No hay diseñador.
+- C-36. Nadir verificó dominio: "pinza.mx está disponible. con dominio pinza.com no." Sobre proceder sin `.com`: "pero esta bien, se toma." El nombre **Pinza** queda decidido, con `pinza.mx` como dominio primario, en desviación explícita de la política "`.com` no negociable" (C-07). Búsqueda fonética ante el IMPI: no reportada todavía (DD-030).
+- C-37. Nadir pide preparar una comunicación ejecutiva al cliente sobre el nombre: "me gustaría enviar al cliente el nombre y tal vez lo que representa para que este de acuerdo con esta decisión, o de no; enviarle las propuestas y su justificación." Instrucción de forma: "Todo ejecutivo. no técnico ni entres en materias."
 
 ### Tercer turno (correcciones de Nadir)
 - C-33. **Corrige C-29.** La plataforma **no** nace como canal de venta propio. La lavandería del dueño Alfredo Navarrete "nunca se ha mencionado" y **no debe considerarse en el contexto del proyecto**. En consecuencia: no hay oferta propia de EL CLIENTE dentro de la plataforma, ni en Durango ni en La Laguna. Todo lo derivado de C-29 queda sin efecto (ver lista de correcciones abajo).
@@ -76,6 +78,8 @@ Transcripción de lo declarado en el brief. Citable por `C-NN` o por línea.
 | 6 | Espejo Notion: se espeja todo `vault/` (C-28) | permisiva / restrictiva | Nadir (turno 2) | `vault/meta/convenciones.md` |
 | 7 | Precio por kilo en el territorio: se investiga en la red (E) y se deja pendiente la respuesta del cliente (C-30) | preguntar al cliente / investigar / ambas | Nadir (turno 2) | `vault/negocio/competencia.md` |
 | 8 | Fase 2 se cierra "con lo que hay" y se abre la Fase 3 en el mismo turno, por el efecto de calendario (nombre de marca en la semana 1) | esperar respuestas del cliente / avanzar con marcadores | Claude, dentro de las puertas blandas | `vault/marca/` |
+| 9 | Dominio primario: `pinza.mx`, con `.com` no disponible | seguir buscando alternativas de `.com` (Tambor, Ondea) / aceptar `.mx` para Pinza ya | Nadir (C-36) | `vault/marca/decision-de-marca.md` |
+| 10 | Nota ejecutiva al cliente sobre el nombre: recomendación única con justificación (no menú de candidatos) | enviar solo Pinza con su porqué / enviar los diez candidatos para que el cliente elija | Claude propone; Nadir decide | `vault/cliente/comunicaciones/2026-09-07-aprobacion-nombre-de-marca.md` |
 
 ## Preguntas abiertas que salieron de la sesión
 Ver `vault/meta/deuda-de-decision.md`, filas DD-001 a DD-017.

@@ -24,7 +24,7 @@ Por dominio, sin prefijos numéricos. Obsidian abre en `vault/`.
 | `specs/` | specs openspec por capacidad |
 | `formas-de-trabajo/` | ciclo openspec+TDD, DoR/DoD, sprint, ramas, CI, cadencia con el cliente, protocolos |
 | `riesgos-supuestos/` | `riesgos.md`, `supuestos.md` y fichas individuales |
-| `cliente/` | `reportes-semanales/`, `notificaciones-de-entrega/`, `requerimientos/`, órdenes de cambio |
+| `cliente/` | `reportes-semanales/`, `notificaciones-de-entrega/`, `requerimientos/`, `comunicaciones/` (notas ejecutivas ad hoc que piden aprobación u opinión del cliente, fuera del ciclo semanal y de las notificaciones formales de entrega), órdenes de cambio |
 | `plantillas/` | una plantilla por tipo de nota |
 
 ## Nombres de archivo

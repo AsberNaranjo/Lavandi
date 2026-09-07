@@ -20,14 +20,14 @@ por cinco cosas, y solo una es mía.
 |---|---|---|---|---|
 | **1** | **Territorio de marca, misión y valores corregidos**, para que la elección tenga contra qué medirse | Claude | hecho | **listo** (`territorio-de-marca.md`, `mision-vision-valores.md`) |
 | **2** | **Rúbrica y candidatos puntuados** | Claude | hecho | **listo** (`candidatos-de-nombre.md`) |
-| **3** | **Verificación de dominio `.com`** de los tres finalistas. El `.com` es no negociable (C-07) | **Nadir** | 15 minutos | pendiente |
-| **4** | **Búsqueda fonética ante el IMPI** en las clases 37, 39, 9, 35 y 42 | **Nadir** | 30 minutos | pendiente |
-| **5** | **Colisiones de uso en el mercado**: apps con el mismo nombre en App Store y Google Play, marcas activas en lavandería, reparto o consumo, y handles en Instagram, Facebook y TikTok | Claude (subagente detenido por el límite de sesión, R-016) o Nadir | 30 minutos | pendiente |
-| **6** | **Aprobación escrita del interlocutor único** (Alfredo Navarrete) | **Nadir la solicita** | 1 correo | pendiente |
+| **3** | **Verificación de dominio**. El `.com` es no negociable (C-07) | **Nadir** | 15 minutos | **hecho, con desviación**: `pinza.com` no disponible; `pinza.mx` sí. Nadir decidió tomarlo igual (C-36). Ver DD-031 sobre si se monitorea `pinza.com` a futuro |
+| **4** | **Búsqueda fonética ante el IMPI** en las clases 37, 39, 9, 35 y 42 | **Nadir** | 30 minutos | pendiente (DD-030) |
+| **5** | **Colisiones de uso en el mercado**: apps con el mismo nombre en App Store y Google Play, marcas activas en lavandería, reparto o consumo, y handles en Instagram, Facebook y TikTok | Claude (subagente detenido por el límite de sesión, R-016) o Nadir | 30 minutos | pendiente (DD-028) |
+| **6** | **Aprobación escrita del interlocutor único** (Alfredo Navarrete) | **Nadir la solicita** | 1 correo | nota redactada, lista para enviar: `vault/cliente/comunicaciones/2026-09-07-aprobacion-nombre-de-marca.md` |
 
 **El punto 6 es el que se suele olvidar y el que más caro sale.** Ver la sección siguiente.
 
-Con 3, 4, 5 y 6 resueltos, la decisión se toma el mismo día. Sin ellos, elegir el nombre es apostar.
+Con 4, 5 y 6 resueltos, el paquete cierra del todo. El nombre y el dominio ya están decididos (3).
 
 ## Por qué hace falta la aprobación del cliente, aunque el nombre lo proponga Nadir
 
@@ -72,17 +72,21 @@ Para que nadie espere por lo que no hace falta:
 
 | Campo | Valor |
 |---|---|
-| Nombre elegido | `SIN RESPUESTA` |
+| **Nombre elegido** | **Pinza** — decidido por Nadir el 2026-09-07 (acta C-36) |
 | Finalistas propuestos | Pinza (92), Tambor (89), Ondea (79) como alterno acuñado |
 | Candidatos descartados y motivo | `candidatos-de-nombre.md`, secciones 3 a 5 |
-| Dominio `.com` | verificado por Nadir el AAAA-MM-DD — resultado y evidencia |
-| Búsqueda fonética IMPI | verificada por Nadir el AAAA-MM-DD — resultado y evidencia |
-| Colisiones de uso | pendiente |
-| Aprobación del interlocutor único | pendiente — correo del AAAA-MM-DD, respuesta del AAAA-MM-DD |
+| **Dominio** | `pinza.com`: **no disponible** (verificado por Nadir, 2026-09-07). `pinza.mx`: **disponible**, se toma como dominio primario |
+| Búsqueda fonética IMPI | `SIN RESPUESTA — bloquea: DD-030` |
+| Colisiones de uso | `SIN RESPUESTA — bloquea: DD-028` |
+| Aprobación del interlocutor único | nota redactada el 2026-09-07 (`cliente/comunicaciones/2026-09-07-aprobacion-nombre-de-marca.md`), pendiente de envío y de respuesta |
 | Clases de Niza consideradas | 37, 39, 9, 35, 42 (propuesta; las confirma quien haga el trámite) |
 | Dirección de marca | oficio y confianza como base, calidez en el tono, movimiento en el ritmo |
-| Riesgos aceptados | — |
-| Decidido por | Nadir Hadad Navarrete — `acta:línea` |
+| **Riesgos aceptados** | (1) Sin `.com` exacto, con la ambición nacional y luego Latinoamericana declarada en C-07 — mitigación propuesta: monitorear `pinza.com` para adquisición futura (DD-031, sin resolver). (2) La nota ejecutiva al cliente se redactó antes de cerrar IMPI y colisiones; si alguna resulta desfavorable después de que el cliente ya aprobó, hay que volver con él |
+| Decidido por | Nadir Hadad Navarrete — acta C-36 (nombre y dominio). Falta cierre completo (IMPI + aprobación del cliente) |
 
-Al pasar a `vigente`: reemplazar `{{MARCA}}` y `{{DOMINIO}}` en el vault, cerrar DD-023, comprar el dominio a
-nombre de EL CLIENTE y escribir la guía de tono de voz del A.1 en `guia-de-tono-de-voz.md`.
+**Estado del documento: sigue en `borrador`.** El nombre y el dominio ya están decididos, pero el paquete
+completo (IMPI, colisiones, aprobación del cliente) no ha cerrado. Pasa a `vigente` cuando cierren los tres.
+
+Al pasar a `vigente`: reemplazar `{{MARCA}}` por Pinza y `{{DOMINIO}}` por pinza.mx en el vault, cerrar
+DD-023, comprar el dominio a nombre de EL CLIENTE y escribir la guía de tono de voz del A.1 en
+`guia-de-tono-de-voz.md`.
