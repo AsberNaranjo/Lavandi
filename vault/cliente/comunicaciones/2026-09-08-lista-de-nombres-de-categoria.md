@@ -1,5 +1,5 @@
 ---
-estado: borrador
+estado: vigente
 grado: B
 fuente: marca/candidatos-de-nombre.md, ronda 4; acta C-40
 fecha: 2026-09-08
@@ -7,8 +7,8 @@ dueño: Nadir Hadad Navarrete
 ---
 # Nota ejecutiva — Diez nombres de categoría
 
-**BORRADOR. No se ha enviado.** Reemplaza a `2026-09-07-lista-de-nombres-para-el-cliente.md`, que proponía
-nombres evocadores. Revísala, ajusta la fecha y envíala tú.
+**ENVIADA** (C-43). Reemplazó a `2026-09-07-lista-de-nombres-para-el-cliente.md`, que proponía nombres
+evocadores. Al 2026-09-09 EL CLIENTE no ha decidido y pidió una tanda más con criterio global (C-42).
 
 ---
 

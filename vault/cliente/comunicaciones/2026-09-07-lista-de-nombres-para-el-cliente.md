@@ -7,9 +7,10 @@ dueño: Nadir Hadad Navarrete
 ---
 # Nota ejecutiva — Diez nombres para que el cliente elija
 
-> **Superseded por `2026-09-08-lista-de-nombres-de-categoria.md`.** EL CLIENTE pidió una dirección más
-> tradicional (C-40) y esta lista de nombres evocadores quedó fuera. Nunca se envió. Se conserva porque
-> las rondas 1 a 3 siguen siendo reserva válida si la nueva dirección no convence.
+> **Enviada al cliente (C-43) y luego superseded por `2026-09-08-lista-de-nombres-de-categoria.md`.**
+> EL CLIENTE la recibió, no eligió ninguno, y pidió una dirección más tradicional (C-40). Se conserva
+> porque las rondas 1 a 3 siguen siendo reserva, y porque **Nimbo, que está en esta lista, resulta el mejor
+> candidato bajo el criterio global que el cliente planteó el 2026-09-09** (`candidatos-de-nombre.md`, 6-ter.5).
 
 ---
 
