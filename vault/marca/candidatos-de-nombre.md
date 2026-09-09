@@ -115,39 +115,108 @@ con el criterio de esta familia: acento y be/ve son dos aclaraciones, no una. **
 descartados de la ronda 2 por quedar detrás de Nimbo y Orea; se recupera porque pertenece a esta familia,
 no a aquélla, y ahí es la más fuerte.
 
+## 6-bis. Ronda 4 — familia de categoría (C-40)
+
+EL CLIENTE no se sintió cómodo con los nombres evocadores (Pinza, Tambor, Trama) y pidió algo más
+tradicional, en la línea de **Lavandi, Lava+ y LavaYa!**, que ya habían visto antes. Esta ronda desarrolla
+esa familia. Es su marca y es una petición legítima: lo que se gana y lo que se pierde queda dicho abajo,
+y después se ejecuta.
+
+### 6-bis.1 Qué gana y qué pierde esta familia
+
+**Gana, y no es poco:**
+- **Cero explicación en la llamada de reclutamiento.** "Le hablo de Lavandi, una plataforma de lavandería"
+  se entiende solo. Con el reclutamiento como riesgo mayor del proyecto (R-005), quitar fricción ahí vale.
+- **Cero educación del usuario.** Nadie tiene que aprender qué hace la app.
+- **Ayuda en buscadores**, que es obligación contractual (A.2), en las búsquedas que combinan marca y categoría.
+
+**Pierde, y hay que decirlo con nombre y apellido:**
+- **Registro débil ante el IMPI.** Los signos que describen el servicio no se registran, o se registran sin
+  fuerza para impedir que otro use algo parecido. "Lava" + lavandería es descripción. Esto es criterio
+  general de propiedad industrial y **lo confirma quien haga el trámite**, no esta nota. El ANEXO B.7
+  presupuesta unos $3,126 MXN por clase: si el signo no es registrable, ese trámite se pierde.
+- **La categoría ya está saturada de "Lava-".** Es el hallazgo más duro de esta ronda. Ver la tabla siguiente.
+
+### 6-bis.2 Colisiones encontradas (grado E, consultado 2026-09-08, SIN VERIFICAR)
+
+| Nombre | Qué se encontró | Veredicto |
+|---|---|---|
+| **LavaYa / Lava Ya** | **Tres colisiones en el mismo giro.** "LAVA YA Lavandería de autoservicio" (Instagram @lavanderia._lavaya); "Lava y Ya", software de punto de venta para lavanderías en México y LatAm (lavayya.com); "Lava Ya Laundry", equipos para lavanderías (lavaya.com, dominio tomado) | **Descartado** |
+| **Lavanti** | Lavanti, empresa de equipos de lavandería industrial con operación en Colombia, Panamá, Ecuador y Argentina, catorce años, lavanti.com tomado. Además "Lavandería Lavanti" en Cochabamba | **Descartado** |
+| **Lava+** | No se buscó: el símbolo lo descalifica antes. No se dicta sin ambigüedad, no existe en un dominio, se pierde en tiendas de apps y en handles. Si gusta la idea, se escribe **Lavamás** | **Descartado como grafía** |
+| **Lavandi** | Sin colisión aparente en el giro | **Sobrevive** |
+| **Lavería** | Sin colisión aparente | **Sobrevive** |
+| **Lavora** | Sin colisión aparente en el giro | **Sobrevive** |
+
+Contexto de saturación, del mismo barrido y de `competencia.md`: LavaGo, iLavo, Lavandote, Lavi (Durango),
+Lava Express (Durango y Gómez Palacio), Lavandería Lava-Max, Lavax, LavaySeca, LavanderiApp, LisApp,
+Tu Lavandería, OMO Lavanderia. **De los tres nombres que trajo EL CLIENTE, dos ya están usados por otro
+negocio del mismo giro.** Solo Lavandi pasa el primer filtro.
+
+### 6-bis.3 Los candidatos de esta familia, puntuados
+
+| # | Nombre | C1 | C2 | C3 | C4 | C5 | **Total** | De dónde viene | Riesgo propio |
+|---|---|---|---|---|---|---|---|---|---|
+| 25 | **Lavora** | 5 | 4 | 4 | 5 | 4 | **89** | Lavar + labor. Suena a oficio, bien para el lado del socio | Es palabra italiana ("trabaja") |
+| 26 | **Lavandi** | 5 | 3 | 4 | 5 | 4 | **86** | "Lavandería" truncada, con aire italiano. La trajo el cliente | Cercanía con el genérico; el examinador puede verla descriptiva |
+| 27 | **Lavandia** | 5 | 2 | 4 | 5 | 4 | **83** | Hermana de Lavandi con más cuerpo; suena a lugar | Ocho letras |
+| 28 | **Lavaris** | 5 | 3 | 5 | 4 | 3 | **82** | Sufijo latino. La más marca de la familia | Puede leerse como farmacéutica |
+| 29 | **Lavería** | 4 | 3 | 4 | 5 | 4 | **81** | "Lavandería" contraída, con forma de negocio de barrio, como panadería o tortillería | Lleva tilde; la más cercana al genérico |
+| 30 | **Lavia** | 5 | 4 | 4 | 4 | 3 | **81** | Lav + vía: el camino de la ropa. La más corta | Evoca con un beat de retraso |
+| 31 | **Lavero** | 5 | 4 | 3 | 5 | 3 | **81** | De lavadero. El oficio, en masculino | Cercano a "lavadero", genérico |
+| 32 | **Roperia** | 4 | 3 | 3 | 4 | 3 | **69** | De ropa, con forma de establecimiento. Tradicional sin usar "lav" | Tilde; evoca ropa, no limpieza |
+| 33 | **Lavapronto** | 4 | 1 | 2 | 5 | 3 | **63** | Fusionada, clarísima | Diez letras. Casi un eslogan, no una marca |
+| 34 | **Lavamás** | 3 | 3 | 2 | 5 | 2 | **60** | Lo que "Lava+" es cuando se escribe | Junto y con tilde: dos aclaraciones al dictarla |
+
+**El patrón que dejan los puntajes:** dentro de la familia que pidió el cliente, **los que mejor funcionan
+son los menos literales**. Lavora, Lavandi y Lavandia superan por veinte y treinta puntos a Lavamás y
+Lavapronto. Mientras más literal el nombre, peor se defiende. Es el mismo intercambio de siempre, pero
+ahora dentro del terreno que el cliente eligió.
+
 ## 7. Los diez que van al cliente
 
-Cuatro familias, diez nombres. Se eligió representación de cada familia por encima del puntaje puro, para
-que el cliente elija entre texturas distintas y no entre diez variaciones de lo mismo.
+**Lista vigente al 2026-09-08: la familia de categoría (ronda 4).** EL CLIENTE pidió esta dirección (C-40)
+y las rondas 1 a 3 quedan como reserva, no descartadas.
 
-| Familia | Nombres |
-|---|---|
-| Palabras del español | Trama, Pinza, Ronda, Manta |
-| Fusionados | Alsol, Alpaso, Enpunto |
-| Raíz latina o híbrida | Nimbo, Orea |
-| Acuñados | Tendo |
+| # | Nombre | Puntaje | En una línea |
+|---|---|---|---|
+| 1 | **Lavandi** | 86 | La que él trajo. Corta, cálida, con aire italiano |
+| 2 | **Lavora** | 89 | Lavar y labor: el oficio bien hecho |
+| 3 | **Lavandia** | 83 | Hermana de Lavandi, con más cuerpo |
+| 4 | **Lavería** | 81 | Como panadería o tortillería, pero de lavar |
+| 5 | **Lavaris** | 82 | La que más suena a marca |
+| 6 | **Lavia** | 81 | Lav más vía: el camino de la ropa |
+| 7 | **Lavero** | 81 | El oficio, en masculino |
+| 8 | **Roperia** | 69 | Tradicional, sin usar "lava" |
+| 9 | **Lavapronto** | 63 | La más literal de todas |
+| 10 | **Lavamás** | 60 | Lo que "Lava+" es cuando se escribe |
 
-Primeros suplentes, por si alguno cae por dominio o por IMPI: **Tersa** (86), **Tambor** (89), **Alaire** (80).
+**Fuera de la lista, por colisión encontrada el 2026-09-08:** LavaYa (tres negocios del mismo giro),
+Lavanti (empresa de lavandería industrial en cuatro países), Lava+ (el símbolo no sobrevive al teléfono ni
+al dominio). Dos de los tres nombres que traía EL CLIENTE.
 
-Tersa queda fuera pese a superar a Tendo en puntaje, porque Tendo es el único representante de su familia y
-Tersa sería la quinta palabra del español. Es un cambio deliberado, no un descuido.
+**Reserva de las rondas 1 a 3, por si esta dirección no convence:** Trama (96), Pinza (92), Ronda (90),
+Manta (89), Alsol (87), Tersa (86), Nimbo (86).
 
 ## 8. Recomendación
 
-**Trama**, con **Pinza** y **Ronda** detrás. **Alsol** si pesa más asegurar el dominio.
+Dentro de la familia que pidió el cliente: **Lavandi**, con **Lavora** y **Lavandia** detrás.
 
-Trama gana en distintividad y empata en dictado con las mejores. Es la única de toda la lista que nombra al
-mismo tiempo la materia, la tela, y el modelo de negocio, la red. Acepta un riesgo: "tramar" carga algo
-turbio, así que conviene escucharla dicha en voz alta en una llamada real antes de cerrar.
+**Lavandi** por tres razones que se suman. Es la de mejor puntaje entre las que ya tienen tracción con el
+cliente, porque la trajo él. Sobrevivió el barrido de colisiones, cosa que sus dos compañeras no. Y es la
+más corta de la familia, que en esta familia es escaso.
 
-Pinza es la más inmediata y la más cálida. Su ícono es un cliché de la categoría y su `.com` ya está tomado.
+**Lavora** puntúa un poco más alto y se defiende mejor ante el IMPI por no ser una contracción evidente de
+"lavandería". Es la mejor opción si a Nadir le preocupa el registro más que la familiaridad. Su costo es que
+significa "trabaja" en italiano, lo que puede leerse raro para quien lo note.
 
-Ronda es la más literal del servicio y la mejor para el lado del socio, que entiende de inmediato de qué se
-trata. Es la opción segura si el cliente quiere algo sin doble lectura.
+**Lavería** es la más fiel a lo que el cliente parece estar buscando: suena a negocio de barrio de toda la
+vida. También es la más pegada al genérico, así que es la que peor se defiende en el registro.
 
-Alsol es la mejor de los fusionados y la que más probablemente tenga libre su `.com`. Suma un argumento que
-la rúbrica no mide: Torreón y Durango son de los lugares más soleados del país, y secar al sol es parte de
-la cultura local. Ese mismo argumento es su límite: pesa menos fuera del norte, y la ambición es nacional.
+**Advertencia que no cambia con la recomendación.** Toda esta familia se registra peor que Trama, Pinza o
+Alsol. Si en algún momento la marca vale dinero, el nombre débil se paga entonces, no ahora. Nadir decide
+si eso importa lo suficiente como para volver a plantear la ronda anterior, o si la claridad en la llamada
+de reclutamiento pesa más. Las dos posturas son defendibles; lo que no es defendible es no haberlo sabido.
 
 ## 9. Descartados, para que no vuelvan
 

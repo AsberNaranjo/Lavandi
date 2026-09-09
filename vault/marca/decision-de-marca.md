@@ -23,7 +23,7 @@ el punto 6 al principio y evita verificar diez nombres para tirar ocho.
 |---|---|---|---|---|
 | **1** | **Territorio de marca, misión y valores**, para que la elección tenga contra qué medirse | Claude | hecho | **listo** (`territorio-de-marca.md`, `mision-vision-valores.md`) |
 | **2** | **Rúbrica y candidatos puntuados**, tres rondas y cuatro familias | Claude | hecho | **listo** (`candidatos-de-nombre.md`) |
-| **3** | **El cliente acorta la lista de diez a dos o tres** | **EL CLIENTE**, se lo pide Nadir | 1 correo, respuesta al 2026-09-09 | nota redactada y lista para enviar: `cliente/comunicaciones/2026-09-07-lista-de-nombres-para-el-cliente.md` |
+| **3** | **El cliente acorta la lista de diez a dos o tres** | **EL CLIENTE**, se lo pide Nadir | 1 correo | nota de la familia de categoría, lista para enviar: `cliente/comunicaciones/2026-09-08-lista-de-nombres-de-categoria.md` |
 | **4** | **Verificación de dominio** de los finalistas que él señale | **Nadir** | 15 minutos | solo hecho para Pinza: `.com` no disponible, `.mx` sí (C-36) |
 | **5** | **Búsqueda fonética ante el IMPI** de los finalistas, clases 37, 39, 9, 35 y 42 | **Nadir** | 30 minutos | pendiente (DD-030) |
 | **6** | **Colisiones de uso en el mercado**: apps en App Store y Google Play, marcas activas en lavandería o reparto, handles en Instagram, Facebook y TikTok | Claude (subagente detenido por el límite de sesión, R-016) o Nadir | 30 minutos | pendiente (DD-028) |
@@ -76,22 +76,22 @@ Para que nadie espere por lo que no hace falta:
 
 | Campo | Valor |
 |---|---|
-| **Nombre elegido** | `SIN RESPUESTA — bloquea: DD-023`. Pinza estuvo decidido el 2026-09-07 (C-36) y volvió a abrirse el mismo día porque EL CLIENTE pidió opciones (C-38) |
-| Lista enviada al cliente | Trama, Pinza, Ronda, Manta (español) · Alsol, Alpaso, Enpunto (fusionados) · Nimbo, Orea (raíz latina) · Tendo (acuñado) |
-| Recomendación de EL PRESTADOR | **Trama**, con Pinza y Ronda detrás; **Alsol** si pesa más asegurar el dominio (`candidatos-de-nombre.md`, sección 8) |
+| **Nombre elegido** | `SIN RESPUESTA — bloquea: DD-023`. Pinza se decidió el 2026-09-07 (C-36), se reabrió el mismo día (C-38) y el 2026-09-08 EL CLIENTE cambió de dirección hacia la familia de categoría (C-40) |
+| Lista vigente para el cliente | **Familia de categoría (ronda 4, C-40)**: Lavandi, Lavora, Lavandia, Lavaris, Lavia, Lavería, Lavero, Roperia, Lavapronto, Lavamás. Las rondas 1 a 3 (Trama, Pinza, Ronda, Alsol…) quedan como reserva |
+| Recomendación de EL PRESTADOR | Dentro de la familia que pidió el cliente: **Lavandi**, con Lavora y Lavandia detrás. Fuera de ella, Trama y Pinza se defienden mejor como marca (`candidatos-de-nombre.md`, sección 8) |
 | Candidatos descartados y motivo | `candidatos-de-nombre.md`, sección 8 |
 | **Dominio** | Solo verificado para Pinza: `pinza.com` **no disponible**, `pinza.mx` **disponible** (Nadir, 2026-09-07). Los demás se verifican cuando el cliente acorte |
 | Búsqueda fonética IMPI | `SIN RESPUESTA — bloquea: DD-030` |
 | Colisiones de uso | `SIN RESPUESTA — bloquea: DD-028` |
-| Aprobación del interlocutor único | lista de diez redactada el 2026-09-07 (`cliente/comunicaciones/2026-09-07-lista-de-nombres-para-el-cliente.md`), pendiente de envío y de respuesta |
+| Aprobación del interlocutor único | lista de categoría redactada el 2026-09-08 (`cliente/comunicaciones/2026-09-08-lista-de-nombres-de-categoria.md`), pendiente de envío y de respuesta |
 | Clases de Niza consideradas | 37, 39, 9, 35, 42 (propuesta; las confirma quien haga el trámite) |
 | Dirección de marca | oficio y confianza como base, calidez en el tono, movimiento en el ritmo |
 | **Riesgos aceptados** | (1) Si el cliente se enamora de un nombre cuyo dominio o registro después resulta ocupado, hay que volver con él. Mitigado: la nota dice que la verificación es posterior. (2) Cada ronda extra de nombres consume margen del proceso de branding, que son doce días hábiles y cierran en la semana 3 |
 | Decidido por | pendiente. C-36 decidió Pinza y C-38 lo reabrió el mismo día |
 
-**Estado del documento: `borrador`.** El nombre volvió a abrirse el 2026-09-07 (C-38). La secuencia que
-queda es: el cliente acorta la lista de diez → Nadir verifica dominio e IMPI de esos dos o tres → se elige
-→ el cliente confirma por escrito.
+**Estado del documento: `borrador`.** Van tres cambios de dirección en dos días (C-36, C-38, C-40). La
+secuencia que queda es la misma: el cliente acorta la lista → Nadir verifica dominio e IMPI de esos dos o
+tres → se elige → el cliente confirma por escrito. Lo que cambió es de qué lista sale.
 
 Al pasar a `vigente`: reemplazar `{{MARCA}}` y `{{DOMINIO}}` en el vault, cerrar DD-023, comprar el dominio
 a nombre de EL CLIENTE y escribir la guía de tono de voz del A.1 en `guia-de-tono-de-voz.md`.

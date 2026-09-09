@@ -1,5 +1,5 @@
 ---
-estado: borrador
+estado: superseded
 grado: B
 fuente: marca/candidatos-de-nombre.md; acta C-37, C-38 y C-39
 fecha: 2026-09-07
@@ -7,8 +7,9 @@ dueño: Nadir Hadad Navarrete
 ---
 # Nota ejecutiva — Diez nombres para que el cliente elija
 
-**BORRADOR. No se ha enviado.** Reemplaza a `2026-09-07-aprobacion-nombre-de-marca.md`, que proponía un solo
-nombre. Revísala, ajusta la fecha y envíala tú.
+> **Superseded por `2026-09-08-lista-de-nombres-de-categoria.md`.** EL CLIENTE pidió una dirección más
+> tradicional (C-40) y esta lista de nombres evocadores quedó fuera. Nunca se envió. Se conserva porque
+> las rondas 1 a 3 siguen siendo reserva válida si la nueva dirección no convence.
 
 ---
 

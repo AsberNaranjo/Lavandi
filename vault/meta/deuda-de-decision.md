@@ -39,6 +39,10 @@ Se cierra con la respuesta, la fecha y dónde quedó asentada (acta, ADR o nota)
 | DD-031 | Estrategia de dominio: ¿se monitorea `pinza.com` para adquirirlo si se libera o su titular lo vende, o se cierra el tema y `.mx` queda como único y definitivo? | Nadir | Presupuesto de dominios; expectativa de marca nacional (C-07) | 3 | 2026-09-13 | abierta |
 
 
+| DD-032 | ¿EL CLIENTE ya tenía preferencia entre Lavandi, Lava+ y LavaYa!? Dos de los tres tienen colisión | Nadir / EL CLIENTE | Cómo se presenta la lista de categoría | 3 | 2026-09-09 | abierta |
+| DD-033 | ¿La lista del 2026-09-07 (Trama, Pinza…) se le presentó completa al cliente o solo se le mencionaron algunos nombres? | Nadir | Si conviene dejar una opción evocadora al cierre de la nota | 3 | 2026-09-09 | abierta |
+| DD-034 | Sabiendo que la familia de categoría se registra peor, ¿EL PRESTADOR insiste con la ronda anterior o acompaña la decisión del cliente? | Nadir | La recomendación que se firma; el gasto del trámite ante el IMPI | 3 | 2026-09-09 | abierta |
+
 ## Cerradas
 
 
