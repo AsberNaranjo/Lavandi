@@ -99,9 +99,9 @@ antes de que cierre la semana 3.
 
 | Campo | Valor |
 |---|---|
-| Enviada el | pendiente |
+| Enviada el | **sí, enviada** (C-43). Fecha exacta y canal: por confirmar con Nadir |
 | Canal | pendiente |
 | Destinatario | Alfredo Navarrete, interlocutor único |
-| Respuesta recibida el | pendiente |
+| Respuesta recibida el | sin decisión al 2026-09-09 (C-44) |
 | Qué respondió | pendiente |
 | Dónde quedó asentado | `marca/decision-de-marca.md`, ficha de decisión |

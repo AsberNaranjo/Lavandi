@@ -10,9 +10,14 @@ dueño: Nadir Hadad Navarrete
 **Regla.** Claude entrega rúbrica, candidatos y recomendación. La disponibilidad del `.com` y la búsqueda
 fonética ante el IMPI las verifica Nadir (C-20). Nada de lo que sigue es un veredicto de disponibilidad.
 
-**Estado.** Tres rondas. La ronda 1 se limitó a palabras del español. EL CLIENTE pidió más opciones y Nadir
-instruyó ampliar más allá de palabras sueltas (C-38): la ronda 2 abrió a raíces latinas y a nombres
-acuñados. La ronda 3 agrega la familia de **fusionados**, dos palabras escritas juntas (C-39).
+**Estado.** **Cinco rondas, cuarenta y cuatro candidatos, veinte enviados al cliente, ninguna decisión.**
+Ronda 1: palabras del español. Ronda 2: raíces latinas y acuñados (C-38). Ronda 3: fusionados (C-39).
+Ronda 4: familia de categoría, "Lava-", a petición del cliente (C-40). Ronda 5: familia global para
+Latinoamérica y Estados Unidos (C-42).
+
+> **Lo que ya no es un problema de nombres.** Cada ronda ha cambiado el criterio, no solo la lista. Se pidió
+> evocador, luego tradicional, ahora global, y los tres briefs son incompatibles entre sí. Mientras el
+> criterio no se fije, ninguna lista puede ser la correcta. Ver la sección 9.
 
 ## 1. Filtros previos (siguen vigentes)
 
@@ -173,50 +178,147 @@ son los menos literales**. Lavora, Lavandi y Lavandia superan por veinte y trein
 Lavapronto. Mientras más literal el nombre, peor se defiende. Es el mismo intercambio de siempre, pero
 ahora dentro del terreno que el cliente eligió.
 
+## 6-ter. Ronda 5 — familia global (C-42)
+
+EL CLIENTE pidió una quinta tanda pensando en expandirse a Latinoamérica y Estados Unidos. Esta ronda
+responde a ese brief. Antes, tres cosas que hay que tener a la vista.
+
+### 6-ter.1 El brief global contradice el brief anterior
+
+Lo que se pidió el 2026-09-08 y lo que se pide hoy no conviven:
+
+| | Ronda 4 (categoría, C-40) | Ronda 5 (global, C-42) |
+|---|---|---|
+| Qué se optimiza | Que un dueño de lavandería en Torreón entienda el nombre en dos segundos | Que funcione en Bogotá, Miami y Los Ángeles |
+| Idioma | Español, con "lav" delante | Neutro entre inglés y español |
+| Ejemplo del propio cliente | Lavandi, Lava+, LavaYa | — |
+| Problema | **"Lava" en inglés es lava volcánica.** La raíz que hace obvio el nombre en español no significa lavandería para un angloparlante | Un nombre neutro pierde la obviedad que se pidió ayer |
+
+No se puede tener las dos cosas a la vez. **Hay que elegir cuál brief gobierna**, y eso lo decide EL CLIENTE
+(DD-035). Esta ronda asume que gobierna el global; si gobierna el de categoría, la lista vigente sigue siendo
+la del 2026-09-08.
+
+### 6-ter.2 Ir global reduce el espacio, no lo amplía
+
+Un nombre para México compite contra marcas mexicanas. Un nombre global compite contra marcas de todo el
+mundo, y el `.com` de una palabra latina corta está tomado casi con seguridad. El barrido del 2026-09-09 lo
+confirma de inmediato:
+
+| Candidato evaluado | Qué se encontró (E, 2026-09-09, SIN VERIFICAR) | Veredicto |
+|---|---|---|
+| **Presto** | **Cinco colisiones en el giro exacto**: Presto Drycleaners (Singapur, con app en ambas tiendas), Presto Laundry (India), Presto Valet (Washington), Presto Cleaners (Nueva York), detergente Presto! | **Descartado antes de la lista** |
+| Lino | 120% Lino (ropa de lino italiana con tienda en EE.UU.), Lino Distributors (detergente), LINO CO. LTD | Riesgo medio, giro adyacente |
+| Linea | LINEA LLC, marca registrada en EE.UU. (#7355662), pero en educación y entretenimiento | Riesgo bajo |
+| Lumi | Lumi Studio (diseño), Lumi styling assistant (app de moda) | Riesgo medio en apps |
+| Volta, Nimbo | Sin colisión aparente en el giro | Limpios |
+
+### 6-ter.3 Estados Unidos no está en el contrato
+
+Buscado en el instrumento completo: **"Estados Unidos" aparece una sola vez, y es "Estados Unidos
+Mexicanos"**, la jurisdicción de la Cláusula XV. El ANEXO C, que regula la expansión, habla de "plazas
+adicionales de la **República Mexicana**" (p. 4, Cláusula I; ANEXO C, C.2). No hay una línea sobre operar
+fuera del país.
+
+Esto no impide que el nombre se elija pensando en grande, que no cuesta nada. Sí conviene que quede
+asentado, porque operar en Estados Unidos exige cosas que el contrato no contempla y que nadie ha
+presupuestado: **Conekta, que el ANEXO A.3 nombra como pasarela, es una procesadora mexicana**; habría que
+sumar idioma inglés, moneda, impuestos y regulación local. Es una Orden de Cambio futura, no un supuesto.
+
+### 6-ter.4 Rúbrica ajustada al brief global
+
+El brief cambió, así que los pesos cambian. Se agrega C6 y bajan C1, C2 y C5:
+
+| Criterio | Peso anterior | **Peso global** | Por qué |
+|---|---|---|---|
+| C1 Prueba telefónica en español | 25 | **20** | El reclutamiento sigue siendo por teléfono en México (C-06), pero ya no es el único frente |
+| C2 Longitud | 15 | **10** | |
+| C3 Distintividad registrable | 20 | **20** | |
+| C4 Evocación | 20 | **20** | |
+| C5 Direcciones de marca | 20 | **10** | |
+| **C6 Viaje entre idiomas** | — | **20** | Se pronuncia parecido y no significa algo raro en inglés |
+
+### 6-ter.5 Los candidatos globales
+
+| # | Nombre | C1 | C2 | C3 | C4 | C5 | C6 | **Total** | Qué dice en cada idioma | Riesgo propio |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 35 | **Nimbo** | 4 | 5 | 5 | 4 | 4 | 5 | **90** | Nube en español; en inglés "nimbus" es exactamente eso | Palabra culta en ambos |
+| 36 | **Lino** | 5 | 5 | 3 | 5 | 4 | 5 | **90** | Tela en español; "linen" en inglés es ropa de cama y tela. La mejor evocación textil de todas | Ropa italiana 120% Lino, con tienda en EE.UU. |
+| 37 | **Volta** | 4 | 5 | 4 | 4 | 4 | 5 | **86** | Vuelta en portugués e italiano; "volt" en inglés. La ida y vuelta del pedido | Alessandro Volta; ambigüedad be/ve al dictarla |
+| 38 | **Tempo** | 5 | 5 | 3 | 3 | 4 | 5 | **82** | Ritmo y tiempo en los tres idiomas | Muy usado como marca |
+| 39 | **Linea** | 4 | 4 | 3 | 4 | 3 | 5 | **78** | La línea de tendido; "clothesline" en inglés | Lleva tilde en español |
+| 40 | **Lumi** | 4 | 5 | 3 | 3 | 3 | 5 | **76** | De lumen, luz; en finés es nieve | App de moda con el mismo nombre |
+| 41 | **Aria** | 5 | 5 | 2 | 3 | 3 | 5 | **76** | Aire en italiano y español; en inglés es aria de ópera y nombre de mujer | Nombre muy tomado |
+| 42 | **Puro** | 5 | 5 | 2 | 4 | 3 | 4 | **76** | Puro en español; "pure" se entiende solo en inglés | En el Caribe, un puro es un cigarro |
+| 43 | **Nuvia** | 4 | 4 | 5 | 2 | 3 | 4 | **74** | Acuñado, de nube. El más probable de tener `.com` libre | No evoca sin explicación |
+| 44 | **Vento** | 4 | 5 | 3 | 3 | 3 | 4 | **72** | Viento en italiano; "vent" en inglés es ventilación | Volkswagen Vento |
+
+**El hallazgo que más vale de esta ronda: Nimbo ya estaba en la lista del 2026-09-07 y sube al primer lugar
+con el criterio nuevo.** Un nombre que el cliente ya vio y no eligió resulta ser el mejor para el brief que
+él mismo acaba de plantear. Vale la pena señalárselo.
+
 ## 7. Los diez que van al cliente
 
-**Lista vigente al 2026-09-08: la familia de categoría (ronda 4).** EL CLIENTE pidió esta dirección (C-40)
-y las rondas 1 a 3 quedan como reserva, no descartadas.
+**Lista vigente al 2026-09-09: la familia global (ronda 5).** Las rondas 1 a 4 quedan como reserva.
 
-| # | Nombre | Puntaje | En una línea |
+| # | Nombre | Puntaje | Qué dice en español y en inglés |
 |---|---|---|---|
-| 1 | **Lavandi** | 86 | La que él trajo. Corta, cálida, con aire italiano |
-| 2 | **Lavora** | 89 | Lavar y labor: el oficio bien hecho |
-| 3 | **Lavandia** | 83 | Hermana de Lavandi, con más cuerpo |
-| 4 | **Lavería** | 81 | Como panadería o tortillería, pero de lavar |
-| 5 | **Lavaris** | 82 | La que más suena a marca |
-| 6 | **Lavia** | 81 | Lav más vía: el camino de la ropa |
-| 7 | **Lavero** | 81 | El oficio, en masculino |
-| 8 | **Roperia** | 69 | Tradicional, sin usar "lava" |
-| 9 | **Lavapronto** | 63 | La más literal de todas |
-| 10 | **Lavamás** | 60 | Lo que "Lava+" es cuando se escribe |
+| 1 | **Nimbo** | 90 | Nube; en inglés, "nimbus" es exactamente eso |
+| 2 | **Lino** | 90 | Tela; en inglés, "linen" es ropa de cama y tela |
+| 3 | **Volta** | 86 | Vuelta en portugués e italiano; "volt" en inglés |
+| 4 | **Tempo** | 82 | Ritmo y tiempo en los tres idiomas |
+| 5 | **Linea** | 78 | La línea de tendido; "clothesline" en inglés |
+| 6 | **Lumi** | 76 | De lumen, luz |
+| 7 | **Aria** | 76 | Aire |
+| 8 | **Puro** | 76 | Puro; "pure" se entiende solo |
+| 9 | **Nuvia** | 74 | Acuñado, de nube. El más probable de tener `.com` libre |
+| 10 | **Vento** | 72 | Viento; "vent" en inglés |
 
-**Fuera de la lista, por colisión encontrada el 2026-09-08:** LavaYa (tres negocios del mismo giro),
-Lavanti (empresa de lavandería industrial en cuatro países), Lava+ (el símbolo no sobrevive al teléfono ni
-al dominio). Dos de los tres nombres que traía EL CLIENTE.
+**Fuera por colisión encontrada el 2026-09-09:** Presto, con cinco negocios del mismo giro en Singapur,
+India, Washington y Nueva York, más un detergente.
 
-**Reserva de las rondas 1 a 3, por si esta dirección no convence:** Trama (96), Pinza (92), Ronda (90),
-Manta (89), Alsol (87), Tersa (86), Nimbo (86).
+**Reserva de las rondas anteriores:** Trama (96), Pinza (92), Ronda (90), Manta (89), Lavora (89), Alsol
+(87), Lavandi (86), Tersa (86).
 
 ## 8. Recomendación
 
-Dentro de la familia que pidió el cliente: **Lavandi**, con **Lavora** y **Lavandia** detrás.
+**Nimbo**, con **Lino** y **Volta** detrás.
 
-**Lavandi** por tres razones que se suman. Es la de mejor puntaje entre las que ya tienen tracción con el
-cliente, porque la trajo él. Sobrevivió el barrido de colisiones, cosa que sus dos compañeras no. Y es la
-más corta de la familia, que en esta familia es escaso.
+**Nimbo** tiene una ventaja que ninguna otra lista puede ofrecer: **el cliente ya lo vio el 2026-09-07 y no
+lo eligió, y con el criterio que él mismo acaba de plantear resulta el mejor de los cuarenta y cuatro
+candidatos evaluados.** Funciona idéntico en español y en inglés, no tiene colisión aparente en el giro, y
+la nube es una imagen de suavidad y de ropa fresca que no necesita traducción.
 
-**Lavora** puntúa un poco más alto y se defiende mejor ante el IMPI por no ser una contracción evidente de
-"lavandería". Es la mejor opción si a Nadir le preocupa el registro más que la familiaridad. Su costo es que
-significa "trabaja" en italiano, lo que puede leerse raro para quien lo note.
+**Lino** empata en puntaje y gana en evocación: es la única palabra de toda la lista que significa tela en
+los dos idiomas. Su costo es la colisión con ropa de lino italiana que ya vende en Estados Unidos, que es
+justo el mercado al que el cliente quiere ir.
 
-**Lavería** es la más fiel a lo que el cliente parece estar buscando: suena a negocio de barrio de toda la
-vida. También es la más pegada al genérico, así que es la que peor se defiende en el registro.
+**Volta** es la más limpia de colisiones y la que mejor nombra el servicio: la ida y la vuelta. En portugués
+significa literalmente "vuelta", lo que la hace la más fuerte si Brasil entra en el plan.
 
-**Advertencia que no cambia con la recomendación.** Toda esta familia se registra peor que Trama, Pinza o
-Alsol. Si en algún momento la marca vale dinero, el nombre débil se paga entonces, no ahora. Nadir decide
-si eso importa lo suficiente como para volver a plantear la ronda anterior, o si la claridad en la llamada
-de reclutamiento pesa más. Las dos posturas son defendibles; lo que no es defendible es no haberlo sabido.
+**Advertencia sobre el brief.** Si lo que gobierna es que un dueño de lavandería en Torreón entienda el
+nombre en dos segundos, la lista correcta sigue siendo la del 2026-09-08 (Lavandi, Lavora). Si lo que
+gobierna es Estados Unidos, es ésta. **Las dos cosas a la vez no existen**, y elegir sin fijar el criterio
+es como se llega a la ronda seis.
+
+## 9. Por qué cinco rondas no han producido una decisión
+
+No es falta de opciones: hay cuarenta y cuatro candidatos evaluados con la misma rúbrica. El problema es de
+método, y tiene tres causas concretas:
+
+1. **El criterio cambia entre rondas.** Evocador, tradicional, global. Cada cambio invalida el trabajo
+   anterior y ninguna lista puede ganar contra un criterio móvil.
+2. **No hay forma de decidir, solo de opinar.** Se envía una lista y se espera una preferencia. Una lista de
+   diez nombres sin método produce comentarios, no decisiones.
+3. **No hay consecuencia por no decidir.** Las fechas propuestas pasaron sin efecto.
+
+**Propuesta de mecanismo, para la sexta lista y última:**
+
+- Se envían tres nombres, no diez. Los tres mejores de la familia que EL CLIENTE elija como criterio.
+- Se le pide **ordenarlos del uno al tres**, no elegir uno. Ordenar es más fácil que elegir y da respaldo
+  automático si el primero cae en la verificación.
+- **Fecha límite con consecuencia escrita**: si no hay respuesta, se procede con el primero de la
+  recomendación, y así queda dicho en la notificación. El silencio deja de bloquear.
+- Antes de mandar nada, **EL CLIENTE fija el criterio** (DD-035): mercado mexicano o ambición global.
 
 ## 9. Descartados, para que no vuelvan
 
