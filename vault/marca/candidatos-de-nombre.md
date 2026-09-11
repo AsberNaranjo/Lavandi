@@ -10,14 +10,17 @@ dueño: Nadir Hadad Navarrete
 **Regla.** Claude entrega rúbrica, candidatos y recomendación. La disponibilidad del `.com` y la búsqueda
 fonética ante el IMPI las verifica Nadir (C-20). Nada de lo que sigue es un veredicto de disponibilidad.
 
-**Estado.** **Cinco rondas, cuarenta y cuatro candidatos, veinte enviados al cliente, ninguna decisión.**
+**Estado.** **Seis rondas, cincuenta y seis evaluaciones, veinte enviados al cliente, ninguna decisión.**
+El 2026-09-10 EL CLIENTE **fijó por fin su criterio** (C-46), lo que cierra DD-035 y vuelve innecesarias las
+rondas globales.
 Ronda 1: palabras del español. Ronda 2: raíces latinas y acuñados (C-38). Ronda 3: fusionados (C-39).
 Ronda 4: familia de categoría, "Lava-", a petición del cliente (C-40). Ronda 5: familia global para
-Latinoamérica y Estados Unidos (C-42).
+Latinoamérica y Estados Unidos (C-42). **Ronda 6: el brief explícito del cliente, lavado más reparto (C-46).**
 
-> **Lo que ya no es un problema de nombres.** Cada ronda ha cambiado el criterio, no solo la lista. Se pidió
-> evocador, luego tradicional, ahora global, y los tres briefs son incompatibles entre sí. Mientras el
-> criterio no se fije, ninguna lista puede ser la correcta. Ver la sección 9.
+> **El criterio ya está fijo.** Durante cinco rondas el criterio se movió: evocador, tradicional, global.
+> El 2026-09-10 EL CLIENTE lo declaró sin ambigüedad: el nombre debe decir **lavar**, asociarse a una
+> **lavandería**, y reflejar que **también hay reparto**. Con eso la ronda 6 es la que manda y las rondas 1
+> a 3 y la 5 quedan archivadas. La sección 6-quater es la vigente.
 
 ## 1. Filtros previos (siguen vigentes)
 
@@ -255,6 +258,82 @@ El brief cambió, así que los pesos cambian. Se agrega C6 y bajan C1, C2 y C5:
 **El hallazgo que más vale de esta ronda: Nimbo ya estaba en la lista del 2026-09-07 y sube al primer lugar
 con el criterio nuevo.** Un nombre que el cliente ya vio y no eligió resulta ser el mejor para el brief que
 él mismo acaba de plantear. Vale la pena señalárselo.
+
+## 6-quater. Ronda 6 — el brief del cliente, ya explícito (C-46)
+
+EL CLIENTE fijó su criterio y con eso **se cierra DD-035**. Dijo tres cosas:
+
+1. El nombre debe estar **muy relacionado con la acción de lavar**.
+2. Debe **asociarse fácilmente a una empresa de lavandería**.
+3. **También hay reparto**, y el nombre debería reflejarlo.
+
+Los nombres que le interesan: **LavaYa!, Lava+, Lavandi, Lavander, Lava y Ya, Lavapronto**.
+
+El punto tres es nuevo y es el que abre trabajo: **ninguno de los seis que le gustan dice nada del reparto.**
+
+### 6-quater.1 Rúbrica ajustada a este brief
+
+Se ajusta a lo que él declaró. Entran dos criterios nuevos y sale el de direcciones de marca, que ya no
+discrimina dentro de esta familia:
+
+| Criterio | Peso | Por qué |
+|---|---|---|
+| C1 Prueba telefónica | 20 | El reclutamiento sigue siendo por teléfono (C-06) |
+| C2 Longitud | 10 | |
+| C3 Distintividad registrable | 20 | Es donde esta familia sufre |
+| C4 **Evocación de lavado** | 20 | Requisito 1 y 2 del cliente |
+| C5 **Evocación de reparto** | 15 | Requisito 3, nuevo |
+| C6 **Libre de colisión aparente** | 15 | Nuevo: en esta familia ya chocamos tres veces |
+
+### 6-quater.2 Los seis que trajo el cliente
+
+| # | Nombre | C1 | C2 | C3 | C4 | C5 | C6 | **Total** | Qué lo frena |
+|---|---|---|---|---|---|---|---|---|---|
+| 45 | **Lavandi** | 5 | 3 | 4 | 5 | 1 | 5 | **80** | Nada grave. No dice reparto |
+| 46 | **Lavapronto** | 4 | 1 | 2 | 5 | 3 | 4 | **67** | Diez letras. Suena a eslogan, no a marca |
+| 47 | **Lavander** | 3 | 2 | 3 | 5 | 1 | 4 | **63** | En inglés, "Lavander" se lee como falta de ortografía de *lavender*, lavanda. Para la meta de Estados Unidos es un problema. Además, ambigüedad be/ve al dictarlo |
+| 48 | **LavaYa** | 3 | 4 | 2 | 5 | 2 | 1 | **57** | **Tres negocios del mismo giro ya lo usan**, uno con el dominio. El signo de admiración tampoco sobrevive |
+| 49 | **Lava+** | 1 | 4 | 2 | 5 | 1 | 3 | **52** | El signo no se dicta, no existe en un dominio y se pierde en las tiendas |
+| 50 | **Lava y Ya** | 1 | 2 | 1 | 5 | 2 | 1 | **41** | Es literalmente **lavayya.com**, un sistema de punto de venta para lavanderías en México. Además son tres palabras |
+
+### 6-quater.3 Seis que sí cumplen los tres requisitos
+
+Fusionados que dicen lavar **y** reparto. Ninguno tiene colisión aparente en el giro (búsquedas del
+2026-09-10, grado E, SIN VERIFICAR).
+
+| # | Nombre | C1 | C2 | C3 | C4 | C5 | C6 | **Total** | Qué dice | Riesgo propio |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 51 | **Lavatrae** | 4 | 2 | 5 | 5 | 5 | 5 | **90** | "Lava y trae". La promesa completa en una palabra | Ocho letras |
+| 52 | **Lavaruta** | 4 | 2 | 5 | 5 | 5 | 5 | **90** | Lavar más la ruta del reparto. Suena a operación seria | Más frío, más logístico que cálido |
+| 53 | **Lavamoto** | 4 | 2 | 5 | 5 | 5 | 5 | **90** | La moto que recoge y entrega. El más visual de todos | Amarra la marca a un vehículo: si reparten en coche o bicicleta, el nombre miente |
+| 54 | **Lavapaso** | 4 | 2 | 5 | 5 | 4 | 4 | **84** | "Al paso": se resuelve sin que te detengas | Cercano a "de paso", que en México tiene otra lectura |
+| 55 | **Lavavan** | 3 | 4 | 5 | 5 | 4 | 4 | **84** | Lavar más la van del reparto. Corto | Dos be/ve al dictarlo; "van" es anglicismo |
+| 56 | **Lavavía** | 3 | 3 | 5 | 5 | 4 | 4 | **82** | Lavar más el camino de la ropa | Tilde más be/ve: dos aclaraciones |
+
+### 6-quater.4 Lo que dicen los números
+
+**Ninguno de los seis del cliente pasa de 80. Tres de los propuestos llegan a 90.** La diferencia no es de
+gusto: es que los suyos cumplen dos de sus tres requisitos y estos cumplen los tres. El reparto, que él
+mismo puso sobre la mesa, no está en ninguno de sus favoritos.
+
+**Lavandi sigue siendo el mejor de los suyos, y por mucho.** Ochenta puntos, sin colisión encontrada, letras
+seguras, corto. Si al final gana, es una elección defendible. Los otros cinco tienen cada uno un problema
+que no se arregla con diseño: dos están ocupados por negocios del mismo giro, uno tiene un símbolo que no
+sobrevive, uno se lee mal en inglés y otro es un eslogan de diez letras.
+
+**El problema de registro no desaparece.** Toda esta familia describe el servicio y por eso se registra mal.
+Los fusionados de la sección anterior aguantan mejor que "Lava+" o "Lava y Ya", porque una palabra
+inventada a partir de dos comunes sí tiene distintividad propia. Es la mejor posición disponible dentro de
+lo que el cliente pidió.
+
+### 6-quater.5 Contexto de saturación, ampliado
+
+Al buscar los nombres nuevos aparecieron más marcas mexicanas del giro que no estaban en el registro:
+**Lavarte** (CDMX), **Lavamatic** (CDMX), **La Wash**, **Lavajato**, **Lavax**, **LavaySeca**, **Laveco**,
+**Lavanza**, **Lavafix**, **Clean In**. Súmense a LavaGo, iLavo, Lavandote, Lavi, Lava Express y Lava-Max.
+
+**Dato adicional:** "Lavat" es apellido conocido en México, de una familia de actores. Conviene saberlo si
+alguna vez se considera una marca con esa raíz.
 
 ## 7. Los diez que van al cliente
 
