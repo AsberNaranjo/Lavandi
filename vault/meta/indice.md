@@ -36,6 +36,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[territorio-de-marca]] — qué siente el usuario, qué siente el socio, la tensión Durango/Laguna
 - [[mision-vision-valores]] — versión corta, con lo que cada valor prohíbe
 - [[candidatos-de-nombre]] — rúbrica, diez candidatos, alternos, descartados, política de `.com`, recomendación
+- [[lista-maestra-de-candidatos]] — los 43 nombres en un solo lugar, con puntaje y cuáles ha visto el cliente
 - [[decision-de-marca]] — **paquete bloqueante P-1** y ficha de decisión (DD-023)
 - guía de tono de voz — se escribe con el nombre decidido
 
