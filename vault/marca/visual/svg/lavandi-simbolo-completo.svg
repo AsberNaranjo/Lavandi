@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Símbolo de Lavandi, versión completa">
+  <title>Símbolo de Lavandi, versión completa</title>
+  <desc>Carretera, lavadora de carga frontal y pin. Para 64 px o más: manual, landing, papelería.</desc>
+  <path d="M 30 20 L 30 72 Q 30 88 46 88 L 70 88" fill="none" stroke="#297899" stroke-width="23" stroke-linecap="round"/>
+  <path d="M 30 20 L 30 72 Q 30 88 46 88 L 70 88" fill="none" stroke="#F7F4EF" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="7 9"/>
+  <rect x="54" y="9" width="44" height="50" rx="6" fill="#F7F4EF" stroke="#297899" stroke-width="5"/>
+  <path d="M 58 23 L 94 23" stroke="#297899" stroke-width="3.4" stroke-linecap="round"/>
+  <circle cx="61" cy="16" r="2" fill="#297899"/>
+  <circle cx="68" cy="16" r="2" fill="#297899"/>
+  <circle cx="75" cy="16" r="2" fill="#297899"/>
+  <circle cx="90" cy="16" r="3.4" fill="#297899"/>
+  <circle cx="76" cy="41" r="13" fill="none" stroke="#297899" stroke-width="4.2"/>
+  <circle cx="76" cy="41" r="9" fill="#A8D5E2"/>
+  <path d="M 69 42 Q 72.5 38 76 42 T 83 42" fill="none" stroke="#297899" stroke-width="2.2" stroke-linecap="round"/>
+  <circle cx="80" cy="36.5" r="1.7" fill="#297899"/>
+  <circle cx="72.5" cy="35.5" r="1.2" fill="#297899"/>
+  <path d="M 99 62 C 92 62 86 68 86 75 C 86 84 99 95 99 95 C 99 95 112 84 112 75 C 112 68 106 62 99 62 Z" fill="#E8C547"/>
+  <circle cx="99" cy="74" r="4.6" fill="#F7F4EF"/>
+</svg>
