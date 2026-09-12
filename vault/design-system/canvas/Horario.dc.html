@@ -13,7 +13,7 @@
     a { color: #297899; } a:hover { color: #1F5A73; }
   </style>
 </helmet>
-<div style="background: {{c.fondo}}; color: {{c.texto}}; padding: 32px; box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; gap: 20px">
+<div style="background: {{c.fondo}}; color: {{c.texto}}; padding: 32px; box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; gap: 24px">
 
   <div style="display: flex; flex-direction: column; gap: 4px">
     <div style="font-family: 'Nunito', system-ui, sans-serif; font-size: 24px; font-weight: 700; line-height: 1.2">Selector de fecha y hora</div>
@@ -34,14 +34,19 @@
 
     <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
       <sc-for list="{{ventanas}}" as="v" hint-placeholder-count="9">
-        <div style="min-height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 500; background: {{v.fondo}}; color: {{v.color}}; border: 1px solid {{v.borde}}; text-decoration: {{v.tachado}}">{{v.hora}}</div>
+        <div style="min-height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: {{v.peso}}; background: {{v.fondo}}; color: {{v.color}}; border: {{v.grosor}} solid {{v.borde}}; text-decoration: {{v.tachado}}">
+          <sc-if value="{{v.elegida}}" hint-placeholder-val="{{ true }}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{v.color}}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex: none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </sc-if>
+          {{v.hora}}
+        </div>
       </sc-for>
     </div>
 
     <div style="font-size: 13px; color: {{c.textoSuave}}; line-height: 1.5">Las ventanas sin cupo se ven tachadas pero <strong style="color: {{c.texto}}">visibles</strong>. Que el usuario vea que las 9:00 ya se llenaron le informa más que esconderlas.</div>
   </div>
 
-  <div style="display: flex; gap: 20px; flex-wrap: wrap">
+  <div style="display: flex; gap: 24px; flex-wrap: wrap">
     <sc-for list="{{leyenda}}" as="l" hint-placeholder-count="3">
       <div style="display: flex; align-items: center; gap: 8px">
         <div style="width: 22px; height: 22px; border-radius: 5px; background: {{l.fondo}}; border: 1px solid {{l.borde}}; flex: none"></div>
@@ -74,16 +79,19 @@ class Component extends DCLogic {
       c: c,
       ventanas: horas.map(function (h) {
         if (h === elegida) {
-          return { hora: h, fondo: c.accion, color: c.accionTexto, borde: c.accion, tachado: 'none' };
+          return { hora: h, fondo: c.accion, color: c.accionTexto, borde: c.accion,
+                   tachado: 'none', peso: 700, grosor: '2px', elegida: true };
         }
         if (sinCupo[h]) {
-          return { hora: h, fondo: c.hundida, color: c.desactivado, borde: c.borde, tachado: 'line-through' };
+          return { hora: h, fondo: c.hundida, color: c.textoSuave, borde: c.borde,
+                   tachado: 'line-through', peso: 500, grosor: '1px', elegida: false };
         }
-        return { hora: h, fondo: c.superficie, color: c.texto, borde: c.bordeFuerte, tachado: 'none' };
+        return { hora: h, fondo: c.superficie, color: c.texto, borde: c.bordeFuerte,
+                 tachado: 'none', peso: 500, grosor: '1px', elegida: false };
       }),
       leyenda: [
         { nombre: 'Disponible',  fondo: c.superficie, borde: c.bordeFuerte },
-        { nombre: 'Seleccionada', fondo: c.accion,    borde: c.accion },
+        { nombre: 'Seleccionada — lleva palomita, no solo color', fondo: c.accion, borde: c.accion },
         { nombre: 'Sin cupo',     fondo: c.hundida,   borde: c.borde }
       ]
     };

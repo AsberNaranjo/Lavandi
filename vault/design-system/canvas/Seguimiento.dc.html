@@ -13,14 +13,14 @@
     a { color: #297899; } a:hover { color: #1F5A73; }
   </style>
 </helmet>
-<div style="background: {{c.fondo}}; color: {{c.texto}}; padding: 32px; box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; gap: 20px">
+<div style="background: {{c.fondo}}; color: {{c.texto}}; padding: 32px; box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; gap: 24px">
 
   <div style="display: flex; flex-direction: column; gap: 4px">
     <div style="font-family: 'Nunito', system-ui, sans-serif; font-size: 24px; font-weight: 700; line-height: 1.2">Seguimiento del pedido</div>
     <div style="font-size: 14px; color: {{c.textoSuave}}; line-height: 1.5">Los cinco estados son literales del contrato: <strong style="color: {{c.texto}}">Confirmado, Recolectado, En proceso, Listo, Entregado</strong>. No se renombran, no se agrupan y no se añade un sexto.</div>
   </div>
 
-  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px">
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
     <sc-for list="{{pedidos}}" as="p" hint-placeholder-count="3">
       <div style="background: {{c.superficie}}; border: 1px solid {{c.borde}}; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px">
 
@@ -36,7 +36,12 @@
           <sc-for list="{{p.pasos}}" as="s" hint-placeholder-count="5">
             <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px">
               <div style="height: 5px; border-radius: 999px; background: {{s.barra}}"></div>
-              <div style="font-size: 10px; line-height: 1.25; color: {{s.color}}; font-weight: {{s.peso}}">{{s.nombre}}</div>
+              <div style="display: flex; align-items: baseline; gap: 4px">
+                <sc-if value="{{s.cumplido}}" hint-placeholder-val="{{ true }}">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="{{s.barra}}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="flex: none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </sc-if>
+                <div style="font-size: 12px; line-height: 1.25; color: {{s.color}}; font-weight: {{s.peso}}">{{s.nombre}}</div>
+              </div>
             </div>
           </sc-for>
         </div>
@@ -56,7 +61,7 @@ class Component extends DCLogic {
       claro:  { fondo:'#F7F4EF', superficie:'#FFFFFF', hundida:'#EDE9E2', texto:'#171C21',
                 textoSuave:'#515A64', borde:'#DCE0E5', accion:'#297899',
                 estados:{ confirmado:'#1F5C8C', recolectado:'#5A4B8A', enProceso:'#8A5A00', listo:'#1E6F45', entregado:'#515A64' } },
-      oscuro: { fondo:'#0E1216', superficie:'#171C21', hundida:'#262C33', texto:'#F7F8F9',
+      oscuro: { fondo:'#0E1216', superficie:'#171C21', hundida:'#0E1216', texto:'#F7F8F9',
                 textoSuave:'#C0C6CE', borde:'#3B424A', accion:'#308CB3',
                 estados:{ confirmado:'#7FC1F0', recolectado:'#B9AEE8', enProceso:'#F0B84D', listo:'#5FD39B', entregado:'#C0C6CE' } }
     };
@@ -68,9 +73,9 @@ class Component extends DCLogic {
     var CLAVES = ['confirmado', 'recolectado', 'enProceso', 'listo', 'entregado'];
     function pasos(actual) {
       return NOMBRES.map(function (n, i) {
-        if (i < actual) return { nombre: n, barra: c.estados.listo, color: c.textoSuave, peso: 400 };
-        if (i === actual) return { nombre: n, barra: c.estados[CLAVES[i]], color: c.texto, peso: 600 };
-        return { nombre: n, barra: c.hundida, color: c.textoSuave, peso: 400 };
+        if (i < actual) return { nombre: n, barra: c.estados.listo, color: c.textoSuave, peso: 400, cumplido: true };
+        if (i === actual) return { nombre: n, barra: c.estados[CLAVES[i]], color: c.texto, peso: 600, cumplido: false };
+        return { nombre: n, barra: c.borde, color: c.textoSuave, peso: 400, cumplido: false };
       });
     }
     return {

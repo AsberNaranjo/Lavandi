@@ -34,7 +34,7 @@
       <div style="display: flex; flex-direction: column; gap: 12px">
         <div style="font-family: 'Nunito', system-ui, sans-serif; font-size: 20px; font-weight: 700">Marca</div>
         <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
-          <sc-for list="{{marca}}" as="s" hint-placeholder-count="4">
+          <sc-for list="{{marca}}" as="s" hint-placeholder-count="8">
             <div style="border: 1px solid #DCE0E5; border-radius: 8px; overflow: hidden; background: #FFFFFF">
               <div style="height: 52px; background: {{s.hex}}"></div>
               <div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 2px">
@@ -53,7 +53,7 @@
         <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
           <div style="display: flex; flex-direction: column; gap: 6px; background: #FFFFFF; border: 1px solid #DCE0E5; border-radius: 8px; padding: 12px">
             <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #515A64">Claro</div>
-            <sc-for list="{{semClaro}}" as="s" hint-placeholder-count="7">
+            <sc-for list="{{semClaro}}" as="s" hint-placeholder-count="10">
               <div style="display: flex; align-items: center; gap: 8px">
                 <div style="width: 18px; height: 18px; border-radius: 4px; border: 1px solid #DCE0E5; background: {{s.hex}}; flex: none"></div>
                 <div style="font-size: 12px; flex-grow: 1">{{s.nombre}}</div>
@@ -63,7 +63,7 @@
           </div>
           <div style="display: flex; flex-direction: column; gap: 6px; background: #171C21; border: 1px solid #3B424A; border-radius: 8px; padding: 12px">
             <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #C0C6CE">Oscuro</div>
-            <sc-for list="{{semOscuro}}" as="s" hint-placeholder-count="7">
+            <sc-for list="{{semOscuro}}" as="s" hint-placeholder-count="10">
               <div style="display: flex; align-items: center; gap: 8px">
                 <div style="width: 18px; height: 18px; border-radius: 4px; border: 1px solid #3B424A; background: {{s.hex}}; flex: none"></div>
                 <div style="font-size: 12px; color: #F7F8F9; flex-grow: 1">{{s.nombre}}</div>
@@ -71,6 +71,20 @@
               </div>
             </sc-for>
           </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div style="font-family: 'Nunito', system-ui, sans-serif; font-size: 20px; font-weight: 700">Colores de aviso</div>
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+          <sc-for list="{{avisos}}" as="a" hint-placeholder-count="4">
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <div style="height: 8px; border-radius: 999px; background: {{a.claro}}"></div>
+              <div style="font-size: 12px; font-weight: 600">{{a.nombre}}</div>
+              <div style="font-size: 11px; color: #515A64; font-variant-numeric: tabular-nums">{{a.claro}}</div>
+              <div style="font-size: 11px; color: #515A64; font-variant-numeric: tabular-nums">{{a.oscuro}}</div>
+            </div>
+          </sc-for>
         </div>
       </div>
 
@@ -108,7 +122,7 @@
 
       <div style="display: flex; flex-direction: column; gap: 12px">
         <div style="font-family: 'Nunito', system-ui, sans-serif; font-size: 20px; font-weight: 700">Espaciado</div>
-        <div style="font-size: 13px; color: #515A64; line-height: 1.5">Base 4. Ninguna medida del sistema sale de esta escala.</div>
+        <div style="font-size: 13px; color: #515A64; line-height: 1.5">Base 4: es la escala de layout. Los ajustes finos usan medios pasos, siempre múltiplos de 2.</div>
         <div style="display: flex; flex-direction: column; gap: 6px">
           <sc-for list="{{espacios}}" as="e" hint-placeholder-count="8">
             <div style="display: flex; align-items: center; gap: 10px">
@@ -122,7 +136,7 @@
       <div style="display: flex; flex-direction: column; gap: 12px">
         <div style="font-family: 'Nunito', system-ui, sans-serif; font-size: 20px; font-weight: 700">Radios</div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap">
-          <sc-for list="{{radios}}" as="r" hint-placeholder-count="6">
+          <sc-for list="{{radios}}" as="r" hint-placeholder-count="5">
             <div style="display: flex; flex-direction: column; gap: 5px; align-items: center">
               <div style="width: 52px; height: 34px; background: #EDE9E2; border: 1px solid #6B7681; border-radius: {{r.px}}px"></div>
               <div style="font-size: 11px; color: #515A64">{{r.nombre}}</div>
@@ -157,7 +171,9 @@ class Component extends DCLogic {
         { nombre: 'texto suave', hex: '#515A64' },
         { nombre: 'borde', hex: '#DCE0E5' },
         { nombre: 'borde de control', hex: '#6B7681' },
-        { nombre: 'acción', hex: '#297899' }
+        { nombre: 'acción', hex: '#297899' },
+        { nombre: 'texto sobre acción', hex: '#FFFFFF' },
+        { nombre: 'deshabilitado', hex: '#6B7681' }
       ],
       semOscuro: [
         { nombre: 'fondo', hex: '#0E1216' },
@@ -167,7 +183,15 @@ class Component extends DCLogic {
         { nombre: 'texto suave', hex: '#C0C6CE' },
         { nombre: 'borde', hex: '#3B424A' },
         { nombre: 'borde de control', hex: '#98A1AC' },
-        { nombre: 'acción', hex: '#308CB3' }
+        { nombre: 'acción', hex: '#308CB3' },
+        { nombre: 'texto sobre acción', hex: '#0E1216' },
+        { nombre: 'deshabilitado', hex: '#98A1AC' }
+      ],
+      avisos: [
+        { nombre: 'Éxito',       claro: '#1E6F45', oscuro: '#5FD39B' },
+        { nombre: 'Atención',    claro: '#8A5A00', oscuro: '#F0B84D' },
+        { nombre: 'Error',       claro: '#A32222', oscuro: '#FF8A80' },
+        { nombre: 'Información', claro: '#1F5C8C', oscuro: '#7FC1F0' }
       ],
       pedido: [
         { nombre: 'Confirmado',  claro: '#1F5C8C', oscuro: '#7FC1F0' },
@@ -177,7 +201,7 @@ class Component extends DCLogic {
         { nombre: 'Entregado',   claro: '#515A64', oscuro: '#C0C6CE' }
       ],
       tipos: [
-        { nombre: 'despliegue', px: 36, familia: "'Nunito', sans-serif", peso: 800 },
+        { nombre: 'portada', px: 36, familia: "'Nunito', sans-serif", peso: 800 },
         { nombre: 'titulo mayor', px: 30, familia: "'Nunito', sans-serif", peso: 800 },
         { nombre: 'titulo', px: 24, familia: "'Nunito', sans-serif", peso: 700 },
         { nombre: 'titulo menor', px: 20, familia: "'Nunito', sans-serif", peso: 700 },

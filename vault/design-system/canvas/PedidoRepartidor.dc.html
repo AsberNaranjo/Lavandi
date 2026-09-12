@@ -13,14 +13,14 @@
     a { color: #297899; } a:hover { color: #1F5A73; }
   </style>
 </helmet>
-<div style="background: {{c.fondo}}; color: {{c.texto}}; padding: 32px; box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; gap: 20px">
+<div style="background: {{c.fondo}}; color: {{c.texto}}; padding: 32px; box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; gap: 24px">
 
   <div style="display: flex; flex-direction: column; gap: 4px">
     <div style="font-family: 'Nunito', system-ui, sans-serif; font-size: 24px; font-weight: 700; line-height: 1.2">Pedido — socio repartidor</div>
-    <div style="font-size: 14px; color: {{c.textoSuave}}; line-height: 1.5">Versión operativa mínima, como la define el contrato. Sin optimización de rutas, sin GPS continuo y sin liquidación de pagos.</div>
+    <div style="font-size: 14px; color: {{c.textoSuave}}; line-height: 1.5">Versión operativa mínima, como la define el contrato. Sin optimización de rutas, sin GPS continuo y sin liquidación de pagos.<br>Las insignias <strong style="color: {{c.texto}}">cuadradas</strong> son estados operativos del módulo, no los cinco que ve el usuario, que van en píldora.</div>
   </div>
 
-  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px">
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
     <sc-for list="{{tarjetas}}" as="t" hint-placeholder-count="3">
       <div style="display: flex; flex-direction: column; gap: 10px">
         <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: {{c.textoSuave}}">{{t.rotulo}}</div>
@@ -28,7 +28,7 @@
 
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
             <div style="font-size: 14px; font-weight: 600">Pedido {{t.folio}}</div>
-            <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid {{t.color}}; color: {{t.color}}; flex: none">
+            <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 5px; border: 1px solid {{t.color}}; color: {{t.color}}; flex: none">
               <div style="width: 8px; height: 8px; border-radius: 999px; background: {{t.color}}; flex: none"></div>
               {{t.estado}}
             </div>
@@ -71,7 +71,7 @@ class Component extends DCLogic {
                 textoSuave:'#515A64', borde:'#DCE0E5', bordeFuerte:'#6B7681',
                 accion:'#297899', accionTexto:'#FFFFFF',
                 confirmado:'#1F5C8C', recolectado:'#5A4B8A', entregado:'#515A64' },
-      oscuro: { fondo:'#0E1216', superficie:'#171C21', hundida:'#262C33', texto:'#F7F8F9',
+      oscuro: { fondo:'#0E1216', superficie:'#171C21', hundida:'#0E1216', texto:'#F7F8F9',
                 textoSuave:'#C0C6CE', borde:'#3B424A', bordeFuerte:'#98A1AC',
                 accion:'#308CB3', accionTexto:'#0E1216',
                 confirmado:'#7FC1F0', recolectado:'#B9AEE8', entregado:'#C0C6CE' }

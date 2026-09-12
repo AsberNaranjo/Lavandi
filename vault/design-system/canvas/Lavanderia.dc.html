@@ -13,14 +13,14 @@
     a { color: #297899; } a:hover { color: #1F5A73; }
   </style>
 </helmet>
-<div style="background: {{c.fondo}}; color: {{c.texto}}; padding: 32px; box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; gap: 20px">
+<div style="background: {{c.fondo}}; color: {{c.texto}}; padding: 32px; box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; gap: 24px">
 
   <div style="display: flex; flex-direction: column; gap: 4px">
     <div style="font-family: 'Nunito', system-ui, sans-serif; font-size: 24px; font-weight: 700; line-height: 1.2">Tarjeta de lavandería</div>
     <div style="font-size: 14px; color: {{c.textoSuave}}; line-height: 1.5">El usuario elige aquí. La disponibilidad se comunica con color <strong style="color: {{c.texto}}">y</strong> con texto: nunca solo con color.</div>
   </div>
 
-  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px">
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
     <sc-for list="{{tarjetas}}" as="t" hint-placeholder-count="3">
       <div style="display: flex; flex-direction: column; gap: 10px">
         <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: {{c.textoSuave}}">{{t.rotulo}}</div>
@@ -77,11 +77,11 @@ class Component extends DCLogic {
       tarjetas: [
         { rotulo: 'Abierta', nombre: 'Lavandería A', estado: 'Abierta', color: c.exito,
           meta: 'A 1.2 km · Calificación 4.8', servicios: ['Estándar', 'Planchado', 'En seco'],
-          precio: 'Desde $000 por kilo', btn: 'Elegir',
+          precio: 'Desde $000.00 por kilo', btn: 'Elegir',
           btnFondo: c.accion, btnTexto: c.accionTexto, btnBorde: c.accion },
         { rotulo: 'Sin cupo', nombre: 'Lavandería B', estado: 'Sin cupo hoy', color: c.atencion,
           meta: 'A 2.6 km · Calificación 4.5', servicios: ['Estándar', 'Planchado'],
-          precio: 'Desde $000 por kilo', btn: 'Ver horarios',
+          precio: 'Desde $000.00 por kilo', btn: 'Ver horarios',
           btnFondo: c.superficie, btnTexto: c.texto, btnBorde: c.bordeFuerte },
         { rotulo: 'Cerrada', nombre: 'Lavandería C', estado: 'Cerrada', color: c.error,
           meta: 'A 3.4 km · Calificación 4.2', servicios: ['Estándar'],

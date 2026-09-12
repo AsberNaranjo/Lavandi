@@ -1,27 +1,34 @@
 {
   "artboards": [
-    { "file": "Main.dc.html",             "x": 0,    "y": 0,    "w": 1100, "h": 1260, "title": "Cimientos" },
-    { "file": "Lavanderia.dc.html",       "x": 1180, "y": 0,    "w": 1200, "h": 440,  "title": "1 · Tarjeta de lavandería" },
-    { "file": "Horario.dc.html",          "x": 1180, "y": 560,  "w": 680,  "h": 560,  "title": "2 · Fecha y hora" },
-    { "file": "Resumen.dc.html",          "x": 2460, "y": 0,    "w": 620,  "h": 800,  "title": "6 · Resumen del pedido" },
-    { "file": "Seguimiento.dc.html",      "x": 0,    "y": 1380, "w": 1200, "h": 420,  "title": "3 · Seguimiento" },
-    { "file": "PedidoLavanderia.dc.html", "x": 1280, "y": 1380, "w": 1200, "h": 460,  "title": "4 · Pedido — lavandería" },
-    { "file": "PedidoRepartidor.dc.html", "x": 0,    "y": 1920, "w": 1200, "h": 460,  "title": "5 · Pedido — repartidor" }
+    { "file": "Main.dc.html",             "x": 0,    "y": 0,    "w": 1100, "h": 1420, "title": "Cimientos" },
+    { "file": "Lavanderia.dc.html",       "x": 1220, "y": 0,    "w": 1200, "h": 460,  "title": "1 · Tarjeta de lavandería" },
+    { "file": "Horario.dc.html",          "x": 1220, "y": 620,  "w": 680,  "h": 580,  "title": "2 · Fecha y hora" },
+    { "file": "Seguimiento.dc.html",      "x": 0,    "y": 1580, "w": 1200, "h": 440,  "title": "3 · Seguimiento" },
+    { "file": "PedidoLavanderia.dc.html", "x": 1320, "y": 1580, "w": 1200, "h": 490,  "title": "4 · Pedido — lavandería" },
+    { "file": "PedidoRepartidor.dc.html", "x": 0,    "y": 2230, "w": 1200, "h": 500,  "title": "5 · Pedido — repartidor" },
+    { "file": "Resumen.dc.html",          "x": 1320, "y": 2230, "w": 620,  "h": 820,  "title": "6 · Resumen del pedido" }
   ],
   "annotations": [
     {
       "id": "que-es",
       "x": 0,
-      "y": -230,
-      "w": 560,
-      "text": "Design system de Lavandi — los seis componentes que exige el anexo de la app, en sus estados.\n\nCada artboard de componente tiene arriba un interruptor Modo: claro / oscuro. La composición no cambia entre modos, solo el diccionario de color.\n\nTodos los valores salen de tokens.json, ya verificados."
+      "y": -290,
+      "w": 620,
+      "text": "Design system de Lavandi — los seis componentes que exige el anexo de la app, en sus estados.\n\nCada artboard de componente tiene arriba un interruptor Modo: claro / oscuro. La composición no cambia entre modos, solo el diccionario de color.\n\nTodos los valores salen de tokens.json, ya verificados. Se leen en orden: cimientos, luego 1 a 6."
     },
     {
       "id": "pendientes",
-      "x": 1280,
-      "y": 1980,
+      "x": 2060,
+      "y": 2230,
       "w": 560,
       "text": "Lo que a propósito NO está resuelto aquí:\n\n· El mapeo entre los estados de la lavandería y del repartidor y los cinco que ve el usuario.\n· Quién asigna al repartidor.\n· La política de cancelación.\n· En qué momento se cobra.\n\nLas cuatro las decide el cliente. Están en el requerimiento que se le envió. Ningún monto de este canvas es una propuesta de precio."
+    },
+    {
+      "id": "insignias",
+      "x": 2620,
+      "y": 1580,
+      "w": 520,
+      "text": "Dos vocabularios de estado, dos formas:\n\n· Píldora = los cinco estados del contrato que ve el usuario. Confirmado, Recolectado, En proceso, Listo, Entregado.\n\n· Cuadrada = estados operativos de los módulos de socio (Por aceptar, En tránsito). No son los del contrato y no deben confundirse con ellos."
     }
   ],
   "launch": { "view": "canvas" }
