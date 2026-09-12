@@ -47,6 +47,7 @@ Se cierra con la respuesta, la fecha y dónde quedó asentada (acta, ADR o nota)
 | DD-037 | ¿Se adopta el mecanismo de cierre: tres nombres en vez de diez, ordenados del uno al tres, con fecha límite y opción por defecto si no hay respuesta? | Nadir | Que la sexta lista sea la última | 3 | 2026-09-11 | **cerrada sin efecto** el 2026-09-11: EL CLIENTE eligió antes de que hiciera falta (C-49) |
 | DD-038 | **Familiaridad técnica del equipo y su tamaño real.** ¿Con qué lenguajes, framework móvil, backend y base de datos ha entregado software de verdad? ¿Sigue siendo Nadir + Claude Code sin diseñador (C-32)? El método la llama "decisiva, y se dice en voz alta, no se esconde" | Nadir | La matriz de criterios de la Fase 6 y el peso de "velocidad de entrega en 16 semanas" | 6 | 2026-09-18 | abierta |
 | DD-039 | **¿Modo claro y oscuro los dos en la v1?** El método manda decidirlo en la Fase 4 y no renegociarlo después | Nadir | Tokens de color, muestra del design system y trabajo de la Fase 4 | 4 | 2026-09-14 | abierta |
+| DD-040 | **¿Dónde vive el Módulo D?** El criterio A.4.3 mete administración en la misma frase que los otros tres módulos, pero le exige exportar CSV y Excel, mapa de calor por colonia y monitoreo con mapa: todo eso es hostil en un teléfono. El contrato no dice si es pantalla de la app o aplicación web aparte | Nadir, sobre recomendación de Claude | Alcance de la Fase 6 y número de contenedores del C2 | 5 | 2026-09-18 | abierta |
 
 ## Cerradas
 

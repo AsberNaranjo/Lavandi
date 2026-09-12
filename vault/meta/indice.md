@@ -50,9 +50,19 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - `tokens.json` — tokens agnósticos de framework; el adaptador es un ADR de la Fase 6
 - `muestra/index.html` — muestra renderizada, autocontenida, sin dependencias
 
-## Arquitectura (Fase 5) y stack (Fase 6)
+## Arquitectura (Fase 5)
 
-- pendiente: C1, C2, C3 y `adr/`
+- [[c1-contexto]] — actores y sistemas externos, cada uno con su renglón del ANEXO B para que su costo tenga dueño
+- [[c2-contenedores]] — seis contenedores con su responsabilidad en una frase; destapa **DD-040**
+- [[c3-api]] — componentes de `api`, el contenedor crítico e incierto; `autorizacion` y la prueba anti-fuga
+- [[modelo-multi-plaza]] — **criterio de aceptación propuesto para O-26**, la única obligación que no tenía
+- [[presupuesto-de-mapas]] — cinco decisiones que bajan el consumo de 6 eventos por pedido a 1 o 2
+- [[cobertura-de-la-brecha]] — dónde quedó cada una de las 25 filas BR de esta fase
+- ADRs: [[ADR-0001-formato-de-diagramas]]
+
+## Stack (Fase 6)
+
+- pendiente: matriz de criterios ponderados y doce ADRs
 
 ## Formas de trabajo (Fase 7)
 
