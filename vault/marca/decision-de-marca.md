@@ -1,14 +1,16 @@
 ---
 estado: borrador
 grado: mixto
-fuente: candidatos-de-nombre.md; territorio-de-marca.md; contrato v8 ANEXO A.1 y A.4.1 (A); acta C-05, C-07, C-20, C-35
-fecha: 2026-09-07
+fuente: candidatos-de-nombre.md; territorio-de-marca.md; contrato v8 ANEXO A.1 y A.4.1 (A); acta C-05, C-07, C-20, C-35, C-46, C-49
+fecha: 2026-09-11
 dueño: Nadir Hadad Navarrete
 ---
 # Decisión de marca — {{MARCA}}
 
-`SIN RESPUESTA — bloquea: DD-023`. Esta nota pasa a `vigente` solo cuando el nombre esté verificado y
-aprobado. Hasta entonces todo el vault usa `{{MARCA}}` y `{{DOMINIO}}`.
+**EL CLIENTE eligió el nombre el 2026-09-11 (C-49): Lavandi.** La elección está hecha; la
+verificación no. Esta nota pasa a `vigente` solo cuando el nombre esté **verificado y aprobado**:
+faltan dominio, IMPI (DD-030), colisiones de uso (DD-028) y la aprobación escrita del interlocutor
+único (DD-027). Hasta entonces todo el vault sigue usando `{{MARCA}}` y `{{DOMINIO}}`.
 
 ## Paquete bloqueante P-1 — lo que se necesita para poder elegir el nombre
 
@@ -23,11 +25,11 @@ el punto 6 al principio y evita verificar diez nombres para tirar ocho.
 |---|---|---|---|---|
 | **1** | **Territorio de marca, misión y valores**, para que la elección tenga contra qué medirse | Claude | hecho | **listo** (`territorio-de-marca.md`, `mision-vision-valores.md`) |
 | **2** | **Rúbrica y candidatos puntuados**, tres rondas y cuatro familias | Claude | hecho | **listo** (`candidatos-de-nombre.md`) |
-| **3** | **El cliente acorta la lista de diez a dos o tres** | **EL CLIENTE**, se lo pide Nadir | 1 correo | nota de la familia de categoría, lista para enviar: `cliente/comunicaciones/2026-09-08-lista-de-nombres-de-categoria.md` |
-| **4** | **Verificación de dominio** de los finalistas que él señale | **Nadir** | 15 minutos | solo hecho para Pinza: `.com` no disponible, `.mx` sí (C-36) |
-| **5** | **Búsqueda fonética ante el IMPI** de los finalistas, clases 37, 39, 9, 35 y 42 | **Nadir** | 30 minutos | pendiente (DD-030) |
+| **3** | **El cliente acorta la lista** | **EL CLIENTE**, se lo pide Nadir | 1 correo | **cumplido (C-49)**: no acortó, eligió. El nombre es **Lavandi** |
+| **4** | **Verificación de dominio** de Lavandi | **Nadir** | 15 minutos | pendiente. Lo hecho para Pinza (C-36) ya no aplica |
+| **5** | **Búsqueda fonética ante el IMPI** de Lavandi, clases 37, 39, 9, 35 y 42 | **Nadir** | 30 minutos | pendiente (DD-030). Atención a R-017: es un nombre descriptivo |
 | **6** | **Colisiones de uso en el mercado**: apps en App Store y Google Play, marcas activas en lavandería o reparto, handles en Instagram, Facebook y TikTok | Claude (subagente detenido por el límite de sesión, R-016) o Nadir | 30 minutos | pendiente (DD-028) |
-| **7** | **Confirmación escrita del interlocutor único** sobre el nombre ya verificado | **Nadir la solicita** | 1 correo | pendiente |
+| **7** | **Confirmación escrita del interlocutor único** sobre el nombre ya verificado | **Nadir la solicita** | 1 correo | pendiente (DD-027), **vencida desde el 2026-09-10** |
 
 **El punto 7 es el que se suele olvidar y el que más caro sale.** Ver la sección siguiente. El punto 3 no lo
 sustituye: elegir un favorito de una lista no es lo mismo que confirmar por escrito el nombre definitivo,
@@ -76,22 +78,23 @@ Para que nadie espere por lo que no hace falta:
 
 | Campo | Valor |
 |---|---|
-| **Nombre elegido** | `SIN RESPUESTA — bloquea: DD-023`. Pinza se decidió el 2026-09-07 (C-36), se reabrió el mismo día (C-38) y el 2026-09-08 EL CLIENTE cambió de dirección hacia la familia de categoría (C-40) |
-| Lista vigente para el cliente | **Familia de categoría (ronda 4, C-40)**: Lavandi, Lavora, Lavandia, Lavaris, Lavia, Lavería, Lavero, Roperia, Lavapronto, Lavamás. Las rondas 1 a 3 (Trama, Pinza, Ronda, Alsol…) quedan como reserva |
-| Recomendación de EL PRESTADOR | Dentro de la familia que pidió el cliente: **Lavandi**, con Lavora y Lavandia detrás. Fuera de ella, Trama y Pinza se defienden mejor como marca (`candidatos-de-nombre.md`, sección 8) |
+| **Nombre elegido** | **Lavandi**, elegido por EL CLIENTE el 2026-09-11 (C-49). Antes: Pinza se decidió el 2026-09-07 (C-36) y se reabrió el mismo día (C-38); siguieron tres cambios de dirección (C-40, C-42, C-46) |
+| Lista vigente para el cliente | **Cerrada.** La última fue la ronda 6 (C-46), con Lavatrae, Lavaruta y Lavamoto en 90 puntos y Lavandi como el mejor de los favoritos del cliente, en 80. No hay ronda 7 |
+| Recomendación de EL PRESTADOR | Se recomendaron Lavatrae, Lavaruta y Lavamoto, que cumplen los tres requisitos de C-46; Lavandi cumple dos (no dice reparto). **EL CLIENTE eligió Lavandi y la elección es suya**: el nombre es insumo del cliente, no entregable nuestro |
 | Candidatos descartados y motivo | `candidatos-de-nombre.md`, sección 8 |
-| **Dominio** | Solo verificado para Pinza: `pinza.com` **no disponible**, `pinza.mx` **disponible** (Nadir, 2026-09-07). Los demás se verifican cuando el cliente acorte |
+| **Dominio** | `SIN RESPUESTA — bloquea: DD-023`. Falta verificar `lavandi.com` y `lavandi.mx`. Lo verifica Nadir, no Claude (regla 5) |
 | Búsqueda fonética IMPI | `SIN RESPUESTA — bloquea: DD-030` |
 | Colisiones de uso | `SIN RESPUESTA — bloquea: DD-028` |
-| Aprobación del interlocutor único | lista de categoría redactada el 2026-09-08 (`cliente/comunicaciones/2026-09-08-lista-de-nombres-de-categoria.md`), pendiente de envío y de respuesta |
+| Aprobación del interlocutor único | `SIN RESPUESTA — bloquea: DD-027`. Hay nombre concreto que confirmar; la solicitud a Alfredo Navarrete está vencida desde el 2026-09-10 |
 | Clases de Niza consideradas | 37, 39, 9, 35, 42 (propuesta; las confirma quien haga el trámite) |
 | Dirección de marca | oficio y confianza como base, calidez en el tono, movimiento en el ritmo |
-| **Riesgos aceptados** | (1) Si el cliente se enamora de un nombre cuyo dominio o registro después resulta ocupado, hay que volver con él. Mitigado: la nota dice que la verificación es posterior. (2) Cada ronda extra de nombres consume margen del proceso de branding, que son doce días hábiles y cierran en la semana 3 |
-| Decidido por | pendiente. C-36 decidió Pinza y C-38 lo reabrió el mismo día |
+| **Riesgos aceptados** | (1) Si el dominio o el registro de Lavandi resultan ocupados, hay que volver con el cliente. La verificación es posterior a la elección, por diseño (C-38). (2) Las seis rondas consumieron el margen del proceso de branding: doce días hábiles que cierran en la semana 3. (3) **R-017 se materializó**: Lavandi es de la familia "Lava-", descriptiva. Su propia ficha advierte "cercanía con el genérico; el examinador puede verla descriptiva" (`candidatos-de-nombre.md:169`). El IMPI puede objetarla |
+| Decidido por | **EL CLIENTE**, declarado por Nadir el 2026-09-11 (C-49). Falta su confirmación por escrito (DD-027) |
 
-**Estado del documento: `borrador`.** Van tres cambios de dirección en dos días (C-36, C-38, C-40). La
-secuencia que queda es la misma: el cliente acorta la lista → Nadir verifica dominio e IMPI de esos dos o
-tres → se elige → el cliente confirma por escrito. Lo que cambió es de qué lista sale.
+**Estado del documento: `borrador`.** Sigue en borrador **a propósito**, aunque el nombre ya esté
+elegido: elegir no es verificar. Lo que falta es de Nadir, no del cliente ni de Claude — dominio,
+IMPI (DD-030) y colisiones de uso (DD-028) — más la confirmación escrita del interlocutor único
+(DD-027). Con esas cuatro cerradas, la nota pasa a `vigente` el mismo día.
 
 Al pasar a `vigente`: reemplazar `{{MARCA}}` y `{{DOMINIO}}` en el vault, cerrar DD-023, comprar el dominio
 a nombre de EL CLIENTE y escribir la guía de tono de voz del A.1 en `guia-de-tono-de-voz.md`.

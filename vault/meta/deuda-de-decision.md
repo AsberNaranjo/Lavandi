@@ -1,8 +1,8 @@
 ---
 estado: vigente
 grado: mixto
-fuente: sesión 2026-09-07 (Fases 0–3), actualizada en el segundo turno con C-24 a C-32
-fecha: 2026-09-07
+fuente: sesión 2026-09-07 (Fases 0–3), actualizada con C-24 a C-32 y con C-46 a C-53 del 2026-09-11
+fecha: 2026-09-11
 dueño: Nadir Hadad Navarrete
 ---
 # Deuda de decisión
@@ -28,7 +28,7 @@ Se cierra con la respuesta, la fecha y dónde quedó asentada (acta, ADR o nota)
 | DD-020 | Comisión que la plataforma cobrará a los socios (%) y sobre qué base (subtotal de lavado, total con envío)                                                                                            | EL CLIENTE                                                 | Unit economics, H-001, guion de reclutamiento                          | 2    | 2026-09-13                        | abierta                                      |
 | DD-021 | **Plan de reclutamiento**: quién llama, desde cuándo, con qué guion y con qué meta de lavanderías firmadas por plaza antes del lanzamiento. Sin oferta propia (C-33), es el riesgo mayor del proyecto | EL CLIENTE                                                 | H-001, R-005, pruebas del recorrido completo (A.4.3), hito del pago 2  | 2    | **2026-09-13**                    | abierta — **crítica**                        |
 | DD-022 | ¿Una lavandería puede entregar con su propio reparto, sin repartidor de la plataforma? El botón "En proceso de entrega" del Módulo B lo sugiere                                                       | EL CLIENTE + Nadir                                         | Máquina de estados (BR-22), Módulo C, unit economics                   | 2→5  | 2026-09-20                        | abierta                                      |
-| DD-023 | **Nombre de marca**: con el criterio ya fijo (C-46), la lista vigente es la ronda 6. Los tres mejores son Lavatrae, Lavaruta y Lavamoto (90); el mejor de los favoritos del cliente es Lavandi (80). Falta que EL CLIENTE ordene tres | EL CLIENTE elige; Nadir verifica y cierra | Logotipo (A.1), dominio, landing (hito 2), perfiles sociales (A.8) | 3 | **vencida**; el entregable 1 está en aviso de retraso | **abierta — parada dura** |
+| DD-023 | **Nombre de marca**: **elegido el 2026-09-11 (C-49): Lavandi**. La parada dura se levanta. Lo que resta es verificación, toda de Nadir: dominio `lavandi.com` y `.mx`, IMPI (DD-030), colisiones de uso (DD-028) y aprobación escrita (DD-027) | EL CLIENTE eligió; **Nadir verifica y cierra** | Ya no bloquea el cimiento técnico. Sigue bloqueando logotipo (A.1), compra de dominio, landing (hito 2) y perfiles sociales (A.8) | 3 | verificación: 2026-09-14 | **abierta — en verificación** |
 | DD-024 | Flujo de producción de diseño sin diseñador: logotipo en AI/SVG/PDF/PNG, manual de 15–20 páginas, 12 plantillas en Canva o Figma. Herramientas y quién opera cada una                                 | Nadir                                                      | O-01 a O-04; Fase 4                                                    | 3→4  | 2026-09-13                        | abierta (abre C-32)                          |
 | DD-025 | Estructura del envío: ¿$35 explícito, incluido en un pedido mínimo, o gratis por encima de un umbral? Al menos un competidor de Torreón anuncia domicilio sin costo (R-015)                           | EL CLIENTE                                                 | Conversión del usuario, unit economics, spec de precio del pedido      | 2    | 2026-09-13                        | abierta                                      |
 | DD-026 | Sondeo de doce llamadas (seis en Durango, seis en Torreón) con el guion de `negocio/metodo-de-precio.md`, sección 3. El precio del territorio no está publicado en internet                           | EL CLIENTE o Nadir                                         | DD-010, H-002, H-006, unit economics                                   | 2    | 2026-09-13                        | abierta                                      |
@@ -44,7 +44,9 @@ Se cierra con la respuesta, la fecha y dónde quedó asentada (acta, ADR o nota)
 | DD-034 | Sabiendo que la familia de categoría se registra peor, ¿EL PRESTADOR insiste con la ronda anterior o acompaña la decisión del cliente? | Nadir | La recomendación que se firma; el gasto del trámite ante el IMPI | 3 | 2026-09-09 | abierta |
 
 | DD-036 | ¿Nadir envía el aviso de retraso del entregable 1? La Cláusula II exige notificar por escrito con 48 h y es lo que impide que el retraso se le impute | Nadir | Protección de calendario y de los pagos (Cláusula II) | 3 | **2026-09-10** | abierta — **contractual** |
-| DD-037 | ¿Se adopta el mecanismo de cierre: tres nombres en vez de diez, ordenados del uno al tres, con fecha límite y opción por defecto si no hay respuesta? | Nadir | Que la sexta lista sea la última | 3 | 2026-09-11 | abierta |
+| DD-037 | ¿Se adopta el mecanismo de cierre: tres nombres en vez de diez, ordenados del uno al tres, con fecha límite y opción por defecto si no hay respuesta? | Nadir | Que la sexta lista sea la última | 3 | 2026-09-11 | **cerrada sin efecto** el 2026-09-11: EL CLIENTE eligió antes de que hiciera falta (C-49) |
+| DD-038 | **Familiaridad técnica del equipo y su tamaño real.** ¿Con qué lenguajes, framework móvil, backend y base de datos ha entregado software de verdad? ¿Sigue siendo Nadir + Claude Code sin diseñador (C-32)? El método la llama "decisiva, y se dice en voz alta, no se esconde" | Nadir | La matriz de criterios de la Fase 6 y el peso de "velocidad de entrega en 16 semanas" | 6 | 2026-09-18 | abierta |
+| DD-039 | **¿Modo claro y oscuro los dos en la v1?** El método manda decidirlo en la Fase 4 y no renegociarlo después | Nadir | Tokens de color, muestra del design system y trabajo de la Fase 4 | 4 | 2026-09-14 | abierta |
 
 ## Cerradas
 
