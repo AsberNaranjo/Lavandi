@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=Source+Sans+3:wght@400;600&display=swap">
+  <style>
+    body { margin: 0; font-family: "Source Sans 3", "Segoe UI", system-ui, sans-serif; }
+    a { color: #297899; } a:hover { color: #1F5A73; }
+    .rotulo { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+    .fono { width: 390px; border-radius: 22px; overflow: hidden; box-shadow: 0 10px 30px rgba(23,28,33,0.13); display: flex; flex-direction: column; }
+    .paso { display: flex; align-items: center; gap: 14px; padding: 14px 0; }
+    .bolita { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  </style>
+</helmet>
+
+<div style="width: 940px; height: 1000px; background: #FFFFFF; box-sizing: border-box; padding: 40px 44px; display: flex; flex-direction: column; gap: 22px;">
+
+  <div>
+    <div class="rotulo" style="color: #6B7681;">En contexto</div>
+    <div style="font-family: Nunito, system-ui, sans-serif; font-size: 28px; font-weight: 800; color: #297899;">La misma pantalla, las dos paletas</div>
+    <div style="font-size: 15px; color: #515A64; margin-top: 6px;">Seguimiento del pedido, que es donde el símbolo A cobra sentido: el punto avanza por el arco conforme cambia el estado.</div>
+  </div>
+
+  <div style="display: flex; gap: 60px; justify-content: center;">
+
+    <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+      <div class="fono" style="background: #F7F4EF;">
+        <div style="background: #2E86AB; padding: 22px 22px 26px; display: flex; align-items: center; gap: 12px;">
+          <svg width="34" height="34" viewBox="0 0 120 120" aria-hidden="true">
+            <path d="M 22 94 C 22 34 98 34 98 94" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"></path>
+            <circle cx="86" cy="60" r="16" fill="#2E86AB"></circle>
+            <circle cx="86" cy="60" r="11" fill="#E8C547"></circle>
+          </svg>
+          <div style="font-family: Nunito, system-ui, sans-serif; font-size: 22px; font-weight: 800; color: #FFFFFF;">Lavandi</div>
+        </div>
+        <div style="padding: 24px 22px; display: flex; flex-direction: column; gap: 20px;">
+          <div>
+            <div style="font-size: 13px; color: #515A64;">Pedido L-2841</div>
+            <div style="font-family: Nunito, system-ui, sans-serif; font-size: 26px; font-weight: 800; color: #171C21; line-height: 1.2; margin-top: 4px;">Tu ropa está en camino</div>
+          </div>
+          <div style="background: #FFFFFF; border-radius: 10px; padding: 18px 20px;">
+            <div class="paso">
+              <div class="bolita" style="background: #297899;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+              </div>
+              <div style="font-size: 16px; color: #171C21;">Recolectado · 9:15</div>
+            </div>
+            <div class="paso">
+              <div class="bolita" style="background: #297899;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+              </div>
+              <div style="font-size: 16px; color: #171C21;">Lavando · 11:40</div>
+            </div>
+            <div class="paso">
+              <div class="bolita" style="background: #E8C547;"></div>
+              <div style="font-size: 16px; color: #171C21; font-weight: 600;">En camino a tu casa</div>
+            </div>
+            <div class="paso" style="opacity: 0.45;">
+              <div class="bolita" style="background: #DCE0E5;"></div>
+              <div style="font-size: 16px; color: #515A64;">Entregado</div>
+            </div>
+          </div>
+          <div style="background: #A8D5E2; border-radius: 10px; padding: 16px 18px;">
+            <div style="font-size: 13px; color: #171C21; opacity: 0.72;">Llega entre</div>
+            <div style="font-family: Nunito, system-ui, sans-serif; font-size: 24px; font-weight: 800; color: #171C21;">6:00 y 7:00 pm</div>
+          </div>
+          <button type="button" style="font-family: inherit; font-size: 16px; font-weight: 600; color: #FFFFFF; background: #297899; border: none; border-radius: 8px; padding: 0 24px; min-height: 48px; cursor: pointer;">Escribirle al repartidor</button>
+        </div>
+      </div>
+      <div style="font-size: 13px; color: #6B7681;">El tiempo de vuelta, madurada</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+      <div class="fono" style="background: #F7F4EF;">
+        <div style="background: #A85434; padding: 22px 22px 26px; display: flex; align-items: center; gap: 12px;">
+          <svg width="34" height="34" viewBox="0 0 120 120" aria-hidden="true">
+            <path d="M 22 94 C 22 34 98 34 98 94" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"></path>
+            <circle cx="86" cy="60" r="16" fill="#A85434"></circle>
+            <circle cx="86" cy="60" r="11" fill="#E8C547"></circle>
+          </svg>
+          <div style="font-family: Nunito, system-ui, sans-serif; font-size: 22px; font-weight: 800; color: #FFFFFF;">Lavandi</div>
+        </div>
+        <div style="padding: 24px 22px; display: flex; flex-direction: column; gap: 20px;">
+          <div>
+            <div style="font-size: 13px; color: #6B6055;">Pedido L-2841</div>
+            <div style="font-family: Nunito, system-ui, sans-serif; font-size: 26px; font-weight: 800; color: #2A2118; line-height: 1.2; margin-top: 4px;">Tu ropa está en camino</div>
+          </div>
+          <div style="background: #FFFFFF; border-radius: 10px; padding: 18px 20px;">
+            <div class="paso">
+              <div class="bolita" style="background: #A85434;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+              </div>
+              <div style="font-size: 16px; color: #2A2118;">Recolectado · 9:15</div>
+            </div>
+            <div class="paso">
+              <div class="bolita" style="background: #A85434;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+              </div>
+              <div style="font-size: 16px; color: #2A2118;">Lavando · 11:40</div>
+            </div>
+            <div class="paso">
+              <div class="bolita" style="background: #E8C547;"></div>
+              <div style="font-size: 16px; color: #2A2118; font-weight: 600;">En camino a tu casa</div>
+            </div>
+            <div class="paso" style="opacity: 0.45;">
+              <div class="bolita" style="background: #E0D6C6;"></div>
+              <div style="font-size: 16px; color: #6B6055;">Entregado</div>
+            </div>
+          </div>
+          <div style="background: #EADDCB; border-radius: 10px; padding: 16px 18px;">
+            <div style="font-size: 13px; color: #2A2118; opacity: 0.72;">Llega entre</div>
+            <div style="font-family: Nunito, system-ui, sans-serif; font-size: 24px; font-weight: 800; color: #2A2118;">6:00 y 7:00 pm</div>
+          </div>
+          <button type="button" style="font-family: inherit; font-size: 16px; font-weight: 600; color: #FFFFFF; background: #A85434; border: none; border-radius: 8px; padding: 0 24px; min-height: 48px; cursor: pointer;">Escribirle al repartidor</button>
+        </div>
+      </div>
+      <div style="font-size: 13px; color: #7A6E62;">La vuelta a casa</div>
+    </div>
+
+  </div>
+
+  <div style="margin-top: auto; padding: 18px 22px; background: #F7F4EF; border-left: 4px solid #E8C547; border-radius: 4px;">
+    <div style="font-size: 15px; color: #171C21; line-height: 1.55;">
+      La ventana de una hora es la promesa diferencial del producto y merece el lugar que tiene aquí. Los estados del pedido son provisionales: el contrato pide cinco momentos y todavía no están acordados por escrito.
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

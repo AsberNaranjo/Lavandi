@@ -1,33 +1,33 @@
 {
   "artboards": [
-    { "file": "Main.dc.html",        "x": 0,    "y": 0,    "w": 900,  "h": 620, "title": "Lockup principal", "print": "fixed" },
-    { "file": "Simbolo.dc.html",     "x": 980,  "y": 0,    "w": 620,  "h": 620, "title": "Construccion",     "print": "fixed" },
-    { "file": "Paleta.dc.html",      "x": 1680, "y": 0,    "w": 900,  "h": 620, "title": "Paleta y tipografia", "print": "fixed" },
-    { "file": "Exploracion.dc.html", "x": 0,    "y": 740,  "w": 1300, "h": 480, "title": "Exploracion",      "print": "fixed" },
-    { "file": "Versiones.dc.html",   "x": 1380, "y": 740,  "w": 1300, "h": 560, "title": "Cuatro versiones", "print": "fixed" },
-    { "file": "Icono.dc.html",       "x": 0,    "y": 1420, "w": 900,  "h": 620, "title": "Icono de app",     "print": "fixed" }
+    { "file": "Main.dc.html",        "x": 0,    "y": 0,    "w": 900,  "h": 620, "title": "Lockup principal",    "print": "fixed" },
+    { "file": "Simbolo.dc.html",     "x": 980,  "y": 0,    "w": 620,  "h": 700, "title": "Construcción",        "print": "fixed" },
+    { "file": "Paleta.dc.html",      "x": 1680, "y": 0,    "w": 900,  "h": 700, "title": "Paleta y tipografía", "print": "fixed" },
+    { "file": "Exploracion.dc.html", "x": 0,    "y": 820,  "w": 1300, "h": 540, "title": "Exploración",         "print": "fixed" },
+    { "file": "Versiones.dc.html",   "x": 1380, "y": 820,  "w": 1300, "h": 620, "title": "Cuatro versiones",    "print": "fixed" },
+    { "file": "Icono.dc.html",       "x": 0,    "y": 1560, "w": 900,  "h": 620, "title": "Icono de app",        "print": "fixed" }
   ],
   "annotations": [
     {
       "id": "nota-estado",
-      "x": -340,
+      "x": -420,
       "y": 0,
       "w": 300,
-      "text": "Exploracion, no entregable.\n\nEl proceso de branding del ANEXO A.1 no puede arrancar formalmente: decision-de-marca.md sigue en borrador y faltan DD-027 (aprobacion escrita del cliente, vencida desde el 2026-09-10), DD-028, DD-030 y el dominio (DD-023).\n\nEsto es material para decidir y para ensenarle a Nadir. No se manda a EL CLIENTE sin su visto bueno."
+      "text": "Exploración, no entregable.\n\nEl proceso de branding del ANEXO A.1 no puede arrancar formalmente: decision-de-marca.md sigue en borrador y faltan DD-027 (aprobación escrita del cliente, vencida desde el 2026-09-10), DD-028, DD-030 y el dominio (DD-023).\n\nEsto es material para decidir y para enseñarle a Nadir. No se manda a EL CLIENTE sin su visto bueno."
     },
     {
       "id": "nota-boceto",
-      "x": -340,
-      "y": 330,
+      "x": -420,
+      "y": 400,
       "w": 300,
-      "text": "De donde sale el simbolo.\n\nDel boceto a mano en maqueta_logo.jpeg: L como camino, lavadora en el codo, punto de entrega al final, y la bajada De tu cel a tu closet.\n\nNo se invento el concepto; se puso en reticula. La foto no se subio al lienzo porque la hoja tiene apuntes ajenos al proyecto."
+      "text": "De dónde sale el símbolo.\n\nDel boceto a mano en maqueta_logo.jpeg: L como camino, lavadora en el codo, punto de entrega al final, y la bajada De tu cel a tu closet.\n\nNo se inventó el concepto; se puso en retícula. La foto no se subió al lienzo porque la hoja tiene apuntes ajenos al proyecto."
     },
     {
       "id": "nota-paleta",
-      "x": 2660,
+      "x": 2700,
       "y": 0,
       "w": 300,
-      "text": "La paleta El tiempo de vuelta no esta en el vault.\n\nGrep de los cuatro hex y del nombre en vault/: cero resultados. tokens.json tiene las cuatro ranuras de color.marca marcadas PROVISIONAL con otros valores, esperando justo esto.\n\nEs grado C sin acta. Hay que asentarla antes de tocar tokens.json."
+      "text": "La paleta El tiempo de vuelta no está en el vault.\n\nGrep de los cuatro hex y del nombre en vault/: cero resultados. tokens.json tiene las cuatro ranuras de color.marca marcadas PROVISIONAL con otros valores, esperando justo esto.\n\nEs grado C sin acta. Hay que asentarla antes de tocar tokens.json."
     }
   ],
   "launch": { "view": "canvas" }

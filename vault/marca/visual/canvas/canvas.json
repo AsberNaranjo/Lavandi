@@ -1,0 +1,17 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 880, "h": 620, "title": "Punto de partida" },
+    { "file": "Paleta1.dc.html", "x": 980, "y": 0, "w": 880, "h": 720, "title": "Paleta 1 · El tiempo de vuelta" },
+    { "file": "Paleta2.dc.html", "x": 1960, "y": 0, "w": 880, "h": 720, "title": "Paleta 2 · La vuelta a casa" },
+    { "file": "SimboloA.dc.html", "x": 0, "y": 840, "w": 720, "h": 640, "title": "Símbolo A · El punto que va y vuelve" },
+    { "file": "SimboloC.dc.html", "x": 820, "y": 840, "w": 720, "h": 640, "title": "Símbolo C · La prenda doblada" },
+    { "file": "BloqueDeMarca.dc.html", "x": 1640, "y": 840, "w": 1100, "h": 700, "title": "Bloque de marca" },
+    { "file": "EnContexto.dc.html", "x": 0, "y": 1660, "w": 940, "h": 1000, "title": "En contexto" }
+  ],
+  "annotations": [
+    { "id": "nota-contraste", "x": 980, "y": -150, "w": 380, "text": "Agua #2E86AB da 3.74:1 sobre Hueso y necesita 4.5. No se cambia el color: se deriva Agua Profundo #297899 para texto y botones." },
+    { "id": "nota-simbolos", "x": 0, "y": 720, "w": 340, "text": "Las dos direcciones parten de la idea que el cliente ya aprobó: no vendemos lavado, vendemos el tiempo que devolvemos." },
+    { "id": "nota-decision", "x": 1640, "y": 1580, "w": 400, "text": "Lo que hay que decidir: una paleta y un símbolo. Los dos símbolos funcionan en las dos paletas, así que son decisiones independientes." }
+  ],
+  "launch": { "view": "canvas" }
+}

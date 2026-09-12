@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=Source+Sans+3:wght@400;600&display=swap">
+  <style>
+    body { margin: 0; font-family: "Source Sans 3", "Segoe UI", system-ui, sans-serif; }
+    a { color: #297899; } a:hover { color: #1F5A73; }
+    .rotulo { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #6B7681; font-weight: 600; }
+    .hex { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+  </style>
+</helmet>
+
+<div style="width: 880px; height: 720px; background: #FFFFFF; box-sizing: border-box; padding: 44px 48px; display: flex; flex-direction: column; gap: 26px;">
+
+  <div style="display: flex; align-items: baseline; justify-content: space-between;">
+    <div>
+      <div class="rotulo">Propuesta 1</div>
+      <div style="font-family: Nunito, system-ui, sans-serif; font-size: 34px; font-weight: 800; color: #297899;">El tiempo de vuelta, madurada</div>
+    </div>
+    <div style="font-size: 14px; color: #515A64;">Manda el azul. Es la que el cliente aprobó.</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px;">
+    <div style="display: flex; flex-direction: column;">
+      <div style="height: 96px; background: #2E86AB; border-radius: 5px 5px 0 0;"></div>
+      <div style="padding: 12px 4px 0;">
+        <div style="font-weight: 600; font-size: 15px; color: #171C21;">Agua</div>
+        <div class="hex" style="color: #515A64;">#2E86AB</div>
+        <div style="font-size: 13px; color: #6B7681; margin-top: 6px; line-height: 1.4;">Franjas, fondos grandes, el bloque de marca</div>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column;">
+      <div style="height: 96px; background: #A8D5E2; border-radius: 5px 5px 0 0;"></div>
+      <div style="padding: 12px 4px 0;">
+        <div style="font-weight: 600; font-size: 15px; color: #171C21;">Cielo</div>
+        <div class="hex" style="color: #515A64;">#A8D5E2</div>
+        <div style="font-size: 13px; color: #6B7681; margin-top: 6px; line-height: 1.4;">Avisos suaves, superficies secundarias</div>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column;">
+      <div style="height: 96px; background: #F7F4EF; border: 1px solid #DCE0E5; border-bottom: none; border-radius: 5px 5px 0 0; box-sizing: border-box;"></div>
+      <div style="padding: 12px 4px 0;">
+        <div style="font-weight: 600; font-size: 15px; color: #171C21;">Hueso</div>
+        <div class="hex" style="color: #515A64;">#F7F4EF</div>
+        <div style="font-size: 13px; color: #6B7681; margin-top: 6px; line-height: 1.4;">El fondo de todo. Nunca blanco puro</div>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column;">
+      <div style="height: 96px; background: #E8C547; border-radius: 5px 5px 0 0;"></div>
+      <div style="padding: 12px 4px 0;">
+        <div style="font-weight: 600; font-size: 15px; color: #171C21;">Limón</div>
+        <div class="hex" style="color: #515A64;">#E8C547</div>
+        <div style="font-size: 13px; color: #6B7681; margin-top: 6px; line-height: 1.4;">El acento. Aparece poco y se nota</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 1px; background: #EDEFF2;"></div>
+
+  <div>
+    <div class="rotulo" style="margin-bottom: 12px;">Los tres tonos que hacen falta para que funcione en pantalla</div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 14px; background: #F7F4EF; border-radius: 5px;">
+        <div style="width: 48px; height: 48px; background: #297899; border-radius: 4px; flex-shrink: 0;"></div>
+        <div>
+          <div style="font-weight: 600; font-size: 15px; color: #171C21;">Agua Profundo</div>
+          <div class="hex" style="color: #515A64;">#297899</div>
+          <div style="font-size: 12px; color: #6B7681;">Texto, enlaces, botones</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 14px; background: #171C21; border-radius: 5px;">
+        <div style="width: 48px; height: 48px; background: #308CB3; border-radius: 4px; flex-shrink: 0;"></div>
+        <div>
+          <div style="font-weight: 600; font-size: 15px; color: #FFFFFF;">Agua Claro</div>
+          <div class="hex" style="color: #C0C6CE;">#308CB3</div>
+          <div style="font-size: 12px; color: #98A1AC;">Modo oscuro</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 14px; background: #F7F4EF; border-radius: 5px;">
+        <div style="width: 48px; height: 48px; background: #B39116; border-radius: 4px; flex-shrink: 0;"></div>
+        <div>
+          <div style="font-weight: 600; font-size: 15px; color: #171C21;">Limón Profundo</div>
+          <div class="hex" style="color: #515A64;">#B39116</div>
+          <div style="font-size: 12px; color: #6B7681;">Bordes e iconos</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="rotulo" style="margin-bottom: 12px;">Contraste medido · mínimo 4.5 para texto</div>
+    <div style="display: flex; gap: 12px;">
+      <div style="flex-grow: 1; padding: 16px; background: #F7F4EF; border: 1px solid #DCE0E5; border-radius: 5px;">
+        <div style="color: #2E86AB; font-size: 17px; font-weight: 600;">Agua sobre Hueso</div>
+        <div style="margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; background: #A32222; color: #FFFFFF; border-radius: 3px; font-size: 12px; font-weight: 600;">3.74 : 1 · no pasa</div>
+      </div>
+      <div style="flex-grow: 1; padding: 16px; background: #F7F4EF; border: 1px solid #DCE0E5; border-radius: 5px;">
+        <div style="color: #297899; font-size: 17px; font-weight: 600;">Agua Profundo sobre Hueso</div>
+        <div style="margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; background: #1E6F45; color: #FFFFFF; border-radius: 3px; font-size: 12px; font-weight: 600;">4.51 : 1 · pasa</div>
+      </div>
+      <div style="flex-grow: 1; padding: 16px; background: #E8C547; border-radius: 5px;">
+        <div style="color: #171C21; font-size: 17px; font-weight: 600;">Tinta sobre Limón</div>
+        <div style="margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; background: #1E6F45; color: #FFFFFF; border-radius: 3px; font-size: 12px; font-weight: 600;">10.22 : 1 · pasa</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: auto; display: flex; align-items: center; gap: 14px;">
+    <button type="button" style="font-family: inherit; font-size: 16px; font-weight: 600; color: #FFFFFF; background: #297899; border: none; border-radius: 6px; padding: 14px 26px; min-height: 48px; cursor: pointer;">Pedir recolección</button>
+    <button type="button" style="font-family: inherit; font-size: 16px; font-weight: 600; color: #297899; background: transparent; border: 2px solid #297899; border-radius: 6px; padding: 12px 24px; min-height: 48px; cursor: pointer;">Ver lavanderías</button>
+    <div style="font-size: 13px; color: #6B7681; line-height: 1.4;">Los botones usan Agua Profundo.<br>Agua original se queda para las superficies.</div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
