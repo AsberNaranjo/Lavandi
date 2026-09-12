@@ -10,7 +10,20 @@ dueño: Nadir Hadad Navarrete
 Fuente única que alimenta app, landing y plantillas sociales. Definirlo tres veces por separado es
 como se pierden dos semanas.
 
-`estado: borrador` porque los valores de marca todavía no existen. La **estructura** sí está cerrada.
+`estado: borrador` porque faltan los seis componentes dibujados como pantallas. La estructura, la
+paleta y las tipografías **ya están cerradas**.
+
+## La trampa de contraste que hay que conocer antes de tocar nada
+
+El azul de marca **Agua `#2E86AB` no se puede usar para texto**: da **3.74:1** sobre Hueso y el
+mínimo es 4.5. Va en superficies grandes, franjas e ilustración. Para texto, enlaces y botones se
+usa **Agua Profundo `#297899`**, que da **4.51:1**.
+
+Ese 4.51 pasa por **una centésima**. Cualquier retoque de Agua Profundo o de Hueso rompe el
+criterio de aceptación, y es un retoque que un diseñador haría sin pensarlo por razones estéticas.
+Conviene decírselo por escrito al diseñador que el cliente va a poner (C-63) antes de que empiece.
+
+El **Limón `#E8C547` nunca lleva texto encima**: sobre Hueso da 1.53:1. Es relleno y acento.
 
 ## Qué está decidido y qué espera
 
@@ -20,7 +33,7 @@ como se pierden dos semanas.
 | Modo claro y oscuro | **los dos, en v1** | Ver abajo. Pendiente de confirmación: DD-039 |
 | Umbrales de accesibilidad | **cerrados y no renegociables** | El método lo exige así (`prompt-maestro:242`) |
 | Los seis componentes base | **especificados** | `componentes.md` |
-| Paleta de 4 colores y tipografías de marca | **espera** al ANEXO A.1 | Necesita logotipo, que necesita nombre verificado |
+| Paleta de 4 colores y tipografías de marca | **cerradas el 2026-09-12** | Paleta "El tiempo de vuelta" (C-55) y Nunito + Source Sans 3. Ver `marca/decision-visual.md` |
 | Adaptador al stack | **espera** a la Fase 6 | Tiene su propio ADR |
 
 ## Decisión 1 — Modo claro y oscuro, los dos desde la v1
@@ -135,8 +148,12 @@ son un ADR de la Fase 6, ya previsto en la lista del método.
 
 ## Cómo se mira esto
 
-Se abre `muestra/index.html` en cualquier navegador. No necesita servidor, ni dependencias, ni
-conexión: el archivo trae los tokens embebidos y cero recursos externos.
+Se abre `muestra/index.html` en cualquier navegador. No necesita servidor: los tokens van embebidos
+en el archivo.
+
+Una precisión, para no afirmar de más: desde el 2026-09-12 la página **pide Nunito y Source Sans 3
+a Google Fonts**, así que ya no es estrictamente autocontenida. Sin conexión se ve completa y
+correcta, pero con la tipografía del sistema en lugar de la de marca.
 
 ## Lo que este design system NO cubre
 

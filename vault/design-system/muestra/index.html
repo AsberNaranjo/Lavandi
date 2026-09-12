@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 <title>Design system de Lavandi — muestra</title>
 <style>
   *,*::before,*::after{box-sizing:border-box}
@@ -11,10 +14,10 @@
        font-family:var(--t-principal);font-size:var(--t-cuerpo);line-height:var(--i-normal);
        transition:background var(--d-base) var(--e-estandar),color var(--d-base) var(--e-estandar)}
   .envoltura{max-width:1060px;margin:0 auto;padding:var(--s-5) var(--s-4) var(--s-8)}
-  h1{font-size:var(--t-despliegue);line-height:var(--i-apretado);letter-spacing:var(--l-titular);margin:0 0 var(--s-2)}
-  h2{font-size:var(--t-titulo);line-height:var(--i-apretado);margin:var(--s-7) 0 var(--s-1);
+  h1{font-family:var(--t-titulares);font-size:var(--t-despliegue);line-height:var(--i-apretado);letter-spacing:var(--l-titular);margin:0 0 var(--s-2)}
+  h2{font-family:var(--t-titulares);font-size:var(--t-titulo);line-height:var(--i-apretado);margin:var(--s-7) 0 var(--s-1);
      padding-bottom:var(--s-2);border-bottom:1px solid var(--c-borde)}
-  h3{font-size:var(--t-titulo-menor);margin:var(--s-5) 0 var(--s-3)}
+  h3{font-family:var(--t-titulares);font-size:var(--t-titulo-menor);margin:var(--s-5) 0 var(--s-3)}
   p{margin:0 0 var(--s-3);max-width:68ch}
   .suave{color:var(--c-texto-suave)}
   .micro{font-size:var(--t-micro)}
@@ -47,7 +50,7 @@
   .tarjeta{background:var(--c-superficie);border:1px solid var(--c-borde);border-radius:var(--r-grande);
            box-shadow:var(--ele-1);overflow:hidden}
   .tarjeta-cuerpo{padding:var(--s-4)}
-  .tarjeta h4{margin:0 0 var(--s-1);font-size:var(--t-cuerpo-grande)}
+  .tarjeta h4{font-family:var(--t-titulares);margin:0 0 var(--s-1);font-size:var(--t-cuerpo-grande)}
   .fila{display:flex;justify-content:space-between;align-items:center;gap:var(--s-3)}
   .apilado{display:flex;flex-direction:column;gap:var(--s-2)}
   .etiquetas{display:flex;gap:var(--s-2);flex-wrap:wrap;margin-top:var(--s-3)}
@@ -107,9 +110,11 @@
     "agnostico_de_framework": true,
     "nota": "Ningun valor aqui esta atado a un framework. El adaptador al formato del stack elegido se genera en la Fase 6 y tiene su propio ADR.",
     "advertencia_marca": "Los valores de color.marca y tipografia.familia son PROVISIONALES. Se reemplazan con la paleta de 4 colores y las tipografias que entregue el proceso del ANEXO A.1, cuando exista logotipo. Ningun componente referencia color.marca directamente: todos pasan por color.semantico, para que el reemplazo no toque ni un componente.",
-    "modos": ["claro", "oscuro"]
+    "modos": [
+      "claro",
+      "oscuro"
+    ]
   },
-
   "accesibilidad": {
     "contraste_minimo_texto_normal": 4.5,
     "contraste_minimo_texto_grande": 3.0,
@@ -120,115 +125,204 @@
     "separacion_minima_entre_objetivos_dp": 8,
     "fuente": "WCAG 2.1 nivel AA (W3C); Material Design y Apple HIG para el area tactil. Consultado 2026-09-11. Fijados en la Fase 4 y no renegociables despues (metodo, linea 242)."
   },
-
   "color": {
     "marca": {
-      "$comentario": "Paleta \"El tiempo de vuelta\", elegida por EL CLIENTE el 2026-09-12. Cuatro ranuras, las que pide el ANEXO A.1. Hueso #F7F4EF es el fondo y vive en la capa semantica.",
-      "primario":        { "hex": "#2E86AB", "rgb": "46, 134, 171",  "cmjn": "73, 22, 0, 33",  "estado": "VIGENTE", "nombre": "Agua" },
-      "primario_oscuro": { "hex": "#297899", "rgb": "41, 120, 153",  "cmjn": "73, 22, 0, 40",  "estado": "VIGENTE", "nombre": "Agua Profundo" },
-      "acento":          { "hex": "#E8C547", "rgb": "232, 197, 71",  "cmjn": "0, 15, 69, 9",   "estado": "VIGENTE", "nombre": "Limon" },
-      "claro":           { "hex": "#A8D5E2", "rgb": "168, 213, 226", "cmjn": "26, 6, 0, 11",   "estado": "VIGENTE", "nombre": "Cielo" }
+      "$comentario": "Paleta \"El tiempo de vuelta\", Direccion 1, elegida por EL CLIENTE el 2026-09-12 (C-55). Cuatro ranuras, las que pide el ANEXO A.1. Hueso #F7F4EF es el fondo y vive en la capa semantica, no aqui. Ver vault/marca/paleta-el-tiempo-de-vuelta.md",
+      "primario": {
+        "hex": "#2E86AB",
+        "rgb": "46, 134, 171",
+        "cmjn": "73, 22, 0, 33",
+        "estado": "VIGENTE",
+        "nota": "Agua. Franjas, fondos grandes, ilustracion, el bloque de marca"
+      },
+      "primario_oscuro": {
+        "hex": "#297899",
+        "rgb": "41, 120, 153",
+        "cmjn": "73, 22, 0, 40",
+        "estado": "VIGENTE",
+        "nota": "Agua Profundo. Texto, enlaces, botones. Derivado para pasar 4.5:1 sobre Hueso"
+      },
+      "acento": {
+        "hex": "#E8C547",
+        "rgb": "232, 197, 71",
+        "cmjn": "0, 15, 69, 9",
+        "estado": "VIGENTE",
+        "nota": "Limon. Acento. Solo como fondo con texto oscuro encima"
+      },
+      "claro": {
+        "hex": "#A8D5E2",
+        "rgb": "168, 213, 226",
+        "cmjn": "26, 6, 0, 11",
+        "estado": "VIGENTE",
+        "nota": "Cielo. Superficies secundarias, avisos suaves"
+      }
     },
-
     "neutro": {
-      "0":    "#FFFFFF",
-      "50":   "#F7F8F9",
-      "100":  "#EDEFF2",
-      "200":  "#DCE0E5",
-      "300":  "#C0C6CE",
-      "400":  "#98A1AC",
-      "500":  "#6B7681",
-      "600":  "#515A64",
-      "700":  "#3B424A",
-      "800":  "#262C33",
-      "900":  "#171C21",
+      "0": "#FFFFFF",
+      "50": "#F7F8F9",
+      "100": "#EDEFF2",
+      "200": "#DCE0E5",
+      "300": "#C0C6CE",
+      "400": "#98A1AC",
+      "500": "#6B7681",
+      "600": "#515A64",
+      "700": "#3B424A",
+      "800": "#262C33",
+      "900": "#171C21",
       "1000": "#0E1216"
     },
-
     "estado": {
-      "exito":       { "claro": "#1E6F45", "oscuro": "#5FD39B" },
-      "atencion":    { "claro": "#8A5A00", "oscuro": "#F0B84D" },
-      "error":       { "claro": "#A32222", "oscuro": "#FF8A80" },
-      "informacion": { "claro": "#1F5C8C", "oscuro": "#7FC1F0" }
+      "exito": {
+        "claro": "#1E6F45",
+        "oscuro": "#5FD39B"
+      },
+      "atencion": {
+        "claro": "#8A5A00",
+        "oscuro": "#F0B84D"
+      },
+      "error": {
+        "claro": "#A32222",
+        "oscuro": "#FF8A80"
+      },
+      "informacion": {
+        "claro": "#1F5C8C",
+        "oscuro": "#7FC1F0"
+      }
     },
-
     "semantico": {
       "$comentario": "La unica capa que consumen los componentes. Cambiar de modo o de marca no toca un solo componente. Distincion importante: borde es separador decorativo y no tiene umbral de contraste; borde_fuerte delimita un control (campo de formulario, casilla) y por eso debe cumplir 3:1 contra su fondo, conforme a WCAG 1.4.11.",
       "claro": {
-        "fondo":              "#F7F4EF",
-        "superficie":         "#FFFFFF",
+        "fondo": "#F7F4EF",
+        "superficie": "#FFFFFF",
         "superficie_elevada": "#FFFFFF",
         "superficie_hundida": "#EDE9E2",
-        "texto":              "#171C21",
-        "texto_suave":        "#515A64",
-        "texto_inverso":      "#FFFFFF",
-        "texto_deshabilitado":"#6B7681",
-        "borde":              "#DCE0E5",
-        "borde_fuerte":       "#6B7681",
-        "accion":             "#297899",
-        "accion_hover":       "#1F5A73",
-        "accion_texto":       "#FFFFFF",
-        "foco":               "#297899"
+        "texto": "#171C21",
+        "texto_suave": "#515A64",
+        "texto_inverso": "#FFFFFF",
+        "texto_deshabilitado": "#6B7681",
+        "borde": "#DCE0E5",
+        "borde_fuerte": "#6B7681",
+        "accion": "#297899",
+        "accion_hover": "#1F5A73",
+        "accion_texto": "#FFFFFF",
+        "foco": "#297899"
       },
       "oscuro": {
-        "fondo":              "#0E1216",
-        "superficie":         "#171C21",
+        "fondo": "#0E1216",
+        "superficie": "#171C21",
         "superficie_elevada": "#262C33",
         "superficie_hundida": "#0E1216",
-        "texto":              "#F7F8F9",
-        "texto_suave":        "#C0C6CE",
-        "texto_inverso":      "#0E1216",
-        "texto_deshabilitado":"#98A1AC",
-        "borde":              "#3B424A",
-        "borde_fuerte":       "#98A1AC",
-        "accion":             "#308CB3",
-        "accion_hover":       "#5BA8C9",
-        "accion_texto":       "#0E1216",
-        "foco":               "#308CB3"
+        "texto": "#F7F8F9",
+        "texto_suave": "#C0C6CE",
+        "texto_inverso": "#0E1216",
+        "texto_deshabilitado": "#98A1AC",
+        "borde": "#3B424A",
+        "borde_fuerte": "#98A1AC",
+        "accion": "#308CB3",
+        "accion_hover": "#5BA8C9",
+        "accion_texto": "#0E1216",
+        "foco": "#308CB3"
       }
     },
-
     "pedido": {
       "$comentario": "Un color por cada uno de los cinco estados visibles al usuario. Los cinco son grado A: ANEXO A.3 numeral 12.",
-      "confirmado": { "claro": "#1F5C8C", "oscuro": "#7FC1F0" },
-      "recolectado":{ "claro": "#5A4B8A", "oscuro": "#B9AEE8" },
-      "en_proceso": { "claro": "#8A5A00", "oscuro": "#F0B84D" },
-      "listo":      { "claro": "#1E6F45", "oscuro": "#5FD39B" },
-      "entregado":  { "claro": "#515A64", "oscuro": "#C0C6CE" }
+      "confirmado": {
+        "claro": "#1F5C8C",
+        "oscuro": "#7FC1F0"
+      },
+      "recolectado": {
+        "claro": "#5A4B8A",
+        "oscuro": "#B9AEE8"
+      },
+      "en_proceso": {
+        "claro": "#8A5A00",
+        "oscuro": "#F0B84D"
+      },
+      "listo": {
+        "claro": "#1E6F45",
+        "oscuro": "#5FD39B"
+      },
+      "entregado": {
+        "claro": "#515A64",
+        "oscuro": "#C0C6CE"
+      }
+    },
+    "marca_extendida": {
+      "$comentario": "Tonos derivados para pantalla. No forman parte de los cuatro colores del manual de marca (ANEXO A.1).",
+      "agua_claro": {
+        "hex": "#308CB3",
+        "uso": "Modo oscuro: accion y texto de marca sobre fondo oscuro",
+        "contraste": "4.51:1 sobre #171C21"
+      },
+      "limon_profundo": {
+        "hex": "#B39116",
+        "uso": "Cuando el acento tiene que ser borde o icono, no fondo",
+        "contraste": "3.01:1 sobre blanco"
+      },
+      "hueso": {
+        "hex": "#F7F4EF",
+        "uso": "Fondo de la marca. Nunca blanco puro en superficies amplias"
+      }
     }
   },
-
   "tipografia": {
     "familia": {
-      "$comentario": "PROVISIONAL. La tipografia principal y la de apoyo las fija el ANEXO A.1. Mientras tanto, pila del sistema: se ve bien en todos los telefonos y no agrega peso de descarga.",
-      "principal": "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-      "apoyo":     "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+      "$comentario": "Decididas el 2026-09-12 (decision-visual.md): Nunito para titulares, Source Sans 3 para cuerpo. Ambas son Google Fonts, asi que no hay licencia que negociar. principal y apoyo son los nombres que usa el ANEXO A.1; titulares y cuerpo son los que consumen los componentes.",
+      "titulares": "Nunito, system-ui, sans-serif",
+      "cuerpo": "'Source Sans 3', system-ui, sans-serif",
+      "principal": "Nunito, system-ui, sans-serif",
+      "apoyo": "'Source Sans 3', system-ui, sans-serif",
       "monoespaciada": "ui-monospace, 'Cascadia Code', Consolas, monospace",
-      "estado": "PROVISIONAL"
+      "estado": "VIGENTE"
     },
     "escala": {
       "$comentario": "Base 16 px, razon ~1.25. En px porque es agnostico; el adaptador de la Fase 6 los convierte a sp, dp o rem segun el stack.",
-      "micro":    12,
-      "menor":    14,
-      "cuerpo":   16,
+      "micro": 12,
+      "menor": 14,
+      "cuerpo": 16,
       "cuerpo_grande": 18,
-      "titulo_menor":  20,
-      "titulo":        24,
-      "titulo_mayor":  30,
-      "despliegue":    36
+      "titulo_menor": 20,
+      "titulo": 24,
+      "titulo_mayor": 30,
+      "despliegue": 36
     },
-    "peso": { "regular": 400, "medio": 500, "semifuerte": 600, "fuerte": 700 },
-    "interlineado": { "apretado": 1.2, "normal": 1.5, "suelto": 1.7 },
-    "espaciado_letra": { "normal": "0", "titular": "-0.01em", "versalita": "0.04em" }
+    "peso": {
+      "regular": 400,
+      "medio": 500,
+      "semifuerte": 600,
+      "fuerte": 700
+    },
+    "interlineado": {
+      "apretado": 1.2,
+      "normal": 1.5,
+      "suelto": 1.7
+    },
+    "espaciado_letra": {
+      "normal": "0",
+      "titular": "-0.01em",
+      "versalita": "0.04em"
+    }
   },
-
   "espaciado": {
     "$comentario": "Base 4. Toda medida de layout sale de aqui; no hay numeros sueltos en los componentes.",
-    "0": 0, "1": 4, "2": 8, "3": 12, "4": 16, "5": 24, "6": 32, "7": 48, "8": 64
+    "0": 0,
+    "1": 4,
+    "2": 8,
+    "3": 12,
+    "4": 16,
+    "5": 24,
+    "6": 32,
+    "7": 48,
+    "8": 64
   },
-
-  "radio": { "nulo": 0, "chico": 4, "medio": 8, "grande": 12, "mayor": 16, "pildora": 999 },
-
+  "radio": {
+    "nulo": 0,
+    "chico": 4,
+    "medio": 8,
+    "grande": 12,
+    "mayor": 16,
+    "pildora": 999
+  },
   "elevacion": {
     "$comentario": "Sombra en claro; en oscuro la elevacion se expresa con superficie_elevada, no con sombra.",
     "0": "none",
@@ -236,16 +330,17 @@
     "2": "0 2px 8px rgba(14,18,22,.10)",
     "3": "0 8px 24px rgba(14,18,22,.14)"
   },
-
   "duracion": {
     "$comentario": "Milisegundos. Se respeta prefers-reduced-motion: con esa preferencia activa, todas valen 0.",
-    "instantanea": 0, "rapida": 120, "base": 200, "lenta": 320
+    "instantanea": 0,
+    "rapida": 120,
+    "base": 200,
+    "lenta": 320
   },
-
   "curva": {
     "estandar": "cubic-bezier(.2,0,0,1)",
-    "entrada":  "cubic-bezier(0,0,0,1)",
-    "salida":   "cubic-bezier(.3,0,1,1)"
+    "entrada": "cubic-bezier(0,0,0,1)",
+    "salida": "cubic-bezier(.3,0,1,1)"
   }
 }
 </script>
@@ -266,18 +361,20 @@
      Sirve para discutirlo mirándolo, no leyéndolo.</p>
 
   <div class="aviso">
-    <h3>Antes de mirar nada, tres advertencias</h3>
+    <h3>Tres cosas antes de mirar</h3>
     <ul>
-      <li><strong>La marca no existe todavía.</strong> Donde dice <span class="marcador">Lavandi</span>
-          irá el nombre cuando su nota de decisión pase a <span class="marcador">vigente</span>.
-          El nombre ya se eligió; falta verificarlo.</li>
-      <li><strong>Los colores y las tipografías son provisionales.</strong> La paleta oficial de cuatro
-          colores y las dos tipografías salen del proceso de identidad visual, que necesita el logotipo.
-          Están puestos en tonos neutros a propósito, para no contaminar esa decisión. Ningún componente
-          los usa directamente: todos pasan por la capa semántica, así que reemplazarlos no toca ni un
-          componente.</li>
-      <li><strong>Las cifras son relleno.</strong> Ningún número de esta página es una propuesta de precio,
-          de comisión ni de costo de envío. El método de fijación de precio sigue abierto.</li>
+      <li><strong>La marca es Lavandi.</strong> El cliente la eligió y Alfredo la aprobó por escrito.
+          Faltan dos verificaciones de diligencia: la búsqueda ante el IMPI y revisar que nadie más
+          use el nombre. Por eso la nota de decisión de marca sigue en
+          <span class="marcador">borrador</span>.</li>
+      <li><strong>La paleta y las tipografías son las definitivas.</strong> Agua, Cielo, Hueso y
+          Limón, con Nunito para titulares y Source Sans 3 para cuerpo.
+          <strong>Cuidado con una trampa:</strong> el azul Agua <span class="marcador">#2E86AB</span>
+          <strong>no se puede usar en texto</strong> — da 3.74:1 y el mínimo es 4.5. Para texto,
+          enlaces y botones va Agua Profundo <span class="marcador">#297899</span>, que da 4.51:1.
+          El Limón es solo relleno: sobre Hueso da 1.53:1 y nunca lleva texto encima.</li>
+      <li><strong>Las cifras siguen siendo relleno.</strong> Ningún número de esta página es una
+          propuesta de precio, de comisión ni de costo de envío.</li>
     </ul>
   </div>
 
@@ -479,7 +576,8 @@
   var mapaTipo = {micro:'micro',menor:'menor',cuerpo:'cuerpo',cuerpo_grande:'cuerpo-grande',
       titulo_menor:'titulo-menor',titulo:'titulo',titulo_mayor:'titulo-mayor',despliegue:'despliegue'};
   Object.keys(mapaTipo).forEach(function(k){ raiz.style.setProperty('--t-'+mapaTipo[k], t.escala[k]+'px'); });
-  raiz.style.setProperty('--t-principal', t.familia.principal);
+  raiz.style.setProperty('--t-principal', t.familia.cuerpo);
+  raiz.style.setProperty('--t-titulares', t.familia.titulares);
   raiz.style.setProperty('--t-mono', t.familia.monoespaciada);
   Object.keys(t.peso).forEach(function(k){ raiz.style.setProperty('--p-'+k, t.peso[k]); });
   Object.keys(t.interlineado).forEach(function(k){ raiz.style.setProperty('--i-'+k, t.interlineado[k]); });
