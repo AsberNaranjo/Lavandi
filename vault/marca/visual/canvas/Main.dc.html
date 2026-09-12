@@ -11,50 +11,60 @@
   <style>
     body { margin: 0; font-family: "Source Sans 3", "Segoe UI", system-ui, sans-serif; }
     a { color: #297899; } a:hover { color: #1F5A73; }
+    .rotulo { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #6B7681; font-weight: 600; }
   </style>
 </helmet>
 
-<div style="width: 880px; height: 620px; background: #F7F4EF; box-sizing: border-box; padding: 56px 64px; display: flex; flex-direction: column; gap: 36px;">
+<div style="width: 880px; height: 620px; background: #F7F4EF; box-sizing: border-box; padding: 48px 56px; display: flex; flex-direction: column; gap: 26px;">
 
-  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 32px;">
-    <div style="display: flex; flex-direction: column; gap: 10px;">
-      <div style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #6B7681; font-weight: 600;">Exploración de marca</div>
-      <div style="font-family: Nunito, system-ui, sans-serif; font-size: 54px; font-weight: 800; color: #297899; line-height: 1;">Lavandi</div>
-      <div style="font-size: 17px; color: #515A64;">lavandi.mx · Durango y La Laguna</div>
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <svg width="76" height="76" viewBox="0 0 120 120" aria-hidden="true">
+      <path d="M 32 26 L 32 72 Q 32 88 48 88 L 88 88" fill="none" stroke="#297899" stroke-width="26" stroke-linecap="round"></path>
+      <path d="M 32 26 L 32 72 Q 32 88 48 88 L 88 88" fill="none" stroke="#F7F4EF" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="7 9"></path>
+      <path d="M 84 20 C 74 20 66 28 66 38 C 66 50 84 62 84 62 C 84 62 102 50 102 38 C 102 28 94 20 84 20 Z" fill="#E8C547"></path>
+      <circle cx="84" cy="37" r="6.5" fill="#F7F4EF"></circle>
+    </svg>
+    <div>
+      <div style="font-family: Nunito, system-ui, sans-serif; font-size: 50px; font-weight: 800; color: #297899; line-height: 1;">Lavandi</div>
+      <div style="font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; color: #515A64; margin-top: 7px;">De tu cel a tu closet</div>
     </div>
-    <div style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: #FFFFFF; border: 1px solid #DCE0E5; border-radius: 999px;">
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #E8C547; display: inline-block;"></span>
-      <span style="font-size: 14px; color: #2A2118; font-weight: 600;">Dirección 1 · El tiempo de vuelta</span>
+    <div style="margin-left: auto; text-align: right;">
+      <div class="rotulo">Nombre y dominio</div>
+      <div style="font-size: 16px; color: #171C21; font-weight: 600; margin-top: 4px;">lavandi.mx</div>
     </div>
   </div>
 
-  <div style="padding: 28px 32px; background: #FFFFFF; border-left: 4px solid #E8C547; border-radius: 4px;">
-    <div style="font-family: Nunito, system-ui, sans-serif; font-size: 27px; font-weight: 600; color: #171C21; line-height: 1.35; font-style: italic;">
+  <div style="padding: 24px 28px; background: #FFFFFF; border-left: 4px solid #E8C547; border-radius: 4px;">
+    <div style="font-family: Nunito, system-ui, sans-serif; font-size: 25px; font-weight: 600; color: #171C21; line-height: 1.35; font-style: italic;">
       No vendemos lavado de ropa.<br>Vendemos el sábado que te devolvemos.
     </div>
-    <div style="margin-top: 14px; font-size: 15px; color: #515A64;">La idea que el cliente aprobó. Todo lo que sigue tiene que sostenerla.</div>
   </div>
 
-  <div style="display: flex; gap: 20px;">
-    <div style="flex-grow: 1; padding: 22px 24px; background: #FFFFFF; border: 1px solid #DCE0E5; border-radius: 6px; display: flex; flex-direction: column; gap: 8px;">
-      <div style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #6B7681; font-weight: 600;">Decisión 1 · Paleta</div>
-      <div style="font-family: Nunito, system-ui, sans-serif; font-size: 19px; font-weight: 600; color: #171C21;">Dos temperaturas de la misma idea</div>
-      <div style="font-size: 15px; color: #515A64; line-height: 1.5;">La aprobada, madurada y corregida, frente a una versión donde manda lo cálido. No son dos mundos: es quién lleva la voz.</div>
-    </div>
-    <div style="flex-grow: 1; padding: 22px 24px; background: #FFFFFF; border: 1px solid #DCE0E5; border-radius: 6px; display: flex; flex-direction: column; gap: 8px;">
-      <div style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #6B7681; font-weight: 600;">Decisión 2 · Símbolo</div>
-      <div style="font-family: Nunito, system-ui, sans-serif; font-size: 19px; font-weight: 600; color: #171C21;">Dejar de dibujar la inicial</div>
-      <div style="font-size: 15px; color: #515A64; line-height: 1.5;">Una L sirve para una librería o una aseguradora. Dos caminos para que el símbolo signifique algo.</div>
+  <div>
+    <div class="rotulo" style="margin-bottom: 12px;">Las tres observaciones del cliente, y qué pasó con cada una</div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;">
+      <div style="padding: 18px 20px; background: #FFFFFF; border-radius: 6px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-family: Nunito, system-ui, sans-serif; font-size: 17px; font-weight: 800; color: #297899;">Un pin, no un punto</div>
+        <div style="font-size: 14px; color: #515A64; line-height: 1.45;">Tomado. Dice ubicación y entrega, que es de lo que va el negocio.</div>
+      </div>
+      <div style="padding: 18px 20px; background: #FFFFFF; border-radius: 6px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-family: Nunito, system-ui, sans-serif; font-size: 17px; font-weight: 800; color: #297899;">La L es carretera</div>
+        <div style="font-size: 14px; color: #515A64; line-height: 1.45;">La mejor de las tres. La inicial deja de ser inicial y pasa a ser el recorrido.</div>
+      </div>
+      <div style="padding: 18px 20px; background: #FFFFFF; border-radius: 6px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-family: Nunito, system-ui, sans-serif; font-size: 17px; font-weight: 800; color: #297899;">La lavadora</div>
+        <div style="font-size: 14px; color: #515A64; line-height: 1.45;">Está en la variante 2, dibujada como puerta de lavadora y no como círculo en un cuadro.</div>
+      </div>
     </div>
   </div>
 
-  <div style="margin-top: auto; display: flex; align-items: center; gap: 14px; padding: 18px 24px; background: #A8D5E2; border-radius: 6px;">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#171C21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="9"></circle>
-      <path d="M12 8v4l3 2"></path>
+  <div style="margin-top: auto; display: flex; align-items: center; gap: 14px; padding: 18px 22px; background: #FFF8E1; border: 1px solid #E8C547; border-radius: 6px;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8A5A00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;" aria-hidden="true">
+      <path d="M12 9v4"></path><path d="M12 17h.01"></path>
+      <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"></path>
     </svg>
     <div style="font-size: 15px; color: #171C21; line-height: 1.5;">
-      <strong>Antes de dibujar:</strong> el azul Agua no pasa el contraste mínimo como texto ni como botón. Se corrige derivando un tono, no cambiando el color. La medición está en la siguiente lámina.
+      <strong>Lo único que no se tomó es el marco cuadrado.</strong> Es el rasgo que acerca el logotipo al glifo de Instagram, y eso se paga en el registro de marca. La lámina siguiente lo explica.
     </div>
   </div>
 

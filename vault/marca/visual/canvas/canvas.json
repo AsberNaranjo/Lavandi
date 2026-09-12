@@ -1,17 +1,28 @@
 {
+  "pages": [
+    { "id": "page-1", "name": "Logotipo" },
+    { "id": "page-2", "name": "Paletas" },
+    { "id": "page-3", "name": "Descartado" }
+  ],
   "artboards": [
-    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 880, "h": 620, "title": "Punto de partida" },
-    { "file": "Paleta1.dc.html", "x": 980, "y": 0, "w": 880, "h": 720, "title": "Paleta 1 · El tiempo de vuelta" },
-    { "file": "Paleta2.dc.html", "x": 1960, "y": 0, "w": 880, "h": 720, "title": "Paleta 2 · La vuelta a casa" },
-    { "file": "SimboloA.dc.html", "x": 0, "y": 840, "w": 720, "h": 640, "title": "Símbolo A · El punto que va y vuelve" },
-    { "file": "SimboloC.dc.html", "x": 820, "y": 840, "w": 720, "h": 640, "title": "Símbolo C · La prenda doblada" },
-    { "file": "BloqueDeMarca.dc.html", "x": 1640, "y": 840, "w": 1100, "h": 700, "title": "Bloque de marca" },
-    { "file": "EnContexto.dc.html", "x": 0, "y": 1660, "w": 940, "h": 1000, "title": "En contexto" }
+    { "file": "Main.dc.html", "page": "page-1", "x": 0, "y": 0, "w": 880, "h": 620, "title": "Punto de partida" },
+    { "file": "Parecido.dc.html", "page": "page-1", "x": 980, "y": 0, "w": 880, "h": 660, "title": "El parecido con Instagram" },
+    { "file": "Carretera1.dc.html", "page": "page-1", "x": 0, "y": 790, "w": 720, "h": 660, "title": "Variante 1 · Carretera y destino" },
+    { "file": "Carretera2.dc.html", "page": "page-1", "x": 820, "y": 790, "w": 720, "h": 660, "title": "Variante 2 · El viaje completo" },
+    { "file": "BloqueDeMarca.dc.html", "page": "page-1", "x": 1640, "y": 790, "w": 1100, "h": 700, "title": "Bloque de marca" },
+
+    { "file": "Paleta1.dc.html", "page": "page-2", "x": 0, "y": 0, "w": 880, "h": 720, "title": "Paleta 1 · El tiempo de vuelta" },
+    { "file": "Paleta2.dc.html", "page": "page-2", "x": 980, "y": 0, "w": 880, "h": 720, "title": "Paleta 2 · La vuelta a casa" },
+    { "file": "EnContexto.dc.html", "page": "page-2", "x": 1960, "y": 0, "w": 940, "h": 1000, "title": "En contexto" },
+
+    { "file": "SimboloA.dc.html", "page": "page-3", "x": 0, "y": 0, "w": 720, "h": 640, "title": "A · El punto que va y vuelve" },
+    { "file": "SimboloC.dc.html", "page": "page-3", "x": 820, "y": 0, "w": 720, "h": 640, "title": "C · La prenda doblada" }
   ],
   "annotations": [
-    { "id": "nota-contraste", "x": 980, "y": -150, "w": 380, "text": "Agua #2E86AB da 3.74:1 sobre Hueso y necesita 4.5. No se cambia el color: se deriva Agua Profundo #297899 para texto y botones." },
-    { "id": "nota-simbolos", "x": 0, "y": 720, "w": 340, "text": "Las dos direcciones parten de la idea que el cliente ya aprobó: no vendemos lavado, vendemos el tiempo que devolvemos." },
-    { "id": "nota-decision", "x": 1640, "y": 1580, "w": 400, "text": "Lo que hay que decidir: una paleta y un símbolo. Los dos símbolos funcionan en las dos paletas, así que son decisiones independientes." }
+    { "id": "nota-observaciones", "page": "page-1", "x": 0, "y": -150, "w": 380, "text": "El cliente eligió Lavandi y dio tres observaciones: pin en vez de punto, la L como carretera, y la lavadora. Las tres están tomadas." },
+    { "id": "nota-decision-logo", "page": "page-1", "x": 0, "y": 690, "w": 340, "text": "Hay que elegir una de las dos. La diferencia real aparece a 28 px: mira las pruebas de favicon, no están maquilladas." },
+    { "id": "nota-contraste", "page": "page-2", "x": 0, "y": -150, "w": 380, "text": "Agua #2E86AB da 3.74:1 sobre Hueso y necesita 4.5. No se cambia el color: se deriva Agua Profundo #297899 para texto y botones." },
+    { "id": "nota-descartado", "page": "page-3", "x": 0, "y": -150, "w": 420, "text": "Exploración anterior, antes de que el cliente diera su dirección. Se conserva por si alguna pieza sirve más adelante." }
   ],
-  "launch": { "view": "canvas" }
+  "launch": { "view": "canvas", "page": "page-1" }
 }

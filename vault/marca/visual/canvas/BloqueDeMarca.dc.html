@@ -12,32 +12,33 @@
     body { margin: 0; font-family: "Source Sans 3", "Segoe UI", system-ui, sans-serif; }
     a { color: #297899; } a:hover { color: #1F5A73; }
     .rotulo { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #6B7681; font-weight: 600; }
-    .celda { padding: 30px 32px; border-radius: 8px; display: flex; flex-direction: column; gap: 18px; }
+    .celda { padding: 28px 30px; border-radius: 8px; display: flex; flex-direction: column; gap: 16px; }
     .marca { display: flex; align-items: center; gap: 16px; }
     .nombre { font-family: Nunito, system-ui, sans-serif; font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -0.01em; }
     .bajada { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
   </style>
 </helmet>
 
-<div style="width: 1100px; height: 700px; background: #FFFFFF; box-sizing: border-box; padding: 40px 44px; display: flex; flex-direction: column; gap: 22px;">
+<div style="width: 1100px; height: 700px; background: #FFFFFF; box-sizing: border-box; padding: 40px 44px; display: flex; flex-direction: column; gap: 20px;">
 
   <div style="display: flex; align-items: baseline; justify-content: space-between;">
     <div>
       <div class="rotulo">Bloque de marca</div>
-      <div style="font-family: Nunito, system-ui, sans-serif; font-size: 28px; font-weight: 800; color: #297899;">Los dos símbolos, en las dos paletas</div>
+      <div style="font-family: Nunito, system-ui, sans-serif; font-size: 28px; font-weight: 800; color: #297899;">Las dos carreteras, en las dos paletas</div>
     </div>
-    <div style="font-size: 14px; color: #515A64;">La tipografía redondeada se conserva: es lo más resuelto de la propuesta original.</div>
+    <div style="font-size: 14px; color: #515A64;">Se conserva la tipografía redondeada del logotipo que trajo el cliente.</div>
   </div>
 
-  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px;">
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px;">
 
     <div class="celda" style="background: #F7F4EF;">
-      <div class="rotulo">A · El tiempo de vuelta</div>
+      <div class="rotulo">Variante 1 · El tiempo de vuelta</div>
       <div class="marca">
-        <svg width="66" height="66" viewBox="0 0 120 120" aria-hidden="true">
-          <path d="M 22 94 C 22 34 98 34 98 94" fill="none" stroke="#297899" stroke-width="16" stroke-linecap="round"></path>
-          <circle cx="86" cy="60" r="16" fill="#F7F4EF"></circle>
-          <circle cx="86" cy="60" r="11" fill="#E8C547"></circle>
+        <svg width="70" height="70" viewBox="0 0 120 120" aria-hidden="true">
+          <path d="M 32 26 L 32 72 Q 32 88 48 88 L 88 88" fill="none" stroke="#297899" stroke-width="26" stroke-linecap="round"></path>
+          <path d="M 32 26 L 32 72 Q 32 88 48 88 L 88 88" fill="none" stroke="#F7F4EF" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="7 9"></path>
+          <path d="M 84 20 C 74 20 66 28 66 38 C 66 50 84 62 84 62 C 84 62 102 50 102 38 C 102 28 94 20 84 20 Z" fill="#E8C547"></path>
+          <circle cx="84" cy="37" r="6.5" fill="#F7F4EF"></circle>
         </svg>
         <div>
           <div class="nombre" style="color: #297899;">Lavandi</div>
@@ -47,13 +48,15 @@
     </div>
 
     <div class="celda" style="background: #F7F4EF;">
-      <div class="rotulo">C · El tiempo de vuelta</div>
+      <div class="rotulo">Variante 2 · El tiempo de vuelta</div>
       <div class="marca">
-        <svg width="66" height="66" viewBox="0 0 120 120" aria-hidden="true">
-          <rect x="24" y="18" width="26" height="84" rx="9" fill="#297899"></rect>
-          <rect x="24" y="76" width="72" height="26" rx="9" fill="#297899"></rect>
-          <path d="M 27 79 L 47 99" fill="none" stroke="#A8D5E2" stroke-width="3" stroke-linecap="round"></path>
-          <circle cx="74" cy="47" r="12" fill="#E8C547"></circle>
+        <svg width="70" height="70" viewBox="0 0 120 120" aria-hidden="true">
+          <path d="M 32 52 L 32 74 Q 32 88 46 88 L 70 88" fill="none" stroke="#297899" stroke-width="22" stroke-linecap="round"></path>
+          <path d="M 32 52 L 32 74 Q 32 88 46 88 L 70 88" fill="none" stroke="#F7F4EF" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 8"></path>
+          <path d="M 32 12 C 22 12 14 20 14 30 C 14 42 32 54 32 54 C 32 54 50 42 50 30 C 50 20 42 12 32 12 Z" fill="#E8C547"></path>
+          <circle cx="32" cy="29" r="6" fill="#F7F4EF"></circle>
+          <circle cx="92" cy="88" r="17" fill="none" stroke="#297899" stroke-width="8"></circle>
+          <circle cx="92" cy="88" r="6" fill="#E8C547"></circle>
         </svg>
         <div>
           <div class="nombre" style="color: #297899;">Lavandi</div>
@@ -63,12 +66,13 @@
     </div>
 
     <div class="celda" style="background: #EADDCB;">
-      <div class="rotulo" style="color: #6B6055;">A · La vuelta a casa</div>
+      <div class="rotulo" style="color: #6B6055;">Variante 1 · La vuelta a casa</div>
       <div class="marca">
-        <svg width="66" height="66" viewBox="0 0 120 120" aria-hidden="true">
-          <path d="M 22 94 C 22 34 98 34 98 94" fill="none" stroke="#A85434" stroke-width="16" stroke-linecap="round"></path>
-          <circle cx="86" cy="60" r="16" fill="#EADDCB"></circle>
-          <circle cx="86" cy="60" r="11" fill="#297899"></circle>
+        <svg width="70" height="70" viewBox="0 0 120 120" aria-hidden="true">
+          <path d="M 32 26 L 32 72 Q 32 88 48 88 L 88 88" fill="none" stroke="#A85434" stroke-width="26" stroke-linecap="round"></path>
+          <path d="M 32 26 L 32 72 Q 32 88 48 88 L 88 88" fill="none" stroke="#EADDCB" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="7 9"></path>
+          <path d="M 84 20 C 74 20 66 28 66 38 C 66 50 84 62 84 62 C 84 62 102 50 102 38 C 102 28 94 20 84 20 Z" fill="#297899"></path>
+          <circle cx="84" cy="37" r="6.5" fill="#EADDCB"></circle>
         </svg>
         <div>
           <div class="nombre" style="color: #A85434;">Lavandi</div>
@@ -78,13 +82,15 @@
     </div>
 
     <div class="celda" style="background: #EADDCB;">
-      <div class="rotulo" style="color: #6B6055;">C · La vuelta a casa</div>
+      <div class="rotulo" style="color: #6B6055;">Variante 2 · La vuelta a casa</div>
       <div class="marca">
-        <svg width="66" height="66" viewBox="0 0 120 120" aria-hidden="true">
-          <rect x="24" y="18" width="26" height="84" rx="9" fill="#A85434"></rect>
-          <rect x="24" y="76" width="72" height="26" rx="9" fill="#A85434"></rect>
-          <path d="M 27 79 L 47 99" fill="none" stroke="#EADDCB" stroke-width="3" stroke-linecap="round"></path>
-          <circle cx="74" cy="47" r="12" fill="#297899"></circle>
+        <svg width="70" height="70" viewBox="0 0 120 120" aria-hidden="true">
+          <path d="M 32 52 L 32 74 Q 32 88 46 88 L 70 88" fill="none" stroke="#A85434" stroke-width="22" stroke-linecap="round"></path>
+          <path d="M 32 52 L 32 74 Q 32 88 46 88 L 70 88" fill="none" stroke="#EADDCB" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 8"></path>
+          <path d="M 32 12 C 22 12 14 20 14 30 C 14 42 32 54 32 54 C 32 54 50 42 50 30 C 50 20 42 12 32 12 Z" fill="#297899"></path>
+          <circle cx="32" cy="29" r="6" fill="#EADDCB"></circle>
+          <circle cx="92" cy="88" r="17" fill="none" stroke="#A85434" stroke-width="8"></circle>
+          <circle cx="92" cy="88" r="6" fill="#297899"></circle>
         </svg>
         <div>
           <div class="nombre" style="color: #A85434;">Lavandi</div>
@@ -98,7 +104,7 @@
   <div style="display: flex; gap: 18px; margin-top: auto; align-items: stretch;">
     <div style="flex-grow: 1; padding: 18px 22px; background: #A8D5E2; border-radius: 6px;">
       <div style="font-size: 15px; color: #171C21; line-height: 1.55;">
-        <strong>Sobre el tagline.</strong> En el bloque de marca va la línea corta, que es específica de este negocio y no la puede usar nadie más. "Con seguridad, rapidez y comodidad" vive en la landing y en el guion de reclutamiento, donde hay espacio para sostenerla con hechos.
+        <strong>Sobre el tagline.</strong> En el bloque de marca va la línea corta, que es específica de este negocio. "Con seguridad, rapidez y comodidad" vive en la landing y en el guion de reclutamiento, donde hay espacio para sostenerla con hechos.
       </div>
     </div>
     <div style="width: 300px; padding: 18px 22px; background: #F7F4EF; border: 1px solid #DCE0E5; border-radius: 6px;">
