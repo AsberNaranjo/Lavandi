@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Source Sans 3', system-ui, sans-serif; }
+    a { color: #297899; } a:hover { color: #1F5A73; }
+  </style>
+</helmet>
+<div style="background: {{c.fondo}}; color: {{c.texto}}; padding: 32px; box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; gap: 20px">
+
+  <div style="display: flex; flex-direction: column; gap: 4px">
+    <div style="font-family: 'Nunito', system-ui, sans-serif; font-size: 24px; font-weight: 700; line-height: 1.2">Seguimiento del pedido</div>
+    <div style="font-size: 14px; color: {{c.textoSuave}}; line-height: 1.5">Los cinco estados son literales del contrato: <strong style="color: {{c.texto}}">Confirmado, Recolectado, En proceso, Listo, Entregado</strong>. No se renombran, no se agrupan y no se añade un sexto.</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px">
+    <sc-for list="{{pedidos}}" as="p" hint-placeholder-count="3">
+      <div style="background: {{c.superficie}}; border: 1px solid {{c.borde}}; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+          <div style="font-size: 14px; font-weight: 600">Pedido {{p.folio}}</div>
+          <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid {{p.color}}; color: {{p.color}}; flex: none">
+            <div style="width: 8px; height: 8px; border-radius: 999px; background: {{p.color}}; flex: none"></div>
+            {{p.estado}}
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 6px">
+          <sc-for list="{{p.pasos}}" as="s" hint-placeholder-count="5">
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px">
+              <div style="height: 5px; border-radius: 999px; background: {{s.barra}}"></div>
+              <div style="font-size: 10px; line-height: 1.25; color: {{s.color}}; font-weight: {{s.peso}}">{{s.nombre}}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="font-size: 13px; color: {{c.textoSuave}}; line-height: 1.5">{{p.mensaje}}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="font-size: 13px; color: {{c.textoSuave}}; line-height: 1.5">El mapeo desde los estados de la lavandería y del repartidor hacia estos cinco todavía no está definido: depende de cuatro decisiones del cliente.</div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"modo":{"editor":"enum","options":["claro","oscuro"],"default":"claro","section":"Modo"}}'>
+class Component extends DCLogic {
+  paleta(m) {
+    var P = {
+      claro:  { fondo:'#F7F4EF', superficie:'#FFFFFF', hundida:'#EDE9E2', texto:'#171C21',
+                textoSuave:'#515A64', borde:'#DCE0E5', accion:'#297899',
+                estados:{ confirmado:'#1F5C8C', recolectado:'#5A4B8A', enProceso:'#8A5A00', listo:'#1E6F45', entregado:'#515A64' } },
+      oscuro: { fondo:'#0E1216', superficie:'#171C21', hundida:'#262C33', texto:'#F7F8F9',
+                textoSuave:'#C0C6CE', borde:'#3B424A', accion:'#308CB3',
+                estados:{ confirmado:'#7FC1F0', recolectado:'#B9AEE8', enProceso:'#F0B84D', listo:'#5FD39B', entregado:'#C0C6CE' } }
+    };
+    return P[m] || P.claro;
+  }
+  renderVals() {
+    var c = this.paleta(this.props.modo ?? 'claro');
+    var NOMBRES = ['Confirmado', 'Recolectado', 'En proceso', 'Listo', 'Entregado'];
+    var CLAVES = ['confirmado', 'recolectado', 'enProceso', 'listo', 'entregado'];
+    function pasos(actual) {
+      return NOMBRES.map(function (n, i) {
+        if (i < actual) return { nombre: n, barra: c.estados.listo, color: c.textoSuave, peso: 400 };
+        if (i === actual) return { nombre: n, barra: c.estados[CLAVES[i]], color: c.texto, peso: 600 };
+        return { nombre: n, barra: c.hundida, color: c.textoSuave, peso: 400 };
+      });
+    }
+    return {
+      c: c,
+      pedidos: [
+        { folio: 'A0001', estado: 'Recolectado', color: c.estados.recolectado, pasos: pasos(1),
+          mensaje: 'Tu ropa va en camino a la lavandería.' },
+        { folio: 'A0002', estado: 'Listo', color: c.estados.listo, pasos: pasos(3),
+          mensaje: 'Tu ropa está lista. Vamos para allá.' },
+        { folio: 'A0003', estado: 'Entregado', color: c.estados.entregado, pasos: pasos(4),
+          mensaje: 'Entregado el martes a las 18:40.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

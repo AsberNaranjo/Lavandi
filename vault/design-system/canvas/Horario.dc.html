@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Source Sans 3', system-ui, sans-serif; }
+    a { color: #297899; } a:hover { color: #1F5A73; }
+  </style>
+</helmet>
+<div style="background: {{c.fondo}}; color: {{c.texto}}; padding: 32px; box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; gap: 20px">
+
+  <div style="display: flex; flex-direction: column; gap: 4px">
+    <div style="font-family: 'Nunito', system-ui, sans-serif; font-size: 24px; font-weight: 700; line-height: 1.2">Selector de fecha y hora</div>
+    <div style="font-size: 14px; color: {{c.textoSuave}}; line-height: 1.5">Ventanas de <strong style="color: {{c.texto}}">una hora exacta</strong>: lo fija el contrato, no es una elección de diseño.</div>
+  </div>
+
+  <div style="background: {{c.superficie}}; border: 1px solid {{c.borde}}; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 16px">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+      <div style="width: 48px; height: 48px; border-radius: 8px; border: 1px solid {{c.bordeFuerte}}; display: flex; align-items: center; justify-content: center; flex: none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{c.texto}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </div>
+      <div style="font-family: 'Nunito', system-ui, sans-serif; font-size: 17px; font-weight: 700">Jueves 17 de septiembre</div>
+      <div style="width: 48px; height: 48px; border-radius: 8px; border: 1px solid {{c.bordeFuerte}}; display: flex; align-items: center; justify-content: center; flex: none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{c.texto}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+      <sc-for list="{{ventanas}}" as="v" hint-placeholder-count="9">
+        <div style="min-height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 500; background: {{v.fondo}}; color: {{v.color}}; border: 1px solid {{v.borde}}; text-decoration: {{v.tachado}}">{{v.hora}}</div>
+      </sc-for>
+    </div>
+
+    <div style="font-size: 13px; color: {{c.textoSuave}}; line-height: 1.5">Las ventanas sin cupo se ven tachadas pero <strong style="color: {{c.texto}}">visibles</strong>. Que el usuario vea que las 9:00 ya se llenaron le informa más que esconderlas.</div>
+  </div>
+
+  <div style="display: flex; gap: 20px; flex-wrap: wrap">
+    <sc-for list="{{leyenda}}" as="l" hint-placeholder-count="3">
+      <div style="display: flex; align-items: center; gap: 8px">
+        <div style="width: 22px; height: 22px; border-radius: 5px; background: {{l.fondo}}; border: 1px solid {{l.borde}}; flex: none"></div>
+        <div style="font-size: 13px; color: {{c.textoSuave}}">{{l.nombre}}</div>
+      </div>
+    </sc-for>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"modo":{"editor":"enum","options":["claro","oscuro"],"default":"claro","section":"Modo"}}'>
+class Component extends DCLogic {
+  paleta(m) {
+    var P = {
+      claro:  { fondo:'#F7F4EF', superficie:'#FFFFFF', hundida:'#EDE9E2', texto:'#171C21',
+                textoSuave:'#515A64', desactivado:'#6B7681', borde:'#DCE0E5', bordeFuerte:'#6B7681',
+                accion:'#297899', accionTexto:'#FFFFFF' },
+      oscuro: { fondo:'#0E1216', superficie:'#171C21', hundida:'#0E1216', texto:'#F7F8F9',
+                textoSuave:'#C0C6CE', desactivado:'#98A1AC', borde:'#3B424A', bordeFuerte:'#98A1AC',
+                accion:'#308CB3', accionTexto:'#0E1216' }
+    };
+    return P[m] || P.claro;
+  }
+  renderVals() {
+    var c = this.paleta(this.props.modo ?? 'claro');
+    var horas = ['9:00 – 10:00','10:00 – 11:00','11:00 – 12:00','12:00 – 13:00','13:00 – 14:00','14:00 – 15:00','15:00 – 16:00','16:00 – 17:00','17:00 – 18:00'];
+    var sinCupo = { '9:00 – 10:00': true, '13:00 – 14:00': true, '17:00 – 18:00': true };
+    var elegida = '11:00 – 12:00';
+    return {
+      c: c,
+      ventanas: horas.map(function (h) {
+        if (h === elegida) {
+          return { hora: h, fondo: c.accion, color: c.accionTexto, borde: c.accion, tachado: 'none' };
+        }
+        if (sinCupo[h]) {
+          return { hora: h, fondo: c.hundida, color: c.desactivado, borde: c.borde, tachado: 'line-through' };
+        }
+        return { hora: h, fondo: c.superficie, color: c.texto, borde: c.bordeFuerte, tachado: 'none' };
+      }),
+      leyenda: [
+        { nombre: 'Disponible',  fondo: c.superficie, borde: c.bordeFuerte },
+        { nombre: 'Seleccionada', fondo: c.accion,    borde: c.accion },
+        { nombre: 'Sin cupo',     fondo: c.hundida,   borde: c.borde }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

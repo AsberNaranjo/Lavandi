@@ -1,0 +1,28 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html",             "x": 0,    "y": 0,    "w": 1100, "h": 1260, "title": "Cimientos" },
+    { "file": "Lavanderia.dc.html",       "x": 1180, "y": 0,    "w": 1200, "h": 440,  "title": "1 · Tarjeta de lavandería" },
+    { "file": "Horario.dc.html",          "x": 1180, "y": 560,  "w": 680,  "h": 560,  "title": "2 · Fecha y hora" },
+    { "file": "Resumen.dc.html",          "x": 2460, "y": 0,    "w": 620,  "h": 800,  "title": "6 · Resumen del pedido" },
+    { "file": "Seguimiento.dc.html",      "x": 0,    "y": 1380, "w": 1200, "h": 420,  "title": "3 · Seguimiento" },
+    { "file": "PedidoLavanderia.dc.html", "x": 1280, "y": 1380, "w": 1200, "h": 460,  "title": "4 · Pedido — lavandería" },
+    { "file": "PedidoRepartidor.dc.html", "x": 0,    "y": 1920, "w": 1200, "h": 460,  "title": "5 · Pedido — repartidor" }
+  ],
+  "annotations": [
+    {
+      "id": "que-es",
+      "x": 0,
+      "y": -230,
+      "w": 560,
+      "text": "Design system de Lavandi — los seis componentes que exige el anexo de la app, en sus estados.\n\nCada artboard de componente tiene arriba un interruptor Modo: claro / oscuro. La composición no cambia entre modos, solo el diccionario de color.\n\nTodos los valores salen de tokens.json, ya verificados."
+    },
+    {
+      "id": "pendientes",
+      "x": 1280,
+      "y": 1980,
+      "w": 560,
+      "text": "Lo que a propósito NO está resuelto aquí:\n\n· El mapeo entre los estados de la lavandería y del repartidor y los cinco que ve el usuario.\n· Quién asigna al repartidor.\n· La política de cancelación.\n· En qué momento se cobra.\n\nLas cuatro las decide el cliente. Están en el requerimiento que se le envió. Ningún monto de este canvas es una propuesta de precio."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}
