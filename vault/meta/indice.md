@@ -62,7 +62,8 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Stack (Fase 6)
 
-- pendiente: matriz de criterios ponderados y doce ADRs
+- [[matriz-de-criterios-stack]] — cuatro puertas eliminatorias y siete criterios con peso propuesto. **Detenida hasta que Nadir ajuste los pesos y responda DD-038**
+- pendiente: los doce ADRs
 
 ## Formas de trabajo (Fase 7)
 
