@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #F7F4EF; font-family: Figtree, system-ui, 'Segoe UI', sans-serif; color: #17394B; }
+    a { color: #2E86AB; } a:hover { color: #17394B; }
+    .rotulo { font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; margin: 0; }
+    .nombre { font-size: 16px; font-weight: 600; margin: 0; color: #2E86AB; }
+    .txt { font-size: 13px; line-height: 1.55; margin: 0; }
+    .contra { font-size: 12px; line-height: 1.55; margin: 0; }
+    .lienzo { background: #FFFFFF; border: 1px solid #A8D5E2; border-radius: 12px; display: flex; align-items: center; justify-content: center; height: 172px; }
+  </style>
+</helmet>
+<div style="padding: 48px; display: flex; flex-direction: column; gap: 24px;">
+
+  <div style="display: flex; flex-direction: column; gap: 8px;">
+    <p class="rotulo">Cuatro maneras de resolver el mismo símbolo</p>
+    <p class="txt">Las cuatro parten del boceto: la L es el camino, la lavadora vive en el giro, el punto de entrega cierra. Cambia cómo se integra el tambor. A es la candidata: es la que sostiene el icono y las cuatro versiones.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;">
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <div class="lienzo">
+        <svg viewBox="0 0 96 96" width="132" height="132" role="img" aria-label="Variante A, Maqueta">
+          <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#2E86AB" stroke-width="13" stroke-linecap="round"></path>
+          <rect x="27" y="24" width="44" height="44" rx="13" fill="#2E86AB"></rect>
+          <circle cx="49" cy="46" r="14" fill="#FFFFFF"></circle>
+          <circle cx="49" cy="46" r="7.5" fill="#A8D5E2"></circle>
+          <circle cx="80" cy="78" r="5" fill="#E8C547"></circle>
+        </svg>
+      </div>
+      <p class="nombre">A · Maqueta</p>
+      <p class="txt">El boceto, ajustado a retícula. Cuerpo y puerta hacen que la lavadora se lea sin explicación.</p>
+      <p class="contra"><strong>A cambio:</strong> es el de más masa. A 16 px el cuerpo y el pie casi se juntan.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <div class="lienzo">
+        <svg viewBox="0 0 96 96" width="132" height="132" role="img" aria-label="Variante B, Fundida">
+          <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#2E86AB" stroke-width="13" stroke-linecap="round"></path>
+          <rect x="20" y="18" width="52" height="54" rx="14" fill="#2E86AB"></rect>
+          <circle cx="46" cy="45" r="15" fill="#FFFFFF"></circle>
+          <circle cx="46" cy="45" r="8" fill="#A8D5E2"></circle>
+          <circle cx="80" cy="78" r="5" fill="#E8C547"></circle>
+        </svg>
+      </div>
+      <p class="nombre">B · Fundida</p>
+      <p class="txt">El mismo dibujo sin separaciones: camino y lavadora son una sola silueta continua.</p>
+      <p class="contra"><strong>A cambio:</strong> pierde el aire que hace legible la puerta y la L se disuelve.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <div class="lienzo">
+        <svg viewBox="0 0 96 96" width="132" height="132" role="img" aria-label="Variante C, Tambor">
+          <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#2E86AB" stroke-width="13" stroke-linecap="round"></path>
+          <circle cx="49" cy="46" r="22" fill="#2E86AB"></circle>
+          <circle cx="49" cy="46" r="11" fill="#FFFFFF"></circle>
+          <circle cx="49" cy="46" r="5.5" fill="#A8D5E2"></circle>
+          <circle cx="80" cy="78" r="5" fill="#E8C547"></circle>
+        </svg>
+      </div>
+      <p class="nombre">C · Tambor</p>
+      <p class="txt">Sin cuerpo: el tambor inscrito en el lugar que ocupaba. El más compacto de los cuatro.</p>
+      <p class="contra"><strong>A cambio:</strong> sin cuerpo, el círculo puede leerse como punto de mapa o como lupa.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <div class="lienzo">
+        <svg viewBox="0 0 96 96" width="132" height="132" role="img" aria-label="Variante D, Vuelta">
+          <path d="M18 17L18 51A14 14 0 0 0 32 65L50 65" fill="none" stroke="#2E86AB" stroke-width="13" stroke-linecap="round"></path>
+          <circle cx="64" cy="65" r="14" fill="none" stroke="#2E86AB" stroke-width="13"></circle>
+          <circle cx="64" cy="65" r="7.5" fill="#A8D5E2"></circle>
+          <circle cx="64" cy="65" r="3.5" fill="#E8C547"></circle>
+        </svg>
+      </div>
+      <p class="nombre">D · Vuelta</p>
+      <p class="txt">Monolínea. El pie termina en el tambor: la entrega y la lavadora son la misma forma.</p>
+      <p class="contra"><strong>A cambio:</strong> la L pesa menos y el recorrido se puede leer al revés.</p>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

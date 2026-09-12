@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #F7F4EF; font-family: Figtree, system-ui, 'Segoe UI', sans-serif; color: #17394B; }
+    a { color: #2E86AB; } a:hover { color: #17394B; }
+    .rotulo { font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; margin: 0; }
+    .nombre { font-size: 15px; font-weight: 600; margin: 0; color: #2E86AB; }
+    .txt { font-size: 13px; line-height: 1.55; margin: 0; }
+    .px { font-size: 11px; font-weight: 500; color: #17394B; margin: 0; text-align: center; }
+  </style>
+</helmet>
+<div style="padding: 44px 48px; display: flex; flex-direction: column; gap: 22px;">
+
+  <div style="display: flex; flex-direction: column; gap: 8px;">
+    <p class="rotulo">Icono de aplicacion</p>
+    <p class="txt">El simbolo no cambia de dibujo al achicarse: pierde detalle en un orden decidido. Primero el vidrio Cielo, despues el punto Limon.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px;">
+
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <svg viewBox="0 0 128 128" width="118" height="118" role="img" aria-label="Icono completo">
+        <rect x="0" y="0" width="128" height="128" rx="28.6" fill="#2E86AB"></rect>
+        <g transform="translate(11.5, 11.2) scale(1.1)">
+          <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#F7F4EF" stroke-width="13" stroke-linecap="round"></path>
+          <rect x="27" y="24" width="44" height="44" rx="13" fill="#F7F4EF"></rect>
+          <circle cx="49" cy="46" r="14" fill="#2E86AB"></circle>
+          <circle cx="49" cy="46" r="7.5" fill="#A8D5E2"></circle>
+          <circle cx="80" cy="78" r="5" fill="#E8C547"></circle>
+        </g>
+      </svg>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <p class="nombre">Completo</p>
+        <p class="txt">Desde 48 px. Es el que va a las tiendas y a la pantalla de inicio.</p>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <svg viewBox="0 0 128 128" width="118" height="118" role="img" aria-label="Icono simplificado">
+        <rect x="0" y="0" width="128" height="128" rx="28.6" fill="#2E86AB"></rect>
+        <g transform="translate(11.5, 11.2) scale(1.1)">
+          <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#F7F4EF" stroke-width="13" stroke-linecap="round"></path>
+          <rect x="27" y="24" width="44" height="44" rx="13" fill="#F7F4EF"></rect>
+          <circle cx="49" cy="46" r="14" fill="#2E86AB"></circle>
+          <circle cx="80" cy="78" r="5" fill="#F7F4EF"></circle>
+        </g>
+      </svg>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <p class="nombre">Simplificado</p>
+        <p class="txt">De 16 a 32 px: favicon, notificacion, marcador de mapa. Una sola tinta sobre Agua.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="height: 1px; background: #A8D5E2;"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 16px;">
+    <p class="rotulo">Prueba a tamano real</p>
+    <div style="display: flex; align-items: flex-end; gap: 30px;">
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg viewBox="0 0 128 128" width="64" height="64" role="img" aria-label="Icono a 64 pixeles">
+          <rect x="0" y="0" width="128" height="128" rx="28.6" fill="#2E86AB"></rect>
+          <g transform="translate(11.5, 11.2) scale(1.1)">
+            <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#F7F4EF" stroke-width="13" stroke-linecap="round"></path>
+            <rect x="27" y="24" width="44" height="44" rx="13" fill="#F7F4EF"></rect>
+            <circle cx="49" cy="46" r="14" fill="#2E86AB"></circle>
+            <circle cx="49" cy="46" r="7.5" fill="#A8D5E2"></circle>
+            <circle cx="80" cy="78" r="5" fill="#E8C547"></circle>
+          </g>
+        </svg>
+        <p class="px">64</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg viewBox="0 0 128 128" width="48" height="48" role="img" aria-label="Icono a 48 pixeles">
+          <rect x="0" y="0" width="128" height="128" rx="28.6" fill="#2E86AB"></rect>
+          <g transform="translate(11.5, 11.2) scale(1.1)">
+            <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#F7F4EF" stroke-width="13" stroke-linecap="round"></path>
+            <rect x="27" y="24" width="44" height="44" rx="13" fill="#F7F4EF"></rect>
+            <circle cx="49" cy="46" r="14" fill="#2E86AB"></circle>
+            <circle cx="49" cy="46" r="7.5" fill="#A8D5E2"></circle>
+            <circle cx="80" cy="78" r="5" fill="#E8C547"></circle>
+          </g>
+        </svg>
+        <p class="px">48</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg viewBox="0 0 128 128" width="32" height="32" role="img" aria-label="Icono a 32 pixeles">
+          <rect x="0" y="0" width="128" height="128" rx="28.6" fill="#2E86AB"></rect>
+          <g transform="translate(11.5, 11.2) scale(1.1)">
+            <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#F7F4EF" stroke-width="13" stroke-linecap="round"></path>
+            <rect x="27" y="24" width="44" height="44" rx="13" fill="#F7F4EF"></rect>
+            <circle cx="49" cy="46" r="14" fill="#2E86AB"></circle>
+            <circle cx="80" cy="78" r="5" fill="#F7F4EF"></circle>
+          </g>
+        </svg>
+        <p class="px">32</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg viewBox="0 0 128 128" width="24" height="24" role="img" aria-label="Icono a 24 pixeles">
+          <rect x="0" y="0" width="128" height="128" rx="28.6" fill="#2E86AB"></rect>
+          <g transform="translate(11.5, 11.2) scale(1.1)">
+            <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#F7F4EF" stroke-width="13" stroke-linecap="round"></path>
+            <rect x="27" y="24" width="44" height="44" rx="13" fill="#F7F4EF"></rect>
+            <circle cx="49" cy="46" r="14" fill="#2E86AB"></circle>
+            <circle cx="80" cy="78" r="5" fill="#F7F4EF"></circle>
+          </g>
+        </svg>
+        <p class="px">24</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg viewBox="0 0 128 128" width="16" height="16" role="img" aria-label="Icono a 16 pixeles">
+          <rect x="0" y="0" width="128" height="128" rx="28.6" fill="#2E86AB"></rect>
+          <g transform="translate(11.5, 11.2) scale(1.1)">
+            <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#F7F4EF" stroke-width="13" stroke-linecap="round"></path>
+            <rect x="27" y="24" width="44" height="44" rx="13" fill="#F7F4EF"></rect>
+            <circle cx="49" cy="46" r="14" fill="#2E86AB"></circle>
+            <circle cx="80" cy="78" r="5" fill="#F7F4EF"></circle>
+          </g>
+        </svg>
+        <p class="px">16</p>
+      </div>
+
+      <p class="txt" style="flex-grow: 1; padding-bottom: 6px;">A 16 px el punto de entrega ya solo aporta peso, no significado. Si la tienda exige un solo archivo, gana el completo: nadie ve el icono de una app a 16 px.</p>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

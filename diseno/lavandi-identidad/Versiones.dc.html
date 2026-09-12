@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Figtree:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #F7F4EF; font-family: Figtree, system-ui, 'Segoe UI', sans-serif; color: #17394B; }
+    a { color: #2E86AB; } a:hover { color: #17394B; }
+    .rotulo { font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; margin: 0; }
+    .nombre { font-size: 15px; font-weight: 600; margin: 0; color: #2E86AB; }
+    .txt { font-size: 13px; line-height: 1.55; margin: 0; }
+    .panel { border-radius: 12px; display: flex; align-items: center; justify-content: center; height: 190px; }
+    .marca { font-family: Quicksand, system-ui, 'Segoe UI', sans-serif; font-weight: 700; letter-spacing: -.015em; line-height: 1; margin: 0; font-size: 30px; }
+  </style>
+</helmet>
+<div style="padding: 48px; display: flex; flex-direction: column; gap: 24px;">
+
+  <div style="display: flex; flex-direction: column; gap: 8px;">
+    <p class="rotulo">Las cuatro versiones del ANEXO A.1</p>
+    <p class="txt">Mismo dibujo en los cuatro casos. Lo unico que cambia es cuantas tintas admite el soporte.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;">
+
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div class="panel" style="background: #F7F4EF; border: 1px solid #A8D5E2;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <svg viewBox="0 0 96 96" width="76" height="76" role="img" aria-label="Version principal a color">
+            <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#2E86AB" stroke-width="13" stroke-linecap="round"></path>
+            <rect x="27" y="24" width="44" height="44" rx="13" fill="#2E86AB"></rect>
+            <circle cx="49" cy="46" r="14" fill="#F7F4EF"></circle>
+            <circle cx="49" cy="46" r="7.5" fill="#A8D5E2"></circle>
+            <circle cx="80" cy="78" r="5" fill="#E8C547"></circle>
+          </svg>
+          <p class="marca" style="color: #2E86AB;">Lavandi</p>
+        </div>
+      </div>
+      <p class="nombre">1 · Principal</p>
+      <p class="txt">Cuatro colores sobre Hueso. Es la version por defecto en pantalla y en papel a color.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div class="panel" style="background: #F7F4EF; border: 1px solid #A8D5E2;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <svg viewBox="0 0 96 96" width="76" height="76" role="img" aria-label="Version de una tinta">
+            <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#2E86AB" stroke-width="13" stroke-linecap="round"></path>
+            <rect x="27" y="24" width="44" height="44" rx="13" fill="#2E86AB"></rect>
+            <circle cx="49" cy="46" r="14" fill="#F7F4EF"></circle>
+            <circle cx="80" cy="78" r="5" fill="#2E86AB"></circle>
+          </svg>
+          <p class="marca" style="color: #2E86AB;">Lavandi</p>
+        </div>
+      </div>
+      <p class="nombre">2 · Una tinta</p>
+      <p class="txt">Solo Agua. Cae el vidrio Cielo y el punto de entrega pasa a Agua: en Limon se pierde al imprimir.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div class="panel" style="background: #2E86AB;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <svg viewBox="0 0 96 96" width="76" height="76" role="img" aria-label="Version negativa">
+            <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#F7F4EF" stroke-width="13" stroke-linecap="round"></path>
+            <rect x="27" y="24" width="44" height="44" rx="13" fill="#F7F4EF"></rect>
+            <circle cx="49" cy="46" r="14" fill="#2E86AB"></circle>
+            <circle cx="49" cy="46" r="7.5" fill="#A8D5E2"></circle>
+            <circle cx="80" cy="78" r="5" fill="#E8C547"></circle>
+          </svg>
+          <p class="marca" style="color: #F7F4EF;">Lavandi</p>
+        </div>
+      </div>
+      <p class="nombre">3 · Negativa</p>
+      <p class="txt">Sobre Agua plano. Hueso sobre Agua da 3.74:1: alcanza para el logotipo, no para texto corrido.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div class="panel" style="background: #F7F4EF; border: 1px solid #A8D5E2;">
+        <svg viewBox="0 0 128 128" width="132" height="132" role="img" aria-label="Icono de aplicacion">
+          <rect x="0" y="0" width="128" height="128" rx="28.6" fill="#2E86AB"></rect>
+          <g transform="translate(11.5, 11.2) scale(1.1)">
+            <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#F7F4EF" stroke-width="13" stroke-linecap="round"></path>
+            <rect x="27" y="24" width="44" height="44" rx="13" fill="#F7F4EF"></rect>
+            <circle cx="49" cy="46" r="14" fill="#2E86AB"></circle>
+            <circle cx="49" cy="46" r="7.5" fill="#A8D5E2"></circle>
+            <circle cx="80" cy="78" r="5" fill="#E8C547"></circle>
+          </g>
+        </svg>
+      </div>
+      <p class="nombre">4 · Icono de app</p>
+      <p class="txt">Simbolo solo, al 66 % del cuadro, radio 22.5 %. Sin logotipo: a 60 px no se leeria.</p>
+    </div>
+
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 22px; background: #FFFFFF; border: 1px solid #A8D5E2; border-radius: 12px; padding: 18px 22px;">
+    <svg viewBox="0 0 96 96" width="62" height="62" role="img" aria-label="Prueba en escala de grises">
+      <path d="M17 18L17 66A12 12 0 0 0 29 78L65 78" fill="none" stroke="#7D7D7D" stroke-width="13" stroke-linecap="round"></path>
+      <rect x="27" y="24" width="44" height="44" rx="13" fill="#7D7D7D"></rect>
+      <circle cx="49" cy="46" r="14" fill="#F4F4F4"></circle>
+      <circle cx="49" cy="46" r="7.5" fill="#CECECE"></circle>
+      <circle cx="80" cy="78" r="5" fill="#C6C6C6"></circle>
+    </svg>
+    <p class="txt" style="flex-grow: 1;"><strong>Prueba en escala de grises.</strong> Convertidos por luminancia, Limon queda en 198 y Cielo en 206: casi el mismo gris. El punto de entrega se apaga contra el Hueso (1.55:1). Por eso la version 2 lo devuelve a Agua, y por eso Limon nunca puede ser el unico portador de un significado.</p>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

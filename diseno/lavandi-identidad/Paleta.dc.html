@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Figtree:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #F7F4EF; font-family: Figtree, system-ui, 'Segoe UI', sans-serif; color: #17394B; }
+    a { color: #2E86AB; } a:hover { color: #17394B; }
+    .rotulo { font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; margin: 0; }
+    .nombre { font-size: 15px; font-weight: 600; margin: 0; }
+    .dato { font-size: 12px; line-height: 1.5; margin: 0; font-variant-numeric: tabular-nums; }
+    .txt { font-size: 13px; line-height: 1.55; margin: 0; }
+    .muestra { height: 84px; border-radius: 10px; }
+  </style>
+</helmet>
+<div style="padding: 44px 48px; display: flex; flex-direction: column; gap: 22px;">
+
+  <p class="rotulo">Paleta El tiempo de vuelta</p>
+
+  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px;">
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="muestra" style="background: #2E86AB;"></div>
+      <p class="nombre">Agua</p>
+      <p class="dato">#2E86AB · 46 134 171</p>
+      <p class="dato">Color principal. Confianza y seguridad. Lleva el simbolo, el logotipo y toda accion primaria.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="muestra" style="background: #A8D5E2;"></div>
+      <p class="nombre">Cielo</p>
+      <p class="dato">#A8D5E2 · 168 213 226</p>
+      <p class="dato">Secundario. El vidrio del tambor, separadores y fondos de apoyo. Nunca texto.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="muestra" style="background: #F7F4EF; border: 1px solid #A8D5E2;"></div>
+      <p class="nombre">Hueso</p>
+      <p class="dato">#F7F4EF · 247 244 239</p>
+      <p class="dato">Fondo por defecto. Es el aire de la marca; el blanco puro se reserva a tarjetas.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="muestra" style="background: #E8C547;"></div>
+      <p class="nombre">Limon</p>
+      <p class="dato">#E8C547 · 232 197 71</p>
+      <p class="dato">Acento. Rapidez y optimismo. Un solo uso por pieza: el punto de entrega.</p>
+    </div>
+
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 20px; background: #FFFFFF; border: 1px solid #A8D5E2; border-radius: 12px; padding: 16px 20px;">
+    <div style="width: 72px; height: 58px; border-radius: 8px; background: #17394B; flex-shrink: 0;"></div>
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <p class="nombre">Tinta · #17394B · 23 57 75 <span style="font-weight: 400; color: #2E86AB;">(anadido, no esta en la paleta original)</span></p>
+      <p class="txt">Agua sobre Hueso da <strong>3.74:1</strong>. Alcanza para el logotipo y para titulos desde 18.66 px, pero no para texto corrido, que el design system fija en 4.5:1 y declara no renegociable. Tinta es Agua oscurecido: <strong>11.0:1</strong> sobre Hueso. Sin el, la paleta no puede escribir un parrafo.</p>
+    </div>
+  </div>
+
+  <div style="height: 1px; background: #A8D5E2;"></div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px;">
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <p class="rotulo">Logotipo</p>
+      <p style="font-family: Quicksand, system-ui, 'Segoe UI', sans-serif; font-weight: 700; font-size: 46px; color: #2E86AB; letter-spacing: -.015em; line-height: 1; margin: 0;">Lavandi</p>
+      <p class="dato"><strong>Quicksand 700.</strong> Geometrica de terminales redondas: sus bowls son circulos perfectos, los mismos que el tambor. Amable sin ser infantil.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <p class="rotulo">Interfaz y texto</p>
+      <p style="font-family: Figtree, system-ui, 'Segoe UI', sans-serif; font-weight: 600; font-size: 26px; margin: 0; line-height: 1.2;">De tu cel a tu closet</p>
+      <p class="dato"><strong>Figtree 400 / 500 / 600.</strong> Humanista contemporanea, cifras tabulares y buena lectura a 13 px. Es la que va a la app, a la landing y al panel.</p>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
