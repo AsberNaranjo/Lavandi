@@ -183,3 +183,19 @@ decirle por escrito:
 > criterio de aceptación del contrato. Si hay que retocarlo por estética, se vuelve a medir antes.
 
 Es el tipo de cambio que un diseñador hace sin pensarlo, y que nadie nota hasta la revisión final.
+
+---
+
+## Por qué no se usa `/design-sync` todavía
+
+`/design-sync` sube una **librería de componentes ya compilada** a Claude Design, para que el agente
+diseñe con los componentes reales del proyecto en vez de genéricos. Es mejor que este prompt: el
+diseño resultante mapea uno a uno con el código.
+
+Hoy no aplica. El repo no tiene código a propósito, y construir esa librería ahora obligaría a
+elegir React —que es lo que Claude Design consume— **antes** del ADR de framework de la Fase 6. Eso
+contradice `CLAUDE.md` §5. Y hay un riesgo práctico además del formal: si el ADR del móvil termina en
+otra cosa, esa librería es trabajo tirado.
+
+**Cuándo retomarlo:** cuando la Fase 6 haya cerrado el ADR de framework y existan los componentes
+como código. Entonces `/design-sync` sustituye a este prompt, y este archivo pasa a `superseded`.
