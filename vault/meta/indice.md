@@ -2,7 +2,7 @@
 estado: vigente
 grado: B
 fuente: estructura del repo
-fecha: 2026-09-07
+fecha: 2026-09-11
 dueño: Nadir Hadad Navarrete
 ---
 # Índice (MOC raíz)
@@ -14,7 +14,8 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[prompt-maestro-01-fundacion-v4]] — **documento fuente del método**: las nueve fases, el tablero, la regla de evidencia, el formato de respuesta
 - [[convenciones]] — reglas del vault, grados, marcadores, espejo Notion
 - [[deuda-de-decision]] — qué falta decidir y quién bloquea
-- Actas: [[acta-2026-09-07-fundacion]]
+- [[prompt-maestro-01-fundacion-v4]] — **documento fuente del método**: las nueve fases, el tablero, el formato de respuesta y las prohibiciones
+- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]]
 
 ## Contrato (grado A leído)
 
@@ -38,12 +39,16 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[mision-vision-valores]] — versión corta, con lo que cada valor prohíbe
 - [[candidatos-de-nombre]] — rúbrica, diez candidatos, alternos, descartados, política de `.com`, recomendación
 - [[lista-maestra-de-candidatos]] — los 43 nombres en un solo lugar, con puntaje y cuáles ha visto el cliente
-- [[decision-de-marca]] — **paquete bloqueante P-1** y ficha de decisión (DD-023)
-- guía de tono de voz — se escribe con el nombre decidido
+- [[decision-de-marca]] — **nombre elegido el 2026-09-11 (C-49)**; sigue en `borrador` hasta verificar dominio, IMPI y colisiones
+- guía de tono de voz — pendiente; se escribe cuando el nombre esté verificado
 
 ## Design system (Fase 4)
 
-- pendiente: tokens, cobertura del ANEXO A.1, `muestra/index.html`
+- [[design-system]] — modos claro y oscuro, umbrales de accesibilidad y los 38 pares de contraste medidos
+- [[componentes]] — los seis componentes base del ANEXO A.3, con lo que cada uno deja `ESPECIFICACIÓN PENDIENTE`
+- [[cobertura-anexo-a1]] — **qué del entregable 1 NO resuelve un design system**; hace visible R-011
+- `tokens.json` — tokens agnósticos de framework; el adaptador es un ADR de la Fase 6
+- `muestra/index.html` — muestra renderizada, autocontenida, sin dependencias
 
 ## Arquitectura (Fase 5) y stack (Fase 6)
 
@@ -55,12 +60,13 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Riesgos y supuestos
 
-- [[riesgos]] — R-001 a R-014 · [[supuestos]] — S-002 a S-005 (S-001 cerrado)
+- [[riesgos]] — R-001 a R-019 (R-004 cerrado por C-49; R-010 superseded por R-010-bis; **R-017 materializado**) · [[supuestos]] — S-002, S-003 y S-005 (S-001 y S-004 cerrados)
 
 ## Cliente
 
 - `cliente/reportes-semanales/` · `cliente/notificaciones-de-entrega/` · `cliente/requerimientos/` · `cliente/comunicaciones/`
-- [[2026-09-07-lista-de-nombres-para-el-cliente]] — diez nombres para que el cliente elija, en borrador, pendiente de enviar
+- Comunicaciones enviadas: [[2026-09-07-lista-de-nombres-para-el-cliente]] y [[2026-09-08-lista-de-nombres-de-categoria]] (ambas enviadas, C-43)
+- Sin enviar: [[2026-09-09-aviso-de-retraso-branding]] (**vencido, DD-036**) · [[2026-09-11-requerimiento-de-insumos-de-producto]] (seis decisiones de operación) · [[2026-09-09-lista-de-nombres-globales]] (archivada por C-46, ya no se manda)
 
 ## Plantillas
 

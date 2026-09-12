@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design system de {{MARCA}} — muestra</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html{color-scheme:light dark}
+  body{margin:0;background:var(--c-fondo);color:var(--c-texto);
+       font-family:var(--t-principal);font-size:var(--t-cuerpo);line-height:var(--i-normal);
+       transition:background var(--d-base) var(--e-estandar),color var(--d-base) var(--e-estandar)}
+  .envoltura{max-width:1060px;margin:0 auto;padding:var(--s-5) var(--s-4) var(--s-8)}
+  h1{font-size:var(--t-despliegue);line-height:var(--i-apretado);letter-spacing:var(--l-titular);margin:0 0 var(--s-2)}
+  h2{font-size:var(--t-titulo);line-height:var(--i-apretado);margin:var(--s-7) 0 var(--s-1);
+     padding-bottom:var(--s-2);border-bottom:1px solid var(--c-borde)}
+  h3{font-size:var(--t-titulo-menor);margin:var(--s-5) 0 var(--s-3)}
+  p{margin:0 0 var(--s-3);max-width:68ch}
+  .suave{color:var(--c-texto-suave)}
+  .micro{font-size:var(--t-micro)}
+  .menor{font-size:var(--t-menor)}
+
+  .barra{position:sticky;top:0;z-index:10;background:var(--c-superficie);border-bottom:1px solid var(--c-borde);
+         padding:var(--s-3) var(--s-4);display:flex;gap:var(--s-3);align-items:center;flex-wrap:wrap}
+  .barra strong{font-size:var(--t-menor)}
+  .grupo-modo{display:flex;gap:var(--s-1);margin-left:auto}
+  button{font:inherit;font-size:var(--t-menor);cursor:pointer;
+         min-height:var(--a-tactil);min-width:var(--a-tactil);padding:0 var(--s-3);
+         border:1px solid var(--c-borde-fuerte);border-radius:var(--r-medio);
+         background:var(--c-superficie);color:var(--c-texto);
+         transition:background var(--d-rapida) var(--e-estandar)}
+  button:hover{background:var(--c-superficie-hundida)}
+  button[aria-pressed="true"]{background:var(--c-accion);color:var(--c-accion-texto);border-color:var(--c-accion)}
+  button:focus-visible,a:focus-visible{outline:3px solid var(--c-foco);outline-offset:2px}
+  .btn-primario{background:var(--c-accion);color:var(--c-accion-texto);border-color:var(--c-accion)}
+  .btn-primario:hover{background:var(--c-accion-hover);border-color:var(--c-accion-hover)}
+  .btn-primario[disabled],button[disabled]{opacity:.55;cursor:not-allowed;
+         background:var(--c-superficie-hundida);color:var(--c-texto-deshabilitado);border-color:var(--c-borde)}
+
+  .aviso{border:1px solid var(--c-borde-fuerte);border-left:4px solid var(--c-atencion);
+         border-radius:var(--r-medio);padding:var(--s-4);margin:var(--s-5) 0;background:var(--c-superficie)}
+  .aviso h3{margin-top:0}
+  .aviso ul{margin:0;padding-left:var(--s-5)}
+  .aviso li{margin-bottom:var(--s-2)}
+
+  .rejilla{display:grid;gap:var(--s-4);grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+  .tarjeta{background:var(--c-superficie);border:1px solid var(--c-borde);border-radius:var(--r-grande);
+           box-shadow:var(--ele-1);overflow:hidden}
+  .tarjeta-cuerpo{padding:var(--s-4)}
+  .tarjeta h4{margin:0 0 var(--s-1);font-size:var(--t-cuerpo-grande)}
+  .fila{display:flex;justify-content:space-between;align-items:center;gap:var(--s-3)}
+  .apilado{display:flex;flex-direction:column;gap:var(--s-2)}
+  .etiquetas{display:flex;gap:var(--s-2);flex-wrap:wrap;margin-top:var(--s-3)}
+
+  .insignia{display:inline-flex;align-items:center;gap:6px;font-size:var(--t-micro);font-weight:var(--p-medio);
+            padding:4px 10px;border-radius:var(--r-pildora);border:1px solid currentColor}
+  .punto{width:8px;height:8px;border-radius:var(--r-pildora);background:currentColor;flex:none}
+  .b-confirmado{color:var(--c-p-confirmado)} .b-recolectado{color:var(--c-p-recolectado)}
+  .b-en_proceso{color:var(--c-p-en_proceso)} .b-listo{color:var(--c-p-listo)}
+  .b-entregado{color:var(--c-p-entregado)}
+  .b-exito{color:var(--c-exito)} .b-error{color:var(--c-error)} .b-atencion{color:var(--c-atencion)}
+
+  .pasos{display:flex;gap:var(--s-1);margin:var(--s-3) 0 var(--s-2)}
+  .paso{flex:1;text-align:center}
+  .paso .linea{height:4px;border-radius:var(--r-pildora);background:var(--c-superficie-hundida);
+               border:1px solid var(--c-borde);margin-bottom:6px}
+  .paso.hecho .linea{background:var(--c-p-listo);border-color:var(--c-p-listo)}
+  .paso.actual .linea{background:var(--c-accion);border-color:var(--c-accion)}
+  .paso span{font-size:10px;color:var(--c-texto-suave);display:block;line-height:1.25}
+  .paso.actual span{color:var(--c-texto);font-weight:var(--p-semifuerte)}
+
+  .ventanas{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:var(--s-2)}
+  .ventana{min-height:var(--a-tactil);border:1px solid var(--c-borde-fuerte);border-radius:var(--r-medio);
+           background:var(--c-superficie);color:var(--c-texto);font-size:var(--t-menor);
+           display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .ventana[aria-pressed="true"]{background:var(--c-accion);color:var(--c-accion-texto);border-color:var(--c-accion)}
+  .ventana[disabled]{background:var(--c-superficie-hundida);color:var(--c-texto-deshabilitado);
+                     border-color:var(--c-borde);cursor:not-allowed;text-decoration:line-through}
+
+  .resumen dl{margin:0;display:grid;grid-template-columns:1fr auto;gap:var(--s-2) var(--s-4)}
+  .resumen dt{color:var(--c-texto-suave)} .resumen dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+  .resumen .total{border-top:1px solid var(--c-borde);padding-top:var(--s-3);margin-top:var(--s-3);
+                  font-size:var(--t-cuerpo-grande);font-weight:var(--p-fuerte)}
+
+  .muestrario{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--s-3)}
+  .pastilla{border:1px solid var(--c-borde);border-radius:var(--r-medio);overflow:hidden;background:var(--c-superficie)}
+  .pastilla .color{height:56px} .pastilla .pie{padding:var(--s-2);font-size:var(--t-micro)}
+  .pastilla code{font-family:var(--t-mono);color:var(--c-texto-suave)}
+  .caja-espacio{background:var(--c-accion);height:16px;border-radius:2px}
+  table{border-collapse:collapse;width:100%;font-size:var(--t-menor)}
+  th,td{text-align:left;padding:var(--s-2) var(--s-3);border-bottom:1px solid var(--c-borde)}
+  th{color:var(--c-texto-suave);font-weight:var(--p-medio)}
+  .marcador{background:var(--c-superficie-hundida);border-radius:var(--r-chico);padding:1px 6px;
+            font-family:var(--t-mono);font-size:var(--t-micro)}
+  @media (prefers-reduced-motion: reduce){*{transition-duration:0ms!important;animation-duration:0ms!important}}
+</style>
+</head>
+<body>
+
+<script type="application/json" id="tokens">
+{
+  "$meta": {
+    "nombre": "Tokens de {{MARCA}}",
+    "version": "0.1.0",
+    "fecha": "2026-09-11",
+    "fase": "4",
+    "agnostico_de_framework": true,
+    "nota": "Ningun valor aqui esta atado a un framework. El adaptador al formato del stack elegido se genera en la Fase 6 y tiene su propio ADR.",
+    "advertencia_marca": "Los valores de color.marca y tipografia.familia son PROVISIONALES. Se reemplazan con la paleta de 4 colores y las tipografias que entregue el proceso del ANEXO A.1, cuando exista logotipo. Ningun componente referencia color.marca directamente: todos pasan por color.semantico, para que el reemplazo no toque ni un componente.",
+    "modos": ["claro", "oscuro"]
+  },
+
+  "accesibilidad": {
+    "contraste_minimo_texto_normal": 4.5,
+    "contraste_minimo_texto_grande": 3.0,
+    "contraste_minimo_componente": 3.0,
+    "texto_grande_desde_px": 18.66,
+    "area_tactil_minima_dp": 48,
+    "area_tactil_minima_pt_ios": 44,
+    "separacion_minima_entre_objetivos_dp": 8,
+    "fuente": "WCAG 2.1 nivel AA (W3C); Material Design y Apple HIG para el area tactil. Consultado 2026-09-11. Fijados en la Fase 4 y no renegociables despues (metodo, linea 242)."
+  },
+
+  "color": {
+    "marca": {
+      "$comentario": "PROVISIONAL. Cuatro ranuras, exactamente las que pide el ANEXO A.1. Valores neutros a proposito para no contaminar la decision de branding.",
+      "primario":        { "hex": "#3D5A73", "rgb": "61, 90, 115",   "cmjn": "47, 22, 0, 55",  "estado": "PROVISIONAL" },
+      "primario_oscuro": { "hex": "#283D4F", "rgb": "40, 61, 79",    "cmjn": "49, 23, 0, 69",  "estado": "PROVISIONAL" },
+      "acento":          { "hex": "#C9744A", "rgb": "201, 116, 74",  "cmjn": "0, 42, 63, 21",  "estado": "PROVISIONAL" },
+      "claro":           { "hex": "#E8EDF1", "rgb": "232, 237, 241", "cmjn": "4, 2, 0, 5",     "estado": "PROVISIONAL" }
+    },
+
+    "neutro": {
+      "0":    "#FFFFFF",
+      "50":   "#F7F8F9",
+      "100":  "#EDEFF2",
+      "200":  "#DCE0E5",
+      "300":  "#C0C6CE",
+      "400":  "#98A1AC",
+      "500":  "#6B7681",
+      "600":  "#515A64",
+      "700":  "#3B424A",
+      "800":  "#262C33",
+      "900":  "#171C21",
+      "1000": "#0E1216"
+    },
+
+    "estado": {
+      "exito":       { "claro": "#1E6F45", "oscuro": "#5FD39B" },
+      "atencion":    { "claro": "#8A5A00", "oscuro": "#F0B84D" },
+      "error":       { "claro": "#A32222", "oscuro": "#FF8A80" },
+      "informacion": { "claro": "#1F5C8C", "oscuro": "#7FC1F0" }
+    },
+
+    "semantico": {
+      "$comentario": "La unica capa que consumen los componentes. Cambiar de modo o de marca no toca un solo componente. Distincion importante: borde es separador decorativo y no tiene umbral de contraste; borde_fuerte delimita un control (campo de formulario, casilla) y por eso debe cumplir 3:1 contra su fondo, conforme a WCAG 1.4.11.",
+      "claro": {
+        "fondo":              "#F7F8F9",
+        "superficie":         "#FFFFFF",
+        "superficie_elevada": "#FFFFFF",
+        "superficie_hundida": "#EDEFF2",
+        "texto":              "#171C21",
+        "texto_suave":        "#515A64",
+        "texto_inverso":      "#FFFFFF",
+        "texto_deshabilitado":"#6B7681",
+        "borde":              "#DCE0E5",
+        "borde_fuerte":       "#6B7681",
+        "accion":             "#3D5A73",
+        "accion_hover":       "#283D4F",
+        "accion_texto":       "#FFFFFF",
+        "foco":               "#283D4F"
+      },
+      "oscuro": {
+        "fondo":              "#0E1216",
+        "superficie":         "#171C21",
+        "superficie_elevada": "#262C33",
+        "superficie_hundida": "#0E1216",
+        "texto":              "#F7F8F9",
+        "texto_suave":        "#C0C6CE",
+        "texto_inverso":      "#0E1216",
+        "texto_deshabilitado":"#98A1AC",
+        "borde":              "#3B424A",
+        "borde_fuerte":       "#98A1AC",
+        "accion":             "#9DB8CE",
+        "accion_hover":       "#C2D4E3",
+        "accion_texto":       "#0E1216",
+        "foco":               "#C2D4E3"
+      }
+    },
+
+    "pedido": {
+      "$comentario": "Un color por cada uno de los cinco estados visibles al usuario. Los cinco son grado A: ANEXO A.3 numeral 12.",
+      "confirmado": { "claro": "#1F5C8C", "oscuro": "#7FC1F0" },
+      "recolectado":{ "claro": "#5A4B8A", "oscuro": "#B9AEE8" },
+      "en_proceso": { "claro": "#8A5A00", "oscuro": "#F0B84D" },
+      "listo":      { "claro": "#1E6F45", "oscuro": "#5FD39B" },
+      "entregado":  { "claro": "#515A64", "oscuro": "#C0C6CE" }
+    }
+  },
+
+  "tipografia": {
+    "familia": {
+      "$comentario": "PROVISIONAL. La tipografia principal y la de apoyo las fija el ANEXO A.1. Mientras tanto, pila del sistema: se ve bien en todos los telefonos y no agrega peso de descarga.",
+      "principal": "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+      "apoyo":     "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+      "monoespaciada": "ui-monospace, 'Cascadia Code', Consolas, monospace",
+      "estado": "PROVISIONAL"
+    },
+    "escala": {
+      "$comentario": "Base 16 px, razon ~1.25. En px porque es agnostico; el adaptador de la Fase 6 los convierte a sp, dp o rem segun el stack.",
+      "micro":    12,
+      "menor":    14,
+      "cuerpo":   16,
+      "cuerpo_grande": 18,
+      "titulo_menor":  20,
+      "titulo":        24,
+      "titulo_mayor":  30,
+      "despliegue":    36
+    },
+    "peso": { "regular": 400, "medio": 500, "semifuerte": 600, "fuerte": 700 },
+    "interlineado": { "apretado": 1.2, "normal": 1.5, "suelto": 1.7 },
+    "espaciado_letra": { "normal": "0", "titular": "-0.01em", "versalita": "0.04em" }
+  },
+
+  "espaciado": {
+    "$comentario": "Base 4. Toda medida de layout sale de aqui; no hay numeros sueltos en los componentes.",
+    "0": 0, "1": 4, "2": 8, "3": 12, "4": 16, "5": 24, "6": 32, "7": 48, "8": 64
+  },
+
+  "radio": { "nulo": 0, "chico": 4, "medio": 8, "grande": 12, "mayor": 16, "pildora": 999 },
+
+  "elevacion": {
+    "$comentario": "Sombra en claro; en oscuro la elevacion se expresa con superficie_elevada, no con sombra.",
+    "0": "none",
+    "1": "0 1px 2px rgba(14,18,22,.08)",
+    "2": "0 2px 8px rgba(14,18,22,.10)",
+    "3": "0 8px 24px rgba(14,18,22,.14)"
+  },
+
+  "duracion": {
+    "$comentario": "Milisegundos. Se respeta prefers-reduced-motion: con esa preferencia activa, todas valen 0.",
+    "instantanea": 0, "rapida": 120, "base": 200, "lenta": 320
+  },
+
+  "curva": {
+    "estandar": "cubic-bezier(.2,0,0,1)",
+    "entrada":  "cubic-bezier(0,0,0,1)",
+    "salida":   "cubic-bezier(.3,0,1,1)"
+  }
+}
+</script>
+
+<div class="barra">
+  <strong>Design system de {{MARCA}} · Fase 4</strong>
+  <span class="micro suave">Los tokens se leen del JSON embebido en esta misma página</span>
+  <div class="grupo-modo" role="group" aria-label="Modo de color">
+    <button id="b-claro"  aria-pressed="false">Claro</button>
+    <button id="b-oscuro" aria-pressed="false">Oscuro</button>
+    <button id="b-sistema" aria-pressed="true">Sistema</button>
+  </div>
+</div>
+
+<div class="envoltura">
+  <h1>Muestra del design system</h1>
+  <p class="suave">Una sola fuente que alimenta la app, la landing y las plantillas sociales.
+     Sirve para discutirlo mirándolo, no leyéndolo.</p>
+
+  <div class="aviso">
+    <h3>Antes de mirar nada, tres advertencias</h3>
+    <ul>
+      <li><strong>La marca no existe todavía.</strong> Donde dice <span class="marcador">{{MARCA}}</span>
+          irá el nombre cuando su nota de decisión pase a <span class="marcador">vigente</span>.
+          El nombre ya se eligió; falta verificarlo.</li>
+      <li><strong>Los colores y las tipografías son provisionales.</strong> La paleta oficial de cuatro
+          colores y las dos tipografías salen del proceso de identidad visual, que necesita el logotipo.
+          Están puestos en tonos neutros a propósito, para no contaminar esa decisión. Ningún componente
+          los usa directamente: todos pasan por la capa semántica, así que reemplazarlos no toca ni un
+          componente.</li>
+      <li><strong>Las cifras son relleno.</strong> Ningún número de esta página es una propuesta de precio,
+          de comisión ni de costo de envío. El método de fijación de precio sigue abierto.</li>
+    </ul>
+  </div>
+
+  <h2>Color</h2>
+  <h3>Capa semántica — la única que consumen los componentes</h3>
+  <div class="muestrario" id="m-semantico"></div>
+  <h3>Estados del pedido</h3>
+  <p class="suave menor">Los cinco estados visibles al usuario están fijados por contrato. No son una
+     propuesta: son los que la app tiene que mostrar.</p>
+  <div class="muestrario" id="m-pedido"></div>
+
+  <h2>Tipografía y medidas</h2>
+  <h3>Escala tipográfica</h3>
+  <div id="m-tipo"></div>
+  <h3>Espaciado, radios y elevación</h3>
+  <div class="rejilla">
+    <div><h4 class="menor suave">Espaciado</h4><div id="m-espacio"></div></div>
+    <div><h4 class="menor suave">Radios</h4><div id="m-radio" class="apilado"></div></div>
+    <div><h4 class="menor suave">Elevación</h4><div id="m-elevacion" class="apilado"></div></div>
+  </div>
+
+  <h2>Los seis componentes base</h2>
+  <p class="suave menor">Son los que el anexo de la aplicación exige de forma explícita.</p>
+
+  <h3>1 · Tarjeta de lavandería</h3>
+  <div class="rejilla">
+    <div class="tarjeta"><div class="tarjeta-cuerpo">
+      <div class="fila"><h4>Lavandería A</h4><span class="insignia b-exito"><i class="punto"></i>Abierta</span></div>
+      <p class="menor suave" style="margin:4px 0 0">A 1.2 km · Calificación 4.8</p>
+      <div class="etiquetas">
+        <span class="insignia">Estándar</span><span class="insignia">Planchado</span><span class="insignia">En seco</span>
+      </div>
+      <div class="fila" style="margin-top:16px">
+        <span class="menor suave">Desde <strong class="marcador">$00</strong> por kilo</span>
+        <button class="btn-primario">Elegir</button>
+      </div>
+    </div></div>
+
+    <div class="tarjeta"><div class="tarjeta-cuerpo">
+      <div class="fila"><h4>Lavandería B</h4><span class="insignia b-atencion"><i class="punto"></i>Sin cupo hoy</span></div>
+      <p class="menor suave" style="margin:4px 0 0">A 2.6 km · Calificación 4.5</p>
+      <div class="etiquetas"><span class="insignia">Estándar</span><span class="insignia">Planchado</span></div>
+      <div class="fila" style="margin-top:16px">
+        <span class="menor suave">Desde <strong class="marcador">$00</strong> por kilo</span>
+        <button class="btn-primario">Ver horarios</button>
+      </div>
+    </div></div>
+
+    <div class="tarjeta"><div class="tarjeta-cuerpo">
+      <div class="fila"><h4>Lavandería C</h4><span class="insignia b-error"><i class="punto"></i>Cerrada</span></div>
+      <p class="menor suave" style="margin:4px 0 0">A 3.4 km · Calificación 4.2</p>
+      <div class="etiquetas"><span class="insignia">Estándar</span></div>
+      <div class="fila" style="margin-top:16px">
+        <span class="menor suave">Abre mañana 9:00</span>
+        <button disabled>Elegir</button>
+      </div>
+    </div></div>
+  </div>
+
+  <h3>2 · Selector de fecha y hora, en ventanas de una hora</h3>
+  <p class="suave menor">La ventana de una hora está fijada por contrato. Cada objetivo mide al menos
+     48&nbsp;dp de alto, que es el mínimo táctil de este design system.</p>
+  <div class="tarjeta" style="max-width:560px"><div class="tarjeta-cuerpo">
+    <div class="fila" style="margin-bottom:12px">
+      <button aria-label="Día anterior">‹</button>
+      <strong class="menor">Jueves 17 de septiembre</strong>
+      <button aria-label="Día siguiente">›</button>
+    </div>
+    <div class="ventanas">
+      <button class="ventana" disabled>9:00 – 10:00</button>
+      <button class="ventana">10:00 – 11:00</button>
+      <button class="ventana" aria-pressed="true">11:00 – 12:00</button>
+      <button class="ventana">12:00 – 13:00</button>
+      <button class="ventana" disabled>13:00 – 14:00</button>
+      <button class="ventana">14:00 – 15:00</button>
+    </div>
+    <p class="micro suave" style="margin:12px 0 0">Tachadas, las ventanas sin cupo.</p>
+  </div></div>
+
+  <h3>3 · Seguimiento del estado del pedido</h3>
+  <div class="rejilla">
+    <div class="tarjeta"><div class="tarjeta-cuerpo">
+      <div class="fila"><strong class="menor">Pedido <span class="marcador">A0000</span></strong>
+        <span class="insignia b-recolectado"><i class="punto"></i>Recolectado</span></div>
+      <div class="pasos" id="pasos-a"></div>
+      <p class="micro suave" style="margin:0">Tu ropa va en camino a la lavandería.</p>
+    </div></div>
+    <div class="tarjeta"><div class="tarjeta-cuerpo">
+      <div class="fila"><strong class="menor">Pedido <span class="marcador">A0001</span></strong>
+        <span class="insignia b-listo"><i class="punto"></i>Listo</span></div>
+      <div class="pasos" id="pasos-b"></div>
+      <p class="micro suave" style="margin:0">Tu ropa está lista. Vamos para allá.</p>
+    </div></div>
+    <div class="tarjeta"><div class="tarjeta-cuerpo">
+      <div class="fila"><strong class="menor">Pedido <span class="marcador">A0002</span></strong>
+        <span class="insignia b-entregado"><i class="punto"></i>Entregado</span></div>
+      <div class="pasos" id="pasos-c"></div>
+      <p class="micro suave" style="margin:0">Entregado el martes a las 18:40.</p>
+    </div></div>
+  </div>
+
+  <h3>4 · Tarjeta de pedido — socio lavandería</h3>
+  <div class="rejilla">
+    <div class="tarjeta"><div class="tarjeta-cuerpo">
+      <div class="fila"><strong class="menor">Nuevo · <span class="marcador">A0003</span></strong>
+        <span class="insignia b-atencion"><i class="punto"></i>Por aceptar</span></div>
+      <p class="menor suave" style="margin:8px 0">Recolección hoy, 11:00 – 12:00 · Estándar y planchado</p>
+      <div class="fila"><button>Rechazar</button><button class="btn-primario" style="flex:1">Aceptar</button></div>
+      <p class="micro suave" style="margin:8px 0 0">Si rechazas, se te pedirá el motivo.</p>
+    </div></div>
+    <div class="tarjeta"><div class="tarjeta-cuerpo">
+      <div class="fila"><strong class="menor">En piso · <span class="marcador">A0004</span></strong>
+        <span class="insignia b-en_proceso"><i class="punto"></i>En proceso</span></div>
+      <p class="menor suave" style="margin:8px 0">Recibido 9:20 · <span class="marcador">0.0</span> kg</p>
+      <button class="btn-primario" style="width:100%">Marcar como listo</button>
+    </div></div>
+    <div class="tarjeta"><div class="tarjeta-cuerpo">
+      <div class="fila"><strong class="menor">Cerrado · <span class="marcador">A0005</span></strong>
+        <span class="insignia b-entregado"><i class="punto"></i>Entregado</span></div>
+      <p class="menor suave" style="margin:8px 0">Calificación recibida: 5 de 5</p>
+      <div class="fila"><span class="menor suave">Te corresponde</span>
+        <strong class="marcador">$000.00</strong></div>
+    </div></div>
+  </div>
+
+  <h3>5 · Tarjeta de pedido — socio repartidor</h3>
+  <div class="rejilla">
+    <div class="tarjeta"><div class="tarjeta-cuerpo">
+      <div class="fila"><strong class="menor">Asignado · <span class="marcador">A0006</span></strong>
+        <span class="insignia b-confirmado"><i class="punto"></i>Asignado</span></div>
+      <p class="menor suave" style="margin:8px 0">Recoger en domicilio · 11:00 – 12:00</p>
+      <div class="fila"><button>Rechazar</button><button class="btn-primario" style="flex:1">Aceptar</button></div>
+    </div></div>
+    <div class="tarjeta"><div class="tarjeta-cuerpo">
+      <div class="fila"><strong class="menor">En ruta · <span class="marcador">A0007</span></strong>
+        <span class="insignia b-recolectado"><i class="punto"></i>En tránsito</span></div>
+      <p class="menor suave" style="margin:8px 0">Llevar a Lavandería A · 2.1 km</p>
+      <button class="btn-primario" style="width:100%">Marcar entregado en lavandería</button>
+    </div></div>
+    <div class="tarjeta"><div class="tarjeta-cuerpo">
+      <div class="fila"><strong class="menor">Cerrado · <span class="marcador">A0008</span></strong>
+        <span class="insignia b-entregado"><i class="punto"></i>Entregado</span></div>
+      <p class="menor suave" style="margin:8px 0">Hoy · 3 entregas completadas</p>
+      <div class="fila"><span class="menor suave">Acumulado del día</span>
+        <strong class="marcador">$000.00</strong></div>
+    </div></div>
+  </div>
+
+  <h3>6 · Resumen del pedido</h3>
+  <div class="tarjeta resumen" style="max-width:440px"><div class="tarjeta-cuerpo">
+    <h4>Resumen</h4>
+    <p class="menor suave" style="margin:0 0 16px">Lavandería A · Recolección jueves 11:00 – 12:00</p>
+    <dl>
+      <dt>Lavado estándar <span class="marcador">0.0</span> kg</dt><dd class="marcador">$000.00</dd>
+      <dt>Planchado</dt><dd class="marcador">$00.00</dd>
+      <dt>Envío</dt><dd class="marcador">$00.00</dd>
+    </dl>
+    <dl class="total"><dt>Total estimado</dt><dd class="marcador">$000.00</dd></dl>
+    <p class="micro suave" style="margin:12px 0 16px">
+      El total es estimado: el precio final se calcula al pesar tu ropa en la lavandería.
+      <br><strong>Política de cancelación:</strong>
+      <span class="marcador">ESPECIFICACIÓN PENDIENTE</span> — la define el cliente.
+    </p>
+    <button class="btn-primario" style="width:100%">Confirmar y pagar</button>
+  </div></div>
+
+  <h2>Verificación de contraste</h2>
+  <p class="suave menor">Medido, no afirmado. Los 38 pares de color de los tokens se comprueban contra el
+     umbral que fija este design system: 4.5:1 para texto y 3:1 para bordes de control. Los resultados
+     completos están en la nota del design system.</p>
+  <table id="t-contraste"><thead><tr><th>Umbral</th><th>Valor</th><th>Se aplica a</th></tr></thead><tbody></tbody></table>
+</div>
+
+<script>
+(function () {
+  var T = JSON.parse(document.getElementById('tokens').textContent);
+  var raiz = document.documentElement;
+
+  // Adaptador minimo: JSON de tokens -> variables CSS.
+  // En la Fase 6 esto lo hara un generador real hacia el formato del stack elegido; su ADR esta previsto.
+  function aplicar(modo) {
+    var s = T.color.semantico[modo];
+    Object.keys(s).forEach(function (k) {
+      if (k.charAt(0) === '$') return;
+      raiz.style.setProperty('--c-' + k.replace(/_/g, '-'), s[k]);
+    });
+    Object.keys(T.color.estado).forEach(function (k) {
+      if (k.charAt(0) === '$') return;
+      raiz.style.setProperty('--c-' + k, T.color.estado[k][modo]);
+    });
+    Object.keys(T.color.pedido).forEach(function (k) {
+      if (k.charAt(0) === '$') return;
+      raiz.style.setProperty('--c-p-' + k, T.color.pedido[k][modo]);
+    });
+    raiz.style.setProperty('color-scheme', modo === 'oscuro' ? 'dark' : 'light');
+  }
+
+  var t = T.tipografia;
+  var mapaTipo = {micro:'micro',menor:'menor',cuerpo:'cuerpo',cuerpo_grande:'cuerpo-grande',
+      titulo_menor:'titulo-menor',titulo:'titulo',titulo_mayor:'titulo-mayor',despliegue:'despliegue'};
+  Object.keys(mapaTipo).forEach(function(k){ raiz.style.setProperty('--t-'+mapaTipo[k], t.escala[k]+'px'); });
+  raiz.style.setProperty('--t-principal', t.familia.principal);
+  raiz.style.setProperty('--t-mono', t.familia.monoespaciada);
+  Object.keys(t.peso).forEach(function(k){ raiz.style.setProperty('--p-'+k, t.peso[k]); });
+  Object.keys(t.interlineado).forEach(function(k){ raiz.style.setProperty('--i-'+k, t.interlineado[k]); });
+  raiz.style.setProperty('--l-titular', t.espaciado_letra.titular);
+  Object.keys(T.espaciado).forEach(function(k){ if(k.charAt(0)!=='$') raiz.style.setProperty('--s-'+k, T.espaciado[k]+'px'); });
+  Object.keys(T.radio).forEach(function(k){ raiz.style.setProperty('--r-'+k, T.radio[k]+'px'); });
+  Object.keys(T.elevacion).forEach(function(k){ if(k.charAt(0)!=='$') raiz.style.setProperty('--ele-'+k, T.elevacion[k]); });
+  Object.keys(T.duracion).forEach(function(k){ if(k.charAt(0)!=='$') raiz.style.setProperty('--d-'+k, T.duracion[k]+'ms'); });
+  Object.keys(T.curva).forEach(function(k){ raiz.style.setProperty('--e-'+k, T.curva[k]); });
+  raiz.style.setProperty('--a-tactil', T.accesibilidad.area_tactil_minima_dp + 'px');
+
+  // Modo: claro / oscuro / sistema
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  var modoElegido = 'sistema';
+  var botones = [['b-claro','claro'],['b-oscuro','oscuro'],['b-sistema','sistema']];
+  function resolver(){ return modoElegido === 'sistema' ? (mq.matches ? 'oscuro' : 'claro') : modoElegido; }
+  function pintar(){
+    aplicar(resolver());
+    botones.forEach(function(par){
+      document.getElementById(par[0]).setAttribute('aria-pressed', String(modoElegido === par[1]));
+    });
+  }
+  botones.forEach(function(par){
+    document.getElementById(par[0]).addEventListener('click', function(){ modoElegido = par[1]; pintar(); });
+  });
+  mq.addEventListener('change', function(){ if (modoElegido === 'sistema') pintar(); });
+
+  function pastilla(nombre, valorVar, valorTexto){
+    return '<div class="pastilla"><div class="color" style="background:'+valorVar+
+           ';border-bottom:1px solid var(--c-borde)"></div><div class="pie"><strong>'+nombre+
+           '</strong><br><code>'+valorTexto+'</code></div></div>';
+  }
+  var sem = T.color.semantico.claro, htmlSem = '';
+  Object.keys(sem).forEach(function(k){
+    if (k.charAt(0) === '$') return;
+    var v = '--c-' + k.replace(/_/g,'-');
+    htmlSem += pastilla(k.replace(/_/g,' '), 'var('+v+')', v);
+  });
+  document.getElementById('m-semantico').innerHTML = htmlSem;
+
+  var htmlPed = '';
+  Object.keys(T.color.pedido).forEach(function(k){
+    if (k.charAt(0) === '$') return;
+    htmlPed += pastilla(k.replace(/_/g,' '), 'var(--c-p-'+k+')', '--c-p-'+k);
+  });
+  document.getElementById('m-pedido').innerHTML = htmlPed;
+
+  var htmlTipo = '';
+  Object.keys(mapaTipo).forEach(function(k){
+    htmlTipo += '<div style="display:flex;align-items:baseline;gap:16px;padding:6px 0;border-bottom:1px solid var(--c-borde)">'+
+      '<code class="micro suave" style="min-width:130px">'+k+' · '+t.escala[k]+'px</code>'+
+      '<span style="font-size:'+t.escala[k]+'px">Recogemos, lavamos y entregamos</span></div>';
+  });
+  document.getElementById('m-tipo').innerHTML = htmlTipo;
+
+  var htmlEsp = '';
+  Object.keys(T.espaciado).forEach(function(k){
+    if (k.charAt(0)==='$') return;
+    htmlEsp += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">'+
+      '<code class="micro suave" style="min-width:64px">'+k+' · '+T.espaciado[k]+'</code>'+
+      '<div class="caja-espacio" style="width:'+Math.max(T.espaciado[k],2)+'px"></div></div>';
+  });
+  document.getElementById('m-espacio').innerHTML = htmlEsp;
+
+  var htmlRad = '';
+  Object.keys(T.radio).forEach(function(k){
+    htmlRad += '<div style="display:flex;align-items:center;gap:12px">'+
+      '<code class="micro suave" style="min-width:64px">'+k+'</code>'+
+      '<div style="width:64px;height:34px;background:var(--c-superficie-hundida);'+
+      'border:1px solid var(--c-borde-fuerte);border-radius:'+T.radio[k]+'px"></div></div>';
+  });
+  document.getElementById('m-radio').innerHTML = htmlRad;
+
+  var htmlEle = '';
+  Object.keys(T.elevacion).forEach(function(k){
+    if (k.charAt(0)==='$') return;
+    htmlEle += '<div style="display:flex;align-items:center;gap:12px">'+
+      '<code class="micro suave" style="min-width:64px">'+k+'</code>'+
+      '<div style="width:64px;height:34px;background:var(--c-superficie);border:1px solid var(--c-borde);'+
+      'border-radius:8px;box-shadow:'+T.elevacion[k]+'"></div></div>';
+  });
+  document.getElementById('m-elevacion').innerHTML = htmlEle;
+
+  // Seguimiento: los cinco estados fijados por contrato
+  var ESTADOS = ['Confirmado','Recolectado','En proceso','Listo','Entregado'];
+  function pasos(destino, actual){
+    var h = '';
+    ESTADOS.forEach(function(e,i){
+      var cls = i < actual ? 'hecho' : (i === actual ? 'actual' : '');
+      h += '<div class="paso '+cls+'"><div class="linea"></div><span>'+e+'</span></div>';
+    });
+    document.getElementById(destino).innerHTML = h;
+  }
+  pasos('pasos-a',1); pasos('pasos-b',3); pasos('pasos-c',4);
+
+  var a = T.accesibilidad;
+  document.querySelector('#t-contraste tbody').innerHTML =
+    '<tr><td>Texto normal</td><td><strong>'+a.contraste_minimo_texto_normal+':1</strong></td><td>Todo texto menor a '+a.texto_grande_desde_px+' px</td></tr>'+
+    '<tr><td>Texto grande</td><td><strong>'+a.contraste_minimo_texto_grande+':1</strong></td><td>Títulos desde '+a.texto_grande_desde_px+' px</td></tr>'+
+    '<tr><td>Borde de control</td><td><strong>'+a.contraste_minimo_componente+':1</strong></td><td>Campos, casillas y foco</td></tr>'+
+    '<tr><td>Área táctil</td><td><strong>'+a.area_tactil_minima_dp+' dp</strong></td><td>'+a.area_tactil_minima_pt_ios+' pt en iPhone; separación mínima '+a.separacion_minima_entre_objetivos_dp+' dp</td></tr>';
+
+  pintar();
+})();
+</script>
+</body>
+</html>
