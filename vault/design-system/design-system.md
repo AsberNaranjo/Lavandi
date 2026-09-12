@@ -5,7 +5,7 @@ fuente: prompt-maestro-01-fundacion-v4.md, Fase 4 (C); ANEXO A.1 y A.3 del contr
 fecha: 2026-09-11
 dueño: Nadir Hadad Navarrete
 ---
-# Design system de {{MARCA}}
+# Design system de Lavandi
 
 Fuente única que alimenta app, landing y plantillas sociales. Definirlo tres veces por separado es
 como se pierden dos semanas.

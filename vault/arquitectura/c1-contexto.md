@@ -35,7 +35,7 @@ flowchart TB
     socioRep(["Socio repartidor<br/>recolecta y entrega"])
     admin(["Administrador<br/>opera la plataforma"])
 
-    sistema["Plataforma de {{MARCA}}<br/>app única iOS y Android, landing<br/>y panel de administración"]
+    sistema["Plataforma de Lavandi<br/>app única iOS y Android, landing<br/>y panel de administración"]
 
     conekta{{"Conekta<br/>tarjeta y OXXO Pay"}}
     mapasG{{"Google Maps<br/>solo en Android"}}

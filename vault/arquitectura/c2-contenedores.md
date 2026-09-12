@@ -23,7 +23,7 @@ flowchart TB
     admin(["Administrador"])
     visitante(["Visitante web"])
 
-    subgraph plataforma["Plataforma de {{MARCA}}"]
+    subgraph plataforma["Plataforma de Lavandi"]
         appMovil["app-movil<br/>base única iOS y Android<br/>módulos A, B y C"]
         panelAdmin["panel-admin<br/>administración e indicadores"]
         landing["landing<br/>12 secciones públicas"]

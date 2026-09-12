@@ -58,7 +58,7 @@ Ver `CLAUDE.md`, sección 3. Formatos de cita:
 | `ESPECIFICACIÓN PENDIENTE` | Obligación ejecutiva (A) sin especificación técnica todavía. Estado normal al inicio. |
 | `NO JUSTIFICADO` | Elemento de arquitectura sin obligación ni hipótesis que lo sostenga. Sale del diagrama. |
 | `SIN VERIFICAR` | Dato grado E que nadie ha confirmado. |
-| `{{MARCA}}`, `{{DOMINIO}}` | Nombre de producto y dominio, hasta que la decisión de marca esté `vigente`. |
+| ~~`{{MARCA}}`, `{{DOMINIO}}`~~ | **Retirados el 2026-09-12.** Se usaron hasta que la marca quedó decidida; hoy el vault dice Lavandi y lavandi.mx. La plantilla de decisión de marca los conserva para el próximo proyecto. |
 
 ## Identificadores
 | Prefijo | Qué | Dónde se numera |

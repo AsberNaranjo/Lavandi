@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Design system de {{MARCA}} — muestra</title>
+<title>Design system de Lavandi — muestra</title>
 <style>
   *,*::before,*::after{box-sizing:border-box}
   html{color-scheme:light dark}
@@ -100,7 +100,7 @@
 <script type="application/json" id="tokens">
 {
   "$meta": {
-    "nombre": "Tokens de {{MARCA}}",
+    "nombre": "Tokens de Lavandi",
     "version": "0.1.0",
     "fecha": "2026-09-11",
     "fase": "4",
@@ -123,11 +123,11 @@
 
   "color": {
     "marca": {
-      "$comentario": "PROVISIONAL. Cuatro ranuras, exactamente las que pide el ANEXO A.1. Valores neutros a proposito para no contaminar la decision de branding.",
-      "primario":        { "hex": "#3D5A73", "rgb": "61, 90, 115",   "cmjn": "47, 22, 0, 55",  "estado": "PROVISIONAL" },
-      "primario_oscuro": { "hex": "#283D4F", "rgb": "40, 61, 79",    "cmjn": "49, 23, 0, 69",  "estado": "PROVISIONAL" },
-      "acento":          { "hex": "#C9744A", "rgb": "201, 116, 74",  "cmjn": "0, 42, 63, 21",  "estado": "PROVISIONAL" },
-      "claro":           { "hex": "#E8EDF1", "rgb": "232, 237, 241", "cmjn": "4, 2, 0, 5",     "estado": "PROVISIONAL" }
+      "$comentario": "Paleta \"El tiempo de vuelta\", elegida por EL CLIENTE el 2026-09-12. Cuatro ranuras, las que pide el ANEXO A.1. Hueso #F7F4EF es el fondo y vive en la capa semantica.",
+      "primario":        { "hex": "#2E86AB", "rgb": "46, 134, 171",  "cmjn": "73, 22, 0, 33",  "estado": "VIGENTE", "nombre": "Agua" },
+      "primario_oscuro": { "hex": "#297899", "rgb": "41, 120, 153",  "cmjn": "73, 22, 0, 40",  "estado": "VIGENTE", "nombre": "Agua Profundo" },
+      "acento":          { "hex": "#E8C547", "rgb": "232, 197, 71",  "cmjn": "0, 15, 69, 9",   "estado": "VIGENTE", "nombre": "Limon" },
+      "claro":           { "hex": "#A8D5E2", "rgb": "168, 213, 226", "cmjn": "26, 6, 0, 11",   "estado": "VIGENTE", "nombre": "Cielo" }
     },
 
     "neutro": {
@@ -155,20 +155,20 @@
     "semantico": {
       "$comentario": "La unica capa que consumen los componentes. Cambiar de modo o de marca no toca un solo componente. Distincion importante: borde es separador decorativo y no tiene umbral de contraste; borde_fuerte delimita un control (campo de formulario, casilla) y por eso debe cumplir 3:1 contra su fondo, conforme a WCAG 1.4.11.",
       "claro": {
-        "fondo":              "#F7F8F9",
+        "fondo":              "#F7F4EF",
         "superficie":         "#FFFFFF",
         "superficie_elevada": "#FFFFFF",
-        "superficie_hundida": "#EDEFF2",
+        "superficie_hundida": "#EDE9E2",
         "texto":              "#171C21",
         "texto_suave":        "#515A64",
         "texto_inverso":      "#FFFFFF",
         "texto_deshabilitado":"#6B7681",
         "borde":              "#DCE0E5",
         "borde_fuerte":       "#6B7681",
-        "accion":             "#3D5A73",
-        "accion_hover":       "#283D4F",
+        "accion":             "#297899",
+        "accion_hover":       "#1F5A73",
         "accion_texto":       "#FFFFFF",
-        "foco":               "#283D4F"
+        "foco":               "#297899"
       },
       "oscuro": {
         "fondo":              "#0E1216",
@@ -181,10 +181,10 @@
         "texto_deshabilitado":"#98A1AC",
         "borde":              "#3B424A",
         "borde_fuerte":       "#98A1AC",
-        "accion":             "#9DB8CE",
-        "accion_hover":       "#C2D4E3",
+        "accion":             "#308CB3",
+        "accion_hover":       "#5BA8C9",
         "accion_texto":       "#0E1216",
-        "foco":               "#C2D4E3"
+        "foco":               "#308CB3"
       }
     },
 
@@ -251,7 +251,7 @@
 </script>
 
 <div class="barra">
-  <strong>Design system de {{MARCA}} · Fase 4</strong>
+  <strong>Design system de Lavandi · Fase 4</strong>
   <span class="micro suave">Los tokens se leen del JSON embebido en esta misma página</span>
   <div class="grupo-modo" role="group" aria-label="Modo de color">
     <button id="b-claro"  aria-pressed="false">Claro</button>
@@ -268,7 +268,7 @@
   <div class="aviso">
     <h3>Antes de mirar nada, tres advertencias</h3>
     <ul>
-      <li><strong>La marca no existe todavía.</strong> Donde dice <span class="marcador">{{MARCA}}</span>
+      <li><strong>La marca no existe todavía.</strong> Donde dice <span class="marcador">Lavandi</span>
           irá el nombre cuando su nota de decisión pase a <span class="marcador">vigente</span>.
           El nombre ya se eligió; falta verificarlo.</li>
       <li><strong>Los colores y las tipografías son provisionales.</strong> La paleta oficial de cuatro

@@ -47,7 +47,7 @@ Las tres comparten composición y proporciones. Lo único que cambia es cuánto 
 | Qué | Quién | Bloquea |
 |---|---|---|
 | Cargar la paleta en `design-system/tokens.json` y quitar el estado PROVISIONAL | sesión técnica | Que el design system deje de estar en gris neutro |
-| Reemplazar `{{MARCA}}` y `{{DOMINIO}}` en los ocho archivos que aún los tienen | sesión técnica | Coherencia del vault |
+| Reemplazar `Lavandi` y `lavandi.mx` en los ocho archivos que aún los tienen | sesión técnica | Coherencia del vault |
 | Producir los archivos que exige el ANEXO A.1: AI, PDF vectorial, PNG a 300 y 72 dpi, SVG | Nadir (DD-024, sin diseñador) | Entregable O-01 |
 | Plantear al cliente lo del parecido con Instagram | Nadir | Que apruebe el logotipo sabiendo el riesgo del registro |
 | Probar el logotipo impreso en pequeño y bordado | Nadir | Uso en uniformes y papelería |
@@ -57,3 +57,32 @@ Las tres comparten composición y proporciones. Lo único que cambia es cuánto 
 Se conserva en `riesgo-parecido-instagram.md`. En corto: las tres observaciones del cliente están
 tomadas; lo único que se dejó fuera es el marco cuadrado, porque es el rasgo que genera el parecido y
 un registro objetado cuesta el trámite, el rediseño y la republicación de la app.
+
+## Actualización 2026-09-12 — el cliente aprueba y entra un diseñador
+
+**EL CLIENTE aprobó las tres versiones del logotipo** y avisó que **le pedirá a un diseñador que las
+refine** (C-63). Eso es bueno para la calidad y cambia tres cosas del proyecto:
+
+| Qué cambia | Detalle |
+|---|---|
+| R-011, "sin diseñador" | Se atenúa. Había riesgo de no poder producir el logotipo en AI, el manual de 15 a 20 páginas y las 12 plantillas con la calidad que pide el A.4.1 |
+| DD-024, flujo de producción sin diseñador | Cambia de naturaleza: ya no es "cómo lo hacemos sin nadie", es "cómo nos coordinamos con quien va a hacerlo" |
+| Entregables O-01 a O-04 | **Aquí está el punto fino.** El ANEXO A.1 pone el branding del lado de EL PRESTADOR. Si el diseñador del cliente refina el logotipo, hay que dejar por escrito quién responde por el entregable |
+
+### Lo que hay que acordar por escrito antes de que el diseñador empiece
+
+1. **Quién entrega qué.** Si el diseñador produce los archivos finales (AI, PDF vectorial, PNG a 300 y
+   72 dpi, SVG), eso cubre O-01 y parte de O-03. Conviene que quede dicho, porque esos entregables hoy
+   son obligación de EL PRESTADOR y su aceptación se mide contra el A.4.1.
+2. **Cuántas rondas.** El A.1 da dos rondas de ajuste sobre la propuesta elegida; las adicionales van
+   contra la bolsa de horas o por Orden de Cambio. Un diseñador externo iterando sin límite consume esa
+   bolsa sin que nadie lo note.
+3. **Quién paga.** El contrato no contempla un tercero de diseño. Si lo paga EL CLIENTE, es su decisión
+   y no toca la contraprestación. Si esperara que lo pague EL PRESTADOR, eso es Orden de Cambio.
+4. **Qué no se puede refinar.** Los mínimos de contraste y de área táctil están fijados en la Fase 4 y
+   no se renegocian (`design-system/design-system.md`). Un refinamiento que aclare el azul por estética
+   rompe el 4.5:1 y con él el criterio de aceptación.
+5. **Qué se le entrega al diseñador.** El SVG de las tres versiones, los tokens con la paleta cargada, y
+   la nota del parecido con Instagram, para que no lo reintroduzca al refinar.
+
+Pendiente de decisión de Nadir: si esto se acuerda en el reporte semanal o en una nota aparte.

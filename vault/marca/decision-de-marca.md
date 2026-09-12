@@ -5,12 +5,12 @@ fuente: candidatos-de-nombre.md; territorio-de-marca.md; contrato v8 ANEXO A.1 y
 fecha: 2026-09-11
 dueño: Nadir Hadad Navarrete
 ---
-# Decisión de marca — {{MARCA}}
+# Decisión de marca — Lavandi
 
 **EL CLIENTE eligió el nombre el 2026-09-11 (C-49): Lavandi.** La elección está hecha; la
 verificación no. Esta nota pasa a `vigente` solo cuando el nombre esté **verificado y aprobado**:
 faltan dominio, IMPI (DD-030), colisiones de uso (DD-028) y la aprobación escrita del interlocutor
-único (DD-027). Hasta entonces todo el vault sigue usando `{{MARCA}}` y `{{DOMINIO}}`.
+único (DD-027). El vault ya dice Lavandi y lavandi.mx en todas sus notas.
 
 ## Paquete bloqueante P-1 — lo que se necesita para poder elegir el nombre
 
@@ -82,7 +82,7 @@ Para que nadie espere por lo que no hace falta:
 | Lista vigente para el cliente | **Cerrada.** La última fue la ronda 6 (C-46), con Lavatrae, Lavaruta y Lavamoto en 90 puntos y Lavandi como el mejor de los favoritos del cliente, en 80. No hay ronda 7 |
 | Recomendación de EL PRESTADOR | Se recomendaron Lavatrae, Lavaruta y Lavamoto, que cumplen los tres requisitos de C-46; Lavandi cumple dos (no dice reparto). **EL CLIENTE eligió Lavandi y la elección es suya**: el nombre es insumo del cliente, no entregable nuestro |
 | Candidatos descartados y motivo | `candidatos-de-nombre.md`, sección 8 |
-| **Dominio** | `SIN RESPUESTA — bloquea: DD-023`. Falta verificar `lavandi.com` y `lavandi.mx`. Lo verifica Nadir, no Claude (regla 5) |
+| **Dominio** | **`lavandi.mx` verificado disponible** por Nadir el 2026-09-12 (C-54). Falta comprarlo a nombre de EL CLIENTE (B.3, B.11) |
 | Búsqueda fonética IMPI | `SIN RESPUESTA — bloquea: DD-030` |
 | Colisiones de uso | `SIN RESPUESTA — bloquea: DD-028` |
 | Aprobación del interlocutor único | `SIN RESPUESTA — bloquea: DD-027`. Hay nombre concreto que confirmar; la solicitud a Alfredo Navarrete está vencida desde el 2026-09-10 |
@@ -96,5 +96,5 @@ elegido: elegir no es verificar. Lo que falta es de Nadir, no del cliente ni de 
 IMPI (DD-030) y colisiones de uso (DD-028) — más la confirmación escrita del interlocutor único
 (DD-027). Con esas cuatro cerradas, la nota pasa a `vigente` el mismo día.
 
-Al pasar a `vigente`: reemplazar `{{MARCA}}` y `{{DOMINIO}}` en el vault, cerrar DD-023, comprar el dominio
+Al pasar a `vigente`: cerrar DD-023, comprar el dominio
 a nombre de EL CLIENTE y escribir la guía de tono de voz del A.1 en `guia-de-tono-de-voz.md`.
