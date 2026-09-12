@@ -11,6 +11,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Meta
 
+- [[prompt-maestro-01-fundacion-v4]] — **documento fuente del método**: las nueve fases, el tablero, la regla de evidencia, el formato de respuesta
 - [[convenciones]] — reglas del vault, grados, marcadores, espejo Notion
 - [[deuda-de-decision]] — qué falta decidir y quién bloquea
 - Actas: [[acta-2026-09-07-fundacion]]

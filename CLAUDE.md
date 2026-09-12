@@ -3,6 +3,19 @@
 Instrucciones permanentes para cualquier sesión de Claude Code en este repositorio. Se leen antes
 de cualquier tarea y prevalecen sobre hábitos generales.
 
+## 0. El método de este proyecto
+
+Antes de trabajar, lee **`vault/meta/instrucciones/prompt-maestro-01-fundacion-v4.md`**. Es el documento
+fuente que define cómo se trabaja aquí: las nueve fases (0 a 8) y su orden, el tablero de configuración,
+el rol, la regla de evidencia completa, el modo de trabajo con puertas blandas, el formato de respuesta de
+cada turno y las prohibiciones. Este `CLAUDE.md` es el resumen operativo; aquel es la fuente.
+
+Orden de las fases, que no se altera: 0 espacio de trabajo · 1 lectura ejecutiva del contrato · 2 negocio ·
+3 marca · 4 design system · 5 arquitectura C4 · 6 stack · 7 formas de trabajo · 8 instrumental de Claude.
+
+Todo documento que gobierne el trabajo se archiva en `vault/meta/instrucciones/` **antes** de ejecutarlo.
+Una instrucción que solo vive en un chat no es un documento del proyecto.
+
 ## 1. Qué es este proyecto
 
 Plataforma digital de lavandería on-demand para EL CLIENTE del contrato **NSV-2026-001 v8**:

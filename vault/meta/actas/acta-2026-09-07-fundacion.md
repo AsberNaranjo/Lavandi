@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: C
-fuente: brief "PROMPT MAESTRO 01 — Fundación del proyecto NSV-2026-001 v4" pegado por Nadir en Claude Code el 2026-09-07, más su mensaje con el contrato adjunto
+fuente: `vault/meta/instrucciones/prompt-maestro-01-fundacion-v4.md` (archivado el 2026-09-11), más el mensaje de Nadir con el contrato adjunto
 fecha: 2026-09-07
 dueño: Nadir Hadad Navarrete
 ---
