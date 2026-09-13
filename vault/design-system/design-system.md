@@ -1,8 +1,8 @@
 ---
-estado: borrador
+estado: vigente
 grado: mixto
 fuente: prompt-maestro-01-fundacion-v4.md, Fase 4 (C); ANEXO A.1 y A.3 del contrato v8 (A); WCAG 2.1 AA (E); tokens.json (B)
-fecha: 2026-09-11
+fecha: 2026-09-12
 dueño: Nadir Hadad Navarrete
 ---
 # Design system de Lavandi
@@ -10,8 +10,8 @@ dueño: Nadir Hadad Navarrete
 Fuente única que alimenta app, landing y plantillas sociales. Definirlo tres veces por separado es
 como se pierden dos semanas.
 
-`estado: borrador` porque faltan los seis componentes dibujados como pantallas. La estructura, la
-paleta y las tipografías **ya están cerradas**.
+`estado: vigente` desde el 2026-09-12. Estructura, paleta, tipografías y los seis componentes
+dibujados: todo cerrado. La Fase 4 queda completa.
 
 ## La trampa de contraste que hay que conocer antes de tocar nada
 
@@ -32,7 +32,7 @@ El **Limón `#E8C547` nunca lleva texto encima**: sobre Hueso da 1.53:1. Es rell
 | Estructura de tokens, escalas y nombres | **cerrada** | No depende de la marca |
 | Modo claro y oscuro | **los dos, en v1** | Ver abajo. Pendiente de confirmación: DD-039 |
 | Umbrales de accesibilidad | **cerrados y no renegociables** | El método lo exige así (`prompt-maestro:242`) |
-| Los seis componentes base | **especificados** | `componentes.md` |
+| Los seis componentes base | **especificados y dibujados** | `componentes.md` y el canvas de `canvas/` |
 | Paleta de 4 colores y tipografías de marca | **cerradas el 2026-09-12** | Paleta "El tiempo de vuelta" (C-55) y Nunito + Source Sans 3. Ver `marca/decision-visual.md` |
 | Adaptador al stack | **espera** a la Fase 6 | Tiene su propio ADR |
 
@@ -145,6 +145,12 @@ La muestra incluye un **adaptador mínimo de demostración**, en JavaScript, que
 escribe variables CSS. No es el adaptador definitivo: sirve para probar que el JSON alcanza para
 pintar una interfaz completa sin escribir un color a mano. El generador real y su formato de salida
 son un ADR de la Fase 6, ya previsto en la lista del método.
+
+## Dónde están dibujados
+
+Los seis componentes viven como artboards en `canvas/`, uno por componente más el de cimientos,
+cada uno con interruptor de modo claro y oscuro. Los archivos de trabajo se versionan aquí; el
+empaquetado se regenera desde ellos y no se guarda en git.
 
 ## Cómo se mira esto
 

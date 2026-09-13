@@ -49,6 +49,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[cobertura-anexo-a1]] — **qué del entregable 1 NO resuelve un design system**; hace visible R-011
 - `tokens.json` — tokens agnósticos de framework; el adaptador es un ADR de la Fase 6
 - `muestra/index.html` — muestra renderizada; pide las dos fuentes a Google Fonts y sin conexión cae a la del sistema
+- `canvas/` — los seis componentes dibujados como artboards, con interruptor de modo claro y oscuro
 - [[prompt-claude-design]] — **prompt listo para pegar en Claude Design**, en tres rondas, con la trampa de contraste de Agua
 
 ## Arquitectura (Fase 5)
