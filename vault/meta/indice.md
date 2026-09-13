@@ -20,7 +20,8 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 ## Contrato (grado A leído)
 
 - [[nota-de-saneamiento]] — estado del instrumento (bloqueo levantado el 2026-09-07 por C-24 a C-27)
-- [[obligaciones-ejecutivas]] — qué se entrega y con qué criterio se acepta
+- [[alcance-del-proyecto]] — **qué se entrega, qué no, y qué cuesta aparte**. Cotejado contra el PDF el 2026-09-12. Es el documento que zanja "¿esto estaba incluido?"
+- [[obligaciones-ejecutivas]] — qué se entrega y con qué criterio se acepta; incluye las causas que **no** son rechazo válido (C-bis)
 - [[brecha-ejecutivo-tecnico]] — qué NO dice el contrato y en qué fase se decide
 - [[restricciones-no-negociables]] — lo que toda arquitectura debe cumplir
 - [[calendario-contractual]] — semanas, fechas, trámites de terceros, hitos de pago

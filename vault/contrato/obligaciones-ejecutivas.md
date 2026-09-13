@@ -73,6 +73,22 @@ fijó prueba objetiva: se le pone una en la Fase 7 (DoD) y se documenta como `ES
 | Resultados comerciales, de mercado, de adopción o de rentabilidad | p. 11, XI; p. 25, A.8 | No son causa de rechazo ni de retención de pagos |
 | Reclutamiento efectivo de lavanderías y repartidores | p. 42, C.8 | Es del cliente. Para el TERRITORIO INICIAL el contrato tampoco obliga a EL PRESTADOR a entregar material de reclutamiento (eso es parte de C.3, aperturas de ciudad) |
 
+## C-bis. Causas que NO constituyen rechazo válido
+
+**Estaba en el contrato y no se había registrado.** Se agrega el 2026-09-12 tras cotejar el PDF.
+Es la cláusula que impide que un entregable conforme al ANEXO A se rechace por un cambio de opinión.
+
+> "Causas que no constituyen rechazo válido
+> – Preferencias estéticas subjetivas no documentadas en el ANEXO A al momento de la firma.
+> – Solicitudes de nuevas funcionalidades o cambios de alcance que excedan las especificaciones pactadas.
+> – Opiniones de terceros no contemplados como interlocutores en el contrato.
+> – Resultados comerciales, de mercado o de adopción de la plataforma."
+> — `NSV-2026-001-v8.pdf:7:Cláusula IV`
+
+Efecto práctico: el criterio de aceptación de un entregable es **A.4 y nada más**. Una observación
+que no se apoye en A.4 no detiene el pago, y la falta de respuesta en diez días hábiles vale como
+aceptación de pleno derecho.
+
 ## D. Obligaciones de EL CLIENTE que condicionan las nuestras
 
 | Obligación del cliente | Cita (A) | Qué nuestro depende de ella |
