@@ -2,10 +2,31 @@
 estado: vigente
 grado: mixto
 fuente: NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1 y :20-21:Sección A.4.1 (A); obligaciones-ejecutivas.md O-01 a O-06 (B); riesgos.md R-011 (B)
-fecha: 2026-09-11
+fecha: 2026-09-15
 dueño: Nadir Hadad Navarrete
 ---
 # Cobertura del ANEXO A.1 — qué cubre el design system y qué no
+
+> **Estado del Entregable 1 al 2026-09-15.** EL CLIENTE entregó el logotipo hecho por su
+> diseñador (C-63). Eso cierra la parte creativa, **no el entregable**: de los seis puntos del
+> A.1, uno está completo, uno parcial y cuatro sin empezar. El detalle, abajo.
+
+## Qué falta para cerrar el Entregable 1
+
+| # | Punto del A.1 | Estado al 2026-09-15 | Qué falta exactamente |
+|---|---|---|---|
+| **O-01** | Logotipo, 4 versiones × 5 formatos | **Parcial** | Hay **una** versión (el símbolo) en PNG con transparencia y en JPEG, ambos de 1341×1326. Faltan: el archivo **AI**, el **PDF vectorial**, el **SVG** del logotipo con la palabra, el **PNG a 300 y a 72 dpi**, y las versiones **horizontal** y **monocromática**. Los cuatro SVG del repo son del símbolo y los hizo Claude, no el diseñador |
+| **O-02** | Paleta de 4 colores y tipografías | **Completo** | Nada. Paleta con HEX, RGB y CMYK, y Nunito + Source Sans 3, todo en `tokens.json` y verificado |
+| **O-03** | Manual de identidad, 15 a 20 páginas | **Sin empezar** | El design system aporta el contenido de varias páginas (paleta, jerarquía, espaciado, claro y oscuro). Faltan las de uso correcto e incorrecto del logotipo, que son la mayoría |
+| **O-04** | 12 plantillas de redes | **Sin empezar** | Y antes hay que decidir **Canva o Figma**, y en qué cuenta del cliente (BR-40) |
+| **O-05** | Guía de tono de voz, 2 a 3 páginas | **Sin empezar** | `marca/guia-de-tono-de-voz.md` no existe. Ya no hay excusa: el nombre está decidido |
+| **O-06** | Proceso de branding en 4 fases | **Cumplido de hecho** | Lo condujo el diseñador del cliente. Conviene dejar constancia escrita de que se agotó |
+
+**La petición más urgente, y solo Nadir puede hacerla:** pedirle al diseñador de Alfredo el
+**archivo vectorial editable** (AI, EPS o SVG). Un PNG no se convierte en vector sin perder
+calidad, y sin vector no hay forma de entregar los formatos que exige A.4.1 ni de imprimir nada.
+Cada día que pase, el diseñador está más lejos del proyecto y más difícil es conseguirlo.
+
 
 El método pide un mapa explícito. Este es. Sirve para una cosa concreta: **ver de un golpe cuánto
 del entregable 1 no lo resuelve un sistema de diseño y sigue necesitando a alguien que dibuje.**
