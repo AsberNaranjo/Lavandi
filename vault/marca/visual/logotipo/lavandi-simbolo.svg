@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1341 1326" width="1341" height="1326" role="img" aria-label="Lavandi">
+  <title>Lavandi — símbolo</title>
+  <desc>Carretera en forma de L que termina en punta, lavadora al centro y pin de mapa. Reconstrucción vectorial del logotipo entregado por el diseñador del cliente, con los colores de la paleta oficial.</desc>
+
+  <!-- Paleta oficial de Lavandi.
+       Agua #2E86AB no sirve como color de texto: da 3.74:1 sobre Hueso y el mínimo es 4.5:1.
+       Para texto, enlaces y botones va Agua Profundo #297899. -->
+
+  <g id="lavandi-simbolo">
+
+    <!-- Placa -->
+    <rect x="92" y="42" width="1202" height="1134" rx="95" fill="#F7F4EF"/>
+
+    <!-- Carretera clara: entra por arriba, gira y baja por la derecha -->
+    <path fill="#A8D5E2" d="
+      M 576 91
+      C 600 118, 617 140, 616 168
+      C 615 200, 594 232, 577 253
+      L 914 255
+      C 975 262, 1024 310, 1030 370
+      L 1027 1126
+      C 1100 1122, 1160 1090, 1199 987
+      L 1199 280
+      C 1199 180, 1130 91, 1032 91
+      Z"/>
+
+    <!-- Carretera oscura en L, termina en punta -->
+    <path fill="#2E86AB" d="
+      M 273 91
+      L 331 91
+      L 331 832
+      C 331 887, 376 932, 431 932
+      L 628 932
+      L 769 1013
+      L 628 1123
+      L 373 1124
+      C 263 1124, 173 1034, 173 924
+      L 173 191
+      C 173 136, 218 91, 273 91
+      Z"/>
+
+    <!-- Ojal superior -->
+    <circle cx="459" cy="175" r="77" fill="#2E86AB"/>
+    <circle cx="459" cy="175" r="66" fill="#A8D5E2"/>
+    <circle cx="459" cy="175" r="45" fill="#FFFFFF"/>
+
+    <!-- Lavadora -->
+    <circle cx="670" cy="608" r="175" fill="none" stroke="#2E86AB" stroke-width="22"/>
+    <circle cx="670" cy="608" r="150" fill="none" stroke="#F7F4EF" stroke-width="28"/>
+    <circle cx="670" cy="608" r="135" fill="#2E86AB"/>
+    <clipPath id="lavandi-tambor"><circle cx="670" cy="608" r="135"/></clipPath>
+    <g clip-path="url(#lavandi-tambor)">
+      <path fill="#A8D5E2" d="M 592.0 599.5 Q 603 597,616.5 597.0 Q 630 597,638.5 599.0 Q 647 601,655.0 605.0 Q 663 609,670.5 617.0 Q 678 625,685.0 628.5 Q 692 632,697.0 632.0 Q 702 632,710.5 630.0 Q 719 628,754.0 616.5 Q 789 605,792.0 612.0 Q 795 619,794.5 629.0 Q 794 639,792.0 645.0 Q 790 651,784.0 661.0 Q 778 671,781.5 663.5 Q 785 656,787.5 647.0 Q 790 638,790.0 632.5 Q 790 627,788.5 625.5 Q 787 624,785.0 624.5 Q 783 625,778.5 628.5 Q 774 632,751.0 653.0 Q 728 674,722.5 677.5 Q 717 681,704.5 686.0 Q 692 691,677.5 693.5 Q 663 696,654.0 696.0 Q 645 696,635.5 693.0 Q 626 690,618.5 683.0 Q 611 676,606.0 669.5 Q 601 663,597.0 660.5 Q 593 658,589.5 657.0 Q 586 656,579.5 656.0 Q 573 656,569.5 657.0 Q 566 658,565.5 659.5 Q 565 661,568.0 667.0 Q 571 673,581.0 686.0 Q 591 699,580.0 688.0 Q 569 677,562.5 668.0 Q 556 659,553.0 651.0 Q 550 643,550.0 636.5 Q 550 630,551.5 625.0 Q 553 620,555.5 616.5 Q 558 613,569.5 607.5 Q 581 602,592.0 599.5 Z"/>
+      <path fill="#FFFFFF" d="M 626.5 512.0 Q 633 510,637.0 510.0 Q 641 510,643.0 511.0 Q 645 512,646.0 514.0 Q 647 516,647.0 519.0 Q 647 522,646.0 524.0 Q 645 526,630.5 534.5 Q 616 543,606.5 553.0 Q 597 563,591.5 574.0 Q 586 585,584.5 586.5 Q 583 588,580.5 589.0 Q 578 590,575.0 589.5 Q 572 589,570.0 587.0 Q 568 585,567.5 581.0 Q 567 577,570.0 568.0 Q 573 559,578.5 550.0 Q 584 541,588.0 536.5 Q 592 532,600.0 526.0 Q 608 520,614.0 517.0 Q 620 514,626.5 512.0 Z"/>
+    </g>
+
+    <!-- Pin -->
+    <path fill="#E8C547" d="
+      M 897 1126
+      C 860 1060, 816 1030, 816 981
+      A 81 81 0 1 1 978 981
+      C 978 1030, 934 1060, 897 1126
+      Z"/>
+    <circle cx="896" cy="983" r="30" fill="#2E86AB"/>
+
+  </g>
+</svg>

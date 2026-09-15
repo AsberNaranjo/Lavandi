@@ -1,11 +1,16 @@
 ---
-estado: vigente
+estado: superseded
 grado: B
 fuente: canvas de marca visual, artboards Main y Construccion; decision-visual.md
 fecha: 2026-09-12
 dueño: Nadir Hadad Navarrete
 ---
 # SVG del símbolo de Lavandi
+
+> **SUPERSEDED el 2026-09-15.** Estos cuatro SVG son el símbolo que dibujó Claude antes de que
+> EL CLIENTE entregara el logotipo de su diseñador (C-63). El arte oficial vive ahora en
+> `vault/marca/visual/logotipo/`. Se conservan como trazabilidad del proceso; **no se usan**.
+
 
 Cuatro archivos vectoriales, listos para abrir en Illustrator, Figma o Inkscape. `viewBox` de 120×120,
 sin dependencias, sin fuentes embebidas.

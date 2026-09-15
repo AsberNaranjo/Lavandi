@@ -43,6 +43,11 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[decision-de-marca]] — **nombre elegido el 2026-09-11 (C-49)**; sigue en `borrador` hasta verificar dominio, IMPI y colisiones
 - guía de tono de voz — pendiente; se escribe cuando el nombre esté verificado
 
+## Marca — arte final
+
+- [[README|logotipo]] — **arte oficial reconstruido en vector** desde el PNG del diseñador, verificado por diferencia de píxeles (1.34 %, todo antialiasing de borde). SVG, PDF y PNG en tres versiones
+- `marca/visual/svg/` — **superseded**: el símbolo previo, de antes de que el cliente entregara el suyo
+
 ## Design system (Fase 4)
 
 - [[design-system]] — modos claro y oscuro, umbrales de accesibilidad y los 38 pares de contraste medidos
