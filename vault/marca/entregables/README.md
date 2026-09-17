@@ -1,5 +1,5 @@
 ---
-estado: borrador
+estado: vigente
 grado: mixto
 fuente: NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1 y :20-21:A.4.1 (A); territorio-de-marca.md, mision-vision-valores.md, decision-visual.md (B); acta C-55, C-60, C-61 (C)
 fecha: 2026-09-17
@@ -68,7 +68,68 @@ antes de que EL CLIENTE escogiera la familia de categoría (C-40). La guía no l
 
 ## Manual de identidad visual — O-03
 
-**Detenido antes de empezar.** Ver `riesgo-parecido-instagram.md` y DD-041: el logotipo que entregó el
-diseñador reintroduce los cuatro rasgos del parecido con Instagram que la sesión de marca había
-quitado a propósito. Un manual de 15 a 20 páginas codifica el logotipo; conviene decidir primero si
-el logotipo se queda como está.
+`manual-de-identidad.html` → `manual-de-identidad.pdf`
+
+| Requisito | Cita | Cumplimiento |
+|---|---|---|
+| 15 a 20 páginas, mínimo 15 para aceptar | A.1; A.4.1 | **18 páginas**, carta horizontal |
+| Uso correcto e incorrecto | A.1 | Páginas 8 y 9 (correcto sobre claros, oscuros y color) y 10 (ocho usos incorrectos) |
+| Espaciado mínimo | A.1 | Página 6: área de protección |
+| Tamaños mínimos | A.1 | Página 7: impreso y pantalla |
+| Fondos claros y oscuros | A.1 | Páginas 8 y 9 |
+| En PDF | A.1 | Sí |
+
+Además: la idea, la anatomía del símbolo, las cuatro versiones, paleta principal y de apoyo con HEX,
+RGB y CMYK, tabla de legibilidad, las dos tipografías con su jerarquía, resumen del tono de voz,
+aplicaciones y la tabla de archivos.
+
+### De dónde sale cada decisión del manual
+
+| En el manual | Sale de | Grado |
+|---|---|---|
+| Paleta de cuatro: Agua, Cielo, Hueso, Limón | C-55 y `decision-visual.md` | C |
+| Colores de apoyo | `tokens.json`, `marca_extendida` | B |
+| Valores CMYK | Conversión directa desde RGB, calculada. **El manual avisa que la imprenta debe hacer prueba de color** | D |
+| Tabla de legibilidad | Contrastes calculados con la fórmula de WCAG 2.1 al generar el manual, no copiados | B |
+| Área de protección = diámetro de la perilla | Decisión de este manual: es una medida que viaja con el símbolo | D |
+| Tamaño mínimo impreso: 20 mm a color, 12 mm monocromático | Grosor del anillo más fino de cada versión contra el mínimo que sostiene una imprenta | D |
+| Tamaño mínimo en pantalla: 32 px a color, 16 px monocromático | **Medido**: se renderizó el símbolo a 16, 24, 32, 48, 64 y 96 px y se vio dónde deja de reconocerse | B |
+| Nunito y Source Sans 3 | `decision-visual.md` | C |
+| Jerarquía de ocho tamaños | `tokens.json` | B |
+| Tono de voz | `guia-de-tono-de-voz.pdf` | B |
+
+### Dos cosas nuevas que EL CLIENTE no ha visto
+
+1. **La versión horizontal.** El diseñador entregó solo el símbolo. El manual compone la horizontal
+   con dos piezas ya aprobadas —el símbolo y Nunito— pero la composición en sí es nueva. Va a su
+   revisión junto con el manual.
+2. **El nombre "perilla"** para el círculo chico de arriba a la izquierda. `decision-visual.md` lista
+   la perilla entre las piezas de la lavadora de carga frontal que pidió el cliente, y es la lectura
+   que mejor cuadra con el dibujo. Pero ni el diseñador ni el cliente le pusieron nombre.
+
+### Verificación del PDF
+
+- **18 páginas**, carta horizontal, con el número correcto en cada pie.
+- **Solo las dos familias de la marca incrustadas.** Una versión intermedia metía Consolas por los
+  nombres de archivo; se quitó.
+- **Cero desbordes**, medido elemento por elemento contra el pie de cada página. Las celdas de usos
+  incorrectos recortan a propósito y se excluyen de la medición.
+- **Revisión visual de las 18 páginas.** Salieron y se corrigieron: la placa del área de protección no
+  se distinguía del fondo, los números de la anatomía no estaban sobre el dibujo, varias tarjetas se
+  estiraban con vacío, y los nombres de la paleta no quedaban alineados.
+
+### Cómo se actualiza si cambia el logotipo
+
+Los seis dibujos del símbolo que usa el manual están definidos **una sola vez**, al principio del HTML,
+como `<symbol>`: color, sin placa, monocromático, ícono y los dos usos incorrectos que alteran el
+dibujo. Si el logotipo cambia, se reemplazan esos seis y las 18 páginas se actualizan solas. Después
+se vuelve a imprimir el PDF con Chrome.
+
+## Correcciones hechas al preparar estos entregables
+
+- **La regla del Limón estaba mal en el vault.** Decía que el Limón "nunca lleva texto encima". Lo
+  que falla es el Limón *como color de texto* (1.53:1 sobre Hueso); texto en Tinta *sobre* Limón da
+  10.22:1 y es perfectamente válido. `tokens.json` ya lo decía bien. Se corrigió en `tokens.json`,
+  `design-system.md`, `prompt-claude-design.md`, la muestra y el canvas publicado.
+- **El ícono de la app tenía esquinas redondeadas y transparencia.** App Store rechaza íconos con
+  transparencia y cada tienda aplica su propia máscara. Ahora es cuadrado, a sangre y sin canal alfa.

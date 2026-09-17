@@ -43,7 +43,7 @@ Todo el texto va en **español de México**, tuteando y sin jerga.
 | Agua Claro | `#308CB3` | El acento cuando el fondo es oscuro |
 | Cielo | `#A8D5E2` | Fondos suaves, estados vacíos, ilustración |
 | Hueso | `#F7F4EF` | Fondo general de las pantallas |
-| Limón | `#E8C547` | Acento y relleno. **Nunca texto, nunca detrás de texto** |
+| Limón | `#E8C547` | Acento y relleno. **Nunca como color de texto.** Como fondo, solo con texto en `#171C21` |
 | Limón Profundo | `#B39116` | Bordes y detalles finos sobre fondo claro |
 
 Neutros: texto `#171C21`, texto suave `#515A64`, superficie `#FFFFFF`, superficie hundida `#EDE9E2`,
@@ -53,7 +53,8 @@ borde `#DCE0E5`, borde de control `#6B7681`.
 
 - **Agua `#2E86AB` no puede llevar texto encima ni ser texto.** Da 3.74:1 sobre Hueso y el mínimo es
   4.5:1. Si necesitas azul en un texto, un enlace o un botón, usa **Agua Profundo `#297899`**.
-- **Limón `#E8C547` nunca lleva texto encima.** Da 1.53:1 sobre Hueso. Es decorativo.
+- **Limón `#E8C547` nunca es color de texto:** da 1.53:1 sobre Hueso. Como fondo sí sirve, con texto en `#171C21`
+  encima (10.22:1). Nunca texto blanco o hueso sobre Limón (1.68:1).
 - Todo texto normal necesita **4.5:1** contra su fondo. Títulos de 19 px o más, **3:1**.
 - Todo lo que se toca mide **mínimo 48 × 48 px**, con 8 px de separación entre objetivos.
 - El color nunca es la única señal: si algo se distingue por color, también lleva texto o ícono.
@@ -152,7 +153,7 @@ color.
 | Si pasa esto | Dile esto |
 |---|---|
 | Pinta texto en Agua | "Agua no pasa contraste para texto. Cámbialo a Agua Profundo `#297899`." |
-| Pone texto sobre Limón | "Limón nunca lleva texto encima. Pon el texto en `#171C21` sobre superficie blanca." |
+| Escribe texto en Limón, o texto blanco sobre Limón | "El Limón no es color de texto. Si es fondo, el texto encima va en `#171C21`." |
 | Inventa precios | "Los montos van como `$000.00`. No hay precios decididos." |
 | Hace ventanas de 30 min o de 2 h | "Las ventanas son de una hora exacta. Es requisito del contrato." |
 | Agrega pantallas que no pediste | "Quita eso. Solo los componentes que enumeré." |

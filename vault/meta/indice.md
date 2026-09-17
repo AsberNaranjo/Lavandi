@@ -45,6 +45,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Marca — arte final
 
+- [[entregables/README|Entregables del A.1]] — **guía de tono de voz (3 pp.) y manual de identidad (18 pp.)**, en PDF, listos para entregar
 - [[README|logotipo]] — **arte oficial reconstruido en vector** desde el PNG del diseñador, verificado por diferencia de píxeles (1.34 %, todo antialiasing de borde). SVG, PDF y PNG en tres versiones
 - `marca/visual/svg/` — **superseded**: el símbolo previo, de antes de que el cliente entregara el suyo
 

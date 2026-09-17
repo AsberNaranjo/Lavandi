@@ -23,7 +23,11 @@ Ese 4.51 pasa por **una centésima**. Cualquier retoque de Agua Profundo o de Hu
 criterio de aceptación, y es un retoque que un diseñador haría sin pensarlo por razones estéticas.
 Conviene decírselo por escrito al diseñador que el cliente va a poner (C-63) antes de que empiece.
 
-El **Limón `#E8C547` nunca lleva texto encima**: sobre Hueso da 1.53:1. Es relleno y acento.
+El **Limón `#E8C547` nunca es color de texto**: sobre Hueso da 1.53:1. **Como fondo sí funciona**, con texto en
+Tinta `#171C21` encima, que da 10.22:1. Lo que no se pone nunca sobre Limón es texto blanco o hueso: 1.68:1.
+
+Nota de corrección, 2026-09-17: hasta esta fecha el vault decía que el Limón "nunca lleva texto encima". Era
+demasiado restrictivo y contradecía `tokens.json`. Lo que falla es el Limón como texto, no el texto oscuro sobre él.
 
 ## Qué está decidido y qué espera
 

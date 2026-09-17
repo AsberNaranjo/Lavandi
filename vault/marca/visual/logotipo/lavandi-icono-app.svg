@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="Lavandi">
   <title>Lavandi — ícono de app</title>
-  <desc>Versión cuadrada a sangre para las tiendas de aplicaciones. El contenido queda dentro del 78 por ciento central, que es la zona segura de los íconos adaptables de Android.</desc>
-  <rect width="1024" height="1024" rx="224" fill="#F7F4EF"/>
+  <desc>Versión cuadrada a sangre para las tiendas de aplicaciones: sin esquinas redondeadas ni transparencia, porque App Store y Google Play aplican su propia máscara. El contenido queda dentro del 78 por ciento central, que es la zona segura de los íconos adaptables de Android.</desc>
+  <rect width="1024" height="1024" fill="#F7F4EF"/>
   <g transform="translate(-18.24 41.66) scale(0.7729)">
 
     <!-- Carretera clara: entra por arriba, gira y baja por la derecha -->

@@ -54,7 +54,7 @@ Se llegó ahí en tres pasadas: 2.95 % con las formas aproximadas a mano, 1.61 %
 | `lavandi-simbolo-300dpi.png` | PNG transparente, 1341 px a 300 dpi (11.4 cm de ancho impreso) |
 | `lavandi-simbolo-72dpi.png` | PNG transparente, 512 px a 72 dpi |
 | `lavandi-icono-app.svg` · `.pdf` | Versión cuadrada a sangre para las tiendas |
-| `lavandi-icono-app-1024.png` | 1024×1024, el tamaño que piden App Store y Google Play |
+| `lavandi-icono-app-1024.png` | 1024×1024, **cuadrado, a sangre y sin transparencia**: App Store rechaza íconos con canal alfa y cada tienda aplica su propia máscara. Corregido el 2026-09-17; la primera versión tenía esquinas redondeadas y fondo transparente |
 | `lavandi-simbolo-monocromo.svg` · `.pdf` | Una sola tinta, con `currentColor` |
 
 **Nota técnica del monocromático:** los huecos se hacen con `fill-rule="evenodd"`, no con `mask`.
