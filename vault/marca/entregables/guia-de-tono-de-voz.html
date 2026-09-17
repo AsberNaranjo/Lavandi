@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Lavandi — Guía de tono de voz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  @page { size: letter portrait; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Source Sans 3', system-ui, sans-serif;
+    color: #171C21; background: #F7F4EF;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    font-size: 10.5pt; line-height: 1.45;
+  }
+  .pagina {
+    width: 8.5in; height: 11in; padding: 0.6in 0.65in 0.55in;
+    position: relative; overflow: hidden; background: #F7F4EF;
+    page-break-after: always; break-after: page;
+    display: flex; flex-direction: column;
+  }
+  .pagina:last-child { page-break-after: auto; break-after: auto; }
+  .franja { position: absolute; left: 0; top: 0; bottom: 0; width: 0.14in; background: #2E86AB; }
+  .pie {
+    margin-top: auto; padding-top: 10px; border-top: 1px solid #DCE0E5;
+    display: flex; justify-content: space-between; font-size: 8pt; color: #515A64;
+  }
+  h1, h2, h3 { font-family: 'Nunito', system-ui, sans-serif; margin: 0; }
+  h1 { font-size: 30pt; font-weight: 900; color: #171C21; line-height: 1.05; letter-spacing: -0.01em; }
+  h2 { font-size: 15pt; font-weight: 800; color: #297899; margin: 0 0 8px; }
+  h3 { font-size: 11pt; font-weight: 800; color: #171C21; margin: 0 0 3px; }
+  p { margin: 0 0 8px; }
+  .gorro { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 9pt; letter-spacing: 0.08em;
+           text-transform: uppercase; color: #297899; margin-bottom: 6px; }
+  .encabezado { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+  .encabezado svg { width: 58px; height: 58px; flex: none; }
+  .idea {
+    background: #FFFFFF; border-radius: 10px; padding: 18px 22px; margin: 4px 0 18px;
+    border-left: 6px solid #E8C547;
+  }
+  .idea .cita { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 17pt; line-height: 1.2; color: #171C21; }
+  .idea .nota { font-size: 9.5pt; color: #515A64; margin: 6px 0 0; }
+  .principios { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
+  .principio { background: #FFFFFF; border-radius: 8px; padding: 12px 14px; }
+  .principio .num { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 18pt; color: #A8D5E2; line-height: 1; float: right; }
+  .principio p { font-size: 9.8pt; margin: 0; }
+  .principio .ej { font-size: 9.3pt; color: #515A64; margin-top: 5px; font-style: italic; }
+  .rasgos { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 0; }
+  .rasgo { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 9.5pt; padding: 4px 11px; border-radius: 999px;
+           background: #FFFFFF; border: 1.5px solid #297899; color: #297899; }
+  .rasgo.no { border-color: #6B7681; color: #515A64; text-decoration: line-through; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 9.8pt; }
+  th { text-align: left; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 9pt; letter-spacing: .04em;
+       text-transform: uppercase; padding: 7px 10px; }
+  td { padding: 6px 10px; border-top: 1px solid #E6E1D8; vertical-align: top; }
+  .si th { background: #297899; color: #FFFFFF; }
+  .no-th { background: #EDE9E2; color: #3B424A; }
+  .tabla { background: #FFFFFF; border-radius: 8px; overflow: hidden; }
+  td.si { font-weight: 600; color: #171C21; }
+  td.no { color: #515A64; }
+  td.por { color: #515A64; font-size: 9.2pt; }
+
+  .reglas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; margin-top: 16px; }
+  .regla { background: #FFFFFF; border-radius: 8px; padding: 10px 13px; }
+  .regla p { font-size: 9.6pt; margin: 0; }
+
+  .publico { background: #FFFFFF; border-radius: 10px; padding: 13px 16px 12px; margin-bottom: 12px; }
+  .publico .cab { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+  .publico .siente { font-size: 9.3pt; color: #515A64; }
+  .publico .siente strong { color: #297899; }
+  .mensajes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+  .msg { background: #F7F4EF; border-radius: 8px; padding: 8px 10px; }
+  .msg .cuando { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 8pt; letter-spacing: .05em;
+                 text-transform: uppercase; color: #297899; margin-bottom: 3px; }
+  .msg .texto { font-size: 9.6pt; line-height: 1.35; }
+  .registro { font-size: 9pt; color: #515A64; margin-top: 7px; }
+  .registro strong { color: #171C21; }
+</style>
+</head>
+<body>
+
+<!-- ============ PÁGINA 1 ============ -->
+<section class="pagina">
+  <div class="franja"></div>
+
+  <div class="encabezado">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Lavandi">
+  <rect width="1024" height="1024" rx="224" fill="#F7F4EF"/>
+  <g transform="translate(-18.24 41.66) scale(0.7729)">
+
+    <!-- Carretera clara: entra por arriba, gira y baja por la derecha -->
+    <path fill="#A8D5E2" d="
+      M 576 91
+      C 600 118, 617 140, 616 168
+      C 615 200, 594 232, 577 253
+      L 914 255
+      C 975 262, 1024 310, 1030 370
+      L 1027 1126
+      C 1100 1122, 1160 1090, 1199 987
+      L 1199 280
+      C 1199 180, 1130 91, 1032 91
+      Z"/>
+
+    <!-- Carretera oscura en L, termina en punta -->
+    <path fill="#2E86AB" d="
+      M 273 91
+      L 331 91
+      L 331 832
+      C 331 887, 376 932, 431 932
+      L 628 932
+      L 769 1013
+      L 628 1123
+      L 373 1124
+      C 263 1124, 173 1034, 173 924
+      L 173 191
+      C 173 136, 218 91, 273 91
+      Z"/>
+
+    <!-- Ojal superior -->
+    <circle cx="459" cy="175" r="77" fill="#2E86AB"/>
+    <circle cx="459" cy="175" r="66" fill="#A8D5E2"/>
+    <circle cx="459" cy="175" r="45" fill="#FFFFFF"/>
+
+    <!-- Lavadora -->
+    <circle cx="670" cy="608" r="175" fill="none" stroke="#2E86AB" stroke-width="22"/>
+    <circle cx="670" cy="608" r="150" fill="none" stroke="#F7F4EF" stroke-width="28"/>
+    <circle cx="670" cy="608" r="135" fill="#2E86AB"/>
+    <clipPath id="lavandi-tambor"><circle cx="670" cy="608" r="135"/></clipPath>
+    <g clip-path="url(#lavandi-tambor)">
+      <path fill="#A8D5E2" d="M 592.0 599.5 Q 603 597,616.5 597.0 Q 630 597,638.5 599.0 Q 647 601,655.0 605.0 Q 663 609,670.5 617.0 Q 678 625,685.0 628.5 Q 692 632,697.0 632.0 Q 702 632,710.5 630.0 Q 719 628,754.0 616.5 Q 789 605,792.0 612.0 Q 795 619,794.5 629.0 Q 794 639,792.0 645.0 Q 790 651,784.0 661.0 Q 778 671,781.5 663.5 Q 785 656,787.5 647.0 Q 790 638,790.0 632.5 Q 790 627,788.5 625.5 Q 787 624,785.0 624.5 Q 783 625,778.5 628.5 Q 774 632,751.0 653.0 Q 728 674,722.5 677.5 Q 717 681,704.5 686.0 Q 692 691,677.5 693.5 Q 663 696,654.0 696.0 Q 645 696,635.5 693.0 Q 626 690,618.5 683.0 Q 611 676,606.0 669.5 Q 601 663,597.0 660.5 Q 593 658,589.5 657.0 Q 586 656,579.5 656.0 Q 573 656,569.5 657.0 Q 566 658,565.5 659.5 Q 565 661,568.0 667.0 Q 571 673,581.0 686.0 Q 591 699,580.0 688.0 Q 569 677,562.5 668.0 Q 556 659,553.0 651.0 Q 550 643,550.0 636.5 Q 550 630,551.5 625.0 Q 553 620,555.5 616.5 Q 558 613,569.5 607.5 Q 581 602,592.0 599.5 Z"/>
+      <path fill="#FFFFFF" d="M 626.5 512.0 Q 633 510,637.0 510.0 Q 641 510,643.0 511.0 Q 645 512,646.0 514.0 Q 647 516,647.0 519.0 Q 647 522,646.0 524.0 Q 645 526,630.5 534.5 Q 616 543,606.5 553.0 Q 597 563,591.5 574.0 Q 586 585,584.5 586.5 Q 583 588,580.5 589.0 Q 578 590,575.0 589.5 Q 572 589,570.0 587.0 Q 568 585,567.5 581.0 Q 567 577,570.0 568.0 Q 573 559,578.5 550.0 Q 584 541,588.0 536.5 Q 592 532,600.0 526.0 Q 608 520,614.0 517.0 Q 620 514,626.5 512.0 Z"/>
+    </g>
+
+    <!-- Pin -->
+    <path fill="#E8C547" d="
+      M 897 1126
+      C 860 1060, 816 1030, 816 981
+      A 81 81 0 1 1 978 981
+      C 978 1030, 934 1060, 897 1126
+      Z"/>
+    <circle cx="896" cy="983" r="30" fill="#2E86AB"/>
+
+  </g>
+</svg>
+
+    <div>
+      <div class="gorro">Guía de tono de voz</div>
+      <h1>Cómo habla Lavandi</h1>
+    </div>
+  </div>
+
+  <div class="idea">
+    <div class="cita">“No vendemos lavado de ropa. Vendemos el sábado que te devolvemos.”</div>
+    <p class="nota">Esta es la idea que gobierna todo lo que decimos. Nadie quiere hablar de detergente: quiere
+      recuperar su tiempo. Cada mensaje de Lavandi se escribe desde ahí.</p>
+  </div>
+
+  <h2>En una frase</h2>
+  <p style="font-size:11.5pt; margin-bottom:16px"><strong>Prometemos con número y lo decimos como vecino.</strong>
+    La confianza la da el cumplimiento, no la simpatía: una hora concreta, un precio claro, alguien que responde.
+    El tono cercano es la forma de decirlo, no el sustituto.</p>
+
+  <h2>Cuatro principios</h2>
+  <div class="principios">
+    <div class="principio">
+      <span class="num">1</span>
+      <h3>Prometemos con número</h3>
+      <p>Nunca “rápido” a secas. Decimos la hora, el día, el total. Si no hay número que dar, no hay promesa que hacer.</p>
+      <p class="ej">“Pasamos por tu ropa el jueves entre 11:00 y 12:00”, no “pasamos pronto”.</p>
+    </div>
+    <div class="principio">
+      <span class="num">2</span>
+      <h3>Hablamos de tu ropa</h3>
+      <p>Cercano y concreto. La ropa de la semana, la camisa del lunes. Nada de “prendas textiles” ni de “soluciones”.</p>
+      <p class="ej">“Tu ropa ya va para la lavandería”, no “tus prendas se encuentran en tránsito”.</p>
+    </div>
+    <div class="principio">
+      <span class="num">3</span>
+      <h3>El oficio es del socio</h3>
+      <p>Lavandi no lava: las lavanderías sí. Les hablamos de negocio a negocio, con el respeto de quien sabe que el trabajo es de ellos.</p>
+      <p class="ej">“Socio”, nunca “proveedor”.</p>
+    </div>
+    <div class="principio">
+      <span class="num">4</span>
+      <h3>Damos la cara</h3>
+      <p>Si algo sale mal, lo decimos primero y lo decimos nosotros. Avisamos antes de que pase la hora, no después.</p>
+      <p class="ej">Nunca “eso es problema de la lavandería”.</p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:18px">Así suena, y así no</h2>
+  <div class="rasgos">
+    <span class="rasgo">Cercana</span><span class="rasgo">Cotidiana</span><span class="rasgo">Ligera</span><span class="rasgo">Clara</span><span class="rasgo">Puntual</span>
+    <span class="rasgo no">Cursi</span><span class="rasgo no">Corporativa</span><span class="rasgo no">Exagerada</span><span class="rasgo no">Técnica</span>
+  </div>
+  <p style="font-size:9.6pt; color:#515A64; margin-top:9px">Ligera no quiere decir que todo sea broma: en un cobro, un retraso o un
+    problema con la ropa, la ligereza se guarda y queda la claridad.</p>
+
+  <div class="pie"><span>Lavandi · Guía de tono de voz</span><span>1 de 3</span></div>
+</section>
+
+<!-- ============ PÁGINA 2 ============ -->
+<section class="pagina">
+  <div class="franja"></div>
+  <div class="gorro">Vocabulario</div>
+  <h1 style="font-size:24pt; margin-bottom:16px">Qué decimos y qué no</h1>
+
+  <div class="tabla">
+    <table>
+      <thead>
+        <tr class="si"><th style="width:31%">Decimos</th><th class="no-th" style="width:31%">No decimos</th><th class="no-th">Por qué</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="si">tu ropa</td><td class="no">tus prendas · artículos textiles</td><td class="por">Así le dice la gente.</td></tr>
+        <tr><td class="si">socio · lavandería socia</td><td class="no">proveedor · partner · aliado</td><td class="por">El oficio es de ellos, no trabajan para nosotros.</td></tr>
+        <tr><td class="si">repartidor</td><td class="no">rider · partner · miembro de la comunidad</td><td class="por">Directo. Nadie se llama a sí mismo “rider”.</td></tr>
+        <tr><td class="si">pasamos por tu ropa · la llevamos</td><td class="no">recolección logística · servicio de última milla</td><td class="por">Verbos de casa, no de paquetería.</td></tr>
+        <tr><td class="si">entre 11:00 y 12:00</td><td class="no">en breve · muy pronto · súper rápido</td><td class="por">Si no hay hora, no hay promesa.</td></tr>
+        <tr><td class="si">el total · lo que pagas</td><td class="no">tarifa dinámica · costo del servicio</td><td class="por">El precio se dice claro y antes.</td></tr>
+        <tr><td class="si">vamos tarde · nos equivocamos</td><td class="no">hubo inconvenientes · incidencias operativas</td><td class="por">Dar la cara es decirlo con todas sus letras.</td></tr>
+        <tr><td class="si">lavado · planchado · lavado en seco</td><td class="no">experiencia de lavado · cuidado premium</td><td class="por">Los servicios se llaman por su nombre.</td></tr>
+        <tr><td class="si">Confirmado · Recolectado · En proceso · Listo · Entregado</td><td class="no">cualquier otro nombre para esos estados</td><td class="por">Son los cinco estados del pedido. Se dicen siempre igual.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 style="margin-top:18px">Reglas de escritura</h2>
+  <div class="reglas">
+    <div class="regla">
+      <h3>Tú o usted</h3>
+      <p>Al usuario, de <strong>tú</strong>. Al socio, <strong>usted</strong> al inicio, y después el trato que él marque.
+        Al repartidor, de <strong>tú</strong>, corto y práctico.</p>
+    </div>
+    <div class="regla">
+      <h3>Números siempre en cifra</h3>
+      <p>“11:00”, “3 pedidos”, “20 minutos”. Las horas en formato de 24 horas y siempre con la ventana completa: “entre 11:00 y 12:00”.</p>
+    </div>
+    <div class="regla">
+      <h3>Una idea por mensaje</h3>
+      <p>Un aviso al celular se lee en dos segundos. Si hay dos cosas que decir, son dos mensajes o una va en la app.</p>
+    </div>
+    <div class="regla">
+      <h3>Emojis, casi nunca</h3>
+      <p>Solo para celebrar algo bueno y nunca más de uno. Jamás en un cobro, un retraso o un problema.</p>
+    </div>
+    <div class="regla">
+      <h3>Sin diminutivos</h3>
+      <p>Ni “ropita” ni “tu pedidito”. Cercano no es infantil, y a quien confía su ropa no se le habla así.</p>
+    </div>
+    <div class="regla">
+      <h3>El error se dice primero</h3>
+      <p>Primero qué pasó, luego qué hacemos, al final la disculpa. Nunca al revés, y nunca sin decir qué sigue.</p>
+    </div>
+  </div>
+
+  <div class="pie"><span>Lavandi · Guía de tono de voz</span><span>2 de 3</span></div>
+</section>
+
+<!-- ============ PÁGINA 3 ============ -->
+<section class="pagina">
+  <div class="franja"></div>
+  <div class="gorro">Ejemplos por público</div>
+  <h1 style="font-size:24pt; margin-bottom:6px">Tres personas, tres conversaciones</h1>
+  <p style="font-size:10pt; color:#515A64; margin-bottom:14px">La voz es una sola; el registro cambia según con quién hablamos.
+    Quien entrega su ropa quiere sentir que la cuidan; quien lava quiere que su negocio se trate como negocio.</p>
+
+  <div class="publico">
+    <div class="cab"><h2 style="margin:0">Quien pide</h2>
+      <span class="siente">Debe sentir <strong>alivio con control</strong></span></div>
+    <div class="mensajes">
+      <div class="msg"><div class="cuando">Pedido confirmado</div>
+        <div class="texto">Listo, tu pedido está confirmado. Pasamos por tu ropa el jueves entre 11:00 y 12:00.</div></div>
+      <div class="msg"><div class="cuando">Un retraso</div>
+        <div class="texto">Vamos a llegar unos 20 minutos tarde por tu ropa. Te avisamos en cuanto lo supimos. Perdón por el cambio.</div></div>
+      <div class="msg"><div class="cuando">Pedido entregado</div>
+        <div class="texto">Tu ropa ya está de vuelta. Que disfrutes el sábado. ¿Cómo nos fue?</div></div>
+    </div>
+    <p class="registro"><strong>Registro:</strong> de tú, cálido y breve. Siempre con la hora o el siguiente paso.</p>
+  </div>
+
+  <div class="publico">
+    <div class="cab"><h2 style="margin:0">La lavandería socia</h2>
+      <span class="siente">Debe sentir <strong>respeto por su oficio</strong></span></div>
+    <div class="mensajes">
+      <div class="msg"><div class="cuando">Primera llamada</div>
+        <div class="texto">Buenas tardes, le hablo de Lavandi. No somos lavandería: le acercamos clientes y usted lava como sabe.</div></div>
+      <div class="msg"><div class="cuando">Pedido nuevo</div>
+        <div class="texto">Tiene un pedido nuevo: recolección hoy entre 11:00 y 12:00, lavado y planchado. ¿Lo acepta?</div></div>
+      <div class="msg"><div class="cuando">Corte de la semana</div>
+        <div class="texto">Esta semana entregó 12 pedidos. Le corresponden $000.00. Aquí está el detalle de cada uno.</div></div>
+    </div>
+    <p class="registro"><strong>Registro:</strong> de negocio a negocio. “Usted” al inicio. Nunca le decimos cómo hacer su trabajo.</p>
+  </div>
+
+  <div class="publico">
+    <div class="cab"><h2 style="margin:0">El repartidor</h2>
+      <span class="siente">Debe sentir <strong>viajes claros, pago claro</strong></span></div>
+    <div class="mensajes">
+      <div class="msg"><div class="cuando">Viaje asignado</div>
+        <div class="texto">Recoge en la colonia Centro entre 11:00 y 12:00. Lleva a Lavandería A.</div></div>
+      <div class="msg"><div class="cuando">Al entregar</div>
+        <div class="texto">Entrega confirmada. Llevas 3 hoy.</div></div>
+      <div class="msg"><div class="cuando">Cambio de último momento</div>
+        <div class="texto">El cliente movió su hora: ahora es entre 13:00 y 14:00. El viaje sigue en pie.</div></div>
+    </div>
+    <p class="registro"><strong>Registro:</strong> de tú, directo. Qué, dónde y a qué hora. Sin rodeos ni motivación de más.</p>
+  </div>
+
+  <div class="pie"><span>Lavandi · Guía de tono de voz · Los montos son de ejemplo</span><span>3 de 3</span></div>
+</section>
+
+</body>
+</html>
