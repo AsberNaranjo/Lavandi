@@ -1,8 +1,8 @@
 ---
 estado: vigente
 grado: mixto
-fuente: sesión 2026-09-07 (Fases 0–3), actualizada con C-24 a C-32 y con C-46 a C-53 del 2026-09-11
-fecha: 2026-09-11
+fuente: sesión 2026-09-07 (Fases 0–3), actualizada con C-24 a C-32, con C-46 a C-53 del 2026-09-11 y con C-65 a C-70 del 2026-09-12 al 2026-09-17
+fecha: 2026-09-17
 dueño: Nadir Hadad Navarrete
 ---
 # Deuda de decisión
@@ -42,13 +42,14 @@ Se cierra con la respuesta, la fecha y dónde quedó asentada (acta, ADR o nota)
 | DD-032 | ¿EL CLIENTE ya tenía preferencia entre Lavandi, Lava+ y LavaYa!? Dos de los tres tienen colisión | Nadir / EL CLIENTE | Cómo se presenta la lista de categoría | 3 | 2026-09-09 | abierta |
 | DD-033 | ¿La lista del 2026-09-07 (Trama, Pinza…) se le presentó completa al cliente o solo se le mencionaron algunos nombres? | Nadir | Si conviene dejar una opción evocadora al cierre de la nota | 3 | 2026-09-09 | abierta |
 | DD-034 | Sabiendo que la familia de categoría se registra peor, ¿EL PRESTADOR insiste con la ronda anterior o acompaña la decisión del cliente? | Nadir | La recomendación que se firma; el gasto del trámite ante el IMPI | 3 | 2026-09-09 | abierta |
-
 | DD-036 | ¿Nadir envía el aviso de retraso del entregable 1? La Cláusula II exige notificar por escrito con 48 h y es lo que impide que el retraso se le impute | Nadir | Protección de calendario y de los pagos (Cláusula II) | 3 | **2026-09-10** | abierta — **contractual** |
 | DD-037 | ¿Se adopta el mecanismo de cierre: tres nombres en vez de diez, ordenados del uno al tres, con fecha límite y opción por defecto si no hay respuesta? | Nadir | Que la sexta lista sea la última | 3 | 2026-09-11 | **cerrada sin efecto** el 2026-09-11: EL CLIENTE eligió antes de que hiciera falta (C-49) |
 | DD-038 | **Familiaridad técnica del equipo y su tamaño real.** ¿Con qué lenguajes, framework móvil, backend y base de datos ha entregado software de verdad? ¿Sigue siendo Nadir + Claude Code sin diseñador (C-32)? El método la llama "decisiva, y se dice en voz alta, no se esconde" | Nadir | La matriz de criterios de la Fase 6 y el peso de "velocidad de entrega en 16 semanas" | 6 | 2026-09-18 | abierta |
 | DD-039 | **¿Modo claro y oscuro los dos en la v1?** El método manda decidirlo en la Fase 4 y no renegociarlo después | Nadir | Tokens de color, muestra del design system y trabajo de la Fase 4 | 4 | 2026-09-14 | abierta |
 | DD-040 | **¿Dónde vive el Módulo D?** El criterio A.4.3 mete administración en la misma frase que los otros tres módulos, pero le exige exportar CSV y Excel, mapa de calor por colonia y monitoreo con mapa: todo eso es hostil en un teléfono. El contrato no dice si es pantalla de la app o aplicación web aparte | Nadir, sobre recomendación de Claude | Alcance de la Fase 6 y número de contenedores del C2 | 5 | 2026-09-18 | abierta |
 | DD-041 | **El logotipo del diseñador reintroduce el parecido con Instagram.** La sesión de marca documentó que el parecido son cuatro rasgos juntos —cuadrado de esquinas redondeadas, contorno de grosor uniforme, círculo al centro, punto en la esquina superior— y quitó el marco a propósito (`riesgo-parecido-instagram.md`). El archivo entregado el 2026-09-15 trae los cuatro, suavizados: placa redondeada, carreteras que forman el marco, lavadora al centro, ojal arriba a la izquierda. Hace falta la **búsqueda figurativa** ante el IMPI, no solo la fonética de DD-030. Y el riesgo nunca se le planteó al cliente: estaba pendiente en `decision-visual.md` | Nadir, con quien haga el trámite | Registro del logotipo; manual de identidad; ícono de la app; plantillas sociales | 3 | 2026-09-17 | **cerrada 2026-09-17 por C-68**: EL CLIENTE conoce el riesgo y conserva el logotipo |
+| DD-042 | **Términos del apoyo con contenido (C-70).** Qué es "contenido": orientar o producir. Hasta cuándo es "la primera etapa del desarrollo". Si se cobra o es cortesía, y con qué tope de horas o piezas. Quién aprueba cada pieza y quién publica. De quién son los derechos. Producir está excluido por escrito en el A.8, que ya prevé la salida: $600 MXN por hora con autorización escrita, o contratación independiente | Nadir; lo firma EL CLIENTE | Producir la primera pieza: la Cláusula IV pide acordarlo antes de ejecutarlo. Horas de Nadir en semanas de desarrollo (R-020) | 3 | **antes de la primera pieza** | abierta — **contractual** |
+| DD-043 | **Canva o Figma para las 12 plantillas, y en qué cuenta** (BR-40). En la primera etapa edita Nadir (C-70), así que la decisión la define quien herede: A.4.1 exige plantillas "accesibles para EL CLIENTE" y el A.8 capacita "al equipo que EL CLIENTE designe". Candidato a preguntar: el diseñador que refinó el logotipo (C-63). Precio vigente de cada editor sin verificar; el ANEXO B.8 estima $150 MXN al mes | Nadir, con el dato de EL CLIENTE | O-04 y aceptación A.4.1; fecha de las plantillas si el apoyo empieza antes de la semana 10 | 3 | 2026-09-21 | abierta |
 
 ## Cerradas
 
