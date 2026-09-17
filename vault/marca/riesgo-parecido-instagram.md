@@ -7,6 +7,10 @@ dueño: Nadir Hadad Navarrete
 ---
 # El parecido con Instagram, antes de registrar
 
+> **Riesgo aceptado por EL CLIENTE el 2026-09-17 (C-68).** Se le planteó y conserva el logotipo del
+> diseñador: "No es lo mismo Instagram a Lavandi." La nota se conserva como constancia de que la
+> decisión se tomó con la información completa.
+
 EL CLIENTE pidió que el logotipo "se pareciera aún más al de Instagram: en vez de una cámara, una
 lavadora". Las otras dos observaciones que dio, el pin de mapa y la L como carretera, se tomaron tal cual
 y mejoran el símbolo. Ésta tiene un costo que conviene que él conozca antes de que se pague el registro.
