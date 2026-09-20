@@ -8,8 +8,14 @@ dueño: Nadir Hadad Navarrete
 # Entregables de marca del ANEXO A.1
 
 Documentos terminados que se entregan a EL CLIENTE como parte del Entregable 1. Cada uno tiene su
-fuente en HTML, que se versiona, y su PDF, que es lo que se entrega. Si cambia el contenido, se edita
-el HTML y se vuelve a generar el PDF.
+fuente en HTML, que se versiona, y su PDF, que es lo que se entrega.
+
+**Dónde se edita cada uno, que no es lo mismo:**
+
+- **La guía de tono de voz** se edita en su HTML y se vuelve a imprimir el PDF.
+- **El manual de identidad NO.** Su HTML lo genera `herramientas/manual-de-identidad/construir_manual.py`
+  y cualquier cambio hecho a mano se pierde en la siguiente corrida. El contenido se cambia en el
+  script. Ahí está el README con el procedimiento y con lo que hay que revisar después.
 
 ## Guía de tono de voz — O-05
 
