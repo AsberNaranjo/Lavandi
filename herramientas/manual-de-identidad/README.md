@@ -21,6 +21,11 @@ entrega a EL CLIENTE.
 **pin** (`s-pin`) encima. Todo se dimensiona en `em`, así que basta con darle `font-size` y el conjunto
 escala entero. El ancho total del lockup es **5.368 × font-size**, medido en la página 5.
 
+**El pin no se coloca a ojo.** Va donde Nunito Black pone el punto de la i, que se midió barriendo la
+tinta del glifo: **0.5725 em sobre la línea base**. Como `bottom` se cuenta desde el borde inferior de la
+caja, y la línea base queda 0.1778 em por encima de ese borde, el valor es `0.7503em`. Si algún día se
+cambia el tipo de letra de la marca, **este número hay que volver a medirlo**: es propio de Nunito.
+
 Las dos formas **no se redibujan**: se extraen del SVG maestro con expresión regular. Si alguien cambia
 el `d` de la carretera oscura o del pin en `lavandi-simbolo.svg`, la extracción falla ruidosamente en vez
 de producir una palabra rota en silencio.

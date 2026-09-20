@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: mixto
-fuente: NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1 y :20-21:Sección A.4.1 (A); obligaciones-ejecutivas.md O-01 a O-06 (B); riesgos.md R-011, R-023 (B); acta 2026-09-20, C-75 a C-86 (C)
+fuente: NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1 y :20-21:Sección A.4.1 (A); obligaciones-ejecutivas.md O-01 a O-06 (B); riesgos.md R-011, R-023 (B); acta 2026-09-20, C-75 a C-87 (C)
 fecha: 2026-09-20
 dueño: Nadir Hadad Navarrete
 ---

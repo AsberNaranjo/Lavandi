@@ -107,7 +107,10 @@ p { margin: 0 0 8px; }
                 display: inline-flex; align-items: baseline; letter-spacing: -.01em; white-space: nowrap; }
 .palabra-logo .gl-l { width: .4068em; height: .705em; margin-right: .035em; }
 .palabra-logo .gl-i { position: relative; display: inline-block; }
-.palabra-logo .gl-i .gl-pin { position: absolute; left: 50%; bottom: .495em; width: .2295em; height: .32em; transform: translateX(-50%); }
+/* El pin se apoya donde Nunito pone el punto de la i: 0.5725em sobre la linea base, medido.
+   `bottom` se cuenta desde el borde inferior de la caja, que queda 0.1778em bajo la base, asi
+   que 0.5725 + 0.1778 = 0.7503em. Con .495em el pin se metia 0.185em dentro del asta. */
+.palabra-logo .gl-i .gl-pin { position: absolute; left: 50%; bottom: .7503em; width: .2295em; height: .32em; transform: translateX(-50%); }
 /* lockup medido en em: ancho total = 5.368em. Sirve para dibujarlo a tamano real */
 .lockup-min { display: inline-flex; align-items: center; gap: .262em; }
 .lockup-min .sim { width: 1.56em; height: 1.47em; }

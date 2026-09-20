@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: mixto
-fuente: NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1 y :20-21:A.4.1 (A); territorio-de-marca.md, mision-vision-valores.md, decision-visual.md (B); acta C-55, C-60, C-61 (C); retroalimentación de EL CLIENTE del 18 y 19 de septiembre, acta C-75 a C-86 (C)
+fuente: NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1 y :20-21:A.4.1 (A); territorio-de-marca.md, mision-vision-valores.md, decision-visual.md (B); acta C-55, C-60, C-61 (C); retroalimentación de EL CLIENTE del 18 y 19 de septiembre, acta 2026-09-20, C-75 a C-87 (C)
 fecha: 2026-09-20
 dueño: Nadir Hadad Navarrete
 ---
@@ -87,6 +87,12 @@ a 56, 70, 88, 110, 132, 160 y 200 px de ancho total:
 sean un solo color. Da **3.74 : 1** sobre Hueso: insuficiente para texto normal, suficiente para un
 elemento gráfico, cuyo mínimo es 3 : 1. La página 13 ya lo dice y no se contradice. **"Lavandi" escrito
 como texto corrido sigue yendo en Agua Profundo `#297899`.**
+
+**Dónde se apoya el pin, y por qué no se puso a ojo.** El pin se sienta donde Nunito Black pone el punto
+de la i: **0.5725 em sobre la línea base**, medido barriendo la tinta del glifo fila por fila. En CSS el
+valor se escribe contra el borde inferior de la caja, que queda 0.1778 em bajo la base, así que son
+`0.7503em`. La primera versión usaba `.495em` y **metía el pin 0.185 em dentro del asta de la i**: se veía
+sobrepuesto. Corregido y comprobado en el documento, a 0.5724 em (C-87).
 
 **Consecuencia de forma que conviene saber:** el asta de la carretera es más delgada que el trazo de
 Nunito Black, así que la L se ve más ligera que el resto de la palabra. Se dejó así a propósito:
@@ -192,6 +198,8 @@ antes de que EL CLIENTE escogiera la familia de categoría (C-40). La guía no l
   `design-system.md`, `prompt-claude-design.md`, la muestra y el canvas publicado.
 - **El ícono de la app tenía esquinas redondeadas y transparencia.** App Store rechaza íconos con
   transparencia y cada tienda aplica su propia máscara. Ahora es cuadrado, a sangre y sin canal alfa.
+- **El pin sobre la i se veía sobrepuesto.** Estaba colocado 0.185 em dentro del asta, por medir contra la
+  línea base y escribir el valor contra el borde de la caja. Ahora se apoya donde Nunito pone su punto.
 - **El manual daba tamaños mínimos solo del símbolo.** La versión horizontal es una de las cuatro que
   exige el A.1 y no tenía ninguno. La versión 1.1 lo añade, medido.
 

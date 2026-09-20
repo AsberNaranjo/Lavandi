@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: C
-fuente: sesión técnica con Nadir Hadad Navarrete del 2026-09-20, que transmite la retroalimentación de Alfredo Navarrete recibida por WhatsApp el 18 y 19 de septiembre de 2026. Capturas archivadas en `vault/marca/entregables/feedback/`
+fuente: sesión técnica con Nadir Hadad Navarrete del 2026-09-20, que transmite la retroalimentación de Alfredo Navarrete recibida por WhatsApp el 18 y 19 de septiembre de 2026. Capturas archivadas en `vault/marca/entregables/feedback/`. C-87 es observación del propio Nadir sobre la versión 1.1
 fecha: 2026-09-20
 dueño: Nadir Hadad Navarrete
 ---
@@ -55,6 +55,9 @@ ortografía; el acta no, porque es el registro de lo que se dijo.
   Entregable 1, "pero primero hay que atender las correcciones".
 - C-86. **Las dos páginas libres del manual** (dirección de fotografía / uso del nombre) siguen sin
   decidirse: "Aun no estamos seguros".
+- C-87. **El pin sobre la i estaba sobrepuesto.** Revisando la versión 1.1, Nadir señala: "La 'i' dentro
+  de lavandi en la primera categoria, debe de estar más arriba, se muestra sobrepuesto". Corregido: ver
+  abajo.
 
 ## Clasificación de cada observación
 
@@ -122,6 +125,29 @@ conjunto a 56, 70, 88, 110, 132, 160 y 200 px de ancho total y se miró dónde d
 - El símbolo ocupa el **29 %** del ancho del conjunto (medido: 91.2 px de 314.9 px), así que a 110 px
   mide sus 32 px justos, que es su propio mínimo a color.
 - Los dos límites coinciden. En impreso, ese 29 % contra los 20 mm del símbolo pone el mínimo en **70 mm**.
+
+### El pin estaba sobrepuesto, y se corrigió midiendo (C-87)
+
+La primera versión del logotipo de la palabra colocaba el pin con `bottom: .495em`, que parecía razonable
+y no lo era: **el pin se metía 0.185 em dentro del asta de la i**. El error de fondo fue medir contra la
+línea base y escribir el valor contra el borde inferior de la caja, que no son lo mismo.
+
+Se midió el glifo de Nunito Black, barriendo la tinta fila por fila sobre un lienzo a 400 px:
+
+| Medida de Nunito Black | Valor, en em sobre la línea base |
+|---|---|
+| Altura de la x | 0.5025 |
+| **Punto de la i: abajo** | **0.5725** |
+| Punto de la i: arriba | 0.7425 |
+| Ascendente de la d | 0.715 |
+| Hueco entre el asta y el punto | 0.07 |
+
+Y se midió la caja: la línea base queda **0.1778 em** por encima de su borde inferior. De ahí el valor
+correcto, `bottom: .7503em` = 0.5725 + 0.1778. Comprobado después en el documento: el pin queda a
+**0.5724 em**, es decir, apoyado exactamente donde la tipografía pone su propio punto.
+
+El tamaño del pin no cambió, así que **el mínimo de 110 px sigue siendo válido**; se volvió a levantar la
+tira de 70, 88, 110, 132 y 160 px con el CSS ya corregido para confirmarlo, y confirma.
 
 El color del logotipo de la palabra es **Agua `#2E86AB`**, el mismo de la carretera del símbolo, para que
 la palabra y el símbolo sean un solo azul. Da **3.74 : 1** sobre Hueso: no alcanza para texto normal, pero
