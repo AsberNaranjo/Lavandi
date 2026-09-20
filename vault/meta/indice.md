@@ -2,7 +2,7 @@
 estado: vigente
 grado: B
 fuente: estructura del repo
-fecha: 2026-09-11
+fecha: 2026-09-20
 dueño: Nadir Hadad Navarrete
 ---
 # Índice (MOC raíz)
@@ -14,7 +14,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[prompt-maestro-01-fundacion-v4]] — **documento fuente del método**: las nueve fases, el tablero, la regla de evidencia, el formato de respuesta y las prohibiciones
 - [[convenciones]] — reglas del vault, grados, marcadores, espejo Notion
 - [[deuda-de-decision]] — qué falta decidir y quién bloquea
-- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]]
+- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]] · [[acta-2026-09-20-feedback-del-manual]]
 
 ## Contrato (grado A leído)
 
@@ -44,7 +44,8 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Marca — arte final
 
-- [[entregables/README|Entregables del A.1]] — **guía de tono de voz (3 pp.) y manual de identidad (18 pp.)**, en PDF, listos para entregar
+- [[entregables/README|Entregables del A.1]] — **manual de identidad (18 pp., versión 1.1) y guía de tono de voz (3 pp.)**, en PDF. Revisados por EL CLIENTE el 18 y 19 de septiembre: seis observaciones aplicadas, dos abiertas (DD-045 y DD-046)
+- `marca/entregables/feedback/` — las cuatro capturas marcadas a mano que mandó Alfredo Navarrete por WhatsApp. Evidencia primaria de C-76 a C-83
 - [[README|logotipo]] — **arte oficial reconstruido en vector** desde el PNG del diseñador, verificado por diferencia de píxeles (1.34 %, todo antialiasing de borde). SVG, PDF y PNG en tres versiones
 - `marca/visual/svg/` — **superseded**: el símbolo previo, de antes de que el cliente entregara el suyo
 
@@ -85,7 +86,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 - `cliente/reportes-semanales/` · `cliente/notificaciones-de-entrega/` · `cliente/requerimientos/` · `cliente/comunicaciones/`
 - Comunicaciones enviadas: [[2026-09-07-lista-de-nombres-para-el-cliente]] y [[2026-09-08-lista-de-nombres-de-categoria]] (ambas enviadas, C-43)
-- Sin enviar: [[2026-09-19-acuerdo-de-apoyo-con-contenido]] (la cortesía con principio, final y límites) · [[2026-09-12-alcance-para-el-cliente]] (qué recibe, qué necesita hacer él, qué se cotiza aparte) · [[2026-09-09-aviso-de-retraso-branding]] (**vencido, DD-036**) · [[2026-09-11-requerimiento-de-insumos-de-producto]] (seis decisiones de operación) · [[2026-09-09-lista-de-nombres-globales]] (archivada por C-46, ya no se manda)
+- Sin enviar: [[2026-09-20-respuesta-al-feedback-del-manual]] (**la más urgente**: devuelve el manual corregido, cierra el fondo hueso, y deja el lavado de calzado como Orden de Cambio antes de que se instale la expectativa) · [[2026-09-19-acuerdo-de-apoyo-con-contenido]] (la cortesía con principio, final y límites) · [[2026-09-12-alcance-para-el-cliente]] (qué recibe, qué necesita hacer él, qué se cotiza aparte) · [[2026-09-09-aviso-de-retraso-branding]] (**vencido, DD-036**) · [[2026-09-11-requerimiento-de-insumos-de-producto]] (seis decisiones de operación) · [[2026-09-09-lista-de-nombres-globales]] (archivada por C-46, ya no se manda)
 
 ## Plantillas
 

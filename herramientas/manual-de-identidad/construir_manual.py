@@ -31,6 +31,13 @@ def ok_badge():
 def use(sim, estilo="", clase=""):
     return '<svg class="%s" style="%s" aria-hidden="true"><use href="#%s"/></svg>' % (clase, estilo, sim)
 
+def palabra(estilo=""):
+    """Logotipo de la palabra: L de carretera, i sin punto y pin encima."""
+    return ('<span class="palabra-logo" style="%s" aria-label="Lavandi">'
+            '<svg class="gl-l" aria-hidden="true"><use href="#s-l"/></svg>avand'
+            '<span class="gl-i"><svg class="gl-pin" aria-hidden="true"><use href="#s-pin"/></svg>ı</span>'
+            '</span>') % estilo
+
 def pagina(num, gorro, titulo, cuerpo, franja=True):
     return ('<section class="pagina">%s<header class="cab"><div class="gorro">%s</div><h1>%s</h1></header>'
             '<div class="cuerpo">%s</div><footer class="pie"><span>Lavandi · Manual de identidad</span><span>%02d</span></footer></section>'
@@ -77,6 +84,10 @@ p { margin: 0 0 8px; }
 .rejilla2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
 .rejilla3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
 .rejilla4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
+.rejilla5 { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 12px; }
+.hecho { background: #FFFFFF; border-radius: 9px; padding: 11px 13px; display: flex; flex-direction: column; gap: 3px; }
+.hecho b { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 10.5pt; }
+.hecho span { font-size: 9pt; color: #515A64; line-height: 1.35; }
 .badge-no, .badge-si { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 999px;
                        display: flex; align-items: center; justify-content: center; }
 .badge-no { background: #A32222; } .badge-si { background: #1E6F45; }
@@ -90,6 +101,16 @@ p { margin: 0 0 8px; }
 .portada .der .tipo { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 22pt; line-height: 1.1; }
 .portada .der .linea { font-size: 13pt; color: #515A64; margin-top: 14px; }
 .portada .der .version { margin-top: auto; font-size: 9.5pt; color: #515A64; border-top: 1px solid #DCE0E5; padding-top: 10px; }
+
+/* logotipo de la palabra: la L es la carretera y el punto de la i es el pin (C-76) */
+.palabra-logo { font-family: 'Nunito', sans-serif; font-weight: 900; color: #2E86AB; line-height: 1;
+                display: inline-flex; align-items: baseline; letter-spacing: -.01em; white-space: nowrap; }
+.palabra-logo .gl-l { width: .4068em; height: .705em; margin-right: .035em; }
+.palabra-logo .gl-i { position: relative; display: inline-block; }
+.palabra-logo .gl-i .gl-pin { position: absolute; left: 50%; bottom: .495em; width: .2295em; height: .32em; transform: translateX(-50%); }
+/* lockup medido en em: ancho total = 5.368em. Sirve para dibujarlo a tamano real */
+.lockup-min { display: inline-flex; align-items: center; gap: .262em; }
+.lockup-min .sim { width: 1.56em; height: 1.47em; }
 
 /* contenido */
 .indice { columns: 2; column-gap: 48px; margin-top: 6px; }
@@ -106,7 +127,7 @@ p { margin: 0 0 8px; }
 .anatomia { display: flex; gap: 34px; align-items: center; flex: 1; }
 .anatomia .fig { width: 4.1in; flex: none; }
 .anatomia .fig svg { width: 4.1in; height: 3.87in; }
-.pieza { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+.pieza { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 9px; }
 .pieza .num { flex: none; width: 30px; height: 30px; border-radius: 999px; background: #171C21; color: #FFFFFF;
               font-family: 'Nunito', sans-serif; font-weight: 900; display: flex; align-items: center; justify-content: center; }
 
@@ -170,7 +191,7 @@ td { padding: 6px 10px; border-bottom: 1px solid #E6E1D8; vertical-align: middle
 
 def construir():
     p = []
-    marcas = [(1,252,560),(2,812,452),(3,459,300),(4,955,832)]
+    marcas = [(1,252,560),(2,812,452),(3,1114,470),(4,955,832),(5,459,300)]
     FIG_ANATOMIA = ('<svg viewBox="92 42 1202 1134" style="width:4.1in;height:3.87in">'
         '<use href="#s-color" x="92" y="42" width="1202" height="1134"/>' +
         ''.join('<circle cx="%d" cy="%d" r="54" fill="#171C21" stroke="#F7F4EF" stroke-width="10"/>'
@@ -179,10 +200,11 @@ def construir():
 
     # 1 portada
     p.append('<section class="pagina portada"><div class="izq">%s</div><div class="der">'
-             '<div class="gorro">Manual de identidad</div><div class="marca">Lavandi</div>'
+             '<div class="gorro">Manual de identidad</div><div class="marca">%s</div>'
              '<div class="tipo">Cómo se ve y cómo se usa la marca</div>'
-             '<div class="linea">De tu cel a tu closet.</div>'
-             '<div class="version">Versión 1.0 · septiembre de 2026</div></div></section>' % use('s-color'))
+             '<div class="linea">Con seguridad y rapidez, de tu cel a tu closet.</div>'
+             '<div class="version">Versión 1.1 · septiembre de 2026</div></div></section>'
+             % (use('s-color'), palabra('font-size:54pt')))
 
     # 2 contenido
     secciones = [("La idea",3),("El símbolo",4),("Versiones",5),("Área de protección",6),("Tamaños mínimos",7),
@@ -199,27 +221,28 @@ def construir():
     # 3 la idea
     p.append(pagina(3, "01 · La idea", "Lo que vendemos",
              '<div class="fila" style="flex:1; align-items:center; gap:48px">'
-             '<div class="col" style="flex:1.35"><div class="cita-marca"><div class="cita">No vendemos lavado de ropa. '
-             'Vendemos el sábado que te devolvemos.</div></div></div>'
+             '<div class="col" style="flex:1.35"><div class="cita-marca"><div class="cita">No vendemos lavado de tu ropa: '
+             'vendemos el alivio y la rapidez hasta tu closet.</div></div></div>'
              '<div class="col"><h2>Qué significa para la marca</h2>'
-             '<p>Nadie quiere pensar en su ropa sucia: quiere recuperar su tiempo. Lavandi existe para eso, y la marca lo dice sin '
-             'hablar de detergentes ni de burbujas.</p>'
-             '<p>La promesa se sostiene con hechos concretos: una hora de recolección que se cumple, un precio que se ve antes de '
-             'pesar, y alguien que responde.</p>'
+             '<p>Nadie quiere pensar en su ropa sucia: quiere recuperar su tiempo y que la ropa vuelva bien. Lavandi existe para eso, '
+             'y la marca lo dice sin hablar de detergentes ni de burbujas.</p>'
+             '<p>La promesa se sostiene con hechos concretos: una ventana de recolección de una hora que se cumple, un precio que se '
+             've antes de pesar, una lavandería con nombre y calificación, y alguien que responde.</p>'
              '<div class="tarjeta" style="margin-top:14px"><h3>La línea de la marca</h3>'
-             '<p style="font-family:Nunito,sans-serif; font-weight:900; font-size:20pt; color:#297899; margin:4px 0 6px">De tu cel a tu closet.</p>'
+             '<p style="font-family:Nunito,sans-serif; font-weight:900; font-size:17pt; color:#297899; margin:4px 0 6px">Con seguridad y rapidez, de tu cel a tu closet.</p>'
              '<p class="nota" style="margin:0">Acompaña al logotipo en la portada de la página web, en perfiles y en materiales de lanzamiento.</p></div>'
              '</div></div>'))
 
     # 4 el simbolo
-    piezas = [("La carretera", "La L es un camino, no una letra. La oscura baja y termina en punta: la ropa va a algún lado."),
+    piezas = [("La carretera de ida", "La L oscura es un camino, no una letra. Baja y termina en punta: la ropa sale de tu casa."),
               ("La lavadora", "Al centro, con su puerta y el agua girando. Es el oficio de las lavanderías socias."),
-              ("La perilla", "El detalle de la lavadora de carga frontal, arriba a la izquierda."),
-              ("El pin", "El destino. Dice ubicación y entrega: tu ropa vuelve a tu casa.")]
+              ("La carretera de vuelta", "La L clara, invertida. Es el regreso: la ropa limpia baja hasta la dirección de entrega."),
+              ("El pin", "El destino. Dice ubicación y entrega: tu ropa vuelve a tu casa."),
+              ("La perilla", "El detalle de la lavadora de carga frontal, arriba a la izquierda.")]
     p.append(pagina(4, "02 · El símbolo", "Qué cuenta cada pieza",
              '<div class="anatomia"><div class="fig">%s</div><div class="col">%s'
-             '<p class="suave" style="margin-top:6px">Juntas, las piezas cuentan el servicio: la ropa sale, pasa por la lavadora '
-             'y llega al pin. Ninguna se mueve de su lugar ni se usa por separado.</p></div></div>'
+             '<p class="suave" style="margin-top:6px">Juntas cuentan el viaje completo: la ropa sale por la carretera oscura, pasa por '
+             'la lavadora y vuelve por la clara hasta el pin. Ninguna pieza se mueve de su lugar ni se usa por separado.</p></div></div>'
              % (FIG_ANATOMIA, "".join('<div class="pieza"><div class="num">%d</div><div><h3>%s</h3><p style="margin:0">%s</p></div></div>'
                                         % (i+1,t,d) for i,(t,d) in enumerate(piezas)))))
 
@@ -227,12 +250,13 @@ def construir():
     p.append(pagina(5, "03 · Versiones", "Cuatro versiones, un mismo símbolo",
              '<div class="rejilla2" style="flex:1">'
              '<div><div class="version-caja">%s</div><div class="etq"><b>Principal a color.</b> La versión de uso general.</div></div>'
-             '<div><div class="version-caja"><div class="lockup">%s<span class="palabra">Lavandi</span></div></div>'
-             '<div class="etq"><b>Horizontal.</b> Cuando hace falta el nombre junto al símbolo: página web, encabezados, firmas.</div></div>'
+             '<div><div class="version-caja"><div class="lockup">%s%s</div></div>'
+             '<div class="etq"><b>Horizontal.</b> El símbolo con la palabra: la <b>L</b> es la carretera y el punto de la <b>i</b> es el pin. '
+             'Para la página web, encabezados y firmas.</div></div>'
              '<div><div class="version-caja">%s</div><div class="etq"><b>Ícono de app.</b> Cuadrado y a sangre; cada tienda redondea las esquinas.</div></div>'
              '<div><div class="version-caja" style="gap:28px">%s<div style="background:#171C21; border-radius:10px; padding:14px">%s</div></div>'
              '<div class="etq"><b>Monocromática.</b> Una sola tinta, para sellos, grabados, bordados y tamaños muy chicos.</div></div>'
-             '</div>' % (use('s-color','width:2.1in;height:1.98in'), use('s-color'),
+             '</div>' % (use('s-color','width:2.1in;height:1.98in'), use('s-color'), palabra('font-size:44pt'),
                          use('s-icono','width:1.85in;height:1.85in;border-radius:22%;box-shadow:0 1px 3px rgba(14,18,22,.18)'),
                          use('s-mono','width:1.55in;height:1.46in;color:#171C21'), use('s-mono','width:1.15in;height:1.08in;color:#F7F4EF'))))
 
@@ -278,9 +302,20 @@ def construir():
              '<div style="text-align:center">%s<div class="etq"><b>16 px</b><br>monocromática</div></div></div>'
              '<p class="nota" style="margin:0">A 32 px el símbolo se reconoce, pero el agua de la lavadora ya no se distingue. Por '
              'debajo de 32 px se usa la monocromática: aguanta hasta 16 px, el tamaño del ícono de una pestaña del navegador.</p></div>'
-             '</div>' % (use('s-color','width:20mm;height:18.87mm'), use('s-mono','width:12mm;height:11.32mm;color:#171C21'),
-                         use('s-color','width:48px;height:45.3px'), use('s-color','width:32px;height:30.2px'),
-                         use('s-mono','width:16px;height:15.1px;color:#171C21'))))
+             '</div>'
+             '<div class="tarjeta" style="margin-top:16px"><div class="fila" style="gap:30px; align-items:center">'
+             '<div style="flex:none; text-align:center">%s<div class="etq" style="margin-top:9px"><b>110 px</b> · a tamaño real</div></div>'
+             '<div class="col"><h2>Versión horizontal</h2>'
+             '<p style="margin-bottom:6px">Se mide por el <b>ancho total</b>, y el límite lo ponen dos piezas a la vez. El <b>pin de la i</b> '
+             'deja de leerse como pin por debajo de 110 px y se convierte en un punto amarillo. El <b>símbolo</b> ocupa el 29 %% del ancho '
+             'del conjunto, así que a 110 px mide sus 32 px justos. Los dos dan el mismo número.</p>'
+             '<p class="nota" style="margin:0">En impreso, ese 29 %% contra los 20 mm del símbolo pone el mínimo en <b>70 mm</b> de ancho. '
+             'Por debajo de esos tamaños no se achica: se usa el símbolo solo.</p></div></div></div>'
+             % (use('s-color','width:20mm;height:18.87mm'), use('s-mono','width:12mm;height:11.32mm;color:#171C21'),
+                use('s-color','width:48px;height:45.3px'), use('s-color','width:32px;height:30.2px'),
+                use('s-mono','width:16px;height:15.1px;color:#171C21'),
+                '<span class="lockup-min" style="font-size:20.49px">%s%s</span>'
+                % (use('s-color','', 'sim'), palabra('font-size:20.49px')))))
 
     # 8 fondos claros
     claros = [("#F7F4EF","Hueso","El fondo natural de la marca.",""),("#FFFFFF","Blanco","La placa se ve como una tarjeta suave.","border:1px solid #DCE0E5;"),
@@ -387,18 +422,29 @@ def construir():
              '<div style="font-size:12px;color:#515A64;margin-top:8px;text-align:center">Título · Cuerpo · Menor · botón en Agua Profundo</div></div></div></div>' % tn))
 
     # 16 tono de voz
-    principios = [("Prometemos con número","La hora, el día, el total. Nunca “rápido” a secas."),
-                  ("Hablamos de tu ropa","Cercano y concreto. Nada de “prendas” ni “soluciones”."),
-                  ("El oficio es del socio","Lavandi no lava: las lavanderías sí. Socio, nunca proveedor."),
+    principios = [("Tu ropa, en buenas manos","Cada pedido va a una lavandería con nombre, calificación y reseñas. Decimos quién lava."),
+                  ("Rapidez con hora","La ventana de una hora, el día y el total. Nunca “rápido” ni “en breve”."),
+                  ("Todo a la vista","El precio antes de pesar y el estado del pedido en la app. Nada en letra chica."),
                   ("Damos la cara","Si algo sale mal, lo decimos primero y lo decimos nosotros.")]
+    hechos = [("Ventana de 1 hora", "La recolección se agenda en una franja de una hora, no “en el día”."),
+              ("Precio antes de pesar", "El resumen del pedido muestra el precio estimado y la política de cancelación."),
+              ("Cinco estados", "Confirmado, Recolectado, En proceso, Listo y Entregado, con aviso en el teléfono."),
+              ("Lavandería con nombre", "Perfil con fotos, servicios, precios por kilo, calificación y reseñas."),
+              ("Alguien que responde", "Soporte por WhatsApp y formulario de reporte dentro de la app.")]
     p.append(pagina(16, "14 · Tono de voz", "Cómo habla Lavandi",
              '<div class="fila" style="gap:34px; flex:1"><div class="col" style="flex:1.1"><div class="cita-marca" style="margin-bottom:18px">'
-             '<div class="cita" style="font-size:22pt">Prometemos con número y lo decimos como vecino.</div></div>'
-             '<p>La marca es <b>cercana, cotidiana y ligera</b>, pero la confianza la da el cumplimiento, no la simpatía. En un cobro, '
-             'un retraso o un problema con la ropa, la ligereza se guarda y queda la claridad.</p>'
+             '<div class="cita" style="font-size:22pt">Decimos la hora, cuidamos la ropa y no escondemos nada.</div></div>'
+             '<p>La marca es <b>cercana, cotidiana y ligera</b>, pero la confianza la dan el cumplimiento y la claridad, no la simpatía. '
+             '<b>Lavandi no lava: las lavanderías socias sí</b>, y por eso se llaman socios y nunca proveedores.</p>'
+             '<p>En un cobro, un retraso o un problema con la ropa, la ligereza se guarda y queda la claridad.</p>'
              '<p class="suave">El detalle, con vocabulario y ejemplos para cada público, está en la <b>Guía de tono de voz</b>, que '
              'acompaña a este manual.</p></div><div class="col"><div class="rejilla2" style="gap:12px">%s</div></div></div>'
-             % "".join('<div class="tarjeta" style="padding:13px 15px"><h3>%s</h3><p style="margin:0;font-size:10pt">%s</p></div>' % pr for pr in principios)))
+             '<div style="margin-top:18px; border-top:1px solid #DCE0E5; padding-top:14px">'
+             '<h3 style="margin-bottom:8px">Lo que sostiene la promesa</h3>'
+             '<p class="nota" style="margin-bottom:10px">El tono promete lo que la app cumple. Estos son los cinco hechos en los que se apoya; '
+             'fuera de ellos, la marca no promete.</p><div class="rejilla5">%s</div></div>'
+             % ("".join('<div class="tarjeta" style="padding:13px 15px"><h3>%s</h3><p style="margin:0;font-size:10pt">%s</p></div>' % pr for pr in principios),
+                "".join('<div class="hecho"><b>%s</b><span>%s</span></div>' % h for h in hechos))))
 
     # 17 aplicaciones
     p.append(pagina(17, "15 · Aplicaciones", "Donde más se va a ver",
@@ -431,14 +477,16 @@ def construir():
              '<div class="fila" style="gap:34px; flex:1"><div class="col" style="flex:1.8"><table><thead><tr><th>Archivo</th><th>Para qué</th></tr></thead>'
              '<tbody>%s</tbody></table></div><div class="col"><div class="tarjeta"><h3>Ante la duda</h3><p>Usa el <b>SVG</b> en '
              'pantalla y el <b>PDF</b> para imprimir. Los dos son vectoriales y se ven nítidos a cualquier tamaño.</p>'
-             '<h3 style="margin-top:12px">Esta versión</h3><p style="margin:0">Manual de identidad 1.0, septiembre de 2026. Cualquier '
-             'cambio a la marca se registra en una versión nueva de este documento.</p></div></div></div>' % ta))
+             '<h3 style="margin-top:12px">Esta versión</h3><p style="margin:0">Manual de identidad <b>1.1</b>, septiembre de 2026: '
+             'recoge las observaciones de EL CLIENTE del 18 y 19 de septiembre. Cualquier cambio a la marca se registra en una '
+             'versión nueva de este documento.</p></div></div></div>' % ta))
 
     assert len(p) == TOTAL, "se esperaban %d paginas, hay %d" % (TOTAL, len(p))
     html = ('<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Lavandi — Manual de identidad</title>'
             '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
             '<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">'
-            '<style>%s</style></head><body>%s\n%s\n</body></html>' % (CSS, S.definiciones(), "\n".join(p)))
+            '<style>%s</style></head><body>%s%s\n%s\n</body></html>'
+            % (CSS, S.definiciones(), S.definiciones_palabra(), "\n".join(p)))
     io.open(SALIDA, 'w', encoding='utf-8', newline='\n').write(html)
     return len(p), len(html)
 

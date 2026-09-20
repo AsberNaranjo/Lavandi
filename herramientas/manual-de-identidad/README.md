@@ -11,8 +11,19 @@ entrega a EL CLIENTE.
 | Archivo | Qué hace |
 |---|---|
 | `construir_manual.py` | Arma las 18 páginas y escribe el HTML. `TOTAL` es el número de páginas y el pie lo usa |
-| `simbolos.py` | Lee los SVG de `vault/marca/visual/logotipo/` y los deja como `<symbol>` reutilizables: color, sin placa, monocromático, ícono y los dos usos incorrectos. Si cambia el logotipo, se cambian aquí y las 18 páginas se actualizan solas |
+| `simbolos.py` | Lee los SVG de `vault/marca/visual/logotipo/` y los deja como `<symbol>` reutilizables: color, sin placa, monocromático, ícono y los dos usos incorrectos. **Y las dos piezas del logotipo de la palabra**, `s-l` y `s-pin`, recortadas del mismo archivo maestro. Si cambia el logotipo, se cambian aquí y las 18 páginas se actualizan solas |
 | `color_util.py` | Contraste con la fórmula de WCAG 2.1 y conversión a CMYK. **La tabla de legibilidad del manual se calcula al generar, no se copia** |
+
+## El logotipo de la palabra
+
+`palabra()` arma "Lavandi" con la **L de carretera** (`s-l`), las letras `avand` en Nunito Black, una
+**i sin punto** (`ı`, que Nunito sí trae: se comprobó midiendo el glifo contra el de reemplazo) y el
+**pin** (`s-pin`) encima. Todo se dimensiona en `em`, así que basta con darle `font-size` y el conjunto
+escala entero. El ancho total del lockup es **5.368 × font-size**, medido en la página 5.
+
+Las dos formas **no se redibujan**: se extraen del SVG maestro con expresión regular. Si alguien cambia
+el `d` de la carretera oscura o del pin en `lavandi-simbolo.svg`, la extracción falla ruidosamente en vez
+de producir una palabra rota en silencio.
 
 ## Cómo se rehace
 
@@ -37,6 +48,9 @@ Lo que ya salió mal una vez, y por eso se revisa:
    nombres de archivo. Van como Type3 porque son variables: una revisión que solo busque TrueType va a
    reportar que faltan, y es falso.
 4. **Revisión visual de todas las páginas.** Las tarjetas que se estiran con vacío y los nombres de
-   paleta desalineados no aparecen en ninguna medición automática.
+   paleta desalineados no aparecen en ninguna medición automática. Conviene hacerla sobre el **PDF
+   rasterizado**, no sobre el HTML: es lo que recibe EL CLIENTE.
+5. **Que la portada y la página 18 digan la misma versión.** `TOTAL` se revisa solo; el número de
+   versión está escrito en dos sitios y ya se desincronizó una vez.
 
 El detalle de cada verificación está en `vault/marca/entregables/README.md`.
