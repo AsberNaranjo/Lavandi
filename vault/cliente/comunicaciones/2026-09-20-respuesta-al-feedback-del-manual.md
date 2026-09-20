@@ -1,28 +1,29 @@
 ---
-estado: borrador
+estado: enviada
 grado: mixto
 fuente: acta 2026-09-20, C-75 a C-86 (C); NSV-2026-001-v8.pdf:14:A.1, :16:A.3 numerales 5 y 6, :7-8:Cláusula IV (A); marca/entregables/README.md (B)
 fecha: 2026-09-20
+enviada: 2026-09-20 13:00, por WhatsApp, a Alfredo Navarrete (C-88)
 dueño: Nadir Hadad Navarrete
 ---
 # Nota ejecutiva — Respuesta a la revisión del manual de identidad
 
-**BORRADOR. No se ha enviado.** La envía Nadir.
+**ENVIADA el 2026-09-20 a las 13:00, por WhatsApp, literal y sin editar** (C-88). El texto de abajo es
+exactamente el que recibió Alfredo Navarrete: no se toca. Si hace falta corregir algo, se escribe otra
+nota con su propia fecha.
 
 Sirve para tres cosas: devolverle el manual corregido, cerrar con una pregunta lo único que quedó
 ambiguo, y dejar por escrito que el lavado de calzado no está en lo contratado **antes** de que se
 instale la expectativa de que sí. Es el mismo patrón de R-019 con Estados Unidos; la diferencia es que
 esta vez se contesta el mismo día.
 
-## Antes de enviarla, Nadir decide tres cosas
+## Qué se decidió al enviarla
 
-1. **Si se incluye el bloque "Dos cosas de trámite".** Es lo que protege el calendario y el cobro de
-   rondas adicionales (DD-048, DD-050, R-023). Es incómodo y es necesario. Si se quita, se pierde el
-   único momento natural para decirlo.
-2. **Si se adjunta el PDF ya corregido** o se manda primero la respuesta y el PDF cuando cierre la
-   pregunta del fondo hueso. Recomendación: adjuntarlo. Ver el manual convence más que leer una lista.
-3. **Si se manda por WhatsApp**, que es donde llegó la retroalimentación, o por correo. Recomendación:
-   correo, porque de ahí sale la fecha cierta que pide la Cláusula IV, y avisar por WhatsApp que se mandó.
+| Decisión | Qué pasó |
+|---|---|
+| Si iba el bloque "Dos cosas de trámite" | **Sí.** Se mandó completo, así que la propuesta de contar esta ronda como la primera (DD-048) y el anuncio de la notificación formal (DD-050) ya están en manos de EL CLIENTE |
+| Si se adjuntaba el PDF corregido | `SIN RESPUESTA — bloquea: saber si Alfredo está revisando la versión 1.1 o todavía la 1.0`. Si no se adjuntó, conviene mandarlo ahora: sin él, cualquier comentario suyo será sobre el documento viejo |
+| Correo o WhatsApp | **WhatsApp**, a las 13:00. Es el canal por el que llegó su retroalimentación, así que la conversación queda junta. Nota para lo que sigue: **la notificación formal de entrega conviene mandarla por correo**, porque es de ahí de donde sale la fecha cierta que cuenta para los diez días hábiles de la Cláusula IV |
 
 ---
 

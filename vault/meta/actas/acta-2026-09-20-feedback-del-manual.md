@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: C
-fuente: sesión técnica con Nadir Hadad Navarrete del 2026-09-20, que transmite la retroalimentación de Alfredo Navarrete recibida por WhatsApp el 18 y 19 de septiembre de 2026. Capturas archivadas en `vault/marca/entregables/feedback/`. C-87 es observación del propio Nadir sobre la versión 1.1
+fuente: sesión técnica con Nadir Hadad Navarrete del 2026-09-20. C-75 a C-86 transmiten la retroalimentación de Alfredo Navarrete recibida por WhatsApp el 18 y 19 de septiembre de 2026, con capturas archivadas en `vault/marca/entregables/feedback/`; C-87 y C-88 son declaraciones del propio Nadir
 fecha: 2026-09-20
 dueño: Nadir Hadad Navarrete
 ---
@@ -55,6 +55,10 @@ ortografía; el acta no, porque es el registro de lo que se dijo.
   Entregable 1, "pero primero hay que atender las correcciones".
 - C-86. **Las dos páginas libres del manual** (dirección de fotografía / uso del nombre) siguen sin
   decidirse: "Aun no estamos seguros".
+- C-88. **La respuesta se envió.** Nadir: "Fue tal cual, no lo edité", por **WhatsApp, a las 13:00 del
+  2026-09-20**. Va completa, con el bloque de trámite: la propuesta de que esta ronda cuente como la
+  primera de las dos del A.1, y el anuncio de la notificación formal de entrega. Queda `SIN RESPUESTA —
+  bloquea: saber si Alfredo revisa la 1.1 o la 1.0` si se adjuntó o no el PDF corregido.
 - C-87. **El pin sobre la i estaba sobrepuesto.** Revisando la versión 1.1, Nadir señala: "La 'i' dentro
   de lavandi en la primera categoria, debe de estar más arriba, se muestra sobrepuesto". Corregido: ver
   abajo.
@@ -173,6 +177,7 @@ contradice. **"Lavandi" como texto corrido se sigue escribiendo en Agua Profundo
 | 4 | Cuántas de las dos rondas de ajuste del A.1 se han consumido | Saber si la siguiente ronda es con cargo a la bolsa de horas | DD-048 |
 | 5 | Las dos páginas libres del manual (C-86) | Cerrar el manual en su versión final | DD-049 |
 | 6 | Cuándo se notifica formalmente la entrega del Entregable 1 | El plazo de la Cláusula IV; el registro del calendario | DD-050 |
+| 7 | Si la respuesta del 2026-09-20 llevó adjunto el PDF corregido | Que Alfredo esté revisando la 1.1 y no la 1.0 | DD-051 |
 
 ## Datos grado E que Nadir confirmó (suben a C)
 
