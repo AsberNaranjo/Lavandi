@@ -2,7 +2,7 @@
 estado: vigente
 grado: B
 fuente: estructura del repo
-fecha: 2026-09-20
+fecha: 2026-09-25
 dueño: Nadir Hadad Navarrete
 ---
 # Índice (MOC raíz)
@@ -42,7 +42,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[candidatos-de-nombre]] — rúbrica, diez candidatos, alternos, descartados, política de `.com`, recomendación
 - [[lista-maestra-de-candidatos]] — los 43 nombres en un solo lugar, con puntaje y cuáles ha visto el cliente
 - [[decision-de-marca]] — **nombre elegido el 2026-09-11 (C-49)**; sigue en `borrador` hasta verificar dominio, IMPI y colisiones
-- guía de tono de voz — pendiente; se escribe cuando el nombre esté verificado
+- guía de tono de voz — hecha: está en los entregables del A.1, abajo
 
 ## Marca — arte final
 
@@ -71,10 +71,14 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[cobertura-de-la-brecha]] — dónde quedó cada una de las 25 filas BR de esta fase
 - ADRs: [[ADR-0001-formato-de-diagramas]]
 
+## Análisis funcional (Fase 5-bis)
+
+- [[inventario-funcional]] — 76 funciones con su cita, sus huecos y la capacidad técnica que exige cada una. Mapa de capacidades, tamaño contra capacidad y cotejo con las Fases 4 y 5. Abrió BR-47 a BR-50 y DD-052 a DD-055
+
 ## Stack (Fase 6)
 
-- [[matriz-de-criterios-stack]] — cuatro puertas eliminatorias y siete criterios con peso propuesto. **Detenida hasta que Nadir ajuste los pesos y responda DD-038**
-- pendiente: los doce ADRs
+- [[matriz-de-criterios-stack]] — cuatro puertas eliminatorias y siete criterios con peso propuesto, **revisados el 2026-09-25 con el inventario funcional**. DD-038 respondida. **Detenida hasta que Nadir ajuste los pesos**
+- pendiente: trece ADRs, de `ADR-0002` a `ADR-0014` (el de correo se agregó el 2026-09-25)
 
 ## Formas de trabajo (Fase 7)
 
@@ -82,7 +86,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Riesgos y supuestos
 
-- [[riesgos]] — R-001 a R-019 (R-004 cerrado por C-49; R-010 superseded por R-010-bis; **R-017 materializado**) · [[supuestos]] — S-002, S-003 y S-005 (S-001 y S-004 cerrados)
+- [[riesgos]] — R-001 a R-026 (R-004 cerrado por C-49; R-010 superseded por R-010-bis; **R-017 materializado**) · [[supuestos]] — S-002, S-003, S-005 y S-006 (S-001 y S-004 cerrados)
 
 ## Cliente
 

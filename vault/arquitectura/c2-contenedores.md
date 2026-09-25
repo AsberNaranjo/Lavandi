@@ -29,7 +29,7 @@ flowchart TB
         landing["landing<br/>12 secciones públicas"]
         api["api<br/>reglas de negocio y autorización"]
         bd[("bd<br/>modelo multi-plaza")]
-        almacen[("almacen<br/>evidencias de entrega")]
+        almacen[("almacen<br/>fotos y evidencias")]
     end
 
     conekta{{"Conekta"}}
@@ -68,7 +68,7 @@ flowchart TB
 | `landing` | Presenta el servicio al público en 12 secciones y capta lavanderías interesadas | **A**: O-07 a O-11 (pp. 15-16, A.2) |
 | `api` | Concentra las reglas del pedido, el dinero y quién puede ver qué | **A**: RN-09 aislamiento entre socios; RN-05 los 60 s. Un cliente móvil no puede ser el guardián de esas reglas |
 | `bd` | Guarda plazas, socios, usuarios, pedidos y movimientos, con la plaza como dimensión de primera clase | **A**: O-26, RN-03 (p. 4, Cláusula I). Ver `modelo-multi-plaza.md` |
-| `almacen` | Guarda las fotos de evidencia de recolección y entrega | **A**: p. 20 y B.4, que presupuesta almacenamiento. Ver BR-29 |
+| `almacen` | Guarda las fotos de las lavanderías, las de perfil y las evidencias de recolección y entrega | **A**: p. 20, "Guarda las fotografías de las lavanderías, las fotos de perfil y las evidencias de entrega", y B.4, que presupuesta almacenamiento. Ver BR-29. Corregido el 2026-09-25 por `contrato/inventario-funcional.md`: antes solo nombraba las evidencias |
 
 **El panel de indicadores no es un contenedor.** O-21 dice literalmente *"integrado en
 administración"*. Dibujarlo aparte sería inventar una pieza que el contrato no pide.
@@ -102,7 +102,7 @@ RN-05 exige que un cambio de estado hecho por la lavandería o el repartidor se 
 usuario en **≤ 60 s**. Sesenta segundos es mucho tiempo: admite varias soluciones, y el método
 advierte **"sin sobreingeniería"**.
 
-`ESPECIFICACIÓN PENDIENTE` — el mecanismo es `ADR-0008` de la Fase 6. Lo que este nivel sí fija es
+`ESPECIFICACIÓN PENDIENTE` — el mecanismo es `ADR-0007` de la Fase 6. Lo que este nivel sí fija es
 **dónde** vive la responsabilidad: el cambio de estado entra por `api`, que es el único que puede
 autorizarlo, y desde ahí se propaga. Ningún cliente móvil notifica a otro directamente.
 
@@ -120,6 +120,6 @@ distintos. Un ADR de infraestructura que se salga del rango contradice el contra
 | Marcador | Qué falta | Dónde se resuelve |
 |---|---|---|
 | `ESPECIFICACIÓN PENDIENTE` | Máquina de estados del pedido y qué rol dispara cada transición | C3, tras DD-011, DD-014, DD-016 y DD-022 |
-| `ESPECIFICACIÓN PENDIENTE` | Mecanismo de propagación para los 60 s | `ADR-0008`, Fase 6 |
+| `ESPECIFICACIÓN PENDIENTE` | Mecanismo de propagación para los 60 s | `ADR-0007`, Fase 6 |
 | `ESPECIFICACIÓN PENDIENTE` | Si `panel-admin` es contenedor propio | **DD-040**, decide Nadir |
 | `ESPECIFICACIÓN PENDIENTE` | Presupuesto de consultas de mapas por pedido | `presupuesto-de-mapas.md`, esta fase |

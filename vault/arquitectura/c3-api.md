@@ -32,6 +32,7 @@ flowchart TB
         avisos["avisos<br/>push y correo"]
         indicadores["indicadores<br/>11 métricas y exportación"]
         evidencias["evidencias<br/>fotos de recolección y entrega"]
+        calificaciones["calificaciones<br/>de lavandería y repartidor"]
     end
 
     bd[("bd")]
@@ -58,6 +59,10 @@ flowchart TB
     avisos --> push
     avisos --> correo
     evidencias --> almacen
+    catalogo --> almacen
+    identidad --> almacen
+    pedido --> calificaciones
+    calificaciones --> bd
     catalogo --> bd
     geografia --> bd
     agenda --> bd
@@ -76,11 +81,12 @@ flowchart TB
 | `geografia` | Resuelve plaza, zona y dirección; decide si un domicilio está dentro de cobertura | **A**: A.2 sección 7; O-26. Ver `modelo-multi-plaza.md` |
 | `agenda` | Ofrece ventanas de una hora y lleva el cupo de cada una | **A**: RN-15 (A.3 numeral 7) |
 | `pedido` | Gobierna el ciclo de vida del pedido y quién puede moverlo | **A**: A.3 numeral 12; A.4.3. **Bloqueado** |
-| `cobro` | Habla con la pasarela. **Nunca guarda un número de tarjeta** | **A**: RN-10, RN-28 (p. 20 y 16) |
+| `cobro` | Habla con la pasarela. **Nunca guarda un número de tarjeta**. Si se guardan tarjetas para el siguiente pedido, guarda solo la referencia que da la pasarela (BR-50, DD-055) | **A**: RN-10, RN-28 (p. 20 y 16); "métodos de pago" en el perfil (A.3 numeral 15) |
 | `cuentas` | Calcula comisión, saldo por socio y concilia contra la pasarela | **A**: Módulo D numerales 5 y 6 (p. 19) |
-| `avisos` | Manda los avisos al celular y el correo de confirmación | **A**: RN-06, A.3 numeral 11 |
+| `avisos` | Manda los avisos al celular y el correo de confirmación. Si se decide, también el aviso a la lavandería y al repartidor de un pedido nuevo o asignado (BR-49, DD-054) | **A**: RN-06, A.3 numeral 11 |
 | `indicadores` | Calcula las once métricas y exporta CSV y Excel | **A**: O-21, O-22, RN-13, RN-14 (p. 22, A.5) |
-| `evidencias` | Guarda y sirve las fotos de recolección y entrega | **A**: p. 20; B.4. Ver BR-29 |
+| `evidencias` | Guarda y sirve las fotos de recolección y entrega. Las fotos de las lavanderías y las de perfil las suben `catalogo` e `identidad` al mismo almacén | **A**: p. 20; B.4. Ver BR-29 |
+| `calificaciones` | Guarda la calificación de 1 a 5 con su comentario y calcula los promedios que ven el perfil de la lavandería, los historiales de los socios y el ranking de indicadores. A quién se califica es BR-47 | **A**: A.3 Módulo A numerales 5 y 14, Módulo B numeral 4, Módulo C numeral 4; A.5. Agregado el 2026-09-25 por `contrato/inventario-funcional.md`: nadie tenía a cargo las calificaciones |
 
 ## `autorizacion` es el componente que más se puede equivocar
 

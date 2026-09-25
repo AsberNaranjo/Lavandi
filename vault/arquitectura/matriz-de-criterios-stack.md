@@ -83,8 +83,13 @@ Enumeradas por el método (`:288-291`). Ninguna existe hasta que tenga su ADR.
 | `ADR-0011` | Hosting de la landing | RN-25, A.4.2 con calificación mínima de 70 en PageSpeed móvil |
 | `ADR-0012` | Entornos de desarrollo y prueba | BR-06, BR-08, BR-38 |
 | `ADR-0013` | Adaptador de tokens de la Fase 4 | `tokens.json`; ver `design-system.md` |
+| `ADR-0014` | Correo automático | F-T13: confirmación del pedido y recuperación de contraseña (B.5). **Agregado el 2026-09-25**: la lista del método no lo trae y el inventario funcional lo exige |
 
 ## Lo que bloquea arrancar
+
+> **Actualización del 2026-09-25.** DD-038 quedó respondida (C-89 a C-91) y DD-040 sigue abierta. Lo
+> que falta para arrancar son **los pesos, que ajusta Nadir**. Ver la sección "Lo que el análisis
+> funcional cambia", al final. Lo de abajo se conserva como estaba el 2026-09-11.
 
 **DD-038 — la familiaridad real del equipo.** Es el criterio de mayor peso y hoy no tiene dato. Sin
 él, puntuar candidatos sería inventar el 25 % de la matriz, que es exactamente lo que la regla 3 de
@@ -107,3 +112,46 @@ Ninguna sube a grado C sin que Nadir la confirme en acta.
 3. **Cuota de versiones** de iOS y Android en México — `ADR-0002` (BR-42).
 4. **Precios de Google Maps Platform** tras el retiro del crédito gratuito — `ADR-0009`.
 5. Precios de servidor, base de datos y almacenamiento — para acreditar la puerta RN-22.
+6. **Tarjetas guardadas** en Conekta, sin que el número toque la plataforma — `ADR-0010` (BR-50, DD-055).
+7. **Reglas de las tiendas** que el contrato no nombra: eliminar la cuenta desde la app y los textos de
+   permiso de ubicación, cámara y avisos — `ADR-0002` y `ADR-0005` (inventario funcional, sección 4).
+
+## Lo que el análisis funcional cambia (2026-09-25)
+
+`contrato/inventario-funcional.md` desarmó el contrato en **76 funciones** y DD-038 quedó respondida
+(C-89 a C-91). Esta nota sigue en `borrador`: **los pesos los ajusta Nadir**, y el orden sigue siendo
+pesos, después candidatos, después ADRs.
+
+**Lo que ya no es impresión:**
+
+1. **El terreno.** Nadir tiene experiencia en web y servidor, ninguna en apps móviles (C-89). Hay 7
+   capacidades propiamente móviles:
+   - mapa nativo por plataforma;
+   - ubicación con la app abierta;
+   - recibir avisos;
+   - cámara;
+   - capturar la tarjeta en el teléfono;
+   - iniciar sesión nativo;
+   - publicar en las tiendas.
+
+   Tocan 14 de las 76 funciones, pero **7 de las 15 grandes**. La mitad del trabajo pesado está en
+   terreno nuevo.
+2. **El tamaño.** Con la banda media del supuesto S-006, el alcance pide unas **390 horas** de Nadir. La
+   capacidad declarada da **entre 135 y 270** en nueve semanas de desarrollo. **No está listo** en la
+   banda media.
+3. **El tiempo real es modesto.** Lo piden cuatro pantallas y el panel de indicadores, y el límite es de
+   60 segundos. Con la app cerrada lo cubre el aviso.
+4. **La forma del stack depende de una sola decisión abierta: DD-040.** Si la administración es web, sus
+   7 funciones y los 11 indicadores caen en terreno conocido.
+
+**Propuesta de Claude para los pesos**, a la luz de lo anterior. **Decide Nadir.**
+
+| Criterio | Peso del 2026-09-11 | Propuesta del 2026-09-25 | Por qué se mueve |
+|---|---|---|---|
+| Familiaridad real del equipo | 25 | **30** | La experiencia ya es un dato (C-89), y el tamaño no cabe en la banda media: lo desconocido se paga en horas que no hay |
+| Velocidad de entrega en 16 semanas | 20 | **25** | Misma razón. Premia al candidato que acorta las 15 funciones grandes, sobre todo las 7 móviles |
+| Riesgo de proveedor único y ruta de salida | 15 | 15 | Sin cambio: la Cláusula IX cede todo al cliente al pago íntegro |
+| Tiempo real para 60 s, sin sobreingeniería | 15 | **10** | El inventario muestra que es un requisito modesto y acotado |
+| Costo de operación con volumen bajo | 15 | **10** | La puerta RN-22 ya obliga a caber en el rango; el margen extra discrimina poco |
+| Multi-plaza desde el día uno | 10 | 10 | Sin cambio |
+| **Suma** | **100** | **100** | |

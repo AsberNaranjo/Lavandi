@@ -78,7 +78,7 @@ gratuito.** Sin ese dato, esta nota acota el **número** de consultas pero no pu
 en pesos**, y por lo tanto no puede acreditar que quepa en el rango del ANEXO B.4.
 
 No se estima aquí. Inventar un precio sería justo lo que prohíbe la regla 3 de evidencia. Se busca,
-se etiqueta con fuente y fecha, y alimenta `ADR-0010` en la Fase 6.
+se etiqueta con fuente y fecha, y alimenta `ADR-0009` en la Fase 6.
 
 **Quién paga.** El servicio se contrata a nombre de EL CLIENTE (RN-20, B.11). Estas decisiones no le
 ahorran dinero a EL PRESTADOR: le ahorran una factura mensual a él, y evitan la conversación de
@@ -89,5 +89,5 @@ diciembre en la que el mapa costó más de lo previsto.
 | Marcador | Qué falta | Dónde |
 |---|---|---|
 | `ESPECIFICACIÓN PENDIENTE` | Cómo se trazan las zonas: polígonos, radios, códigos postales o colonias (BR-02) | Fase 5, alimenta la decisión 1 |
-| `SIN VERIFICAR` | Precios vigentes de Google Maps Platform | Verificación grado E, antes de `ADR-0010` |
-| `ESPECIFICACIÓN PENDIENTE` | Si el autocompletado de direcciones usa un servicio de pago o una lista propia | `ADR-0010`, Fase 6 |
+| `SIN VERIFICAR` | Precios vigentes de Google Maps Platform | Verificación grado E, antes de `ADR-0009` |
+| `ESPECIFICACIÓN PENDIENTE` | Si el autocompletado de direcciones usa un servicio de pago o una lista propia | `ADR-0009`, Fase 6 |

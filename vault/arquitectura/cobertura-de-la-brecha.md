@@ -15,16 +15,16 @@ de la fase.
 |---|---|---|---|
 | BR-01 | Expansión sin rediseño de BD | `modelo-multi-plaza.md` | **Resuelta**, con criterio de aceptación propuesto para O-26 |
 | BR-02 | Cómo se trazan las zonas de servicio | `modelo-multi-plaza.md`, `presupuesto-de-mapas.md` | `ESPECIFICACIÓN PENDIENTE` — polígonos, radios o colonias. Decisión de Fase 5 pendiente |
-| BR-09 | Datos personales: hospedaje, borrado, extensibilidad | `c3-api.md`, sección de la puerta abierta | **Parcial.** Documentos y evidencias como entidades aparte. Región y cifrado son `ADR-0006`, Fase 6 |
+| BR-09 | Datos personales: hospedaje, borrado, extensibilidad | `c3-api.md`, sección de la puerta abierta | **Parcial.** Documentos y evidencias como entidades aparte. Región y cifrado se deciden dentro de `ADR-0004` (base de datos) y `ADR-0006` (imágenes), Fase 6 |
 | BR-12 | Consumo de mapas | `presupuesto-de-mapas.md` | **Resuelta** en número de consultas. El gasto en pesos espera dato grado E |
 | BR-15 | "Cercana" y "activa"; orden por defecto | `presupuesto-de-mapas.md` decisión 2 | **Parcial.** Distancia en línea recta decidida. Qué es "activa" sigue `ESPECIFICACIÓN PENDIENTE` |
 | BR-16 | Catálogo y precio estimado | `c3-api.md`, componente `catalogo` | `ESPECIFICACIÓN PENDIENTE` — DD-010 y DD-012 |
 | BR-17 | Horarios, anticipación y cupo por ventana | `c3-api.md`, componente `agenda` | `ESPECIFICACIÓN PENDIENTE` — decide el cliente |
 | BR-18 | Direcciones y geocodificación | `presupuesto-de-mapas.md` decisiones 3 y 4 | **Resuelta**: una geocodificación por dirección, cero inversas |
 | BR-20 | Cuándo se cobra | `c3-api.md`, componente `cobro` | `ESPECIFICACIÓN PENDIENTE` — DD-012, en el requerimiento al cliente |
-| BR-21 | Folio y correo transaccional | `modelo-multi-plaza.md` (folio por plaza), `c1-contexto.md` | **Resuelta** en el modelo. El proveedor de correo es `ADR-0013`, Fase 6 |
+| BR-21 | Folio y correo transaccional | `modelo-multi-plaza.md` (folio por plaza), `c1-contexto.md` | **Resuelta** en el modelo. El proveedor de correo es `ADR-0014`, Fase 6 |
 | BR-22 | Máquina de estados | `c3-api.md`, componente `pedido` | `ESPECIFICACIÓN PENDIENTE` — DD-011, DD-014, DD-016, DD-022 |
-| BR-23 | Mecanismo para los 60 s | `c2-contenedores.md` | **Parcial.** La responsabilidad queda en `api`. El mecanismo es `ADR-0008`, Fase 6 |
+| BR-23 | Mecanismo para los 60 s | `c2-contenedores.md` | **Parcial.** La responsabilidad queda en `api`. El mecanismo es `ADR-0007`, Fase 6 |
 | BR-24 | Los cinco momentos de push | `c3-api.md`, componente `avisos` | `ESPECIFICACIÓN PENDIENTE` — DD-011 |
 | BR-25 | Repetir pedido, calificación, soporte | **Ver abajo** | `ESPECIFICACIÓN PENDIENTE` — no se resolvió en esta fase |
 | BR-26 | Alta de socio y reglas de rechazo | `componentes.md`, tarjeta de socio | `ESPECIFICACIÓN PENDIENTE` — decide el cliente |
@@ -52,7 +52,7 @@ de la fase.
 ## Las dos que no se abordaron, dichas de frente
 
 **BR-25 — repetir pedido, calificación y soporte.** El contrato pide historial con "repetir pedido"
-(A.3 numeral 13), calificación de 1 a 5 (numeral 15) y soporte por WhatsApp Business y formulario
+(A.3 numeral 13), calificación de 1 a 5 (numeral 14) y soporte por WhatsApp Business y formulario
 (numeral 16). Falta decidir qué se repite exactamente —misma lavandería, mismos servicios, ventana
 nueva—, en qué momento se puede calificar y a dónde llega el formulario de reporte. No lo toqué en
 esta fase. Va al componente `pedido` y a una spec, y no bloquea nada de la Fase 6.
@@ -67,6 +67,22 @@ calladas, porque la regla de cierre es que ninguna fila quede sin destino.
 
 ## Filas que esta fase dejó apuntadas a la Fase 6
 
-`ADR-0005` base de datos (BR-01) · `ADR-0006` hospedaje y datos personales (BR-09) · `ADR-0008`
-tiempo real (BR-23) · `ADR-0010` mapas (BR-12) · `ADR-0011` pasarela (BR-20) · `ADR-0013` correo
-(BR-21).
+`ADR-0004` base de datos (BR-01) · `ADR-0004` y `ADR-0006`, región y cifrado de datos personales
+(BR-09) · `ADR-0007` tiempo real (BR-23) · `ADR-0009` mapas (BR-12) · `ADR-0010` pasarela (BR-20) ·
+`ADR-0014` correo (BR-21).
+
+Los números se alinearon el 2026-09-25 con la lista de `matriz-de-criterios-stack.md`: esta nota y la
+matriz usaban dos numeraciones distintas.
+
+## Filas abiertas después del cierre, por el análisis funcional (2026-09-25)
+
+`contrato/inventario-funcional.md` abrió cuatro filas. Dos tocan esta fase:
+
+| BR | Tema | Dónde quedó | Estado |
+|---|---|---|---|
+| BR-48 | Cómo llega cada rol a su módulo en una sola app | `c2-contenedores.md`, `app-movil` con los módulos A, B y C | `ESPECIFICACIÓN PENDIENTE` — DD-053 y DD-040 |
+| BR-49 | Avisos a la lavandería y al repartidor de un pedido nuevo o asignado | `c3-api.md`, componente `avisos` | `ESPECIFICACIÓN PENDIENTE` — DD-054 |
+
+Las otras dos no son de arquitectura: BR-47, a quién se califica, la decide EL CLIENTE (DD-052), y BR-50,
+tarjetas guardadas, va a `ADR-0010` (DD-055). El mismo análisis agregó a `c3-api.md` el componente
+`calificaciones` y corrigió el almacenamiento, que solo nombraba las evidencias.
