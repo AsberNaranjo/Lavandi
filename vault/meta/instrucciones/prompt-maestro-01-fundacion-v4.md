@@ -1,9 +1,10 @@
 ---
-estado: vigente
+estado: superseded
 grado: C
 fuente: mensaje de apertura de Nadir Hadad Navarrete en Claude Code, sesión del 2026-09-07 (2026-09-07T07:01:40.941Z). Extraído literal del transcript de la sesión el 2026-09-11
 fecha: 2026-09-07
 dueño: Nadir Hadad Navarrete
+reemplazado_por: prompt-maestro-01-fundacion-v5.md (2026-09-25, C-93)
 ---
 > **Documento fuente. Transcripción literal, no editada.**
 > Es el instrumento que define el método de este proyecto: las nueve fases (0 a 8), el tablero de

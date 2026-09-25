@@ -64,6 +64,7 @@ Ver `CLAUDE.md`, sección 3. Formatos de cita:
 | Prefijo | Qué | Dónde se numera |
 |---|---|---|
 | `O-NN` | Obligación ejecutiva | `contrato/obligaciones-ejecutivas.md` |
+| `F-XNN` | Función del inventario funcional. La letra dice de dónde viene: A, B, C y D son los módulos del A.3; L, la landing (A.2); I, los indicadores (A.5); T, lo transversal | `contrato/inventario-funcional.md` |
 | `BR-NN` | Fila de brecha ejecutivo→técnico | `contrato/brecha-ejecutivo-tecnico.md` |
 | `RN-NN` | Restricción no negociable | `contrato/restricciones-no-negociables.md` |
 | `DD-NNN` | Deuda de decisión | `meta/deuda-de-decision.md` |
