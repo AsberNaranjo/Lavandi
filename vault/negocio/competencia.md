@@ -1,8 +1,8 @@
 ---
 estado: borrador
 grado: E
-fuente: búsquedas web del 2026-09-07, incluidas las que alcanzó a completar el subagente de precios antes de que la sesión agotara su límite; todo SIN VERIFICAR hasta que Nadir lo confirme o se compruebe por teléfono
-fecha: 2026-09-07
+fuente: búsquedas web del 2026-09-07, incluidas las que alcanzó a completar el subagente de precios antes de que la sesión agotara su límite; segundo barrido del 2026-09-25 sobre el modelo de las apps similares (sección 10); todo SIN VERIFICAR hasta que Nadir lo confirme o se compruebe por teléfono
+fecha: 2026-09-25
 dueño: Nadir Hadad Navarrete
 ---
 # Competencia — primer barrido (grado E)
@@ -146,6 +146,77 @@ pesar, pago sin efectivo, seguimiento, un responsable) **y** se lo cobra al usua
 | Precios de Lerdo, Matamoros y Gómez Palacio | Llamadas | EL CLIENTE | semana 2 |
 | Colisiones de nombre de los candidatos | Búsqueda pendiente (subagente detenido) | Claude, cuando se restablezca el límite | antes del 2026-09-10 |
 
+## 10. Segundo barrido (2026-09-25): ¿existe ya una app como ésta?
+
+Nadir preguntó si ya existe una aplicación similar. El primer barrido buscó **precios y presencia**; éste
+busca **el modelo**, porque "app de lavandería" nombra negocios muy distintos. Todo es grado E, consultado
+el 2026-09-25, `SIN VERIFICAR`.
+
+### Hay cuatro modelos, y solo uno es el de esta plataforma
+
+| Modelo | Quién lava | Ejemplos | ¿En el territorio? |
+|---|---|---|---|
+| **1. Operador**: la marca lava en sucursales propias o franquicias | La propia marca | Jeff / Mr Jeff (franquicias); **UrbanClean**; GoLaundry (Guadalajara); Mommy's Laundry (Torreón); KLINO (Durango) | **Sí: UrbanClean, Mommy's y KLINO** |
+| **2. Plataforma con lavanderías socias**: la app reúne lavanderías independientes y resuelve la recolección y la entrega | Lavanderías socias | **LavaGo** (México); **Laundryheap** (CDMX y 13 países); Shawi (CDMX y Guadalajara); GetLavado (Lima y Colombia) | **No** |
+| **3. Personas que lavan en su casa**, economía colaborativa | Particulares | LavanderiApp (México, sus "LavaPers"); Poplin (Estados Unidos, sus "Laundry Pros") | No encontrado |
+| **4. Software para que cada lavandería tenga su propia app** | Cada lavandería | Easy Laundry (16 países, México incluido); CleanCloud, sobre el que corre Mr Wash en Chile | No encontrado, pero cualquiera puede contratarlo |
+
+**Esta plataforma es del modelo 2**: tres lados, usuario, lavandería socia y repartidor, más la
+administración. En México lo hacen **LavaGo** y **Laundryheap**, y ninguno opera en Durango ni en La Laguna.
+
+### Lo nuevo respecto del 2026-09-07
+
+- **UrbanClean tiene sucursal en Torreón**: local 19-E del HEB Senderos, Carr. Torreón–San Pedro 1950. Su
+  página la lista como tienda propia de su red. Ofrece tintorería, lavandería, calzado, alfombras y
+  "Servicio a domicilio", con "Tintorería online" en una plataforma aparte. **Es un operador, no una
+  plataforma**, pero es el competidor local más profesionalizado encontrado. Fuente:
+  urbanclean.es/red-de-tiendas/tintoreria-torreon/
+- **LavaGo tiene un portal para socios** (socio.lavago.app) y dice contar con "una gran red de
+  lavanderías": el usuario elige "la sucursal" y sigue el estado "en vivo". Sigue en seis ciudades: CDMX,
+  Guadalajara, Monterrey, Tijuana, Culiacán y Hermosillo. **Es el competidor más parecido a esta
+  plataforma.** Su portal de socios y su app no respondieron el 2026-09-25, así que su modelo de comisión
+  no se pudo leer. Fuentes: lavagomx.com; mx.lavago.app según resultados de búsqueda.
+- **LavanderiApp** es mexicana y usa personas que lavan en su casa. Entrega en 48 horas, domicilio sin
+  costo y garantía de devolución del dinero. No publica ciudades. Fuente: lavanderiapp.io
+- **Easy Laundry** no es un directorio: es software de marca blanca. Cualquier lavandería del territorio
+  puede tener su propia app y avisos por WhatsApp sin pasar por una plataforma. Fuente: easylaundry.app
+- **Rappi sigue sin servicio de lavandería.** Su página "Lavandería" vende detergentes; el resultado
+  "Servicio de Lavandería desde $135" es un disco de Shakira. Fuente: rappi.com.mx/retail/lavanderia
+
+### Cómo resuelven estas apps lo que aquí sigue abierto
+
+Referencias para decidir, no reglas. Ninguna obliga a EL CLIENTE.
+
+| Hueco abierto | Laundryheap | Poplin | GoLaundry | Otras |
+|---|---|---|---|---|
+| **Cuándo se cobra** (DD-012) | "you'll only be charged once your items are cleaned" | Estimado al pedir; cobro por **peso real** al terminar | Precio por bloque de 5 kg | — |
+| **Pedido mínimo** (DD-010, DD-019) | "minimum order value and service fee for your area" | US$30 mínimo, más una cuota por pedido | El bloque de 5 kg es el mínimo | — |
+| **Quién recibe el trabajo** (DD-014) | Choferes propios | "The best-rated pros are allocated the jobs first" | — | — |
+| **Seguimiento** | — | Mensajes del lavador | — | LavaGo: estado "en vivo" |
+| **Garantía** (DD-047) | — | — | — | LavaGo: limpia "de 24 a 72 horas o te devolvemos tu dinero"; LavanderiApp: devolución si no queda "encantado" |
+
+Tres lecturas para las decisiones abiertas:
+
+1. **Estimar al pedir y cobrar el peso real es el patrón.** Choca con OXXO Pay, que es diferido: si el cobro
+   final ocurre después de pesar, el usuario tendría que ir a la tienda **después** de entregar la ropa.
+   Es un argumento concreto para DD-012.
+2. **Poplin asigna por calificación, y eso aquí está excluido.** La asignación por algoritmo es Orden de
+   Cambio (RN-12). La asignación manual (DD-014) es la única vía del contrato.
+3. **LavaGo acostumbra al usuario al seguimiento "en vivo".** El contrato no lo exige, y el rastreo del
+   repartidor fuera de un pedido activo está excluido. Si un usuario de Monterrey compara, la expectativa
+   ya está puesta: conviene que la app diga con claridad qué muestra.
+
+### Lo que esto cambia en la lectura de la sección 8
+
+El día uno se sigue compitiendo contra la lavadora de la casa y la lavandería de barrio con WhatsApp. Se
+agregan dos cosas:
+
+- **UrbanClean en Torreón** sube el nivel del operador local: tienda de cadena, catálogo amplio y servicio
+  a domicilio.
+- **El riesgo mayor no es un competidor por el usuario, sino por las lavanderías.** Una plataforma del
+  modelo 2 que entre a La Laguna o a Durango va por los mismos negocios: 244 en todo Durango y 548 en todo
+  Coahuila (sección 6). Queda como **R-027**.
+
 ## Fuentes consultadas (2026-09-07)
 - INEGI, Conociendo la industria de lavanderías y tintorerías (2022): https://www.inegi.org.mx/contenidos/productos/prod_serv/contenidos/espanol/bvinegi/productos/nueva_estruc/889463905240.pdf
 - Data México, Lavanderías y tintorerías: https://www.economia.gob.mx/datamexico/es/profile/industry/drycleaning-and-laundry-services
@@ -159,3 +230,15 @@ pesar, pago sin efectivo, seguimiento, un responsable) **y** se lo cobra al usua
 - LavaGo: https://www.lavagomx.com/ · Shawi: https://shawi.app/es-mx/servicios/lavanderia · Laundryheap: https://www.laundryheap.com/es-mx/ciudad-de-mexico · iLavo: https://ilavo.com.mx/ · Lavandote: https://www.lavandote.com/
 - Mr Jeff: https://www.elfinanciero.com.mx/opinion/de-jefes/las-300-lavanderias-de-mr-jeff-en-mexico/ · https://forbes.com.mx/jeff-va-por-el-mercado-de-las-peluquerias-y-los-gimnasios-desde-su-app/ · https://revistabrecha.com/millonario-fraude-en-franquicias-de-lavanderia-de-la-espanola-mr-jeff/
 - Precios nacionales: https://www.cronoshare.com.mx/cuanto-cuesta/lavanderia-domicilio · https://www.cronoshare.com.mx/cuanto-cuesta/planchado-domicilio · https://laropasucia.com/calculadora/ · https://republica-alterna.com.mx/cuanto-cuesta-el-lavado-de-ropa-por-kilo-en-mexico/
+
+## Fuentes consultadas (2026-09-25)
+- UrbanClean Torreón: https://urbanclean.es/red-de-tiendas/tintoreria-torreon/
+- LavaGo: https://www.lavagomx.com/ · https://mx.lavago.app/ y https://socio.lavago.app/ (no respondieron el 2026-09-25; su contenido se tomó de resultados de búsqueda)
+- LavanderiApp: https://www.lavanderiapp.io/ · https://apps.apple.com/mx/app/lavanderiapp-para-trabajar/id1625353509
+- Easy Laundry: https://easylaundry.app/ · https://lalavanderia.easylaundry.app/
+- Laundryheap: https://help.laundryheap.com/en/articles/6265329-how-does-laundryheap-work · https://www.laundryheap.com/es-mx/laundry/ciudad-de-mexico
+- Poplin: https://poplin.co/how-it-works
+- Shawi: https://www.shawi.app/en-mx/ciudades/cdmx
+- GetLavado: https://getlavado.com/ · https://getlavado.com/partners-colombia/
+- Mr Wash (Chile, sobre CleanCloud): https://play.google.com/store/apps/details?id=com.cleancloudapp.mrwash
+- Rappi, categoría de productos de lavandería: https://www.rappi.com.mx/retail/lavanderia

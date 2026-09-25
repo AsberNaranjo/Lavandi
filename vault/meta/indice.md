@@ -30,7 +30,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 ## Negocio (Fase 2)
 
 - [[propuesta-de-valor]] — marketplace desde cero en las dos plazas; el producto se sostiene sobre el reclutamiento
-- [[competencia]] — grado E: nadie nacional en el territorio; los precios locales no están en internet
+- [[competencia]] — grado E: nadie con el modelo de esta plataforma en el territorio; los precios locales no están en internet. **Segundo barrido del 2026-09-25**: cuatro modelos de "app de lavandería"; el nuestro solo lo hacen LavaGo y Laundryheap, fuera del territorio; UrbanClean ya tiene sucursal con domicilio en Torreón
 - [[metodo-de-precio]] — cómo se genera el precio: cinco decisiones, tres modelos, guion de sondeo
 - [[unit-economics]] — modelo, referencia contractual, sensibilidad al envío, tres escenarios
 - [[hipotesis-criticas]] — H-001 a H-006
@@ -86,7 +86,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Riesgos y supuestos
 
-- [[riesgos]] — R-001 a R-026 (R-004 cerrado por C-49; R-010 superseded por R-010-bis; **R-017 materializado**) · [[supuestos]] — S-002, S-003, S-005 y S-006 (S-001 y S-004 cerrados)
+- [[riesgos]] — R-001 a R-027 (R-004 cerrado por C-49; R-010 superseded por R-010-bis; **R-017 materializado**) · [[supuestos]] — S-002, S-003, S-005 y S-006 (S-001 y S-004 cerrados)
 
 ## Cliente
 
