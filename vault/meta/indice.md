@@ -15,7 +15,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[prompt-maestro-01-fundacion-v4]] — `superseded` el 2026-09-25. Se conserva: las citas con número de línea de antes de esa fecha apuntan aquí
 - [[convenciones]] — reglas del vault, grados, marcadores, espejo Notion
 - [[deuda-de-decision]] — qué falta decidir y quién bloquea
-- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]] · [[acta-2026-09-20-feedback-del-manual]] · [[acta-2026-09-25-analisis-funcional]]
+- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]] · [[acta-2026-09-20-feedback-del-manual]] · [[acta-2026-09-25-analisis-funcional]] · [[acta-2026-09-29-sesion-tecnica-y-plantilla-landing]]
 
 ## Contrato (grado A leído)
 

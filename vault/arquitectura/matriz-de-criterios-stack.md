@@ -80,7 +80,7 @@ Enumeradas por el método (`:288-291`). Ninguna existe hasta que tenga su ADR.
 | `ADR-0008` | Notificaciones push | RN-30, RN-06. Los cinco momentos esperan DD-011 |
 | `ADR-0009` | Mapas | `presupuesto-de-mapas.md`; puerta RN-29 |
 | `ADR-0010` | Pasarela de pago | Puerta RN-28. Verificar vigencia de OXXO Pay antes del ADR |
-| `ADR-0011` | Hosting de la landing | RN-25, A.4.2 con calificación mínima de 70 en PageSpeed móvil |
+| `ADR-0011` | Hosting de la landing | RN-25, A.4.2 con calificación mínima de 70 en PageSpeed móvil. **Desde el 2026-09-29 incluye evaluar una plantilla comprada (C-95)**. Condiciones: licencia que permita entregar el sitio a EL CLIENTE (Cláusula IX, BR-08), misma tecnología que el resto, las 12 secciones del A.2, PageSpeed con la medición cargada y edición de testimonios y prensa (BR-11). Detalle en `meta/actas/acta-2026-09-29-sesion-tecnica-y-plantilla-landing.md` |
 | `ADR-0012` | Entornos de desarrollo y prueba | BR-06, BR-08, BR-38 |
 | `ADR-0013` | Adaptador de tokens de la Fase 4 | `tokens.json`; ver `design-system.md` |
 | `ADR-0014` | Correo automático | F-T13: confirmación del pedido y recuperación de contraseña (B.5). **Agregado el 2026-09-25**: la lista del método no lo trae y el inventario funcional lo exige |
