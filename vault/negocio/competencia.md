@@ -171,8 +171,8 @@ administración. En México lo hacen **LavaGo** y **Laundryheap**, y ninguno ope
   "Servicio a domicilio", con "Tintorería online" en una plataforma aparte. **Es un operador, no una
   plataforma**, pero es el competidor local más profesionalizado encontrado. Fuente:
   urbanclean.es/red-de-tiendas/tintoreria-torreon/
-- **LavaGo tiene un portal para socios** (socio.lavago.app) y dice contar con "una gran red de
-  lavanderías": el usuario elige "la sucursal" y sigue el estado "en vivo". Sigue en seis ciudades: CDMX,
+- **LavaGo tiene un portal para socios** (socio.lavago.app) y dice trabajar con una red amplia de
+  lavanderías: el usuario elige sucursal y sigue el estado de su pedido en vivo. Sigue en seis ciudades: CDMX,
   Guadalajara, Monterrey, Tijuana, Culiacán y Hermosillo. **Es el competidor más parecido a esta
   plataforma.** Su portal de socios y su app no respondieron el 2026-09-25, así que su modelo de comisión
   no se pudo leer. Fuentes: lavagomx.com; mx.lavago.app según resultados de búsqueda.
@@ -185,15 +185,15 @@ administración. En México lo hacen **LavaGo** y **Laundryheap**, y ninguno ope
 
 ### Cómo resuelven estas apps lo que aquí sigue abierto
 
-Referencias para decidir, no reglas. Ninguna obliga a EL CLIENTE.
+Referencias para decidir, no reglas. Ninguna obliga a EL CLIENTE. Lo de cada proveedor está parafraseado de sus páginas; las fuentes, al final.
 
 | Hueco abierto | Laundryheap | Poplin | GoLaundry | Otras |
 |---|---|---|---|---|
-| **Cuándo se cobra** (DD-012) | "you'll only be charged once your items are cleaned" | Estimado al pedir; cobro por **peso real** al terminar | Precio por bloque de 5 kg | — |
-| **Pedido mínimo** (DD-010, DD-019) | "minimum order value and service fee for your area" | US$30 mínimo, más una cuota por pedido | El bloque de 5 kg es el mínimo | — |
-| **Quién recibe el trabajo** (DD-014) | Choferes propios | "The best-rated pros are allocated the jobs first" | — | — |
-| **Seguimiento** | — | Mensajes del lavador | — | LavaGo: estado "en vivo" |
-| **Garantía** (DD-047) | — | — | — | LavaGo: limpia "de 24 a 72 horas o te devolvemos tu dinero"; LavanderiApp: devolución si no queda "encantado" |
+| **Cuándo se cobra** (DD-012) | Cobra hasta que la ropa ya se limpió, sobre lo que la planta procesó | Estimado al pedir; cobro por **peso real** al terminar | Precio por bloque de 5 kg | — |
+| **Pedido mínimo** (DD-010, DD-019) | Pedido mínimo y cuota de servicio que dependen de la zona | US$30 mínimo, más una cuota por pedido | El bloque de 5 kg es el mínimo | — |
+| **Quién recibe el trabajo** (DD-014) | Choferes propios | Los lavadores mejor calificados reciben los trabajos primero | — | — |
+| **Seguimiento** | — | Mensajes del lavador | — | LavaGo: estado del pedido en vivo |
+| **Garantía** (DD-047) | — | — | — | LavaGo: ropa limpia en 24 a 72 horas o devuelve el dinero; LavanderiApp: devuelve el dinero si el cliente no queda satisfecho |
 
 Tres lecturas para las decisiones abiertas:
 
@@ -202,7 +202,7 @@ Tres lecturas para las decisiones abiertas:
    Es un argumento concreto para DD-012.
 2. **Poplin asigna por calificación, y eso aquí está excluido.** La asignación por algoritmo es Orden de
    Cambio (RN-12). La asignación manual (DD-014) es la única vía del contrato.
-3. **LavaGo acostumbra al usuario al seguimiento "en vivo".** El contrato no lo exige, y el rastreo del
+3. **LavaGo acostumbra al usuario a seguir su pedido en vivo.** El contrato no lo exige, y el rastreo del
    repartidor fuera de un pedido activo está excluido. Si un usuario de Monterrey compara, la expectativa
    ya está puesta: conviene que la app diga con claridad qué muestra.
 
