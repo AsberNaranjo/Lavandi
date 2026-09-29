@@ -78,6 +78,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 ## Stack (Fase 6)
 
 - [[matriz-de-criterios-stack]] — cuatro puertas eliminatorias y siete criterios con peso propuesto, **revisados el 2026-09-25 con el inventario funcional**. DD-038 respondida. **Detenida hasta que Nadir ajuste los pesos**
+- [[verificaciones-fase-6]] — grado E del 2026-09-28: **OXXO Pay ya no sería de Conekta** (R-028), iniciar sesión con Apple, prueba cerrada de Google Play (R-029), precios de mapas, versiones de iOS y Android en México
 - pendiente: trece ADRs, de `ADR-0002` a `ADR-0014` (el de correo se agregó el 2026-09-25)
 
 ## Formas de trabajo (Fase 7)
@@ -86,7 +87,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Riesgos y supuestos
 
-- [[riesgos]] — R-001 a R-027 (R-004 cerrado por C-49; R-010 superseded por R-010-bis; **R-017 materializado**) · [[supuestos]] — S-002, S-003, S-005 y S-006 (S-001 y S-004 cerrados)
+- [[riesgos]] — R-001 a R-029 (R-004 cerrado por C-49; R-010 superseded por R-010-bis; **R-017 materializado**) · [[supuestos]] — S-002, S-003, S-005 y S-006 (S-001 y S-004 cerrados)
 
 ## Cliente
 

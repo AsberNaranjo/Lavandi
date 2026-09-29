@@ -220,7 +220,7 @@ dirección en el mapa.
 ## 4. Requisitos de las tiendas que el contrato no nombra
 
 El contrato manda publicar en las dos tiendas, así que las reglas de las tiendas también son alcance
-de hecho. Solo la primera es grado A; el resto es conocimiento de Claude al 2026-09-25 y se verifica
+de hecho. **Verificadas el 2026-09-28, grado E:** `arquitectura/verificaciones-fase-6.md`. Solo la primera es grado A; el resto es conocimiento de Claude al 2026-09-25 y se verifica
 en la Fase 6 contra las guías vigentes.
 
 | Requisito | Grado | Fila |

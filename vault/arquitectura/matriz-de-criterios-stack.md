@@ -105,6 +105,11 @@ candidato más que evaluar y `ADR-0011` deja de ser solo de la landing.
 
 ## Verificaciones grado E pendientes antes de puntuar
 
+> **Hechas el 2026-09-28**, salvo la 5, que es de candidatos y espera a los pesos: ver
+> `verificaciones-fase-6.md`. Cambian tres cosas: OXXO Pay ya no sería de Conekta (R-028, DD-056),
+> la tienda de Apple exige una segunda forma de entrar, y una cuenta personal de Google Play necesita
+> prueba cerrada antes de publicar (R-029).
+
 Ninguna sube a grado C sin que Nadir la confirme en acta.
 
 1. Vigencia de **OXXO Pay** en Conekta — lo exige la nota de RN-28 antes de `ADR-0010`.
