@@ -47,7 +47,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 ## Marca — arte final
 
 - [[entregables/README|Entregables del A.1]] — **manual de identidad (18 pp., versión 1.1) y guía de tono de voz (3 pp.)**, en PDF. Revisados por EL CLIENTE el 18 y 19 de septiembre: seis observaciones aplicadas, dos abiertas (DD-045 y DD-046)
-- `marca/entregables/feedback/` — las cuatro capturas marcadas a mano que mandó Alfredo Navarrete por WhatsApp. Evidencia primaria de C-76 a C-83
+- Las capturas marcadas a mano de EL CLIENTE viven en `cliente/recibido/`, no aquí
 - [[README|logotipo]] — **arte oficial reconstruido en vector** desde el PNG del diseñador, verificado por diferencia de píxeles (1.34 %, todo antialiasing de borde). SVG, PDF y PNG en tres versiones
 - `marca/visual/svg/` — **superseded**: el símbolo previo, de antes de que el cliente entregara el suyo
 
@@ -91,6 +91,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Cliente
 
+- [[recibido/README|cliente/recibido]] — **el buzón de todo lo que llega de EL CLIENTE**: una subcarpeta por fecha, archivos sin renombrar, y un `indice.md` por tanda que dice qué dice cada uno y a dónde fue. Es el espejo de `comunicaciones/`, que guarda lo que sale
 - `cliente/reportes-semanales/` · `cliente/notificaciones-de-entrega/` · `cliente/requerimientos/` · `cliente/comunicaciones/`
 - Comunicaciones enviadas: [[2026-09-20-respuesta-al-feedback-del-manual]] (**2026-09-20 13:00, WhatsApp, literal**: devuelve el manual 1.1, pregunta el fondo hueso, deja el calzado como Orden de Cambio y propone que esta ronda cuente como la primera) · [[2026-09-07-lista-de-nombres-para-el-cliente]] y [[2026-09-08-lista-de-nombres-de-categoria]] (ambas enviadas, C-43)
 - Sin enviar: [[2026-09-19-acuerdo-de-apoyo-con-contenido]] (la cortesía con principio, final y límites) · [[2026-09-12-alcance-para-el-cliente]] (qué recibe, qué necesita hacer él, qué se cotiza aparte) · [[2026-09-09-aviso-de-retraso-branding]] (**vencido, DD-036**) · [[2026-09-11-requerimiento-de-insumos-de-producto]] (seis decisiones de operación) · [[2026-09-09-lista-de-nombres-globales]] (archivada por C-46, ya no se manda)

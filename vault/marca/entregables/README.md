@@ -20,7 +20,7 @@ fuente en HTML, que se versiona, y su PDF, que es lo que se entrega.
 ## Estado: versión 1.1, con la retroalimentación de EL CLIENTE aplicada
 
 El 18 y 19 de septiembre de 2026 Alfredo Navarrete mandó ocho observaciones por WhatsApp, con capturas
-marcadas a mano que están archivadas en `feedback/`. **Seis se aplicaron, dos no.** La clasificación de
+marcadas a mano que están archivadas en `cliente/recibido/2026-09-18/`. **Seis se aplicaron, dos no.** La clasificación de
 cada una, con su cita, está en `vault/meta/actas/acta-2026-09-20-feedback-del-manual.md`.
 
 Las dos que no se aplicaron, y por qué:
@@ -203,8 +203,10 @@ antes de que EL CLIENTE escogiera la familia de categoría (C-40). La guía no l
 - **El manual daba tamaños mínimos solo del símbolo.** La versión horizontal es una de las cuatro que
   exige el A.1 y no tenía ninguno. La versión 1.1 lo añade, medido.
 
-## Qué hay en `feedback/`
+## Dónde está la evidencia de lo que pidió EL CLIENTE
 
-Las cuatro capturas que mandó Alfredo Navarrete por WhatsApp el 18 y 19 de septiembre de 2026, con sus
-marcas a mano. Son la evidencia primaria de C-76 a C-83; la transcripción está en el acta del 2026-09-20.
-No se editan ni se sustituyen: si llega otra ronda, se archiva al lado con su propia fecha.
+En `vault/cliente/recibido/`, el buzón de todo lo que llega de él, con una subcarpeta por fecha y su
+índice. Las cuatro capturas de esta ronda están en `cliente/recibido/2026-09-18/`, con la lectura de
+cada una en su `indice.md`. Antes vivían en `marca/entregables/feedback/`; se movieron el 2026-09-30
+para que todo lo recibido tenga un solo sitio, porque EL CLIENTE manda en el mismo mensaje cosas de
+dominios distintos. La regla está en `cliente/recibido/README.md`.

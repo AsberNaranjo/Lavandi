@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: C
-fuente: sesión técnica con Nadir Hadad Navarrete del 2026-09-20. C-75 a C-86 transmiten la retroalimentación de Alfredo Navarrete recibida por WhatsApp el 18 y 19 de septiembre de 2026, con capturas archivadas en `vault/marca/entregables/feedback/`; C-87 y C-88 son declaraciones del propio Nadir
+fuente: sesión técnica con Nadir Hadad Navarrete del 2026-09-20. C-75 a C-86 transmiten la retroalimentación de Alfredo Navarrete recibida por WhatsApp el 18 y 19 de septiembre de 2026, con capturas archivadas en `vault/cliente/recibido/2026-09-18/`; C-87 y C-88 son declaraciones del propio Nadir
 fecha: 2026-09-20
 dueño: Nadir Hadad Navarrete
 ---
@@ -20,8 +20,8 @@ Continúa la numeración de [[acta-2026-09-19-terminos-del-apoyo-y-canva]], que 
   rechazo las "Opiniones de terceros no contemplados como interlocutores en el contrato"
   (`NSV-2026-001-v8.pdf:7:Cláusula IV`); aquí esa exclusión no aplica.
 - **Soporte:** cuatro capturas del PDF con marcas a mano, archivadas en
-  `vault/marca/entregables/feedback/2026-09-18-whatsapp-alfredo-01..04.png`. Son la evidencia primaria;
-  lo de abajo es la transcripción.
+  `vault/cliente/recibido/2026-09-18/` (movidas ahí el 2026-09-30 desde `marca/entregables/feedback/`,
+  cuando se creó el buzón único). Son la evidencia primaria; lo de abajo es la transcripción.
 - **No hubo notificación formal de entrega** (C-84). El manual se le compartió como primera versión.
   Consecuencia contractual: el plazo de diez días hábiles de la Cláusula IV **no empezó a correr**, porque
   se cuenta "a partir de la notificación de entrega" (`:7`). Ni hay aceptación por silencio ni hay fecha
