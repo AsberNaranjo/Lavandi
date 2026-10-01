@@ -7,7 +7,7 @@ dueño: Nadir Hadad Navarrete
 ---
 # Tanda del 2026-09-30 — Segunda revisión del manual y logotipo de la palabra
 
-Veinte archivos. Llegaron a Nadir por WhatsApp en dos momentos —el **21 de septiembre** y el **29 de
+Diecinueve archivos: catorce imágenes de WhatsApp y cinco del logotipo. Llegaron a Nadir por WhatsApp en dos momentos —el **21 de septiembre** y el **29 de
 septiembre**— y se archivaron aquí el 30. Son de dos clases:
 
 - **Fotos del manual 1.1 impreso**, con marcas a mano de Alfredo Navarrete. **Se imprimió en blanco y
