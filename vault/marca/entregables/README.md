@@ -1,8 +1,8 @@
 ---
 estado: vigente
 grado: mixto
-fuente: NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1 y :20-21:A.4.1 (A); territorio-de-marca.md, mision-vision-valores.md, decision-visual.md (B); acta C-55, C-60, C-61 (C); retroalimentación de EL CLIENTE del 18 y 19 de septiembre, acta 2026-09-20, C-75 a C-87 (C)
-fecha: 2026-09-20
+fuente: NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1 y :20-21:A.4.1 (A); territorio-de-marca.md, mision-vision-valores.md, decision-visual.md (B); acta C-55, C-60, C-61 (C); retroalimentación de EL CLIENTE del 18 y 19 de septiembre, acta 2026-09-20, C-75 a C-87, y acta 2026-09-30, C-96 a C-102 (C)
+fecha: 2026-09-30
 dueño: Nadir Hadad Navarrete
 ---
 # Entregables de marca del ANEXO A.1
@@ -17,7 +17,27 @@ fuente en HTML, que se versiona, y su PDF, que es lo que se entrega.
   y cualquier cambio hecho a mano se pierde en la siguiente corrida. El contenido se cambia en el
   script. Ahí está el README con el procedimiento y con lo que hay que revisar después.
 
-## Estado: versión 1.1, con la retroalimentación de EL CLIENTE aplicada
+## Estado: versión 1.2, con la segunda revisión de EL CLIENTE
+
+El 29 de septiembre Alfredo Navarrete devolvió **el manual 1.1 impreso** con marcas a mano, y su diseñador
+entregó **el logotipo de la palabra**. Todo está en `cliente/recibido/2026-09-30/`, con su índice; la
+lectura y la clasificación, en `vault/meta/actas/acta-2026-09-30-segunda-revision-del-manual.md`.
+
+| Qué pidió | Qué se hizo |
+|---|---|
+| "CAMBIAR" el logotipo de la palabra, en la portada y en la horizontal | **Aplicado** con el logotipo del diseñador, extraído sin redibujar de su `.ai` |
+| "Rapidez" por "puntualidad" | **Aplicado** donde lo marcó, y **extendido** a los principios del manual y de la guía para que no se contradigan. A confirmar |
+| Página 4: otro orden y otros textos | **Aplicado**: 1 perilla, 2 ida, 3 pin, 4 vuelta, 5 lavadora. Los textos son una **lectura propuesta** de marcas con tachaduras: a confirmar (DD-057) |
+| Página 5: la explicación de la horizontal | **Aplicado**, también como lectura propuesta |
+| Página 13: los nueve "Lavandi" circulados, sin texto | **No aplicado**: falta saber qué pide (DD-058) |
+
+**Esta fue la segunda ronda.** Si se sostiene lo que se le propuso por escrito el 2026-09-20, fue la última
+incluida en el A.1 (DD-048, R-023).
+
+**Antes de mandar el 1.2** hay que confirmar las lecturas de las páginas 4 y 5 (DD-057) y decidir si la
+horizontal lleva el símbolo (DD-059).
+
+### Primera ronda — versión 1.1
 
 El 18 y 19 de septiembre de 2026 Alfredo Navarrete mandó ocho observaciones por WhatsApp, con capturas
 marcadas a mano que están archivadas en `cliente/recibido/2026-09-18/`. **Seis se aplicaron, dos no.** La clasificación de
@@ -35,7 +55,7 @@ Las dos que no se aplicaron, y por qué:
 
 ## Manual de identidad visual — O-03
 
-`manual-de-identidad.html` → `manual-de-identidad.pdf` · **versión 1.1**
+`manual-de-identidad.html` → `manual-de-identidad.pdf` · **versión 1.2**
 
 | Requisito | Cita | Cumplimiento |
 |---|---|---|
@@ -61,74 +81,69 @@ tabla de archivos.
 | Área de protección = diámetro de la perilla | Decisión de este manual: es una medida que viaja con el símbolo | D |
 | Tamaño mínimo impreso: 20 mm a color, 12 mm monocromático | Grosor del anillo más fino de cada versión contra el mínimo que sostiene una imprenta | D |
 | Tamaño mínimo en pantalla: 32 px a color, 16 px monocromático | **Medido**: se renderizó el símbolo a 16, 24, 32, 48, 64 y 96 px y se vio dónde deja de reconocerse | B |
-| **Logotipo de la palabra: L de carretera y pin sobre la i** | **C-76**, petición de EL CLIENTE | C |
-| **Tamaño mínimo de la horizontal: 110 px y 70 mm** | **Medido**, ver abajo | B |
+| **Logotipo de la palabra: el del diseñador de EL CLIENTE** | **C-98**. Sustituye a la composición del manual que pedía C-76 | C |
+| **Tamaño mínimo de la horizontal: 150 px y 65 mm** | **Medido** con el logotipo nuevo: `marca/visual/logotipo/README.md` | B |
+| **Orden y significado de las piezas del símbolo** | **C-79** (la carretera de vuelta) y **C-100** (el orden nuevo y la perilla como interruptor) | C |
+| **"Puntualidad" en la promesa y en los principios** | **C-99**; la extensión a los principios, por coherencia, a confirmar | C |
 | **La quinta pieza del símbolo: la carretera de vuelta** | **C-79**: "es donde regresa a la ubicación destino posterior al lavado" | C |
 | **Idea rectora y cuatro principios del tono** | **C-80 y C-81** | C |
 | **Los cinco hechos de "Lo que sostiene la promesa"** | ANEXO A.3, numerales 5, 7, 9, 12, 14 y 16 | A |
 | Nunito y Source Sans 3 | `decision-visual.md` | C |
 | Jerarquía de ocho tamaños | `tokens.json` | B |
 
-### El logotipo de la palabra, y por qué está medido
+### El logotipo de la palabra
 
-EL CLIENTE pidió que la **L** de "Lavandi" sea la del logotipo y que la **i** lleve el pin de ubicación
-(C-76). Las dos formas **se extraen del SVG maestro**, no se redibujan: `simbolos.py` las recorta del
-archivo verificado y las expone como `s-l` y `s-pin`. Si el logotipo cambia, la palabra cambia con él.
+**Es el del diseñador de EL CLIENTE** (C-98): la L de carretera a toda la altura, el tambor dentro de la d
+y el pin sobre la i, con las letras en Berlin Sans FB Regular convertida a curvas. Cómo se extrajo, cómo se
+verificó —cero píxeles difieren en más de 32 niveles— y cómo se llevaron sus colores a la paleta, en
+`marca/visual/logotipo/README.md`.
 
-El pin sobre la i es la pieza frágil, así que se midió como se midió el símbolo. Se renderizó el conjunto
-a 56, 70, 88, 110, 132, 160 y 200 px de ancho total:
+En el manual aparece en la **portada** y en la **horizontal** de la página 5, junto al símbolo. La página 7
+da su tamaño mínimo, medido de nuevo: **150 px y 65 mm**. La página 14 dice que **Berlin Sans FB no es
+tipografía de uso**: los textos siguen en Nunito y Source Sans 3.
 
-- Por debajo de **110 px** el pin deja de leerse como pin y queda como un punto amarillo.
-- El símbolo ocupa el **29 %** del ancho del conjunto —medido: 91.2 px de 314.9 px— así que a 110 px mide
-  sus 32 px justos, que es su propio mínimo a color. **Los dos límites dan el mismo número.**
-- En impreso, ese 29 % contra los 20 mm del símbolo pone el mínimo en **70 mm** de ancho.
-
-**Color.** La palabra va en **Agua `#2E86AB`**, el mismo azul de la carretera, para que palabra y símbolo
-sean un solo color. Da **3.74 : 1** sobre Hueso: insuficiente para texto normal, suficiente para un
-elemento gráfico, cuyo mínimo es 3 : 1. La página 13 ya lo dice y no se contradice. **"Lavandi" escrito
-como texto corrido sigue yendo en Agua Profundo `#297899`.**
-
-**Dónde se apoya el pin, y por qué no se puso a ojo.** El pin se sienta donde Nunito Black pone el punto
-de la i: **0.5725 em sobre la línea base**, medido barriendo la tinta del glifo fila por fila. En CSS el
-valor se escribe contra el borde inferior de la caja, que queda 0.1778 em bajo la base, así que son
-`0.7503em`. La primera versión usaba `.495em` y **metía el pin 0.185 em dentro del asta de la i**: se veía
-sobrepuesto. Corregido y comprobado en el documento, a 0.5724 em (C-87).
-
-**Consecuencia de forma que conviene saber:** el asta de la carretera es más delgada que el trazo de
-Nunito Black, así que la L se ve más ligera que el resto de la palabra. Se dejó así a propósito:
-engrosarla sería alterar el dibujo del logotipo, que es del diseñador de EL CLIENTE y está verificado
-píxel a píxel contra su original.
+**Lo que hubo antes.** La versión 1.1 componía su propia palabra con la carretera del símbolo, Nunito Black
+y el pin sobre una i sin punto, medido para que el pin cayera donde Nunito pone su punto. EL CLIENTE la marcó
+"Cambiar" y su diseñador entregó la suya. La composición salió del generador; queda en el historial de git.
 
 ### Las dos cosas nuevas que EL CLIENTE no había visto, y qué dijo de ellas
 
 1. **La versión horizontal.** El diseñador entregó solo el símbolo; el manual componía la palabra con
-   Nunito. EL CLIENTE revisó esa composición y pidió cambiarla (C-76). **Atendido.** Sus archivos
-   independientes siguen pendientes: ver `design-system/cobertura-anexo-a1.md`, O-01.
+   Nunito. EL CLIENTE la revisó dos veces: en la primera pidió la L de carretera y el pin (C-76); en la
+   segunda la cambió por el logotipo de su diseñador (C-98). **Sus archivos ya existen**: SVG, PDF, PNG a
+   300 y 72 dpi y el `.ai` del diseñador, en `marca/visual/logotipo/`.
 2. **El nombre "perilla"** para el círculo chico de arriba a la izquierda. **No lo objetó.** En cambio
    señaló que faltaba explicar la segunda carretera (C-79), que ahora es la pieza 3 de la página 4.
 
 ### Verificación del PDF
 
-Todo lo de abajo se midió en la versión 1.1, no se afirma de memoria:
+Todo lo de abajo se midió en la versión **1.2**, no se afirma de memoria:
 
 - **18 páginas**, carta horizontal (792 × 612 pt), con el número correcto en el pie de las 18.
 - **Solo las dos familias de la marca incrustadas**: Nunito y Source Sans 3. Sin Consolas. Van como
   **Type3** porque son variables: una revisión que solo busque TrueType va a reportar que faltan, y es
   falso. Se comprueba leyendo los nombres de fuente del archivo crudo.
-- **Texto seleccionable**, comprobado con tres frases de las páginas cambiadas.
+- **Berlin Sans FB no va incrustada.** El logotipo de la palabra entra como trazos; se comprobó leyendo las
+  fuentes del archivo crudo.
+- **Texto seleccionable**, comprobado con seis frases de las páginas cambiadas, entre ellas "Con seguridad
+  y puntualidad" y "Es el interruptor de la lavadora". La palabra "rapidez" ya no aparece en ninguna página.
 - **Cero desbordes.** Se midió el fondo de cada elemento hoja contra el pie de su página. Todas las
   holguras son positivas; las más ajustadas son las páginas 11 y 12 con 20 px, la 16 con 23 px y la 5 con
-  35 px. Las celdas de usos incorrectos recortan a propósito y se excluyen.
+  44.9 px. Las celdas de usos incorrectos recortan a propósito y se excluyen.
+- **La página 5 se desbordó en la primera corrida de la 1.2**: el texto de la horizontal pasó a cuatro
+  renglones y empujó el de la monocromática por debajo del pie. Se bajó la altura de las cuatro cajas, de
+  2.55 a 2.25 pulgadas, en vez de recortar lo que dijo EL CLIENTE.
+- **El lockup de la página 7 mide lo que dice**: 149.98 px de ancho con el símbolo a 48.05 px, el
+  32.04 %. Medido en el documento.
 - **Revisión visual de las 18 páginas** en el PDF rasterizado, no en el HTML.
-- **La portada y la página 18 dicen la misma versión.** En la primera corrida no coincidían: la portada
-  decía 1.1 y la página 18 seguía diciendo 1.0.
+- **La portada y la página 18 dicen la misma versión**, la 1.2. En la 1.1 llegaron a no coincidir.
 
 ### Cómo se actualiza si cambia el logotipo
 
 Los dibujos que usa el manual están definidos **una sola vez**, al principio del HTML, como `<symbol>`:
-los seis del símbolo —color, sin placa, monocromático, ícono y los dos usos incorrectos— más los dos
-nuevos de la palabra, `s-l` y `s-pin`. Si el logotipo cambia, se reemplazan ahí y las 18 páginas se
-actualizan solas. Después se vuelve a imprimir el PDF con Chrome.
+los seis del símbolo —color, sin placa, monocromático, ícono y los dos usos incorrectos— y el logotipo
+de la palabra, `s-logotipo`. Si el logotipo cambia, se reemplaza su SVG en `marca/visual/logotipo/` y las
+18 páginas se actualizan solas. Después se vuelve a imprimir el PDF con Chrome.
 
 ## Guía de tono de voz — O-05
 
@@ -149,10 +164,10 @@ esta guía: si los principios no fueran los mismos en los dos documentos, el ent
 
 | En la guía | Sale de |
 |---|---|
-| "No vendemos lavado de tu ropa: vendemos el alivio y la rapidez hasta tu closet." | C-78, redacción de EL CLIENTE con la ortografía corregida |
-| "Decimos la hora, cuidamos la ropa y no escondemos nada." | C-80: seguridad, rapidez y transparencia |
+| "No vendemos lavado de tu ropa: vendemos el alivio y la puntualidad hasta tu closet." | C-78, redacción de EL CLIENTE con la ortografía corregida; "puntualidad" por "rapidez", C-99 |
+| "Decimos la hora, cuidamos la ropa y no escondemos nada." | C-80: seguridad, puntualidad y transparencia (antes, rapidez: C-99) |
 | Principio 1, "Tu ropa, en buenas manos" | C-81, apoyado en A.3 numerales 5 y 14 |
-| Principio 2, "Rapidez con hora" | C-80, y conserva la regla anterior de prometer con número |
+| Principio 2, "Puntualidad" | C-80 y C-99. Antes se llamaba "Rapidez con hora"; el contenido no cambió: ya era un principio de puntualidad. **El cambio de nombre es una extensión por coherencia, a confirmar** |
 | Principio 3, "Todo a la vista" | C-80. Absorbe la regla de que el oficio es del socio |
 | Principio 4, "Damos la cara" | Valor de `mision-vision-valores.md` |
 | Tú al usuario, usted al socio, directo al repartidor | Registros de `territorio-de-marca.md` §1 a §3 |

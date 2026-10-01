@@ -1,12 +1,19 @@
 ---
 estado: vigente
 grado: mixto
-fuente: NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1 y :20-21:Sección A.4.1 (A); obligaciones-ejecutivas.md O-01 a O-06 (B); riesgos.md R-011, R-023 (B); acta 2026-09-20, C-75 a C-87 (C)
-fecha: 2026-09-20
+fuente: NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1 y :20-21:Sección A.4.1 (A); obligaciones-ejecutivas.md O-01 a O-06 (B); riesgos.md R-011, R-023 (B); acta 2026-09-20, C-75 a C-87, y acta 2026-09-30, C-96 a C-102 (C)
+fecha: 2026-09-30
 dueño: Nadir Hadad Navarrete
 ---
 # Cobertura del ANEXO A.1 — qué cubre el design system y qué no
 
+> **Al 2026-09-30.** EL CLIENTE devolvió el manual 1.1 impreso con una segunda ronda de marcas, y su
+> diseñador entregó **el logotipo de la palabra en `.ai` y `.eps`**. Con eso, **la versión horizontal ya
+> tiene sus archivos**: lo que faltaba de O-01 se reduce al `.ai` del símbolo. El manual va en la **1.2**,
+> pendiente de que se confirmen las lecturas de sus marcas (DD-057) y de si la horizontal lleva el símbolo
+> (DD-059). Fue la segunda ronda de ajuste: si se sostiene la propuesta del 2026-09-20, ya no queda
+> ronda incluida (R-023). Y la ventana del Entregable 1 cerró el 27 de septiembre.
+>
 > **Estado del Entregable 1 al 2026-09-20.** EL CLIENTE entregó el logotipo hecho por su
 > diseñador (C-63), se reconstruyó en vector, y se produjeron la guía de tono y el manual. **EL CLIENTE
 > ya revisó los dos documentos y mandó ocho observaciones el 18 y 19 de septiembre; seis se aplicaron y
@@ -24,9 +31,9 @@ dueño: Nadir Hadad Navarrete
 
 | # | Punto del A.1 | Estado al 2026-09-15 | Qué falta exactamente |
 |---|---|---|---|
-| **O-01** | Logotipo, 4 versiones × 5 formatos | **Casi completo** — tres versiones en SVG, PDF y PNG, reconstruidas y verificadas (`marca/visual/logotipo/`). **La cuarta, la horizontal, ya está definida por EL CLIENTE (C-76) y compuesta en el manual**: L de carretera y pin sobre la i, con su tamaño mínimo medido (110 px / 70 mm). Faltan sus **archivos independientes** —SVG, PDF, PNG 300 y 72 dpi— y el `.ai`. Lo de abajo es el estado del 2026-09-15 | Hay **una** versión (el símbolo) en PNG con transparencia y en JPEG, ambos de 1341×1326. Faltan: el archivo **AI**, el **PDF vectorial**, el **SVG** del logotipo con la palabra, el **PNG a 300 y a 72 dpi**, y las versiones **horizontal** y **monocromática**. Los cuatro SVG del repo son del símbolo y los hizo Claude, no el diseñador |
+| **O-01** | Logotipo, 4 versiones × 5 formatos | **Casi completo** — tres versiones en SVG, PDF y PNG, reconstruidas y verificadas (`marca/visual/logotipo/`). **La cuarta, la horizontal, tiene archivos desde el 2026-09-30**: el logotipo de la palabra del diseñador (C-98), extraído sin redibujar de su `.ai` a SVG, PDF y PNG a 300 y 72 dpi, más el `.ai` original. Tamaño mínimo medido: 150 px y 65 mm con el símbolo. **Falta** el `.ai` del símbolo, que necesita Illustrator, y decidir si la horizontal lleva el símbolo (DD-059). Lo de abajo es el estado del 2026-09-15 | Hay **una** versión (el símbolo) en PNG con transparencia y en JPEG, ambos de 1341×1326. Faltan: el archivo **AI**, el **PDF vectorial**, el **SVG** del logotipo con la palabra, el **PNG a 300 y a 72 dpi**, y las versiones **horizontal** y **monocromática**. Los cuatro SVG del repo son del símbolo y los hizo Claude, no el diseñador |
 | **O-02** | Paleta de 4 colores y tipografías | **Completo** | Nada. Paleta con HEX, RGB y CMYK, y Nunito + Source Sans 3, todo en `tokens.json` y verificado |
-| **O-03** | Manual de identidad, 15 a 20 páginas | **Completo y revisado por EL CLIENTE**: 18 páginas, **versión 1.1** (`marca/entregables/manual-de-identidad.pdf`) | Cerrar DD-045 (qué quiere decir "el fondo del logo en hueso") y decidir DD-049 (las dos páginas de margen). Después, notificar la entrega formalmente: DD-050 |
+| **O-03** | Manual de identidad, 15 a 20 páginas | **Completo, dos veces revisado por EL CLIENTE**: 18 páginas, **versión 1.2** (`marca/entregables/manual-de-identidad.pdf`) | Cerrar DD-045 (qué quiere decir "el fondo del logo en hueso") y decidir DD-049 (las dos páginas de margen). Después, notificar la entrega formalmente: DD-050 |
 | **O-04** | 12 plantillas de redes | **Sin empezar — es lo único que falta del Entregable 1, junto con los archivos sueltos del logotipo** | **Herramienta decidida el 2026-09-19: Canva** (C-74). **Se adelantan** a antes de la semana 10 (C-73), porque Nadir producirá contenido desde ahora con meta de 5 publicaciones semanales (C-71). Queda por definir en qué cuenta y con qué plan: el ANEXO B.11 exige cuentas a nombre de EL CLIENTE (DD-043, residual) |
 | **O-05** | Guía de tono de voz, 2 a 3 páginas | **Completo y actualizado** con la retroalimentación: 3 páginas (`marca/entregables/guia-de-tono-de-voz.pdf`). Los cuatro principios son ahora seguridad, rapidez y transparencia (C-80, C-81) | Que EL CLIENTE confirme que los principios nuevos son los que quería. Y DD-047: si existe un estándar real de cuidado de la ropa, o el principio 1 se queda en lo que la app sostiene |
 | **O-06** | Proceso de branding en 4 fases | **Cumplido de hecho** | Lo condujo el diseñador del cliente. Conviene dejar constancia escrita de que se agotó |

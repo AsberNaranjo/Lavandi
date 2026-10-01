@@ -2,7 +2,7 @@
 estado: vigente
 grado: B
 fuente: estructura del repo
-fecha: 2026-09-25
+fecha: 2026-09-30
 dueño: Nadir Hadad Navarrete
 ---
 # Índice (MOC raíz)
@@ -15,7 +15,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[prompt-maestro-01-fundacion-v4]] — `superseded` el 2026-09-25. Se conserva: las citas con número de línea de antes de esa fecha apuntan aquí
 - [[convenciones]] — reglas del vault, grados, marcadores, espejo Notion
 - [[deuda-de-decision]] — qué falta decidir y quién bloquea
-- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]] · [[acta-2026-09-20-feedback-del-manual]] · [[acta-2026-09-25-analisis-funcional]] · [[acta-2026-09-29-sesion-tecnica-y-plantilla-landing]]
+- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]] · [[acta-2026-09-20-feedback-del-manual]] · [[acta-2026-09-25-analisis-funcional]] · [[acta-2026-09-29-sesion-tecnica-y-plantilla-landing]] · [[acta-2026-09-30-segunda-revision-del-manual]]
 
 ## Contrato (grado A leído)
 
@@ -46,9 +46,9 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Marca — arte final
 
-- [[entregables/README|Entregables del A.1]] — **manual de identidad (18 pp., versión 1.1) y guía de tono de voz (3 pp.)**, en PDF. Revisados por EL CLIENTE el 18 y 19 de septiembre: seis observaciones aplicadas, dos abiertas (DD-045 y DD-046)
+- [[entregables/README|Entregables del A.1]] — **manual de identidad (18 pp., versión 1.2) y guía de tono de voz (3 pp.)**, en PDF. Dos rondas de EL CLIENTE: el 18 y 19 de septiembre y el 29. La 1.2 lleva el logotipo de la palabra del diseñador y "puntualidad" en vez de "rapidez"; **antes de mandarla** hay que confirmar las lecturas de las páginas 4 y 5 (DD-057)
 - Las capturas marcadas a mano de EL CLIENTE viven en `cliente/recibido/`, no aquí
-- [[README|logotipo]] — **arte oficial reconstruido en vector** desde el PNG del diseñador, verificado por diferencia de píxeles (1.34 %, todo antialiasing de borde). SVG, PDF y PNG en tres versiones
+- [[README|logotipo]] — **arte oficial**. El símbolo, reconstruido en vector desde el PNG del diseñador (1.34 % de diferencia, todo antialiasing de borde). **El logotipo de la palabra**, extraído sin redibujar del `.ai` del diseñador (0 píxeles difieren en más de 32 niveles). SVG, PDF y PNG de los dos. Su tipografía, Berlin Sans FB, es comercial: R-030
 - `marca/visual/svg/` — **superseded**: el símbolo previo, de antes de que el cliente entregara el suyo
 
 ## Design system (Fase 4)
@@ -94,7 +94,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[recibido/README|cliente/recibido]] — **el buzón de todo lo que llega de EL CLIENTE**: una subcarpeta por fecha, archivos sin renombrar, y un `indice.md` por tanda que dice qué dice cada uno y a dónde fue. Es el espejo de `comunicaciones/`, que guarda lo que sale
 - `cliente/reportes-semanales/` · `cliente/notificaciones-de-entrega/` · `cliente/requerimientos/` · `cliente/comunicaciones/`
 - Comunicaciones enviadas: [[2026-09-20-respuesta-al-feedback-del-manual]] (**2026-09-20 13:00, WhatsApp, literal**: devuelve el manual 1.1, pregunta el fondo hueso, deja el calzado como Orden de Cambio y propone que esta ronda cuente como la primera) · [[2026-09-07-lista-de-nombres-para-el-cliente]] y [[2026-09-08-lista-de-nombres-de-categoria]] (ambas enviadas, C-43)
-- Sin enviar: [[2026-09-19-acuerdo-de-apoyo-con-contenido]] (la cortesía con principio, final y límites) · [[2026-09-12-alcance-para-el-cliente]] (qué recibe, qué necesita hacer él, qué se cotiza aparte) · [[2026-09-09-aviso-de-retraso-branding]] (**vencido, DD-036**) · [[2026-09-11-requerimiento-de-insumos-de-producto]] (seis decisiones de operación) · [[2026-09-09-lista-de-nombres-globales]] (archivada por C-46, ya no se manda)
+- Sin enviar: [[2026-09-30-respuesta-a-la-segunda-revision]] (**la que sigue**: devuelve el manual 1.2, confirma las lecturas de las notas a mano, pregunta la página 13, la horizontal y la licencia de Berlin Sans FB, y dice que ésta fue la segunda ronda) · [[2026-09-19-acuerdo-de-apoyo-con-contenido]] (la cortesía con principio, final y límites) · [[2026-09-12-alcance-para-el-cliente]] (qué recibe, qué necesita hacer él, qué se cotiza aparte) · [[2026-09-09-aviso-de-retraso-branding]] (**vencido, DD-036**) · [[2026-09-11-requerimiento-de-insumos-de-producto]] (seis decisiones de operación) · [[2026-09-09-lista-de-nombres-globales]] (archivada por C-46, ya no se manda)
 
 ## Plantillas
 

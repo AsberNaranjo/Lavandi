@@ -31,12 +31,18 @@ def ok_badge():
 def use(sim, estilo="", clase=""):
     return '<svg class="%s" style="%s" aria-hidden="true"><use href="#%s"/></svg>' % (clase, estilo, sim)
 
-def palabra(estilo=""):
-    """Logotipo de la palabra: L de carretera, i sin punto y pin encima."""
-    return ('<span class="palabra-logo" style="%s" aria-label="Lavandi">'
-            '<svg class="gl-l" aria-hidden="true"><use href="#s-l"/></svg>avand'
-            '<span class="gl-i"><svg class="gl-pin" aria-hidden="true"><use href="#s-pin"/></svg>ı</span>'
-            '</span>') % estilo
+# Proporcion del logotipo de la palabra del disenador: 142.65 x 69.202 pt
+LOGO_AR = 142.65 / 69.202
+
+def logotipo(ancho_in=None, alto_in=None, clase="pal"):
+    """Logotipo de la palabra (s-logotipo). Se da el ancho o el alto en pulgadas; el otro sale de la proporcion."""
+    if ancho_in is not None:
+        estilo = 'width:%.4fin;height:%.4fin' % (ancho_in, ancho_in / LOGO_AR)
+    elif alto_in is not None:
+        estilo = 'width:%.4fin;height:%.4fin' % (alto_in * LOGO_AR, alto_in)
+    else:
+        estilo = ''
+    return '<svg class="%s" style="%s" role="img" aria-label="Lavandi"><use href="#s-logotipo"/></svg>' % (clase, estilo)
 
 def pagina(num, gorro, titulo, cuerpo, franja=True):
     return ('<section class="pagina">%s<header class="cab"><div class="gorro">%s</div><h1>%s</h1></header>'
@@ -102,18 +108,11 @@ p { margin: 0 0 8px; }
 .portada .der .linea { font-size: 13pt; color: #515A64; margin-top: 14px; }
 .portada .der .version { margin-top: auto; font-size: 9.5pt; color: #515A64; border-top: 1px solid #DCE0E5; padding-top: 10px; }
 
-/* logotipo de la palabra: la L es la carretera y el punto de la i es el pin (C-76) */
-.palabra-logo { font-family: 'Nunito', sans-serif; font-weight: 900; color: #2E86AB; line-height: 1;
-                display: inline-flex; align-items: baseline; letter-spacing: -.01em; white-space: nowrap; }
-.palabra-logo .gl-l { width: .4068em; height: .705em; margin-right: .035em; }
-.palabra-logo .gl-i { position: relative; display: inline-block; }
-/* El pin se apoya donde Nunito pone el punto de la i: 0.5725em sobre la linea base, medido.
-   `bottom` se cuenta desde el borde inferior de la caja, que queda 0.1778em bajo la base, asi
-   que 0.5725 + 0.1778 = 0.7503em. Con .495em el pin se metia 0.185em dentro del asta. */
-.palabra-logo .gl-i .gl-pin { position: absolute; left: 50%; bottom: .7503em; width: .2295em; height: .32em; transform: translateX(-50%); }
-/* lockup medido en em: ancho total = 5.368em. Sirve para dibujarlo a tamano real */
-.lockup-min { display: inline-flex; align-items: center; gap: .262em; }
-.lockup-min .sim { width: 1.56em; height: 1.47em; }
+/* lockup horizontal: simbolo + logotipo de la palabra, medido en em para dibujarlo a cualquier tamano.
+   1em = alto del simbolo. Simbolo 1.0556em de ancho, hueco .1778em, logotipo 2.0614em: total 3.2948em */
+.lockup { display: inline-flex; align-items: center; gap: .1778em; }
+.lockup .sim { width: 1.0556em; height: 1em; flex: none; }
+.lockup .pal { width: 2.0614em; height: 1em; flex: none; }
 
 /* contenido */
 .indice { columns: 2; column-gap: 48px; margin-top: 6px; }
@@ -135,10 +134,7 @@ p { margin: 0 0 8px; }
               font-family: 'Nunito', sans-serif; font-weight: 900; display: flex; align-items: center; justify-content: center; }
 
 /* versiones */
-.version-caja { background: #FFFFFF; border-radius: 10px; height: 2.55in; display: flex; align-items: center; justify-content: center; position: relative; }
-.lockup { display: flex; align-items: center; gap: 0.16in; }
-.lockup svg { width: 0.95in; height: 0.9in; }
-.lockup .palabra { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 44pt; color: #297899; line-height: 1; letter-spacing: -.01em; }
+.version-caja { background: #FFFFFF; border-radius: 10px; height: 2.25in; display: flex; align-items: center; justify-content: center; position: relative; }
 
 /* fondos */
 .fondo { border-radius: 10px; height: 3.05in; display: flex; align-items: center; justify-content: center; position: relative; }
@@ -194,7 +190,8 @@ td { padding: 6px 10px; border-bottom: 1px solid #E6E1D8; vertical-align: middle
 
 def construir():
     p = []
-    marcas = [(1,252,560),(2,812,452),(3,1114,470),(4,955,832),(5,459,300)]
+    # Numeracion de EL CLIENTE (2026-09-29): 1 perilla, 2 ida, 3 pin, 4 vuelta, 5 lavadora. Las marcas no se mueven de pieza.
+    marcas = [(1,459,300),(2,252,560),(3,955,832),(4,1114,470),(5,812,452)]
     FIG_ANATOMIA = ('<svg viewBox="92 42 1202 1134" style="width:4.1in;height:3.87in">'
         '<use href="#s-color" x="92" y="42" width="1202" height="1134"/>' +
         ''.join('<circle cx="%d" cy="%d" r="54" fill="#171C21" stroke="#F7F4EF" stroke-width="10"/>'
@@ -205,9 +202,9 @@ def construir():
     p.append('<section class="pagina portada"><div class="izq">%s</div><div class="der">'
              '<div class="gorro">Manual de identidad</div><div class="marca">%s</div>'
              '<div class="tipo">Cómo se ve y cómo se usa la marca</div>'
-             '<div class="linea">Con seguridad y rapidez, de tu cel a tu closet.</div>'
-             '<div class="version">Versión 1.1 · septiembre de 2026</div></div></section>'
-             % (use('s-color'), palabra('font-size:54pt')))
+             '<div class="linea">Con seguridad y puntualidad, de tu cel a tu closet.</div>'
+             '<div class="version">Versión 1.2 · septiembre de 2026</div></div></section>'
+             % (use('s-color'), logotipo(ancho_in=2.9)))
 
     # 2 contenido
     secciones = [("La idea",3),("El símbolo",4),("Versiones",5),("Área de protección",6),("Tamaños mínimos",7),
@@ -225,23 +222,23 @@ def construir():
     p.append(pagina(3, "01 · La idea", "Lo que vendemos",
              '<div class="fila" style="flex:1; align-items:center; gap:48px">'
              '<div class="col" style="flex:1.35"><div class="cita-marca"><div class="cita">No vendemos lavado de tu ropa: '
-             'vendemos el alivio y la rapidez hasta tu closet.</div></div></div>'
+             'vendemos el alivio y la puntualidad hasta tu closet.</div></div></div>'
              '<div class="col"><h2>Qué significa para la marca</h2>'
              '<p>Nadie quiere pensar en su ropa sucia: quiere recuperar su tiempo y que la ropa vuelva bien. Lavandi existe para eso, '
              'y la marca lo dice sin hablar de detergentes ni de burbujas.</p>'
              '<p>La promesa se sostiene con hechos concretos: una ventana de recolección de una hora que se cumple, un precio que se '
              've antes de pesar, una lavandería con nombre y calificación, y alguien que responde.</p>'
              '<div class="tarjeta" style="margin-top:14px"><h3>La línea de la marca</h3>'
-             '<p style="font-family:Nunito,sans-serif; font-weight:900; font-size:17pt; color:#297899; margin:4px 0 6px">Con seguridad y rapidez, de tu cel a tu closet.</p>'
+             '<p style="font-family:Nunito,sans-serif; font-weight:900; font-size:17pt; color:#297899; margin:4px 0 6px">Con seguridad y puntualidad, de tu cel a tu closet.</p>'
              '<p class="nota" style="margin:0">Acompaña al logotipo en la portada de la página web, en perfiles y en materiales de lanzamiento.</p></div>'
              '</div></div>'))
 
     # 4 el simbolo
-    piezas = [("La carretera de ida", "La L oscura es un camino, no una letra. Baja y termina en punta: la ropa sale de tu casa."),
-              ("La lavadora", "Al centro, con su puerta y el agua girando. Es el oficio de las lavanderías socias."),
+    piezas = [("La perilla", "Es el interruptor de la lavadora: donde echas a funcionar el sistema Lavandi."),
+              ("La carretera de ida", "La L de Lavandi, la oscura, es un camino. Baja y termina en punta: la ropa sale de tu casa."),
+              ("El pin", "Es la ubicación donde inicias, y el destino de la entrega: tu ropa vuelve a tu casa."),
               ("La carretera de vuelta", "La L clara, invertida. Es el regreso: la ropa limpia baja hasta la dirección de entrega."),
-              ("El pin", "El destino. Dice ubicación y entrega: tu ropa vuelve a tu casa."),
-              ("La perilla", "El detalle de la lavadora de carga frontal, arriba a la izquierda.")]
+              ("La lavadora", "Al centro, con su puerta y el agua girando. Es el oficio de las lavanderías socias.")]
     p.append(pagina(4, "02 · El símbolo", "Qué cuenta cada pieza",
              '<div class="anatomia"><div class="fig">%s</div><div class="col">%s'
              '<p class="suave" style="margin-top:6px">Juntas cuentan el viaje completo: la ropa sale por la carretera oscura, pasa por '
@@ -253,14 +250,15 @@ def construir():
     p.append(pagina(5, "03 · Versiones", "Cuatro versiones, un mismo símbolo",
              '<div class="rejilla2" style="flex:1">'
              '<div><div class="version-caja">%s</div><div class="etq"><b>Principal a color.</b> La versión de uso general.</div></div>'
-             '<div><div class="version-caja"><div class="lockup">%s%s</div></div>'
-             '<div class="etq"><b>Horizontal.</b> El símbolo con la palabra: la <b>L</b> es la carretera y el punto de la <b>i</b> es el pin. '
+             '<div><div class="version-caja"><div class="lockup" style="font-size:0.86in">%s%s</div></div>'
+             '<div class="etq"><b>Horizontal.</b> El símbolo con la palabra: la <b>L</b> es la carretera, el círculo de la <b>d</b> es la '
+             'lavadora de las lavanderías socias y el punto de la <b>i</b> es el pin, la ubicación del usuario que enciende el sistema Lavandi. '
              'Para la página web, encabezados y firmas.</div></div>'
              '<div><div class="version-caja">%s</div><div class="etq"><b>Ícono de app.</b> Cuadrado y a sangre; cada tienda redondea las esquinas.</div></div>'
              '<div><div class="version-caja" style="gap:28px">%s<div style="background:#171C21; border-radius:10px; padding:14px">%s</div></div>'
              '<div class="etq"><b>Monocromática.</b> Una sola tinta, para sellos, grabados, bordados y tamaños muy chicos.</div></div>'
-             '</div>' % (use('s-color','width:2.1in;height:1.98in'), use('s-color'), palabra('font-size:44pt'),
-                         use('s-icono','width:1.85in;height:1.85in;border-radius:22%;box-shadow:0 1px 3px rgba(14,18,22,.18)'),
+             '</div>' % (use('s-color','width:1.9in;height:1.79in'), use('s-color','','sim'), logotipo(clase='pal'),
+                         use('s-icono','width:1.7in;height:1.7in;border-radius:22%;box-shadow:0 1px 3px rgba(14,18,22,.18)'),
                          use('s-mono','width:1.55in;height:1.46in;color:#171C21'), use('s-mono','width:1.15in;height:1.08in;color:#F7F4EF'))))
 
     # 6 area de proteccion
@@ -307,18 +305,18 @@ def construir():
              'debajo de 32 px se usa la monocromática: aguanta hasta 16 px, el tamaño del ícono de una pestaña del navegador.</p></div>'
              '</div>'
              '<div class="tarjeta" style="margin-top:16px"><div class="fila" style="gap:30px; align-items:center">'
-             '<div style="flex:none; text-align:center">%s<div class="etq" style="margin-top:9px"><b>110 px</b> · a tamaño real</div></div>'
+             '<div style="flex:none; text-align:center">%s<div class="etq" style="margin-top:9px"><b>150 px</b> · a tamaño real</div></div>'
              '<div class="col"><h2>Versión horizontal</h2>'
-             '<p style="margin-bottom:6px">Se mide por el <b>ancho total</b>, y el límite lo ponen dos piezas a la vez. El <b>pin de la i</b> '
-             'deja de leerse como pin por debajo de 110 px y se convierte en un punto amarillo. El <b>símbolo</b> ocupa el 29 %% del ancho '
-             'del conjunto, así que a 110 px mide sus 32 px justos. Los dos dan el mismo número.</p>'
-             '<p class="nota" style="margin:0">En impreso, ese 29 %% contra los 20 mm del símbolo pone el mínimo en <b>70 mm</b> de ancho. '
-             'Por debajo de esos tamaños no se achica: se usa el símbolo solo.</p></div></div></div>'
+             '<p style="margin-bottom:6px">Se mide por el <b>ancho total</b>. Lo primero que se pierde son las dos piezas finas del '
+             'logotipo: el <b>tambor de la d</b> y el <b>pin de la i</b>. Por debajo de <b>150 px</b> el tambor queda como una mancha y el '
+             'pin como un punto amarillo. A ese ancho el símbolo mide 48 px, su tamaño recomendado.</p>'
+             '<p class="nota" style="margin:0">En impreso, el símbolo ocupa el 32 %% del conjunto y necesita sus 20 mm: el mínimo es '
+             '<b>65 mm</b> de ancho. Por debajo de esos tamaños no se achica: se usa el símbolo solo.</p></div></div></div>'
              % (use('s-color','width:20mm;height:18.87mm'), use('s-mono','width:12mm;height:11.32mm;color:#171C21'),
                 use('s-color','width:48px;height:45.3px'), use('s-color','width:32px;height:30.2px'),
                 use('s-mono','width:16px;height:15.1px;color:#171C21'),
-                '<span class="lockup-min" style="font-size:20.49px">%s%s</span>'
-                % (use('s-color','', 'sim'), palabra('font-size:20.49px')))))
+                '<span class="lockup" style="font-size:%.3fpx">%s%s</span>'
+                % (150 / 3.2948, use('s-color','','sim'), logotipo(clase='pal')))))
 
     # 8 fondos claros
     claros = [("#F7F4EF","Hueso","El fondo natural de la marca.",""),("#FFFFFF","Blanco","La placa se ve como una tarjeta suave.","border:1px solid #DCE0E5;"),
@@ -405,7 +403,9 @@ def construir():
              '<span style="font-weight:600">SemiBold</span><span style="font-weight:700">Bold</span></div>'
              '<p class="nota" style="margin-top:10px">Clara a cualquier tamaño. Para textos, botones, formularios y todo lo que se lee de corrido.</p></div>'
              '</div><p class="nota" style="margin-top:12px">Las dos son de uso libre y gratuito, en la app, la web y los impresos. Si alguna '
-             'no está disponible, se sustituye por la tipografía del sistema, nunca por otra fuente decorativa.</p>' % (abc, abc)))
+             'no está disponible, se sustituye por la tipografía del sistema, nunca por otra fuente decorativa.</p>'
+             '<p class="nota" style="margin-top:4px"><b>El logotipo de la palabra</b> está dibujado con <b>Berlin Sans FB Regular</b>, '
+             'convertida a curvas: es parte del dibujo, no una tipografía de uso. Ningún texto de la marca se escribe con ella.</p>' % (abc, abc)))
 
     # 15 jerarquia
     niveles = [("Portada",36,"Nunito · Black","1.2"),("Título mayor",30,"Nunito · Black","1.2"),("Título",24,"Nunito · ExtraBold","1.2"),
@@ -426,7 +426,7 @@ def construir():
 
     # 16 tono de voz
     principios = [("Tu ropa, en buenas manos","Cada pedido va a una lavandería con nombre, calificación y reseñas. Decimos quién lava."),
-                  ("Rapidez con hora","La ventana de una hora, el día y el total. Nunca “rápido” ni “en breve”."),
+                  ("Puntualidad","La ventana de una hora, el día y el total. Nunca “rápido” ni “en breve”."),
                   ("Todo a la vista","El precio antes de pesar y el estado del pedido en la app. Nada en letra chica."),
                   ("Damos la cara","Si algo sale mal, lo decimos primero y lo decimos nosotros.")]
     hechos = [("Ventana de 1 hora", "La recolección se agenda en una franja de una hora, no “en el día”."),
@@ -473,16 +473,17 @@ def construir():
                 ("lavandi-simbolo-72dpi.png","Presentaciones y documentos en pantalla. Fondo transparente."),
                 ("lavandi-icono-app.svg · -1024.png","App Store y Google Play. Cuadrado, a sangre, sin transparencia."),
                 ("lavandi-simbolo-monocromo.svg · .pdf","Una sola tinta: sellos, grabados, bordados, favicon."),
-                ("Versión horizontal","Se muestra en este manual. Sus archivos independientes se entregan por separado."),
-                ("Formato .ai","Se obtiene abriendo el PDF vectorial en Adobe Illustrator y guardándolo como .ai.")]
+                ("lavandi-logotipo.svg · .pdf","El logotipo de la palabra, vectorial. Es la pieza de la versión horizontal."),
+                ("lavandi-logotipo-300dpi.png · -72dpi.png","El logotipo de la palabra para impreso y para pantalla. Fondo transparente."),
+                ("Formato .ai","El del logotipo es el archivo del diseñador. El del símbolo se obtiene abriendo su PDF en Illustrator.")]
     ta = "".join('<tr><td class="archivo">%s</td><td>%s</td></tr>' % a for a in archivos)
     p.append(pagina(18, "16 · Archivos de la marca", "Qué archivo usar para qué",
              '<div class="fila" style="gap:34px; flex:1"><div class="col" style="flex:1.8"><table><thead><tr><th>Archivo</th><th>Para qué</th></tr></thead>'
              '<tbody>%s</tbody></table></div><div class="col"><div class="tarjeta"><h3>Ante la duda</h3><p>Usa el <b>SVG</b> en '
              'pantalla y el <b>PDF</b> para imprimir. Los dos son vectoriales y se ven nítidos a cualquier tamaño.</p>'
-             '<h3 style="margin-top:12px">Esta versión</h3><p style="margin:0">Manual de identidad <b>1.1</b>, septiembre de 2026: '
-             'recoge las observaciones de EL CLIENTE del 18 y 19 de septiembre. Cualquier cambio a la marca se registra en una '
-             'versión nueva de este documento.</p></div></div></div>' % ta))
+             '<h3 style="margin-top:12px">Esta versión</h3><p style="margin:0">Manual de identidad <b>1.2</b>, septiembre de 2026: '
+             'incorpora el logotipo de la palabra del diseñador y la segunda revisión de EL CLIENTE, del 29 de septiembre. Cualquier '
+             'cambio a la marca se registra en una versión nueva de este documento.</p></div></div></div>' % ta))
 
     assert len(p) == TOTAL, "se esperaban %d paginas, hay %d" % (TOTAL, len(p))
     html = ('<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Lavandi — Manual de identidad</title>'

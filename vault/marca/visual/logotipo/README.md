@@ -1,8 +1,8 @@
 ---
 estado: vigente
 grado: B
-fuente: lavandi-logotipo-color.png entregado por el diseñador de EL CLIENTE (C-63); medición del bitmap y verificación por diferencia de píxeles el 2026-09-15
-fecha: 2026-09-15
+fuente: lavandi-logotipo-color.png entregado por el diseñador de EL CLIENTE (C-63); medición del bitmap y verificación por diferencia de píxeles el 2026-09-15; tipografia.ai del diseñador de EL CLIENTE, recibido el 2026-09-30 (acta C-98)
+fecha: 2026-09-30
 dueño: Nadir Hadad Navarrete
 ---
 # Logotipo de Lavandi — reconstrucción vectorial
@@ -47,7 +47,7 @@ Se llegó ahí en tres pasadas: 2.95 % con las formas aproximadas a mano, 1.61 %
 
 | Archivo | Qué es |
 |---|---|
-| `lavandi-logotipo-color.png` | **Original del diseñador.** No se toca. Es la referencia contra la que se verifica todo |
+| `lavandi-logotipo-color.png` | **Original del diseñador, del símbolo.** No se toca. Es la referencia contra la que se verifica todo. *El nombre dice "logotipo" por cómo llegó; es el símbolo, no la palabra* |
 | `lavandi-logotipo-color-fondo-blanco.jpeg` | Original en JPEG. Sin transparencia; sirve de respaldo, no de entregable |
 | `lavandi-simbolo.svg` | **Maestro vectorial.** De aquí salen todos los demás formatos |
 | `lavandi-simbolo.pdf` | PDF vectorial |
@@ -56,16 +56,89 @@ Se llegó ahí en tres pasadas: 2.95 % con las formas aproximadas a mano, 1.61 %
 | `lavandi-icono-app.svg` · `.pdf` | Versión cuadrada a sangre para las tiendas |
 | `lavandi-icono-app-1024.png` | 1024×1024, **cuadrado, a sangre y sin transparencia**: App Store rechaza íconos con canal alfa y cada tienda aplica su propia máscara. Corregido el 2026-09-17; la primera versión tenía esquinas redondeadas y fondo transparente |
 | `lavandi-simbolo-monocromo.svg` · `.pdf` | Una sola tinta, con `currentColor` |
+| `lavandi-logotipo.svg` | **Logotipo de la palabra, maestro vectorial.** Extraído sin redibujar del `.ai` del diseñador. Ver abajo |
+| `lavandi-logotipo.pdf` | PDF vectorial: 15 trazos, cero imágenes |
+| `lavandi-logotipo-300dpi.png` | PNG transparente, 2480 px a 300 dpi (21 cm de ancho impreso, el ancho de la mesa del diseñador) |
+| `lavandi-logotipo-72dpi.png` | PNG transparente, 512 px a 72 dpi |
+| `lavandi-logotipo.ai` | **El archivo del diseñador, tal cual.** Trae además una muestra "avandi" y el rótulo "Berlin Sans FB regular" como texto vivo con la fuente incrustada, y una segunda mesa de trabajo sin uso. El logotipo, en curvas |
 
 **Nota técnica del monocromático:** los huecos se hacen con `fill-rule="evenodd"`, no con `mask`.
 Se probó con máscara y el PDF salía como silueta sólida: el convertidor la ignora. Con `fill-rule`
 los huecos sobreviven a la exportación, que es lo que importa para imprenta.
 
+## El logotipo de la palabra (2026-09-30)
+
+El diseñador de EL CLIENTE entregó el logotipo de la palabra: la **L** es la carretera del símbolo a toda
+la altura, la **d** lleva dentro el tambor de la lavadora y la **i** lleva el pin. Las letras `avand` y el
+asta de la i son **Berlin Sans FB Regular** convertida a curvas. Llegó en `.ai`, `.eps` y exportaciones
+PNG y JPEG; los originales están en `vault/cliente/recibido/2026-09-30/`.
+
+### Esta vez no hubo que reconstruir
+
+El `.ai` es compatible con PDF y el logotipo viene en **15 formas vectoriales y ninguna imagen pegada**:
+la L, `a v a n d`, el asta de la i, seis piezas del tambor y dos del pin. Se leyeron con un lector de PDF y
+se escribieron como trazos SVG **sin tocar un solo punto**.
+
+**Verificación por diferencia de píxeles**, igual que con el símbolo, pero en la misma rejilla: el `.ai`
+y el SVG rasterizados con el mismo motor, a 10×, sobre 1,013,760 píxeles:
+
+| Umbral | Píxeles que difieren |
+|---|---|
+| más de 8 niveles | 5 (0.0005 %) |
+| más de 32 niveles | **0** |
+| diferencia máxima | 10 niveles de 255 |
+
+Una primera comparación, recortando la zona del logotipo, dio 0.71 %: eran franjas de un píxel en todos
+los bordes por igual, el recorte cayendo entre píxeles. Con la página entera como lienzo común, desaparecen.
+
+### Colores: a la paleta oficial
+
+El diseñador usó **tres azules** y un Limón apenas distinto. Se llevaron a `tokens.json`, que es la regla
+de esta carpeta desde el símbolo:
+
+| Del diseñador | Oficial | ΔE2000 |
+|---|---|---|
+| `#2686AD` | Agua `#2E86AB` | 0.56 |
+| `#2686AE` | Agua `#2E86AB` | 0.76 |
+| `#2786AC` | Agua `#2E86AB` | 0.44 |
+| `#E8C546` | Limón `#E8C547` | 0.10 |
+| `#F7F4EF` | Hueso `#F7F4EF` | 0 |
+| `#A8D5E2` | Cielo `#A8D5E2` | 0 |
+
+Todo por debajo de 1.0, el umbral que se usa habitualmente como "apenas perceptible". Para comparar: el
+PNG del símbolo venía a 0.42 del Agua oficial.
+
+**Si el diseñador defiende su azul**, lo que cambia es la paleta en `tokens.json`, no este archivo: una
+marca con dos azules casi iguales es como se descuadra todo lo demás.
+
+### Tamaños mínimos, medidos
+
+Se rasterizó y se miró dónde deja de leerse, como se hizo con el símbolo:
+
+| Uso | Pantalla | Impreso | Qué se pierde primero |
+|---|---|---|---|
+| **Horizontal: símbolo + logotipo** (lo que hoy dice el manual) | **150 px** de ancho | **65 mm** | El tambor de la d se vuelve mancha y el pin, un punto amarillo. A 150 px el símbolo mide 48 px; impreso, el símbolo es el 32 % del conjunto y necesita sus 20 mm |
+| **El logotipo solo** (si EL CLIENTE lo elige, DD-059) | unos **100 px** | unos **40 mm** | Lo mismo: el tambor y el pin. Impreso, el aro azul del tambor mide 0.7 pt de 142.65 y no baja de 0.18 mm hasta unos 37 mm |
+
+Las letras de este logotipo son chicas para su caja: la L ocupa toda la altura y las minúsculas apenas un
+cuarto. Por eso el mínimo subió respecto de la composición anterior del manual, que pedía 110 px.
+
+### La tipografía: Berlin Sans FB
+
+Es comercial: diseño de David Berlow, © The Font Bureau, hoy de Monotype, y viene con Microsoft Office.
+**Un logotipo hecho con ella se puede registrar, siempre que quien lo dibujó tenga licencia comercial de la
+fuente** (grado E, SIN VERIFICAR; Microsoft Q&A y MyFonts, consultados el 2026-09-30). Hay que
+preguntarle al diseñador con qué licencia la usó **antes del trámite ante el IMPI** (DD-060, R-030).
+
+Lo que sí está resuelto: los archivos de esta carpeta llevan las letras en curvas, así que **nadie necesita
+la fuente para usar el logotipo**. El único archivo que la trae incrustada es `lavandi-logotipo.ai`, por la
+muestra de texto del diseñador; el repo es privado.
+
 ## Lo que todavía falta para cerrar el A.4.1
 
 | Falta | Por qué |
 |---|---|
-| **La versión horizontal con la palabra "Lavandi"** | **No se puede reconstruir.** El PNG del diseñador es solo el símbolo: la palabra no aparece en ninguna parte. Hay que pedírsela al diseñador, o componerla con Nunito ExtraBold convertida a curvas |
+| ~~**La versión horizontal con la palabra "Lavandi"**~~ **Resuelto el 2026-09-30**: el diseñador entregó el logotipo de la palabra en `.ai` y `.eps`. Lo de la derecha es el estado anterior | **No se puede reconstruir.** El PNG del diseñador es solo el símbolo: la palabra no aparece en ninguna parte. Hay que pedírsela al diseñador, o componerla con Nunito ExtraBold convertida a curvas |
 | **El archivo `.ai`** | Es formato propietario de Adobe. Se obtiene abriendo `lavandi-simbolo.pdf` en Illustrator y guardando como `.ai`: un minuto, pero hace falta Illustrator |
 
 ## Lo que hay que pedirle a EL CLIENTE por escrito

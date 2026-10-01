@@ -40,27 +40,19 @@ def definiciones():
       '</defs></svg>') % (VB, color(), VB, sin_placa(), VB, mono(), icono(), VB, mal_carreteras(), VB, mal_orden())
 
 
-# --- Piezas sueltas para componer el logotipo de la palabra (C-76) ---------------
-# EL CLIENTE pidio que la L de "Lavandi" sea la carretera del simbolo y que el punto
-# de la i sea el pin. Las dos formas se extraen del SVG maestro, no se redibujan.
+# --- Logotipo de la palabra, del disenador de EL CLIENTE (recibido el 2026-09-30) -------
+# Sustituye a la composicion que hacia este manual con la carretera, Nunito y el pin (C-76),
+# que EL CLIENTE marco "Cambiar" en la portada y en la pagina 5. Sale del archivo del
+# disenador sin redibujar: ver marca/visual/logotipo/README.md.
 
-def camino_l():
-    """Carretera oscura en L, sola. Toma el color del contexto con currentColor."""
-    p = re.search(r'<path fill="#2E86AB" d="\s*(M 273 91.*?)"\s*/>', _cuerpo(_leer('lavandi-simbolo.svg')), re.S).group(1)
-    return '<path fill="currentColor" d="%s"/>' % p
-
-def pin():
-    """Pin de mapa, solo. Conserva sus colores: Limon con el punto en Agua."""
-    c = _cuerpo(_leer('lavandi-simbolo.svg'))
-    trazo = re.search(r'(<path fill="#E8C547" d="\s*M 897 1126.*?/>)', c, re.S).group(1)
-    punto = re.search(r'(<circle cx="896" cy="983" r="30"[^>]*/>)', c).group(1)
-    return trazo + punto
-
-VB_L   = '173 91 596 1033'    # recortado exacto a la carretera oscura
-VB_PIN = '816 900 162 226'    # recortado exacto al pin
+def logotipo():
+    """Logotipo de la palabra, con sus colores. Devuelve (viewBox, cuerpo)."""
+    svg = _leer('lavandi-logotipo.svg')
+    vb = re.search(r'viewBox="([^"]*)"', svg).group(1)
+    return vb, re.search(r'<g id="lavandi-logotipo".*?</g>', _cuerpo(svg), re.S).group(0)
 
 def definiciones_palabra():
+    vb, cuerpo = logotipo()
     return ('<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>'
-            '<symbol id="s-l" viewBox="%s">%s</symbol>'
-            '<symbol id="s-pin" viewBox="%s">%s</symbol>'
-            '</defs></svg>') % (VB_L, camino_l(), VB_PIN, pin())
+            '<symbol id="s-logotipo" viewBox="%s">%s</symbol>'
+            '</defs></svg>') % (vb, cuerpo)
