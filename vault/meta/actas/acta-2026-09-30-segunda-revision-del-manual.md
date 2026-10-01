@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: C
-fuente: sesión con Nadir Hadad Navarrete del 2026-09-30. C-96 y C-97 son suyas; C-98 a C-103 transmiten las marcas de Alfredo Navarrete sobre el manual 1.1 impreso y los archivos de su diseñador, recibidos por WhatsApp el 21 y el 29 de septiembre y archivados en `vault/cliente/recibido/2026-09-30/`
+fuente: sesión con Nadir Hadad Navarrete del 2026-09-30. C-96, C-97 y C-103 son de Nadir; C-98 a C-102 transmiten las marcas de Alfredo Navarrete sobre el manual 1.1 impreso y los archivos de su diseñador, recibidos por WhatsApp el 21 y el 29 de septiembre y archivados en `vault/cliente/recibido/2026-09-30/`; C-103 transmite lo que dijo Alfredo en la llamada del mismo día
 fecha: 2026-09-30
 dueño: Nadir Hadad Navarrete
 ---
@@ -56,6 +56,7 @@ propuesta**: hay que confirmarla (DD-057).
   (la "y" tapada con tinta), escribe: "→ De las lavanderia socia y el circulo de la d. / Es la ubicacion
   [tachado] del sistema lavandi", con "del usuario" y "que enciende" intercalados debajo.
 - C-102. **Página 13: los nueve "Lavandi" de la tabla de legibilidad, circulados.** Ningún texto.
+- C-103. **Lo que dijo en la llamada.** Nadir habló con Alfredo el 2026-09-30 y lo reporta así: "para el manual de identidad la unica observación es que \"Lavandi\" debe de ser el logo del texto." Lo acompaña de una captura de la página 13 y del logotipo del diseñador: las nueve muestras de la tabla tienen que ser **el logotipo**, no la palabra escrita. Contesta DD-058.
 
 ## Lo que se aplicó y cómo se leyó
 
@@ -113,6 +114,29 @@ hora". Siempre fue un principio de puntualidad con otro nombre. **Si EL CLIENTE 
 | Pág. 13, los nueve "Lavandi" circulados (C-102) | **Falta precisión.** Esa tabla mide qué combinaciones de color sirven **para texto**; por eso las muestras son la palabra escrita en Nunito y no el logotipo. Si lo que pide es poner ahí el logotipo nuevo, la tabla deja de medir lo que mide. Y el impreso en blanco y negro hace que todas las muestras se vean grises, que es justo lo que la tabla intenta evitar. No se adivina: DD-058 |
 | El fondo hueso (C-82, DD-045) | Las dos imágenes del 21 muestran el logotipo sobre gris neutro `#F7F7F7` y sobre blanco: **no es Hueso**, así que no contestan. Sigue abierta |
 
+## Resultado de la llamada (C-103)
+
+**La página 13 se rehízo.** Meter el logotipo en las fichas de la tabla tenía un problema que no se esquivó: a
+0.36 pulgadas de alto, las minúsculas de "avandi" quedaban en unos 5 puntos y el logotipo, **debajo del tamaño
+mínimo que el propio manual exige**. El manual se habría contradicho a sí mismo. Así que:
+
+- **La tabla pasó a una cuadrícula de 3 × 3.** Cada muestra lleva el logotipo a **1.6 pulgadas: 153.6 px y
+  40.6 mm**, medido en el documento, por encima de su mínimo.
+- **El logotipo va a una sola tinta**, la del par de colores de cada muestra. Es la única forma de enseñar
+  "Tinta sobre Hueso" o "Blanco sobre Agua" con un logotipo que en color es azul y amarillo. Se deriva del SVG
+  oficial al generar el manual: el azul y el Limón pasan a la tinta; el Hueso, el Cielo y el punto del pin, al
+  color del fondo.
+- **El veredicto ahora dice qué vale para el logotipo y qué para el texto.** El logotipo es un elemento gráfico y
+  le basta 3 : 1 (WCAG 2.1): sirven siete de las nueve combinaciones. El texto normal sigue pidiendo 4.5 : 1. Las
+  cifras de contraste no cambian: son de cada par de colores.
+
+**"La única observación" no confirma, una por una, las lecturas de las páginas 4 y 5.** Las deja sin objeción.
+DD-057 se cierra así, por ausencia de observaciones, y se dice: si Alfredo vuelve sobre alguna, se cambia.
+
+**Lo que la llamada no contestó, que conste:** si la horizontal lleva el símbolo (DD-059), la licencia de Berlin
+Sans FB (DD-060), la cuenta de rondas (DD-048) ni lo pendiente de la primera ronda —el fondo hueso, el calzado, el
+estándar de cuidado y las dos páginas libres—. No se sabe si se habló de ellos: hay que preguntárselo a Nadir.
+
 ## Lo que esta ronda significa para el contrato
 
 - **Es la segunda ronda.** El 2026-09-20 se le propuso por escrito a EL CLIENTE que la primera revisión
@@ -140,7 +164,7 @@ hora". Siempre fue un principio de puntualidad con otro nombre. **Si EL CLIENTE 
 | # | Pregunta | Bloquea | Fila |
 |---|---|---|---|
 | 1 | ¿Las lecturas de las páginas 4 y 5, y la extensión de "puntualidad", son lo que quiso decir? | Mandar el manual 1.2 | DD-057 |
-| 2 | ¿Qué pide al circular los nueve "Lavandi" de la página 13? | Cerrar la tabla de legibilidad | DD-058 |
+| 2 | ~~¿Qué pide al circular los nueve "Lavandi" de la página 13?~~ **Contestada en la llamada (C-103): el logotipo** | — | DD-058, cerrada |
 | 3 | ¿La horizontal es símbolo + logotipo, o el logotipo solo? | Los archivos finales de O-01 | DD-059 |
 | 4 | ¿El diseñador tiene licencia comercial de Berlin Sans FB? ¿Se quiere como tipografía de la marca? | Registrar el logotipo ante el IMPI; usarla en app o web | DD-060 |
 

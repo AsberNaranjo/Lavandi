@@ -18,3 +18,8 @@ def veredicto(rt):
     if rt>=4.5: return ('si','Texto de cualquier tamaño')
     if rt>=3.0: return ('medio','Solo texto grande o gráficos')
     return ('no','Nunca como texto')
+def veredicto_logo(rt):
+    """Para muestras con el logotipo: es un elemento grafico y le basta 3:1; el texto normal pide 4.5:1."""
+    if rt>=4.5: return ('si','Logotipo y texto de cualquier tamaño')
+    if rt>=3.0: return ('medio','Logotipo, y texto solo grande')
+    return ('no','Ni logotipo ni texto')

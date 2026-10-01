@@ -29,13 +29,14 @@ lectura y la clasificación, en `vault/meta/actas/acta-2026-09-30-segunda-revisi
 | "Rapidez" por "puntualidad" | **Aplicado** donde lo marcó, y **extendido** a los principios del manual y de la guía para que no se contradigan. A confirmar |
 | Página 4: otro orden y otros textos | **Aplicado**: 1 perilla, 2 ida, 3 pin, 4 vuelta, 5 lavadora. Los textos son una **lectura propuesta** de marcas con tachaduras: a confirmar (DD-057) |
 | Página 5: la explicación de la horizontal | **Aplicado**, también como lectura propuesta |
-| Página 13: los nueve "Lavandi" circulados, sin texto | **No aplicado**: falta saber qué pide (DD-058) |
+| Página 13: los nueve "Lavandi" circulados, sin texto | **Aplicado después de la llamada** (C-103): las muestras son el logotipo. La tabla pasó a una cuadrícula de 3 × 3 para que el logotipo cupiera a 41 mm, por encima de su mínimo |
 
 **Esta fue la segunda ronda.** Si se sostiene lo que se le propuso por escrito el 2026-09-20, fue la última
 incluida en el A.1 (DD-048, R-023).
 
-**Antes de mandar el 1.2** hay que confirmar las lecturas de las páginas 4 y 5 (DD-057) y decidir si la
-horizontal lleva el símbolo (DD-059).
+**En la llamada del 2026-09-30** la única observación de EL CLIENTE al manual fue la página 13 (C-103), ya
+aplicada. Lo que sigue abierto: si la horizontal lleva el símbolo (DD-059) y qué se notifica como entrega,
+porque el criterio de aceptación del branding incluye las 12 plantillas, que no existen (DD-050).
 
 ### Primera ronda — versión 1.1
 
@@ -135,6 +136,8 @@ Todo lo de abajo se midió en la versión **1.2**, no se afirma de memoria:
   2.55 a 2.25 pulgadas, en vez de recortar lo que dijo EL CLIENTE.
 - **El lockup de la página 7 mide lo que dice**: 149.98 px de ancho con el símbolo a 48.05 px, el
   32.04 %. Medido en el documento.
+- **Los nueve logotipos de la página 13 miden 153.6 px, 40.6 mm**, por encima del mínimo del logotipo
+  solo. La página queda con 88 px de holgura. Son 158 trazos vectoriales y ninguna imagen.
 - **Revisión visual de las 18 páginas** en el PDF rasterizado, no en el HTML.
 - **La portada y la página 18 dicen la misma versión**, la 1.2. En la 1.1 llegaron a no coincidir.
 

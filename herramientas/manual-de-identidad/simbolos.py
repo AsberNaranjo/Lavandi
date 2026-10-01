@@ -51,8 +51,25 @@ def logotipo():
     vb = re.search(r'viewBox="([^"]*)"', svg).group(1)
     return vb, re.search(r'<g id="lavandi-logotipo".*?</g>', _cuerpo(svg), re.S).group(0)
 
+def logotipo_mono():
+    """El logotipo a una sola tinta, para mostrarlo sobre cualquier par de colores (pagina 13).
+    Agua y Limon pasan a la tinta (currentColor); Hueso y Cielo, al color del fondo (--papel). El punto del
+    pin es la excepcion: en color es Agua, pero va encima del pin, asi que a una tinta tiene que ser papel o
+    desaparece. Es la ultima forma del archivo."""
+    vb, cuerpo = logotipo()
+    formas = re.findall(r'<path [^>]*/>', cuerpo)
+    assert len(formas) == 15, 'el logotipo debia tener 15 formas, tiene %d' % len(formas)
+    for i, p in enumerate(formas):
+        color = re.search(r'fill="(#[0-9A-F]{6})"', p).group(1)
+        tinta = color in ('#2E86AB', '#E8C547') and i != len(formas) - 1
+        nuevo = p.replace('fill="%s"' % color, 'fill="currentColor"' if tinta else 'style="fill:var(--papel,#F7F4EF)"', 1)
+        cuerpo = cuerpo.replace(p, nuevo, 1)
+    return vb, cuerpo.replace('id="lavandi-logotipo"', 'id="lavandi-logotipo-mono"', 1)
+
 def definiciones_palabra():
     vb, cuerpo = logotipo()
+    vbm, mono = logotipo_mono()
     return ('<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>'
             '<symbol id="s-logotipo" viewBox="%s">%s</symbol>'
-            '</defs></svg>') % (vb, cuerpo)
+            '<symbol id="s-logotipo-mono" viewBox="%s">%s</symbol>'
+            '</defs></svg>') % (vb, cuerpo, vbm, mono)

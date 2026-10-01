@@ -1,5 +1,5 @@
 ---
-estado: borrador
+estado: superseded
 grado: mixto
 fuente: acta 2026-09-30, C-96 a C-102 (C); NSV-2026-001-v8.pdf:14:A.1 y :7:Cláusula IV (A); marca/visual/logotipo/README.md (B); E: Microsoft Q&A y MyFonts sobre Berlin Sans FB, consultados el 2026-09-30, SIN VERIFICAR
 fecha: 2026-09-30
@@ -7,7 +7,9 @@ dueño: Nadir Hadad Navarrete
 ---
 # Nota ejecutiva — Respuesta a la segunda revisión del manual
 
-**BORRADOR. No se ha enviado.** La envía Nadir.
+**SUPERADA. No se envió.** La coordinación se hizo por llamada el 2026-09-30 (C-103). Lo que quedó acordado va por
+escrito en `2026-09-30-confirmacion-de-la-llamada.md`. Esta nota se conserva porque sus preguntas siguen siendo
+el guion de lo que la llamada no cerró.
 
 Sirve para tres cosas: devolverle el manual 1.2 con su logotipo nuevo, **confirmar las lecturas** de las
 marcas que tenían tachaduras antes de dar el manual por bueno, y dejar dicho por escrito que ésta fue la

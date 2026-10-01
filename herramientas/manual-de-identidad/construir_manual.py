@@ -160,6 +160,15 @@ table { width: 100%; border-collapse: collapse; }
 th { text-align: left; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 9pt; letter-spacing: .05em;
      text-transform: uppercase; color: #515A64; padding: 6px 10px; border-bottom: 2px solid #DCE0E5; }
 td { padding: 6px 10px; border-bottom: 1px solid #E6E1D8; vertical-align: middle; font-size: 10.5pt; }
+/* pagina 13: cuadricula de muestras con el logotipo (C-103). El logotipo va a 1.6in = 41 mm = 154 px,
+   por encima de su minimo; en las fichas de la tabla anterior habria quedado a la mitad */
+.muestras { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px 14px; }
+.mt-fondo { border-radius: 9px; height: 1.12in; display: flex; align-items: center; justify-content: center; }
+.mt-fondo svg { width: 1.6in; height: 0.7756in; }
+.mt-dato { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-top: 6px; font-size: 9.5pt; }
+.mt-dato b { font-family: 'Nunito', sans-serif; font-weight: 800; }
+.mt-dato span { font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+.mt .ver { font-size: 9pt; margin-top: 2px; }
 .chip { display: inline-flex; align-items: center; justify-content: center; width: 1.05in; height: 0.36in; border-radius: 6px;
         font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13pt; }
 .ver { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
@@ -371,22 +380,25 @@ def construir():
              ("#171C21","#A8D5E2","Tinta sobre Cielo"),("#2E86AB","#F7F4EF","Agua sobre Hueso"),
              ("#FFFFFF","#2E86AB","Blanco sobre Agua"),("#E8C547","#F7F4EF","Limón sobre Hueso"),
              ("#FFFFFF","#E8C547","Blanco sobre Limón")]
-    filas = []
+    muestras = []
     for fg, bg, nom in pares:
-        rt = C.ratio(fg, bg); cl, txt = C.veredicto(rt)
+        rt = C.ratio(fg, bg); cl, txt = C.veredicto_logo(rt)
         borde = 'border:1px solid #DCE0E5;' if bg in ("#F7F4EF","#FFFFFF") else ''
-        filas.append('<tr><td><span class="chip" style="background:%s;color:%s;%s">Lavandi</span></td><td>%s</td>'
-                     '<td style="font-variant-numeric:tabular-nums; font-weight:700">%.2f : 1</td>'
-                     '<td><span class="ver"><span class="pt %s"></span>%s</span></td></tr>' % (bg, fg, borde, nom, rt, cl, txt))
+        muestras.append('<div class="mt"><div class="mt-fondo" style="background:%s;color:%s;--papel:%s;%s">'
+                        '<svg aria-hidden="true"><use href="#s-logotipo-mono"/></svg></div>'
+                        '<div class="mt-dato"><b>%s</b><span>%.2f : 1</span></div>'
+                        '<div class="ver"><span class="pt %s"></span>%s</div></div>' % (bg, fg, bg, borde, nom, rt, cl, txt))
     p.append(pagina(13, "11 · Color y legibilidad", "Que todo se pueda leer",
-             '<div class="fila" style="gap:30px"><div class="col" style="flex:1.7"><table><thead><tr><th>Muestra</th><th>Combinación</th>'
-             '<th>Contraste</th><th>Uso permitido</th></tr></thead><tbody>%s</tbody></table></div>'
+             '<div class="fila" style="gap:26px"><div class="col" style="flex:2.3"><div class="muestras">%s</div></div>'
              '<div class="col"><div class="tarjeta"><h3>La regla</h3><p>El texto normal necesita un contraste de al menos '
-             '<b>4.5 : 1</b> con su fondo. El texto grande, de 24 px o más, y los elementos gráficos, <b>3 : 1</b>.</p>'
+             '<b>4.5 : 1</b> con su fondo; el texto grande, de 24 px o más, <b>3 : 1</b>.</p>'
+             '<p><b>El logotipo es un elemento gráfico: le basta 3 : 1.</b> Por eso sirven las siete primeras combinaciones y '
+             'las dos de Limón, nunca.</p>'
              '<h3 style="margin-top:12px">Las dos que más se confunden</h3><p><b>Agua no sirve para texto normal.</b> Para eso existe '
              'Agua Profundo, que pasa el mínimo por muy poco: cualquier retoque que lo aclare lo rompe.</p>'
-             '<p style="margin:0"><b>Limón nunca es color de texto, pero sí es buen fondo</b> para texto en tinta.</p></div>'
-             '<p class="nota" style="margin-top:10px">Contrastes calculados con la fórmula de WCAG 2.1.</p></div></div>' % "".join(filas)))
+             '<p style="margin:0"><b>Limón nunca es color del logotipo ni del texto, pero sí es buen fondo</b> para los dos en tinta.</p></div>'
+             '<p class="nota" style="margin-top:10px">Las muestras llevan el logotipo a una sola tinta y a 41 mm de ancho, para que se '
+             'lean el tambor de la d y el pin. Contrastes calculados con la fórmula de WCAG 2.1.</p></div></div>' % "".join(muestras)))
 
     # 14 tipografia
     abc = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ<br>abcdefghijklmnñopqrstuvwxyz<br>0123456789 · ¿? ¡! $ %'
@@ -482,7 +494,7 @@ def construir():
              '<tbody>%s</tbody></table></div><div class="col"><div class="tarjeta"><h3>Ante la duda</h3><p>Usa el <b>SVG</b> en '
              'pantalla y el <b>PDF</b> para imprimir. Los dos son vectoriales y se ven nítidos a cualquier tamaño.</p>'
              '<h3 style="margin-top:12px">Esta versión</h3><p style="margin:0">Manual de identidad <b>1.2</b>, septiembre de 2026: '
-             'incorpora el logotipo de la palabra del diseñador y la segunda revisión de EL CLIENTE, del 29 de septiembre. Cualquier '
+             'incorpora el logotipo de la palabra del diseñador y la segunda revisión de EL CLIENTE, del 29 y el 30 de septiembre. Cualquier '
              'cambio a la marca se registra en una versión nueva de este documento.</p></div></div></div>' % ta))
 
     assert len(p) == TOTAL, "se esperaban %d paginas, hay %d" % (TOTAL, len(p))
