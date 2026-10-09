@@ -18,8 +18,8 @@ las respuestas (C-108). Es la sesión de asesoría que el contrato le pide a Nad
 
 **La que se usa en la reunión** es la página con el diseño de Lavandi y la firma de Nazmelia (C-110):
 <https://claude.ai/artifact/Wo2rZFbp5f7Rz2jqrX7Ng5>. Ahí se anotan las respuestas. Se arma con
-`herramientas/guia-reunion/`, y su README dice dónde quedan las respuestas. La primera copia, sin diseño, está en
-Claude Docs: <https://claude.ai/artifact/NNa3x2VL9ZBUVVk9UA3c7X>. Si se cambia el texto, se cambia aquí primero.
+`herramientas/guia-reunion/`, y su README dice dónde quedan las respuestas. La primera copia, sin diseño, se borró a
+pedido de Nadir para no tener dos lugares donde anotar (C-111). Si se cambia el texto, se cambia aquí primero.
 
 ---
 

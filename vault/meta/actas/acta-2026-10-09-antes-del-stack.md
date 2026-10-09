@@ -137,6 +137,8 @@ Las veinte de la sala. Las que más bloquean:
   acompañarlo en el entendimiento del mismo, sí, prepará el borrador con el documento aparte."
 - C-110. **El estilo de la guía:** "Y si le das un estilo de "lavandi" digno del proyecto + un poco de
   "nazmelia"?"
+- C-111. **Borrar la copia sin diseño y cerrar el aviso del branding:** "sí, bórrala y cierra el aviso del
+  branding"
 
 ### Lo que Claude respondió a C-108
 
@@ -153,6 +155,8 @@ Nadir, quien la abre lee todo lo escrito en ella, y la regla del proyecto pide u
 | 7 | La guía lleva solo las preguntas del cliente, sin fechas, y es material para una reunión: Nadir la lee con Alfredo y anota sus respuestas | enviarla / usarla en reunión | Nadir (C-109) | la guía y su copia editable: <https://claude.ai/artifact/NNa3x2VL9ZBUVVk9UA3c7X> |
 | 8 | El aviso del retraso del desarrollo va en un documento aparte, sin fechas, y lo envía Nadir | dentro de la guía / aparte | Nadir (C-109) | `cliente/comunicaciones/2026-10-09-aviso-de-retraso-del-desarrollo.md` |
 | 9 | La guía lleva el diseño de Lavandi, y la firma de Nazmelia **solo en el pie**, como autor, separada de la marca del producto | sin diseño / mezcladas / Lavandi con la firma aparte | Nadir pide el estilo (C-110); Claude propone cómo separarlas, por la regla de no mezclar Nazmelia con la marca del producto (`CLAUDE.md` §1) | <https://claude.ai/artifact/Wo2rZFbp5f7Rz2jqrX7Ng5>; `herramientas/guia-reunion/` |
+| 10 | Se borra la primera copia de la guía, la que no tenía diseño, para no tener dos lugares donde anotar | conservarla / borrarla | Nadir (C-111) | queda solo <https://claude.ai/artifact/Wo2rZFbp5f7Rz2jqrX7Ng5>; el texto sigue en el vault |
+| 11 | Se cierra sin enviar el aviso de retraso del branding (DD-036): el branding ya se entregó | enviarlo tarde / cerrarlo | Nadir (C-111) | `cliente/comunicaciones/2026-09-09-aviso-de-retraso-branding.md`, ahora `superseded` |
 
 Al preparar la guía se agregó una pregunta del cliente que la sala no tenía: **P-20, qué le ofrece Lavandi a la
 lavandería**, que sale de RF-20 y LC-03. P-07 y P-11 quedan cerradas con C-109.

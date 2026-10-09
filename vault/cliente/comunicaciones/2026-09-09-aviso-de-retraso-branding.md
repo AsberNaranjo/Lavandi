@@ -1,5 +1,5 @@
 ---
-estado: borrador
+estado: superseded
 grado: A
 fuente: NSV-2026-001-v8.pdf:5-6:Cláusula II; :14:ANEXO A, Sección A.1; acta C-40 y C-42
 fecha: 2026-09-09
@@ -7,7 +7,9 @@ dueño: Nadir Hadad Navarrete
 ---
 # Aviso de retraso previsto — Entregable 1, branding
 
-**BORRADOR. No se ha enviado.** Este documento **no es opcional**: la Cláusula II obliga a EL PRESTADOR a
+**CERRADO SIN ENVIAR (C-111, 2026-10-09).** El branding se entregó y el manual quedó sin observaciones (C-103): este aviso perdió su objeto. Se conserva como registro. El aviso vigente es el del desarrollo: `2026-10-09-aviso-de-retraso-del-desarrollo.md`.
+
+**BORRADOR original. No se envió.** Este documento **no es opcional**: la Cláusula II obliga a EL PRESTADOR a
 notificar por escrito con un mínimo de cuarenta y ocho horas de anticipación cualquier retraso previsto. Es
 también lo que deja asentado que el retraso **no es imputable a EL PRESTADOR**, que es lo que protege el
 calendario y los pagos.
@@ -91,7 +93,7 @@ el aviso y esperas su criterio, la sexta lista tiene tres nombres y una fecha.
 
 | Campo | Valor |
 |---|---|
-| Enviado el | pendiente |
+| Enviado el | no se envió; cerrado por C-111 |
 | Canal | pendiente. Conviene un medio con acuse: correo, no WhatsApp |
 | Destinatario | Alfredo Navarrete, interlocutor único |
 | Cláusula que cumple | II, aviso de retraso con 48 horas |

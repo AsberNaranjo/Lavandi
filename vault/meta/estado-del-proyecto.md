@@ -96,7 +96,7 @@ Las obligaciones y sus criterios son los de `contrato/obligaciones-ejecutivas.md
 | O-25 | no aplica todavía | El apoyo con contenido es cortesía aparte (C-71) |
 | O-26 | en curso | `arquitectura/modelo-multi-plaza.md`: criterio de aceptación propuesto |
 | O-27 | no aplica todavía | — |
-| O-28 | en curso | Inició el 7 de septiembre. El aviso escrito del retraso del branding no se envió (DD-036, vencida) |
+| O-28 | en curso | Inició el 7 de septiembre. El aviso del retraso del branding se cerró sin enviar porque el branding ya se entregó (DD-036, C-111). El del desarrollo tiene borrador y lo envía Nadir (DD-064) |
 | O-29 | sin registro | `cliente/reportes-semanales/` vacío. El calendario pone el desarrollo desde la semana 4 |
 | O-30 | no aplica todavía | Al término y una vez liquidado |
 | O-31 | sin registro | `cliente/notificaciones-de-entrega/` vacío (DD-050) |

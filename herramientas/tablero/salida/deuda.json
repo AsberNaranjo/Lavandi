@@ -512,17 +512,17 @@
  {
   "id": "DD-036",
   "num": 36,
-  "decision": "¿Nadir envía el aviso de retraso del entregable 1? La Cláusula II exige notificar por escrito con 48 h y es l…",
-  "quien": "Nadir",
-  "bloquea": "Protección de calendario y de los pagos (Cláusula II)",
-  "fase": "3",
-  "limite": "2026-09-10",
-  "limite_fecha": "2026-09-10",
-  "abierta": true,
-  "vencida": true,
-  "dias_vencida": 29,
-  "contractual": true,
-  "estado": "abierta — contractual"
+  "decision": "¿Nadir envía el aviso de retraso del entregable 1?",
+  "quien": "",
+  "bloquea": "",
+  "fase": "",
+  "limite": "",
+  "limite_fecha": null,
+  "abierta": false,
+  "vencida": false,
+  "dias_vencida": null,
+  "contractual": false,
+  "estado": "Cerrada sin enviar"
  },
  {
   "id": "DD-037",
