@@ -62,7 +62,7 @@ las respuestas con `ArtifactData`: `list` de la colección `preguntas` y `get` d
 - Formato de cada turno: fase y punto · de tres a siete preguntas numeradas · qué escribiste, con rutas ·
   pendientes por respuesta · decisiones que requieren a Nadir · siguiente acción única.
 
-**Lo que viene del cliente.** Nadir tiene una guía para reunirse con él: `vault/cliente/comunicaciones/2026-10-09-guia-de-reunion-decisiones-del-negocio.md` (copia editable: <https://claude.ai/artifact/NNa3x2VL9ZBUVVk9UA3c7X>). Cuando traiga las respuestas, se transcriben a un acta como dichas por EL CLIENTE, se le mandan por escrito para que las confirme, y después se pasan a la sala (P-01 a P-06, P-19 y P-20). Las decisiones de la Fase 6 que dependen de ellas esperan esa confirmación.
+**Lo que viene del cliente.** Nadir tiene una guía para reunirse con él: `vault/cliente/comunicaciones/2026-10-09-guia-de-reunion-decisiones-del-negocio.md` (la página que se usa en la reunión: <https://claude.ai/artifact/Wo2rZFbp5f7Rz2jqrX7Ng5>; sus respuestas quedan en `respuestas/q1` a `q8`, ver `herramientas/guia-reunion/README.md`). Cuando traiga las respuestas, se transcriben a un acta como dichas por EL CLIENTE, se le mandan por escrito para que las confirme, y después se pasan a la sala (P-01 a P-06, P-19 y P-20). Las decisiones de la Fase 6 que dependen de ellas esperan esa confirmación.
 
 **Al cerrar cada sesión:** actualiza `vault/meta/estado-del-proyecto.md`, corre
 `python herramientas/tablero/construir_tablero.py <fecha>` y sube al tablero los JSON que cambiaron

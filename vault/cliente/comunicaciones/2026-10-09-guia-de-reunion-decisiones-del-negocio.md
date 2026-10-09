@@ -16,8 +16,10 @@ las respuestas (C-108). Es la sesión de asesoría que el contrato le pide a Nad
 - Sin fechas, ni de compromiso ni de ningún tipo.
 - Lenguaje llano, sin palabras técnicas, para alguien ajeno a la tecnología.
 
-La copia editable para la reunión está en Claude Docs: <https://claude.ai/artifact/NNa3x2VL9ZBUVVk9UA3c7X>, "Guía para la reunión con Alfredo". Si se
-cambia el texto, se cambia aquí primero.
+**La que se usa en la reunión** es la página con el diseño de Lavandi y la firma de Nazmelia (C-110):
+<https://claude.ai/artifact/Wo2rZFbp5f7Rz2jqrX7Ng5>. Ahí se anotan las respuestas. Se arma con
+`herramientas/guia-reunion/`, y su README dice dónde quedan las respuestas. La primera copia, sin diseño, está en
+Claude Docs: <https://claude.ai/artifact/NNa3x2VL9ZBUVVk9UA3c7X>. Si se cambia el texto, se cambia aquí primero.
 
 ---
 
@@ -225,6 +227,7 @@ Conekta descontada. Son cifras **de ejemplo del contrato**, no del mercado. Si A
 contra los $35 de C-31. Es una cuenta, no una cotización.
 
 **Después de la reunión:**
-1. Transcribe sus respuestas a un acta, como lo que dijo EL CLIENTE, con la fecha de la reunión.
+1. Las respuestas quedan en la página, en `respuestas/q1` a `q8`. Se transcriben a un acta, como lo que dijo EL
+   CLIENTE, con la fecha de la reunión.
 2. Mándale el resumen por escrito para que lo confirme. Hasta que lo confirme, no se construye sobre ellas.
 3. La sesión de la Fase 6 pasa las respuestas a la sala (P-01 a P-06, P-19 y P-20) y cierra las filas de la deuda.
