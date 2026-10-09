@@ -1,0 +1,12 @@
+{
+ "id": "LG-01",
+ "orden": 1,
+ "servicio": "Uber Envíos",
+ "torreon": "Sí, con página propia; menciona recoger tintorería",
+ "laguna": "Gómez Palacio sí; Lerdo no confirmado",
+ "durango": "Sí, con página propia",
+ "api": "No: se pide desde la app",
+ "precio": "No publicado. Auto hasta 20 kg y moto hasta 10 kg, paquete sellado",
+ "confianza": "media-alta",
+ "fuente": "https://www.uber.com/mx/es/b/courier-services/torreon-co-mx/"
+}

@@ -1,0 +1,12 @@
+{
+ "id": "RF-10",
+ "orden": 10,
+ "nombre": "Laundryheap",
+ "donde": "Reino Unido y 16 países; en la Ciudad de México solo colonias centrales",
+ "modelo": "Plataforma: lavado tercerizado y choferes contratistas",
+ "estado": "vive",
+ "que_paso": "Es el referente vivo más parecido a Lavandi, y solo opera en megaciudades. En la Ciudad de México: pedido mínimo de $450, desde $320 por 6 kg, recolección y entrega gratis. Compró a Laundrapp y a GetLavado. Rentabilidad sin confirmar: los datos públicos se contradicen",
+ "leccion": "El modelo de tres lados que sigue vivo depende de densidad de megaciudad, de clientes empresa y de comprar a los que caen",
+ "confianza": "media-alta",
+ "fuente": "https://www.laundryheap.com/es-mx/ciudad-de-mexico · https://tech.eu/2024/08/01/uk-based-laundryheap-breaks-into-latam-with-new-acquisition/"
+}

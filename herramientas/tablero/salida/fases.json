@@ -52,8 +52,8 @@
   "orden": 7,
   "fase": "6",
   "nombre": "Stack",
-  "estado": "detenida",
-  "evidencia": "arquitectura/matriz-de-criterios-stack.md en borrador, esperando que Nadir ajuste los pesos. Cero de los trece ADRs (0002 a 0014). C-94: la parte técnica se iba a seguir en otra conversación; no hay registro de ella en el vault"
+  "estado": "en curso",
+  "evidencia": "Desde el 2026-10-09 empieza por un paso previo: el planteamiento crítico, en arquitectura/planteamiento-fase-6.md y en la sala (https://claude.ai/artifact/WN6jmpKuxSkgFrf8GDAXDB), con 19 preguntas en seis pasos (C-105 a C-107). La matriz sigue en borrador esperando los pesos; cero de los catorce ADRs (0002 a 0015). DD-062 sigue abierta: la conversación técnica de C-94 no dejó rastro"
  },
  {
   "orden": 8,

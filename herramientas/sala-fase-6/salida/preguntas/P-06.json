@@ -1,0 +1,11 @@
+{
+ "id": "P-06",
+ "orden": 6,
+ "paso": 2,
+ "por_que": "El territorio del contrato es todo el estado de Durango más Torreón y Matamoros. Abrir dos plazas a la vez divide la densidad, y la densidad es lo que abarata cada viaje. El sistema nace multi-plaza (O-26), así que esto es una decisión de operación, no de software.",
+ "si_mala": "Dos mapas medio vacíos en lugar de uno lleno.",
+ "evidencia": "C-33, sin oferta propia en las dos plazas. Ninguna meta de lanzamiento por plaza.",
+ "responde": "EL CLIENTE",
+ "bloquea": "El orden del reclutamiento y la prueba con lavanderías reales.",
+ "pregunta": "¿En qué plaza se arranca de verdad?"
+}

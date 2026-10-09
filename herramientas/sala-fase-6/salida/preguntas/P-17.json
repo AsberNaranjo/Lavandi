@@ -1,0 +1,11 @@
+{
+ "id": "P-17",
+ "orden": 18,
+ "paso": 5,
+ "por_que": "Al pago íntegro el cliente recibe el código, y alguien que no eres tú tendrá que mantenerlo. Eso cabe en parte en \"riesgo de proveedor único y ruta de salida\", pero no dice si hay gente en México que conozca esa tecnología.",
+ "si_mala": "Se elige lo más rápido para ti y el cliente hereda algo que nadie más en su ciudad sabe mantener.",
+ "evidencia": "`matriz-de-criterios-stack.md`: seis criterios, dos propuestas de pesos (2026-09-11 y 2026-09-25).",
+ "responde": "Nadir",
+ "bloquea": "Los pesos.",
+ "pregunta": "¿Los seis criterios de la matriz son los correctos, o falta uno?"
+}

@@ -39,7 +39,7 @@ haya hecho. Si se hizo, se asienta en un acta y aquí cambia el estado.
 | 4 | Design system | cerrada con pendientes | `design-system/design-system.md` `vigente`; tokens, componentes y muestra. Abierta DD-039: si la v1 lleva modo claro y oscuro |
 | 5 | Arquitectura C4 | cerrada con pendientes | C1, C2 y C3 en `borrador`; ADR-0001. Abierta DD-040: dónde vive el panel de administración |
 | 5-bis | Análisis funcional | cerrada | `contrato/inventario-funcional.md` `vigente`: 76 funciones. Su veredicto, con la estimación media: **no está listo** (§7) |
-| 6 | Stack | detenida | `arquitectura/matriz-de-criterios-stack.md` en `borrador`, esperando que Nadir ajuste los pesos. Cero de los trece ADRs (0002 a 0014). C-94: la parte técnica se iba a seguir en otra conversación; no hay registro de ella en el vault |
+| 6 | Stack | en curso | Desde el 2026-10-09 empieza por un paso previo: el planteamiento crítico, en `arquitectura/planteamiento-fase-6.md` y en la sala (https://claude.ai/artifact/WN6jmpKuxSkgFrf8GDAXDB), con 19 preguntas en seis pasos (C-105 a C-107). La matriz sigue en `borrador` esperando los pesos; cero de los catorce ADRs (0002 a 0015). DD-062 sigue abierta: la conversación técnica de C-94 no dejó rastro |
 | 7 | Formas de trabajo | sin empezar | `vault/formas-de-trabajo/` vacío |
 | 8 | Instrumental de Claude | sin empezar | `.claude/agents/` y `.claude/skills/` vacíos |
 
@@ -134,11 +134,12 @@ Ordenado por lo que más bloquea. Es la respuesta corta a "¿qué sigue?". La fe
 
 | # | Acción | Quién | Qué desbloquea | Fecha límite | De dónde sale la fecha |
 |---|---|---|---|---|---|
-| 1 | Ajustar los pesos de la matriz de stack y cerrar la Fase 6 con sus trece ADRs | Nadir, con Claude | Las Fases 7 y 8, y con ellas el arranque del desarrollo | 2026-09-27 | El calendario pide arquitectura, stack y formas de trabajo cerradas antes de la semana 4 |
+| 1 | Responder la sala de la Fase 6 en una sesión propia: si el modelo es el correcto, si cabe, construir o comprar (DD-063) y, al final, los pesos. Después, candidatos y ADRs | Nadir, con Claude | Las Fases 7 y 8, y con ellas el arranque del desarrollo | 2026-09-27 | El calendario pide arquitectura, stack y formas de trabajo cerradas antes de la semana 4 |
 | 2 | Decidir si la v1 lleva modo claro y oscuro (DD-039) y dónde vive el panel de administración (DD-040) | Nadir | Dos ADRs de la Fase 6 y el diseño de pantallas | 2026-09-18 | Límite sugerido de DD-040 |
 | 3 | Confirmar las horas reales por semana para el producto (repregunta de C-91, supuesto S-006) | Nadir | Saber si el alcance cabe: hoy, con la estimación media, no está listo | 2026-10-11 | Fin de la semana 5 |
-| 4 | Pedir por escrito a EL CLIENTE el estado de los trámites del B.10 | Nadir | La publicación en las tiendas y los cobros en producción, de los que depende el pago 2 | 2026-10-11 | La cuenta de Apple toca en las semanas 5 y 6 |
-| 5 | Notificar por correo la entrega parcial del branding: logotipo, paleta, tipografías, manual y guía | Nadir | Que lo terminado quede con fecha cierta (DD-050) | 2026-10-11 | Fin de la semana 5 |
-| 6 | Empezar las 12 plantillas en Canva, en una cuenta a nombre del cliente | Nadir, con Claude | El criterio de aceptación del branding (A.4.1) | 2026-11-08 | Antes de la semana 10 (C-73) |
-| 7 | Empezar el reporte semanal a EL CLIENTE | Nadir | La comunicación semanal durante el desarrollo (O-29) | 2026-10-09 | El calendario pone el desarrollo desde la semana 4 |
-| 8 | Preguntar al diseñador con qué licencia usó Berlin Sans FB, y hacer la búsqueda fonética ante el IMPI | Nadir | El registro de la marca (DD-060, DD-030) | sin fecha | Antes del trámite ante el IMPI |
+| 4 | Avisar por escrito a EL CLIENTE que el desarrollo va atrasado (RN-34, DD-064). Borrador en `vault/cliente/comunicaciones/`; lo envía Nadir | Nadir | Que el retraso quede explicado por escrito | 2026-10-11 | El contrato pide 48 h de aviso; el retraso existe desde el 2026-09-28 |
+| 5 | Pedir por escrito a EL CLIENTE el estado de los trámites del B.10 | Nadir | La publicación en las tiendas y los cobros en producción, de los que depende el pago 2 | 2026-10-11 | La cuenta de Apple toca en las semanas 5 y 6 |
+| 6 | Notificar por correo la entrega parcial del branding: logotipo, paleta, tipografías, manual y guía | Nadir | Que lo terminado quede con fecha cierta (DD-050) | 2026-10-11 | Fin de la semana 5 |
+| 7 | Empezar las 12 plantillas en Canva, en una cuenta a nombre del cliente | Nadir, con Claude | El criterio de aceptación del branding (A.4.1) | 2026-11-08 | Antes de la semana 10 (C-73) |
+| 8 | Empezar el reporte semanal a EL CLIENTE | Nadir | La comunicación semanal durante el desarrollo (O-29) | 2026-10-09 | El calendario pone el desarrollo desde la semana 4 |
+| 9 | Preguntar al diseñador con qué licencia usó Berlin Sans FB, y hacer la búsqueda fonética ante el IMPI | Nadir | El registro de la marca (DD-060, DD-030) | sin fecha | Antes del trámite ante el IMPI |

@@ -87,6 +87,12 @@ Ver `CLAUDE.md`, sección 3. Formatos de cita:
 - El estado de fases, actividades, obligaciones, pagos y trámites vive en `meta/estado-del-proyecto.md`, con vocabulario fijo y evidencia por fila. Si cambia un estado, se cambia ahí primero.
 - **No se comparte con EL CLIENTE tal como está**: muestra deuda y riesgos. Para el cliente haría falta otra versión, sin esas pestañas, asentada antes en un acta (misma regla que el espejo de Notion, C-28).
 
+## Salas de decisión
+- Una **sala** es una página donde Nadir responde las preguntas de una fase (la primera: <https://claude.ai/artifact/WN6jmpKuxSkgFrf8GDAXDB>, Fase 6). Como el tablero, sus preguntas salen del vault y se rehacen con un generador.
+- **Lo que Nadir escribe en una sala no es grado C todavía.** Sube a C cuando la sesión lo transcribe literal a un acta con fecha, igual que un mensaje de WhatsApp. La pregunta queda entonces `cerrada`, con su `C-NN`.
+- Al actualizar una sala, lo que ya existe se actualiza con `update`, nunca con `set`, para no borrar respuestas.
+- No se comparte con EL CLIENTE.
+
 ## Git
 `main`. Un commit por fase cerrada (`Fase N: …`); trabajo intermedio `wip(fase-N): …`. Convención de desarrollo en Fase 7.
 

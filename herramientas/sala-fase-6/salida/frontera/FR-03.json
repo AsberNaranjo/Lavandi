@@ -1,0 +1,8 @@
+{
+ "id": "FR-03",
+ "orden": 3,
+ "titulo": "Lo que se entrega se cede",
+ "que_dice": "Al pago íntegro se ceden al cliente los derechos patrimoniales sobre código, diseños y contenidos; EL PRESTADOR conserva sus componentes de uso general. Cuentas y licencias van a nombre del cliente.",
+ "cita": "`NSV-2026-001-v8.pdf:10:Cláusula IX`; O-30; BR-08; RN-20.",
+ "que_implica": "Cualquier código comprado tiene que poder entregarse y operarse a nombre del cliente. Un servicio que no da el código fuente, o una licencia que no permite entregarlo, choca con esto. Es la puerta G-5."
+}

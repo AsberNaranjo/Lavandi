@@ -1,0 +1,8 @@
+{
+ "id": "FR-04",
+ "orden": 4,
+ "titulo": "Lo que el Módulo C excluye",
+ "que_dice": "Sin asignación automática de pedidos, sin optimización de rutas, sin GPS continuo fuera de un pedido activo, sin liquidaciones automáticas a repartidores, sin verificación documental.",
+ "cita": "`NSV-2026-001-v8.pdf:18:Módulo C`; RN-11 y RN-12.",
+ "que_implica": "Una plantilla que traiga esas funciones no ahorra trabajo: el contrato no las pide, y el rastreo continuo toca datos personales que la Cláusula X acota. Habría que quitarlas o apagarlas, y probar que quedaron apagadas."
+}

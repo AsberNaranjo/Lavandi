@@ -1,0 +1,12 @@
+{
+ "id": "LG-04",
+ "orden": 4,
+ "servicio": "Rappi",
+ "torreon": "Opera restaurantes; su servicio de mandados no confirmado",
+ "laguna": "No confirmado",
+ "durango": "Opera restaurantes",
+ "api": "Su servicio para empresas con API solo está documentado en Perú y Chile",
+ "precio": "No encontrado",
+ "confianza": "baja-media",
+ "fuente": "https://www.rappi.com.mx/torreon"
+}

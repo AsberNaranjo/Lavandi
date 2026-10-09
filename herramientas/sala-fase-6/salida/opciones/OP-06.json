@@ -1,0 +1,18 @@
+{
+ "id": "OP-06",
+ "orden": 6,
+ "familia": "Proyectos públicos: Enatega (apps con licencia MIT, backend de pago y propietario) y Fleetbase (AGPL, logística general). Los repositorios de lavandería que hay son maquetas abandonadas o sin licencia.",
+ "que_es": "Una base que se puede leer completa antes de decidir.",
+ "ahorra": "Ver cómo otros resolvieron roles, pedidos y repartidor.",
+ "cuesta": "Enatega necesita su backend de pago, que no se puede ceder. Fleetbase obliga a publicar las modificaciones con AGPL o a comprar su licencia comercial, y pide un servidor de 4 GB de RAM.",
+ "puertas": {
+  "G-1": "incierto",
+  "G-2": "incierto",
+  "G-3": "falla",
+  "G-4": "incierto",
+  "G-5": "falla"
+ },
+ "veredicto": "**referencia de lectura, no base.**",
+ "fuentes": "Https://github.com/enatega/food-delivery-multivendor · https://github.com/fleetbase/fleetbase",
+ "nombre": "Código abierto de reparto"
+}

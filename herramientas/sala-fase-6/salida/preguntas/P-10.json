@@ -1,0 +1,11 @@
+{
+ "id": "P-10",
+ "orden": 11,
+ "paso": 3,
+ "por_que": "C-94 anunció que la parte técnica seguiría en otra conversación. En el vault no hay rastro. Si ahí se eligió algo, los pesos que se fijen ahora justificarían una elección ya hecha.",
+ "si_mala": "Una decisión tomada fuera del vault no existe para el método hasta tener ADR (`CLAUDE.md` §5). Y si ya hay código, el método prohíbe escribirlo antes de cerrar las Fases 6 a 8.",
+ "evidencia": "DD-062.",
+ "responde": "Nadir",
+ "bloquea": "Saber si los pasos 4 a 6 parten de cero.",
+ "pregunta": "¿La conversación técnica del 29 de septiembre decidió algo del stack?"
+}

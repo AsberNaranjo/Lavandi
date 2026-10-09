@@ -1,0 +1,11 @@
+{
+ "id": "P-04",
+ "orden": 4,
+ "paso": 2,
+ "por_que": "Con las cifras ilustrativas del propio contrato quedan $38.69 por pedido antes de pagar el reparto. Si la plataforma paga una recolección y una entrega, no queda nada (`negocio/unit-economics.md`, secciones 3 y 4). Es la causa de cierre más citada de las apps de lavandería a domicilio (`competencia.md` §11).",
+ "si_mala": "Cada pedido pierde dinero y crecer acelera la pérdida.",
+ "evidencia": "Precio por kilo, comisión, estructura del envío y momento del cobro siguen abiertos: DD-010, DD-012, DD-019, DD-020 y DD-025. Todos los que publican precio meten el envío en el precio y piden un mínimo; ninguno cobra el envío aparte (LC-12).",
+ "responde": "EL CLIENTE",
+ "bloquea": "No el stack. Sí obliga a que precio, envío y comisión sean configurables por plaza, que ya se recomendó.",
+ "pregunta": "¿Cierra la economía de un pedido que necesita dos viajes?"
+}

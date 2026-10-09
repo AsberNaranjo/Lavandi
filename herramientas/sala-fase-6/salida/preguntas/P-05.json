@@ -1,0 +1,11 @@
+{
+ "id": "P-05",
+ "orden": 5,
+ "paso": 2,
+ "por_que": "La plataforma cobra comisión por pedido, y desde el primero la lavandería conoce al cliente, su domicilio y su teléfono. La fuga es el mal típico de los mercados de servicios locales que se repiten cada semana.",
+ "si_mala": "El cliente paga por conseguir cada usuario y la lavandería se lo queda. El socio ya lo anticipa: \"¿por qué voy a pagar comisión por mis propios clientes?\" (`propuesta-de-valor.md`, sección b).",
+ "evidencia": "Ninguna regla escrita. En lavandería la fuga no está medida (LC-07). Lo documentado va en otra dirección: Shawi concluyó que a las lavanderías no les faltaban clientes sino un canal propio, y hoy un software de 20 dólares al mes sin comisión les da ese canal (LC-09, RF-20).",
+ "responde": "Nadir con EL CLIENTE",
+ "bloquea": "Reglas de producto, no el stack.",
+ "pregunta": "Después del primer pedido, ¿qué impide que el usuario y la lavandería sigan por WhatsApp sin la plataforma?"
+}

@@ -1,0 +1,47 @@
+{
+ "criterios": [
+  {
+   "id": "K-1",
+   "nombre": "Familiaridad real del equipo",
+   "p0911": 25,
+   "p0925": 30,
+   "porque": "La experiencia ya es un dato (C-89), y el tamaño no cabe en la banda media: lo desconocido se paga en horas que no hay"
+  },
+  {
+   "id": "K-2",
+   "nombre": "Velocidad de entrega en 16 semanas",
+   "p0911": 20,
+   "p0925": 25,
+   "porque": "Misma razón. Premia al candidato que acorta las 15 funciones grandes, sobre todo las 7 móviles"
+  },
+  {
+   "id": "K-3",
+   "nombre": "Riesgo de proveedor único y ruta de salida",
+   "p0911": 15,
+   "p0925": 15,
+   "porque": "Sin cambio: la Cláusula IX cede todo al cliente al pago íntegro"
+  },
+  {
+   "id": "K-4",
+   "nombre": "Tiempo real para 60 s, sin sobreingeniería",
+   "p0911": 15,
+   "p0925": 10,
+   "porque": "El inventario muestra que es un requisito modesto y acotado"
+  },
+  {
+   "id": "K-5",
+   "nombre": "Costo de operación con volumen bajo",
+   "p0911": 15,
+   "p0925": 10,
+   "porque": "La puerta RN-22 ya obliga a caber en el rango; el margen extra discrimina poco"
+  },
+  {
+   "id": "K-6",
+   "nombre": "Multi-plaza desde el día uno",
+   "p0911": 10,
+   "p0925": 10,
+   "porque": "Sin cambio"
+  }
+ ],
+ "fuente": "arquitectura/matriz-de-criterios-stack.md"
+}

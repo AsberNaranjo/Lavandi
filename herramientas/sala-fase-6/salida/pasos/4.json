@@ -1,0 +1,8 @@
+{
+ "id": "4",
+ "orden": 4,
+ "titulo": "Construir, adaptar o comprar",
+ "objetivo": "Evaluar las familias de opciones **solo contra las puertas**, antes de los pesos",
+ "sale": "`ADR-0015` propuesto",
+ "estado": "pendiente"
+}

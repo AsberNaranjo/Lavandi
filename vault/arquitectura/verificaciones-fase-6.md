@@ -1,8 +1,8 @@
 ---
 estado: borrador
 grado: E
-fuente: búsquedas y lecturas de fuentes oficiales del 2026-09-28 (Conekta, Apple Developer, Google Play Console, Google Maps Platform, Firebase, StatCounter), hechas por un subagente de investigación y revisadas por Claude; todo SIN VERIFICAR hasta que Nadir lo confirme
-fecha: 2026-09-28
+fuente: búsquedas y lecturas de fuentes oficiales del 2026-09-28 (Conekta, Apple Developer, Google Play Console, Google Maps Platform, Firebase, StatCounter), hechas por un subagente de investigación y revisadas por Claude; todo SIN VERIFICAR hasta que Nadir lo confirme; la sección final, de la investigación del 2026-10-09 sobre construir, adaptar o comprar
+fecha: 2026-10-09
 dueño: Nadir Hadad Navarrete
 ---
 # Verificaciones externas de la Fase 6
@@ -64,3 +64,19 @@ confirme en acta. Lo de cada fuente está parafraseado.
 
 **Precios de servidor, base de datos y almacenamiento** contra el rango de RN-22. Son datos de
 candidatos concretos, y el método no deja mirar candidatos antes de fijar los pesos.
+
+## Investigación del 2026-10-09: datos de candidatos (no leer antes de fijar los pesos)
+
+> **Esta sección nombra frameworks concretos.** Salió de la investigación de construir, adaptar o comprar
+> (`planteamiento-fase-6.md`, paso 4), que no buscaba candidatos pero los encontró. El método manda fijar los pesos
+> antes de mirar candidatos; esta sección se lee en el paso 6, no antes. Grado E, `SIN VERIFICAR`, consultado el
+> 2026-10-09.
+
+| Dato | Puerta que toca | Fuente |
+|---|---|---|
+| En React Native, `react-native-maps` usa el mapa de Apple en iPhone y el de Google en Android sin configuración extra | G-2 (RN-29) | https://github.com/react-native-maps/react-native-maps/blob/master/docs/installation.md |
+| En Expo, `expo-maps` hace lo mismo, pero sigue en versión alfa | G-2 | https://docs.expo.dev/versions/latest/sdk/maps/ |
+| En Flutter, el mapa de Apple depende de `apple_maps_flutter`: solo iOS, se declara versión preliminar y su última versión tiene unos 20 meses | G-2 | https://pub.dev/packages/apple_maps_flutter |
+| Conekta no tiene SDK oficial de Flutter; los complementos de terceros están desactualizados. Hay SDK nativos de Android e iOS, y ConektaJS tokeniza en web | G-3 (RN-28) | https://developers.conekta.com/tutorials/card · https://pub.dev/packages/flutter_conekta/score |
+| FlutterFlow trae como mapa nativo el de Google en las dos plataformas; exportar el código es de un solo sentido y solo en planes de pago | G-2, G-5 | https://www.flutterflow.io/pricing |
+| Supabase: plan gratuito que se pausa tras una semana sin uso; Pro desde 25 dólares al mes. Se puede alojar uno mismo | G-4 (RN-22) | https://supabase.com/pricing |

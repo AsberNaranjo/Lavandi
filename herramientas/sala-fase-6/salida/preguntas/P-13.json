@@ -1,0 +1,11 @@
+{
+ "id": "P-13",
+ "orden": 14,
+ "paso": 4,
+ "por_que": "Las plantillas que se venden casi siempre usan un solo mapa de Google en las dos plataformas y traen pasarelas de otros países. Si falla G-2 o G-3, hay que reescribir justo las dos piezas móviles más difíciles dentro de un código ajeno.",
+ "si_mala": "Se compra el sábado y el lunes se descubre que mapas y pagos se rehacen; el ahorro se vuelve deuda.",
+ "evidencia": "La investigación del 2026-10-09, en la sección \"Construir, adaptar o comprar\" de esta nota, grado E.",
+ "responde": "Nadir",
+ "bloquea": "El `ADR-0015`.",
+ "pregunta": "¿Alguna plantilla completa de app de lavandería o de reparto pasa las cinco puertas?"
+}

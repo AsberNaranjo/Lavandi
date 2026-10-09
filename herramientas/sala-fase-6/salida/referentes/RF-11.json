@@ -1,0 +1,12 @@
+{
+ "id": "RF-11",
+ "orden": 11,
+ "nombre": "Poplin",
+ "donde": "EE. UU., más de 500 ciudades",
+ "modelo": "Una persona recoge, lava en su casa y entrega",
+ "estado": "vive",
+ "que_paso": "Un solo actor hace los dos viajes y el lavado. Cobra 1 dólar por libra con mínimo de 30, recolección y entrega incluidas. Muchas quejas de inconsistencia y de ropa perdida",
+ "leccion": "Llega a ciudades chicas porque una sola persona hace todo; la calidad no se controla",
+ "confianza": "media",
+ "fuente": "https://poplin.co/blog/poplin-rebrand-laundry-pros"
+}

@@ -1,0 +1,18 @@
+{
+ "id": "OP-01",
+ "orden": 1,
+ "familia": "Aceleradores: arrancadores de proyecto con licencia MIT, un servicio de backend administrado con la cuenta a nombre del cliente, avisos de Google y librerías de mapas y pagos.",
+ "que_es": "El código del producto se escribe para esta especificación, pero las piezas comunes (inicio de sesión, base de datos, archivos, avisos, el esqueleto del proyecto) no se escriben: se toman hechas. Es \"no reinventar la rueda\" pieza por pieza (P-12).",
+ "ahorra": "Las piezas comunes, sin amarrar el producto a nadie. El código generado por un arrancador MIT es de quien lo genera, compatible con la cesión.",
+ "cuesta": "Escribir lo propio, que es justo lo que el inventario mide. Conekta no tiene SDK oficial para todos los frameworks: puede tocar integrarlo a mano. Los mapas por plataforma dependen del framework que se elija en el paso 6.",
+ "puertas": {
+  "G-1": "pasa",
+  "G-2": "incierto",
+  "G-3": "incierto",
+  "G-4": "pasa",
+  "G-5": "pasa"
+ },
+ "veredicto": "**el camino con sentido.** G-2 y G-3 no son defectos de la opción: se resuelven al elegir el framework, en el paso 6, con los pesos ya fijados.",
+ "fuentes": "Licencia de Ignite, https://github.com/infinitered/ignite/blob/master/LICENSE · Very Good CLI, https://github.com/VeryGoodOpenSource/very_good_cli · precios de Supabase, https://supabase.com/pricing · guía de tarjeta de Conekta, https://developers.conekta.com/tutorials/card",
+ "nombre": "Construir sobre piezas probadas"
+}

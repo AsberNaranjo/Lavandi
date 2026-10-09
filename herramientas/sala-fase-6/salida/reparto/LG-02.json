@@ -1,0 +1,12 @@
+{
+ "id": "LG-02",
+ "orden": 2,
+ "servicio": "Uber Direct",
+ "torreon": "No confirmado",
+ "laguna": "No confirmado",
+ "durango": "No confirmado",
+ "api": "Sí, con una prueba piloto obligatoria antes de producción",
+ "precio": "$49 más IVA hasta 3 km y $5 por km adicional, anuncio de 2023. **Dos tramos por pedido son unos $98 más IVA**, casi el triple del envío de $35 (C-31)",
+ "confianza": "baja en la cobertura",
+ "fuente": "https://developer.uber.com/docs/deliveries/overview"
+}

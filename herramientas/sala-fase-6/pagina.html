@@ -1,0 +1,598 @@
+<title>Lavandi antes del stack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+/* Una mesa de un solo hilo: la agenda fija a la izquierda, el paso abierto a la derecha; en teléfono la agenda es una tira arriba. Colores y letras de Lavandi (design-system/tokens.json). */
+:root {
+  --papel: #F7F4EF;        /* Hueso */
+  --superficie: #FFFFFF;
+  --tinta: #171C21;
+  --tinta-2: #3B424A;
+  --tenue: #515A64;
+  --linea: #DCE0E5;
+  --agua: #297899;         /* Agua profundo: texto y enlaces */
+  --agua-marca: #2E86AB;
+  --cielo: #A8D5E2;
+  --limon: #E8C547;
+  --alerta-fondo: #FFF3C4;
+  --alerta: #7A5200;
+  --falla: #A3301F;
+  --falla-fondo: #FBE6E2;
+  --pasa: #2A6B3B;
+  --pasa-fondo: #E1F1E5;
+  --duda: #7A5200;
+  --duda-fondo: #FBF0D2;
+  --neutro-fondo: #EDEFF2;
+  --f-display: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+  --f-texto: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-id: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papel: #11161B; --superficie: #171C21; --tinta: #EDEFF2; --tinta-2: #C9CED5; --tenue: #A3ACB6;
+    --linea: #2B323A; --agua: #A8D5E2; --agua-marca: #2E86AB; --cielo: #A8D5E2; --limon: #E8C547;
+    --alerta-fondo: #2F2810; --alerta: #F0CF6B; --falla: #F2A196; --falla-fondo: #3A1D1A;
+    --pasa: #9BD3A8; --pasa-fondo: #17301E; --duda: #F0CF6B; --duda-fondo: #352B10; --neutro-fondo: #222930;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papel: #11161B; --superficie: #171C21; --tinta: #EDEFF2; --tinta-2: #C9CED5; --tenue: #A3ACB6;
+  --linea: #2B323A; --agua: #A8D5E2; --agua-marca: #2E86AB; --cielo: #A8D5E2; --limon: #E8C547;
+  --alerta-fondo: #2F2810; --alerta: #F0CF6B; --falla: #F2A196; --falla-fondo: #3A1D1A;
+  --pasa: #9BD3A8; --pasa-fondo: #17301E; --duda: #F0CF6B; --duda-fondo: #352B10; --neutro-fondo: #222930;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--papel); color: var(--tinta); font: 400 16px/1.55 var(--f-texto); }
+a { color: var(--agua); text-underline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--agua-marca); outline-offset: 2px; border-radius: 4px; }
+code { font-family: var(--f-id); font-size: .86em; background: var(--neutro-fondo); padding: .05em .35em; border-radius: 4px; overflow-wrap: anywhere; }
+strong { font-weight: 700; }
+
+.marco { max-width: 1140px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; }
+
+/* Cabecera */
+.cabeza { display: grid; gap: 14px; padding-bottom: 26px; border-bottom: 1px solid var(--linea); }
+.ceja { font: 700 12.5px/1 var(--f-texto); letter-spacing: .08em; text-transform: uppercase; color: var(--agua); }
+h1 { font: 900 clamp(34px, 6vw, 54px)/1.02 var(--f-display); letter-spacing: -.015em; margin: 0; text-wrap: balance; }
+.veredicto { font-size: 18px; line-height: 1.55; max-width: 66ch; margin: 0; color: var(--tinta-2); }
+.veredicto strong { color: var(--tinta); }
+.cifras { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 14.5px; color: var(--tenue); font-variant-numeric: tabular-nums; }
+.cifras b { color: var(--tinta); font-weight: 700; }
+
+/* Cuerpo: agenda + paso */
+.cuerpo { display: grid; grid-template-columns: 1fr; gap: 28px; margin-top: 26px; }
+@media (min-width: 960px) { .cuerpo { grid-template-columns: 240px minmax(0, 1fr); gap: 44px; } }
+
+.agenda { min-width: 0; }
+.agenda ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
+@media (min-width: 960px) {
+  .agenda { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 18px); align-self: start; }
+  .agenda ol { flex-direction: column; overflow: visible; gap: 2px; }
+}
+.agenda a { display: grid; grid-template-columns: 28px 1fr; gap: 2px 10px; align-items: start; text-decoration: none; color: var(--tinta);
+  padding: 10px 12px; border-radius: var(--r); min-width: 190px; border: 1px solid transparent; }
+.agenda a:hover { background: var(--superficie); border-color: var(--linea); }
+.agenda a.actual { background: var(--superficie); border-color: var(--agua-marca); }
+.agenda .n { grid-row: span 2; font: 900 20px/1.1 var(--f-display); color: var(--agua); font-variant-numeric: tabular-nums; }
+.agenda .t { font-weight: 700; font-size: 15px; line-height: 1.25; }
+.agenda .e { font-size: 12.5px; color: var(--tenue); font-variant-numeric: tabular-nums; }
+.agenda .cerrado .n { color: var(--pasa); }
+
+.pasos { min-width: 0; display: grid; gap: 56px; }
+.paso { scroll-margin-top: 16px; display: grid; gap: 18px; min-width: 0; }
+.paso-cabeza { display: grid; gap: 6px; }
+.paso-cabeza .num { font: 800 13px/1 var(--f-texto); letter-spacing: .08em; text-transform: uppercase; color: var(--tenue); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+h2 { font: 900 30px/1.12 var(--f-display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+.objetivo { margin: 0; max-width: 64ch; color: var(--tinta-2); }
+.sale { margin: 0; font-size: 14px; color: var(--tenue); }
+h3 { font: 800 19px/1.3 var(--f-display); margin: 0; text-wrap: balance; }
+.subtitulo { font: 800 15px/1.2 var(--f-texto); letter-spacing: .06em; text-transform: uppercase; color: var(--tenue); margin: 10px 0 0; }
+
+/* Chips de estado */
+.chip { display: inline-flex; align-items: center; gap: 6px; font: 700 12px/1 var(--f-texto); letter-spacing: .02em; padding: 5px 9px; border-radius: 999px;
+  background: var(--neutro-fondo); color: var(--tinta-2); white-space: nowrap; }
+.chip.pasa, .chip.cerrada, .chip.cerrado, .chip.vive { background: var(--pasa-fondo); color: var(--pasa); }
+.chip.falla, .chip.cerro { background: var(--falla-fondo); color: var(--falla); }
+.chip.incierto, .chip.repregunta, .chip.nose, .chip.cambio, .chip.encurso { background: var(--duda-fondo); color: var(--duda); }
+.chip.cliente, .chip.respondida { background: color-mix(in srgb, var(--cielo) 20%, var(--superficie)); color: var(--agua); }
+.idt { font: 600 12.5px/1 var(--f-id); color: var(--tenue); }
+
+/* Frontera */
+.frontera { display: grid; gap: 12px; }
+.limite { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 8px; }
+.limite .cita { font-size: 13.5px; color: var(--tenue); }
+.limite p { margin: 0; }
+
+/* Tablas */
+.tabla-caja { overflow-x: auto; border: 1px solid var(--linea); border-radius: var(--r); background: var(--superficie); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--linea); }
+th { font: 700 12px/1.2 var(--f-texto); letter-spacing: .05em; text-transform: uppercase; color: var(--tenue); background: var(--papel); }
+tr:last-child td { border-bottom: 0; }
+td.centro, th.centro { text-align: center; }
+.fuentes { font-size: 12.5px; color: var(--tenue); overflow-wrap: anywhere; }
+.fuentes a { color: var(--tenue); }
+
+/* Preguntas */
+.preguntas { display: grid; gap: 16px; }
+.pregunta { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--r); padding: 18px 20px; display: grid; gap: 14px; min-width: 0; }
+.pregunta.hecha { border-color: color-mix(in srgb, var(--pasa) 45%, var(--linea)); }
+.p-arriba { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.p-arriba .idt { margin-right: 4px; }
+dl { margin: 0; display: grid; gap: 10px; }
+dt { font: 700 12px/1.2 var(--f-texto); letter-spacing: .06em; text-transform: uppercase; color: var(--tenue); }
+dd { margin: 3px 0 0; }
+.mala { background: var(--alerta-fondo); border-radius: 8px; padding: 10px 12px; }
+.mala dt { color: var(--alerta); }
+.respuesta { display: grid; gap: 8px; border-top: 1px dashed var(--linea); padding-top: 14px; }
+.respuesta label { font: 700 13px/1.2 var(--f-texto); }
+textarea { width: 100%; min-height: 92px; resize: vertical; font: 400 15.5px/1.5 var(--f-texto); color: var(--tinta); background: var(--papel);
+  border: 1px solid var(--linea); border-radius: 8px; padding: 10px 12px; }
+textarea[readonly] { background: var(--superficie); border-style: dashed; }
+.botones { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button { font: 700 14px/1 var(--f-texto); border-radius: 8px; padding: 11px 14px; min-height: 44px; cursor: pointer; border: 1px solid var(--linea); background: var(--superficie); color: var(--tinta); }
+button.principal { background: var(--agua); border-color: var(--agua); color: var(--papel); }
+button:hover:not(:disabled) { border-color: var(--agua-marca); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+.aviso { font-size: 13.5px; color: var(--tenue); }
+.aviso.error { color: var(--falla); }
+.lectura { background: color-mix(in srgb, var(--cielo) 22%, var(--superficie)); border-radius: 8px; padding: 10px 12px; }
+.lectura dt { color: var(--agua); }
+
+/* Referentes */
+.filtros { display: flex; flex-wrap: wrap; gap: 6px; }
+.filtros button { min-height: 36px; padding: 8px 12px; font-size: 13.5px; }
+.filtros button[aria-pressed="true"] { background: var(--tinta); color: var(--papel); border-color: var(--tinta); }
+.lecciones { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.lecciones li { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; }
+.lecciones .ev { grid-column: 2; font-size: 13.5px; color: var(--tenue); }
+
+/* Pesos */
+.pesos { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--r); padding: 6px 18px 18px; display: grid; gap: 4px; }
+.peso { display: grid; grid-template-columns: minmax(0, 1fr) 64px; gap: 4px 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--linea); }
+.peso .nom { font-weight: 700; }
+.peso .por { grid-column: 1 / -1; font-size: 13.5px; color: var(--tenue); }
+.peso input[type=range] { grid-column: 1; width: 100%; accent-color: var(--agua-marca); min-height: 32px; }
+.peso output { grid-column: 2; grid-row: 1 / span 2; font: 900 26px/1 var(--f-display); text-align: right; font-variant-numeric: tabular-nums; }
+.peso .props { grid-column: 1 / -1; font-size: 12.5px; color: var(--tenue); font-variant-numeric: tabular-nums; }
+.suma { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center; padding-top: 12px; }
+.suma .total { font: 900 22px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.suma .total.mal { color: var(--falla); }
+.suma .total.bien { color: var(--pasa); }
+
+.vacio { background: var(--superficie); border: 1px dashed var(--linea); border-radius: var(--r); padding: 18px; color: var(--tenue); }
+
+.pie { margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--linea); display: grid; gap: 14px; font-size: 14.5px; color: var(--tinta-2); }
+.pie ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 70ch; }
+.pie p { margin: 0; max-width: 70ch; }
+
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="marco">
+  <header class="cabeza">
+    <div class="ceja">Lavandi · Fase 6, antes de fijar los pesos</div>
+    <h1>Antes del stack</h1>
+    <p class="veredicto" id="veredicto">Cargando la sala. Las preguntas, las puertas y los referentes viven en la base de datos de esta página; aparecen en cuanto responde.</p>
+    <div class="cifras" id="cifras" aria-live="polite"></div>
+  </header>
+
+  <div class="cuerpo">
+    <nav class="agenda" aria-label="Pasos de la conversación"><ol id="agenda"></ol></nav>
+    <main class="pasos" id="pasos">
+      <div class="vacio" id="vacio">Todavía no hay datos. Si esto no cambia en unos segundos, abre la sala desde claude.ai con tu cuenta: sin ella, la página no puede leer sus preguntas.</div>
+    </main>
+  </div>
+
+  <footer class="pie">
+    <h3>Cómo funciona esta sala</h3>
+    <ol>
+      <li>Respondes aquí, a tu ritmo, pregunta por pregunta. Puedes decir "no sé" o marcar que le toca al cliente.</li>
+      <li>En la sesión de la Fase 6, Claude lee tus respuestas, repregunta las vagas hasta que se puedan refutar y escribe su lectura debajo de cada una.</li>
+      <li>Lo que queda firme pasa literal a un acta. Hasta entonces, una respuesta aquí todavía no es una declaración asentada.</li>
+      <li>Las preguntas salen del vault. Si cambian allá, se actualizan aquí sin borrar lo que escribiste.</li>
+    </ol>
+    <p><strong>Privada.</strong> No se comparte con EL CLIENTE: tiene la deuda de decisión, los riesgos y la lectura crítica del negocio. <span id="fuente"></span></p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var S = { sala: null, pasos: [], frontera: [], puertas: [], preguntas: [], opciones: [], referentes: [], lecciones: [], reparto: [], propuesta: null, nadir: null, nadirExiste: false };
+  var db = null, puedeEscribir = null, filtro = "todos", fijarAvisado = false;
+  var COLECCIONES = ["pasos", "frontera", "puertas", "preguntas", "opciones", "referentes", "lecciones", "reparto"];
+  var CON_RESPUESTA = { "respondida": 1, "no sé": 1, "para el cliente": 1, "cerrada": 1, "repregunta": 1 };
+  var CRITICAS_PESOS = ["P-08", "P-09", "P-16"];
+
+  function $(sel, raiz) { return (raiz || document).querySelector(sel); }
+  function el(tag, attrs, html) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) { if (attrs[k] != null) n.setAttribute(k, attrs[k]); });
+    if (html != null) n.innerHTML = html;
+    return n;
+  }
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function fmt(s) {
+    var t = esc(s);
+    t = t.replace(/`([^`]+)`/g, "<code>$1</code>");
+    t = t.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    t = t.replace(/(https?:\/\/[^\s<]+[^\s<.,;)])/g, function (u) {
+      var host = u.replace(/^https?:\/\//, "").split("/")[0].replace(/^www\./, "");
+      return '<a href="' + u + '" target="_blank" rel="noopener">' + host + "</a>";
+    });
+    return t;
+  }
+  function porOrden(a, b) { return (a.orden || 0) - (b.orden || 0); }
+  function fecha(iso) {
+    try { return new Date(iso).toLocaleString("es-MX", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); } catch (e) { return iso; }
+  }
+  function guardaLocal(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
+  function leeLocal(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function clase(estado) {
+    return ({ "respondida": "respondida", "no sé": "nose", "para el cliente": "cliente", "repregunta": "repregunta", "cerrada": "cerrada",
+      "pasa": "pasa", "falla": "falla", "incierto": "incierto", "no aplica": "", "vive": "vive", "cerró": "cerro", "cambió de modelo": "cambio",
+      "sin confirmar": "incierto", "cerrado": "cerrado", "en curso": "encurso", "pendiente": "" })[estado] || "";
+  }
+  function etiquetaEstado(p) {
+    var e = p.estado;
+    if (!e) return "Sin responder";
+    if (e === "cerrada") return "Cerrada" + (p.acta ? " en " + p.acta : "");
+    if (e === "repregunta") return "Claude repregunta";
+    if (e === "para el cliente") return "Le toca al cliente";
+    if (e === "no sé") return "No sé";
+    return "Respondida";
+  }
+
+  /* ---------- pintar ---------- */
+
+  function pintarTodo() {
+    var hay = S.pasos.length > 0;
+    $("#vacio").hidden = hay;
+    if (S.sala) {
+      $("#veredicto").innerHTML = fmt(S.sala.veredicto || "");
+      $("#fuente").innerHTML = "Fuente: " + fmt("`" + (S.sala.fuente || "") + "`") + ".";
+    }
+    pintarCifras();
+    pintarAgenda();
+    if (!hay) return;
+    S.pasos.slice().sort(porOrden).forEach(pintarPaso);
+  }
+
+  function pintarCifras() {
+    var total = S.preguntas.length;
+    var con = S.preguntas.filter(function (p) { return CON_RESPUESTA[p.estado]; }).length;
+    var cerr = S.preguntas.filter(function (p) { return p.estado === "cerrada"; }).length;
+    var cli = S.preguntas.filter(function (p) { return p.responde === "EL CLIENTE" || p.estado === "para el cliente"; }).length;
+    var actual = S.sala && S.sala.paso_actual ? S.pasos.filter(function (x) { return x.orden === S.sala.paso_actual; })[0] : null;
+    $("#cifras").innerHTML = total ? (
+      "<span><b>" + con + "</b> de " + total + " preguntas con respuesta</span>" +
+      "<span><b>" + cerr + "</b> cerradas en acta</span>" +
+      "<span><b>" + cli + "</b> le tocan al cliente</span>" +
+      (actual ? "<span>Paso en curso: <b>" + actual.orden + ". " + esc(actual.titulo) + "</b></span>" : "")) : "";
+  }
+
+  function pintarAgenda() {
+    var ol = $("#agenda");
+    ol.innerHTML = "";
+    S.pasos.slice().sort(porOrden).forEach(function (p) {
+      var qs = S.preguntas.filter(function (q) { return q.paso === p.orden; });
+      var con = qs.filter(function (q) { return CON_RESPUESTA[q.estado]; }).length;
+      var detalle = qs.length ? con + " de " + qs.length + " con respuesta" : (p.estado === "cerrado" ? "cerrado" : p.estado);
+      var li = el("li");
+      var a = el("a", { href: "#paso-" + p.orden, "class": (p.estado === "en curso" ? "actual " : "") + (p.estado === "cerrado" ? "cerrado" : "") },
+        '<span class="n">' + p.orden + '</span><span class="t">' + esc(p.titulo) + '</span><span class="e">' + esc(detalle) + "</span>");
+      li.appendChild(a);
+      ol.appendChild(li);
+    });
+  }
+
+  function seccionPaso(p) {
+    var id = "paso-" + p.orden, s = document.getElementById(id);
+    if (!s) {
+      s = el("section", { "class": "paso", id: id, "aria-labelledby": id + "-t" });
+      s.innerHTML = '<div class="paso-cabeza"><div class="num"></div><h2 id="' + id + '-t"></h2><p class="objetivo"></p><p class="sale"></p></div><div class="contenido"></div>';
+      var hermanos = Array.prototype.slice.call($("#pasos").querySelectorAll("section.paso"));
+      var despues = hermanos.filter(function (h) { return +h.id.split("-")[1] > p.orden; })[0];
+      $("#pasos").insertBefore(s, despues || null);
+    }
+    $(".num", s).innerHTML = "Paso " + p.orden + ' <span class="chip ' + clase(p.estado) + '">' + esc(p.estado) + "</span>";
+    $("h2", s).textContent = p.titulo;
+    $(".objetivo", s).innerHTML = fmt(p.objetivo);
+    $(".sale", s).innerHTML = "<strong>Qué sale:</strong> " + fmt(p.sale);
+    return $(".contenido", s);
+  }
+
+  function bloque(caja, clave) {
+    var b = caja.querySelector('[data-bloque="' + clave + '"]');
+    if (!b) { b = el("div", { "data-bloque": clave }); b.style.display = "grid"; b.style.gap = "12px"; b.style.minWidth = "0"; caja.appendChild(b); }
+    return b;
+  }
+
+  /* Un bloque se rehace solo si sus datos cambiaron: así un snapshot de otra colección no cierra lo que
+     el lector abrió ni borra los pesos que movió sin guardar. */
+  function conFirma(b, datos, fn) {
+    var k = JSON.stringify(datos);
+    if (b.dataset.firma === k) return;
+    b.dataset.firma = k;
+    fn(b);
+  }
+
+  function pintarPaso(p) {
+    var caja = seccionPaso(p);
+    if (p.orden === 1) {
+      conFirma(bloque(caja, "frontera"), S.frontera, pintarFrontera);
+      conFirma(bloque(caja, "puertas"), S.puertas, pintarPuertas);
+    }
+    if (p.orden === 2) conFirma(bloque(caja, "referentes"), [S.referentes, S.lecciones, S.reparto], pintarReferentes);
+    if (p.orden === 4) conFirma(bloque(caja, "opciones"), [S.opciones, S.puertas], pintarOpciones);
+    pintarPreguntas(bloque(caja, "preguntas"), p.orden);
+    if (p.orden === 5) conFirma(bloque(caja, "pesos"), [S.propuesta, S.nadir, puedeEscribir, !!db], pintarPesos);
+    if (p.orden === 6 && !S.preguntas.some(function (q) { return q.paso === 6; })) {
+      bloque(caja, "espera").innerHTML = '<div class="vacio">Se abre cuando el paso 5 cierre: con los pesos fijados se nombran y puntúan los candidatos, y cada decisión sale con su ADR.</div>';
+    }
+  }
+
+  function pintarFrontera(b) {
+    b.innerHTML = '<p class="subtitulo">Lo que el contrato ya decidió</p><div class="frontera">' + S.frontera.slice().sort(porOrden).map(function (f) {
+      return '<article class="limite"><div class="p-arriba"><span class="idt">' + esc(f.id) + "</span></div><h3>" + fmt(f.titulo) + "</h3>" +
+        "<p>" + fmt(f.que_dice) + "</p><p><strong>Qué implica:</strong> " + fmt(f.que_implica) + '</p><p class="cita">' + fmt(f.cita) + "</p></article>";
+    }).join("") + "</div>";
+  }
+
+  function pintarPuertas(b) {
+    if (!S.puertas.length) { b.innerHTML = ""; return; }
+    b.innerHTML = '<p class="subtitulo">Las puertas</p><p class="aviso">Eliminatorias: una opción que falle una queda fuera aunque ahorre horas. G-5 es propuesta de Claude y aplica solo a de dónde sale el código.</p>' +
+      '<div class="tabla-caja"><table><thead><tr><th>Puerta</th><th>Qué exige</th><th>Cita</th></tr></thead><tbody>' +
+      S.puertas.slice().sort(porOrden).map(function (g) {
+        return '<tr><td class="idt">' + esc(g.id) + "</td><td>" + fmt(g.exige) + '</td><td class="fuentes">' + fmt(g.cita) + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+  }
+
+  function pasaFiltro(r) {
+    if (filtro === "todos") return true;
+    if (filtro === "cayeron") return r.estado === "cerró" || r.estado === "cambió de modelo";
+    if (filtro === "viven") return r.estado === "vive";
+    if (filtro === "mexico") return /méxico|mexic|cdmx|guadalajara|monterrey|torreón|durango/i.test(r.donde || "");
+    return true;
+  }
+
+  function pintarReferentes(b) {
+    if (!S.referentes.length && !S.lecciones.length) {
+      b.innerHTML = '<p class="subtitulo">Los referentes</p><div class="vacio">La investigación de los referentes está en curso. Aparece aquí en cuanto se asiente en el vault.</div>';
+      return;
+    }
+    var filtros = [["todos", "Todos"], ["cayeron", "Cerraron o cambiaron"], ["viven", "Siguen"], ["mexico", "En México"]];
+    var refs = S.referentes.slice().sort(porOrden).filter(pasaFiltro);
+    b.innerHTML = '<p class="subtitulo">Los referentes</p><p class="aviso">Investigación web, sin verificar. Cada fila trae su fuente.</p>' +
+      '<div class="filtros" role="group" aria-label="Filtrar referentes">' + filtros.map(function (f) {
+        return '<button type="button" data-filtro="' + f[0] + '" aria-pressed="' + (filtro === f[0]) + '">' + f[1] + "</button>";
+      }).join("") + "</div>" +
+      '<div class="tabla-caja"><table><thead><tr><th>Quién</th><th>Modelo</th><th>Estado</th><th>Qué pasó</th><th>Lección para Lavandi</th></tr></thead><tbody>' +
+      (refs.length ? refs.map(function (r) {
+        return "<tr><td><strong>" + fmt(r.nombre) + '</strong><div class="fuentes">' + fmt(r.donde) + '</div><div class="fuentes">' + fmt(r.fuente) + " · confianza " + esc(r.confianza) + "</div></td>" +
+          "<td>" + fmt(r.modelo) + '</td><td><span class="chip ' + clase(r.estado) + '">' + esc(r.estado) + "</span></td><td>" + fmt(r.que_paso) + "</td><td>" + fmt(r.leccion) + "</td></tr>";
+      }).join("") : '<tr><td colspan="5">Ningún referente con este filtro.</td></tr>') + "</tbody></table></div>" +
+      (S.lecciones.length ? '<p class="subtitulo">Lo que enseñan</p><ul class="lecciones">' + S.lecciones.slice().sort(porOrden).map(function (l) {
+        return '<li><span class="idt">' + esc(l.id) + "</span><span>" + fmt(l.leccion) + '</span><span class="ev">' + fmt(l.evidencia) + "</span></li>";
+      }).join("") + "</ul>" : "") +
+      (S.reparto.length ? '<p class="subtitulo">Quién más puede mover la ropa</p><div class="tabla-caja"><table><thead><tr><th>Servicio</th><th>Torreón</th><th>Gómez Palacio y Lerdo</th><th>Durango</th><th>API</th><th>Precio</th></tr></thead><tbody>' +
+        S.reparto.slice().sort(porOrden).map(function (r) {
+          return "<tr><td><strong>" + fmt(r.servicio) + '</strong><div class="fuentes">' + fmt(r.fuente) + " · confianza " + esc(r.confianza) + "</div></td><td>" + fmt(r.torreon) + "</td><td>" + fmt(r.laguna) + "</td><td>" + fmt(r.durango) + "</td><td>" + fmt(r.api) + "</td><td>" + fmt(r.precio) + "</td></tr>";
+        }).join("") + "</tbody></table></div>" : "");
+    Array.prototype.forEach.call(b.querySelectorAll("[data-filtro]"), function (btn) {
+      btn.addEventListener("click", function () { filtro = btn.getAttribute("data-filtro"); pintarReferentes(b); var f = b.querySelector('[data-filtro="' + filtro + '"]'); if (f) f.focus(); });
+    });
+  }
+
+  function pintarOpciones(b) {
+    if (!S.opciones.length) {
+      b.innerHTML = '<p class="subtitulo">Las opciones contra las puertas</p><div class="vacio">La investigación de plantillas, servicios de marca blanca y piezas reutilizables está en curso. Aparece aquí en cuanto se asiente en el vault.</div>';
+      return;
+    }
+    var gs = S.puertas.slice().sort(porOrden);
+    b.innerHTML = '<p class="subtitulo">Las opciones contra las puertas</p><p class="aviso">Sin puntaje: aquí solo se pasa o no se pasa. Abre cada opción para ver qué ahorra y qué cuesta.</p>' +
+      '<div class="tabla-caja"><table><thead><tr><th>Opción</th>' + gs.map(function (g) { return '<th class="centro" title="' + esc(g.exige) + '">' + esc(g.id) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+      S.opciones.slice().sort(porOrden).map(function (o) {
+        return "<tr><td><details><summary><strong>" + fmt(o.nombre) + '</strong> <span class="fuentes">' + fmt(o.familia) + "</span></summary>" +
+          '<dl style="margin-top:10px"><div><dt>Qué es</dt><dd>' + fmt(o.que_es) + "</dd></div><div><dt>Qué ahorra</dt><dd>" + fmt(o.ahorra) + "</dd></div>" +
+          "<div><dt>Qué cuesta</dt><dd>" + fmt(o.cuesta) + "</dd></div><div><dt>Veredicto</dt><dd>" + fmt(o.veredicto) + '</dd></div><div><dt>Fuentes</dt><dd class="fuentes">' + fmt(o.fuentes) + "</dd></div></dl></details></td>" +
+          gs.map(function (g) { var v = (o.puertas || {})[g.id] || "incierto"; return '<td class="centro"><span class="chip ' + clase(v) + '">' + esc(v) + "</span></td>"; }).join("") + "</tr>";
+      }).join("") + "</tbody></table></div>";
+  }
+
+  function pintarPreguntas(b, paso) {
+    var qs = S.preguntas.filter(function (q) { return q.paso === paso; }).sort(porOrden);
+    if (!qs.length) { b.innerHTML = ""; return; }
+    if (!b.querySelector(".preguntas")) b.innerHTML = '<p class="subtitulo">Las preguntas</p><div class="preguntas"></div>';
+    var lista = b.querySelector(".preguntas");
+    qs.forEach(function (q) { pintarPregunta(lista, q); });
+  }
+
+  function pintarPregunta(lista, q) {
+    var id = "q-" + q.id, card = document.getElementById(id);
+    if (!card) {
+      card = el("article", { "class": "pregunta", id: id });
+      card.innerHTML =
+        '<div class="p-arriba"><span class="idt">' + esc(q.id) + '</span><span class="chip responde"></span><span class="chip estado"></span></div>' +
+        '<h3></h3><dl><div><dt>Por qué importa</dt><dd class="por"></dd></div><div class="mala"><dt>Si la respuesta es mala</dt><dd class="si"></dd></div>' +
+        '<div><dt>Evidencia hoy</dt><dd class="ev"></dd></div><div><dt>Bloquea</dt><dd class="bl"></dd></div></dl>' +
+        '<div class="lectura" hidden><dl><div><dt>Lectura de Claude</dt><dd class="lec"></dd></div></dl></div>' +
+        '<div class="respuesta"><label for="ans-' + q.id + '">Tu respuesta</label><textarea id="ans-' + q.id + '" placeholder="Lo que sabes hoy, con números si los hay. Si no sabes, dilo."></textarea>' +
+        '<div class="botones"><button type="button" class="principal" data-accion="respondida">Guardar respuesta</button>' +
+        '<button type="button" data-accion="no sé">No sé</button><button type="button" data-accion="para el cliente">Le toca al cliente</button></div>' +
+        '<div class="aviso" aria-live="polite"></div></div>';
+      lista.appendChild(card);
+      var ta = $("textarea", card);
+      ta.addEventListener("input", function () { guardaLocal("sala6-" + q.id, ta.value); });
+      Array.prototype.forEach.call(card.querySelectorAll("[data-accion]"), function (btn) {
+        btn.addEventListener("click", function () { guardarRespuesta(q.id, btn.getAttribute("data-accion"), card); });
+      });
+    }
+    var actual = S.preguntas.filter(function (x) { return x.id === q.id; })[0] || q;
+    $("h3", card).innerHTML = fmt(actual.pregunta);
+    $(".responde", card).textContent = "Responde: " + actual.responde;
+    $(".responde", card).className = "chip responde" + (actual.responde === "EL CLIENTE" ? " cliente" : "");
+    var ce = $(".estado", card);
+    ce.textContent = etiquetaEstado(actual);
+    ce.className = "chip estado " + clase(actual.estado);
+    card.classList.toggle("hecha", actual.estado === "cerrada");
+    $(".por", card).innerHTML = fmt(actual.por_que);
+    $(".si", card).innerHTML = fmt(actual.si_mala);
+    $(".ev", card).innerHTML = fmt(actual.evidencia);
+    $(".bl", card).innerHTML = fmt(actual.bloquea);
+    var lec = $(".lectura", card);
+    lec.hidden = !actual.lectura;
+    if (actual.lectura) $(".lec", card).innerHTML = fmt(actual.lectura);
+    var ta2 = $("textarea", card), borrador = leeLocal("sala6-" + q.id);
+    if (document.activeElement !== ta2) ta2.value = borrador != null ? borrador : (actual.respuesta || "");
+    var cerrada = actual.estado === "cerrada", sinPermiso = puedeEscribir === false;
+    ta2.readOnly = cerrada || sinPermiso;
+    Array.prototype.forEach.call(card.querySelectorAll("[data-accion]"), function (btn) { btn.disabled = cerrada || sinPermiso || !db; });
+    var av = $(".aviso", card);
+    if (!av.dataset.fijo) {
+      av.className = "aviso";
+      av.textContent = cerrada ? "Asentada en el acta; para cambiarla, díselo a Claude en la sesión." :
+        sinPermiso ? "Tu acceso a esta sala es de solo lectura." :
+        actual.respondida_en ? "Guardada el " + fecha(actual.respondida_en) + "." : "";
+    }
+  }
+
+  function guardarRespuesta(id, estado, card) {
+    var ta = $("textarea", card), av = $(".aviso", card), texto = ta.value.trim();
+    if (estado === "respondida" && !texto) { av.className = "aviso error"; av.textContent = "Escribe la respuesta antes de guardarla, o marca No sé."; av.dataset.fijo = "1"; return; }
+    var botones = card.querySelectorAll("[data-accion]");
+    Array.prototype.forEach.call(botones, function (b) { b.disabled = true; });
+    av.className = "aviso"; av.textContent = "Guardando…"; av.dataset.fijo = "1";
+    db.doc("preguntas/" + id).update({ respuesta: texto, estado: estado, respondida_en: new Date().toISOString() }).then(function () {
+      guardaLocal("sala6-" + id, null);
+      delete av.dataset.fijo;
+      av.textContent = "Guardada.";
+    }).catch(function (e) {
+      av.className = "aviso error";
+      av.textContent = e && e.code === "invalid_argument" ? "No se pudo guardar: tu acceso a la sala no permite escribir." :
+        "No se pudo guardar ahora. Tu texto sigue aquí; intenta de nuevo en un momento.";
+    }).then(function () {
+      Array.prototype.forEach.call(botones, function (b) { b.disabled = puedeEscribir === false; });
+    });
+  }
+
+  /* ---------- pesos ---------- */
+
+  function pintarPesos(b) {
+    var prop = S.propuesta;
+    if (!prop || !prop.criterios) { b.innerHTML = ""; return; }
+    var nad = S.nadir || {}, fijados = nad.estado === "fijados";
+    var valores = {};
+    prop.criterios.forEach(function (k) { valores[k.id] = nad.valores && nad.valores[k.id] != null ? nad.valores[k.id] : k.p0925; });
+    b.innerHTML = '<p class="subtitulo">Tus pesos</p><p class="aviso">Arrancan en la propuesta de Claude del 25 de septiembre. Muévelos de 5 en 5; tienen que sumar 100. Fuente: ' + fmt("`" + prop.fuente + "`") + "</p>" +
+      '<div class="pesos">' + prop.criterios.map(function (k) {
+        return '<div class="peso"><label class="nom" for="peso-' + k.id + '">' + esc(k.nombre) + '</label><output for="peso-' + k.id + '" id="out-' + k.id + '">' + valores[k.id] + "</output>" +
+          '<input type="range" id="peso-' + k.id + '" data-k="' + k.id + '" min="0" max="50" step="5" value="' + valores[k.id] + '"' + (fijados ? " disabled" : "") + ">" +
+          '<div class="props">Propuesta del 11 de septiembre: ' + k.p0911 + " · del 25 de septiembre: " + k.p0925 + '</div><div class="por">' + fmt(k.porque) + "</div></div>";
+      }).join("") +
+      '<div class="suma"><span>Suma <span class="total" id="suma-total"></span></span><div class="botones">' +
+      (fijados ? '<span class="chip cerrada">Fijados el ' + esc(fecha(nad.fijados_en)) + '</span><button type="button" id="pesos-reabrir">Reabrir</button>' :
+        '<button type="button" id="pesos-propuesta">Volver a la propuesta</button><button type="button" id="pesos-borrador">Guardar borrador</button><button type="button" class="principal" id="pesos-fijar">Fijar pesos</button>') +
+      '</div></div><div class="aviso" id="pesos-aviso" aria-live="polite">' + (nad.actualizado && !fijados ? "Borrador guardado el " + esc(fecha(nad.actualizado)) + "." : "") + "</div></div>";
+    Array.prototype.forEach.call(b.querySelectorAll("input[type=range]"), function (r) {
+      r.addEventListener("input", function () { $("#out-" + r.dataset.k).textContent = r.value; fijarAvisado = false; actualizarSuma(b); });
+    });
+    var btnP = $("#pesos-propuesta", b), btnB = $("#pesos-borrador", b), btnF = $("#pesos-fijar", b), btnR = $("#pesos-reabrir", b);
+    if (btnP) btnP.addEventListener("click", function () {
+      prop.criterios.forEach(function (k) { $("#peso-" + k.id, b).value = k.p0925; $("#out-" + k.id, b).textContent = k.p0925; });
+      actualizarSuma(b);
+    });
+    if (btnB) btnB.addEventListener("click", function () { guardarPesos(b, "borrador"); });
+    if (btnF) btnF.addEventListener("click", function () { guardarPesos(b, "fijados"); });
+    if (btnR) btnR.addEventListener("click", function () { guardarPesos(b, "borrador"); });
+    actualizarSuma(b);
+  }
+
+  function leerPesos(b) {
+    var v = {};
+    Array.prototype.forEach.call(b.querySelectorAll("input[type=range]"), function (r) { v[r.dataset.k] = +r.value; });
+    return v;
+  }
+
+  function actualizarSuma(b) {
+    var v = leerPesos(b), s = Object.keys(v).reduce(function (a, k) { return a + v[k]; }, 0), t = $("#suma-total", b);
+    if (!t) return;
+    t.textContent = s + (s === 100 ? "" : s < 100 ? " · faltan " + (100 - s) : " · sobran " + (s - 100));
+    t.className = "total " + (s === 100 ? "bien" : "mal");
+    var f = $("#pesos-fijar", b);
+    if (f) f.disabled = s !== 100 || !db || puedeEscribir === false;
+    var g = $("#pesos-borrador", b);
+    if (g) g.disabled = !db || puedeEscribir === false;
+  }
+
+  function guardarPesos(b, estado) {
+    var av = $("#pesos-aviso", b), v = leerPesos(b), ahora = new Date().toISOString();
+    if (estado === "fijados") {
+      var faltan = CRITICAS_PESOS.filter(function (id) {
+        var q = S.preguntas.filter(function (x) { return x.id === id; })[0];
+        return !q || !(q.estado === "respondida" || q.estado === "cerrada");
+      });
+      if (faltan.length && !fijarAvisado) {
+        fijarAvisado = true;
+        av.className = "aviso error";
+        av.textContent = "Fijarlos ahora es pesar a ciegas: faltan " + faltan.join(", ") + ", de las que dependen familiaridad y velocidad. Si de todos modos quieres fijarlos, pulsa Fijar pesos otra vez.";
+        return;
+      }
+    }
+    var cuerpo = { valores: v, estado: estado, actualizado: ahora };
+    if (estado === "fijados") cuerpo.fijados_en = ahora;
+    av.className = "aviso"; av.textContent = "Guardando…";
+    var ref = db.doc("pesos/nadir");
+    (S.nadirExiste ? ref.update(cuerpo) : ref.set(cuerpo)).then(function () {
+      av.textContent = estado === "fijados" ? "Pesos fijados." : "Borrador guardado.";
+      fijarAvisado = false;
+    }).catch(function () {
+      av.className = "aviso error";
+      av.textContent = "No se pudieron guardar los pesos ahora. Los valores siguen en pantalla; intenta de nuevo en un momento.";
+    });
+  }
+
+  /* ---------- datos ---------- */
+
+  var pendiente = null;
+  function repintar() { if (pendiente) return; pendiente = setTimeout(function () { pendiente = null; pintarTodo(); }, 30); }
+
+  function escuchar() {
+    COLECCIONES.forEach(function (c) {
+      db.collection(c).onSnapshot(function (snap) {
+        S[c] = snap.docs.filter(function (d) { return d.exists; }).map(function (d) { var o = Object.assign({}, d.data()); o.id = o.id || d.id; return o; });
+        repintar();
+      }, function () { repintar(); });
+    });
+    db.doc("sala/estado").onSnapshot(function (d) { S.sala = d.exists ? d.data() : null; repintar(); }, function () {});
+    db.doc("pesos/propuesta").onSnapshot(function (d) { S.propuesta = d.exists ? d.data() : null; repintar(); }, function () {});
+    db.doc("pesos/nadir").onSnapshot(function (d) {
+      S.nadirExiste = d.exists; S.nadir = d.exists ? d.data() : null;
+      repintar();
+    }, function () {});
+  }
+
+  function arrancar(intento) {
+    intento = intento || 0;
+    if (!window.claude || !window.claude.use) {
+      if (intento < 50) { setTimeout(function () { arrancar(intento + 1); }, 200); return; }
+      $("#vacio").textContent = "Esta vista no puede leer la sala. Ábrela desde claude.ai con tu cuenta.";
+      return;
+    }
+    window.claude.use("user").then(function (u) {
+      if (u && u.can) return u.can("data.write").then(function (r) { puedeEscribir = r; });
+    }).catch(function () {}).then(function () { return window.claude.use("db"); }).then(function (d) {
+      if (!d) { $("#vacio").textContent = "Esta vista no puede leer la sala. Ábrela desde claude.ai con tu cuenta: las preguntas viven en la base de datos de la página."; return; }
+      db = d;
+      escuchar();
+    });
+  }
+  arrancar();
+})();
+</script>

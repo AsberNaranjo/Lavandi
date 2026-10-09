@@ -1,0 +1,12 @@
+{
+ "id": "RF-03",
+ "orden": 3,
+ "nombre": "FlyCleaners",
+ "donde": "EE. UU., Nueva York",
+ "modelo": "Reparto propio; lavado con más de doce proveedores",
+ "estado": "cambió de modelo",
+ "que_paso": "En 2019 cerró su planta y despidió a 116 personas; su director dijo que el reparto propio era insostenible. Los daños y extravíos subieron al sumar proveedores. Rinse la compró en 2022",
+ "leccion": "Más lavanderías socias sin control de calidad es más ropa perdida; un reparto propio sin densidad no se paga",
+ "confianza": "media-alta",
+ "fuente": "https://techcrunch.com/2019/06/12/flyclenears-layoffs"
+}

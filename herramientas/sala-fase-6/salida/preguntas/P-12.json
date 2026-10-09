@@ -1,0 +1,11 @@
+{
+ "id": "P-12",
+ "orden": 13,
+ "paso": 4,
+ "por_que": "\"no reinventar la rueda\" se puede hacer pieza por pieza, no solo con una app completa. Inicio de sesión, cobro con tarjeta, avisos, mapas y pantallas de administración son piezas que existen hechas. El ciclo del pedido con peso estimado y peso real, el precio y el envío por plaza y los tres roles son lo propio.",
+ "si_mala": "Comprar una app completa para ahorrarse las piezas comunes y descubrir que lo propio, que es lo difícil, hay que rehacerlo dentro de un código ajeno.",
+ "evidencia": "Las 76 funciones y las 7 capacidades móviles de `contrato/inventario-funcional.md`.",
+ "responde": "Nadir",
+ "bloquea": "El `ADR-0015`.",
+ "pregunta": "¿Qué parte del sistema es igual en cualquier app de reparto y cuál es solo de Lavandi?"
+}

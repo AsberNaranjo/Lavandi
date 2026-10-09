@@ -1,0 +1,18 @@
+{
+ "id": "OP-05",
+ "orden": 5,
+ "familia": "Agencias que venden \"Uber para X\": V3Cube, AppDupe, Uberdoo, Zipprr, SpotnRides, Inoru.",
+ "que_es": "Una app \"lista\" que la agencia adapta. Precio no publicado.",
+ "ahorra": "Nada que se pueda comprobar antes de pagar.",
+ "cuesta": "Precio opaco; no se encontró un contrato de licencia público; mapas por plataforma y Conekta serían trabajo a la medida cobrado aparte. Reseñas independientes con retrasos de meses, código que no se pudo lanzar y cobros extra; las \"reseñas\" de una de ellas están en dominios de la propia agencia.",
+ "puertas": {
+  "G-1": "incierto",
+  "G-2": "incierto",
+  "G-3": "incierto",
+  "G-4": "incierto",
+  "G-5": "incierto"
+ },
+ "veredicto": "**la peor opción.** Aparenta resolverlo todo y es la menos comprobable.",
+ "fuentes": "Https://www.trustpilot.com/review/www.appdupe.com · https://www.sitejabber.com/reviews/appdupe.com · https://www.trustpilot.com/review/www.uberdoo.com",
+ "nombre": "Vendedores de \"clones\" de Uber o Rappi"
+}

@@ -1,0 +1,11 @@
+{
+ "id": "P-16",
+ "orden": 17,
+ "paso": 4,
+ "por_que": "Es la forma de responder tu pregunta sin romper el método: las puertas se fijaron antes de ver opciones, así que pasar o no pasar no es elegir primero. Si una plantilla pasa, su tecnología entra al paso 6 como un candidato más.",
+ "si_mala": "Si se decide comprar después de fijar los pesos, la plantilla impone su stack y la matriz se vuelve decorativa.",
+ "evidencia": "`prompt-maestro-01-fundacion-v5.md`, Fase 6; C-95 ya aplicó la misma lógica a la plantilla de la landing (`ADR-0011`).",
+ "responde": "Nadir",
+ "bloquea": "El orden de los pasos 4 a 6.",
+ "pregunta": "¿Aceptas que construir, adaptar o comprar sea un ADR propio que se decide antes de los pesos y solo contra las puertas?"
+}

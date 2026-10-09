@@ -1,0 +1,11 @@
+{
+ "id": "P-19",
+ "orden": 8,
+ "paso": 2,
+ "por_que": "El 85.2 % prefiere pagar en efectivo las compras de hasta $500, que es donde cae un pedido, y el 93 % de quienes usan internet usa mensajería (LC-11). El contrato cobra con tarjeta y OXXO Pay por Conekta, y OXXO Pay ya no sería de Conekta (R-028). Los referentes latinoamericanos tomaban pedidos por WhatsApp (GetLavado) o regresaron a él (Shawi).",
+ "si_mala": "Si OXXO Pay se cae, la app cobra solo con tarjeta en un mercado que paga en efectivo. Pedir por WhatsApp o pagar en efectivo al entregar no están en el contrato: serían Orden de Cambio, y WhatsApp no tiene pagos en México.",
+ "evidencia": "R-028; DD-056; `negocio/competencia.md` §11, LC-11.",
+ "responde": "Nadir con EL CLIENTE",
+ "bloquea": "`ADR-0010`, la pasarela; y, si el cliente quiere otro canal, una Orden de Cambio.",
+ "pregunta": "¿Cómo paga un usuario que prefiere efectivo, y por dónde pide uno que vive en WhatsApp?"
+}

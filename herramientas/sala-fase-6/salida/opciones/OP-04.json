@@ -1,0 +1,18 @@
+{
+ "id": "OP-04",
+ "orden": 4,
+ "familia": "Servicio por suscripción: CleanCloud, Cents (que absorbió a Starchup), Turns, Curbside Laundries.",
+ "que_es": "El software con el que una lavandería, o una cadena, opera su mostrador, sus rutas y su app con su marca.",
+ "ahorra": "Operar de inmediato.",
+ "cuesta": "Se cobra por tienda al mes; la app con marca propia solo viene en los planes altos. No entrega código. No aparece Conekta. Y es para **un solo negocio** con sus sucursales, no un marketplace de lavanderías independientes.",
+ "puertas": {
+  "G-1": "incierto",
+  "G-2": "incierto",
+  "G-3": "falla",
+  "G-4": "falla",
+  "G-5": "falla"
+ },
+ "veredicto": "**descartado** como base del producto. Sí es un dato para P-01: cualquier lavandería del territorio puede tener su propia app sin pasar por Lavandi (ya se había visto con Easy Laundry, `negocio/competencia.md` §10).",
+ "fuentes": "Https://cleancloudapp.com/pricing · https://app.starchup.com/pricing · https://trycents.com/pricing",
+ "nombre": "Software de marca blanca para lavanderías"
+}

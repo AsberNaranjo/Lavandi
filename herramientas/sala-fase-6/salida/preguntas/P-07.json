@@ -1,0 +1,11 @@
+{
+ "id": "P-07",
+ "orden": 7,
+ "paso": 2,
+ "por_que": "El contrato le da a Nadir consultoría con EL CLIENTE (O-23). La primera sesión tocaba en la semana 2 y la segunda en las 4 y 5; no hay registro de ninguna. Es el lugar natural para decirle al cliente lo que esta sala encuentre del modelo, por escrito y a tiempo.",
+ "si_mala": "Si no se le dice, el cliente invierte en la app creyendo que el software es el riesgo, cuando el riesgo es el reclutamiento y el reparto. Y si el negocio no arranca, lo va a recordar.",
+ "evidencia": "O-23 sin registro; DD-021 vencida.",
+ "responde": "Nadir",
+ "bloquea": "Un borrador para el cliente en `vault/cliente/comunicaciones/`. Nada se envía: lo envía Nadir.",
+ "pregunta": "¿Llevamos P-01 a P-06 y P-19 al cliente en la sesión de consultoría que está pendiente?"
+}

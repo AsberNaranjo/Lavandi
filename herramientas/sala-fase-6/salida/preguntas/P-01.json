@@ -1,0 +1,11 @@
+{
+ "id": "P-01",
+ "orden": 1,
+ "paso": 2,
+ "por_que": "La lista de lo que la app da y el WhatsApp no es hora fija, precio antes de pesar, pago sin efectivo, seguimiento y alguien que da la cara. El vault ya escribió que esa lista solo funciona si el mapa tiene lavanderías (`negocio/propuesta-de-valor.md`, sección g).",
+ "si_mala": "Si la respuesta honesta es \"nada por lo que pague el envío\", la app se entrega, cumple el contrato y nadie la usa. El mes de operación se vuelve un mes de silencio.",
+ "evidencia": "H-002, treinta conversaciones con vecinos con un precio concreto, tenía límite el 2026-10-04 y no se hizo. Un competidor de Torreón anuncia el domicilio sin costo (R-015). En 2025 tenían lavadora el 83.6 % de las viviendas de Durango y el 89.4 % de las de Coahuila, y la cifra sube (`negocio/competencia.md` §11, LC-10).",
+ "responde": "Nadir con EL CLIENTE",
+ "bloquea": "No bloquea el stack. Sí decide qué pantallas se pulen primero.",
+ "pregunta": "¿Qué le resuelve Lavandi al usuario que su lavandería de barrio con WhatsApp no le resuelve, y qué evidencia hay fuera de nuestra cabeza?"
+}

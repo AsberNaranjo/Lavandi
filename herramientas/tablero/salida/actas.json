@@ -129,6 +129,14 @@
  },
  {
   "fecha": "2026-10-09",
+  "tema": "Antes del stack: el planteamiento crítico y la sala de la Fase 6",
+  "archivo": "vault/meta/actas/acta-2026-10-09-antes-del-stack.md",
+  "declaraciones": 3,
+  "primera": "C-105",
+  "ultima": "C-107"
+ },
+ {
+  "fecha": "2026-10-09",
   "tema": "El tablero del proyecto, y lo que sigue",
   "archivo": "vault/meta/actas/acta-2026-10-09-tablero-del-proyecto.md",
   "declaraciones": 1,

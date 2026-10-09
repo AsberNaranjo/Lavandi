@@ -1,0 +1,18 @@
+{
+ "id": "OP-02",
+ "orden": 2,
+ "familia": "Plantillas de código fuente. Candidatas vistas: ReadyLaundry, FastLaundry, Rith Laundry, Best Laundry, UltraWash, AnyWash y Sudsora, de 19 a 79 dólares más complementos.",
+ "que_es": "Apps de cliente, lavandería y repartidor, casi siempre **tres apps separadas** más un panel web, sobre Flutter o React Native con un backend en Laravel, PHP o Node.",
+ "ahorra": "Ver un flujo completo funcionando, un modelo de datos y el esqueleto de un panel.",
+ "cuesta": "Entender tres apps y un backend ajenos; fusionarlas en una sola (F-T12, BR-48); reemplazar el mapa en iPhone; integrar Conekta desde cero; quitar la asignación automática, el rastreo y las billeteras que el contrato excluye; volver a pintar cada pantalla con la marca; traducir; auditar la seguridad; resolver la activación con código de compra; y mantenerla sin actualizaciones del autor, que se pierden al modificarla. Ventas de 5 a 122 y calificaciones de 3.4 a 5.0 con pocas reseñas.",
+ "puertas": {
+  "G-1": "incierto",
+  "G-2": "falla",
+  "G-3": "falla",
+  "G-4": "incierto",
+  "G-5": "falla"
+ },
+ "veredicto": "**no como base.** La licencia de Envato permite entregar el producto a un cliente, pero el autor conserva la propiedad del ítem: el cliente recibiría una licencia, no los derechos que promete la Cláusula IX. Si eso cabe en los \"componentes de uso general\" es pregunta para un abogado. Además impondría su stack sin matriz ni ADR.",
+ "fuentes": "Licencia Regular de Envato, https://codecanyon.net/licenses/terms/regular · FAQ, https://codecanyon.net/licenses/faq · ReadyLaundry, https://codecanyon.net/item/readylaundry-app-website-with-admin-panel-multistore-laundry-booking-system-ondemand-laundry/61451908 · FastLaundry, https://codecanyon.net/item/fastlaundry-multivendor-laundry-booking-app-dry-cleaning-laundry-services-complete-solution/49028376 · Rith Laundry, https://codecanyon.net/item/rith-laundry-react-native-app/24541654",
+ "nombre": "Plantilla de app de lavandería (CodeCanyon)"
+}

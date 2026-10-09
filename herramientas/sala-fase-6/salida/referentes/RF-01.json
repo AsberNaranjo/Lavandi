@@ -1,0 +1,12 @@
+{
+ "id": "RF-01",
+ "orden": 1,
+ "nombre": "Prim",
+ "donde": "EE. UU., San Francisco",
+ "modelo": "Plataforma: lavanderías ajenas sin contrato y choferes de un tercero",
+ "estado": "cerró",
+ "que_paso": "Cerró en enero de 2014, a los siete meses. Las lavanderías desconfiaron cuando Prim ofreció servicio el mismo día y empezó a competir con ellas; pasó por al menos tres",
+ "leccion": "Sin contrato, precio y volumen pactados, la lavandería socia te ve como competidor y se va",
+ "confianza": "alta",
+ "fuente": "https://fortune.com/2014/01/22/prim-anatomy-of-a-folded-startup"
+}

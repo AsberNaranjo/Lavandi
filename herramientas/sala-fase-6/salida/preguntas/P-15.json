@@ -1,0 +1,11 @@
+{
+ "id": "P-15",
+ "orden": 16,
+ "paso": 4,
+ "por_que": "La Cláusula IX cede el código al pago íntegro. Un servicio de marca blanca no entrega código; algunas licencias de mercados de plantillas limitan a quién se entrega o exigen otra licencia si los usuarios pagan; otras plantillas validan una clave de compra contra el servidor de su autor.",
+ "si_mala": "Se entrega algo que el cliente no puede poseer ni operar sin el vendedor. Choca con G-5.",
+ "evidencia": "La investigación del 2026-10-09, grado E. La licencia concreta se lee al elegir. No es asesoría legal.",
+ "responde": "Nadir",
+ "bloquea": "El `ADR-0015`.",
+ "pregunta": "¿El código comprado se puede ceder al cliente?"
+}

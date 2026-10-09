@@ -1,0 +1,18 @@
+{
+ "id": "OP-03",
+ "orden": 3,
+ "familia": "Plantillas de código fuente. La más madura: 3,773 ventas, actualizada el 2026-10-02.",
+ "que_es": "Un marketplace de productos (comida, súper, farmacia, tienda, paquetería) con admin, panel de tienda y apps separadas de cliente, tienda y repartidor. **No trae lavandería.**",
+ "ahorra": "Un marketplace probado en producción por miles de compradores.",
+ "cuesta": "Convertir un marketplace de productos en uno de servicios con peso estimado y peso real; todo lo de OP-02; y una app de tienda que **no funciona** sin activarse con el usuario de CodeCanyon y el código de compra. Su política dice que, una vez personalizada, las actualizaciones ya no aplican.",
+ "puertas": {
+  "G-1": "incierto",
+  "G-2": "falla",
+  "G-3": "falla",
+  "G-4": "incierto",
+  "G-5": "falla"
+ },
+ "veredicto": "**la más madura y la peor para este caso.** Es enorme para depurar por una persona sin experiencia móvil.",
+ "fuentes": "Https://codecanyon.net/item/6ammart-multivendor-food-grocery-ecommerce-parcel-pharmacy-delivery-app-with-admin-website/36772112 · activación obligatoria, https://6ammart.app/documentation/vendor-application-configuration/vendor-app-mandatory-setup/ · política de soporte, https://6ammart.app/service-support-policy/",
+ "nombre": "Plataforma de reparto multi-negocio (6amMart)"
+}

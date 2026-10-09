@@ -1,0 +1,8 @@
+{
+ "id": "5",
+ "orden": 5,
+ "titulo": "Los pesos",
+ "objetivo": "Fijar los pesos de la matriz",
+ "sale": "`matriz-de-criterios-stack.md` en `vigente`",
+ "estado": "pendiente"
+}

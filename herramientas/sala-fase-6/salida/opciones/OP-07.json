@@ -1,0 +1,18 @@
+{
+ "id": "OP-07",
+ "orden": 7,
+ "familia": "Uso de estudio, no de producto.",
+ "que_es": "Comprar una de 19 o 29 dólares para ver sus flujos y su modelo de datos, con tiempo acotado, **sin copiar su código al producto**.",
+ "ahorra": "Dudas de diseño de flujos: cómo otros resolvieron el pedido, la tienda y el repartidor.",
+ "cuesta": "Las horas de leerla, que son las que faltan. Y la disciplina de no copiar nada, por la licencia.",
+ "puertas": {
+  "G-1": "no aplica",
+  "G-2": "no aplica",
+  "G-3": "no aplica",
+  "G-4": "no aplica",
+  "G-5": "no aplica"
+ },
+ "veredicto": "**opcional.** Solo si Nadir cree que leerla le ahorra más horas de las que cuesta. Es la forma literal de \"buscar una maqueta\" que no choca con nada.",
+ "fuentes": "Las de OP-02.",
+ "nombre": "Comprar una plantilla barata solo para estudiarla"
+}

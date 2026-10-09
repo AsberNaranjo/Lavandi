@@ -1,0 +1,12 @@
+{
+ "id": "RF-19",
+ "orden": 19,
+ "nombre": "LavaGo",
+ "donde": "Ciudad de México, Guadalajara, Monterrey, Tijuana, Culiacán, Hermosillo",
+ "modelo": "Plataforma con lavanderías y con personas que lavan en casa",
+ "estado": "sin confirmar",
+ "que_paso": "El sitio sigue en línea, pero **la app ya no está en las tiendas**: se instala desde el navegador, y su ficha de Google Play da error. Sus portales no responden desde septiembre. No publica precios, comisión ni volumen",
+ "leccion": "El otro modelo parecido no tiene tracción que se pueda verificar",
+ "confianza": "media en lo que dice el sitio; baja en que opere con volumen",
+ "fuente": "https://www.lavagomx.com"
+}

@@ -913,5 +913,35 @@
   "dias_vencida": null,
   "contractual": false,
   "estado": "abierta"
+ },
+ {
+  "id": "DD-063",
+  "num": 63,
+  "decision": "Construir, adaptar o comprar (ADR-0015)",
+  "quien": "Nadir, sobre recomendación de Claude",
+  "bloquea": "Los pesos de la matriz y los ADR del framework móvil y del backend",
+  "fase": "6",
+  "limite": "2026-10-16",
+  "limite_fecha": "2026-10-16",
+  "abierta": true,
+  "vencida": false,
+  "dias_vencida": null,
+  "contractual": false,
+  "estado": "abierta"
+ },
+ {
+  "id": "DD-064",
+  "num": 64,
+  "decision": "¿Nadir avisa por escrito a EL CLIENTE que el desarrollo va atrasado?",
+  "quien": "Nadir",
+  "bloquea": "Que el retraso quede explicado por escrito",
+  "fase": "7",
+  "limite": "2026-10-11",
+  "limite_fecha": "2026-10-11",
+  "abierta": true,
+  "vencida": false,
+  "dias_vencida": null,
+  "contractual": true,
+  "estado": "abierta — contractual"
  }
 ]

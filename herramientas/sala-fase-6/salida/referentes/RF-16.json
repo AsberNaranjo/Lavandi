@@ -1,0 +1,12 @@
+{
+ "id": "RF-16",
+ "orden": 16,
+ "nombre": "Washmen",
+ "donde": "Dubái",
+ "modelo": "Pasó de lavanderías aliadas a planta propia",
+ "estado": "vive",
+ "que_paso": "Construyó su planta para controlar la calidad; su director dijo que a cierta escala cuesta lo mismo que tercerizar",
+ "leccion": "Si la calidad de los socios falla, el que sobrevive termina lavando él",
+ "confianza": "media",
+ "fuente": "https://www.wamda.com/2019/07/washmen-raises-62-million-series-b"
+}

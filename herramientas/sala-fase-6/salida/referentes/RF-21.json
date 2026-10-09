@@ -1,0 +1,12 @@
+{
+ "id": "RF-21",
+ "orden": 21,
+ "nombre": "GoLaundry",
+ "donde": "Zona metropolitana de Guadalajara",
+ "modelo": "Operador",
+ "estado": "sin confirmar",
+ "que_paso": "La página sigue en línea, pero su lista de precios conserva un copyright de 2016 a 2018: los precios pueden ser viejos. Mínimo de 5 kg, envío incluido en lavandería",
+ "leccion": "Incluye el envío en el precio y pide un mínimo, como todos los que publican precio",
+ "confianza": "media-baja",
+ "fuente": "https://golaundry.mx/costos"
+}

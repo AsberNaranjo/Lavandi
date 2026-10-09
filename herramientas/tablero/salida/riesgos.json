@@ -370,5 +370,17 @@
   "dueno": "Nadir",
   "revision": "antes del trámite IMPI",
   "estado": "abierto"
+ },
+ {
+  "id": "R-031",
+  "riesgo": "El modelo de Lavandi no tiene un caso rentable a la escala del territorio, y en México el más parecido acaba de cerrar",
+  "probabilidad": "media",
+  "impacto": "alto",
+  "p": 2,
+  "i": 3,
+  "severidad": 6,
+  "dueno": "EL CLIENTE, en el negocio; Nadir, en la consultoría",
+  "revision": "2026-10-16",
+  "estado": "abierto"
  }
 ]

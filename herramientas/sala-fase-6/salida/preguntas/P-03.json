@@ -1,0 +1,11 @@
+{
+ "id": "P-03",
+ "orden": 3,
+ "paso": 2,
+ "por_que": "Un modelo de tres lados tiene que llenar los tres a la vez, en dos plazas y sin oferta propia. Varias lavanderías del territorio ya reparten por su cuenta. El Módulo C es obligación, pero el contrato no dice que el repartidor no pueda ser de la lavandería (DD-022).",
+ "si_mala": "Si se exige una red propia de repartidores, el arranque en frío se triplica, y $35 por dos trayectos puede no pagarle a nadie (R-013, S-003).",
+ "evidencia": "DD-014, DD-019 y DD-022 abiertas; H-003 sin probar. Uber Envíos existe en Torreón, Gómez Palacio y Durango y se puede pedir a mano, pero dos tramos contratados cuestan casi el triple del envío de $35, y un pedido grande solo cabe en auto. Los que sobreviven fuera de las megaciudades son tiendas que entregan con su gente (`negocio/competencia.md` §11, LC-13 y LC-04).",
+ "responde": "Nadir con EL CLIENTE",
+ "bloquea": "La máquina de estados del pedido (BR-22) y quién usa la app de repartidor.",
+ "pregunta": "¿Tres lados o dos? ¿Hace falta una red de repartidores de la plataforma, o entrega la lavandería con su gente, o se contrata a un tercero?"
+}

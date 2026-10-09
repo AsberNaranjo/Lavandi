@@ -1,0 +1,8 @@
+{
+ "id": "FR-05",
+ "orden": 5,
+ "titulo": "Los plazos son estimados; los pagos dependen de hitos",
+ "que_dice": "Los plazos por entregable son estimados y los pagos 2 y 3 dependen de hitos, no del paso del tiempo. El pago 2 pide la app publicada en las dos tiendas y la landing en su dominio; si la publicación se atrasa por causas que no son de EL PRESTADOR, basta la app compilada, en ambiente de prueba y validada conforme al A.4.3. Ante un retraso previsto, aviso escrito con 48 horas.",
+ "cita": "`NSV-2026-001-v8.pdf:6:Cláusula II`; `:8:Cláusula VI`; RN-34; `contrato/calendario-contractual.md`.",
+ "que_implica": "El calendario no castiga por sí solo; llegar a la semana 16 sin el hito sí. Y el desarrollo ya está atrasado sin aviso escrito (P-11)."
+}

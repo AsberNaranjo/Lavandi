@@ -1,0 +1,11 @@
+{
+ "id": "P-02",
+ "orden": 2,
+ "paso": 2,
+ "por_que": "EL CLIENTE no aporta oferta propia (C-33). La lectura del vault es que el recorrido completo del pedido del A.4.3 necesita al menos una lavandería real que acepte pedidos reales (`negocio/propuesta-de-valor.md`). Y O-27 pide dar de alta socios del territorio inicial: depende de que existan.",
+ "si_mala": "Con cero lavanderías la app puede estar terminada y el entregable no acreditarse con pedidos reales. El reclutamiento tenía que empezar antes que el desarrollo.",
+ "evidencia": "DD-021, el plan de reclutamiento, está marcada crítica y vencida desde el 2026-09-13. H-001, veinte llamadas, tenía límite en la semana 3. R-005.",
+ "responde": "EL CLIENTE",
+ "bloquea": "Las pruebas de aceptación con datos reales y el hito del pago 2.",
+ "pregunta": "¿Cuántas lavanderías ha reclutado EL CLIENTE hoy, y cuántas tienen que estar el día del lanzamiento?"
+}

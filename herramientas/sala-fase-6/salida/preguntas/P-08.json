@@ -1,0 +1,11 @@
+{
+ "id": "P-08",
+ "orden": 9,
+ "paso": 3,
+ "por_que": "Con el arranque más temprano posible, el lunes 12 de octubre, quedan ocho semanas de construcción hasta el fin de la semana 13. Con 20 a 30 horas por semana son de 160 a 240 horas; si las 5 horas de diseño no son del producto, de 120 a 200 (C-91). La banda media del inventario pide 389.",
+ "si_mala": "Faltan entre 150 y 270 horas. Ni la plantilla de la landing, que ahorraría de 15 a 20 (C-95), ni el mejor stack cierran eso solos. Y las Fases 6 a 8 todavía tienen que cerrarse antes de la primera línea de código.",
+ "evidencia": "`contrato/inventario-funcional.md` §7, que contaba nueve semanas desde el 5 de octubre; C-91; S-006, sin calibrar.",
+ "responde": "Nadir",
+ "bloquea": "Todo el plan de desarrollo y los pesos de familiaridad y velocidad.",
+ "pregunta": "¿Cuántas horas por semana tienes para el producto, de verdad, de aquí al 6 de diciembre?"
+}
