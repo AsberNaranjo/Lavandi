@@ -25,7 +25,7 @@ paso previo: el planteamiento crítico que Nadir pidió antes de fijar los pesos
    respuesta de cada turno y las prohibiciones.
 3. `vault/meta/estado-del-proyecto.md` — en qué estado está todo, y lo que sigue.
 4. `vault/arquitectura/planteamiento-fase-6.md` — **la agenda de esta sesión**: seis pasos, lo que no está a
-   discusión, las cinco puertas, diecinueve preguntas y las opciones de construir, adaptar o comprar.
+   discusión, las cinco puertas, veinte preguntas y las opciones de construir, adaptar o comprar.
 5. `vault/meta/actas/acta-2026-10-09-antes-del-stack.md` — por qué existe esta sesión y qué se encontró.
 6. `vault/arquitectura/matriz-de-criterios-stack.md` y `vault/contrato/inventario-funcional.md` §7.
 7. `vault/negocio/competencia.md` §10 y §11, `unit-economics.md` y `propuesta-de-valor.md`.
@@ -61,6 +61,8 @@ las respuestas con `ArtifactData`: `list` de la colección `preguntas` y `get` d
 - Español en todo, incluidos los commits, sin acentos en el mensaje del commit.
 - Formato de cada turno: fase y punto · de tres a siete preguntas numeradas · qué escribiste, con rutas ·
   pendientes por respuesta · decisiones que requieren a Nadir · siguiente acción única.
+
+**Lo que viene del cliente.** Nadir tiene una guía para reunirse con él: `vault/cliente/comunicaciones/2026-10-09-guia-de-reunion-decisiones-del-negocio.md` (copia editable: <https://claude.ai/artifact/NNa3x2VL9ZBUVVk9UA3c7X>). Cuando traiga las respuestas, se transcriben a un acta como dichas por EL CLIENTE, se le mandan por escrito para que las confirme, y después se pasan a la sala (P-01 a P-06, P-19 y P-20). Las decisiones de la Fase 6 que dependen de ellas esperan esa confirmación.
 
 **Al cerrar cada sesión:** actualiza `vault/meta/estado-del-proyecto.md`, corre
 `python herramientas/tablero/construir_tablero.py <fecha>` y sube al tablero los JSON que cambiaron

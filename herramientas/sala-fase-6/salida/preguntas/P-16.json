@@ -1,6 +1,6 @@
 {
  "id": "P-16",
- "orden": 17,
+ "orden": 18,
  "paso": 4,
  "por_que": "Es la forma de responder tu pregunta sin romper el método: las puertas se fijaron antes de ver opciones, así que pasar o no pasar no es elegir primero. Si una plantilla pasa, su tecnología entra al paso 6 como un candidato más.",
  "si_mala": "Si se decide comprar después de fijar los pesos, la plantilla impone su stack y la matriz se vuelve decorativa.",

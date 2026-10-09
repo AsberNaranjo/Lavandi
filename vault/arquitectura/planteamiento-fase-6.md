@@ -141,7 +141,7 @@ marca para la sesión de consultoría.
 - **Responde:** EL CLIENTE
 - **Bloquea:** el orden del reclutamiento y la prueba con lavanderías reales.
 
-### P-07 · ¿Llevamos P-01 a P-06 y P-19 al cliente en la sesión de consultoría que está pendiente?
+### P-07 · ¿Llevamos P-01 a P-06, P-19 y P-20 al cliente en la sesión de consultoría que está pendiente?
 - **Paso:** 2
 - **Por qué importa:** el contrato le da a Nadir consultoría con EL CLIENTE (O-23). La primera sesión tocaba en la semana 2 y la segunda en las 4 y 5; no hay registro de ninguna. Es el lugar natural para decirle al cliente lo que esta sala encuentre del modelo, por escrito y a tiempo.
 - **Si la respuesta es mala:** si no se le dice, el cliente invierte en la app creyendo que el software es el riesgo, cuando el riesgo es el reclutamiento y el reparto. Y si el negocio no arranca, lo va a recordar.
@@ -156,6 +156,14 @@ marca para la sesión de consultoría.
 - **Evidencia hoy:** R-028; DD-056; `negocio/competencia.md` §11, LC-11.
 - **Responde:** Nadir con EL CLIENTE
 - **Bloquea:** `ADR-0010`, la pasarela; y, si el cliente quiere otro canal, una Orden de Cambio.
+
+### P-20 · ¿Qué le ofrece Lavandi a la lavandería, si hoy un software barato le da su propio canal sin comisión?
+- **Paso:** 2
+- **Por qué importa:** "más clientes", el argumento que el contrato pone para los socios (A.2), es lo que prometió Jeff y lo que Shawi concluyó que no faltaba. Un software de marca blanca le da a cada lavandería su propio canal por unos 20 dólares al mes y sin comisión (RF-20).
+- **Si la respuesta es mala:** si Lavandi no tiene un argumento mejor que "más clientes", el reclutamiento repite lo que ya falló en México, y la lavandería que entra se puede ir al software más barato.
+- **Evidencia hoy:** `negocio/competencia.md` §11, LC-03, LC-09 y RF-20; R-027.
+- **Responde:** EL CLIENTE
+- **Bloquea:** el guion de reclutamiento (DD-021) y, con él, las pruebas con lavanderías reales.
 
 ### P-08 · ¿Cuántas horas por semana tienes para el producto, de verdad, de aquí al 6 de diciembre?
 - **Paso:** 3

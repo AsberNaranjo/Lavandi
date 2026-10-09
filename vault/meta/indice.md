@@ -81,7 +81,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 ## Stack (Fase 6)
 
 - [[matriz-de-criterios-stack]] — cuatro puertas eliminatorias y siete criterios con peso propuesto, **revisados el 2026-09-25 con el inventario funcional**. DD-038 respondida. **Detenida hasta que Nadir ajuste los pesos**
-- [[planteamiento-fase-6]] — **el paso previo a los pesos** (C-105 a C-107): lo que no está a discusión, cinco puertas, 19 preguntas críticas en seis pasos y las opciones de construir, adaptar o comprar. Es la fuente de la sala
+- [[planteamiento-fase-6]] — **el paso previo a los pesos** (C-105 a C-107): lo que no está a discusión, cinco puertas, 20 preguntas críticas en seis pasos y las opciones de construir, adaptar o comprar. Es la fuente de la sala
 - **Sala de la Fase 6**: <https://claude.ai/artifact/WN6jmpKuxSkgFrf8GDAXDB> — donde Nadir responde; privada. Cómo se usa: `herramientas/sala-fase-6/README.md`
 - [[verificaciones-fase-6]] — grado E del 2026-09-28: **OXXO Pay ya no sería de Conekta** (R-028), iniciar sesión con Apple, prueba cerrada de Google Play (R-029), precios de mapas, versiones de iOS y Android en México
 - pendiente: catorce ADRs, de `ADR-0002` a `ADR-0015` (el de correo se agregó el 2026-09-25; el de construir, adaptar o comprar, el 2026-10-09)

@@ -11,6 +11,16 @@
  },
  {
   "orden": 2,
+  "accion": "Reunión con EL CLIENTE para sus ocho decisiones del negocio (la sesión de asesoría, O-23), con la guía vault/cliente/comunicaciones/2026-10-09-guia-de-reunion-decisiones-del-negocio.md. Nadir anota las respuestas; después se le mandan por escrito para que las confirme",
+  "quien": "Nadir, con EL CLIENTE",
+  "desbloquea": "Quién recoge y entrega, cómo se cobra, con qué lavanderías y en qué ciudad se arranca: varias decisiones de la Fase 6 dependen de esto (C-109)",
+  "limite": null,
+  "vencida": false,
+  "dias_vencida": 0,
+  "origen_fecha": "Nadir pidió no poner fechas (C-109)"
+ },
+ {
+  "orden": 3,
   "accion": "Decidir si la v1 lleva modo claro y oscuro (DD-039) y dónde vive el panel de administración (DD-040)",
   "quien": "Nadir",
   "desbloquea": "Dos ADRs de la Fase 6 y el diseño de pantallas",
@@ -20,7 +30,7 @@
   "origen_fecha": "Límite sugerido de DD-040"
  },
  {
-  "orden": 3,
+  "orden": 4,
   "accion": "Confirmar las horas reales por semana para el producto (repregunta de C-91, supuesto S-006)",
   "quien": "Nadir",
   "desbloquea": "Saber si el alcance cabe: hoy, con la estimación media, no está listo",
@@ -30,8 +40,8 @@
   "origen_fecha": "Fin de la semana 5"
  },
  {
-  "orden": 4,
-  "accion": "Avisar por escrito a EL CLIENTE que el desarrollo va atrasado (RN-34, DD-064). Borrador en vault/cliente/comunicaciones/; lo envía Nadir",
+  "orden": 5,
+  "accion": "Avisar por escrito a EL CLIENTE que el desarrollo va atrasado (RN-34, DD-064). Borrador listo: vault/cliente/comunicaciones/2026-10-09-aviso-de-retraso-del-desarrollo.md; lo envía Nadir por correo",
   "quien": "Nadir",
   "desbloquea": "Que el retraso quede explicado por escrito",
   "limite": "2026-10-11",
@@ -40,7 +50,7 @@
   "origen_fecha": "El contrato pide 48 h de aviso; el retraso existe desde el 2026-09-28"
  },
  {
-  "orden": 5,
+  "orden": 6,
   "accion": "Pedir por escrito a EL CLIENTE el estado de los trámites del B.10",
   "quien": "Nadir",
   "desbloquea": "La publicación en las tiendas y los cobros en producción, de los que depende el pago 2",
@@ -50,7 +60,7 @@
   "origen_fecha": "La cuenta de Apple toca en las semanas 5 y 6"
  },
  {
-  "orden": 6,
+  "orden": 7,
   "accion": "Notificar por correo la entrega parcial del branding: logotipo, paleta, tipografías, manual y guía",
   "quien": "Nadir",
   "desbloquea": "Que lo terminado quede con fecha cierta (DD-050)",
@@ -60,7 +70,7 @@
   "origen_fecha": "Fin de la semana 5"
  },
  {
-  "orden": 7,
+  "orden": 8,
   "accion": "Empezar las 12 plantillas en Canva, en una cuenta a nombre del cliente",
   "quien": "Nadir, con Claude",
   "desbloquea": "El criterio de aceptación del branding (A.4.1)",
@@ -70,7 +80,7 @@
   "origen_fecha": "Antes de la semana 10 (C-73)"
  },
  {
-  "orden": 8,
+  "orden": 9,
   "accion": "Empezar el reporte semanal a EL CLIENTE",
   "quien": "Nadir",
   "desbloquea": "La comunicación semanal durante el desarrollo (O-29)",
@@ -80,7 +90,7 @@
   "origen_fecha": "El calendario pone el desarrollo desde la semana 4"
  },
  {
-  "orden": 9,
+  "orden": 10,
   "accion": "Preguntar al diseñador con qué licencia usó Berlin Sans FB, y hacer la búsqueda fonética ante el IMPI",
   "quien": "Nadir",
   "desbloquea": "El registro de la marca (DD-060, DD-030)",

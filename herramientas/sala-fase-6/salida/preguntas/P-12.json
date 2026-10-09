@@ -1,6 +1,6 @@
 {
  "id": "P-12",
- "orden": 13,
+ "orden": 14,
  "paso": 4,
  "por_que": "\"no reinventar la rueda\" se puede hacer pieza por pieza, no solo con una app completa. Inicio de sesión, cobro con tarjeta, avisos, mapas y pantallas de administración son piezas que existen hechas. El ciclo del pedido con peso estimado y peso real, el precio y el envío por plaza y los tres roles son lo propio.",
  "si_mala": "Comprar una app completa para ahorrarse las piezas comunes y descubrir que lo propio, que es lo difícil, hay que rehacerlo dentro de un código ajeno.",

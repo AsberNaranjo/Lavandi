@@ -1,6 +1,6 @@
 {
  "id": "P-18",
- "orden": 19,
+ "orden": 20,
  "paso": 5,
  "por_que": "Sin pesos no hay candidatos, y sin candidatos no hay ADRs. Es lo único que la matriz espera desde el 2026-09-25.",
  "si_mala": "Fijarlos antes de responder P-08, P-09 y P-16 es pesar a ciegas: la familiaridad y la velocidad dependen de esas tres.",

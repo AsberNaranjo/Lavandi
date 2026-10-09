@@ -1,6 +1,6 @@
 {
  "id": "P-13",
- "orden": 14,
+ "orden": 15,
  "paso": 4,
  "por_que": "Las plantillas que se venden casi siempre usan un solo mapa de Google en las dos plataformas y traen pasarelas de otros países. Si falla G-2 o G-3, hay que reescribir justo las dos piezas móviles más difíciles dentro de un código ajeno.",
  "si_mala": "Se compra el sábado y el lunes se descubre que mapas y pagos se rehacen; el ahorro se vuelve deuda.",

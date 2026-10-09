@@ -1,6 +1,6 @@
 {
  "id": "P-10",
- "orden": 11,
+ "orden": 12,
  "paso": 3,
  "por_que": "C-94 anunció que la parte técnica seguiría en otra conversación. En el vault no hay rastro. Si ahí se eligió algo, los pesos que se fijen ahora justificarían una elección ya hecha.",
  "si_mala": "Una decisión tomada fuera del vault no existe para el método hasta tener ADR (`CLAUDE.md` §5). Y si ya hay código, el método prohíbe escribirlo antes de cerrar las Fases 6 a 8.",

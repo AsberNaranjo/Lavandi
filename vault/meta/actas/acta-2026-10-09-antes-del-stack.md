@@ -47,7 +47,7 @@ las puertas: comprar no es un candidato de stack, es de dónde sale el código, 
 ## Lo que se hizo
 
 - **La agenda:** `vault/arquitectura/planteamiento-fase-6.md`. Seis pasos en orden, lo que no está a discusión
-  (FR-01 a FR-05), cinco puertas (G-1 a G-5) y diecinueve preguntas (P-01 a P-19), cada una con por qué importa,
+  (FR-01 a FR-05), cinco puertas (G-1 a G-5) y veinte preguntas (P-01 a P-20; la P-20 se agregó al preparar la guía del cliente), cada una con por qué importa,
   qué pasa si la respuesta es mala y qué evidencia hay hoy.
 - **La sala:** <https://claude.ai/artifact/WN6jmpKuxSkgFrf8GDAXDB>, privada. Nadir responde ahí; la sesión de la
   Fase 6 lee las respuestas, repregunta y las transcribe al acta. Se rehace con
@@ -112,7 +112,7 @@ Tres investigaciones en paralelo, consultadas el 2026-10-09. El detalle, con fue
 
 ## Preguntas abiertas
 
-Las diecinueve de la sala. Las que más bloquean:
+Las veinte de la sala. Las que más bloquean:
 
 | # | Pregunta | Bloquea | Fila |
 |---|---|---|---|
@@ -121,6 +121,41 @@ Las diecinueve de la sala. Las que más bloquean:
 | 3 | ¿Se decide construir, adaptar o comprar antes de los pesos? | El orden de la Fase 6 | P-16; DD-063 |
 | 4 | ¿Se avisa por escrito al cliente del retraso del desarrollo? | La protección del calendario | P-11; DD-064 |
 | 5 | ¿Cuántas lavanderías ha reclutado el cliente? | Las pruebas con pedidos reales; el pago 2 | P-02; DD-021 |
+
+## Continuación de la sesión: qué se le lleva al cliente
+
+### Declaraciones de Nadir (grado C)
+
+- C-108. **Pregunta si las preguntas se le pueden plantear al cliente y si la sala se puede compartir, y pide
+  lenguaje llano:** "Solamente quisiera saber si la respuesta las podemos plantear para con el cliente Y también si
+  este artefacto en general lo podemos compartir Por favor evita palabras, técnicas No utilices modismos No utilices
+  lenguaje técnico Utiliza un lenguaje simple Sencillo Para que un abogado Totalmente fuera de Tecnología Pueda
+  entender esto"
+- C-109. **La guía para el cliente, sin sus preguntas ni fechas, y el aviso aparte:** "saca las que son mías, que creo
+  que las de el definirán muchas cosas más. No muestres fechas compromiso, ni fechas en general; me agrada tú
+  propuesta, la quiero solo para poder usarlo como material de guía en una reunión con él, yo llenar las respuestas y
+  acompañarlo en el entendimiento del mismo, sí, prepará el borrador con el documento aparte."
+
+### Lo que Claude respondió a C-108
+
+Sí se le puede llevar una parte: las preguntas que decide el cliente, en la sesión de asesoría que el contrato le
+pide a Nadir (O-23). Las de Nadir (horas, construir o comprar, sus decisiones y riesgos) no se le enseñan tal cual;
+se le dice el resultado. El atraso va en un aviso aparte. La sala **no** se comparte: mezcla lo del cliente con lo de
+Nadir, quien la abre lee todo lo escrito en ella, y la regla del proyecto pide una versión aparte (C-28).
+
+### Decisiones
+
+| # | Decisión | Opciones consideradas | Quién decide | Nota resultante |
+|---|---|---|---|---|
+| 6 | La sala no se comparte con EL CLIENTE; para él se hace una guía aparte | compartir la sala / compartir parte / guía aparte | Nadir (C-109), sobre recomendación de Claude | `cliente/comunicaciones/2026-10-09-guia-de-reunion-decisiones-del-negocio.md` |
+| 7 | La guía lleva solo las preguntas del cliente, sin fechas, y es material para una reunión: Nadir la lee con Alfredo y anota sus respuestas | enviarla / usarla en reunión | Nadir (C-109) | la guía y su copia editable: <https://claude.ai/artifact/NNa3x2VL9ZBUVVk9UA3c7X> |
+| 8 | El aviso del retraso del desarrollo va en un documento aparte, sin fechas, y lo envía Nadir | dentro de la guía / aparte | Nadir (C-109) | `cliente/comunicaciones/2026-10-09-aviso-de-retraso-del-desarrollo.md` |
+
+Al preparar la guía se agregó una pregunta del cliente que la sala no tenía: **P-20, qué le ofrece Lavandi a la
+lavandería**, que sale de RF-20 y LC-03. P-07 y P-11 quedan cerradas con C-109.
+
+**Las respuestas del cliente** que Nadir anote en la reunión se transcriben a un acta como dichas por EL CLIENTE, se
+le mandan por escrito para que las confirme, y solo entonces se construye sobre ellas.
 
 ## Datos grado E que Nadir confirmó (suben a C)
 

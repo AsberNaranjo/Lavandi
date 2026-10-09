@@ -1,0 +1,11 @@
+{
+ "id": "P-20",
+ "orden": 9,
+ "paso": 2,
+ "por_que": "\"más clientes\", el argumento que el contrato pone para los socios (A.2), es lo que prometió Jeff y lo que Shawi concluyó que no faltaba. Un software de marca blanca le da a cada lavandería su propio canal por unos 20 dólares al mes y sin comisión (RF-20).",
+ "si_mala": "Si Lavandi no tiene un argumento mejor que \"más clientes\", el reclutamiento repite lo que ya falló en México, y la lavandería que entra se puede ir al software más barato.",
+ "evidencia": "`negocio/competencia.md` §11, LC-03, LC-09 y RF-20; R-027.",
+ "responde": "EL CLIENTE",
+ "bloquea": "El guion de reclutamiento (DD-021) y, con él, las pruebas con lavanderías reales.",
+ "pregunta": "¿Qué le ofrece Lavandi a la lavandería, si hoy un software barato le da su propio canal sin comisión?"
+}
