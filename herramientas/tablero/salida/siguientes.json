@@ -1,0 +1,82 @@
+[
+ {
+  "orden": 1,
+  "accion": "Ajustar los pesos de la matriz de stack y cerrar la Fase 6 con sus trece ADRs",
+  "quien": "Nadir, con Claude",
+  "desbloquea": "Las Fases 7 y 8, y con ellas el arranque del desarrollo",
+  "limite": "2026-09-27",
+  "vencida": true,
+  "dias_vencida": 12,
+  "origen_fecha": "El calendario pide arquitectura, stack y formas de trabajo cerradas antes de la semana 4"
+ },
+ {
+  "orden": 2,
+  "accion": "Decidir si la v1 lleva modo claro y oscuro (DD-039) y dónde vive el panel de administración (DD-040)",
+  "quien": "Nadir",
+  "desbloquea": "Dos ADRs de la Fase 6 y el diseño de pantallas",
+  "limite": "2026-09-18",
+  "vencida": true,
+  "dias_vencida": 21,
+  "origen_fecha": "Límite sugerido de DD-040"
+ },
+ {
+  "orden": 3,
+  "accion": "Confirmar las horas reales por semana para el producto (repregunta de C-91, supuesto S-006)",
+  "quien": "Nadir",
+  "desbloquea": "Saber si el alcance cabe: hoy, con la estimación media, no está listo",
+  "limite": "2026-10-11",
+  "vencida": false,
+  "dias_vencida": 0,
+  "origen_fecha": "Fin de la semana 5"
+ },
+ {
+  "orden": 4,
+  "accion": "Pedir por escrito a EL CLIENTE el estado de los trámites del B.10",
+  "quien": "Nadir",
+  "desbloquea": "La publicación en las tiendas y los cobros en producción, de los que depende el pago 2",
+  "limite": "2026-10-11",
+  "vencida": false,
+  "dias_vencida": 0,
+  "origen_fecha": "La cuenta de Apple toca en las semanas 5 y 6"
+ },
+ {
+  "orden": 5,
+  "accion": "Notificar por correo la entrega parcial del branding: logotipo, paleta, tipografías, manual y guía",
+  "quien": "Nadir",
+  "desbloquea": "Que lo terminado quede con fecha cierta (DD-050)",
+  "limite": "2026-10-11",
+  "vencida": false,
+  "dias_vencida": 0,
+  "origen_fecha": "Fin de la semana 5"
+ },
+ {
+  "orden": 6,
+  "accion": "Empezar las 12 plantillas en Canva, en una cuenta a nombre del cliente",
+  "quien": "Nadir, con Claude",
+  "desbloquea": "El criterio de aceptación del branding (A.4.1)",
+  "limite": "2026-11-08",
+  "vencida": false,
+  "dias_vencida": 0,
+  "origen_fecha": "Antes de la semana 10 (C-73)"
+ },
+ {
+  "orden": 7,
+  "accion": "Empezar el reporte semanal a EL CLIENTE",
+  "quien": "Nadir",
+  "desbloquea": "La comunicación semanal durante el desarrollo (O-29)",
+  "limite": "2026-10-09",
+  "vencida": false,
+  "dias_vencida": 0,
+  "origen_fecha": "El calendario pone el desarrollo desde la semana 4"
+ },
+ {
+  "orden": 8,
+  "accion": "Preguntar al diseñador con qué licencia usó Berlin Sans FB, y hacer la búsqueda fonética ante el IMPI",
+  "quien": "Nadir",
+  "desbloquea": "El registro de la marca (DD-060, DD-030)",
+  "limite": null,
+  "vencida": false,
+  "dias_vencida": 0,
+  "origen_fecha": "Antes del trámite ante el IMPI"
+ }
+]

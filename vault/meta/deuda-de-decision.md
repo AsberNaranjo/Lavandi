@@ -2,7 +2,7 @@
 estado: vigente
 grado: mixto
 fuente: sesión 2026-09-07 (Fases 0–3), actualizada con C-24 a C-32, con C-46 a C-53 del 2026-09-11 y con C-65 a C-70 del 2026-09-12 al 2026-09-17
-fecha: 2026-09-30
+fecha: 2026-10-09
 dueño: Nadir Hadad Navarrete
 ---
 # Deuda de decisión
@@ -68,6 +68,8 @@ Se cierra con la respuesta, la fecha y dónde quedó asentada (acta, ADR o nota)
 | DD-058 | **¿Qué pide al circular los nueve "Lavandi" de la página 13? (C-102).** Sin texto. Esa tabla mide qué combinaciones de color sirven **para texto**: por eso las muestras son la palabra escrita, no el logotipo. Si pide poner ahí el logotipo, la tabla deja de medir lo que mide. Y el impreso en blanco y negro vuelve grises todas las muestras, que es justo lo que la tabla evita | EL CLIENTE, vía Nadir | Cerrar la página 13 | 3 | 2026-10-03 | **cerrada 2026-09-30 por C-103**: "\"Lavandi\" debe de ser el logo del texto". La página 13 pasó a una cuadrícula de 3 × 3 con el logotipo a una tinta a 41 mm, por encima de su mínimo; en las fichas de la tabla habría quedado debajo |
 | DD-059 | **¿La horizontal es símbolo + logotipo, o el logotipo solo?** Se aplicó lo que EL CLIENTE marcó: cambió la palabra y no tachó "El símbolo con la palabra". Pero el logotipo del diseñador ya trae la carretera, el tambor y el pin: junto al símbolo, los tres se repiten. Y el diseñador lo entregó solo, sin símbolo. Medido para las dos: el conjunto pide 150 px y 65 mm; el logotipo solo, unos 100 px | EL CLIENTE, vía Nadir | Los archivos finales de O-01; la página 5 | 3 | 2026-10-03 | abierta |
 | DD-060 | **Berlin Sans FB: la licencia del logotipo y si se quiere como tipografía.** El logotipo de la palabra está hecho con Berlin Sans FB Regular (C-98), una fuente comercial de Font Bureau, hoy Monotype, que viene con Microsoft Office. Un logotipo hecho con ella se puede registrar **si el diseñador tiene licencia comercial de la fuente** (grado E, SIN VERIFICAR). Dos preguntas: **(a)** ¿con qué licencia la usó? **(b)** ¿EL CLIENTE quiere Berlin Sans FB también para textos? Hoy el manual dice que no: los textos van en Nunito y Source Sans 3. Usarla en app o web exige otra licencia, con costo | El diseñador, vía Alfredo y Nadir | Registrar el logotipo ante el IMPI (figurativo); cualquier uso de la fuente fuera del logotipo | 3 | **antes del trámite IMPI** | abierta |
+| DD-061 | **Revisar la deuda de decisión.** Al 2026-10-09, antes de abrir esta fila y la DD-062, de 42 decisiones abiertas, 36 pasaron su límite sugerido y 32 las responde Nadir. Unas siguen siendo reales; otras probablemente ya no aplican (por ejemplo, DD-006, el nombre clave del repo). Una deuda donde casi todo está vencido deja de distinguir lo urgente: cerrar lo que ya no aplica, con su motivo, y poner fecha nueva a lo demás | Nadir, con Claude | Que la deuda y el tablero vuelvan a señalar lo urgente | meta | 2026-10-16 | abierta |
+| DD-062 | **¿Se hizo la conversación técnica que anunció C-94?** El 2026-09-29 Nadir dijo que seguiría la parte técnica en otra conversación. En el vault no hay rastro: ni actas, ni ADRs, ni cambios en la matriz del stack. Si ahí se decidió algo, para el método no existe hasta tener su ADR (`CLAUDE.md` §5) | Nadir | Saber si la Fase 6 está detenida o avanzó fuera del vault | 6 | 2026-10-11 | abierta |
 
 ## Cerradas
 

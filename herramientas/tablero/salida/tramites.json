@@ -1,0 +1,50 @@
+[
+ {
+  "tramite": "Número D-U-N-S",
+  "tiempo": "hasta 30 días",
+  "cuando": "Semana 1 (7–13 sep), inmediatamente después de la firma",
+  "bloquea": "Cuenta de desarrollador de Apple (semanas 5–6)",
+  "estado": "sin registro",
+  "evidencia": "Debía iniciarse en la semana 1 y tarda hasta 30 días. Abierta DD-017: si la cuenta es de persona física o de sociedad"
+ },
+ {
+  "tramite": "Cuenta de desarrollador de Google",
+  "tiempo": "días a 2 semanas; incluye verificación de identidad",
+  "cuando": "Semana 1",
+  "bloquea": "Publicación en Google Play",
+  "estado": "sin registro",
+  "evidencia": "Debía iniciarse en la semana 1. DD-017"
+ },
+ {
+  "tramite": "Alta en la procesadora de pagos (Conekta)",
+  "tiempo": "1 a 3 semanas; requiere cuenta bancaria empresarial",
+  "cuando": "Semana 4 (28 sep–4 oct)",
+  "bloquea": "Transacciones en producción (A.4.3)",
+  "estado": "sin registro",
+  "evidencia": "Debía iniciarse en la semana 4 y requiere cuenta bancaria empresarial"
+ },
+ {
+  "tramite": "Cuenta de desarrollador de Apple",
+  "tiempo": "1 a 2 semanas; tras el D-U-N-S",
+  "cuando": "Semanas 5–6 (octubre)",
+  "bloquea": "Publicación en App Store; avisos push en iPhone",
+  "estado": "sin registro",
+  "evidencia": "Toca en las semanas 5 y 6, que son ahora, y necesita el D-U-N-S"
+ },
+ {
+  "tramite": "Aviso de privacidad publicado",
+  "tiempo": "antes del envío a tiendas",
+  "cuando": "Semana 12 (23–29 nov)",
+  "bloquea": "Envío a tiendas de la semana 14",
+  "estado": "sin registro",
+  "evidencia": "Toca en la semana 12"
+ },
+ {
+  "tramite": "Registro de marca (IMPI)",
+  "tiempo": "6 a 12 meses",
+  "cuando": "Al aprobarse el logotipo (semana 3)",
+  "bloquea": "No retrasa el lanzamiento",
+  "estado": "sin registro",
+  "evidencia": "Falta la búsqueda fonética (DD-030) y saber con qué licencia se usó Berlin Sans FB (DD-060)"
+ }
+]

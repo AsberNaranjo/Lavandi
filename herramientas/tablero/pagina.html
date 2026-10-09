@@ -1,0 +1,769 @@
+<style>
+/* Tablero del contrato NSV-2026-001: un espejo del vault. Resumen arriba, detalle por pestaña. */
+#dash-root { --dash-gutter: clamp(16px, 3.2vw, 36px); }
+.tb { font-family: var(--font-anthropic-sans); color: var(--color-fg); display: flex; flex-direction: column; gap: var(--cds-gap-lg); padding-block: var(--cds-pad-sm) var(--cds-pad-xl); }
+.tb h1, .tb h2, .tb p { margin: 0; }
+.tb-cab { display: grid; gap: var(--cds-gap-sm); }
+.tb-cab h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.15; text-wrap: balance; }
+.tb-lectura { font-size: var(--cds-font-size-body); line-height: 1.5; max-width: 76ch; text-wrap: pretty; }
+.tb-veredicto { color: var(--color-bad); font-weight: var(--cds-font-weight-medium); }
+.tb-corte { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+
+.tb-tabs { display: flex; gap: var(--cds-gap-xs); border-bottom: 1px solid var(--color-border-line); overflow-x: auto; scrollbar-width: none; }
+.tb-tab { appearance: none; background: transparent; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: var(--cds-pad-sm) var(--cds-pad-md); font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg-muted); cursor: pointer; white-space: nowrap; }
+.tb-tab:hover { color: var(--color-fg); }
+.tb-tab[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+.tb-tab:focus-visible { outline: 2px solid var(--color-fg); outline-offset: -2px; border-radius: var(--cds-radius); }
+.tb-pag { display: flex; flex-direction: column; gap: var(--cds-gap-lg); }
+
+.tb-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); gap: var(--cds-gap-md); }
+.tb-kpi { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-width: 0; }
+.tb-kpi-etq { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.tb-kpi-num { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tb-kpi-num .tb-de { font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-body); color: var(--color-fg-muted); }
+.tb-kpi-sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; line-height: 1.4; }
+.tb-kpi.mal .tb-kpi-num > span:first-child { color: var(--color-bad); }
+.tb-kpi.alerta .tb-kpi-num > span:first-child { color: var(--color-warn); }
+
+.tb-rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: var(--cds-gap-md); align-items: start; }
+.tb-tarjeta { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; }
+.tb-tarjeta h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.tb-nota { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.45; max-width: 90ch; }
+
+.tb-pill { display: inline-block; padding: 1px var(--cds-pad-sm); border-radius: 999px; font-size: var(--cds-font-size-caption); line-height: 1.6; white-space: nowrap; background: color-mix(in srgb, var(--color-fg-muted) 13%, transparent); color: var(--color-fg-muted); }
+.tb-pill.ok { background: color-mix(in srgb, var(--color-ok) 15%, transparent); color: var(--color-ok); }
+.tb-pill.parcial { background: color-mix(in srgb, var(--tb-acento, var(--color-fg)) 15%, transparent); color: var(--tb-acento, var(--color-fg)); }
+.tb-pill.alerta { background: color-mix(in srgb, var(--color-warn) 16%, transparent); color: var(--color-warn); }
+.tb-pill.mal { background: color-mix(in srgb, var(--color-bad) 15%, transparent); color: var(--color-bad); }
+
+.tb-fases { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr)); gap: var(--cds-gap-sm); }
+.tb-fase { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-md); display: flex; flex-direction: column; gap: 2px; min-width: 0; border-top-width: 3px; }
+.tb-fase.ok { border-top-color: var(--color-ok); } .tb-fase.parcial { border-top-color: var(--tb-acento, var(--color-fg)); }
+.tb-fase.alerta { border-top-color: var(--color-warn); } .tb-fase.mal { border-top-color: var(--color-bad); } .tb-fase.neutro { border-top-color: var(--color-border-line); }
+.tb-fase-n { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.tb-fase-nom { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); line-height: 1.25; }
+.tb-fase .tb-pill { align-self: flex-start; margin-top: 2px; }
+
+.tb-tabla-caja { overflow-x: auto; }
+.tb-tabla-caja.alta { max-height: 34rem; overflow: auto; }
+.tb-tabla { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.tb-tabla th { text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); position: sticky; top: 0; background: var(--color-panel); white-space: nowrap; z-index: 1; }
+.tb-tabla td { padding: var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: top; line-height: 1.4; }
+.tb-tabla td.tb-id { white-space: nowrap; color: var(--color-fg-muted); }
+.tb-tabla td.tb-num { text-align: right; white-space: nowrap; }
+.tb-tabla tr.vencida td.tb-id { color: var(--color-bad); }
+.tb-tabla tr.contractual td:nth-child(2) { font-weight: var(--cds-font-weight-medium); }
+.tb-tabla td.tb-largo { min-width: 14rem; }
+.tb-tabla td.tb-evid { color: var(--color-fg-muted); min-width: 16rem; }
+@media (max-width: 640px) { .tb-tabla .tb-ocultable { display: none; } }
+
+.tb-controles { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+.tb-chip { appearance: none; font: inherit; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg); border-radius: 999px; padding: 2px var(--cds-pad-md); cursor: pointer; }
+.tb-chip[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+.tb-chip:focus-visible, .tb-buscar:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.tb-buscar { font: inherit; font-size: var(--cds-font-size-caption); padding: 3px var(--cds-pad-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); min-width: 0; flex: 1 1 12rem; max-width: 22rem; }
+
+.tb-grafica { position: relative; min-height: 4rem; }
+.tb-grid { stroke: var(--cds-chart-grid); stroke-width: 1; }
+.tb-tick { fill: var(--color-fg-muted); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); font-variant-numeric: tabular-nums; }
+.tb-cal-etq { fill: var(--color-fg); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
+.tb-barra { fill-opacity: .9; }
+.tb-barra.ok { fill: var(--color-ok); } .tb-barra.parcial { fill: var(--tb-acento, var(--color-fg)); }
+.tb-barra.alerta { fill: var(--color-warn); } .tb-barra.mal { fill: var(--color-bad); } .tb-barra.neutro { fill: var(--cds-chart-muted); }
+.tb-corte-linea { stroke: var(--cds-chart-reference); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.tb-corte-etq { fill: var(--color-fg); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); font-weight: 600; }
+.tb-banda { fill: var(--color-ok); fill-opacity: .12; }
+.tb-hit { fill: transparent; cursor: default; }
+.tb-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); max-width: 20rem; line-height: 1.4; z-index: 2; }
+.tb-tip .tb-tip-pri { color: var(--cds-text-secondary); }
+.tb-leyenda { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.tb-leyenda span::before { content: ""; display: inline-block; width: .6rem; height: .6rem; border-radius: 2px; margin-right: .35rem; vertical-align: -1px; background: var(--cds-chart-muted); }
+.tb-leyenda .ok::before { background: var(--color-ok); } .tb-leyenda .parcial::before { background: var(--tb-acento, var(--color-fg)); }
+.tb-leyenda .alerta::before { background: var(--color-warn); } .tb-leyenda .mal::before { background: var(--color-bad); }
+
+.tb-grupos { display: grid; gap: var(--cds-gap-sm); }
+.tb-grupo { display: grid; grid-template-columns: minmax(7rem, 12rem) 1fr 2.5rem; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); }
+.tb-grupo-barra { display: flex; height: .8rem; border-radius: 4px; overflow: hidden; background: color-mix(in srgb, var(--color-fg-muted) 10%, transparent); }
+.tb-grupo-barra span { height: 100%; }
+.tb-grupo-barra .ok { background: var(--color-ok); } .tb-grupo-barra .parcial { background: var(--tb-acento, var(--color-fg)); }
+.tb-grupo-barra .alerta { background: var(--color-warn); } .tb-grupo-barra .neutro { background: var(--cds-chart-muted); } .tb-grupo-barra .mal { background: var(--color-bad); }
+.tb-grupo-n { text-align: right; color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+
+.tb-matriz { display: grid; grid-template-columns: auto repeat(5, minmax(0, 1fr)); gap: 3px; font-size: var(--cds-font-size-caption); }
+.tb-matriz .eje { color: var(--color-fg-muted); padding: var(--cds-pad-xs); display: flex; align-items: center; }
+.tb-matriz .eje.col { justify-content: center; text-align: center; }
+.tb-celda { border-radius: 4px; min-height: 3.2rem; padding: var(--cds-pad-xs); display: flex; flex-wrap: wrap; gap: 3px; align-content: flex-start; background: color-mix(in srgb, var(--color-fg-muted) 7%, transparent); }
+.tb-celda.s2 { background: color-mix(in srgb, var(--color-warn) 12%, transparent); }
+.tb-celda.s3 { background: color-mix(in srgb, var(--color-bad) 15%, transparent); }
+.tb-rid { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 3px; padding: 0 4px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tb-rid.mat { border-color: var(--color-bad); color: var(--color-bad); }
+</style>
+
+<div class="tb">
+  <header class="tb-cab">
+    <h1 id="titulo">Tablero Lavandi</h1>
+    <p class="tb-lectura" id="lectura">
+      <span class="tb-veredicto" id="ver-no">No está listo para desarrollar.</span>
+      <span class="tb-veredicto" id="ver-si" hidden>El cimiento está cerrado.</span>
+      <span id="lec-cimiento">Quedan <b data-source="cimiento" data-field="sin_cerrar" data-row="0" class="dash-skeleton">—</b> fases del cimiento sin cerrar,</span>
+      <span id="lec-desarrollo">y el desarrollo, que el calendario arrancaba el <b data-source="calendario" data-field="inicio" data-where="actividad=Desarrollo de la aplicación, primera iteración" class="dash-skeleton">—</b>, no ha empezado.</span>
+      <span><b data-source="decisiones" data-field="vencidas" data-row="0" class="dash-skeleton">—</b> de <span data-source="decisiones" data-field="abiertas" data-row="0">—</span> decisiones abiertas pasaron su fecha límite.</span>
+    </p>
+    <p class="tb-corte">Corte del <span data-source="corte" data-field="fecha" data-row="0" class="dash-skeleton">—</span> · semana <span data-source="corte" data-field="semana" data-row="0">—</span> de <span data-source="corte" data-field="semanas_contrato" data-row="0">—</span> del contrato NSV-2026-001 · es un espejo del vault: lo que cambia se cambia allá</p>
+  </header>
+
+  <nav class="tb-tabs" role="tablist" aria-label="Secciones">
+    <button class="tb-tab" role="tab" data-pag="resumen" aria-selected="true">Resumen</button>
+    <button class="tb-tab" role="tab" data-pag="entregables" aria-selected="false">Entregables</button>
+    <button class="tb-tab" role="tab" data-pag="decisiones" aria-selected="false">Decisiones</button>
+    <button class="tb-tab" role="tab" data-pag="riesgos" aria-selected="false">Riesgos</button>
+    <button class="tb-tab" role="tab" data-pag="actas" aria-selected="false">Actas</button>
+  </nav>
+
+  <!-- ============================== RESUMEN ============================== -->
+  <section class="tb-pag" id="resumen" role="tabpanel" aria-label="Resumen">
+    <div class="tb-kpis" id="cifras">
+      <div class="tb-kpi" id="kpi-semana">
+        <div class="tb-kpi-etq">Semana del contrato</div>
+        <div class="tb-kpi-num"><span data-source="corte" data-field="semana" data-row="0" class="dash-skeleton">—</span><span class="tb-de"> de <span data-source="corte" data-field="semanas_contrato" data-row="0">—</span></span></div>
+        <div class="tb-kpi-sub">Quedan <span data-source="restantes" data-field="semanas" data-row="0">—</span> semanas hasta el <span data-source="corte" data-field="fin_contrato" data-row="0">—</span></div>
+      </div>
+      <div class="tb-kpi" id="kpi-cimiento">
+        <div class="tb-kpi-etq">Fases del cimiento cerradas</div>
+        <div class="tb-kpi-num"><span data-source="cimiento" data-field="listas" data-row="0" class="dash-skeleton">—</span><span class="tb-de"> de <span data-source="cimiento" data-field="total" data-row="0">—</span></span></div>
+        <div class="tb-kpi-sub">Detenidas: <span data-source="cimiento" data-field="detenidas" data-row="0">—</span> · sin empezar: <span data-source="cimiento" data-field="sin_empezar" data-row="0">—</span></div>
+      </div>
+      <div class="tb-kpi" id="kpi-entregables">
+        <div class="tb-kpi-etq">Entregables completos</div>
+        <div class="tb-kpi-num"><span data-source="entregables" data-field="completas" data-row="0" class="dash-skeleton">—</span><span class="tb-de"> de <span data-source="entregables" data-field="total" data-row="0">—</span></span></div>
+        <div class="tb-kpi-sub">Casi completos: <span data-source="entregables" data-field="casi" data-row="0">—</span></div>
+      </div>
+      <div class="tb-kpi" id="kpi-decisiones">
+        <div class="tb-kpi-etq">Decisiones vencidas</div>
+        <div class="tb-kpi-num"><span data-source="decisiones" data-field="vencidas" data-row="0" class="dash-skeleton">—</span><span class="tb-de"> de <span data-source="decisiones" data-field="abiertas" data-row="0">—</span> abiertas</span></div>
+        <div class="tb-kpi-sub"><span data-source="decisiones" data-field="contractuales" data-row="0">—</span> contractuales · <span data-source="decisiones" data-field="del_cliente" data-row="0">—</span> esperan al cliente</div>
+      </div>
+      <div class="tb-kpi" id="kpi-riesgos">
+        <div class="tb-kpi-etq">Riesgos altos</div>
+        <div class="tb-kpi-num"><span data-source="riesgos_altos" data-field="altos" data-row="0" class="dash-skeleton">—</span><span class="tb-de"> de <span data-source="riesgos_altos" data-field="vivos" data-row="0">—</span> vivos</span></div>
+        <div class="tb-kpi-sub"><span data-source="riesgos_altos" data-field="materializados" data-row="0">—</span> ya se materializaron</div>
+      </div>
+      <div class="tb-kpi" id="kpi-horas">
+        <div class="tb-kpi-etq">Horas que pide el alcance</div>
+        <div class="tb-kpi-num"><span data-source="capacidad" data-field="horas_max" data-where="concepto=Media" class="dash-skeleton">—</span><span class="tb-de"> h</span></div>
+        <div class="tb-kpi-sub">Banda media · hay de <span data-source="capacidad" data-field="horas_min" data-where="concepto=Disponibles">—</span> a <span data-source="capacidad" data-field="horas_max" data-where="concepto=Disponibles">—</span> h</div>
+      </div>
+    </div>
+
+    <div class="tb-tarjeta" id="sigue">
+      <h2>Lo que sigue</h2>
+      <p class="tb-nota">Ordenado por lo que más bloquea. La fecha límite se compara con la fecha del corte.</p>
+      <div class="tb-tabla-caja">
+        <table class="tb-tabla" id="tabla-sigue" data-source="siguientes" data-row-key="orden">
+          <thead><tr>
+            <th data-field="orden">#</th>
+            <th data-field="accion">Acción</th>
+            <th data-field="quien" class="tb-ocultable">Quién</th>
+            <th data-field="desbloquea" class="tb-ocultable">Qué desbloquea</th>
+            <th data-field="limite">Fecha límite</th>
+            <th data-source="siguientes_aviso" data-field="aviso">Estado</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tb-tarjeta" id="fases">
+      <h2>Fases del cimiento</h2>
+      <p class="tb-nota">El método no permite escribir código del producto hasta cerrar todas las fases del cimiento.</p>
+      <div class="tb-fases" id="fases-lista" data-source="fases"></div>
+    </div>
+
+    <div class="tb-tarjeta" id="calendario">
+      <h2>Calendario del contrato</h2>
+      <p class="tb-nota">Las actividades de la Cláusula II, semana por semana, con su estado al corte. La línea punteada es el corte.</p>
+      <div class="tb-grafica" id="cal-grafica" data-source="calendario corte"></div>
+      <div class="tb-leyenda"><span class="ok">Cumplida</span><span class="alerta">Atrasada</span><span class="mal">No ha empezado</span><span class="parcial">En curso</span><span>Por venir</span></div>
+    </div>
+
+    <div class="tb-rejilla">
+      <div class="tb-tarjeta" id="horas">
+        <h2>Horas: lo que pide el alcance contra lo que hay</h2>
+        <p class="tb-nota">Horas de Nadir en las semanas de desarrollo, por banda de estimación. La franja verde es lo disponible. Las horas por función son un supuesto (S-006), no un dato.</p>
+        <div class="tb-grafica" id="cap-grafica" data-source="capacidad"></div>
+      </div>
+      <div class="tb-tarjeta" id="pagos">
+        <h2>Hitos de pago</h2>
+        <p class="tb-nota">Cláusula VI. El pago de despliegue pide la app en las dos tiendas y la landing en su dominio.</p>
+        <div class="tb-tabla-caja">
+          <table class="tb-tabla" id="tabla-pagos" data-source="pagos" data-row-key="nombre">
+            <thead><tr>
+              <th data-field="nombre">Pago</th>
+              <th data-field="monto" class="tb-num-th">Monto</th>
+              <th data-field="fecha_esperada">Cuándo</th>
+              <th data-field="estado">Estado</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== ENTREGABLES ============================== -->
+  <section class="tb-pag" id="entregables" role="tabpanel" aria-label="Entregables" hidden>
+    <div class="tb-tarjeta" id="obl-resumen">
+      <h2>Obligaciones por grupo</h2>
+      <p class="tb-nota">Las obligaciones del contrato, de entrega y de conducta. "Sin registro" quiere decir que el vault no tiene evidencia, no que no se hizo.</p>
+      <div class="tb-grupos" id="obl-grupos" data-source="obligaciones"></div>
+      <div class="tb-leyenda"><span class="ok">Completa</span><span class="parcial">Casi completa o en curso</span><span class="alerta">Sin registro</span><span>Sin empezar o no aplica todavía</span></div>
+    </div>
+
+    <div class="tb-tarjeta" id="obligaciones">
+      <h2>Obligaciones</h2>
+      <div class="tb-controles" id="obl-filtros">
+        <input class="tb-buscar" id="obl-buscar" type="search" placeholder="Buscar" aria-label="Buscar en obligaciones">
+      </div>
+      <div class="tb-tabla-caja alta">
+        <table class="tb-tabla" id="tabla-obl" data-source="obligaciones" data-row-key="id">
+          <thead><tr>
+            <th data-field="id">ID</th>
+            <th data-field="obligacion">Obligación</th>
+            <th data-field="grupo" class="tb-ocultable">Grupo</th>
+            <th data-field="cuando" class="tb-ocultable">Cuándo</th>
+            <th data-field="estado">Estado</th>
+            <th data-field="evidencia" class="tb-ocultable">Evidencia</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tb-tarjeta" id="tramites">
+      <h2>Trámites a cargo del cliente</h2>
+      <p class="tb-nota">ANEXO B, Sección B.10. Sin ellos no hay publicación en las tiendas ni cobros en producción, y de eso depende el pago de despliegue.</p>
+      <div class="tb-tabla-caja">
+        <table class="tb-tabla" id="tabla-tramites" data-source="tramites" data-row-key="tramite">
+          <thead><tr>
+            <th data-field="tramite">Trámite</th>
+            <th data-field="cuando" class="tb-ocultable">Cuándo iniciarlo</th>
+            <th data-field="tiempo" class="tb-ocultable">Cuánto tarda</th>
+            <th data-field="estado">Estado</th>
+            <th data-field="evidencia" class="tb-ocultable">Evidencia</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== DECISIONES ============================== -->
+  <section class="tb-pag" id="decisiones" role="tabpanel" aria-label="Decisiones" hidden>
+    <div class="tb-tarjeta" id="deuda">
+      <h2>Decisiones pendientes</h2>
+      <p class="tb-nota">La deuda de decisión: lo que alguien tiene que decidir o responder para avanzar sin suposiciones. "Vencida" es contra el límite sugerido de cada fila. Las contractuales van en negritas.</p>
+      <div class="tb-controles" id="deu-filtros">
+        <button class="tb-chip" data-filtro="abiertas" aria-pressed="true">Abiertas</button>
+        <button class="tb-chip" data-filtro="vencidas" aria-pressed="false">Vencidas</button>
+        <button class="tb-chip" data-filtro="contractuales" aria-pressed="false">Contractuales</button>
+        <button class="tb-chip" data-filtro="cliente" aria-pressed="false">Esperan al cliente</button>
+        <button class="tb-chip" data-filtro="todas" aria-pressed="false">Todas</button>
+        <input class="tb-buscar" id="deu-buscar" type="search" placeholder="Buscar" aria-label="Buscar en decisiones">
+      </div>
+      <div class="tb-tabla-caja alta">
+        <table class="tb-tabla" id="tabla-deuda" data-source="deuda" data-row-key="id">
+          <thead><tr>
+            <th data-field="id">ID</th>
+            <th data-field="decision">Decisión</th>
+            <th data-field="quien" class="tb-ocultable">Quién</th>
+            <th data-field="fase" class="tb-ocultable">Fase</th>
+            <th data-field="limite_fecha">Límite</th>
+            <th data-source="deuda_aviso" data-field="aviso">Estado</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== RIESGOS ============================== -->
+  <section class="tb-pag" id="riesgos" role="tabpanel" aria-label="Riesgos" hidden>
+    <div class="tb-tarjeta" id="matriz">
+      <h2>Mapa de riesgos</h2>
+      <p class="tb-nota">Los riesgos vivos —abiertos y materializados— por probabilidad e impacto, como los escribe el registro. Los materializados van en rojo.</p>
+      <div class="tb-matriz" id="rie-matriz" data-source="riesgos"></div>
+    </div>
+    <div class="tb-tarjeta" id="registro">
+      <h2>Registro de riesgos</h2>
+      <div class="tb-controles" id="rie-filtros">
+        <button class="tb-chip" data-filtro="vivos" aria-pressed="true">Vivos</button>
+        <button class="tb-chip" data-filtro="todos" aria-pressed="false">Todos</button>
+        <input class="tb-buscar" id="rie-buscar" type="search" placeholder="Buscar" aria-label="Buscar en riesgos">
+      </div>
+      <div class="tb-tabla-caja alta">
+        <table class="tb-tabla" id="tabla-riesgos" data-source="riesgos" data-row-key="id">
+          <thead><tr>
+            <th data-field="id">ID</th>
+            <th data-field="riesgo">Riesgo</th>
+            <th data-field="probabilidad">Prob.</th>
+            <th data-field="impacto">Impacto</th>
+            <th data-field="dueno" class="tb-ocultable">Dueño</th>
+            <th data-field="revision" class="tb-ocultable">Revisión</th>
+            <th data-field="estado">Estado</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== ACTAS ============================== -->
+  <section class="tb-pag" id="actas" role="tabpanel" aria-label="Actas" hidden>
+    <div class="tb-tarjeta" id="lista-actas">
+      <h2>Actas de sesión</h2>
+      <p class="tb-nota">Cada acta guarda lo que Nadir declaró en sesión: es la evidencia de grado C del proyecto.</p>
+      <div class="tb-tabla-caja">
+        <table class="tb-tabla" id="tabla-actas" data-source="actas" data-row-key="archivo">
+          <thead><tr>
+            <th data-field="fecha">Fecha</th>
+            <th data-field="tema">Tema</th>
+            <th data-field="declaraciones" class="tb-num-th">Declaraciones</th>
+            <th data-field="primera" class="tb-ocultable">Desde</th>
+            <th data-field="ultima" class="tb-ocultable">Hasta</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ---------- Cálculos: cada uno se ve en Sources con su fórmula ---------- */
+dash.calc('cimiento', {
+  inputs: ['fases'],
+  title: 'Fases del cimiento por estado',
+  description: 'Cuántas fases están cerradas, con o sin pendientes, cuántas detenidas y cuántas sin empezar.',
+  fn: (fases) => [{
+    total: fases.length,
+    listas: fases.filter((f) => f.estado === 'cerrada' || f.estado === 'cerrada con pendientes').length,
+    sin_cerrar: fases.filter((f) => f.estado !== 'cerrada' && f.estado !== 'cerrada con pendientes').length,
+    detenidas: fases.filter((f) => f.estado === 'detenida').length,
+    sin_empezar: fases.filter((f) => f.estado === 'sin empezar').length,
+  }],
+});
+dash.calc('entregables', {
+  inputs: ['obligaciones'],
+  title: 'Entregables completos',
+  description: 'Obligaciones de entrega, todas menos las de conducta, que están completas o casi completas.',
+  fn: (obligaciones) => {
+    const e = obligaciones.filter((o) => o.grupo !== 'Conducta');
+    return [{ total: e.length, completas: e.filter((o) => o.estado === 'completa').length, casi: e.filter((o) => o.estado === 'casi completa').length }];
+  },
+});
+dash.calc('decisiones', {
+  inputs: ['deuda'],
+  title: 'Decisiones abiertas y vencidas',
+  description: 'Decisiones abiertas, las que pasaron su límite sugerido al corte, las contractuales y las que esperan respuesta del cliente o de su diseñador.',
+  fn: (deuda) => {
+    const a = deuda.filter((d) => d.abierta);
+    return [{
+      abiertas: a.length,
+      vencidas: a.filter((d) => d.vencida).length,
+      contractuales: a.filter((d) => d.contractual).length,
+      del_cliente: a.filter((d) => /CLIENTE|Alfredo|diseñador/i.test(d.quien)).length,
+    }];
+  },
+});
+dash.calc('riesgos_altos', {
+  inputs: ['riesgos'],
+  title: 'Riesgos altos',
+  description: 'Riesgos vivos —abiertos o materializados— con probabilidad e impacto de media-alta para arriba.',
+  fn: (riesgos) => {
+    const v = riesgos.filter((r) => r.estado === 'abierto' || r.estado === 'materializado');
+    return [{ vivos: v.length, altos: v.filter((r) => r.p >= 2.5 && r.i >= 2.5).length, materializados: riesgos.filter((r) => r.estado === 'materializado').length }];
+  },
+});
+dash.calc('restantes', {
+  inputs: ['corte'],
+  title: 'Semanas que quedan',
+  description: 'Semanas del calendario de ejecución que quedan después de la semana del corte.',
+  fn: (corte) => [{ semanas: corte[0].semanas_contrato - corte[0].semana }],
+});
+dash.calc('deuda_aviso', {
+  inputs: ['deuda'],
+  title: 'Vencimiento de decisiones',
+  description: 'Si cada decisión sigue abierta y si pasó su límite sugerido, con los días contados al corte.',
+  fn: (deuda) => deuda.map((d) => ({
+    id: d.id,
+    aviso: !d.abierta ? 'cerrada' : d.vencida ? (d.dias_vencida != null ? 'vencida hace ' + d.dias_vencida + ' d' : 'vencida') : 'abierta',
+  })),
+});
+dash.calc('siguientes_aviso', {
+  inputs: ['siguientes'],
+  title: 'Vencimiento de acciones',
+  description: 'Si cada acción de lo que sigue pasó su fecha límite, con los días contados al corte.',
+  fn: (siguientes) => siguientes.map((s) => ({
+    orden: s.orden,
+    aviso: s.vencida ? 'vencida hace ' + s.dias_vencida + ' d' : s.limite ? 'a tiempo' : 'sin fecha',
+  })),
+});
+
+/* ---------- Formatos y tonos ---------- */
+const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const fecha = (iso) => {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return iso ?? '';
+  const d = new Date(iso.slice(0, 10) + 'T00:00:00Z');
+  return d.getUTCDate() + ' ' + MES[d.getUTCMonth()] + (d.getUTCFullYear() !== 2026 ? ' ' + d.getUTCFullYear() : '');
+};
+const dinero = (n) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n);
+const entero = (n) => new Intl.NumberFormat('es-MX').format(n);
+const CAMPOS_FECHA = new Set(['fecha', 'inicio', 'fin', 'limite', 'limite_fecha', 'fin_contrato', 'inicio_contrato']);
+const formato = (campo, v) => {
+  if (v == null || v === '') return '—';
+  if (CAMPOS_FECHA.has(campo)) return fecha(String(v));
+  if (campo === 'monto') return dinero(v);
+  if (typeof v === 'number') return entero(v);
+  return String(v);
+};
+const TONO = {
+  'cerrada': 'ok', 'cumplida': 'ok', 'completa': 'ok', 'acreditado': 'ok', 'completo': 'ok', 'a tiempo': 'ok',
+  'cerrada con pendientes': 'parcial', 'en curso': 'parcial', 'casi completa': 'parcial', 'iniciado': 'parcial', 'abierta': 'parcial',
+  'atrasada': 'alerta', 'sin registro': 'alerta', 'sin empezar': 'neutro', 'detenida': 'mal', 'no ha empezado': 'mal',
+  'por venir': 'neutro', 'pendiente': 'neutro', 'no aplica todavía': 'neutro', 'sin fecha': 'neutro',
+  'abierto': 'neutro', 'materializado': 'mal', 'cerrado': 'ok', 'superseded': 'neutro',
+};
+const tono = (v) => (/^vencida/.test(v) ? 'mal' : TONO[v] || 'neutro');
+const CAMPOS_PILL = new Set(['estado', 'aviso']);
+window.tbAcento = dash.colors && dash.colors[0];
+document.querySelector('.tb').style.setProperty('--tb-acento', window.tbAcento || 'var(--color-fg)');
+
+/* ---------- Relleno de las marcas sueltas ---------- */
+const filasDe = (d) => (Array.isArray(d.data) ? d.data : d.data == null ? [] : [d.data]);
+const filaDe = (el, filas) => {
+  if (el.dataset.row !== undefined) return filas[Number(el.dataset.row)];
+  if (el.dataset.where) {
+    const conds = el.dataset.where.split('&').map((p) => p.split('=').map(decodeURIComponent));
+    return filas.find((r) => conds.every(([k, v]) => String(r[k]) === v));
+  }
+  return filas[0];
+};
+function rellenarSueltas() {
+  document.querySelectorAll('.tb [data-source][data-field]').forEach((el) => {
+    if (el.closest('table')) return;
+    const d = dash.data(el.dataset.source);
+    if (d.status !== 'ok') { if (d.status !== 'loading') { el.textContent = '—'; el.classList.remove('dash-skeleton'); } return; }
+    const fila = filaDe(el, filasDe(d));
+    el.textContent = fila ? formato(el.dataset.field, fila[el.dataset.field]) : '—';
+    el.classList.remove('dash-skeleton');
+  });
+}
+
+/* ---------- Tablas: celdas de solo texto; la clave de la fila va en el <tr> ---------- */
+const FILTROS = { 'tabla-deuda': 'abiertas', 'tabla-riesgos': 'vivos' };
+const BUSCAR = { 'tabla-deuda': 'deu-buscar', 'tabla-obl': 'obl-buscar', 'tabla-riesgos': 'rie-buscar' };
+const filtroDe = {
+  'tabla-deuda': (r, f) => f === 'todas' || (f === 'abiertas' && r.abierta) || (f === 'vencidas' && r.vencida) || (f === 'contractuales' && r.abierta && r.contractual) || (f === 'cliente' && r.abierta && /CLIENTE|Alfredo|diseñador/i.test(r.quien)),
+  'tabla-riesgos': (r, f) => f === 'todos' || r.estado === 'abierto' || r.estado === 'materializado',
+};
+const ordenDe = {
+  'tabla-deuda': (a, b) => (b.vencida - a.vencida) || (b.contractual - a.contractual) || a.num - b.num,
+  'tabla-riesgos': (a, b) => ((b.estado === 'materializado') - (a.estado === 'materializado')) || ((b.severidad || 0) - (a.severidad || 0)) || a.id.localeCompare(b.id),
+  'tabla-actas': (a, b) => b.fecha.localeCompare(a.fecha) || b.archivo.localeCompare(a.archivo),
+  'tabla-obl': (a, b) => a.num - b.num,
+};
+const CLASE_CELDA = { id: 'tb-id', orden: 'tb-id', monto: 'tb-num', declaraciones: 'tb-num', evidencia: 'tb-evid', accion: 'tb-largo', decision: 'tb-largo', riesgo: 'tb-largo', obligacion: 'tb-largo' };
+function llenarTabla(tabla) {
+  const d = dash.data(tabla.dataset.source);
+  const cuerpo = tabla.tBodies[0];
+  if (d.status !== 'ok') { if (d.status !== 'loading') cuerpo.replaceChildren(); return; }
+  const clave = tabla.dataset.rowKey;
+  const ths = [...tabla.tHead.rows[0].cells];
+  const calcs = {};
+  ths.forEach((th) => {
+    if (th.dataset.source && !calcs[th.dataset.source]) {
+      const c = dash.data(th.dataset.source);
+      calcs[th.dataset.source] = new Map((c.status === 'ok' ? filasDe(c) : []).map((r) => [String(r[clave]), r]));
+    }
+  });
+  let filas = filasDe(d).slice();
+  const f = FILTROS[tabla.id];
+  if (f && filtroDe[tabla.id]) filas = filas.filter((r) => filtroDe[tabla.id](r, f));
+  const q = BUSCAR[tabla.id] && document.getElementById(BUSCAR[tabla.id]).value.trim().toLowerCase();
+  if (q) filas = filas.filter((r) => Object.values(r).some((v) => String(v).toLowerCase().includes(q)));
+  if (ordenDe[tabla.id]) filas.sort(ordenDe[tabla.id]);
+  cuerpo.replaceChildren(...filas.map((r) => {
+    const tr = document.createElement('tr');
+    tr.dataset.key = String(r[clave]);
+    if (r.vencida) tr.classList.add('vencida');
+    if (r.contractual && r.abierta) tr.classList.add('contractual');
+    ths.forEach((th) => {
+      const td = document.createElement('td');
+      const campo = th.dataset.field;
+      const v = th.dataset.source ? (calcs[th.dataset.source].get(String(r[clave])) || {})[campo] : r[campo];
+      if (CLASE_CELDA[campo]) td.className = CLASE_CELDA[campo];
+      if (th.classList.contains('tb-ocultable')) td.classList.add('tb-ocultable');
+      if (CAMPOS_PILL.has(campo) && v) {
+        const s = document.createElement('span');
+        s.className = 'tb-pill ' + tono(String(v));
+        s.textContent = String(v);
+        td.append(s);
+      } else {
+        td.textContent = formato(campo, v);
+      }
+      tr.append(td);
+    });
+    return tr;
+  }));
+}
+document.querySelectorAll('.tb-controles').forEach((caja) => {
+  const tabla = caja.closest('.tb-tarjeta').querySelector('table');
+  caja.querySelectorAll('.tb-chip').forEach((b) => b.addEventListener('click', () => {
+    caja.querySelectorAll('.tb-chip').forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+    FILTROS[tabla.id] = b.dataset.filtro;
+    llenarTabla(tabla);
+  }));
+  const buscar = caja.querySelector('.tb-buscar');
+  if (buscar) buscar.addEventListener('input', () => llenarTabla(tabla));
+});
+
+/* ---------- Tono de las cifras: rojo o ámbar solo cuando los datos lo piden ---------- */
+function tonosCifras() {
+  const uno = (id) => { const d = dash.data(id); return d.status === 'ok' ? filasDe(d)[0] : null; };
+  const poner = (id, t) => { const el = document.getElementById(id); el.classList.remove('ok', 'alerta', 'mal'); if (t) el.classList.add(t); };
+  const c = uno('cimiento'), dd = uno('decisiones'), r = uno('riesgos_altos'), cap = dash.data('capacidad');
+  if (c) poner('kpi-cimiento', c.sin_cerrar > 0 ? 'mal' : '');
+  if (dd) poner('kpi-decisiones', dd.vencidas > 0 ? 'mal' : '');
+  if (r) poner('kpi-riesgos', r.altos > 0 ? 'alerta' : '');
+  if (cap.status === 'ok') {
+    const filas = filasDe(cap), media = filas.find((x) => x.concepto === 'Media'), disp = filas.find((x) => x.concepto === 'Disponibles');
+    if (media && disp) poner('kpi-horas', media.horas_max > disp.horas_max ? 'mal' : media.horas_max > disp.horas_min ? 'alerta' : '');
+  }
+}
+
+/* ---------- Cabecera ---------- */
+function cabecera() {
+  const c = dash.data('cimiento'), k = dash.data('calendario');
+  if (c.status !== 'ok' || k.status !== 'ok') return;
+  const sinCerrar = filasDe(c)[0].sin_cerrar;
+  const dev = filasDe(k).find((r) => r.actividad === 'Desarrollo de la aplicación, primera iteración');
+  document.getElementById('ver-no').hidden = sinCerrar === 0;
+  document.getElementById('ver-si').hidden = sinCerrar !== 0;
+  document.getElementById('lec-cimiento').hidden = sinCerrar === 0;
+  document.getElementById('lec-desarrollo').hidden = !dev || dev.estado !== 'no ha empezado';
+}
+
+/* ---------- Fases ---------- */
+function dibujarFases() {
+  const caja = document.getElementById('fases-lista');
+  const d = dash.data('fases');
+  if (d.status !== 'ok') { caja.replaceChildren(); return; }
+  caja.replaceChildren(...filasDe(d).map((f) => {
+    const div = document.createElement('div');
+    div.className = 'tb-fase ' + tono(f.estado);
+    const n = document.createElement('span'); n.className = 'tb-fase-n'; n.textContent = 'Fase ' + f.fase;
+    const nom = document.createElement('span'); nom.className = 'tb-fase-nom'; nom.textContent = f.nombre;
+    const p = document.createElement('span'); p.className = 'tb-pill ' + tono(f.estado); p.textContent = f.estado;
+    div.append(n, nom, p);
+    return div;
+  }));
+}
+
+/* ---------- Tooltip ---------- */
+function tip(caja) {
+  let t = caja.querySelector('.tb-tip');
+  if (!t) { t = document.createElement('div'); t.className = 'tb-tip'; t.hidden = true; caja.append(t); }
+  return {
+    mostrar(ev, lineas) {
+      t.replaceChildren(...lineas.map((l, i) => { const p = document.createElement('div'); if (i === 0) p.className = 'tb-tip-pri'; p.textContent = l; return p; }));
+      t.hidden = false;
+      const r = caja.getBoundingClientRect();
+      const x = ev.clientX - r.left, y = ev.clientY - r.top;
+      const w = t.offsetWidth, h = t.offsetHeight;
+      t.style.left = Math.max(0, Math.min(x + 12, r.width - w)) + 'px';
+      t.style.top = Math.max(0, y - h - 10) + 'px';
+    },
+    ocultar() { t.hidden = true; },
+  };
+}
+
+/* ---------- Calendario ---------- */
+function dibujarCalendario() {
+  const caja = document.getElementById('cal-grafica');
+  const c = dash.data('calendario'), k = dash.data('corte');
+  caja.querySelectorAll('svg').forEach((s) => s.remove());
+  if (c.status !== 'ok' || k.status !== 'ok') return;
+  const W = caja.clientWidth;
+  if (!W) return;
+  const filas = filasDe(c), corte = filasDe(k)[0];
+  const alto = 36, top = 22, H = top + filas.length * alto + 22;
+  const x0 = new Date(corte.inicio_contrato + 'T00:00:00Z');
+  const x1 = d3.utcDay.offset(new Date(filas[filas.length - 1].fin + 'T00:00:00Z'), 1);
+  const x = d3.scaleUtc([x0, x1], [1, W - 1]);
+  caja.style.minHeight = H + 'px';
+  const svg = d3.select(caja).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Calendario del contrato por semanas');
+  const semanas = d3.range(0, corte.semanas_contrato + 1).map((n) => d3.utcDay.offset(x0, 7 * n));
+  svg.append('g').selectAll('line').data(semanas).join('line').attr('class', 'tb-grid').attr('x1', (d) => x(d)).attr('x2', (d) => x(d)).attr('y1', top - 6).attr('y2', H - 18);
+  const ancho = x(semanas[1]) - x(semanas[0]);
+  const paso = ancho >= 34 ? 1 : ancho >= 17 ? 2 : 4;
+  svg.append('g').selectAll('text').data(semanas.slice(0, -1).filter((_, i) => i % paso === 0)).join('text')
+    .attr('class', 'tb-tick').attr('x', (d) => x(d) + 3).attr('y', 12).text((d) => 'S' + (Math.round((d - x0) / 6048e5) + 1));
+  const op = svg.append('text').attr('class', 'tb-tick').attr('y', 12).text('Operación');
+  op.attr('x', Math.min(x(semanas[semanas.length - 1]) + 3, W - op.node().getComputedTextLength() - 2));
+  const g = svg.append('g').attr('transform', `translate(0,${top})`);
+  const t = tip(caja);
+  filas.forEach((r, i) => {
+    const y = i * alto;
+    const a = new Date(r.inicio + 'T00:00:00Z'), b = d3.utcDay.offset(new Date(r.fin + 'T00:00:00Z'), 1);
+    const xa = x(a), xb = x(b);
+    const etq = g.append('text').attr('class', 'tb-cal-etq').attr('y', y + 11).text(r.actividad);
+    let texto = r.actividad;
+    while (etq.node().getComputedTextLength() > W - 4 && texto.length > 8) { texto = texto.slice(0, -2); etq.text(texto.trimEnd() + '…'); }
+    const L = etq.node().getComputedTextLength();
+    etq.attr('x', Math.min(Math.max(0, xa), Math.max(0, W - L - 2)));
+    g.append('rect').attr('class', 'tb-barra ' + tono(r.estado)).attr('x', xa).attr('y', y + 16).attr('width', Math.max(3, xb - xa)).attr('height', 12).attr('rx', 4);
+    g.append('rect').attr('class', 'tb-hit').attr('x', 0).attr('y', y).attr('width', W).attr('height', alto)
+      .on('mousemove', (ev) => t.mostrar(ev, ['Semanas ' + r.semanas + ' · ' + fecha(r.inicio) + ' a ' + fecha(r.fin), r.actividad, 'Estado: ' + r.estado].concat(r.evidencia && r.evidencia !== '—' ? [r.evidencia] : [])))
+      .on('mouseleave', () => t.ocultar());
+  });
+  const xc = x(new Date(corte.fecha + 'T00:00:00Z'));
+  svg.append('line').attr('class', 'tb-corte-linea').attr('x1', xc).attr('x2', xc).attr('y1', top - 6).attr('y2', H - 16);
+  const ce = svg.append('text').attr('class', 'tb-corte-etq').attr('y', H - 3).text('Corte · ' + fecha(corte.fecha));
+  const cl = ce.node().getComputedTextLength();
+  ce.attr('x', Math.min(Math.max(0, xc - cl / 2), W - cl - 2));
+}
+
+/* ---------- Horas ---------- */
+function dibujarHoras() {
+  const caja = document.getElementById('cap-grafica');
+  const d = dash.data('capacidad');
+  caja.querySelectorAll('svg').forEach((s) => s.remove());
+  if (d.status !== 'ok') return;
+  const W = caja.clientWidth;
+  if (!W) return;
+  const filas = filasDe(d);
+  const disp = filas.find((r) => r.concepto === 'Disponibles');
+  const alto = 30, H = filas.length * alto + 26;
+  caja.style.minHeight = H + 'px';
+  const svg = d3.select(caja).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Horas necesarias contra horas disponibles');
+  const medir = svg.append('text').attr('class', 'tb-tick');
+  const anchoEtq = d3.max(filas, (r) => medir.text(r.concepto).node().getComputedTextLength());
+  medir.remove();
+  const izq = Math.min(anchoEtq + 10, W * 0.45);
+  const max = d3.max(filas, (r) => r.horas_max);
+  const x = d3.scaleLinear([0, max * 1.12], [izq, W - 4]);
+  if (disp) svg.append('rect').attr('class', 'tb-banda').attr('x', x(disp.horas_min)).attr('y', 0).attr('width', x(disp.horas_max) - x(disp.horas_min)).attr('height', filas.length * alto);
+  x.ticks(4).forEach((v) => {
+    svg.append('line').attr('class', 'tb-grid').attr('x1', x(v)).attr('x2', x(v)).attr('y1', 0).attr('y2', filas.length * alto);
+    svg.append('text').attr('class', 'tb-tick').attr('x', x(v)).attr('y', H - 6).attr('text-anchor', 'middle').text(entero(v) + ' h');
+  });
+  const t = tip(caja);
+  filas.forEach((r, i) => {
+    const y = i * alto;
+    let etq = r.concepto;
+    const e = svg.append('text').attr('class', 'tb-cal-etq').attr('x', 0).attr('y', y + 19).text(etq);
+    while (e.node().getComputedTextLength() > izq - 8 && etq.length > 6) { etq = etq.slice(0, -2); e.text(etq.trimEnd() + '…'); }
+    const necesarias = r.tipo === 'necesarias';
+    const xa = necesarias ? x(0) : x(r.horas_min), xb = x(r.horas_max);
+    const t2 = !disp ? 'neutro' : r.horas_max <= disp.horas_min ? 'ok' : r.horas_max <= disp.horas_max ? 'alerta' : 'mal';
+    svg.append('rect').attr('class', 'tb-barra ' + (necesarias ? t2 : 'parcial')).attr('x', xa).attr('y', y + 8).attr('width', Math.max(3, xb - xa)).attr('height', 14).attr('rx', 4);
+    const val = necesarias ? entero(r.horas_max) + ' h' : entero(r.horas_min) + '–' + entero(r.horas_max) + ' h';
+    const v = svg.append('text').attr('class', 'tb-tick').attr('y', y + 19).text(val);
+    const vl = v.node().getComputedTextLength();
+    v.attr('x', xb + 4 + vl > W ? xb - vl - 4 : xb + 4);
+    svg.append('rect').attr('class', 'tb-hit').attr('x', 0).attr('y', y).attr('width', W).attr('height', alto)
+      .on('mousemove', (ev) => t.mostrar(ev, [necesarias ? 'Horas que pide el alcance' : 'Horas disponibles', r.concepto + ': ' + val]))
+      .on('mouseleave', () => t.ocultar());
+  });
+}
+
+/* ---------- Obligaciones por grupo ---------- */
+function dibujarGrupos() {
+  const caja = document.getElementById('obl-grupos');
+  const d = dash.data('obligaciones');
+  if (d.status !== 'ok') { caja.replaceChildren(); return; }
+  const grupos = d3.groups(filasDe(d), (o) => o.grupo);
+  const ORDEN = ['ok', 'parcial', 'alerta', 'mal', 'neutro'];
+  caja.replaceChildren(...grupos.map(([g, os]) => {
+    const fila = document.createElement('div'); fila.className = 'tb-grupo';
+    const n = document.createElement('span'); n.textContent = g;
+    const barra = document.createElement('div'); barra.className = 'tb-grupo-barra';
+    ORDEN.forEach((t) => {
+      const k = os.filter((o) => tono(o.estado) === t).length;
+      if (!k) return;
+      const s = document.createElement('span'); s.className = t; s.style.width = (100 * k / os.length) + '%';
+      barra.append(s);
+    });
+    const tot = document.createElement('span'); tot.className = 'tb-grupo-n'; tot.textContent = entero(os.length);
+    fila.append(n, barra, tot);
+    return fila;
+  }));
+}
+
+/* ---------- Matriz de riesgos ---------- */
+function dibujarMatriz() {
+  const caja = document.getElementById('rie-matriz');
+  const d = dash.data('riesgos');
+  if (d.status !== 'ok') { caja.replaceChildren(); return; }
+  const P = [['alta', 3], ['media-alta', 2.5], ['media', 2], ['baja', 1]];
+  const I = [['bajo', 1], ['bajo-medio', 1.5], ['medio', 2], ['medio-alto', 2.5], ['alto', 3]];
+  const vivos = filasDe(d).filter((r) => r.estado === 'abierto' || r.estado === 'materializado');
+  const nodos = [];
+  const eje = (texto, col) => { const e = document.createElement('div'); e.className = 'eje' + (col ? ' col' : ''); e.textContent = texto; return e; };
+  P.forEach(([pn, pv]) => {
+    nodos.push(eje(pn));
+    I.forEach(([, iv]) => {
+      const c = document.createElement('div');
+      const s = pv * iv;
+      c.className = 'tb-celda' + (s >= 6 ? ' s3' : s >= 4 ? ' s2' : '');
+      vivos.filter((r) => r.p === pv && r.i === iv).forEach((r) => {
+        const chip = document.createElement('span');
+        chip.className = 'tb-rid' + (r.estado === 'materializado' ? ' mat' : '');
+        chip.textContent = r.id;
+        c.append(chip);
+      });
+      nodos.push(c);
+    });
+  });
+  nodos.push(eje('Prob. / impacto'));
+  I.forEach(([iname]) => nodos.push(eje(iname, true)));
+  caja.replaceChildren(...nodos);
+}
+
+/* ---------- Pestañas y dibujo ---------- */
+const pestanas = [...document.querySelectorAll('.tb-tab')];
+const paginas = [...document.querySelectorAll('.tb-pag')];
+let actual = 'resumen';
+function dibujarVisible() {
+  if (actual === 'resumen') { dibujarCalendario(); dibujarHoras(); }
+}
+function mostrar(id) {
+  if (!paginas.some((p) => p.id === id)) return false;
+  actual = id;
+  paginas.forEach((p) => { p.hidden = p.id !== id; });
+  pestanas.forEach((b) => b.setAttribute('aria-selected', String(b.dataset.pag === id)));
+  dash.setLink(id);
+  dibujarVisible();
+  return true;
+}
+pestanas.forEach((b) => b.addEventListener('click', () => mostrar(b.dataset.pag)));
+
+dash.onData(() => {
+  rellenarSueltas();
+  tonosCifras();
+  cabecera();
+  dibujarFases();
+  dibujarGrupos();
+  dibujarMatriz();
+  document.querySelectorAll('.tb table[data-source]').forEach(llenarTabla);
+  dibujarVisible();
+});
+
+const llegada = location.hash.slice(1);
+if (llegada) {
+  if (!mostrar(llegada)) {
+    const el = document.getElementById(llegada);
+    if (el) { const pag = el.closest('.tb-pag'); if (pag) mostrar(pag.id); el.scrollIntoView(); dash.setLink(llegada); }
+  }
+}
+</script>

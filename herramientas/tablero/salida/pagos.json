@@ -1,0 +1,32 @@
+[
+ {
+  "pago": 1,
+  "nombre": "1 Arranque",
+  "monto": 30000,
+  "hito": "Firma del contrato",
+  "condicion": "No reembolsable",
+  "fecha_esperada": "Acreditado según C-02 (fecha: DD-007)",
+  "estado": "acreditado",
+  "evidencia": "C-02. Fecha y comprobante sin declarar (DD-007)"
+ },
+ {
+  "pago": 2,
+  "nombre": "2 Despliegue",
+  "monto": 30000,
+  "hito": "Despliegue en producción",
+  "condicion": "App publicada en ambas tiendas y landing en dominio activo",
+  "fecha_esperada": "Semanas 15–16 (14–27 dic)",
+  "estado": "pendiente",
+  "evidencia": "Semanas 15 y 16"
+ },
+ {
+  "pago": 3,
+  "nombre": "3 Operación",
+  "monto": 30000,
+  "hito": "Un mes de operación",
+  "condicion": "30 días naturales tras el despliegue, con observaciones atendidas conforme IV y A.7, con independencia de si se agotaron las horas de soporte",
+  "fecha_esperada": "26 ene 2027",
+  "estado": "pendiente",
+  "evidencia": "26 de enero de 2027"
+ }
+]

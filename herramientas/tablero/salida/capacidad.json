@@ -1,0 +1,32 @@
+[
+ {
+  "concepto": "Optimista",
+  "tipo": "necesarias",
+  "horas_min": 240,
+  "horas_max": 240
+ },
+ {
+  "concepto": "Media",
+  "tipo": "necesarias",
+  "horas_min": 389,
+  "horas_max": 389
+ },
+ {
+  "concepto": "Conservadora",
+  "tipo": "necesarias",
+  "horas_min": 629,
+  "horas_max": 629
+ },
+ {
+  "concepto": "Disponibles",
+  "tipo": "disponibles",
+  "horas_min": 180,
+  "horas_max": 270
+ },
+ {
+  "concepto": "Disponibles sin las 5 h de diseño",
+  "tipo": "disponibles",
+  "horas_min": 135,
+  "horas_max": 225
+ }
+]

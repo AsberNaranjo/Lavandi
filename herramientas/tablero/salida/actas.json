@@ -1,0 +1,138 @@
+[
+ {
+  "fecha": "2026-09-07",
+  "tema": "Sesión de fundación (Fases 0 a 8)",
+  "archivo": "vault/meta/actas/acta-2026-09-07-fundacion.md",
+  "declaraciones": 39,
+  "primera": "C-01",
+  "ultima": "C-39"
+ },
+ {
+  "fecha": "2026-09-08",
+  "tema": "Cambio de dirección de marca",
+  "archivo": "vault/meta/actas/acta-2026-09-08-nombres-de-categoria.md",
+  "declaraciones": 2,
+  "primera": "C-40",
+  "ultima": "C-41"
+ },
+ {
+  "fecha": "2026-09-09",
+  "tema": "Ronda global y aviso de retraso",
+  "archivo": "vault/meta/actas/acta-2026-09-09-nombres-globales.md",
+  "declaraciones": 4,
+  "primera": "C-42",
+  "ultima": "C-45"
+ },
+ {
+  "fecha": "2026-09-10",
+  "tema": "El cliente fija el criterio del nombre",
+  "archivo": "vault/meta/actas/acta-2026-09-10-brief-fijado.md",
+  "declaraciones": 2,
+  "primera": "C-46",
+  "ultima": "C-47"
+ },
+ {
+  "fecha": "2026-09-11",
+  "tema": "Se archiva el prompt maestro",
+  "archivo": "vault/meta/actas/acta-2026-09-11-archivo-del-prompt-maestro.md",
+  "declaraciones": 1,
+  "primera": "C-48",
+  "ultima": "C-48"
+ },
+ {
+  "fecha": "2026-09-11",
+  "tema": "El cliente decide Lavandi y se abre el cimiento técnico",
+  "archivo": "vault/meta/actas/acta-2026-09-11-lavandi-y-arranque-tecnico.md",
+  "declaraciones": 5,
+  "primera": "C-49",
+  "ultima": "C-53"
+ },
+ {
+  "fecha": "2026-09-12",
+  "tema": "Alfredo aprueba el nombre y arrancan las pantallas",
+  "archivo": "vault/meta/actas/acta-2026-09-12-aprobacion-del-nombre.md",
+  "declaraciones": 3,
+  "primera": "C-65",
+  "ultima": "C-67"
+ },
+ {
+  "fecha": "2026-09-12",
+  "tema": "Marca visual decidida y traspaso de la Fase 4",
+  "archivo": "vault/meta/actas/acta-2026-09-12-marca-visual.md",
+  "declaraciones": 11,
+  "primera": "C-54",
+  "ultima": "C-64"
+ },
+ {
+  "fecha": "2026-09-12",
+  "tema": "Paleta elegida y lectura del logotipo",
+  "archivo": "vault/meta/actas/acta-2026-09-12-paleta-y-logotipo.md",
+  "declaraciones": 9,
+  "primera": "C-54",
+  "ultima": "C-62"
+ },
+ {
+  "fecha": "2026-09-17",
+  "tema": "Nadir apoyará a EL CLIENTE con contenido",
+  "archivo": "vault/meta/actas/acta-2026-09-17-apoyo-con-contenido.md",
+  "declaraciones": 1,
+  "primera": "C-70",
+  "ultima": "C-70"
+ },
+ {
+  "fecha": "2026-09-17",
+  "tema": "EL CLIENTE acepta el riesgo del parecido y se hace el manual",
+  "archivo": "vault/meta/actas/acta-2026-09-17-riesgo-aceptado.md",
+  "declaraciones": 2,
+  "primera": "C-68",
+  "ultima": "C-69"
+ },
+ {
+  "fecha": "2026-09-19",
+  "tema": "Términos del apoyo con contenido, y Canva",
+  "archivo": "vault/meta/actas/acta-2026-09-19-terminos-del-apoyo-y-canva.md",
+  "declaraciones": 4,
+  "primera": "C-71",
+  "ultima": "C-74"
+ },
+ {
+  "fecha": "2026-09-20",
+  "tema": "Retroalimentación de EL CLIENTE sobre el manual de identidad",
+  "archivo": "vault/meta/actas/acta-2026-09-20-feedback-del-manual.md",
+  "declaraciones": 14,
+  "primera": "C-75",
+  "ultima": "C-88"
+ },
+ {
+  "fecha": "2026-09-25",
+  "tema": "Experiencia del equipo, y una fase de análisis funcional antes del stack",
+  "archivo": "vault/meta/actas/acta-2026-09-25-analisis-funcional.md",
+  "declaraciones": 5,
+  "primera": "C-89",
+  "ultima": "C-93"
+ },
+ {
+  "fecha": "2026-09-29",
+  "tema": "La parte técnica pasa a su propia sesión, y una plantilla para la landing",
+  "archivo": "vault/meta/actas/acta-2026-09-29-sesion-tecnica-y-plantilla-landing.md",
+  "declaraciones": 2,
+  "primera": "C-94",
+  "ultima": "C-95"
+ },
+ {
+  "fecha": "2026-09-30",
+  "tema": "Segunda revisión del manual, y el logotipo de la palabra del diseñador",
+  "archivo": "vault/meta/actas/acta-2026-09-30-segunda-revision-del-manual.md",
+  "declaraciones": 8,
+  "primera": "C-96",
+  "ultima": "C-103"
+ },
+ {
+  "fecha": "2026-10-09",
+  "tema": "El tablero del proyecto, y lo que sigue",
+  "archivo": "vault/meta/actas/acta-2026-10-09-tablero-del-proyecto.md",
+  "declaraciones": 1,
+  "primera": "C-104",
+  "ultima": "C-104"
+ }
+]

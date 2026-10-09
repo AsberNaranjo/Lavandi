@@ -1,0 +1,72 @@
+[
+ {
+  "orden": 0,
+  "fase": "0",
+  "nombre": "Espacio de trabajo",
+  "estado": "cerrada",
+  "evidencia": "Repo, vault, CLAUDE.md y git; publicado en GitHub, privado (commit 0c99e21)"
+ },
+ {
+  "orden": 1,
+  "fase": "1",
+  "nombre": "Lectura ejecutiva del contrato",
+  "estado": "cerrada",
+  "evidencia": "contrato/obligaciones-ejecutivas.md, brecha-ejecutivo-tecnico.md y restricciones-no-negociables.md, los tres vigente"
+ },
+ {
+  "orden": 2,
+  "fase": "2",
+  "nombre": "Negocio",
+  "estado": "cerrada con pendientes",
+  "evidencia": "Propuesta de valor, competencia, unit economics e hipótesis, en borrador. Abiertos el método de precio (DD-010) y el sondeo de precios (DD-026)"
+ },
+ {
+  "orden": 3,
+  "fase": "3",
+  "nombre": "Marca",
+  "estado": "cerrada con pendientes",
+  "evidencia": "Nombre aprobado por escrito (C-65); manual 1.2 sin observaciones (C-103); guía de tono. Faltan las 12 plantillas (O-04), el .ai del símbolo, la búsqueda ante el IMPI (DD-030) y la licencia de la fuente del logotipo (DD-060)"
+ },
+ {
+  "orden": 4,
+  "fase": "4",
+  "nombre": "Design system",
+  "estado": "cerrada con pendientes",
+  "evidencia": "design-system/design-system.md vigente; tokens, componentes y muestra. Abierta DD-039: si la v1 lleva modo claro y oscuro"
+ },
+ {
+  "orden": 5,
+  "fase": "5",
+  "nombre": "Arquitectura C4",
+  "estado": "cerrada con pendientes",
+  "evidencia": "C1, C2 y C3 en borrador; ADR-0001. Abierta DD-040: dónde vive el panel de administración"
+ },
+ {
+  "orden": 6,
+  "fase": "5-bis",
+  "nombre": "Análisis funcional",
+  "estado": "cerrada",
+  "evidencia": "contrato/inventario-funcional.md vigente: 76 funciones. Su veredicto, con la estimación media: no está listo (§7)"
+ },
+ {
+  "orden": 7,
+  "fase": "6",
+  "nombre": "Stack",
+  "estado": "detenida",
+  "evidencia": "arquitectura/matriz-de-criterios-stack.md en borrador, esperando que Nadir ajuste los pesos. Cero de los trece ADRs (0002 a 0014). C-94: la parte técnica se iba a seguir en otra conversación; no hay registro de ella en el vault"
+ },
+ {
+  "orden": 8,
+  "fase": "7",
+  "nombre": "Formas de trabajo",
+  "estado": "sin empezar",
+  "evidencia": "vault/formas-de-trabajo/ vacío"
+ },
+ {
+  "orden": 9,
+  "fase": "8",
+  "nombre": "Instrumental de Claude",
+  "estado": "sin empezar",
+  "evidencia": ".claude/agents/ y .claude/skills/ vacíos"
+ }
+]

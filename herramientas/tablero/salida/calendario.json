@@ -1,0 +1,134 @@
+[
+ {
+  "actividad": "Kickoff, levantamiento de información, arranque de trámites B.10 a cargo de EL CLIENTE",
+  "semanas": "1",
+  "semana_ini": 1,
+  "semana_fin": 1,
+  "inicio": "2026-09-07",
+  "fin": "2026-09-13",
+  "estado": "cumplida",
+  "evidencia": "Kickoff y levantamiento: acta del 2026-09-07. Los trámites del B.10 no tienen registro: ver abajo",
+  "implica": "Fases 0–3 de esta sesión. Decisión del nombre de marca esta semana: el proceso A.1 necesita nombre a más tardar en su Fase 2 (propuesta de logotipo, días 4–7)"
+ },
+ {
+  "actividad": "Branding e identidad visual (A.1: 3 + 4 + 2 + 3 días = 12 días)",
+  "semanas": "1-3",
+  "semana_ini": 1,
+  "semana_fin": 3,
+  "inicio": "2026-09-07",
+  "fin": "2026-09-27",
+  "estado": "atrasada",
+  "evidencia": "La ventana cerró el 27 de septiembre. El manual quedó sin observaciones el 30 (C-103), pero faltan las 12 plantillas, el .ai del símbolo y la notificación de entrega (DD-050)",
+  "implica": "Fases 3 y 4"
+ },
+ {
+  "actividad": "Diseño de la experiencia y pantallas",
+  "semanas": "3-5",
+  "semana_ini": 3,
+  "semana_fin": 5,
+  "inicio": "2026-09-21",
+  "fin": "2026-10-11",
+  "estado": "atrasada",
+  "evidencia": "Hay design system y seis componentes base (Fase 4), pero no hay pantallas diseñadas en el vault. La ventana cierra el 11 de octubre",
+  "implica": "Design system (Fase 4) listo antes de la semana 3"
+ },
+ {
+  "actividad": "Desarrollo de la aplicación, primera iteración",
+  "semanas": "4-9",
+  "semana_ini": 4,
+  "semana_fin": 9,
+  "inicio": "2026-09-28",
+  "fin": "2026-11-08",
+  "estado": "no ha empezado",
+  "evidencia": "Debía arrancar el 28 de septiembre. El método prohíbe escribir código hasta cerrar las Fases 6 a 8, y la 6 está detenida",
+  "implica": "Arquitectura (5), stack (6) y formas de trabajo (7) cerradas antes de la semana 4"
+ },
+ {
+  "actividad": "Desarrollo, segunda iteración",
+  "semanas": "9-13",
+  "semana_ini": 9,
+  "semana_fin": 13,
+  "inicio": "2026-11-02",
+  "fin": "2026-12-06",
+  "estado": "por venir",
+  "evidencia": "—",
+  "implica": ""
+ },
+ {
+  "actividad": "Landing page y plantillas de redes sociales",
+  "semanas": "10-12",
+  "semana_ini": 10,
+  "semana_fin": 12,
+  "inicio": "2026-11-09",
+  "fin": "2026-11-29",
+  "estado": "por venir",
+  "evidencia": "Las plantillas se adelantaron (C-73) y no han empezado. Para la landing, Nadir quiere comprar una plantilla (C-95)",
+  "implica": "Requiere dominio activo (B.3) y contenidos del cliente"
+ },
+ {
+  "actividad": "Panel de indicadores del negocio",
+  "semanas": "12-13",
+  "semana_ini": 12,
+  "semana_fin": 13,
+  "inicio": "2026-11-23",
+  "fin": "2026-12-06",
+  "estado": "por venir",
+  "evidencia": "—",
+  "implica": ""
+ },
+ {
+  "actividad": "Pruebas de aceptación y ajustes",
+  "semanas": "13-14",
+  "semana_ini": 13,
+  "semana_fin": 14,
+  "inicio": "2026-11-30",
+  "fin": "2026-12-13",
+  "estado": "por venir",
+  "evidencia": "—",
+  "implica": "Trazabilidad criterio → test (Fase 7)"
+ },
+ {
+  "actividad": "Envío de la aplicación a App Store y Google Play",
+  "semanas": "14",
+  "semana_ini": 14,
+  "semana_fin": 14,
+  "inicio": "2026-12-07",
+  "fin": "2026-12-13",
+  "estado": "por venir",
+  "evidencia": "Depende de las cuentas de desarrollador del cliente, sin registro",
+  "implica": "Aviso de privacidad publicado antes (B.10, semana 12)"
+ },
+ {
+  "actividad": "Revisión de las tiendas, corrección de rechazos y publicación",
+  "semanas": "15-16",
+  "semana_ini": 15,
+  "semana_fin": 16,
+  "inicio": "2026-12-14",
+  "fin": "2026-12-27",
+  "estado": "por venir",
+  "evidencia": "—",
+  "implica": "Margen deliberado; asueto de diciembre reconocido como no imputable (p. 6)"
+ },
+ {
+  "actividad": "Capacitación y entrega formal",
+  "semanas": "16",
+  "semana_ini": 16,
+  "semana_fin": 16,
+  "inicio": "2026-12-21",
+  "fin": "2026-12-27",
+  "estado": "por venir",
+  "evidencia": "—",
+  "implica": ""
+ },
+ {
+  "actividad": "Un mes de operación en producción con ciclo de observaciones (IV, A.7)",
+  "semanas": "+30 días",
+  "semana_ini": 17,
+  "semana_fin": 21,
+  "inicio": "2026-12-28",
+  "fin": "2027-01-26",
+  "estado": "por venir",
+  "evidencia": "—",
+  "implica": "Hito del pago 3"
+ }
+]

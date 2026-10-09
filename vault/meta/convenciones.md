@@ -82,6 +82,11 @@ Ver `CLAUDE.md`, sección 3. Formatos de cita:
   `negocio/` y `riesgos-supuestos/`) y se registra en un acta antes de compartir nada.
 - Cadencia y responsable del espejo: se definen en `formas-de-trabajo/` (Fase 7). Nada nace en Notion.
 
+## Tablero del proyecto
+- El tablero (<https://claude.ai/artifact/T2tZpPePdPhccB4GmFRjbK>) es **un espejo del vault**, como Notion: no guarda nada propio y no se edita a mano. Se rehace con `herramientas/tablero/construir_tablero.py`.
+- El estado de fases, actividades, obligaciones, pagos y trámites vive en `meta/estado-del-proyecto.md`, con vocabulario fijo y evidencia por fila. Si cambia un estado, se cambia ahí primero.
+- **No se comparte con EL CLIENTE tal como está**: muestra deuda y riesgos. Para el cliente haría falta otra versión, sin esas pestañas, asentada antes en un acta (misma regla que el espejo de Notion, C-28).
+
 ## Git
 `main`. Un commit por fase cerrada (`Fase N: …`); trabajo intermedio `wip(fase-N): …`. Convención de desarrollo en Fase 7.
 
