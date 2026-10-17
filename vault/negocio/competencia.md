@@ -142,7 +142,7 @@ pesar, pago sin efectivo, seguimiento, un responsable) **y** se lo cobra al usua
 |---|---|---|---|
 | Precio por kilo real en Durango y Torreón | Diez llamadas de dos minutos a los negocios de la sección 2 | EL CLIENTE o Nadir | semana 1 |
 | Si cobran el domicilio y cuánto | En la misma llamada | ídem | semana 1 |
-| Lavanderías por municipio (DENUE) | denue.inegi.org.mx, SCIAN 812210 | Nadir | semana 1 |
+| ~~Lavanderías por municipio (DENUE)~~ **Hecho el 2026-10-17**: 415 en el territorio; ver [[listado-de-lavanderias]] | denue.inegi.org.mx, SCIAN 812210 | Claude | hecho |
 | Precios de Lerdo, Matamoros y Gómez Palacio | Llamadas | EL CLIENTE | semana 2 |
 | Colisiones de nombre de los candidatos | Búsqueda pendiente (subagente detenido) | Claude, cuando se restablezca el límite | antes del 2026-09-10 |
 
