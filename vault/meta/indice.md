@@ -35,7 +35,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 - [[propuesta-de-valor]] — marketplace desde cero en las dos plazas; el producto se sostiene sobre el reclutamiento
 - [[competencia]] — grado E: nadie con el modelo de esta plataforma en el territorio; los precios locales no están en internet. **Segundo barrido del 2026-09-25**: cuatro modelos de "app de lavandería"; el nuestro solo lo hacen LavaGo y Laundryheap, fuera del territorio; UrbanClean ya tiene sucursal con domicilio en Torreón
-- [[listado-de-lavanderias]] — grado E: las 415 lavanderías y tintorerías del DENUE en el territorio, por plaza, en Excel para que el cliente las llame; lecciones aprendidas del informe de junio
+- [[listado-de-lavanderias]] — grado E: las 415 lavanderías y tintorerías del DENUE en el territorio, por plaza, en Excel para que el cliente las llame; lecciones aprendidas del informe de junio. Versión para el cliente, solo para prospectar: `cliente/comunicaciones/lavanderias-para-invitar.xlsx`
 - [[metodo-de-precio]] — cómo se genera el precio: cinco decisiones, tres modelos, guion de sondeo
 - [[unit-economics]] — modelo, referencia contractual, sensibilidad al envío, tres escenarios
 - [[hipotesis-criticas]] — H-001 a H-006

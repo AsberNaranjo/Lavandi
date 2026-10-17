@@ -39,6 +39,22 @@ Para rehacerlo con una edición nueva del DENUE:
 python -I herramientas/listado-lavanderias/construir_listado.py <carpeta-de-descarga>
 ```
 
+## Versión para el cliente
+
+Nadir pidió el 2026-10-17 una versión "muy ejecutiva y contundente", solo con lo que sirve para prospectar,
+para un cliente que no es técnico. Es [lavanderias-para-invitar.xlsx](../cliente/comunicaciones/lavanderias-para-invitar.xlsx)
+y la produce `herramientas/listado-lavanderias/version_cliente.py` con los mismos datos:
+
+- **Resumen**: tres cifras (415 lavanderías, 230 con teléfono, 7 de cada 10 en Durango capital y Torreón),
+  la tabla por zona con contactadas e interesadas, cuatro pasos de uso y una línea de fuente. Sin fechas.
+- **Para llamar** (230) y **Para visitar** (185, sin teléfono): zona, municipio, nombre, teléfono, dirección,
+  correo o página, enlace al mapa y las tres columnas para registrar el contacto.
+- Fuera: coordenadas, clave del INEGI, razón social, código postal, tamaño, clasificación por nombre y la hoja
+  de otras posibles. Siguen en el listado completo de esta nota.
+- Colores de Lavandi y nombres con mayúsculas y acentos del oficio corregidos (el INEGI captura sin acentos).
+
+**No se ha enviado**: lo envía Nadir.
+
 ## Contraste con el informe de junio
 
 | Dato | Informe de junio | Este listado |
