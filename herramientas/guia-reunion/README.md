@@ -35,8 +35,9 @@ En la base de datos de la página, un documento por pregunta: `respuestas/q1` a 
 
 | Pregunta | Campos |
 |---|---|
-| q1, q2, q8 | `texto` |
-| q3 | `durango`, `laguna`, `para_abrir`, `comentarios` |
+| q1, q8 | `texto` |
+| q2 | `opciones` (lista), `texto` |
+| q3 | `durango`, `laguna` (cuántas para abrir en cada plaza), `comentarios`. Quién las busca ya está respondido en la página (C-125) |
 | q4, q5, q7 | `opciones` (lista), `comentarios` |
 | q6 | `precio`, `comision`, `envio` (lista), `comentarios` |
 | todas | `pendiente` (la dejaron para después), `actualizado` |

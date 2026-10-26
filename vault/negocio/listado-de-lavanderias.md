@@ -52,6 +52,12 @@ y la produce `herramientas/listado-lavanderias/version_cliente.py` con los mismo
 - Fuera: coordenadas, clave del INEGI, razón social, código postal, tamaño, clasificación por nombre y la hoja
   de otras posibles. Siguen en el listado completo de esta nota.
 - Colores de Lavandi y nombres con mayúsculas y acentos del oficio corregidos (el INEGI captura sin acentos).
+- **Tipo de lavandería** (C-126, 2026-10-26): columna con lista desplegable y un consejo de cómo acercarse que sigue
+  al tipo. Se calcula con `tipos_de_prospecto()` de `construir_listado.py`: cadena (mismo teléfono en 2+ locales o
+  mismo nombre propio en 3+), tintorería o planchaduría (por el nombre), establecida (6+ personas) y de barrio. Da
+  292 de barrio, 12 establecidas, 57 en cadena y 54 tintorerías o planchadurías. **"Nueva" no sale del DENUE**:
+  `fecha_alta` es la fecha de registro y se amontona en años de censo (84 en 2010, 119 en 2019, 142 en 2024); se marca
+  a mano al hablar con la lavandería. Hoja nueva "Tipos de lavandería" y tabla por tipo en el Resumen.
 
 **No se ha enviado**: lo envía Nadir.
 

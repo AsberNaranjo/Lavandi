@@ -1,0 +1,8 @@
+{
+  "_nota": "Datos que decide EL CLIENTE. Mientras valgan null, las piezas los muestran en amarillo como 'Por definir' y no pueden salir a una lavandería. Se llenan aquí y se vuelve a correr construir_kit.py.",
+  "comision": null,
+  "precio": null,
+  "ventaja_fundadoras": null,
+  "contacto": null,
+  "aviso_privacidad": null
+}

@@ -112,6 +112,46 @@ def tipo_por_nombre(fila):
     return ", ".join([primero] + resto[:-1]) + " y " + resto[-1]
 
 
+# Tipos de prospecto (C-126). "Nueva" no se puede saber con el DENUE: su fecha es la del registro, no la de apertura.
+TIPOS = ["De barrio", "Establecida", "Nueva", "Cadena", "Tintorería o planchaduría"]
+TIPOS_INFO = {
+    "De barrio": ("De 0 a 5 personas. El dueño suele estar ahí, lavando.",
+                  "Hable con el dueño, de usted y en corto. Hable de cobrar sin perseguir pagos. Mejor en persona y en hora tranquila."),
+    "Establecida": ("De 6 personas o más. Atiende un encargado; decide el dueño.",
+                    "Pida cita con el dueño. Hable de máquinas que no se quedan paradas y de orden en los pedidos."),
+    "Nueva": ("Abrió hace poco. Se sabe preguntando, no con estos datos.",
+              "Hable de darse a conocer con su nombre. No le prometa pedidos."),
+    "Cadena": ("El mismo teléfono en varios locales, o el mismo nombre en 3 o más.",
+               "Pida hablar con el dueño u oficina. Proponga empezar con una sucursal. Trátela como posible aliada."),
+    "Tintorería o planchaduría": ("Su nombre dice tintorería o planchaduría, no lavandería.",
+                                  "Hable de prendas y de cuidado, no de kilos."),
+}
+# Palabras que no distinguen a un negocio: dos "Lavandería Express" no son una cadena.
+GENERICAS = {"lavanderia", "lavanderias", "tintoreria", "tintorerias", "planchaduria", "lavado", "lava", "express",
+             "sin", "nombre", "y", "e", "de", "del", "la", "el", "los", "las", "centro", "autoservicio"}
+
+
+def tipos_de_prospecto(filas):
+    """Tipo de cada lavandería por su clave del INEGI. Orden: cadena, tintorería o planchaduría, establecida, de barrio."""
+    from collections import Counter
+    propio = lambda f: " ".join(w for w in re.findall(r"[a-z0-9]+", normalizar(f["nom_estab"])) if w not in GENERICAS)
+    nombres = Counter(propio(f) for f in filas if propio(f))
+    tels = Counter(telefono(f["telefono"]) for f in filas if telefono(f["telefono"]))
+    tipos = {}
+    for f in filas:
+        # Cadena: el mismo teléfono en 2 o más locales, o el mismo nombre propio en 3 o más. Dos locales con el mismo
+        # nombre suelen ser negocios distintos ("La Casita" en Durango y en Torreón).
+        if (propio(f) and nombres[propio(f)] >= 3) or (telefono(f["telefono"]) and tels[telefono(f["telefono"])] > 1):
+            tipos[f["id"]] = "Cadena"
+        elif "Lavandería" not in tipo_por_nombre(f) and tipo_por_nombre(f) != SIN_TIPO:
+            tipos[f["id"]] = "Tintorería o planchaduría"
+        elif f["per_ocu"].strip() != "0 a 5 personas":
+            tipos[f["id"]] = "Establecida"
+        else:
+            tipos[f["id"]] = "De barrio"
+    return tipos
+
+
 def telefono(valor):
     digitos = re.sub(r"\D", "", valor or "")
     if len(digitos) == 10:

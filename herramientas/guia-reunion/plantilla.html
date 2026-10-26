@@ -111,6 +111,23 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
 .opcion input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--agua-profundo); }
 .opcion:has(input:checked) { border-color: var(--agua); background: var(--cielo-suave); }
 .opcion:has(input:focus-visible) { outline: 3px solid var(--agua); outline-offset: 2px; }
+.analisis { display: grid; gap: 12px; background: var(--hueso); border-radius: 12px; padding: 16px 18px; }
+.analisis-titulo { margin: 0; font: 800 17px/1.3 var(--f-display); }
+.analisis-nota { margin: 0; font-size: 15px; color: var(--tenue); }
+.escenarios { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 680px) { .escenarios { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.escenario { background: var(--papel); border: 1px solid var(--linea); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; align-content: start; font-size: 15px; color: var(--tinta-2); min-width: 0; }
+.escenario p { margin: 0; }
+.esc-nombre { font-weight: 700; color: var(--tinta); }
+.esc-cifra { font: 800 16px/1.3 var(--f-display); }
+.escenario.malo .esc-cifra { color: #9E2A1F; }
+.escenario.medio .esc-cifra { color: #8A5A00; }
+.escenario.bueno { border-color: var(--agua); background: var(--cielo-suave); }
+.escenario.bueno .esc-cifra { color: var(--agua-profundo); }
+.analisis-lista { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; color: var(--tinta-2); }
+.analisis-lista li::marker { color: var(--agua); }
+.ya-respondido { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--cielo-suave); color: var(--tinta); }
+.opcion small { display: block; margin-top: 3px; font-size: 14.5px; line-height: 1.4; color: var(--tenue); }
 .pie-tarjeta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
 .despues { font: 700 14px/1 var(--f-texto); color: var(--tinta-2); background: transparent; border: 1px solid var(--linea); border-radius: 999px; padding: 10px 14px; min-height: 40px; cursor: pointer; }
 .despues:hover { border-color: var(--limon); }
@@ -218,7 +235,15 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
           <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
           <h3>¿Qué le ofrece Lavandi a la lavandería?</h3>
           <p class="porque"><strong>Por qué importa.</strong> "Más clientes" fue la promesa que no se cumplió en otras empresas. Además, ya existen programas que le dan a cada lavandería su propio sistema de pedidos por una cuota mensual baja y sin comisión. El argumento para convencerla tiene que ser otro; por ejemplo, que cobra seguro y no tiene que perseguir pagos.</p>
-          <div class="campo"><label for="q2-texto">Respuesta</label><textarea id="q2-texto" data-q="q2" data-campo="texto"></textarea></div>
+          <fieldset class="opciones"><legend>Elige lo que sí puede ofrecer Lavandi</legend>
+            <label class="opcion"><input type="checkbox" id="q2-cobro-seguro" data-q="q2" data-campo="opciones" value="cobro_seguro"><span>Cobra seguro y sin perseguir pagos: el cliente paga en la aplicación.<small>Solo se cumple si la aplicación cobra antes de entregar la ropa. Depende de las preguntas 6 y 7.</small></span></label>
+            <label class="opcion"><input type="checkbox" id="q2-pedidos-ordenados" data-q="q2" data-campo="opciones" value="pedidos_ordenados"><span>Sus pedidos ordenados en un solo lugar: los acepta o los rechaza, avisa en qué va cada uno y ve cuánto lleva en el día y en la semana.<small>Ya existen programas que dan esto por una cuota mensual baja. Por sí solo no convence.</small></span></label>
+            <label class="opcion"><input type="checkbox" id="q2-clientes-de-otras-colonias" data-q="q2" data-campo="opciones" value="clientes_de_otras_colonias"><span>Que la encuentren personas de otras colonias, sin pagar publicidad.<small>Sin prometer un número de pedidos: es lo que no cumplieron otras empresas.</small></span></label>
+            <label class="opcion"><input type="checkbox" id="q2-sin-reparto" data-q="q2" data-campo="opciones" value="sin_reparto"><span>No tener que recoger ni entregar: otro mueve la ropa.<small>Depende de la pregunta 5. Si la lavandería entrega con su gente, esto no aplica.</small></span></label>
+            <label class="opcion"><input type="checkbox" id="q2-paga-por-pedido" data-q="q2" data-campo="opciones" value="paga_por_pedido"><span>Pagar solo cuando hay pedido, sin cuota mensual.<small>Depende de cómo se cobre lo que se queda Lavandi (pregunta 6).</small></span></label>
+            <label class="opcion"><input type="checkbox" id="q2-ventaja-fundadoras" data-q="q2" data-campo="opciones" value="ventaja_fundadoras"><span>Condiciones especiales para las primeras lavanderías; por ejemplo, una comisión menor durante los primeros meses.<small>Lo que se ofrezca tiene que poder cumplirse, y se queda por escrito.</small></span></label>
+          </fieldset>
+          <div class="campo"><label for="q2-texto">Comentarios, o lo que ofrecería que no está en la lista</label><textarea id="q2-texto" data-q="q2" data-campo="texto"></textarea></div>
           <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
         </article>
       </li>
@@ -227,13 +252,13 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
         <div class="hito" aria-hidden="true">3</div>
         <article class="tarjeta">
           <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
-          <h3>¿Cuántas lavanderías ya aceptaron unirse, y cuántas necesitas para abrir?</h3>
-          <p class="porque"><strong>Por qué importa.</strong> Sin lavanderías no hay a quién mandar los pedidos. Además, para probar la aplicación completa antes de entregarla hace falta al menos una lavandería real recibiendo pedidos reales.</p>
+          <h3>¿Con cuántas lavanderías abrimos?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Hoy no hay ninguna lavandería apuntada: se empieza de cero, y conseguirlas es tarea tuya. Sin lavanderías no hay a quién mandar los pedidos. Además, para probar la aplicación completa antes de entregarla hace falta al menos una lavandería real recibiendo pedidos reales. Para darte a conocer con ellas preparamos un kit: la lista de 415 lavanderías de la zona, guiones, mensajes y material para las visitas.</p>
           <div class="datos">
-            <div class="dato"><label for="q3-durango">Ya aceptaron, en Durango</label><input type="text" id="q3-durango" data-q="q3" data-campo="durango" inputmode="numeric"></div>
-            <div class="dato"><label for="q3-laguna">Ya aceptaron, en La Laguna</label><input type="text" id="q3-laguna" data-q="q3" data-campo="laguna" inputmode="numeric"></div>
-            <div class="dato"><label for="q3-abrir">Cuántas necesitas para abrir</label><input type="text" id="q3-abrir" data-q="q3" data-campo="para_abrir" inputmode="numeric"></div>
+            <div class="dato"><label for="q3-durango">Cuántas necesitas para abrir, en Durango</label><input type="text" id="q3-durango" data-q="q3" data-campo="durango" inputmode="numeric"></div>
+            <div class="dato"><label for="q3-laguna">Cuántas necesitas para abrir, en La Laguna</label><input type="text" id="q3-laguna" data-q="q3" data-campo="laguna" inputmode="numeric"></div>
           </div>
+          <p class="ya-respondido"><strong>Ya respondido:</strong> las buscas tú, en persona y por teléfono.</p>
           <div class="campo"><label for="q3-comentarios">Comentarios</label><textarea id="q3-comentarios" data-q="q3" data-campo="comentarios"></textarea></div>
           <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
         </article>
@@ -243,8 +268,8 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
         <div class="hito" aria-hidden="true">4</div>
         <article class="tarjeta">
           <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
-          <h3>¿En qué ciudad empezamos?</h3>
-          <p class="porque"><strong>Por qué importa.</strong> Abrir en Durango y en La Laguna al mismo tiempo reparte las lavanderías y los pedidos en dos lugares. Con pocos pedidos en cada ciudad, cada viaje sale más caro. La aplicación está preparada para las dos; la pregunta es dónde se arranca.</p>
+          <h3>¿Dónde empezamos?</h3>
+          <p class="porque"><strong>Ya está decidido.</strong> El contrato abarca las dos plazas y la aplicación se prepara para ambas. La semilla será Durango capital: ahí se empiezan a buscar las lavanderías y se concentran los primeros pedidos, para que cada viaje no salga caro. Ahí están 152 de las 415 lavanderías de la zona.</p>
           <fieldset class="opciones"><legend>Elige</legend>
             <label class="opcion"><input type="checkbox" id="q4-durango" data-q="q4" data-campo="opciones" value="durango_primero"><span>Durango primero</span></label>
             <label class="opcion"><input type="checkbox" id="q4-laguna" data-q="q4" data-campo="opciones" value="laguna_primero"><span>La Laguna primero</span></label>
@@ -278,6 +303,32 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
           <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
           <h3>¿Cómo se cobra?</h3>
           <p class="porque"><strong>Por qué importa.</strong> Con las cifras de ejemplo que trae el propio contrato (un pedido de 250 pesos y una comisión del 20 %), a Lavandi le quedan unos 39 pesos por pedido antes de pagar los viajes. Si Lavandi paga los dos viajes, prácticamente no queda nada. Por eso hay que decidir juntos el precio, la comisión y el envío.</p>
+          <div class="analisis">
+            <p class="analisis-titulo">Tres maneras de cobrar, con las cifras de ejemplo del contrato</p>
+            <p class="analisis-nota">Un pedido de 250 pesos, Lavandi se queda el 20 % y el cliente paga con tarjeta. La empresa de cobro se lleva unos 11 pesos de cada pedido.</p>
+            <div class="escenarios">
+              <div class="escenario malo">
+                <p class="esc-nombre">A. Envío gratis, Lavandi paga los viajes</p>
+                <p class="esc-cifra">Pierde más de 60 pesos por pedido</p>
+                <p>Si los viajes se piden a una mensajería, cada pedido cuesta casi tres veces 35 pesos. Es lo que hizo cerrar a otras empresas.</p>
+              </div>
+              <div class="escenario medio">
+                <p class="esc-nombre">B. Envío aparte, 35 pesos, para el repartidor</p>
+                <p class="esc-cifra">Le quedan unos 37 pesos por pedido</p>
+                <p>Cuadra en papel, pero quien pide lo compara con lavanderías del barrio que ya entregan sin costo, y puede no pedir.</p>
+              </div>
+              <div class="escenario bueno">
+                <p class="esc-nombre">C. Envío incluido en el precio, con pedido mínimo; la lavandería entrega con su gente</p>
+                <p class="esc-cifra">Le quedan unos 39 pesos por pedido, y más si el mínimo sube</p>
+                <p>Es como trabajan las empresas que siguen operando. Lavandi no paga viajes y quien pide ve un solo precio.</p>
+              </div>
+            </div>
+            <ul class="analisis-lista">
+              <li><strong>Cuántos pedidos hacen falta.</strong> Con unos 39 pesos por pedido, cubrir lo que cuesta mantener la aplicación cada mes (entre 1,200 y 4,100 pesos, según el contrato) pide entre 31 y 106 pedidos al mes.</li>
+              <li><strong>La comisión.</strong> Cada 5 puntos más son unos 12 pesos más por pedido de 250, pero cuesta más convencer a las lavanderías.</li>
+              <li><strong>La que mejor apunta es la C.</strong> Pide decidir el pedido mínimo y que la lavandería entregue con su gente (pregunta 5).</li>
+            </ul>
+          </div>
           <div class="datos">
             <div class="dato"><label for="q6-precio">Precio por kilo, o cómo se fija</label><input type="text" id="q6-precio" data-q="q6" data-campo="precio"></div>
             <div class="dato"><label for="q6-comision">Lo que se queda Lavandi de cada pedido</label><input type="text" id="q6-comision" data-q="q6" data-campo="comision"></div>
@@ -336,7 +387,7 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
 
 <footer class="firma">
   <div class="firma-dentro">
-    <p class="quien"><span><span class="clave" aria-hidden="true">◣</span>Preparado por Nadir Hadad Navarrete para Lavandi</span><small>Nazmelia, a cargo del desarrollo de la plataforma</small></p>
+    <p class="quien"><span><span class="clave" aria-hidden="true">◣</span>Preparado por el equipo de Nazmelia para Lavandi</span><small>Nazmelia, a cargo del desarrollo de la plataforma</small></p>
     <div class="sello">
       <img src="{{NAZMELIA}}" alt="Nazmelia">
       <p class="lema">De la complejidad al control.</p>

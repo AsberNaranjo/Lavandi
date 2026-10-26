@@ -99,34 +99,46 @@ efectivo, saber en qué va el pedido, y alguien que responde si algo sale mal.
 programas que le dan a cada lavandería su propio sistema de pedidos por una cuota mensual baja y sin comisión. El
 argumento para convencerla tiene que ser otro; por ejemplo, que cobra seguro y no tiene que perseguir pagos.
 
-| Respuesta |
+Elige lo que sí puede ofrecer Lavandi (agregado el 2026-10-26 a pedido de Nadir, para orientar el análisis del dueño):
+
+- [ ] Cobra seguro y sin perseguir pagos: el cliente paga en la aplicación. *Lo que hay que cuidar: Solo se cumple si la aplicación cobra antes de entregar la ropa. Depende de las preguntas 6 y 7.*
+- [ ] Sus pedidos ordenados en un solo lugar: los acepta o los rechaza, avisa en qué va cada uno y ve cuánto lleva en el día y en la semana. *Lo que hay que cuidar: Ya existen programas que dan esto por una cuota mensual baja. Por sí solo no convence.*
+- [ ] Que la encuentren personas de otras colonias, sin pagar publicidad. *Lo que hay que cuidar: Sin prometer un número de pedidos: es lo que no cumplieron otras empresas.*
+- [ ] No tener que recoger ni entregar: otro mueve la ropa. *Lo que hay que cuidar: Depende de la pregunta 5. Si la lavandería entrega con su gente, esto no aplica.*
+- [ ] Pagar solo cuando hay pedido, sin cuota mensual. *Lo que hay que cuidar: Depende de cómo se cobre lo que se queda Lavandi (pregunta 6).*
+- [ ] Condiciones especiales para las primeras lavanderías; por ejemplo, una comisión menor durante los primeros meses. *Lo que hay que cuidar: Lo que se ofrezca tiene que poder cumplirse, y se queda por escrito.*
+
+| Comentarios, o lo que ofrecería que no está en la lista |
 | --- |
 |   |
 
-### 3. ¿Cuántas lavanderías ya aceptaron unirse, y cuántas necesitas para abrir?
+### 3. ¿Con cuántas lavanderías abrimos?
 
-**Por qué importa:** sin lavanderías no hay a quién mandar los pedidos. Además, para probar la aplicación completa
-antes de entregarla hace falta al menos una lavandería real recibiendo pedidos reales.
+*Reescrita el 2026-10-26 (C-120): el cliente no tiene ninguna lavandería apuntada, así que la pregunta ya no supone
+que alguna aceptó.*
+
+**Por qué importa:** hoy no hay ninguna lavandería apuntada: se empieza de cero, y conseguirlas es tarea tuya. Sin
+lavanderías no hay a quién mandar los pedidos. Además, para probar la aplicación completa antes de entregarla hace
+falta al menos una lavandería real recibiendo pedidos reales. Para darte a conocer con ellas preparamos un kit: la
+lista de 415 lavanderías de la zona, guiones, mensajes y material para las visitas.
 
 | Dato | Respuesta |
 | --- | --- |
-| Lavanderías que ya aceptaron, en Durango |   |
-| Lavanderías que ya aceptaron, en La Laguna |   |
-| Cuántas necesitas para abrir |   |
+| Cuántas necesitas para abrir, en Durango |   |
+| Cuántas necesitas para abrir, en La Laguna |   |
 
-### 4. ¿En qué ciudad empezamos?
+**Ya respondido** (C-125): las busca el cliente, en persona y por teléfono.
 
-**Por qué importa:** abrir en Durango y en La Laguna al mismo tiempo reparte las lavanderías y los pedidos en dos
-lugares. Con pocos pedidos en cada ciudad, cada viaje sale más caro. La aplicación está preparada para las dos; la
-pregunta es dónde se arranca.
+### 4. ¿Dónde empezamos?
 
-- [ ] Durango primero
-- [ ] La Laguna primero
-- [ ] Las dos a la vez
+*Respondida el 2026-10-26 (C-123): el contrato abarca las dos plazas; la semilla será Durango capital. La respuesta
+quedó guardada en la página.*
 
-| Comentarios |
-| --- |
-|   |
+**Ya está decidido:** el contrato abarca las dos plazas y la aplicación se prepara para ambas. La semilla será
+Durango capital: ahí se empiezan a buscar las lavanderías y se concentran los primeros pedidos, para que cada viaje
+no salga caro. Ahí están 152 de las 415 lavanderías de la zona.
+
+Respuesta: [x] Durango primero · [ ] La Laguna primero · [ ] Las dos a la vez
 
 ### 5. ¿Quién recoge y entrega la ropa?
 
@@ -148,6 +160,25 @@ repartidores propios sin pedidos suficientes para pagarlos.
 **Por qué importa:** con las cifras de ejemplo que trae el propio contrato (un pedido de 250 pesos y una comisión
 del 20 %), a Lavandi le quedan unos 39 pesos por pedido antes de pagar los viajes. Si Lavandi paga los dos
 viajes, prácticamente no queda nada. Por eso hay que decidir juntos el precio, la comisión y el envío.
+
+**Tres maneras de cobrar, con las cifras de ejemplo del contrato** (agregado el 2026-10-26, C-124; sale de
+`negocio/unit-economics.md` §3, §4 y §4-bis). Un pedido de 250 pesos, Lavandi se queda el 20 % y el cliente paga
+con tarjeta; la empresa de cobro se lleva unos 11 pesos de cada pedido.
+
+| Manera | Lo que le queda a Lavandi por pedido | Lo que hay que saber |
+| --- | --- | --- |
+| A. Envío gratis, Lavandi paga los viajes | Pierde más de 60 pesos | Por mensajería, cada pedido cuesta casi tres veces 35 pesos. Es lo que hizo cerrar a otras empresas |
+| B. Envío aparte, 35 pesos, para el repartidor | Unos 37 pesos | Quien pide lo compara con lavanderías del barrio que entregan sin costo |
+| C. Envío incluido con pedido mínimo; la lavandería entrega con su gente | Unos 39 pesos, más si el mínimo sube | Así trabajan las empresas que siguen operando. Lavandi no paga viajes |
+
+- Con unos 39 pesos por pedido, cubrir el costo mensual de la aplicación (1,200 a 4,100 pesos, según el contrato)
+  pide entre 31 y 106 pedidos al mes.
+- Cada 5 puntos más de comisión son unos 12 pesos más por pedido de 250, pero cuesta más convencer a las lavanderías.
+- La que mejor apunta es la C. Pide decidir el pedido mínimo y que la lavandería entregue con su gente (pregunta 5).
+
+Cuentas (no van en la página): tarjeta (0.029 × 250 + 2.50) × 1.16 = 11.31; A: 38.69 − (≈ 3 × 35) ≈ −66;
+B: 50 − (0.029 × 285 + 2.50) × 1.16 = 37.51; C: 50 − 11.31 = 38.69; equilibrio 1,200 / 38.69 ≈ 31 y 4,100 / 38.69 ≈ 106;
+5 puntos × 250 = 12.50.
 
 | Dato | Respuesta |
 | --- | --- |

@@ -19,8 +19,8 @@ from openpyxl.worksheet.datavalidation import DataValidation
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # con `python -I` la carpeta no entra sola
 
-from construir_listado import (PLAZAS, RAIZ, colonia, direccion, limpio, normalizar, plaza_de,
-                               registros, telefono)
+from construir_listado import (PLAZAS, RAIZ, TIPOS, TIPOS_INFO, colonia, direccion, limpio, normalizar, plaza_de,
+                               registros, telefono, tipos_de_prospecto)
 
 SALIDA_POR_OMISION = RAIZ / "vault" / "cliente" / "comunicaciones" / "lavanderias-para-invitar.xlsx"
 
@@ -70,12 +70,12 @@ def encabezado(celda):
     celda.alignment = Alignment(wrap_text=True, vertical="center")
 
 
-def hoja_lista(wb, nombre, filas, con_telefono):
+def hoja_lista(wb, nombre, filas, con_telefono, tipos):
     hoja = wb.create_sheet(nombre)
-    columnas = [("Zona", 22), ("Municipio", 18), ("Lavandería", 36)]
+    columnas = [("Zona", 22), ("Municipio", 18), ("Lavandería", 36), ("Tipo de lavandería", 20)]
     if con_telefono:
         columnas.append(("Teléfono", 15))
-    columnas += [("Dirección", 52), ("Correo o página", 30), ("Ubicación", 12),
+    columnas += [("Cómo acercarse", 46), ("Dirección", 52), ("Correo o página", 30), ("Ubicación", 12),
                  ("¿Ya se le contactó?", 13), ("Resultado", 22), ("Notas", 44)]
     for c, (texto, ancho) in enumerate(columnas, start=1):
         encabezado(hoja.cell(row=1, column=c, value=texto))
@@ -88,6 +88,7 @@ def hoja_lista(wb, nombre, filas, con_telefono):
             "Zona": plaza_de(fila),
             "Municipio": fila["municipio"].strip(),
             "Lavandería": nombre_legible(fila["nom_estab"]),
+            "Tipo de lavandería": tipos[fila["id"]],
             "Teléfono": telefono(fila["telefono"]),
             "Dirección": direccion_completa(fila),
             "Correo o página": contacto_extra(fila),
@@ -96,7 +97,11 @@ def hoja_lista(wb, nombre, filas, con_telefono):
             celda = hoja.cell(row=r, column=c, value=valores.get(texto))
             celda.font = Font(name=FUENTE, size=10, bold=(texto in {"Lavandería", "Teléfono"}))
             celda.border = LINEA
-            celda.alignment = Alignment(vertical="center", wrap_text=(texto == "Dirección"))
+            celda.alignment = Alignment(vertical="center", wrap_text=(texto in {"Dirección", "Cómo acercarse"}))
+        # El consejo sigue al tipo: si quien llama cambia el tipo (por ejemplo, a "Nueva"), el consejo cambia solo.
+        consejo = hoja.cell(row=r, column=indice["Cómo acercarse"])
+        consejo.value = "=IFERROR(INDEX('Tipos de lavandería'!$C$4:$C$8,MATCH(%s%d,'Tipos de lavandería'!$A$4:$A$8,0)),\"\")" % (get_column_letter(indice["Tipo de lavandería"]), r)
+        consejo.font = Font(name=FUENTE, size=9, color=GRIS)
         mapa = hoja.cell(row=r, column=indice["Ubicación"], value="Ver mapa")
         mapa.hyperlink = f"https://www.google.com/maps/search/?api=1&query={fila['latitud']},{fila['longitud']}"
         mapa.font = Font(name=FUENTE, size=10, color=AZUL, underline="single")
@@ -110,11 +115,14 @@ def hoja_lista(wb, nombre, filas, con_telefono):
     resultado = DataValidation(type="list", formula1='"' + ",".join(RESULTADOS) + '"', allow_blank=True)
     hoja.add_data_validation(si_no)
     hoja.add_data_validation(resultado)
+    tipo_dv = DataValidation(type="list", formula1='"' + ",".join(TIPOS) + '"', allow_blank=True)
+    hoja.add_data_validation(tipo_dv)
     col = lambda texto: get_column_letter(indice[texto])
+    tipo_dv.add(f"{col('Tipo de lavandería')}2:{col('Tipo de lavandería')}{ultima}")
     si_no.add(f"{col('¿Ya se le contactó?')}2:{col('¿Ya se le contactó?')}{ultima}")
     resultado.add(f"{col('Resultado')}2:{col('Resultado')}{ultima}")
     rangos = {texto: f"'{nombre}'!${col(texto)}$2:${col(texto)}${ultima}"
-              for texto in ("Zona", "¿Ya se le contactó?", "Resultado")}
+              for texto in ("Zona", "¿Ya se le contactó?", "Resultado", "Tipo de lavandería")}
     return rangos
 
 
@@ -127,7 +135,7 @@ def hoja_resumen(hoja, llamar, visitar, ciudades_fuertes):
 
     hoja["A1"] = "Lavanderías para invitar a Lavandi"
     hoja["A1"].font = Font(name=FUENTE, bold=True, size=20, color=AZUL)
-    hoja["A2"] = "Estado de Durango, Torreón y Matamoros  ·  Preparado por Nazmelia"
+    hoja["A2"] = "Estado de Durango, Torreón y Matamoros  ·  Preparado por el equipo de Nazmelia"
     hoja["A2"].font = Font(name=FUENTE, size=11, color=GRIS)
 
     # Tres cifras grandes.
@@ -177,12 +185,27 @@ def hoja_resumen(hoja, llamar, visitar, ciudades_fuertes):
         celda.fill = PatternFill("solid", fgColor=AZUL_CLARO)
 
     r = total_r + 2
+    hoja.cell(row=r, column=1, value="Por tipo de lavandería").font = Font(name=FUENTE, bold=True, size=13, color=AZUL)
+    for c, texto in enumerate(["Tipo", "Lavanderías", "En Durango capital", "Contactadas", "Interesadas"], start=1):
+        encabezado(hoja.cell(row=r + 1, column=c, value=texto))
+    for k, tipo in enumerate(TIPOS):
+        f = r + 2 + k
+        t = f"$A{f}"
+        suma = lambda extra: "+".join(f"COUNTIFS({h['Tipo de lavandería']},{t}{extra(h)})" for h in (llamar, visitar))
+        valores = [tipo, "=" + suma(lambda h: ""), "=" + suma(lambda h: f',{h["Zona"]},"Durango capital"'),
+                   "=" + suma(lambda h: f',{h["¿Ya se le contactó?"]},"Sí"'), "=" + suma(lambda h: f',{h["Resultado"]},"Le interesa"')]
+        for c, v in enumerate(valores, start=1):
+            celda = hoja.cell(row=f, column=c, value=v); celda.font = Font(name=FUENTE, size=11); celda.border = LINEA
+    nota_t = hoja.cell(row=r + 2 + len(TIPOS), column=1, value="«Nueva» no sale de los datos: se marca a mano cuando la lavandería dice que abrió hace poco.")
+    nota_t.font = Font(name=FUENTE, italic=True, size=9, color=GRIS)
+    r = r + 4 + len(TIPOS)
     hoja.cell(row=r, column=1, value="Cómo usarlo").font = Font(name=FUENTE, bold=True, size=13, color=AZUL)
     pasos = [
         "1.  Empiece por la hoja «Para llamar»: cada renglón es una lavandería con su teléfono.",
         "2.  Después de cada llamada, llene las tres columnas amarillas: si ya se le contactó, el resultado y una nota.",
         "3.  La hoja «Para visitar» trae las que no tienen teléfono: con «Ver mapa» se llega a la puerta.",
-        "4.  Este resumen se actualiza solo con lo que se anote.",
+        "4.  La columna «Tipo de lavandería» dice cómo acercarse a cada una. Si al hablar descubre que es nueva, cámbiela.",
+        "5.  Este resumen se actualiza solo con lo que se anote.",
     ]
     for i, texto in enumerate(pasos, start=1):
         celda = hoja.cell(row=r + i, column=1, value=texto)
@@ -191,6 +214,23 @@ def hoja_resumen(hoja, llamar, visitar, ciudades_fuertes):
     nota = hoja.cell(row=r, column=1, value="Datos tomados del registro oficial de negocios del INEGI. "
                                             "Algún teléfono o dirección puede haber cambiado.")
     nota.font = Font(name=FUENTE, italic=True, size=9, color=GRIS)
+
+
+def hoja_tipos(wb):
+    hoja = wb.create_sheet("Tipos de lavandería")
+    hoja.sheet_view.showGridLines = False
+    hoja["A1"] = "Cinco tipos de lavandería, cinco maneras de acercarse"
+    hoja["A1"].font = Font(name=FUENTE, bold=True, size=16, color=AZUL)
+    hoja["A2"] = "El detalle de cada uno está en la guía «Cómo hablarle a cada lavandería» del kit."
+    hoja["A2"].font = Font(name=FUENTE, size=10, color=GRIS)
+    for c, (t, w) in enumerate([("Tipo", 24), ("Cómo reconocerla", 50), ("Cómo acercarse", 70)], start=1):
+        encabezado(hoja.cell(row=3, column=c, value=t)); hoja.column_dimensions[get_column_letter(c)].width = w
+    for k, tipo in enumerate(TIPOS):
+        for c, v in enumerate([tipo, *TIPOS_INFO[tipo]], start=1):
+            celda = hoja.cell(row=4 + k, column=c, value=v)
+            celda.font = Font(name=FUENTE, size=11, bold=(c == 1)); celda.border = LINEA
+            celda.alignment = Alignment(wrap_text=True, vertical="top")
+        hoja.row_dimensions[4 + k].height = 34
 
 
 def para_imprimir(hoja):
@@ -218,8 +258,10 @@ def main():
 
     wb = Workbook()
     resumen = wb.active
-    llamar = hoja_lista(wb, "Para llamar", con_tel, con_telefono=True)
-    visitar = hoja_lista(wb, "Para visitar", sin_tel, con_telefono=False)
+    tipos = tipos_de_prospecto(lavanderias)
+    llamar = hoja_lista(wb, "Para llamar", con_tel, con_telefono=True, tipos=tipos)
+    visitar = hoja_lista(wb, "Para visitar", sin_tel, con_telefono=False, tipos=tipos)
+    hoja_tipos(wb)
     hoja_resumen(resumen, llamar, visitar, ciudades_fuertes)
     for hoja in wb.worksheets:
         para_imprimir(hoja)

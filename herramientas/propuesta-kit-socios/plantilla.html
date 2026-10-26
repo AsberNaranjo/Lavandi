@@ -1,0 +1,276 @@
+<title>Kit de socios Lavandi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Libre+Caslon+Text:ital@0;1&family=Hanken+Grotesk:wght@400;600&display=swap">
+<style>
+/* Una propuesta de Lavandi en papel Hueso, hermana de la guía de la reunión: portada con el logotipo, las cinco
+   piezas del kit como objetos sobre la mesa, lo que se promete y lo que no, las tres preguntas como paradas de la
+   ruta que termina en el pin, y la firma de Nazmelia al pie, aparte. Colores y letras: design-system/tokens.json y
+   el manual 1.2. Una sola apariencia clara, a propósito, como el manual: fondo y colores explícitos. */
+:root {
+  --hueso: #F7F4EF;
+  --papel: #FFFFFF;
+  --tinta: #171C21;
+  --tinta-2: #3B424A;
+  --tenue: #515A64;
+  --linea: #E4DFD6;
+  --agua: #2E86AB;           /* superficies y trazos; nunca texto sobre Hueso */
+  --agua-profundo: #297899;  /* texto y enlaces */
+  --cielo: #A8D5E2;
+  --cielo-suave: #E6F2F6;
+  --limon: #E8C547;          /* solo de fondo, con Tinta encima */
+  --limon-suave: #FBF1CB;
+  --naz-tinta: #20292C;      /* Nazmelia: solo en la firma del pie */
+  --naz-barro: #C75B39;
+  --naz-hueso: #F1EDE8;
+  --naz-piedra: #A9B1B4;
+  --f-display: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+  --f-texto: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-naz: "Libre Caslon Text", Georgia, serif;
+  --f-naz-sans: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
+  --r: 14px;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--hueso); }
+body { color: var(--tinta); font: 400 17px/1.6 var(--f-texto); margin: 0; }
+a { color: var(--agua-profundo); text-underline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--agua); outline-offset: 2px; border-radius: 6px; }
+strong { font-weight: 700; }
+
+.franja { height: 8px; background: linear-gradient(90deg, var(--agua) 0 62%, var(--cielo) 62% 92%, var(--limon) 92% 100%); }
+.marco { max-width: 860px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-block: 36px 56px; display: grid; gap: 60px; }
+
+/* Portada */
+.portada { display: grid; gap: 18px; }
+.lockup { display: inline-flex; align-items: center; gap: .1778em; font-size: 58px; line-height: 1; }
+.lockup .sim { width: 1.0556em; height: 1em; display: block; }
+.lockup .pal { width: 2.0614em; height: 1em; display: block; }
+.ceja { margin: 10px 0 0; font: 800 13px/1 var(--f-texto); letter-spacing: .12em; text-transform: uppercase; color: var(--agua-profundo); }
+h1 { margin: 0; font: 900 clamp(32px, 6.4vw, 52px)/1.05 var(--f-display); letter-spacing: -.012em; text-wrap: balance; max-width: 18ch; }
+.entrada { margin: 0; font-size: 19px; color: var(--tinta-2); max-width: 62ch; }
+
+h2 { margin: 0; font: 900 30px/1.15 var(--f-display); letter-spacing: -.01em; text-wrap: balance; }
+.seccion { display: grid; gap: 20px; }
+.seccion > p { margin: 0; max-width: 64ch; color: var(--tinta-2); }
+
+/* Por qué ahora */
+.razones { margin: 0; padding-left: 22px; display: grid; gap: 10px; max-width: 64ch; color: var(--tinta-2); }
+.razones li::marker { color: var(--agua); }
+.ya-tienes { display: grid; grid-template-columns: 1fr; gap: 18px 28px; align-items: center; background: var(--cielo-suave); border-radius: var(--r); padding: 20px 22px; }
+@media (min-width: 680px) { .ya-tienes { grid-template-columns: auto auto minmax(0, 1fr); } }
+.cifra { display: grid; gap: 4px; }
+.cifra b { font: 900 46px/1 var(--f-display); color: var(--agua-profundo); font-variant-numeric: tabular-nums; }
+.cifra span { font-weight: 600; color: var(--tinta-2); font-size: 15px; }
+.ya-tienes p { margin: 0; color: var(--tinta-2); min-width: 0; }
+
+/* Las piezas del kit */
+.piezas { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 680px) { .piezas { grid-template-columns: 1fr 1fr; } .pieza.ancha { grid-column: 1 / -1; } }
+.dudas-lista { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 6px; color: var(--tinta-2); }
+.dudas-lista li::marker { color: var(--agua); }
+.pieza { background: var(--papel); border: 1px solid var(--linea); border-radius: var(--r); padding: 20px 22px; display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 4px 16px; align-content: start; }
+.pieza svg { grid-row: 1 / span 3; width: 52px; height: 52px; display: block; }
+.pieza > :not(svg) { grid-column: 2; min-width: 0; }
+.pieza h3 { margin: 0; font: 800 20px/1.25 var(--f-display); }
+.formato { margin: 0; font: 700 12.5px/1.4 var(--f-texto); letter-spacing: .06em; text-transform: uppercase; color: var(--agua-profundo); }
+.pieza p.que { margin: 6px 0 0; color: var(--tinta-2); }
+.dudas { margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.dudas li { font-size: 14.5px; background: var(--hueso); border: 1px solid var(--linea); border-radius: 999px; padding: 4px 12px; }
+.nota-pieza { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--limon-suave); font-size: 15px; color: var(--tinta); }
+.canva { margin: 0; max-width: 64ch; color: var(--tinta-2); }
+
+/* Lo que se promete */
+.promesa { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 680px) { .promesa { grid-template-columns: 3fr 2fr; } }
+.lado { border-radius: var(--r); padding: 20px 22px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.lado.si { background: var(--papel); border: 1px solid var(--linea); }
+.lado.no { background: var(--limon-suave); }
+.lado h3 { margin: 0; font: 800 19px/1.25 var(--f-display); }
+.lado ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+.lado.si li::marker { color: var(--agua); }
+.lado p { margin: 0; }
+
+/* La ruta de las tres preguntas */
+.ruta { list-style: none; margin: 0; padding: 0; position: relative; display: grid; gap: 22px; }
+.ruta::before { content: ""; position: absolute; left: 21px; top: 22px; bottom: -40px; width: 6px; border-radius: 3px; background: var(--cielo); }
+.parada { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 16px; align-items: start; }
+.hito { position: relative; width: 48px; height: 48px; border-radius: 50%; background: var(--agua); color: var(--hueso); display: grid; place-items: center;
+  font: 900 21px/1 var(--f-display); box-shadow: 0 0 0 5px var(--hueso); font-variant-numeric: tabular-nums; }
+.tarjeta { background: var(--papel); border: 1px solid var(--linea); border-radius: var(--r); padding: 20px 22px; display: grid; gap: 10px; min-width: 0; }
+.tarjeta h3 { margin: 0; font: 800 21px/1.3 var(--f-display); text-wrap: balance; }
+.porque { margin: 0; color: var(--tinta-2); }
+.porque strong { color: var(--tinta); }
+.respuesta { margin-top: 4px; border-top: 2px dashed var(--linea); padding-top: 10px; font: 700 13px/1.2 var(--f-texto); letter-spacing: .06em; text-transform: uppercase; color: var(--tenue); min-height: 64px; }
+
+.llegada { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 16px; align-items: start; position: relative; }
+.llegada .pin { width: 48px; height: 58px; display: block; position: relative; }
+.llegada .texto { display: grid; gap: 14px; padding-top: 8px; min-width: 0; }
+.pasos { margin: 0; padding-left: 22px; display: grid; gap: 8px; color: var(--tinta-2); max-width: 60ch; }
+.pasos li::marker { color: var(--agua-profundo); font-weight: 800; }
+.acuerdo { margin: 0; padding: 14px 16px; border-radius: 10px; background: var(--cielo-suave); color: var(--tinta); max-width: 60ch; }
+
+/* La firma de Nazmelia, aparte */
+.firma { background: var(--naz-tinta); color: var(--naz-hueso); }
+.firma-dentro { max-width: 860px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-block: 36px 40px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 32px; }
+.firma .quien { margin: 0; font: 400 15px/1.5 var(--f-naz-sans); color: var(--naz-hueso); display: grid; gap: 4px; }
+.firma .quien .clave { color: var(--naz-barro); margin-right: 6px; }
+.firma .quien small { font-size: 13px; color: var(--naz-piedra); }
+.firma .sello { display: grid; gap: 6px; justify-items: end; }
+.firma img { width: 168px; height: auto; display: block; }
+.firma .lema { margin: 0; font: italic 400 15px/1.3 var(--f-naz); color: var(--naz-hueso); }
+@media (max-width: 560px) { .firma .sello { justify-items: start; } }
+
+@media print {
+  /* En papel todo va en bloques: las rejillas partidas entre páginas se encimaban. */
+  @page { size: Letter; margin: 0.5in 0.55in; }
+  html, body { background: #fff; }
+  body { font-size: 14px; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .franja { display: none; }
+  .marco { display: block; max-width: none; padding: 0; }
+  .marco > * + * { margin-top: 26px; }
+  .seccion { display: block; }
+  .seccion > * + * { margin-top: 12px; }
+  .piezas, .promesa, .razones, .ruta { display: block; }
+  .pieza, .lado, .parada { margin-bottom: 12px; }
+  .pieza, .tarjeta, .lado, .ya-tienes, .parada, .llegada, .acuerdo { break-inside: avoid; }
+  .ruta::before { display: none; }
+  h1 { font-size: 34px; } h2 { font-size: 22px; break-after: avoid; }
+  .firma { break-inside: avoid; margin-top: 26px; }
+  .firma-dentro { padding: 20px 24px; }
+}
+</style>
+
+<div class="franja" aria-hidden="true"></div>
+<div class="marco">
+  <header class="portada">
+    <div class="lockup" aria-label="Lavandi" role="img">{{SIMBOLO}}{{LOGOTIPO}}</div>
+    <p class="ceja">Propuesta</p>
+    <h1>Kit para sumar lavanderías a Lavandi</h1>
+    <p class="entrada">Ya puedes empezar a invitar lavanderías, aunque la aplicación todavía no esté lista. Te proponemos un kit con lo necesario para hacerlo, por teléfono, por WhatsApp y en persona, y para comprobar con la gente de la zona que el negocio se sostiene.</p>
+  </header>
+
+  <section class="seccion" aria-labelledby="t-ya">
+    <h2 id="t-ya">Por qué conviene empezar ya</h2>
+    <ul class="razones">
+      <li>Sin lavanderías, la aplicación abre sin a quién mandarle los pedidos.</li>
+      <li>Para probar la aplicación completa antes de entregarla hace falta, por lo menos, una lavandería real recibiendo pedidos reales.</li>
+      <li>Convencer a un negocio lleva varias llamadas y alguna visita. Entre más pronto empiece, más lavanderías habrá el día que se abra.</li>
+    </ul>
+    <div class="ya-tienes">
+      <div class="cifra"><b>415</b><span>lavanderías en la zona</span></div>
+      <div class="cifra"><b>230</b><span>con teléfono</span></div>
+      <p><strong>Lo que ya tienes:</strong> la lista de todas ellas, por zona, con columnas para anotar cada llamada. Es el punto de partida del kit.</p>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-kit">
+    <h2 id="t-kit">Lo que incluye el kit</h2>
+    <p>Doce piezas para cuatro tipos de conversación, y adaptadas a cinco tipos de lavandería: de barrio, establecida, nueva, cadena y tintorería. Ya están hechas en borrador, con el logotipo, los colores y el tono de Lavandi; solo les faltan tus respuestas.</p>
+    <ul class="piezas">
+      <li class="pieza">
+        <svg viewBox="0 0 52 52" aria-hidden="true"><rect x="14" y="5" width="24" height="42" rx="5" fill="#E6F2F6" stroke="#2E86AB" stroke-width="2.5"/><circle cx="26" cy="40" r="2.5" fill="#2E86AB"/><path d="M20 18c2-3 10-3 12 0M22 23c1.5-2 6.5-2 8 0" fill="none" stroke="#2E86AB" stroke-width="2.5" stroke-linecap="round"/><circle cx="26" cy="28" r="2.5" fill="#E8C547"/></svg>
+        <h3>Lavanderías, a distancia</h3>
+        <p class="formato">PDF e imagen para WhatsApp</p>
+        <ul class="dudas-lista"><li>Cómo hablarle a cada lavandería: qué le importa a cada tipo, quién decide y qué decirle. En la lista ya viene marcado el tipo de cada una.</li><li>Hoja de presentación, para mandar por WhatsApp o dejar impresa.</li><li>Guion de llamada de dos minutos, con las respuestas a las dudas que más se van a oír.</li><li>Tres mensajes de WhatsApp listos para copiar, con su imagen.</li></ul>
+      </li>
+      <li class="pieza">
+        <svg viewBox="0 0 52 52" aria-hidden="true"><path d="M8 22l18-14 18 14v22H8z" fill="#E6F2F6" stroke="#2E86AB" stroke-width="2.5" stroke-linejoin="round"/><rect x="21" y="30" width="10" height="14" fill="#2E86AB"/><rect x="15" y="20" width="22" height="4" rx="2" fill="#E8C547"/></svg>
+        <h3>Lavanderías, en persona</h3>
+        <p class="formato">PowerPoint y PDF para imprimir</p>
+        <ul class="dudas-lista"><li>Presentación de siete láminas para enseñar en la visita, más dos opcionales para cadenas y tintorerías. En PowerPoint, para que la pueda cambiar.</li><li>Hoja de visita: qué observar y qué preguntar.</li><li>Carta de interés de lavandería fundadora. No obliga a nada.</li><li>Formato de registro, para darla de alta cuando la aplicación esté por abrir.</li></ul>
+      </li>
+      <li class="pieza">
+        <svg viewBox="0 0 52 52" aria-hidden="true"><rect x="8" y="8" width="36" height="36" rx="4" fill="#E6F2F6" stroke="#2E86AB" stroke-width="2.5"/><rect x="15" y="28" width="5" height="10" fill="#A8D5E2"/><rect x="24" y="20" width="5" height="18" fill="#2E86AB"/><rect x="33" y="14" width="5" height="24" fill="#E8C547"/></svg>
+        <h3>Para comprobar el negocio</h3>
+        <p class="formato">PDF y Excel</p>
+        <ul class="dudas-lista"><li>Entrevista de diez minutos a personas de la zona: ¿pedirían su lavandería por una aplicación, y a qué precio?</li><li>Libro de resultados en Excel. Ahí se pasan visitas y entrevistas, y el resumen se calcula solo: cuánto cobran las lavanderías de la zona, cuántas aceptan y cuánta gente pediría.</li></ul>
+      </li>
+      <li class="pieza">
+        <svg viewBox="0 0 52 52" aria-hidden="true"><path d="M8 24l18-15 18 15" fill="none" stroke="#2E86AB" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><rect x="12" y="22" width="28" height="22" rx="2" fill="#E6F2F6" stroke="#2E86AB" stroke-width="2.5"/><circle cx="26" cy="33" r="6" fill="#fff" stroke="#2E86AB" stroke-width="2.5"/><circle cx="26" cy="33" r="2.5" fill="#E8C547"/></svg>
+        <h3>Personas que lavan en su casa</h3>
+        <p class="formato">PDF</p>
+        <ul class="dudas-lista"><li>Una conversación para escucharlas: cuánto lavan, con qué equipo y qué les preocuparía.</li><li>Lavandi está pensada para lavanderías. Sumar a quien lava en su casa cambia quién responde por la ropa y cómo se cobra. Por eso aquí primero se escucha y después tú decides si se suman.</li></ul>
+      </li>
+    </ul>
+    <p class="canva">Te entregamos todo en PDF, listo para mandar o imprimir. La presentación va también en PowerPoint y los resultados en Excel, para que puedas cambiar un dato sin depender de nosotros.</p>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-decir">
+    <h2 id="t-decir">Lo que le vamos a decir a la lavandería</h2>
+    <div class="promesa">
+      <article class="lado si">
+        <h3>Lo que sí</h3>
+        <ul>
+          <li><strong>Cobra seguro.</strong> El cliente paga en la aplicación y la lavandería no tiene que perseguir pagos.</li>
+          <li><strong>Sus pedidos en un solo lugar.</strong> Los acepta o los rechaza, avisa en qué va cada uno y ve cuánto lleva en el día y en la semana.</li>
+          <li><strong>Ella manda en su horario.</strong> Decide cuándo puede recibir pedidos.</li>
+        </ul>
+      </article>
+      <article class="lado no">
+        <h3>Lo que no</h3>
+        <p>Un número de pedidos o de clientes. Otras empresas lo prometieron, no lo cumplieron y perdieron la confianza de las lavanderías. Preferimos prometer menos y cumplirlo.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-preguntas">
+    <h2 id="t-preguntas">Las tres preguntas que necesitamos que respondas</h2>
+    <p>Sin estas respuestas ninguna pieza se puede terminar, porque es lo primero que va a preguntar el dueño de una lavandería. Además necesitamos el nombre y el WhatsApp de quien va a atender a las lavanderías, y el aviso de privacidad antes de pedirles sus datos.</p>
+    <ol class="ruta">
+      <li class="parada">
+        <div class="hito" aria-hidden="true">1</div>
+        <article class="tarjeta">
+          <h3>¿Cuánto le cobra Lavandi a la lavandería por cada pedido?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Es la primera pregunta que va a hacer el dueño. Si es un porcentaje, hay que decir de qué: solo del lavado o también del envío.</p>
+          <div class="respuesta">Tu respuesta</div>
+        </article>
+      </li>
+      <li class="parada">
+        <div class="hito" aria-hidden="true">2</div>
+        <article class="tarjeta">
+          <h3>¿Quién pone el precio del lavado: cada lavandería o Lavandi?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Cambia el mensaje. Si cada una pone su precio, se le dice “tú decides cuánto cobras”. Si lo pone Lavandi, hay que decirle cuál es y convencerla de aceptarlo.</p>
+          <div class="respuesta">Tu respuesta</div>
+        </article>
+      </li>
+      <li class="parada">
+        <div class="hito" aria-hidden="true">3</div>
+        <article class="tarjeta">
+          <h3>¿Qué le ofreces a las primeras lavanderías que se unan?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Se les pide que digan que sí antes de ver un solo pedido. Una ventaja para las primeras ayuda; por ejemplo, una comisión menor durante los primeros meses o el distintivo de socio fundador. También puede no haber ninguna. Lo importante es que el kit diga exactamente lo que se va a cumplir.</p>
+          <div class="respuesta">Tu respuesta</div>
+        </article>
+      </li>
+    </ol>
+
+    <div class="llegada">
+      <svg class="pin" viewBox="810 895 175 240" aria-hidden="true">
+        <path fill="#E8C547" d="M 897 1126 C 860 1060, 816 1030, 816 981 A 81 81 0 1 1 978 981 C 978 1030, 934 1060, 897 1126 Z"/>
+        <circle cx="896" cy="983" r="30" fill="#2E86AB"/>
+      </svg>
+      <div class="texto">
+        <h2>Cómo lo trabajamos</h2>
+        <ol class="pasos">
+          <li>Respondes las tres preguntas.</li>
+          <li>Ponemos tus respuestas en las doce piezas y te las mandamos para que las revises.</li>
+          <li>Nos dices qué cambiar.</li>
+          <li>Hacemos los cambios que nos pidas, en una sola ronda, y te entregamos todo en PDF, PowerPoint y Excel.</li>
+        </ol>
+        <p class="acuerdo">Este kit no está incluido en lo que firmamos, y te lo damos sin costo. Comprende las doce piezas de esta propuesta y una ronda de cambios. Otras piezas o más cambios los platicamos aparte.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer class="firma">
+  <div class="firma-dentro">
+    <p class="quien"><span><span class="clave" aria-hidden="true">◣</span>Preparado por el equipo de Nazmelia para Lavandi</span><small>Nazmelia, a cargo del desarrollo de la plataforma</small></p>
+    <div class="sello">
+      <img src="{{NAZMELIA}}" alt="Nazmelia">
+      <p class="lema">De la complejidad al control.</p>
+    </div>
+  </div>
+</footer>
