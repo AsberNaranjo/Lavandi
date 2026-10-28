@@ -37,3 +37,27 @@ desktop.ini
 # Claude Code local
 .claude/settings.local.json
 .claude/worktrees/
+
+# Instrumental local de Claude Code: no se versiona
+# OpenSpec
+openspec/
+.claude/commands/opsx/
+.claude/skills/openspec-*/
+# graphify
+graphify-out/
+# Skills copiadas de otro entorno (las del proyecto se crean en la Fase 8 y sí se versionan)
+.claude/skills/LICENSE-ECC
+.claude/skills/caveman/
+.claude/skills/caveman-commit/
+.claude/skills/caveman-compress/
+.claude/skills/caveman-help/
+.claude/skills/caveman-review/
+.claude/skills/compress/
+.claude/skills/coding-standards/
+.claude/skills/database-migrations/
+.claude/skills/e2e-testing/
+.claude/skills/error-handling/
+.claude/skills/frontend-design/
+.claude/skills/security-review/
+.claude/skills/verification-loop/
+.claude/skills/webapp-testing/
