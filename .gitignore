@@ -45,6 +45,7 @@ openspec/
 .claude/skills/openspec-*/
 # graphify
 graphify-out/
+.graphifyignore
 # Skills copiadas de otro entorno (las del proyecto se crean en la Fase 8 y sí se versionan)
 .claude/skills/LICENSE-ECC
 .claude/skills/caveman/
