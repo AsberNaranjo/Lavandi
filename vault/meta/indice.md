@@ -38,6 +38,9 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[listado-de-lavanderias]] — grado E: las 415 lavanderías y tintorerías del DENUE en el territorio, por plaza, en Excel para que el cliente las llame; lecciones aprendidas del informe de junio. Versión para el cliente, solo para prospectar: `cliente/comunicaciones/lavanderias-para-invitar.xlsx`
 - [[2026-10-25-propuesta-kit-de-socios]] — propuesta al cliente del kit de 11 piezas para invitar lavanderías y comprobar el negocio, y las tres preguntas que tiene que responder; cortesía (C-116, C-119); sin enviar
 - [[encargo-kit-de-prospeccion]] — qué piezas lleva el kit, el límite de la cortesía y las reglas que no rompe; las piezas viven en `cliente/kit-de-prospeccion/`
+- [[recalibracion-2026-10-30]] — preparación de Nadir para la reunión larga con el cliente: quince hallazgos, cuatro caminos (recomendado B con algo de C), decisiones por tomar y agenda. No se comparte
+- [[2026-10-30-minuta-de-recalibracion]] — la minuta para que el cliente confirme por escrito lo acordado en la recalibración; se llena con las 21 respuestas de la guía
+- Formulario de prioridades y operación (`herramientas/formulario-prioridades/`): 43 funciones del contrato para marcar "para abrir" o "puede esperar", cómo opera en Durango capital y los insumos del cliente. Versiones para imprimir de la guía y del formulario en `cliente/envios/`
 - [[metodo-de-precio]] — cómo se genera el precio: cinco decisiones, tres modelos, guion de sondeo
 - [[unit-economics]] — modelo, referencia contractual, sensibilidad al envío, tres escenarios
 - [[hipotesis-criticas]] — H-001 a H-006

@@ -42,6 +42,8 @@ En la base de datos de la página, un documento por pregunta: `respuestas/q1` a 
 | q6 | `precio`, `comision`, `envio` (lista), `comentarios` |
 | todas | `pendiente` (la dejaron para después), `actualizado` |
 
+Desde el 2026-10-30 son 21 preguntas (`q1` a `q21`); los campos de las nuevas están al final de `vault/cliente/comunicaciones/2026-10-09-guia-de-reunion-decisiones-del-negocio.md`.
+
 Después de la reunión, la sesión las lee con `ArtifactData` (`list` de `respuestas`), las transcribe a un acta como
 dichas por EL CLIENTE y prepara el resumen para que él las confirme por escrito.
 

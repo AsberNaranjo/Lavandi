@@ -9,6 +9,9 @@ dueño: Nadir Hadad Navarrete
 
 **BORRADOR. No se ha enviado.** Lo envía Nadir. Responde a P-11 de la sala y a DD-064.
 
+**Actualizado el 2026-10-30 para la reunión de recalibración:** mándalo por correo hoy, antes de la reunión o al
+empezarla. El punto 2 ya no propone una reunión: dice que hoy se revisan las decisiones.
+
 Va aparte de la guía de la reunión, a propósito: mezclado con las preguntas del negocio parecería una excusa.
 
 ---
@@ -42,8 +45,7 @@ Las razones son tres:
 1. **Estoy terminando de definir cómo se va a construir la aplicación.** Prefiero cerrar bien esas definiciones
    antes de empezar, para no tener que rehacer trabajo después.
 2. **Varias de esas definiciones dependen de decisiones de tu negocio:** quién recoge y entrega la ropa, cómo se
-   cobra y con qué lavanderías se arranca. Te propongo que las revisemos juntos en una reunión; llevo una guía con
-   las preguntas.
+   cobra y con qué lavanderías se arranca. Las revisamos juntos hoy, con la guía de la reunión.
 3. **Para publicar la aplicación y cobrar con tarjeta hacen falta trámites a tu cargo:** el registro de la empresa
    que pide Apple (el número D-U-N-S), las cuentas de desarrollador de Apple y de Google, y el alta en Conekta. Te
    pido que me digas en qué estado está cada uno.

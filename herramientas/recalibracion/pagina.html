@@ -1,0 +1,304 @@
+<title>Recalibración Lavandi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+/* Hoja de trabajo de Nadir para la recalibración: arriba lo que tiene que saber en un minuto, después los
+   hallazgos como fichas, los cuatro caminos lado a lado con el recomendado marcado, la lista de decisiones que
+   se van palomeando durante la reunión y la agenda como una línea de tiempo. Colores de Lavandi, una sola
+   apariencia clara a propósito, como el manual. */
+:root {
+  --hueso: #F7F4EF; --papel: #FFFFFF; --tinta: #171C21; --tinta-2: #3B424A; --tenue: #5C6670; --linea: #E4DFD6;
+  --agua: #2E86AB; --agua-profundo: #297899; --cielo: #A8D5E2; --cielo-suave: #E6F2F6;
+  --limon: #E8C547; --limon-suave: #FBF1CB; --rojo: #9E2A1F; --rojo-suave: #F6E3E0; --ocre: #8A5A00;
+  --f-display: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+  --f-texto: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --r: 14px;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--hueso); }
+body { margin: 0; color: var(--tinta); font: 400 16.5px/1.55 var(--f-texto); }
+.marco { max-width: 980px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); padding-block: 28px 64px; display: grid; gap: 56px; }
+h1 { margin: 0; font: 900 clamp(30px, 6vw, 48px)/1.05 var(--f-display); letter-spacing: -.012em; text-wrap: balance; }
+h2 { margin: 0; font: 900 27px/1.15 var(--f-display); text-wrap: balance; }
+h3 { margin: 0; font: 800 18px/1.3 var(--f-display); text-wrap: balance; }
+p { margin: 0; }
+.ceja { font: 800 12.5px/1.2 var(--f-texto); letter-spacing: .12em; text-transform: uppercase; color: var(--agua-profundo); }
+.privado { display: inline-flex; align-items: center; gap: 8px; align-self: start; background: var(--rojo-suave); color: var(--rojo); font: 700 13.5px/1 var(--f-texto); padding: 8px 12px; border-radius: 999px; }
+.seccion { display: grid; gap: 18px; }
+.seccion > p.intro { color: var(--tinta-2); max-width: 70ch; }
+.cita { font-size: 12.5px; color: var(--tenue); }
+
+/* Portada */
+.portada { display: grid; gap: 14px; }
+.portada .entrada { font-size: 18.5px; color: var(--tinta-2); max-width: 64ch; }
+.semana { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.barra { display: grid; grid-template-columns: repeat(16, 1fr); gap: 3px; width: min(420px, 100%); }
+.barra span { height: 10px; border-radius: 3px; background: var(--linea); }
+.barra span.pasada { background: var(--agua); }
+.barra span.hoy { background: var(--limon); }
+.semana small { font-weight: 700; color: var(--tinta-2); }
+
+/* En un minuto */
+.minuto { display: grid; grid-template-columns: 1fr; gap: 12px; counter-reset: m; }
+@media (min-width: 760px) { .minuto { grid-template-columns: 1fr 1fr; } }
+.minuto li { list-style: none; background: var(--papel); border: 1px solid var(--linea); border-radius: var(--r); padding: 16px 18px 16px 58px; position: relative; min-width: 0; }
+.minuto li::before { counter-increment: m; content: counter(m); position: absolute; left: 16px; top: 15px; width: 28px; height: 28px; border-radius: 50%; background: var(--agua); color: #fff; display: grid; place-items: center; font: 900 14px/1 var(--f-display); }
+.minuto li.alerta { background: var(--limon-suave); border-color: transparent; }
+.minuto li.alerta::before { background: var(--ocre); }
+.minuto { margin: 0; padding: 0; }
+
+/* Hallazgos */
+.hallazgos { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 700px) { .hallazgos { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 980px) { .hallazgos { grid-template-columns: 1fr 1fr 1fr; } }
+.hallazgo { background: var(--papel); border: 1px solid var(--linea); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.hallazgo .num { font: 900 13px/1 var(--f-display); color: var(--agua-profundo); }
+.hallazgo .dato { font-weight: 700; }
+.hallazgo .significa { color: var(--tinta-2); font-size: 15px; }
+.hallazgo.fuerte { border-color: var(--agua); background: var(--cielo-suave); }
+
+/* Caminos */
+.caminos { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 760px) { .caminos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 980px) { .caminos { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.camino { background: var(--papel); border: 1px solid var(--linea); border-radius: var(--r); padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; font-size: 15px; }
+.camino .letra { width: 34px; height: 34px; border-radius: 10px; background: var(--hueso); display: grid; place-items: center; font: 900 18px/1 var(--f-display); color: var(--agua-profundo); }
+.camino dl { margin: 0; display: grid; gap: 8px; }
+.camino dt { font: 700 11.5px/1.2 var(--f-texto); letter-spacing: .08em; text-transform: uppercase; color: var(--tenue); }
+.camino dd { margin: 2px 0 0; color: var(--tinta-2); }
+.camino.reco { border: 2px solid var(--agua); }
+.camino.reco .letra { background: var(--agua); color: #fff; }
+.sello { display: inline-block; font: 800 12px/1 var(--f-texto); padding: 6px 9px; border-radius: 999px; background: var(--agua-profundo); color: #fff; justify-self: start; }
+.recomiendo { background: var(--cielo-suave); border-radius: var(--r); padding: 18px 20px; display: grid; gap: 8px; }
+.recomiendo p { color: var(--tinta-2); max-width: 75ch; }
+.ojo { background: var(--limon-suave); border-radius: 10px; padding: 12px 14px; color: var(--tinta); }
+
+/* Decisiones */
+.decisiones { display: grid; gap: 10px; }
+.decision { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 12px; align-items: start; background: var(--papel); border: 1px solid var(--linea); border-radius: 12px; padding: 12px 14px; cursor: pointer; }
+.decision input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--agua-profundo); }
+.decision .que { display: grid; gap: 3px; min-width: 0; }
+.decision .que strong { font-weight: 700; }
+.decision .pista { color: var(--tinta-2); font-size: 14.5px; }
+.decision:has(input:checked) { background: var(--cielo-suave); border-color: var(--cielo); }
+.decision:has(input:checked) .que strong { text-decoration: line-through; text-decoration-color: var(--agua); }
+.decision:has(input:focus-visible) { outline: 3px solid var(--agua); outline-offset: 2px; }
+.urg { font: 800 11.5px/1 var(--f-texto); padding: 6px 8px; border-radius: 999px; white-space: nowrap; }
+.urg.hoy { background: var(--rojo-suave); color: var(--rojo); }
+.urg.antes { background: var(--limon-suave); color: var(--ocre); }
+.urg.espera { background: #EDEFF2; color: var(--tinta-2); }
+.avance { font: 700 14px/1 var(--f-texto); color: var(--tinta-2); }
+.dos-col { display: grid; gap: 28px; }
+
+/* Agenda */
+.agenda { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; position: relative; }
+.agenda li { display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--linea); }
+.agenda .t { font: 900 15px/1.3 var(--f-display); color: var(--agua-profundo); font-variant-numeric: tabular-nums; }
+.agenda .q { display: grid; gap: 2px; }
+.agenda .con { font-size: 14px; color: var(--tenue); }
+.reglas { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 75ch; }
+.reglas li::marker { color: var(--agua); font-weight: 800; }
+.despues { margin: 0; padding-left: 22px; display: grid; gap: 8px; max-width: 75ch; color: var(--tinta-2); }
+.despues li::marker { color: var(--agua-profundo); font-weight: 800; }
+.objeciones { display: grid; gap: 8px; }
+.objecion { background: var(--papel); border: 1px solid var(--linea); border-radius: 12px; padding: 0 16px; }
+.objecion summary { cursor: pointer; padding: 14px 0; font: 800 16.5px/1.35 var(--f-display); list-style-position: outside; }
+.objecion[open] { border-color: var(--cielo); }
+.objecion p { padding: 0 0 14px; color: var(--tinta-2); max-width: 75ch; }
+@media print { .objecion { break-inside: avoid; } .objecion p { display: block; } }
+a { color: var(--agua-profundo); }
+:focus-visible { outline: 3px solid var(--agua); outline-offset: 2px; border-radius: 6px; }
+@media print { .decision input { display: none; } body { background: #fff; } .marco { gap: 30px; } }
+</style>
+
+<div class="marco">
+  <header class="portada">
+    <span class="privado">Solo para ti · no se le comparte al cliente</span>
+    <p class="ceja">Recalibración con el cliente</p>
+    <h1>Lo que hemos detectado y lo que hay que acordar hoy</h1>
+    <p class="entrada">Para la reunión larga con el cliente. Arriba, lo que tienes que saber en un minuto. Después, los hallazgos, los cuatro caminos posibles, la lista de decisiones para ir palomeando y una agenda.</p>
+    <div class="semana"><div class="barra" aria-hidden="true"><span class="pasada"></span><span class="pasada"></span><span class="pasada"></span><span class="pasada"></span><span class="pasada"></span><span class="pasada"></span><span class="pasada"></span><span class="hoy"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><small>Semana 8 de 16 del contrato</small></div>
+    <p>Para lo que sí ve el cliente usa la <a href="https://claude.ai/artifact/Wo2rZFbp5f7Rz2jqrX7Ng5" target="_blank" rel="noopener">guía de la reunión</a>: ahí se anotan sus respuestas.</p>
+  </header>
+
+  <section class="seccion" aria-labelledby="t-minuto">
+    <h2 id="t-minuto">En un minuto</h2>
+    <ol class="minuto">
+      <li class="alerta"><strong>El riesgo mayor no es el software: es que no hay lavanderías.</strong> Cero apuntadas, 415 en la zona, y conseguirlas le toca al cliente.</li>
+      <li class="alerta"><strong>El calendario ya no se puede cumplir tal como está.</strong> El desarrollo no ha empezado; el alcance pide unas 390 horas y de aquí al 6 de diciembre hay entre 100 y 150. Hay que acordar un calendario nuevo por escrito.</li>
+      <li><strong>Ninguna de las seis dudas del negocio se ha probado.</strong> El kit ya está listo para probarlas en la calle: entrevistas, visitas y el libro de resultados.</li>
+      <li><strong>El modelo de Lavandi es el de peor historial del sector.</strong> No es razón para no hacerlo: es razón para hacerlo como los que sobreviven. Horario programado, pedido mínimo con envío incluido y la lavandería entregando con su gente.</li>
+      <li><strong>"¿Va a ser una aplicación?" es una pregunta válida.</strong> Pero el contrato ya compró una app: cambiar la forma, el calendario o el alcance se firma aparte. Hoy se acuerda el rumbo; el papel se firma después.</li>
+      <li><strong>Hay que salir con decisiones por escrito.</strong> Sin ellas, el desarrollo vuelve a detenerse esperando respuestas: comisión, precio, envío, quién reparte, cómo se cobra.</li>
+    </ol>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-hallazgos">
+    <h2 id="t-hallazgos">Lo que hemos detectado</h2>
+    <p class="intro">Quince hallazgos. Los de fondo azul son los que más pesan en la conversación. Los datos de otras empresas y del mercado son públicos y no los hemos comprobado directamente.</p>
+    <div class="hallazgos">
+      <article class="hallazgo fuerte"><span class="num">H1</span><p class="dato">No hay lavanderías apuntadas. La lista de 415 ya está lista y marcada por tipo: 292 de barrio, 12 establecidas, 57 en cadena y 54 tintorerías.</p><p class="significa">Sin socios, la app abre vacía y no se puede probar el recorrido completo que pide el contrato para el segundo pago.</p><p class="cita">C-120 · R-005 · R-010-bis · A.4.3</p></article>
+      <article class="hallazgo fuerte"><span class="num">H2</span><p class="dato">El competidor real es la lavadora de la casa: la tienen 84 de cada 100 viviendas en Durango y 89 en Coahuila, y la cifra sube.</p><p class="significa">Lavandi tiene que ganar donde la lavadora no alcanza: quien no tiene tiempo, planchado, edredones, tintorería.</p><p class="cita">LC-10 · INEGI 2025</p></article>
+      <article class="hallazgo"><span class="num">H3</span><p class="dato">El canal real es WhatsApp y el pago real es el efectivo: 85 de cada 100 prefieren efectivo en compras de hasta 500 pesos.</p><p class="significa">La app compite contra un hábito que ya funciona. Cobrar solo con tarjeta deja fuera a la mayoría.</p><p class="cita">LC-11</p></article>
+      <article class="hallazgo fuerte"><span class="num">H4</span><p class="dato">La plataforma mexicana más parecida cerró en agosto y hoy les vende software a las lavanderías. Otra, de franquicias, terminó en liquidación con dueños sin pedidos.</p><p class="significa">"Más clientes" no sirve como argumento: es lo que prometieron los que fracasaron.</p><p class="cita">LC-09 · RF-18</p></article>
+      <article class="hallazgo"><span class="num">H5</span><p class="dato">Los que sobreviven trabajan con horario programado y pedido mínimo con envío incluido, o son la propia lavandería entregando con su gente.</p><p class="significa">Juega a favor: el contrato ya trae la hora de una hora y permite que la lavandería entregue.</p><p class="cita">LC-04 · LC-12 · LC-13</p></article>
+      <article class="hallazgo fuerte"><span class="num">H6</span><p class="dato">Con las cifras del contrato (pedido de 250 pesos, comisión del 20 %), a Lavandi le quedan unos 39 pesos por pedido antes de pagar viajes. Si paga los dos viajes por mensajería, pierde más de 60.</p><p class="significa">La manera de cobrar decide si el negocio existe. La que mejor apunta: envío incluido con mínimo, y la lavandería entrega.</p><p class="cita">unit-economics §3 y §4</p></article>
+      <article class="hallazgo"><span class="num">H7</span><p class="dato">Solo para cubrir lo que cuesta mantener la app cada mes (1,200 a 4,100 pesos) hacen falta de 31 a 106 pedidos al mes.</p><p class="significa">Es la primera meta de operación que se puede medir.</p><p class="cita">unit-economics §3 · B.9</p></article>
+      <article class="hallazgo"><span class="num">H8</span><p class="dato">Un programa de unos 20 dólares al mes, sin comisión, le da a cualquier lavandería su propia app.</p><p class="significa">Lavandi tiene que ofrecer lo que ese programa no da: gente de otras colonias, cobro sin perseguir y alguien que responde.</p><p class="cita">RF-20 · OP-04</p></article>
+      <article class="hallazgo"><span class="num">H9</span><p class="dato">Después del primer pedido, nada impide que la persona y la lavandería sigan tratando por WhatsApp.</p><p class="significa">Hacen falta reglas del servicio y razones para que a los dos les convenga seguir en la app.</p><p class="cita">P-05 · guía 8</p></article>
+      <article class="hallazgo"><span class="num">H10</span><p class="dato">El pago en OXXO ya no sería por Conekta, y el contrato lo da por hecho.</p><p class="significa">Hay que confirmarlo con Conekta y decidir el efectivo: otras tiendas que sí cobra Conekta, otra integración aparte o solo tarjeta.</p><p class="cita">R-028 · DD-056</p></article>
+      <article class="hallazgo fuerte"><span class="num">H11</span><p class="dato">Los trámites del cliente no tienen registro: D-U-N-S, cuentas de Google y Apple, Conekta (pide cuenta bancaria de empresa), aviso de privacidad y el dominio.</p><p class="significa">Sin ellos no se publica aunque la app esté lista. Una cuenta personal nueva de Google Play pide 14 días de prueba con 12 personas antes de publicar.</p><p class="cita">R-002 · R-003 · R-029 · DD-017 · O-11</p></article>
+      <article class="hallazgo"><span class="num">H12</span><p class="dato">La marca describe el servicio y se registra con poca fuerza. El logotipo usa una fuente comercial cuya licencia no se ha confirmado, y recuerda a Instagram (riesgo que el cliente aceptó).</p><p class="significa">El registro ante el IMPI puede costar y no prosperar: conviene buscar antes de pagar el trámite.</p><p class="cita">R-017 · R-030 · DD-030 · DD-060</p></article>
+      <article class="hallazgo"><span class="num">H13</span><p class="dato">Hay expectativas fuera del contrato: lavado de calzado, Estados Unidos, producir contenido y la comisión del 30 % por clientes.</p><p class="significa">Cada una va por escrito y aparte, o se cae.</p><p class="cita">DD-046 · R-019 · DD-042 · DD-044</p></article>
+      <article class="hallazgo"><span class="num">H14</span><p class="dato">El equipo eres tú con Claude, sin experiencia previa en apps de celular, con 20 a 30 horas por semana.</p><p class="significa">La manera de cumplir no es ir más rápido: es construir menos y en mejor orden.</p><p class="cita">C-89 a C-91 · R-025</p></article>
+      <article class="hallazgo"><span class="num">H15</span><p class="dato">Comprar una plantilla no resuelve las horas. La mejor base abierta ahorra unas 40 a 70 horas, y las de pago no dejan entregarle el código al cliente.</p><p class="significa">Ayuda, pero no cierra la diferencia.</p><p class="cita">investigación de proyectos base · cruce con Enatega</p></article>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-app">
+    <h2 id="t-app">La pregunta de fondo: ¿una aplicación?</h2>
+    <p class="intro">El contrato compró una app con cuatro partes en las dos tiendas, la página web, el panel de indicadores y la identidad. La pregunta honesta no es "app sí o no", sino qué se construye primero y cómo se demuestra que hay negocio antes de gastarlo todo.</p>
+    <div class="caminos">
+      <article class="camino"><span class="letra">A</span><h3>Todo como dice el contrato, con fechas nuevas</h3><dl><dt>Qué es</dt><dd>Las cuatro partes y las dos tiendas, con un calendario realista.</dd><dt>A favor</dt><dd>No cambia lo que se entrega.</dd><dt>En contra</dt><dd>Se construye todo antes de saber si hay demanda: de 13 a 20 semanas de construcción con tus horas de hoy.</dd><dt>Pagos</dt><dd>El segundo pago se recorre con la publicación. Se pacta por escrito.</dd></dl></article>
+      <article class="camino reco"><span class="letra">B</span><span class="sello">Recomendado, con algo de C</span><h3>Por etapas, empezando por Durango capital</h3><dl><dt>Qué es</dt><dd>Primero lo mínimo para operar en la semilla: la app de quien pide, la lavandería entregando con su gente y la administración en web. Después, repartidores, indicadores y La Laguna.</dd><dt>A favor</dt><dd>Llega antes a pedidos reales y el cliente ve avance.</dd><dt>En contra</dt><dd>Hay que redefinir qué acredita cada pago.</dd><dt>Pagos</dt><dd>Orden de Cambio con un pago por etapa.</dd></dl></article>
+      <article class="camino"><span class="letra">C</span><h3>Probar antes de construir</h3><dl><dt>Qué es</dt><dd>Unas semanas operando a mano con las fundadoras: WhatsApp, un formulario y cobro con liga de pago.</dd><dt>A favor</dt><dd>Lo más barato para saber si el negocio existe. Usa el kit tal cual.</dd><dt>En contra</dt><dd>El cliente puede sentir que "no hay app", y alguien tiene que operarlo.</dd><dt>Pagos</dt><dd>Pausa o redefine el segundo y el tercero. Orden de Cambio.</dd></dl></article>
+      <article class="camino"><span class="letra">D</span><h3>Cambiar de modelo: software para lavanderías</h3><dl><dt>Qué es</dt><dd>Lo que hizo la plataforma que cerró: venderle a cada lavandería su propio canal.</dd><dt>A favor</dt><dd>Es el modelo que sí ha sobrevivido.</dd><dt>En contra</dt><dd>Es otro producto.</dd><dt>Pagos</dt><dd>Contrato nuevo.</dd></dl></article>
+    </div>
+    <div class="recomiendo">
+      <h3>Lo que te recomiendo, y tú decides</h3>
+      <p><strong>B con un poco de C.</strong> Que el cliente empiece ya a sumar lavanderías fundadoras en Durango capital con el kit, y que pruebe en la calle las dudas del negocio con las entrevistas y las visitas. En paralelo, construir una primera versión reducida para Durango capital, con calendario y alcance nuevos firmados. Así el cliente ve una app, el negocio se prueba con gente real y los pagos quedan atados a etapas que sí se pueden cumplir.</p>
+      <p class="ojo"><strong>Ojo:</strong> cualquier camino que no sea el A cambia lo que acredita el segundo y el tercer pago. Se pacta por escrito antes de trabajar en él.</p>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-decisiones">
+    <h2 id="t-decisiones">Qué tiene que salir de la reunión</h2>
+    <p class="intro">Palomea conforme se decida. Lo marcado <span class="urg hoy">Hoy</span> hace falta para retomar el desarrollo. Las marcas se quedan solo en tu navegador.</p>
+    <p class="avance" id="avance" aria-live="polite"></p>
+    <div class="dos-col">
+      <div class="decisiones">
+        <h3>El negocio · decide el cliente</h3>
+        <label class="decision"><input type="checkbox" id="n1"><span class="que"><strong>Qué le ofrece Lavandi a quien pide, que su WhatsApp no le da</strong><span class="pista">Hora fija, precio antes de pesar, pago sin efectivo, seguimiento, alguien que responde. Guía, pregunta 1.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="n2"><span class="que"><strong>Qué le ofrece a la lavandería</strong><span class="pista">Las seis opciones de la guía, pregunta 2.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="n3"><span class="que"><strong>Cuántas lavanderías hacen falta para abrir en Durango capital</strong><span class="pista">Quién las busca ya está respondido: él, en persona y por teléfono.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="n4"><span class="que"><strong>Quién recoge y entrega la ropa</strong><span class="pista">Recomendado: la gente de cada lavandería. Guía, pregunta 5.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="n5"><span class="que"><strong>Cómo se cobra: precio, comisión y envío</strong><span class="pista">Recomendado: envío incluido con pedido mínimo. Guía, pregunta 6.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="n6"><span class="que"><strong>Cuándo se cobra: al pedir, con un estimado, o al pesar</strong><span class="pista">Define la pantalla de pago y los reembolsos.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="n7"><span class="que"><strong>Cómo y cada cuánto se le paga a la lavandería, y quién absorbe la comisión de Conekta</strong><span class="pista">Sin esto no se puede diseñar el corte de la semana.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="n8"><span class="que"><strong>Cómo paga quien prefiere efectivo</strong><span class="pista">Otras tiendas de Conekta, otra integración aparte o solo tarjeta. Guía, pregunta 7.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="n14"><span class="que"><strong>¿Su propia lavandería entra a Lavandi?</strong><span class="pista">Sirve para las pruebas; puede incomodar a las demás lavanderías.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="n11"><span class="que"><strong>Qué pasa si se daña o se pierde una prenda, y quién responde</strong><span class="pista">El kit promete responderlo por escrito antes de abrir.</span></span><span class="urg antes">Antes de visitar</span></label>
+        <label class="decision"><input type="checkbox" id="n12"><span class="que"><strong>Qué se ofrece a las lavanderías fundadoras</strong><span class="pista">Una comisión menor un tiempo, un distintivo, o nada.</span></span><span class="urg antes">Antes de visitar</span></label>
+        <label class="decision"><input type="checkbox" id="n13"><span class="que"><strong>Quién atiende a las lavanderías: nombre y WhatsApp</strong><span class="pista">Va impreso en el kit.</span></span><span class="urg antes">Antes de visitar</span></label>
+        <label class="decision"><input type="checkbox" id="n9"><span class="que"><strong>Qué evita que sigan tratando directo después del primer pedido</strong><span class="pista">Guía, pregunta 8.</span></span><span class="urg espera">Puede esperar</span></label>
+        <label class="decision"><input type="checkbox" id="n10"><span class="que"><strong>Política de cancelación</strong><span class="pista">Hasta cuándo se cancela y qué se cobra.</span></span><span class="urg espera">Puede esperar</span></label>
+        <label class="decision"><input type="checkbox" id="n15"><span class="que"><strong>Personas que lavan en su casa: ¿se exploran?</strong><span class="pista">Solo con la conversación del kit; todavía no se suman.</span></span><span class="urg espera">Puede esperar</span></label>
+      </div>
+      <div class="decisiones">
+        <h3>El proyecto · lo acuerdan los dos</h3>
+        <label class="decision"><input type="checkbox" id="p1"><span class="que"><strong>El camino: A, B, C o D</strong><span class="pista">Define qué se construye y qué acredita cada pago.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="p2"><span class="que"><strong>Un calendario nuevo, por escrito, con el aviso de retraso</strong><span class="pista">El contrato pide aviso escrito con 48 horas, y el del desarrollo no ha salido.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="p3"><span class="que"><strong>Qué entra en la primera versión y qué espera</strong><span class="pista">Con las horas de hoy no cabe todo.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="p4"><span class="que"><strong>Estado de los trámites, quién los hace y para cuándo</strong><span class="pista">D-U-N-S, Google, Apple, Conekta y aviso de privacidad.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="p5"><span class="que"><strong>Cuentas a nombre de la persona o de una sociedad</strong><span class="pista">Apple pide sociedad para publicar con nombre de empresa.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="p6"><span class="que"><strong>Comprar ya el dominio lavandi.mx</strong><span class="pista">La página web y los correos lo necesitan.</span></span><span class="urg hoy">Hoy</span></label>
+        <label class="decision"><input type="checkbox" id="p7"><span class="que"><strong>Notificar la entrega del branding y cerrar las 12 plantillas</strong><span class="pista">El plazo de revisión no corre sin la notificación.</span></span><span class="urg antes">Pronto</span></label>
+        <label class="decision"><input type="checkbox" id="p8"><span class="que"><strong>Lo que está fuera del contrato</strong><span class="pista">Calzado, Estados Unidos, contenido y el 30 %: por escrito y aparte.</span></span><span class="urg antes">Pronto</span></label>
+        <label class="decision"><input type="checkbox" id="p9"><span class="que"><strong>Reporte semanal desde ya</strong><span class="pista">El contrato lo pide durante el desarrollo.</span></span><span class="urg antes">Pronto</span></label>
+        <label class="decision"><input type="checkbox" id="p10"><span class="que"><strong>Contar esta reunión como sesión de consultoría</strong><span class="pista">El contrato da tres; dilo y anótalo.</span></span><span class="urg espera">Al cerrar</span></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-objeciones">
+    <h2 id="t-objeciones">Si te dice…</h2>
+    <p class="intro">Las objeciones más probables y cómo contestarlas con la verdad. Toca cada una para ver la respuesta.</p>
+    <div class="objeciones">
+      <details class="objecion"><summary>“¿Por qué no ha empezado la app?”</summary><p>Una parte es tuya y dilo primero: quisiste cerrar bien cómo se construye para no rehacer trabajo. La otra depende de decisiones que solo él toma y de sus trámites. Cierra con: “hoy tomamos esas decisiones y te mando un calendario por escrito”. Mándale el aviso de retraso por correo hoy.</p></details>
+      <details class="objecion"><summary>“¿No puedes hacerla más rápido, o comprar una ya hecha?”</summary><p>Lo revisamos. Las que se venden no permiten entregarle el código como dice el contrato, usan un solo tipo de mapa y no cobran con Conekta. La mejor base gratuita ahorra unas 40 a 70 horas de 390: ayuda, pero no cambia el calendario. Lo que sí lo cambia es construir menos y en mejor orden.</p></details>
+      <details class="objecion"><summary>“Entonces, ¿para cuándo está?”</summary><p>No des fecha en la mesa. “Te la doy por escrito con tus respuestas de hoy; una fecha sin ellas sería prometerte de más.” Para ti: todo el contrato pide de 13 a 20 semanas de construcción con tus horas; una primera versión para Durango capital es menos, y se mide al definir qué entra.</p></details>
+      <details class="objecion"><summary>“Diles a las lavanderías que les vamos a traer muchos clientes”</summary><p>Es lo que prometieron las que fracasaron, y la lavandería se va al primer mes flojo. Lo que sí se puede prometer: cobro sin perseguir pagos, pedidos ordenados, su horario y su nombre a la vista.</p></details>
+      <details class="objecion"><summary>“Cobremos 35 pesos de envío aparte, como quedamos”</summary><p>Ninguna empresa que publica precios cobra el envío aparte, y en Torreón hay lavanderías que entregan sin costo. Enséñale la pregunta 6 de la guía: con envío incluido y pedido mínimo, a Lavandi le quedan unos 39 pesos por pedido sin pagar viajes.</p></details>
+      <details class="objecion"><summary>“Quiero también calzado, Estados Unidos…”</summary><p>Se puede, pero no está en el contrato. Cada cosa va por escrito aparte, con precio y plazo acordados antes de empezar. Que lo marque en la pregunta 21.</p></details>
+      <details class="objecion"><summary>“¿Me vas a cobrar más?”</summary><p>Nada se cobra sin su firma. El kit y el apoyo con contenido son cortesía con límite escrito. Si cambia lo que se entrega, va en un documento con precio y plazo que él revisa y firma antes.</p></details>
+      <details class="objecion"><summary>“¿Los trámites no los puedes hacer tú?”</summary><p>El contrato los pone de su lado, y las cuentas tienen que quedar a su nombre: son suyas. Tú lo guías paso a paso, pero no puedes ser el dueño de sus cuentas.</p></details>
+      <details class="objecion"><summary>“¿Y si no consigo lavanderías?”</summary><p>La app abriría vacía y no se podría probar el recorrido completo. Por eso se empieza hoy con el kit y una meta clara para Durango capital. Su propia lavandería puede servir para las pruebas, si decide que entre.</p></details>
+      <details class="objecion"><summary>“¿Para qué tanto análisis? Yo solo quiero la app”</summary><p>Porque le protege el dinero. Lo que cierra a empresas como esta no es la app: es pagar los viajes y no tener lavanderías. Decidir eso hoy es más barato que descubrirlo con la app publicada.</p></details>
+      <details class="objecion"><summary>“¿Esto va a funcionar?”</summary><p>Honesto: nadie lo sabe sin probar. Lo que sí sabemos es qué hace fallar a estos negocios y cómo evitarlo. Por eso proponemos probar con las lavanderías fundadoras y con entrevistas desde ya, mientras se construye.</p></details>
+      <details class="objecion"><summary>La comisión del 30 %</summary><p>Es tuya y va aparte del contrato. Para cobrarla hace falta definir por escrito qué cuenta como cliente, sobre qué monto se calcula, cómo se mide, desde cuándo y por cuánto tiempo. Si no la definen hoy, que quede como pendiente con fecha.</p></details>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-material">
+    <h2 id="t-material">El material de hoy</h2>
+    <ul class="despues">
+      <li><a href="https://claude.ai/artifact/Wo2rZFbp5f7Rz2jqrX7Ng5" target="_blank" rel="noopener">Guía de la reunión</a>: la que ve el cliente. 21 preguntas en cinco partes; guarda sus respuestas.</li>
+      <li><a href="https://claude.ai/artifact/Tj381f7mX3pbrpyuRAaCT5" target="_blank" rel="noopener">Propuesta del kit</a> y el paquete en <code>vault/cliente/envios/</code>, por si quiere verlo en la reunión.</li>
+      <li><a href="https://claude.ai/artifact/YFq4JJGBUodmLxzXRiN1HA" target="_blank" rel="noopener">Formulario de prioridades</a>: él marca qué funciones hacen falta para abrir y cuáles pueden esperar, cómo va a operar y qué textos le faltan. Es la base para definir la primera versión.</li>
+      <li>Para imprimir, en <code>vault/cliente/envios/</code>: la guía de la reunión y el formulario de prioridades en PDF, por si prefieren papel.</li>
+      <li>Aviso de retraso del desarrollo: <code>vault/cliente/comunicaciones/2026-10-09-aviso-de-retraso-del-desarrollo.md</code>. Mándalo por correo hoy.</li>
+      <li>Minuta para después: <code>vault/cliente/comunicaciones/2026-10-30-minuta-de-recalibracion.md</code>. Se llena con lo acordado y se le manda para que la confirme.</li>
+    </ul>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-agenda">
+    <h2 id="t-agenda">Cómo llevar la reunión</h2>
+    <p class="intro">Una agenda para unas cinco horas, con pausas. El orden importa: primero lo que encontramos, después lo que él decide y al final cómo se construye.</p>
+    <ol class="agenda">
+      <li><span class="t">20 min</span><span class="q"><strong>Abrir</strong><span>Qué quiere lograr él hoy. Tu objetivo: salir con decisiones por escrito.</span></span></li>
+      <li><span class="t">30 min</span><span class="q"><strong>Dónde estamos</strong><span>Lo entregado (branding, manual, guía de tono, kit, lista de lavanderías) y lo atrasado (el desarrollo), dicho de frente.</span><span class="con">Con: "En un minuto"</span></span></li>
+      <li><span class="t">60 min</span><span class="q"><strong>Lo que encontramos del mercado</strong><span>Hallazgos H1 a H9.</span><span class="con">Con: la guía de la reunión, "Lo que encontramos"</span></span></li>
+      <li><span class="t">90 min</span><span class="q"><strong>Las decisiones del negocio</strong><span>Las ocho preguntas de la guía, más lo que pide el kit.</span><span class="con">Con: la guía; anota ahí sus respuestas</span></span></li>
+      <li><span class="t">45 min</span><span class="q"><strong>¿Qué construimos y en qué orden?</strong><span>Los cuatro caminos.</span><span class="con">Con: "La pregunta de fondo"</span></span></li>
+      <li><span class="t">30 min</span><span class="q"><strong>Trámites, cuentas y dominio</strong><span>Qué lleva, quién lo hace y para cuándo.</span></span></li>
+      <li><span class="t">20 min</span><span class="q"><strong>Lo que está fuera del contrato</strong><span>Calzado, Estados Unidos, contenido y el 30 %.</span></span></li>
+      <li><span class="t">25 min</span><span class="q"><strong>Cerrar</strong><span>Calendario, quién hace qué y cómo se formaliza. Repasar lo palomeado.</span></span></li>
+    </ol>
+    <h3>Para que salga bien</h3>
+    <ol class="reglas">
+      <li><strong>Primero escucha.</strong> Él tiene una visión. Los hallazgos van como información, no como regaño.</li>
+      <li><strong>Lenguaje llano.</strong> Nada de "stack" ni "MVP": "la primera versión", "la app del repartidor".</li>
+      <li><strong>Anota en vivo</strong> en la guía de la reunión. Al terminar, mándale por escrito lo acordado para que lo confirme.</li>
+      <li><strong>No firmes en la mesa.</strong> Hoy se acuerda el rumbo; el calendario y cualquier cambio de alcance se redactan después y se firman.</li>
+      <li><strong>"No sé" es una respuesta válida.</strong> Comprométete a contestar por escrito.</li>
+      <li><strong>Cuida los pagos.</strong> Ningún trabajo nuevo sin escrito, y deja asentado lo que depende de él.</li>
+    </ol>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-despues">
+    <h2 id="t-despues">Lo que sigue después</h2>
+    <ol class="despues">
+      <li>Pasar lo que dijo a un acta y cerrar las decisiones pendientes que correspondan.</li>
+      <li>Mandarle la minuta para que la confirme por escrito.</li>
+      <li>Redactar el aviso de retraso y la propuesta de calendario y alcance; Orden de Cambio si cambia el alcance.</li>
+      <li>Poner sus respuestas en el kit y volver a generarlo.</li>
+      <li>Retomar la parte técnica con sus respuestas: el camino, las horas, construir o adaptar, y las decisiones de tecnología.</li>
+    </ol>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var CLAVE = "recalibracion-lavandi-marcas";
+  var cajas = Array.prototype.slice.call(document.querySelectorAll(".decision input"));
+  var marcas = {};
+  try { marcas = JSON.parse(localStorage.getItem(CLAVE) || "{}") || {}; } catch (e) { marcas = {}; }
+  function contar() {
+    var hechas = cajas.filter(function (c) { return c.checked; }).length;
+    document.getElementById("avance").textContent = hechas + " de " + cajas.length + " decisiones tomadas";
+  }
+  cajas.forEach(function (c) {
+    c.checked = !!marcas[c.id];
+    c.addEventListener("change", function () {
+      marcas[c.id] = c.checked;
+      try { localStorage.setItem(CLAVE, JSON.stringify(marcas)); } catch (e) { /* sin almacenamiento: la marca vive mientras la página esté abierta */ }
+      contar();
+    });
+  });
+  contar();
+})();
+</script>

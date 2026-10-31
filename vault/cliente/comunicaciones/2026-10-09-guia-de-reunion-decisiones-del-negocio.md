@@ -262,3 +262,33 @@ contra los $35 de C-31. Es una cuenta, no una cotización.
    CLIENTE, con la fecha de la reunión.
 2. Mándale el resumen por escrito para que lo confirme. Hasta que lo confirme, no se construye sobre ellas.
 3. La sesión de la Fase 6 pasa las respuestas a la sala (P-01 a P-06, P-19 y P-20) y cierra las filas de la deuda.
+
+
+---
+
+## Ampliación del 2026-10-30: la recalibración
+
+Para la reunión larga del 2026-10-30, Nadir pidió todo el material para aclarar y decidir. La página quedó en
+**21 preguntas en cinco partes** y abre con **"Dónde estamos"** (lo listo, lo atrasado y para qué es la reunión). El
+texto de la página manda; aquí va el resumen. Fuente de cada pregunta: `meta/recalibracion-2026-10-30.md`.
+
+| # | Parte | Pregunta | Fila |
+|---|---|---|---|
+| 9 | Cómo opera cada pedido | ¿En qué momento se le cobra a quien pide? | DD-012 |
+| 10 | Cómo opera cada pedido | ¿Cómo y cada cuánto se le paga a la lavandería? ¿Quién absorbe la comisión de cobro? | DD-013 |
+| 11 | Cómo opera cada pedido | ¿Hasta cuándo se cancela y qué pasa con el dinero? | DD-016 |
+| 12 | Cómo opera cada pedido | ¿En qué cinco momentos se avisa a quien pide? | DD-011 |
+| 13 | Cómo opera cada pedido | Si una prenda se daña o se pierde, ¿quién responde? | DD-047 |
+| 14 | Para sumar lavanderías | ¿Qué se ofrece a las fundadoras? | kit |
+| 15 | Para sumar lavanderías | ¿Quién atiende a las lavanderías? (nombre y WhatsApp) | kit |
+| 16 | Para sumar lavanderías | ¿Su propia lavandería entra a Lavandi? | DD-066 |
+| 17 | Para sumar lavanderías | ¿Se explora a las personas que lavan en su casa? | encargo del kit, regla 5 |
+| 18 | Qué construimos primero | Todo con fechas nuevas · por etapas en Durango capital · probar antes · otro modelo | recalibración §3 |
+| 19 | Trámites y cuentas | Estado de D-U-N-S, Google, Apple, Conekta, aviso de privacidad, dominio y marca | R-002, O-11, DD-030 |
+| 20 | Trámites y cuentas | ¿Cuentas a nombre de persona o de sociedad? | DD-017, R-003, R-029 |
+| 21 | Lo que no está en el contrato | Calzado, Estados Unidos, contenido y comisión del 30 %: ¿cuáles se formalizan? | DD-046, R-019, DD-042, DD-044 |
+
+Campos nuevos en la base de la página: q9 y q11 a q14, q16 a q18, q20 y q21 `opciones` (lista) y `comentarios`; q10
+`cada_cuanto` y `comision_cobro` (listas) y `comentarios`; q15 `nombre` y `whatsapp`; q19 un campo por trámite
+(`duns`, `google`, `apple`, `conekta`, `aviso`, `dominio`, `impi`) con "Sin empezar", "En trámite", "Listo" o "No sé",
+y `comentarios`.

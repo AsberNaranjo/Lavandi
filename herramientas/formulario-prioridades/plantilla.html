@@ -1,0 +1,221 @@
+<title>Prioridades de Lavandi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Libre+Caslon+Text:ital@0;1&family=Hanken+Grotesk:wght@400;600&display=swap">
+<style>
+/* Formulario de Lavandi, hermano de la guía de la reunión: cada función de la app con tres botones (para abrir,
+   puede esperar, no sé), después cómo va a operar y qué falta de su lado. Papel Hueso, una sola apariencia clara a
+   propósito, como el manual. Nazmelia solo en la firma del pie. */
+:root {
+  --hueso: #F7F4EF; --papel: #FFFFFF; --tinta: #171C21; --tinta-2: #3B424A; --tenue: #515A64; --linea: #E4DFD6;
+  --agua: #2E86AB; --agua-profundo: #297899; --cielo: #A8D5E2; --cielo-suave: #E6F2F6; --limon: #E8C547; --limon-suave: #FBF1CB;
+  --naz-tinta: #20292C; --naz-barro: #C75B39; --naz-hueso: #F1EDE8; --naz-piedra: #A9B1B4;
+  --f-display: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+  --f-texto: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-naz: "Libre Caslon Text", Georgia, serif; --f-naz-sans: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
+  --r: 14px; color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--hueso); }
+body { margin: 0; color: var(--tinta); font: 400 17px/1.55 var(--f-texto); }
+p { margin: 0; }
+a { color: var(--agua-profundo); }
+:focus-visible { outline: 3px solid var(--agua); outline-offset: 2px; border-radius: 6px; }
+.franja { height: 8px; background: linear-gradient(90deg, var(--agua) 0 62%, var(--cielo) 62% 92%, var(--limon) 92% 100%); }
+.marco { max-width: 900px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); padding-block: 32px 56px; display: grid; gap: 56px; }
+.portada { display: grid; gap: 16px; }
+.lockup { display: inline-flex; align-items: center; gap: .1778em; font-size: 52px; line-height: 1; }
+.lockup .sim { width: 1.0556em; height: 1em; display: block; }
+.lockup .pal { width: 2.0614em; height: 1em; display: block; }
+.ceja { margin: 6px 0 0; font: 800 13px/1 var(--f-texto); letter-spacing: .12em; text-transform: uppercase; color: var(--agua-profundo); }
+h1 { margin: 0; font: 900 clamp(30px, 6vw, 46px)/1.05 var(--f-display); letter-spacing: -.012em; text-wrap: balance; max-width: 20ch; }
+h2 { margin: 0; font: 900 28px/1.15 var(--f-display); text-wrap: balance; }
+h3 { margin: 0; font: 800 20px/1.25 var(--f-display); }
+.entrada { font-size: 18.5px; color: var(--tinta-2); max-width: 62ch; }
+.nota { padding: 12px 14px; border-radius: 10px; background: var(--cielo-suave); color: var(--tinta-2); max-width: 66ch; }
+.nota-guardar { padding: 12px 14px; border-radius: 10px; background: var(--limon-suave); font-size: 15px; }
+.avance { display: inline-flex; align-items: center; gap: 10px; font: 700 14px/1 var(--f-texto); color: var(--tinta-2); font-variant-numeric: tabular-nums; }
+.avance::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--agua); }
+.guardado { font-size: 14px; color: var(--tenue); min-height: 1.2em; }
+.guardado.error { color: #9E2A1F; }
+.seccion { display: grid; gap: 18px; }
+.seccion > p { color: var(--tinta-2); max-width: 66ch; }
+
+/* Funciones */
+.grupo { background: var(--papel); border: 1px solid var(--linea); border-radius: var(--r); padding: 18px 20px; display: grid; gap: 4px; }
+.grupo .sub { color: var(--tenue); font-size: 15px; margin-bottom: 8px; }
+.funcion { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 10px 0; border-top: 1px solid var(--linea); align-items: center; }
+@media (min-width: 720px) { .funcion { grid-template-columns: minmax(0, 1fr) auto; gap: 16px; } }
+.segmentos { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.segmentos.ancho { display: flex; }
+.seg { position: relative; cursor: pointer; }
+.seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.seg span { display: inline-block; padding: 8px 12px; border: 1px solid var(--linea); border-radius: 999px; font: 700 14px/1 var(--f-texto); color: var(--tinta-2); background: var(--hueso); white-space: nowrap; }
+.seg input:checked + span { background: var(--agua-profundo); border-color: var(--agua-profundo); color: #fff; }
+.seg input[value="despues"]:checked + span { background: var(--limon); border-color: var(--limon); color: var(--tinta); }
+.seg input[value="nose"]:checked + span { background: #DCE0E5; border-color: #DCE0E5; color: var(--tinta); }
+.seg input:focus-visible + span { outline: 3px solid var(--agua); outline-offset: 2px; }
+.resumen { display: flex; flex-wrap: wrap; gap: 10px; }
+.cuenta { background: var(--papel); border: 1px solid var(--linea); border-radius: 12px; padding: 10px 14px; display: grid; gap: 2px; min-width: 120px; }
+.cuenta b { font: 900 26px/1 var(--f-display); color: var(--agua-profundo); font-variant-numeric: tabular-nums; }
+.cuenta span { font-size: 14px; color: var(--tinta-2); }
+
+/* Campos */
+.tarjeta { background: var(--papel); border: 1px solid var(--linea); border-radius: var(--r); padding: 20px; display: grid; gap: 18px; }
+.campo { display: grid; gap: 6px; }
+.campo label, .etiqueta { font-weight: 700; }
+.ayuda { font-size: 14.5px; color: var(--tenue); }
+input[type=text], textarea, select { width: 100%; font: 400 16.5px/1.45 var(--f-texto); color: var(--tinta); background: var(--hueso); border: 1px solid var(--linea); border-radius: 10px; padding: 10px 12px; }
+textarea { min-height: 90px; resize: vertical; }
+input[type=text]:focus, textarea:focus, select:focus { border-color: var(--agua); outline: none; box-shadow: 0 0 0 3px var(--cielo-suave); }
+.datos { display: grid; gap: 8px; }
+.dato { display: grid; grid-template-columns: 1fr; gap: 6px; }
+@media (min-width: 620px) { .dato { grid-template-columns: minmax(0, 1fr) 160px; align-items: center; gap: 14px; } }
+.dato label { font-weight: 600; color: var(--tinta-2); }
+.tramites { display: grid; gap: 8px; }
+.tramite { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: center; padding: 12px 14px; background: var(--papel); border: 1px solid var(--linea); border-radius: 12px; }
+@media (min-width: 620px) { .tramite { grid-template-columns: minmax(0, 1fr) 180px; } }
+.tramite small { display: block; color: var(--tenue); font-size: 14.5px; }
+
+/* Firma */
+.firma { background: var(--naz-tinta); color: var(--naz-hueso); }
+.firma-dentro { max-width: 900px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); padding-block: 32px 36px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 32px; }
+.firma .quien { font: 400 15px/1.5 var(--f-naz-sans); display: grid; gap: 4px; }
+.firma .quien .clave { color: var(--naz-barro); margin-right: 6px; }
+.firma .quien small { font-size: 13px; color: var(--naz-piedra); }
+.firma img { width: 160px; height: auto; display: block; }
+.firma .lema { font: italic 400 15px/1.3 var(--f-naz); }
+.firma .sello { display: grid; gap: 6px; justify-items: end; }
+@media (max-width: 560px) { .firma .sello { justify-items: start; } }
+@media print {
+  @page { size: Letter; margin: 0.5in; }
+  html, body { background: #fff; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .marco { display: block; padding: 0; } .marco > * + * { margin-top: 24px; }
+  .grupo, .tarjeta, .tramite, .funcion { break-inside: avoid; }
+  .avance, .nota-guardar, .guardado, .resumen { display: none !important; }
+  .seg span { background: #fff; }
+  input[type=text], textarea, select { background: #fff; }
+}
+</style>
+
+<div class="franja" aria-hidden="true"></div>
+<div class="marco">
+  <header class="portada">
+    <div class="lockup" role="img" aria-label="Lavandi">{{SIMBOLO}}{{LOGOTIPO}}</div>
+    <p class="ceja">Formulario</p>
+    <h1>Qué hace falta para abrir, cómo va a operar y qué falta de tu lado</h1>
+    <p class="entrada">Para aterrizar lo que necesitas de Lavandi. Se llena en la reunión o después, a tu ritmo, y se guarda solo.</p>
+    <p class="nota"><strong>Todo esto ya está en el contrato.</strong> Aquí no se quita nada: solo ordenamos qué hace falta para abrir en Durango capital y qué puede llegar después. Así podemos construir primero lo que te deja operar.</p>
+    <div class="avance" id="avance" aria-live="polite">0 de {{TOTAL}} funciones con respuesta</div>
+    <p class="nota-guardar" id="nota-guardar" hidden>Lo que marques en esta vista no se guarda. Ábrela con tu cuenta de claude.ai para que se guarde.</p>
+    <p class="guardado" id="guardado" aria-live="polite"></p>
+  </header>
+
+  <section class="seccion" aria-labelledby="t-funciones">
+    <h2 id="t-funciones">1. Lo que debe hacer la app</h2>
+    <p>En cada función elige: <strong>Para abrir</strong> si sin ella no se puede empezar a operar, <strong>Puede esperar</strong> si puede llegar en una segunda etapa, o <strong>No sé</strong>.</p>
+    <div class="resumen" aria-live="polite"><div class="cuenta"><b id="c-abrir">0</b><span>para abrir</span></div><div class="cuenta"><b id="c-despues">0</b><span>pueden esperar</span></div><div class="cuenta"><b id="c-nose">0</b><span>no sé</span></div></div>
+{{FUNCIONES}}
+  </section>
+
+  <section class="seccion" aria-labelledby="t-operacion">
+    <h2 id="t-operacion">2. Cómo va a operar en Durango capital</h2>
+    <p>Lo que la app necesita saber de tu operación para configurarse.</p>
+    <div class="tarjeta">
+{{OPERACION}}
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-insumos">
+    <h2 id="t-insumos">3. Lo que nos tienes que dar</h2>
+    <p>Textos e imágenes que el contrato pone de tu lado. Marca en qué va cada uno.</p>
+    <div class="tramites">
+{{INSUMOS}}
+    </div>
+  </section>
+</div>
+
+<footer class="firma">
+  <div class="firma-dentro">
+    <p class="quien"><span><span class="clave" aria-hidden="true">◣</span>Preparado por el equipo de Nazmelia para Lavandi</span><small>Nazmelia, a cargo del desarrollo de la plataforma</small></p>
+    <div class="sello"><img src="{{NAZMELIA}}" alt="Nazmelia"><p class="lema">De la complejidad al control.</p></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var DOCS = ["prioridades", "operacion", "insumos"];
+  var db = null, estado = {}, timers = {}, cadenas = {}, sucio = {};
+  function $$(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+  function leer(doc) {
+    var d = {};
+    $$('[data-doc="' + doc + '"]').forEach(function (el) {
+      var c = el.getAttribute("data-campo");
+      if (el.type === "radio") { if (el.checked) d[c] = el.value; else if (!(c in d)) d[c] = ""; }
+      else d[c] = el.value;
+    });
+    return d;
+  }
+  function pintar() {
+    var radios = $$('input[type=radio][data-doc="prioridades"]');
+    var nombres = {}; radios.forEach(function (r) { nombres[r.name] = true; });
+    var cuenta = { abrir: 0, despues: 0, nose: 0 }, con = 0;
+    radios.forEach(function (r) { if (r.checked) { cuenta[r.value]++; con++; } });
+    document.getElementById("avance").textContent = con + " de " + Object.keys(nombres).length + " funciones con respuesta";
+    document.getElementById("c-abrir").textContent = cuenta.abrir;
+    document.getElementById("c-despues").textContent = cuenta.despues;
+    document.getElementById("c-nose").textContent = cuenta.nose;
+  }
+  function aviso(t, error) { var a = document.getElementById("guardado"); a.textContent = t; a.classList.toggle("error", !!error); }
+  function programar(doc) {
+    sucio[doc] = true; estado[doc] = leer(doc); pintar();
+    if (!db) { aviso("Esta vista no guarda lo que marques.", true); return; }
+    aviso("Guardando…");
+    clearTimeout(timers[doc]);
+    timers[doc] = setTimeout(function () { guardar(doc); }, 700);
+  }
+  function guardar(doc) {
+    cadenas[doc] = (cadenas[doc] || Promise.resolve()).then(function () {
+      var cuerpo = leer(doc); cuerpo.actualizado = new Date().toISOString();
+      return db.doc("respuestas/" + doc).set(cuerpo);
+    }).then(function () { sucio[doc] = false; aviso("Guardado"); })
+      .catch(function (e) {
+        aviso(e && e.code === "invalid_argument" ? "No se pudo guardar: esta cuenta no puede escribir aquí." : "No se pudo guardar ahora. Lo marcado sigue aquí; se vuelve a intentar al seguir.", true);
+      });
+  }
+  function aplicar(doc, datos) {
+    estado[doc] = datos || {};
+    if (sucio[doc]) return;
+    $$('[data-doc="' + doc + '"]').forEach(function (el) {
+      if (el === document.activeElement) return;
+      var v = estado[doc][el.getAttribute("data-campo")];
+      if (el.type === "radio") el.checked = (v === el.value);
+      else el.value = typeof v === "string" ? v : "";
+    });
+  }
+  $$("[data-doc]").forEach(function (el) {
+    var evento = (el.type === "radio" || el.tagName === "SELECT") ? "change" : "input";
+    el.addEventListener(evento, function () { programar(el.getAttribute("data-doc")); });
+  });
+  pintar();
+  function arrancar(intento) {
+    intento = intento || 0;
+    if (!window.claude || !window.claude.use) {
+      if (intento < 50) { setTimeout(function () { arrancar(intento + 1); }, 200); return; }
+      document.getElementById("nota-guardar").hidden = false; return;
+    }
+    window.claude.use("db").then(function (d) {
+      if (!d) { document.getElementById("nota-guardar").hidden = false; return; }
+      db = d;
+      db.collection("respuestas").onSnapshot(function (snap) {
+        snap.docs.forEach(function (doc) { if (doc.exists && DOCS.indexOf(doc.id) >= 0) aplicar(doc.id, doc.data()); });
+        pintar();
+      }, function () { document.getElementById("nota-guardar").hidden = false; });
+    });
+  }
+  arrancar();
+})();
+</script>

@@ -82,6 +82,13 @@ h2 { margin: 0; font: 900 30px/1.15 var(--f-display); letter-spacing: -.01em; te
 /* La ruta de las preguntas */
 .ruta { list-style: none; margin: 0; padding: 0; position: relative; display: grid; gap: 22px; }
 .ruta::before { content: ""; position: absolute; left: 21px; top: 22px; bottom: -40px; width: 6px; border-radius: 3px; background: var(--cielo); }
+.ruta.corta::before { bottom: 24px; }
+.tramites { display: grid; gap: 8px; }
+.tramite { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: center; padding: 10px 12px; border: 1px solid var(--linea); border-radius: 10px; }
+@media (min-width: 620px) { .tramite { grid-template-columns: minmax(0, 1fr) 170px; } }
+.tramite small { display: block; color: var(--tenue); font-size: 14.5px; }
+select { width: 100%; font: 400 16px/1.4 var(--f-texto); color: var(--tinta); background: var(--hueso); border: 1px solid var(--linea); border-radius: 10px; padding: 9px 10px; }
+select:focus { border-color: var(--agua); outline: none; box-shadow: 0 0 0 3px var(--cielo-suave); }
 .parada { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 16px; align-items: start; scroll-margin-top: 16px; }
 .hito { position: relative; width: 48px; height: 48px; border-radius: 50%; background: var(--agua); color: var(--hueso); display: grid; place-items: center;
   font: 900 21px/1 var(--f-display); box-shadow: 0 0 0 5px var(--hueso); font-variant-numeric: tabular-nums; }
@@ -153,19 +160,63 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
 @media (max-width: 560px) { .firma .sello { justify-items: start; } }
 
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+@media print {
+  @page { size: Letter; margin: 0.5in; }
+  html, body { background: #fff; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .franja, .avance, .nota-guardar, .pie-tarjeta, .chip, .ruta::before { display: none !important; }
+  .marco { display: block; padding: 0; } .marco > * + * { margin-top: 24px; }
+  .seccion { display: block; } .seccion > * + * { margin-top: 12px; }
+  .hallazgos, .ruta { display: block; } .hallazgo, .parada { margin-bottom: 12px; }
+  .hallazgo, .tarjeta, .llegada, .opcion, .tramite, .escenario { break-inside: avoid; }
+  textarea { min-height: 70px; background: #fff; } input[type=text], select { background: #fff; }
+  .firma { break-inside: avoid; }
+}
 </style>
 
 <div class="franja" aria-hidden="true"></div>
 <div class="marco">
   <header class="portada">
     <div class="lockup" aria-label="Lavandi" role="img">{{SIMBOLO}}{{LOGOTIPO}}</div>
-    <p class="ceja">Guía para nuestra reunión</p>
-    <h1>Lo que encontramos y lo que necesitamos que decidas</h1>
-    <p class="entrada">Esta reunión es para que tomes ocho decisiones de tu negocio que la aplicación necesita. La aplicación ya está definida en el contrato y se entrega como la acordamos: no venimos a cambiarla.</p>
+    <p class="ceja">Guía para recalibrar el proyecto</p>
+    <h1>Dónde estamos, lo que encontramos y lo que necesitamos que decidas</h1>
+    <p class="entrada">Esta reunión es para revisar juntos todo el proyecto y salir con las decisiones que la aplicación necesita para construirse. Lo que se entrega está en el contrato; si decidimos cambiar algo, lo dejamos por escrito y lo firmamos aparte.</p>
     <p class="entrada">De tus respuestas dependen varias partes de cómo se construye: quién mueve la ropa, cómo se cobra y con qué lavanderías se arranca. Leemos juntos esta guía y yo voy anotando tus respuestas.</p>
-    <div class="avance" id="avance" aria-live="polite">0 de 8 con respuesta</div>
+    <div class="avance" id="avance" aria-live="polite">0 de 21 con respuesta</div>
     <p class="nota-guardar" id="nota-guardar" hidden>Lo que escribas en esta vista no se guarda. Ábrela con tu cuenta de claude.ai para que se guarde.</p>
   </header>
+
+  <section class="seccion" aria-labelledby="t-estamos">
+    <h2 id="t-estamos">Dónde estamos</h2>
+    <div class="hallazgos">
+      <article class="hallazgo favor">
+        <h3>Lo que ya está listo</h3>
+        <ul>
+          <li>El nombre, Lavandi, aprobado por ti.</li>
+          <li>El logotipo y el manual de identidad, sin observaciones.</li>
+          <li>La guía de cómo habla Lavandi.</li>
+          <li>El kit para sumar lavanderías y la lista de las 415 lavanderías de la zona, con el tipo de cada una.</li>
+        </ul>
+      </article>
+      <article class="hallazgo">
+        <h3>Lo que va atrasado</h3>
+        <ul>
+          <li>La construcción de la aplicación no ha empezado.</li>
+          <li>Una parte es nuestra: terminar de definir cómo se construye.</li>
+          <li>Otra parte depende de decisiones tuyas y de trámites a tu cargo.</li>
+          <li>Faltan las 12 plantillas de redes sociales para cerrar la identidad.</li>
+        </ul>
+      </article>
+      <article class="hallazgo ancho">
+        <h3>Para qué es esta reunión</h3>
+        <ul>
+          <li>Salir con las decisiones que la aplicación necesita para empezar a construirse.</li>
+          <li>Acordar qué se construye primero.</li>
+          <li>Con eso te propongo por escrito un calendario nuevo.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
 
   <section class="seccion" aria-labelledby="t-encontramos">
     <h2 id="t-encontramos">Lo que encontramos</h2>
@@ -214,10 +265,10 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
   </section>
 
   <section class="seccion" aria-labelledby="t-decidas">
-    <h2 id="t-decidas">Lo que necesitamos que decidas</h2>
-    <p>Son ocho preguntas. En cada una anoto tu respuesta. Si alguna no la tienes todavía, la dejamos para después.</p>
+    <h2 id="t-decidas">Lo que necesitamos que decidas: el negocio</h2>
+    <p>Son 21 preguntas, en cinco partes. En cada una anoto tu respuesta. Si alguna no la tienes todavía, la dejamos para después.</p>
 
-    <ol class="ruta">
+    <ol class="ruta corta">
       <li class="parada" id="q1">
         <div class="hito" aria-hidden="true">1</div>
         <article class="tarjeta">
@@ -370,15 +421,270 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
         </article>
       </li>
     </ol>
+  </section>
 
+  <section class="seccion" aria-labelledby="t-operacion">
+    <h2 id="t-operacion">Cómo opera cada pedido</h2>
+    <p>Cinco reglas que la aplicación necesita para cobrar, avisar y resolver problemas.</p>
+    <ol class="ruta corta">
+      <li class="parada" id="q9">
+        <div class="hito" aria-hidden="true">9</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿En qué momento se le cobra a quien pide?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> El precio va por kilo, pero el peso real se sabe hasta que la ropa llega a la lavandería. Cada manera se siente distinta para quien pide y cambia qué pasa con los ajustes y las devoluciones.</p>
+          <fieldset class="opciones"><legend>Elige</legend>
+            <label class="opcion"><input type="checkbox" id="q9-opciones-1" data-q="q9" data-campo="opciones" value="al_pedir_con_estimado"><span>Al pedir, con un estimado, y se ajusta al pesar la ropa.</span></label>
+            <label class="opcion"><input type="checkbox" id="q9-opciones-2" data-q="q9" data-campo="opciones" value="apartar_y_cobrar_al_pesar"><span>Se aparta el dinero al pedir y se cobra lo exacto al pesar.</span></label>
+            <label class="opcion"><input type="checkbox" id="q9-opciones-3" data-q="q9" data-campo="opciones" value="al_pesar"><span>Hasta que se pesa la ropa.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q9-comentarios">Comentarios</label><textarea id="q9-comentarios" data-q="q9" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q10">
+        <div class="hito" aria-hidden="true">10</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Cómo y cada cuánto se le paga a la lavandería?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> La aplicación calcula con precisión cuánto le toca a cada lavandería, con su corte por periodo. Mandar el dinero lo hace una persona: tú o tu contador. Así quedó en el contrato.</p>
+          <fieldset class="opciones"><legend>Cada cuánto</legend>
+            <label class="opcion"><input type="checkbox" id="q10-cada_cuanto-1" data-q="q10" data-campo="cada_cuanto" value="cada_semana"><span>Cada semana.</span></label>
+            <label class="opcion"><input type="checkbox" id="q10-cada_cuanto-2" data-q="q10" data-campo="cada_cuanto" value="cada_quincena"><span>Cada quincena.</span></label>
+            <label class="opcion"><input type="checkbox" id="q10-cada_cuanto-3" data-q="q10" data-campo="cada_cuanto" value="cada_mes"><span>Cada mes.</span></label>
+          </fieldset>
+          <fieldset class="opciones"><legend>La comisión de la empresa de cobro</legend>
+            <label class="opcion"><input type="checkbox" id="q10-comision_cobro-1" data-q="q10" data-campo="comision_cobro" value="la_absorbe_lavandi"><span>La absorbe Lavandi.</span></label>
+            <label class="opcion"><input type="checkbox" id="q10-comision_cobro-2" data-q="q10" data-campo="comision_cobro" value="se_descuenta_a_la_lavanderia"><span>Se le descuenta a la lavandería.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q10-comentarios">Comentarios (por ejemplo, quién le da factura a quien pide)</label><textarea id="q10-comentarios" data-q="q10" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q11">
+        <div class="hito" aria-hidden="true">11</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Hasta cuándo se puede cancelar un pedido, y qué pasa con el dinero?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Es de las primeras dudas de quien pide y de la lavandería. Sin la regla, cada cancelación se resuelve a mano.</p>
+          <fieldset class="opciones"><legend>Quien pide puede cancelar sin costo</legend>
+            <label class="opcion"><input type="checkbox" id="q11-opciones-1" data-q="q11" data-campo="opciones" value="hasta_que_pasan"><span>Hasta que pasan por su ropa.</span></label>
+            <label class="opcion"><input type="checkbox" id="q11-opciones-2" data-q="q11" data-campo="opciones" value="hasta_una_hora_antes"><span>Hasta una hora antes de que pasen.</span></label>
+            <label class="opcion"><input type="checkbox" id="q11-opciones-3" data-q="q11" data-campo="opciones" value="despues_se_cobra_envio"><span>Después de recogida la ropa, se cobra el envío.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q11-comentarios">Y si quien cancela es la lavandería</label><textarea id="q11-comentarios" data-q="q11" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q12">
+        <div class="hito" aria-hidden="true">12</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿En qué momentos le avisamos a quien pide?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> El contrato pide cinco avisos al celular a lo largo del pedido. Lo natural es avisar en cada paso que ya usa la marca.</p>
+          <fieldset class="opciones"><legend>Elige cinco</legend>
+            <label class="opcion"><input type="checkbox" id="q12-opciones-1" data-q="q12" data-campo="opciones" value="confirmado"><span>Confirmado: su pedido quedó registrado.</span></label>
+            <label class="opcion"><input type="checkbox" id="q12-opciones-2" data-q="q12" data-campo="opciones" value="recolectado"><span>Recolectado: pasaron por su ropa.</span></label>
+            <label class="opcion"><input type="checkbox" id="q12-opciones-3" data-q="q12" data-campo="opciones" value="en_proceso"><span>En proceso: la lavandería empezó.</span></label>
+            <label class="opcion"><input type="checkbox" id="q12-opciones-4" data-q="q12" data-campo="opciones" value="listo"><span>Listo: su ropa está lista.</span></label>
+            <label class="opcion"><input type="checkbox" id="q12-opciones-5" data-q="q12" data-campo="opciones" value="entregado"><span>Entregado: su ropa volvió.</span></label>
+            <label class="opcion"><input type="checkbox" id="q12-opciones-6" data-q="q12" data-campo="opciones" value="otro"><span>Otro momento (escríbelo abajo).</span></label>
+          </fieldset>
+          <div class="campo"><label for="q12-comentarios">Comentarios</label><textarea id="q12-comentarios" data-q="q12" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q13">
+        <div class="hito" aria-hidden="true">13</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>Si una prenda se daña o se pierde, ¿quién responde?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Lavandi promete cuidado de la ropa y el kit le dice a las lavanderías que esto se responderá por escrito antes de abrir. Hoy no hay una regla.</p>
+          <fieldset class="opciones"><legend>Elige</legend>
+            <label class="opcion"><input type="checkbox" id="q13-opciones-1" data-q="q13" data-campo="opciones" value="la_lavanderia_con_tope"><span>La lavandería responde, con un tope por prenda.</span></label>
+            <label class="opcion"><input type="checkbox" id="q13-opciones-2" data-q="q13" data-campo="opciones" value="lavandi_y_luego_la_lavanderia"><span>Lavandi responde a quien pide y después lo arregla con la lavandería.</span></label>
+            <label class="opcion"><input type="checkbox" id="q13-opciones-3" data-q="q13" data-campo="opciones" value="caso_por_caso"><span>Caso por caso.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q13-comentarios">Comentarios</label><textarea id="q13-comentarios" data-q="q13" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+    </ol>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-socios">
+    <h2 id="t-socios">Para sumar lavanderías</h2>
+    <p>Lo que falta para que el kit quede completo y se pueda usar con las lavanderías.</p>
+    <ol class="ruta corta">
+      <li class="parada" id="q14">
+        <div class="hito" aria-hidden="true">14</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Qué les ofreces a las primeras lavanderías que se unan?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Se les pide decir que sí antes de ver un solo pedido. Una ventaja para las primeras ayuda, y el kit tiene que decir exactamente lo que se va a cumplir.</p>
+          <fieldset class="opciones"><legend>Elige una o varias</legend>
+            <label class="opcion"><input type="checkbox" id="q14-opciones-1" data-q="q14" data-campo="opciones" value="comision_menor"><span>Una comisión menor durante un tiempo.</span></label>
+            <label class="opcion"><input type="checkbox" id="q14-opciones-2" data-q="q14" data-campo="opciones" value="distintivo"><span>El distintivo de lavandería fundadora.</span></label>
+            <label class="opcion"><input type="checkbox" id="q14-opciones-3" data-q="q14" data-campo="opciones" value="ninguna"><span>Ninguna ventaja especial.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q14-comentarios">Cuánto tiempo, o qué otra ventaja</label><textarea id="q14-comentarios" data-q="q14" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q15">
+        <div class="hito" aria-hidden="true">15</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Quién atiende a las lavanderías?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Su nombre y su WhatsApp van impresos en el kit: es a quien llaman las lavanderías interesadas.</p>
+          <div class="datos">
+            <div class="dato"><label for="q15-nombre">Nombre</label><input type="text" id="q15-nombre" data-q="q15" data-campo="nombre"></div>
+            <div class="dato"><label for="q15-whatsapp">WhatsApp</label><input type="text" id="q15-whatsapp" data-q="q15" data-campo="whatsapp"></div>
+          </div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q16">
+        <div class="hito" aria-hidden="true">16</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Tu propia lavandería entra a Lavandi?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Podría ser la primera lavandería y servir para probar la aplicación completa. Las demás lavanderías podrían preguntar si compiten en igualdad con la del dueño.</p>
+          <fieldset class="opciones"><legend>Elige</legend>
+            <label class="opcion"><input type="checkbox" id="q16-opciones-1" data-q="q16" data-campo="opciones" value="si_una_mas"><span>Sí, como una lavandería más.</span></label>
+            <label class="opcion"><input type="checkbox" id="q16-opciones-2" data-q="q16" data-campo="opciones" value="solo_pruebas"><span>Solo para las pruebas.</span></label>
+            <label class="opcion"><input type="checkbox" id="q16-opciones-3" data-q="q16" data-campo="opciones" value="no"><span>No.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q16-comentarios">Comentarios</label><textarea id="q16-comentarios" data-q="q16" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q17">
+        <div class="hito" aria-hidden="true">17</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Exploramos a las personas que lavan ropa en su casa?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Lavandi está pensada para lavanderías. Sumar a personas que lavan en su casa cambia quién responde por la ropa y cómo se cobra. El kit trae una conversación para escucharlas antes de decidir.</p>
+          <fieldset class="opciones"><legend>Elige</legend>
+            <label class="opcion"><input type="checkbox" id="q17-opciones-1" data-q="q17" data-campo="opciones" value="explorar"><span>Sí, escucharlas con la conversación del kit.</span></label>
+            <label class="opcion"><input type="checkbox" id="q17-opciones-2" data-q="q17" data-campo="opciones" value="no_por_ahora"><span>No por ahora.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q17-comentarios">Comentarios</label><textarea id="q17-comentarios" data-q="q17" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+    </ol>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-construir">
+    <h2 id="t-construir">Qué construimos primero</h2>
+    <p>La decisión que ordena todo lo demás.</p>
+    <ol class="ruta corta">
+      <li class="parada" id="q18">
+        <div class="hito" aria-hidden="true">18</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Qué construimos primero?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Con lo que sabemos hoy, construir todo de una vez tarda más de lo que queda en el calendario, y todavía no sabemos cuánta gente va a pedir. Hay varias maneras de ordenar el trabajo; cualquiera distinta de la primera se pone por escrito y se firma aparte.</p>
+          <fieldset class="opciones"><legend>Elige</legend>
+            <label class="opcion"><input type="checkbox" id="q18-opciones-1" data-q="q18" data-campo="opciones" value="todo_con_fechas_nuevas"><span>Todo lo del contrato a la vez, con fechas nuevas.</span></label>
+            <label class="opcion"><input type="checkbox" id="q18-opciones-2" data-q="q18" data-campo="opciones" value="por_etapas_durango"><span>Por etapas: primero lo necesario para operar en Durango capital, después lo demás.</span></label>
+            <label class="opcion"><input type="checkbox" id="q18-opciones-3" data-q="q18" data-campo="opciones" value="probar_antes"><span>Primero probar el negocio unas semanas a mano con las lavanderías fundadoras, y luego construir.</span></label>
+            <label class="opcion"><input type="checkbox" id="q18-opciones-4" data-q="q18" data-campo="opciones" value="otro_modelo"><span>Cambiar de modelo: que Lavandi sea un programa para lavanderías.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q18-comentarios">Comentarios</label><textarea id="q18-comentarios" data-q="q18" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+    </ol>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-tramites">
+    <h2 id="t-tramites">Trámites y cuentas</h2>
+    <p>Lo que te toca para poder publicar y cobrar.</p>
+    <ol class="ruta corta">
+      <li class="parada" id="q19">
+        <div class="hito" aria-hidden="true">19</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿En qué va cada trámite?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Sin estas cuentas la aplicación no se puede publicar ni cobrar, aunque esté terminada. Algunas tardan semanas y van en cadena: Apple pide antes el D-U-N-S.</p>
+          <div class="tramites">
+            <div class="tramite"><div><strong>Número D-U-N-S</strong><small>Lo pide Apple para cuentas de empresa. Hasta 30 días.</small></div><select id="q19-duns" data-q="q19" data-campo="duns" aria-label="Número D-U-N-S"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+            <div class="tramite"><div><strong>Cuenta de desarrollador de Google</strong><small>Para publicar en Android. Pide verificar identidad.</small></div><select id="q19-google" data-q="q19" data-campo="google" aria-label="Cuenta de desarrollador de Google"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+            <div class="tramite"><div><strong>Cuenta de desarrollador de Apple</strong><small>Para publicar en iPhone. Después del D-U-N-S.</small></div><select id="q19-apple" data-q="q19" data-campo="apple" aria-label="Cuenta de desarrollador de Apple"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+            <div class="tramite"><div><strong>Alta en Conekta</strong><small>Para cobrar con tarjeta. Pide cuenta bancaria de empresa.</small></div><select id="q19-conekta" data-q="q19" data-campo="conekta" aria-label="Alta en Conekta"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+            <div class="tramite"><div><strong>Aviso de privacidad</strong><small>Antes de publicar y antes de pedir datos a las lavanderías.</small></div><select id="q19-aviso" data-q="q19" data-campo="aviso" aria-label="Aviso de privacidad"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+            <div class="tramite"><div><strong>Dominio lavandi.mx</strong><small>Para la página web y los correos.</small></div><select id="q19-dominio" data-q="q19" data-campo="dominio" aria-label="Dominio lavandi.mx"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+            <div class="tramite"><div><strong>Registro de la marca</strong><small>De 6 a 12 meses. Conviene buscar antes de pagar.</small></div><select id="q19-impi" data-q="q19" data-campo="impi" aria-label="Registro de la marca"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+          </div>
+          <div class="campo"><label for="q19-comentarios">Comentarios</label><textarea id="q19-comentarios" data-q="q19" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q20">
+        <div class="hito" aria-hidden="true">20</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Las cuentas van a nombre de una persona o de una empresa?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Apple solo publica con nombre de empresa si hay una sociedad constituida; si no, la aplicación aparece con el nombre de una persona. Según lo que encontramos, una cuenta personal nueva de Google pide antes una prueba de 14 días con 12 personas; lo estamos confirmando.</p>
+          <fieldset class="opciones"><legend>Elige</legend>
+            <label class="opcion"><input type="checkbox" id="q20-opciones-1" data-q="q20" data-campo="opciones" value="persona"><span>A nombre de una persona.</span></label>
+            <label class="opcion"><input type="checkbox" id="q20-opciones-2" data-q="q20" data-campo="opciones" value="sociedad_existente"><span>De una sociedad que ya existe.</span></label>
+            <label class="opcion"><input type="checkbox" id="q20-opciones-3" data-q="q20" data-campo="opciones" value="sociedad_por_constituir"><span>De una sociedad que se va a constituir.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q20-comentarios">Comentarios</label><textarea id="q20-comentarios" data-q="q20" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+    </ol>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-fuera">
+    <h2 id="t-fuera">Lo que no está en el contrato</h2>
+    <p>Para que nada se quede en el aire.</p>
+    <ol class="ruta corta">
+      <li class="parada" id="q21">
+        <div class="hito" aria-hidden="true">21</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Qué de lo que no está en el contrato quieres que pongamos por escrito?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Hay temas que platicamos y que el contrato no incluye. Para que cuenten, cada uno se pone por escrito aparte; si no, se quedan fuera.</p>
+          <fieldset class="opciones"><legend>Marca los que quieres formalizar</legend>
+            <label class="opcion"><input type="checkbox" id="q21-opciones-1" data-q="q21" data-campo="opciones" value="calzado"><span>Lavado de calzado.</span></label>
+            <label class="opcion"><input type="checkbox" id="q21-opciones-2" data-q="q21" data-campo="opciones" value="estados_unidos"><span>Llevar Lavandi a Estados Unidos.</span></label>
+            <label class="opcion"><input type="checkbox" id="q21-opciones-3" data-q="q21" data-campo="opciones" value="contenido"><span>El apoyo con el contenido para redes: hasta cuándo, quién aprueba y quién publica.</span></label>
+            <label class="opcion"><input type="checkbox" id="q21-opciones-4" data-q="q21" data-campo="opciones" value="comision_30"><span>La comisión del 30 % sobre lo que se gane por clientes que lleguen por ese contenido.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q21-comentarios">Comentarios</label><textarea id="q21-comentarios" data-q="q21" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+    </ol>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-sigue">
     <div class="llegada">
       <svg class="pin" viewBox="810 895 175 240" aria-hidden="true">
         <path fill="#E8C547" d="M 897 1126 C 860 1060, 816 1030, 816 981 A 81 81 0 1 1 978 981 C 978 1030, 934 1060, 897 1126 Z"/>
         <circle cx="896" cy="983" r="30" fill="#2E86AB"/>
       </svg>
       <div class="texto">
-        <h2>Lo que sigue</h2>
-        <p>Con tus respuestas defino las partes de la aplicación que dependen de ellas, y te propongo por escrito un calendario actualizado.</p>
+        <h2 id="t-sigue">Lo que sigue</h2>
+        <p>Con tus respuestas te propongo por escrito un calendario nuevo y, si cambiamos algo de lo que se entrega, el documento para firmarlo.</p>
         <p>Al terminar esta reunión te mando por escrito lo que acordamos, para que lo confirmes.</p>
       </div>
     </div>
@@ -398,7 +704,7 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
 <script>
 (function () {
   "use strict";
-  var PREGUNTAS = ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"];
+  var PREGUNTAS = []; for (var n = 1; n <= 21; n++) PREGUNTAS.push("q" + n);
   var db = null, estado = {}, temporizadores = {}, cadenas = {}, sucio = {};
 
   function $(sel, raiz) { return (raiz || document).querySelector(sel); }
@@ -435,7 +741,7 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
   function pintarAvance() {
     var con = PREGUNTAS.filter(function (q) { return tieneRespuesta(estado[q]) && !(estado[q] && estado[q].pendiente); }).length;
     var pend = PREGUNTAS.filter(function (q) { return estado[q] && estado[q].pendiente; }).length;
-    $("#avance").textContent = con + " de 8 con respuesta" + (pend ? " · " + pend + " para después" : "");
+    $("#avance").textContent = con + " de " + PREGUNTAS.length + " con respuesta" + (pend ? " · " + pend + " para después" : "");
   }
   function aviso(q, texto, error) {
     var a = $("#" + q + " .guardado");
@@ -479,7 +785,7 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
   }
 
   $$("[data-q]").forEach(function (el) {
-    el.addEventListener(el.type === "checkbox" ? "change" : "input", function () { programar(el.getAttribute("data-q")); });
+    el.addEventListener(el.type === "checkbox" || el.tagName === "SELECT" ? "change" : "input", function () { programar(el.getAttribute("data-q")); });
   });
   $$(".despues").forEach(function (boton) {
     boton.addEventListener("click", function () {

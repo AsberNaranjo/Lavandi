@@ -82,6 +82,13 @@ h2 { margin: 0; font: 900 30px/1.15 var(--f-display); letter-spacing: -.01em; te
 /* La ruta de las preguntas */
 .ruta { list-style: none; margin: 0; padding: 0; position: relative; display: grid; gap: 22px; }
 .ruta::before { content: ""; position: absolute; left: 21px; top: 22px; bottom: -40px; width: 6px; border-radius: 3px; background: var(--cielo); }
+.ruta.corta::before { bottom: 24px; }
+.tramites { display: grid; gap: 8px; }
+.tramite { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: center; padding: 10px 12px; border: 1px solid var(--linea); border-radius: 10px; }
+@media (min-width: 620px) { .tramite { grid-template-columns: minmax(0, 1fr) 170px; } }
+.tramite small { display: block; color: var(--tenue); font-size: 14.5px; }
+select { width: 100%; font: 400 16px/1.4 var(--f-texto); color: var(--tinta); background: var(--hueso); border: 1px solid var(--linea); border-radius: 10px; padding: 9px 10px; }
+select:focus { border-color: var(--agua); outline: none; box-shadow: 0 0 0 3px var(--cielo-suave); }
 .parada { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 16px; align-items: start; scroll-margin-top: 16px; }
 .hito { position: relative; width: 48px; height: 48px; border-radius: 50%; background: var(--agua); color: var(--hueso); display: grid; place-items: center;
   font: 900 21px/1 var(--f-display); box-shadow: 0 0 0 5px var(--hueso); font-variant-numeric: tabular-nums; }
@@ -153,6 +160,18 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
 @media (max-width: 560px) { .firma .sello { justify-items: start; } }
 
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+@media print {
+  @page { size: Letter; margin: 0.5in; }
+  html, body { background: #fff; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .franja, .avance, .nota-guardar, .pie-tarjeta, .chip, .ruta::before { display: none !important; }
+  .marco { display: block; padding: 0; } .marco > * + * { margin-top: 24px; }
+  .seccion { display: block; } .seccion > * + * { margin-top: 12px; }
+  .hallazgos, .ruta { display: block; } .hallazgo, .parada { margin-bottom: 12px; }
+  .hallazgo, .tarjeta, .llegada, .opcion, .tramite, .escenario { break-inside: avoid; }
+  textarea { min-height: 70px; background: #fff; } input[type=text], select { background: #fff; }
+  .firma { break-inside: avoid; }
+}
 </style>
 
 <div class="franja" aria-hidden="true"></div>
@@ -186,13 +205,45 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
       A 81 81 0 1 1 978 981
       C 978 1030, 934 1060, 897 1126
       Z"/><circle cx="896" cy="983" r="30" fill="#2E86AB"/></g></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 142.65 69.202" class="pal" aria-hidden="true" focusable="false"><g id="lavandi-logotipo" transform="translate(-90.631 -152.471)"><path fill="#2E86AB" d="M101.248 152.471L101.248 201.605C101.538 202.948 102.359 205.771 104.839 207.351C106.064 208.132 107.283 208.522 109.961 208.522L119.868 208.522L130.523 213.987L120.842 221.247C114.649 221.32 108.456 221.393 102.263 221.467C101.271 221.342 96.834 220.675 93.598 216.719C90.96 213.495 90.675 209.988 90.631 208.813L90.631 158.638C90.793 157.868 91.23 156.312 92.505 154.81C93.655 153.455 94.949 152.78 95.659 152.471L101.248 152.471"/><path fill="#2E86AB" d="M145.932 212.952C145.932 211.555 145.517 210.357 144.688 209.358C143.814 208.279 142.696 207.74 141.332 207.74C139.97 207.74 138.834 208.273 137.926 209.341C137.052 210.363 136.614 211.567 136.614 212.952C136.614 214.326 137.052 215.518 137.926 216.529C138.834 217.585 139.97 218.112 141.332 218.112C142.661 218.112 143.774 217.574 144.672 216.495C145.511 215.484 145.932 214.303 145.932 212.952M150.275 205.832C150.275 205.877 150.258 205.98 150.224 206.139C149.781 208.739 149.56 210.982 149.56 212.866C149.56 212.98 149.701 215.53 149.986 220.514L150.002 220.753C150.014 221.082 149.863 221.247 149.551 221.247C149.238 221.247 148.768 221.284 148.137 221.358C147.507 221.431 147.039 221.468 146.732 221.468C146.517 221.468 146.351 221.071 146.238 220.276C146.124 219.481 146.017 219.083 145.915 219.083C145.846 219.083 145.54 219.305 144.995 219.748C144.325 220.293 143.7 220.707 143.122 220.991C142.224 221.445 141.327 221.673 140.43 221.673C138.227 221.673 136.37 220.793 134.86 219.032C133.43 217.352 132.714 215.393 132.714 213.156C132.714 210.636 133.436 208.552 134.878 206.905C136.387 205.191 138.375 204.333 140.839 204.333C142.576 204.333 144.092 204.935 145.387 206.139C145.579 206.366 145.88 206.696 146.29 207.126C146.323 207.161 146.357 207.177 146.392 207.177C146.46 207.177 146.556 206.82 146.681 206.104C146.806 205.389 146.965 205.031 147.158 205.031C147.465 205.031 148.038 205.117 148.878 205.287C149.809 205.492 150.275 205.673 150.275 205.832"/><path fill="#2E86AB" d="M167.75 209.971C167.75 211.572 167.699 212.503 167.596 212.764C167.426 213.275 166.507 214.77 164.838 217.244C163.122 219.776 162.1 221.111 161.771 221.246C161.612 221.315 161.135 221.348 160.341 221.348C159.58 221.348 159.08 221.315 158.842 221.246C158.524 221.145 157.485 219.861 155.725 217.397C154.01 215.001 153.051 213.542 152.846 213.02C152.574 212.304 152.437 211.197 152.437 209.699C152.437 209.233 152.449 208.535 152.472 207.604C152.494 206.673 152.506 205.975 152.506 205.508C152.506 205.259 152.631 205.134 152.881 205.134C153.255 205.134 153.815 205.15 154.558 205.186C155.302 205.218 155.861 205.236 156.236 205.236C156.44 205.236 156.542 205.35 156.542 205.576C156.542 205.94 156.52 206.477 156.475 207.186C156.429 207.896 156.406 208.434 156.406 208.796C156.406 209.84 156.463 210.794 156.577 211.658C156.633 212.089 157.21 213.145 158.305 214.826C159.401 216.505 160.079 217.346 160.341 217.346C160.59 217.346 161.209 216.523 162.197 214.878C163.173 213.264 163.696 212.248 163.765 211.828C163.855 211.259 163.9 210.283 163.9 208.898C163.9 208.523 163.863 207.962 163.79 207.212C163.716 206.462 163.679 205.9 163.679 205.525C163.679 205.355 163.765 205.27 163.935 205.27C164.309 205.27 164.86 205.251 165.587 205.21C166.314 205.171 166.859 205.15 167.222 205.15C167.574 205.15 167.75 206.758 167.75 209.971"/><path fill="#2E86AB" d="M182.91 212.952C182.91 211.555 182.495 210.357 181.665 209.358C180.792 208.279 179.673 207.74 178.309 207.74C176.947 207.74 175.811 208.273 174.904 209.341C174.029 210.363 173.592 211.567 173.592 212.952C173.592 214.326 174.029 215.518 174.904 216.529C175.811 217.585 176.947 218.112 178.309 218.112C179.639 218.112 180.751 217.574 181.65 216.495C182.488 215.484 182.91 214.303 182.91 212.952M187.253 205.832C187.253 205.877 187.236 205.98 187.202 206.139C186.758 208.739 186.538 210.982 186.538 212.866C186.538 212.98 186.678 215.53 186.964 220.514L186.98 220.753C186.992 221.082 186.84 221.247 186.529 221.247C186.215 221.247 185.745 221.284 185.115 221.358C184.484 221.431 184.016 221.468 183.71 221.468C183.495 221.468 183.329 221.071 183.215 220.276C183.102 219.481 182.995 219.083 182.893 219.083C182.824 219.083 182.518 219.305 181.973 219.748C181.303 220.293 180.678 220.707 180.1 220.991C179.202 221.445 178.305 221.673 177.408 221.673C175.204 221.673 173.348 220.793 171.837 219.032C170.408 217.352 169.691 215.393 169.691 213.156C169.691 210.636 170.413 208.552 171.855 206.905C173.365 205.191 175.352 204.333 177.816 204.333C179.553 204.333 181.07 204.935 182.365 206.139C182.557 206.366 182.857 206.696 183.268 207.126C183.301 207.161 183.335 207.177 183.37 207.177C183.438 207.177 183.533 206.82 183.658 206.104C183.783 205.389 183.943 205.031 184.135 205.031C184.443 205.031 185.016 205.117 185.855 205.287C186.786 205.492 187.253 205.673 187.253 205.832"/><path fill="#2E86AB" d="M205.034 220.906C205.034 221.156 204.921 221.28 204.693 221.28C204.319 221.28 203.759 221.274 203.015 221.264C202.271 221.252 201.712 221.246 201.338 221.246C201.133 221.246 201.031 221.082 201.031 220.752C201.031 220.196 201.048 219.35 201.082 218.215C201.116 217.079 201.133 216.227 201.133 215.66C201.133 215.205 201.128 214.527 201.116 213.624C201.104 212.721 201.1 212.043 201.1 211.589C201.1 210.294 200.912 209.382 200.537 208.847C200.083 208.211 199.243 207.893 198.016 207.893C197.448 207.893 196.659 208.211 195.649 208.847C194.582 209.517 194.048 210.113 194.048 210.635L194.048 220.855C194.048 221.139 193.939 221.28 193.724 221.28C193.361 221.28 192.815 221.274 192.089 221.264C191.362 221.252 190.817 221.246 190.454 221.246C190.216 221.246 190.096 221.117 190.096 220.855C190.096 219.958 190.11 218.612 190.139 216.818C190.167 215.024 190.181 213.673 190.181 212.764C190.181 210.345 189.926 208.115 189.415 206.07C189.381 205.968 189.364 205.895 189.364 205.849C189.364 205.736 189.438 205.656 189.585 205.611C189.665 205.599 190.315 205.494 191.535 205.296C192.756 205.097 193.394 204.997 193.452 204.997C193.519 204.997 193.565 205.089 193.588 205.27C193.644 205.974 193.775 206.684 193.98 207.399C194.57 206.934 195.348 206.354 196.313 205.662C197.506 204.936 198.658 204.572 199.771 204.572C201.905 204.572 203.365 205.19 204.148 206.428C204.727 207.337 205.017 208.807 205.017 210.839C205.017 211.191 205.009 211.731 204.991 212.457C204.974 213.184 204.966 213.729 204.966 214.093C204.966 214.854 204.976 215.99 204.999 217.499C205.022 219.01 205.034 220.145 205.034 220.906"/><path fill="#2E86AB" d="M220.381 212.986C220.381 211.624 219.961 210.426 219.121 209.392C218.223 208.291 217.111 207.74 215.782 207.74C214.386 207.74 213.233 208.285 212.325 209.376C211.461 210.398 211.03 211.624 211.03 213.054C211.03 214.417 211.479 215.604 212.376 216.615C213.296 217.682 214.431 218.215 215.782 218.215C217.145 218.215 218.269 217.676 219.155 216.597C219.972 215.587 220.381 214.383 220.381 212.986M224.639 197.487C224.639 198.951 224.574 201.146 224.444 204.07C224.313 206.994 224.247 209.182 224.247 210.636C224.247 215.121 224.344 218.516 224.537 220.821L224.554 221.042C224.565 221.157 224.412 221.23 224.094 221.264C223.879 221.287 223.572 221.287 223.174 221.264C222.697 221.23 222.476 221.213 222.511 221.213C222.34 221.213 222.09 221.23 221.761 221.264C221.431 221.298 221.182 221.315 221.012 221.315C220.852 221.315 220.758 220.921 220.73 220.131C220.702 219.342 220.659 218.942 220.603 218.931C220.535 218.965 220.449 219.039 220.347 219.152C218.792 220.833 217.003 221.673 214.982 221.673C212.688 221.673 210.803 220.799 209.327 219.05C207.931 217.404 207.232 215.417 207.232 213.089C207.232 210.67 207.936 208.637 209.344 206.991C210.82 205.265 212.745 204.402 215.118 204.402C216.549 204.402 217.798 204.822 218.866 205.662C219.353 206.082 219.836 206.508 220.313 206.939C220.404 206.905 220.449 206.827 220.449 206.701L220.449 201.183C220.449 200.808 220.432 200.24 220.398 199.479C220.364 198.718 220.347 198.145 220.347 197.759C220.347 197.487 220.438 197.35 220.619 197.35C221.04 197.35 221.665 197.313 222.493 197.239C223.322 197.166 223.941 197.129 224.35 197.129C224.542 197.129 224.639 197.248 224.639 197.487"/><path fill="#2E86AB" d="M231.98 205.492C231.98 206.366 231.926 207.687 231.818 209.452C231.71 211.217 231.656 212.544 231.656 213.429C231.656 214.258 231.673 215.499 231.707 217.151C231.742 218.802 231.758 220.037 231.758 220.856C231.758 221.094 231.656 221.213 231.452 221.213L228.13 221.213C227.892 221.213 227.773 220.981 227.773 220.514C227.773 219.731 227.792 218.553 227.833 216.98C227.872 215.407 227.892 214.224 227.892 213.429C227.892 212.544 227.827 211.215 227.696 209.444C227.565 207.672 227.5 206.343 227.5 205.457C227.5 205.265 227.62 205.168 227.858 205.168C228.062 205.168 228.378 205.197 228.803 205.254C229.229 205.31 229.549 205.338 229.766 205.338C229.981 205.338 230.302 205.31 230.728 205.254C231.154 205.197 231.474 205.168 231.691 205.168C231.883 205.168 231.98 205.277 231.98 205.492"/><path fill="#2E86AB" d="M221.253 213.025C221.253 216.056 218.769 218.513 215.706 218.513C212.642 218.513 210.158 216.056 210.158 213.025C210.158 209.994 212.642 207.537 215.706 207.537C218.769 207.537 221.253 209.994 221.253 213.025"/><path fill="#F7F4EF" d="M220.545 213.145C220.545 215.821 218.378 217.99 215.706 217.99C213.033 217.99 210.867 215.821 210.867 213.145C210.867 210.469 213.033 208.3 215.706 208.3C218.378 208.3 220.545 210.469 220.545 213.145"/><path fill="#2E86AB" d="M219.797 213.006C219.797 215.244 217.983 217.058 215.745 217.058C213.507 217.058 211.692 215.244 211.692 213.006C211.692 210.768 213.507 208.954 215.745 208.954C217.983 208.954 219.797 210.768 219.797 213.006"/><path fill="#F7F4EF" d="M214.997 210.2C214.926 210.097 214.783 210.049 214.643 210.082C214.415 210.131 213.849 210.286 213.345 210.79C212.844 211.291 212.687 211.851 212.637 212.079C212.599 212.223 212.648 212.37 212.754 212.443C212.893 212.538 213.113 212.497 213.227 212.325C213.313 212.097 213.484 211.733 213.817 211.38C214.211 210.962 214.639 210.763 214.879 210.672C215.052 210.557 215.092 210.337 214.997 210.2"/><path fill="#A8D5E2" d="M212.309 213.21C212.228 213.348 212.096 213.618 212.12 213.955C212.12 213.955 212.139 214.22 212.29 214.49C212.428 214.737 213.699 216.712 215.824 216.622C217.883 216.534 219.661 214.552 219.415 213.324C219.383 213.16 219.316 213.023 219.247 212.915C219.068 212.975 218.826 213.056 218.538 213.151C216.773 213.733 216.525 213.768 216.245 213.673C215.77 213.511 215.885 213.206 215.249 212.901C214.657 212.617 214.088 212.657 213.818 212.679C213.094 212.738 212.57 213.035 212.309 213.21"/><path fill="#2E86AB" d="M219.188 213.527C219.117 213.486 218.991 213.588 218.42 214.095C217.45 214.957 217.504 214.941 217.358 215.039C217.031 215.26 216.468 215.551 215.588 215.629C214.909 215.72 214.52 215.561 214.289 215.393C213.856 215.08 213.819 214.685 213.371 214.519C213.082 214.412 212.791 214.469 212.588 214.536C212.72 214.837 212.988 215.339 213.501 215.789C213.703 215.966 214.609 216.722 215.942 216.677C217.211 216.634 218.267 215.889 218.793 215.034C219.174 214.414 219.349 213.62 219.188 213.527"/><path fill="#E8C547" d="M229.769 203.031C230.041 203.005 230.224 202.875 230.292 202.821C231.085 201.455 231.878 200.09 232.671 198.725C232.833 198.424 233.281 197.491 233.006 196.373C232.692 195.093 231.501 193.85 229.887 193.787C228.165 193.721 226.859 195.033 226.498 196.341C226.21 197.384 226.562 198.281 226.717 198.619L229.145 202.886C229.215 202.929 229.449 203.062 229.769 203.031"/><path fill="#2E86AB" d="M231.019 197.188C231.019 197.865 230.447 198.413 229.74 198.413C229.034 198.413 228.462 197.865 228.462 197.188C228.462 196.51 229.034 195.962 229.74 195.962C230.447 195.962 231.019 196.51 231.019 197.188"/></g></svg></div>
-    <p class="ceja">Guía para nuestra reunión</p>
-    <h1>Lo que encontramos y lo que necesitamos que decidas</h1>
-    <p class="entrada">Esta reunión es para que tomes ocho decisiones de tu negocio que la aplicación necesita. La aplicación ya está definida en el contrato y se entrega como la acordamos: no venimos a cambiarla.</p>
+    <p class="ceja">Guía para recalibrar el proyecto</p>
+    <h1>Dónde estamos, lo que encontramos y lo que necesitamos que decidas</h1>
+    <p class="entrada">Esta reunión es para revisar juntos todo el proyecto y salir con las decisiones que la aplicación necesita para construirse. Lo que se entrega está en el contrato; si decidimos cambiar algo, lo dejamos por escrito y lo firmamos aparte.</p>
     <p class="entrada">De tus respuestas dependen varias partes de cómo se construye: quién mueve la ropa, cómo se cobra y con qué lavanderías se arranca. Leemos juntos esta guía y yo voy anotando tus respuestas.</p>
-    <div class="avance" id="avance" aria-live="polite">0 de 8 con respuesta</div>
+    <div class="avance" id="avance" aria-live="polite">0 de 21 con respuesta</div>
     <p class="nota-guardar" id="nota-guardar" hidden>Lo que escribas en esta vista no se guarda. Ábrela con tu cuenta de claude.ai para que se guarde.</p>
   </header>
+
+  <section class="seccion" aria-labelledby="t-estamos">
+    <h2 id="t-estamos">Dónde estamos</h2>
+    <div class="hallazgos">
+      <article class="hallazgo favor">
+        <h3>Lo que ya está listo</h3>
+        <ul>
+          <li>El nombre, Lavandi, aprobado por ti.</li>
+          <li>El logotipo y el manual de identidad, sin observaciones.</li>
+          <li>La guía de cómo habla Lavandi.</li>
+          <li>El kit para sumar lavanderías y la lista de las 415 lavanderías de la zona, con el tipo de cada una.</li>
+        </ul>
+      </article>
+      <article class="hallazgo">
+        <h3>Lo que va atrasado</h3>
+        <ul>
+          <li>La construcción de la aplicación no ha empezado.</li>
+          <li>Una parte es nuestra: terminar de definir cómo se construye.</li>
+          <li>Otra parte depende de decisiones tuyas y de trámites a tu cargo.</li>
+          <li>Faltan las 12 plantillas de redes sociales para cerrar la identidad.</li>
+        </ul>
+      </article>
+      <article class="hallazgo ancho">
+        <h3>Para qué es esta reunión</h3>
+        <ul>
+          <li>Salir con las decisiones que la aplicación necesita para empezar a construirse.</li>
+          <li>Acordar qué se construye primero.</li>
+          <li>Con eso te propongo por escrito un calendario nuevo.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
 
   <section class="seccion" aria-labelledby="t-encontramos">
     <h2 id="t-encontramos">Lo que encontramos</h2>
@@ -241,10 +292,10 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
   </section>
 
   <section class="seccion" aria-labelledby="t-decidas">
-    <h2 id="t-decidas">Lo que necesitamos que decidas</h2>
-    <p>Son ocho preguntas. En cada una anoto tu respuesta. Si alguna no la tienes todavía, la dejamos para después.</p>
+    <h2 id="t-decidas">Lo que necesitamos que decidas: el negocio</h2>
+    <p>Son 21 preguntas, en cinco partes. En cada una anoto tu respuesta. Si alguna no la tienes todavía, la dejamos para después.</p>
 
-    <ol class="ruta">
+    <ol class="ruta corta">
       <li class="parada" id="q1">
         <div class="hito" aria-hidden="true">1</div>
         <article class="tarjeta">
@@ -397,15 +448,270 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
         </article>
       </li>
     </ol>
+  </section>
 
+  <section class="seccion" aria-labelledby="t-operacion">
+    <h2 id="t-operacion">Cómo opera cada pedido</h2>
+    <p>Cinco reglas que la aplicación necesita para cobrar, avisar y resolver problemas.</p>
+    <ol class="ruta corta">
+      <li class="parada" id="q9">
+        <div class="hito" aria-hidden="true">9</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿En qué momento se le cobra a quien pide?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> El precio va por kilo, pero el peso real se sabe hasta que la ropa llega a la lavandería. Cada manera se siente distinta para quien pide y cambia qué pasa con los ajustes y las devoluciones.</p>
+          <fieldset class="opciones"><legend>Elige</legend>
+            <label class="opcion"><input type="checkbox" id="q9-opciones-1" data-q="q9" data-campo="opciones" value="al_pedir_con_estimado"><span>Al pedir, con un estimado, y se ajusta al pesar la ropa.</span></label>
+            <label class="opcion"><input type="checkbox" id="q9-opciones-2" data-q="q9" data-campo="opciones" value="apartar_y_cobrar_al_pesar"><span>Se aparta el dinero al pedir y se cobra lo exacto al pesar.</span></label>
+            <label class="opcion"><input type="checkbox" id="q9-opciones-3" data-q="q9" data-campo="opciones" value="al_pesar"><span>Hasta que se pesa la ropa.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q9-comentarios">Comentarios</label><textarea id="q9-comentarios" data-q="q9" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q10">
+        <div class="hito" aria-hidden="true">10</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Cómo y cada cuánto se le paga a la lavandería?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> La aplicación calcula con precisión cuánto le toca a cada lavandería, con su corte por periodo. Mandar el dinero lo hace una persona: tú o tu contador. Así quedó en el contrato.</p>
+          <fieldset class="opciones"><legend>Cada cuánto</legend>
+            <label class="opcion"><input type="checkbox" id="q10-cada_cuanto-1" data-q="q10" data-campo="cada_cuanto" value="cada_semana"><span>Cada semana.</span></label>
+            <label class="opcion"><input type="checkbox" id="q10-cada_cuanto-2" data-q="q10" data-campo="cada_cuanto" value="cada_quincena"><span>Cada quincena.</span></label>
+            <label class="opcion"><input type="checkbox" id="q10-cada_cuanto-3" data-q="q10" data-campo="cada_cuanto" value="cada_mes"><span>Cada mes.</span></label>
+          </fieldset>
+          <fieldset class="opciones"><legend>La comisión de la empresa de cobro</legend>
+            <label class="opcion"><input type="checkbox" id="q10-comision_cobro-1" data-q="q10" data-campo="comision_cobro" value="la_absorbe_lavandi"><span>La absorbe Lavandi.</span></label>
+            <label class="opcion"><input type="checkbox" id="q10-comision_cobro-2" data-q="q10" data-campo="comision_cobro" value="se_descuenta_a_la_lavanderia"><span>Se le descuenta a la lavandería.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q10-comentarios">Comentarios (por ejemplo, quién le da factura a quien pide)</label><textarea id="q10-comentarios" data-q="q10" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q11">
+        <div class="hito" aria-hidden="true">11</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Hasta cuándo se puede cancelar un pedido, y qué pasa con el dinero?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Es de las primeras dudas de quien pide y de la lavandería. Sin la regla, cada cancelación se resuelve a mano.</p>
+          <fieldset class="opciones"><legend>Quien pide puede cancelar sin costo</legend>
+            <label class="opcion"><input type="checkbox" id="q11-opciones-1" data-q="q11" data-campo="opciones" value="hasta_que_pasan"><span>Hasta que pasan por su ropa.</span></label>
+            <label class="opcion"><input type="checkbox" id="q11-opciones-2" data-q="q11" data-campo="opciones" value="hasta_una_hora_antes"><span>Hasta una hora antes de que pasen.</span></label>
+            <label class="opcion"><input type="checkbox" id="q11-opciones-3" data-q="q11" data-campo="opciones" value="despues_se_cobra_envio"><span>Después de recogida la ropa, se cobra el envío.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q11-comentarios">Y si quien cancela es la lavandería</label><textarea id="q11-comentarios" data-q="q11" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q12">
+        <div class="hito" aria-hidden="true">12</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿En qué momentos le avisamos a quien pide?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> El contrato pide cinco avisos al celular a lo largo del pedido. Lo natural es avisar en cada paso que ya usa la marca.</p>
+          <fieldset class="opciones"><legend>Elige cinco</legend>
+            <label class="opcion"><input type="checkbox" id="q12-opciones-1" data-q="q12" data-campo="opciones" value="confirmado"><span>Confirmado: su pedido quedó registrado.</span></label>
+            <label class="opcion"><input type="checkbox" id="q12-opciones-2" data-q="q12" data-campo="opciones" value="recolectado"><span>Recolectado: pasaron por su ropa.</span></label>
+            <label class="opcion"><input type="checkbox" id="q12-opciones-3" data-q="q12" data-campo="opciones" value="en_proceso"><span>En proceso: la lavandería empezó.</span></label>
+            <label class="opcion"><input type="checkbox" id="q12-opciones-4" data-q="q12" data-campo="opciones" value="listo"><span>Listo: su ropa está lista.</span></label>
+            <label class="opcion"><input type="checkbox" id="q12-opciones-5" data-q="q12" data-campo="opciones" value="entregado"><span>Entregado: su ropa volvió.</span></label>
+            <label class="opcion"><input type="checkbox" id="q12-opciones-6" data-q="q12" data-campo="opciones" value="otro"><span>Otro momento (escríbelo abajo).</span></label>
+          </fieldset>
+          <div class="campo"><label for="q12-comentarios">Comentarios</label><textarea id="q12-comentarios" data-q="q12" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q13">
+        <div class="hito" aria-hidden="true">13</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>Si una prenda se daña o se pierde, ¿quién responde?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Lavandi promete cuidado de la ropa y el kit le dice a las lavanderías que esto se responderá por escrito antes de abrir. Hoy no hay una regla.</p>
+          <fieldset class="opciones"><legend>Elige</legend>
+            <label class="opcion"><input type="checkbox" id="q13-opciones-1" data-q="q13" data-campo="opciones" value="la_lavanderia_con_tope"><span>La lavandería responde, con un tope por prenda.</span></label>
+            <label class="opcion"><input type="checkbox" id="q13-opciones-2" data-q="q13" data-campo="opciones" value="lavandi_y_luego_la_lavanderia"><span>Lavandi responde a quien pide y después lo arregla con la lavandería.</span></label>
+            <label class="opcion"><input type="checkbox" id="q13-opciones-3" data-q="q13" data-campo="opciones" value="caso_por_caso"><span>Caso por caso.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q13-comentarios">Comentarios</label><textarea id="q13-comentarios" data-q="q13" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+    </ol>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-socios">
+    <h2 id="t-socios">Para sumar lavanderías</h2>
+    <p>Lo que falta para que el kit quede completo y se pueda usar con las lavanderías.</p>
+    <ol class="ruta corta">
+      <li class="parada" id="q14">
+        <div class="hito" aria-hidden="true">14</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Qué les ofreces a las primeras lavanderías que se unan?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Se les pide decir que sí antes de ver un solo pedido. Una ventaja para las primeras ayuda, y el kit tiene que decir exactamente lo que se va a cumplir.</p>
+          <fieldset class="opciones"><legend>Elige una o varias</legend>
+            <label class="opcion"><input type="checkbox" id="q14-opciones-1" data-q="q14" data-campo="opciones" value="comision_menor"><span>Una comisión menor durante un tiempo.</span></label>
+            <label class="opcion"><input type="checkbox" id="q14-opciones-2" data-q="q14" data-campo="opciones" value="distintivo"><span>El distintivo de lavandería fundadora.</span></label>
+            <label class="opcion"><input type="checkbox" id="q14-opciones-3" data-q="q14" data-campo="opciones" value="ninguna"><span>Ninguna ventaja especial.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q14-comentarios">Cuánto tiempo, o qué otra ventaja</label><textarea id="q14-comentarios" data-q="q14" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q15">
+        <div class="hito" aria-hidden="true">15</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Quién atiende a las lavanderías?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Su nombre y su WhatsApp van impresos en el kit: es a quien llaman las lavanderías interesadas.</p>
+          <div class="datos">
+            <div class="dato"><label for="q15-nombre">Nombre</label><input type="text" id="q15-nombre" data-q="q15" data-campo="nombre"></div>
+            <div class="dato"><label for="q15-whatsapp">WhatsApp</label><input type="text" id="q15-whatsapp" data-q="q15" data-campo="whatsapp"></div>
+          </div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q16">
+        <div class="hito" aria-hidden="true">16</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Tu propia lavandería entra a Lavandi?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Podría ser la primera lavandería y servir para probar la aplicación completa. Las demás lavanderías podrían preguntar si compiten en igualdad con la del dueño.</p>
+          <fieldset class="opciones"><legend>Elige</legend>
+            <label class="opcion"><input type="checkbox" id="q16-opciones-1" data-q="q16" data-campo="opciones" value="si_una_mas"><span>Sí, como una lavandería más.</span></label>
+            <label class="opcion"><input type="checkbox" id="q16-opciones-2" data-q="q16" data-campo="opciones" value="solo_pruebas"><span>Solo para las pruebas.</span></label>
+            <label class="opcion"><input type="checkbox" id="q16-opciones-3" data-q="q16" data-campo="opciones" value="no"><span>No.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q16-comentarios">Comentarios</label><textarea id="q16-comentarios" data-q="q16" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q17">
+        <div class="hito" aria-hidden="true">17</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Exploramos a las personas que lavan ropa en su casa?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Lavandi está pensada para lavanderías. Sumar a personas que lavan en su casa cambia quién responde por la ropa y cómo se cobra. El kit trae una conversación para escucharlas antes de decidir.</p>
+          <fieldset class="opciones"><legend>Elige</legend>
+            <label class="opcion"><input type="checkbox" id="q17-opciones-1" data-q="q17" data-campo="opciones" value="explorar"><span>Sí, escucharlas con la conversación del kit.</span></label>
+            <label class="opcion"><input type="checkbox" id="q17-opciones-2" data-q="q17" data-campo="opciones" value="no_por_ahora"><span>No por ahora.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q17-comentarios">Comentarios</label><textarea id="q17-comentarios" data-q="q17" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+    </ol>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-construir">
+    <h2 id="t-construir">Qué construimos primero</h2>
+    <p>La decisión que ordena todo lo demás.</p>
+    <ol class="ruta corta">
+      <li class="parada" id="q18">
+        <div class="hito" aria-hidden="true">18</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Qué construimos primero?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Con lo que sabemos hoy, construir todo de una vez tarda más de lo que queda en el calendario, y todavía no sabemos cuánta gente va a pedir. Hay varias maneras de ordenar el trabajo; cualquiera distinta de la primera se pone por escrito y se firma aparte.</p>
+          <fieldset class="opciones"><legend>Elige</legend>
+            <label class="opcion"><input type="checkbox" id="q18-opciones-1" data-q="q18" data-campo="opciones" value="todo_con_fechas_nuevas"><span>Todo lo del contrato a la vez, con fechas nuevas.</span></label>
+            <label class="opcion"><input type="checkbox" id="q18-opciones-2" data-q="q18" data-campo="opciones" value="por_etapas_durango"><span>Por etapas: primero lo necesario para operar en Durango capital, después lo demás.</span></label>
+            <label class="opcion"><input type="checkbox" id="q18-opciones-3" data-q="q18" data-campo="opciones" value="probar_antes"><span>Primero probar el negocio unas semanas a mano con las lavanderías fundadoras, y luego construir.</span></label>
+            <label class="opcion"><input type="checkbox" id="q18-opciones-4" data-q="q18" data-campo="opciones" value="otro_modelo"><span>Cambiar de modelo: que Lavandi sea un programa para lavanderías.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q18-comentarios">Comentarios</label><textarea id="q18-comentarios" data-q="q18" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+    </ol>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-tramites">
+    <h2 id="t-tramites">Trámites y cuentas</h2>
+    <p>Lo que te toca para poder publicar y cobrar.</p>
+    <ol class="ruta corta">
+      <li class="parada" id="q19">
+        <div class="hito" aria-hidden="true">19</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿En qué va cada trámite?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Sin estas cuentas la aplicación no se puede publicar ni cobrar, aunque esté terminada. Algunas tardan semanas y van en cadena: Apple pide antes el D-U-N-S.</p>
+          <div class="tramites">
+            <div class="tramite"><div><strong>Número D-U-N-S</strong><small>Lo pide Apple para cuentas de empresa. Hasta 30 días.</small></div><select id="q19-duns" data-q="q19" data-campo="duns" aria-label="Número D-U-N-S"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+            <div class="tramite"><div><strong>Cuenta de desarrollador de Google</strong><small>Para publicar en Android. Pide verificar identidad.</small></div><select id="q19-google" data-q="q19" data-campo="google" aria-label="Cuenta de desarrollador de Google"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+            <div class="tramite"><div><strong>Cuenta de desarrollador de Apple</strong><small>Para publicar en iPhone. Después del D-U-N-S.</small></div><select id="q19-apple" data-q="q19" data-campo="apple" aria-label="Cuenta de desarrollador de Apple"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+            <div class="tramite"><div><strong>Alta en Conekta</strong><small>Para cobrar con tarjeta. Pide cuenta bancaria de empresa.</small></div><select id="q19-conekta" data-q="q19" data-campo="conekta" aria-label="Alta en Conekta"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+            <div class="tramite"><div><strong>Aviso de privacidad</strong><small>Antes de publicar y antes de pedir datos a las lavanderías.</small></div><select id="q19-aviso" data-q="q19" data-campo="aviso" aria-label="Aviso de privacidad"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+            <div class="tramite"><div><strong>Dominio lavandi.mx</strong><small>Para la página web y los correos.</small></div><select id="q19-dominio" data-q="q19" data-campo="dominio" aria-label="Dominio lavandi.mx"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+            <div class="tramite"><div><strong>Registro de la marca</strong><small>De 6 a 12 meses. Conviene buscar antes de pagar.</small></div><select id="q19-impi" data-q="q19" data-campo="impi" aria-label="Registro de la marca"><option value="">Elige</option><option value="Sin empezar">Sin empezar</option><option value="En trámite">En trámite</option><option value="Listo">Listo</option><option value="No sé">No sé</option></select></div>
+          </div>
+          <div class="campo"><label for="q19-comentarios">Comentarios</label><textarea id="q19-comentarios" data-q="q19" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+      <li class="parada" id="q20">
+        <div class="hito" aria-hidden="true">20</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Las cuentas van a nombre de una persona o de una empresa?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Apple solo publica con nombre de empresa si hay una sociedad constituida; si no, la aplicación aparece con el nombre de una persona. Según lo que encontramos, una cuenta personal nueva de Google pide antes una prueba de 14 días con 12 personas; lo estamos confirmando.</p>
+          <fieldset class="opciones"><legend>Elige</legend>
+            <label class="opcion"><input type="checkbox" id="q20-opciones-1" data-q="q20" data-campo="opciones" value="persona"><span>A nombre de una persona.</span></label>
+            <label class="opcion"><input type="checkbox" id="q20-opciones-2" data-q="q20" data-campo="opciones" value="sociedad_existente"><span>De una sociedad que ya existe.</span></label>
+            <label class="opcion"><input type="checkbox" id="q20-opciones-3" data-q="q20" data-campo="opciones" value="sociedad_por_constituir"><span>De una sociedad que se va a constituir.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q20-comentarios">Comentarios</label><textarea id="q20-comentarios" data-q="q20" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+    </ol>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-fuera">
+    <h2 id="t-fuera">Lo que no está en el contrato</h2>
+    <p>Para que nada se quede en el aire.</p>
+    <ol class="ruta corta">
+      <li class="parada" id="q21">
+        <div class="hito" aria-hidden="true">21</div>
+        <article class="tarjeta">
+          <div class="estado-fila"><span class="chip">Sin respuesta</span></div>
+          <h3>¿Qué de lo que no está en el contrato quieres que pongamos por escrito?</h3>
+          <p class="porque"><strong>Por qué importa.</strong> Hay temas que platicamos y que el contrato no incluye. Para que cuenten, cada uno se pone por escrito aparte; si no, se quedan fuera.</p>
+          <fieldset class="opciones"><legend>Marca los que quieres formalizar</legend>
+            <label class="opcion"><input type="checkbox" id="q21-opciones-1" data-q="q21" data-campo="opciones" value="calzado"><span>Lavado de calzado.</span></label>
+            <label class="opcion"><input type="checkbox" id="q21-opciones-2" data-q="q21" data-campo="opciones" value="estados_unidos"><span>Llevar Lavandi a Estados Unidos.</span></label>
+            <label class="opcion"><input type="checkbox" id="q21-opciones-3" data-q="q21" data-campo="opciones" value="contenido"><span>El apoyo con el contenido para redes: hasta cuándo, quién aprueba y quién publica.</span></label>
+            <label class="opcion"><input type="checkbox" id="q21-opciones-4" data-q="q21" data-campo="opciones" value="comision_30"><span>La comisión del 30 % sobre lo que se gane por clientes que lleguen por ese contenido.</span></label>
+          </fieldset>
+          <div class="campo"><label for="q21-comentarios">Comentarios</label><textarea id="q21-comentarios" data-q="q21" data-campo="comentarios"></textarea></div>
+          <div class="pie-tarjeta"><button type="button" class="despues" aria-pressed="false">Dejar para después</button><p class="guardado" aria-live="polite"></p></div>
+        </article>
+      </li>
+
+    </ol>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-sigue">
     <div class="llegada">
       <svg class="pin" viewBox="810 895 175 240" aria-hidden="true">
         <path fill="#E8C547" d="M 897 1126 C 860 1060, 816 1030, 816 981 A 81 81 0 1 1 978 981 C 978 1030, 934 1060, 897 1126 Z"/>
         <circle cx="896" cy="983" r="30" fill="#2E86AB"/>
       </svg>
       <div class="texto">
-        <h2>Lo que sigue</h2>
-        <p>Con tus respuestas defino las partes de la aplicación que dependen de ellas, y te propongo por escrito un calendario actualizado.</p>
+        <h2 id="t-sigue">Lo que sigue</h2>
+        <p>Con tus respuestas te propongo por escrito un calendario nuevo y, si cambiamos algo de lo que se entrega, el documento para firmarlo.</p>
         <p>Al terminar esta reunión te mando por escrito lo que acordamos, para que lo confirmes.</p>
       </div>
     </div>
@@ -425,7 +731,7 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
 <script>
 (function () {
   "use strict";
-  var PREGUNTAS = ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"];
+  var PREGUNTAS = []; for (var n = 1; n <= 21; n++) PREGUNTAS.push("q" + n);
   var db = null, estado = {}, temporizadores = {}, cadenas = {}, sucio = {};
 
   function $(sel, raiz) { return (raiz || document).querySelector(sel); }
@@ -462,7 +768,7 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
   function pintarAvance() {
     var con = PREGUNTAS.filter(function (q) { return tieneRespuesta(estado[q]) && !(estado[q] && estado[q].pendiente); }).length;
     var pend = PREGUNTAS.filter(function (q) { return estado[q] && estado[q].pendiente; }).length;
-    $("#avance").textContent = con + " de 8 con respuesta" + (pend ? " · " + pend + " para después" : "");
+    $("#avance").textContent = con + " de " + PREGUNTAS.length + " con respuesta" + (pend ? " · " + pend + " para después" : "");
   }
   function aviso(q, texto, error) {
     var a = $("#" + q + " .guardado");
@@ -506,7 +812,7 @@ textarea:focus, input[type=text]:focus { border-color: var(--agua); outline: non
   }
 
   $$("[data-q]").forEach(function (el) {
-    el.addEventListener(el.type === "checkbox" ? "change" : "input", function () { programar(el.getAttribute("data-q")); });
+    el.addEventListener(el.type === "checkbox" || el.tagName === "SELECT" ? "change" : "input", function () { programar(el.getAttribute("data-q")); });
   });
   $$(".despues").forEach(function (boton) {
     boton.addEventListener("click", function () {

@@ -1,10 +1,12 @@
 ---
-estado: borrador
+estado: superseded
 grado: B
 fuente: deuda-de-decision.md DD-011, DD-012, DD-013, DD-014, DD-016, DD-022; brecha-ejecutivo-tecnico.md BR-19, BR-20, BR-22, BR-27, BR-31, BR-44
 fecha: 2026-09-11
 dueño: Nadir Hadad Navarrete
 ---
+Reemplazado el 2026-10-30 por las preguntas 5 y 9 a 13 de la guía de la reunión (`2026-10-09-guia-de-reunion-decisiones-del-negocio.md`) y por la minuta `2026-10-30-minuta-de-recalibracion.md`. Nunca se envió.
+
 # Requerimiento de insumos — seis decisiones de operación
 
 **BORRADOR. No se ha enviado.** Lo envía Nadir, no Claude.
