@@ -75,3 +75,27 @@ tintorerías; el guion, la hoja de visita y el libro preguntan si la lavandería
 
 - Generador: `herramientas/kit-de-prospeccion/`. Las piezas se generan; no se editan a mano.
 - Entregables: `vault/cliente/kit-de-prospeccion/`.
+
+## Ajuste del 2026-11-05: lo que dejó la recalibración
+
+Nadir pidió actualizar el kit y la lista con lo revisado en la reunión (acta
+[[acta-2026-11-05-resultados-de-la-recalibracion]], C-128 a C-131; lectura en [[2026-11-05-reporte-del-formulario]]).
+Las marcas del cliente en papel todavía no son grado C: el kit las usa porque son las mismas que el reporte le
+presenta como "lo que ya quedó claro", y el kit vuelve a él para revisión. Lo que no está decidido sigue en amarillo.
+
+| Qué cambia | Dónde | Sostén |
+|---|---|---|
+| **El precio lo pone Lavandi**, igual en todas las lavanderías socias, con el envío incluido. El dato "quién pone el precio" deja de estar pendiente | `pendientes.json`; hoja, guion, presentación, registro | Formulario A05; guía 2 y 6 |
+| **Nuevo pendiente: la tabla de precios por kilo.** No existe (C-131) | Hoja, guion, presentación, registro | C-131 |
+| **Nuevo pendiente: quién recoge y entrega.** El cliente marcó "no tener que recoger ni entregar" como ventaja para la lavandería (guía 2) y a la vez la opción C, "la lavandería entrega con su gente" (guía 6), y además quiere repartidores propios y plataformas (guía 5). Se contradice: el kit no promete ninguna y pregunta en la visita si la lavandería tiene gente para hacerlo | Hoja, guion, presentación, hoja de visita, registro, libro | Guía 2, 5 y 6 |
+| **Fundadoras:** el distintivo de lavandería fundadora y una comisión menor durante un tiempo; cuánto y por cuánto tiempo sigue pendiente ("hay que revisar costos") | Hoja, guion, carta, presentación, cómo hablarle | Guía 14 |
+| **El formato de registro ya no pide precios** a la lavandería: pide qué servicios ofrece | Pieza 7 | Formulario A05 |
+| **La hoja de visita mide dos decisiones nuevas**: si a la lavandería le parece bien que Lavandi ponga el precio, y si tiene gente para recoger y entregar. La entrevista mide si la persona pagaría antes en una tienda, en efectivo | Piezas 6 y 8; libro | Guía 2 y 7 |
+| **La entrevista prueba el pedido mínimo de 250 pesos con el envío incluido** | Pieza 8 | Formulario; guía 6 |
+| **Arranque en las dos zonas a la vez, semilla en Durango capital, meta de 100 lavanderías** | Guía del kit; lista del cliente; libro | Guía 3 y 4; C-123 |
+| **Nada que no esté contratado** (C-129): el guion y la guía dicen que no se promete repartir con Rappi, DiDi o Uber ni cobrar por prenda. Las tintorerías se invitan por su lavado por kilo | Guion, guía, cómo hablarle, presentación | `NSV-2026-001-v8.pdf:18:Módulo C`; `:16:A.3`; acta del 2026-11-05 |
+| **Lo que tiene que quedar por escrito antes de abrir**: la regla para que la lavandería no se quede con el cliente (C-130), qué pasa si se daña una prenda (el cliente busca seguro y responsiva) y quién recoge y entrega | Guía del kit | C-130; guía 8 y 13 |
+
+Esto reemplaza la regla 3: los datos pendientes ahora son la comisión, la tabla de precios, quién recoge y entrega,
+cuánto menor es la comisión de las fundadoras, el contacto y el aviso de privacidad. La propuesta del kit
+(`herramientas/propuesta-kit-socios/`) no se toca: es lo que se le mandó al cliente y queda como registro.

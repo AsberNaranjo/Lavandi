@@ -11,12 +11,13 @@ Después, abrir y guardar `10-libro-de-resultados.xlsx` en Excel (o recalcular) 
 
 | Archivo | Qué es |
 |---|---|
-| `pendientes.json` | Los datos que decide el cliente: comisión, precio, ventaja de las fundadoras, contacto y aviso de privacidad. Mientras valgan `null`, las piezas los muestran en amarillo como «Por definir» |
+| `pendientes.json` | Los datos que decide el cliente: comisión, quién pone el precio (ya decidido: Lavandi), la tabla de precios, quién recoge y entrega, la comisión de las fundadoras, contacto y aviso de privacidad. Mientras valgan `null`, las piezas los muestran en amarillo como «Por definir». Ajuste del 2026-11-05 en el encargo |
 | `base.py` | Colores y letras de Lavandi, logotipo oficial, campos pendientes y armazón de página carta |
 | `piezas.py` | Texto y composición de las piezas en PDF (0 a 3, 5 a 9 y 11) y de la imagen de WhatsApp. Los cinco tipos de lavandería y sus cifras están en `GUIA_TIPOS` y `CUANTAS`; las cifras salen de la lista del cliente |
 | `presentacion.py` | La presentación para la visita: la misma lista de láminas sale en PDF y en PowerPoint |
 | `libro.py` | El libro de resultados en Excel, con el resumen en fórmulas |
 | `construir_kit.py` | Corre todo: HTML a PDF e imagen con Chrome en modo silencioso (como el manual), PowerPoint y Excel |
+| `armar_paquete.py` | Junta la lista del cliente y el kit en `vault/cliente/envios/Lavandi - Kit actualizado.zip`. No toca el paquete del primer envío |
 
 ## Lo que hay que saber
 

@@ -30,7 +30,9 @@ with io.open(os.path.join(AQUI, 'pendientes.json'), encoding='utf-8') as f:
 ETIQUETA_PENDIENTE = {
     'comision': 'comisión de Lavandi por pedido',
     'precio': 'quién pone el precio del lavado',
-    'ventaja_fundadoras': 'lo que se ofrece a las fundadoras',
+    'tabulador': 'la tabla de precios por kilo',
+    'reparto': 'quién recoge y entrega la ropa',
+    'ventaja_fundadoras': 'comisión de fundadoras y su plazo',
     'contacto': 'nombre y WhatsApp de quien atiende',
     'aviso_privacidad': 'aviso de privacidad',
 }

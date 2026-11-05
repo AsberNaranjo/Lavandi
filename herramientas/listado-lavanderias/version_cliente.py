@@ -126,6 +126,9 @@ def hoja_lista(wb, nombre, filas, con_telefono, tipos):
     return rangos
 
 
+META_DURANGO = 100  # la meta que marcó el cliente en la guía de la reunión, pregunta 3
+
+
 def hoja_resumen(hoja, llamar, visitar, ciudades_fuertes):
     hoja.title = "Resumen"
     hoja.sheet_view.showGridLines = False
@@ -184,7 +187,14 @@ def hoja_resumen(hoja, llamar, visitar, ciudades_fuertes):
         celda.font = Font(name=FUENTE, bold=True, size=11)
         celda.fill = PatternFill("solid", fgColor=AZUL_CLARO)
 
-    r = total_r + 2
+    meta_r = total_r + 1
+    hoja.cell(row=meta_r, column=1, value=f"Meta para abrir en Durango capital: {META_DURANGO}")
+    hoja.cell(row=meta_r, column=4, value="Avance")
+    avance = hoja.cell(row=meta_r, column=5, value=f"=E9/{META_DURANGO}")
+    avance.number_format = "0%"
+    for c in range(1, 6):
+        hoja.cell(row=meta_r, column=c).font = Font(name=FUENTE, bold=c in (1, 5), size=11, color=AZUL)
+    r = total_r + 3
     hoja.cell(row=r, column=1, value="Por tipo de lavandería").font = Font(name=FUENTE, bold=True, size=13, color=AZUL)
     for c, texto in enumerate(["Tipo", "Lavanderías", "En Durango capital", "Contactadas", "Interesadas"], start=1):
         encabezado(hoja.cell(row=r + 1, column=c, value=texto))
@@ -201,7 +211,8 @@ def hoja_resumen(hoja, llamar, visitar, ciudades_fuertes):
     r = r + 4 + len(TIPOS)
     hoja.cell(row=r, column=1, value="Cómo usarlo").font = Font(name=FUENTE, bold=True, size=13, color=AZUL)
     pasos = [
-        "1.  Empiece por la hoja «Para llamar»: cada renglón es una lavandería con su teléfono.",
+        "1.  Lavandi arranca en Durango y en La Laguna a la vez. Empiece por Durango capital, la semilla: la meta para abrir es 100 lavanderías.",
+        "    La hoja «Para llamar» trae cada lavandería con su teléfono, ordenada por zona.",
         "2.  Después de cada llamada, llene las tres columnas amarillas: si ya se le contactó, el resultado y una nota.",
         "3.  La hoja «Para visitar» trae las que no tienen teléfono: con «Ver mapa» se llega a la puerta.",
         "4.  La columna «Tipo de lavandería» dice cómo acercarse a cada una. Si al hablar descubre que es nueva, cámbiela.",

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """El texto y la composición de cada pieza del kit que sale en PDF. La presentación está en presentacion.py y el
 libro de resultados en libro.py. Encargo: vault/meta/instrucciones/encargo-kit-de-prospeccion.md."""
-from base import ICONOS, documento, e, faltan, firma_nazmelia, hueco, lockup, pagina, pendiente, ETIQUETA_PENDIENTE
+from base import ICONOS, documento, e, firma_nazmelia, hueco, lockup, pagina, pendiente, ETIQUETA_PENDIENTE
 
 TIPOS = ['De barrio', 'Establecida', 'Nueva', 'Cadena', 'Tintorería o planchaduría']
 
 ZONA = 'Durango, Torreón y Matamoros'
+FUNDADORAS = 'El distintivo de lavandería fundadora y una comisión menor durante un tiempo: %s'
 PIE = 'Lavandi · lavandería a domicilio en %s' % ZONA
 
 
@@ -33,13 +34,13 @@ def hoja_presentacion():
     c += '<div class="bloque"><h1>Usted lava como sabe.<br>Lavandi le acerca los pedidos.</h1>'
     c += '<p class="entrada">Lavandi es una aplicación para pedir lavandería a domicilio. Lavandi no lava: los pedidos los atienden lavanderías socias como la suya, con su nombre a la vista.</p></div>'
     c += '<div class="rejilla r2">%s</div>' % tarjetas
-    c += '<div class="rejilla r2"><div class="tarjeta suave"><h2>Cómo llega un pedido</h2>%s</div>' % lista_pasos
+    c += '<div class="rejilla r2"><div class="tarjeta suave"><h2>Cómo llega un pedido</h2>%s<p><strong>Quién recoge y entrega la ropa:</strong> %s</p></div>' % (lista_pasos, pendiente('reparto'))
     c += ('<div class="tarjeta limon"><h2>Lo que cuesta</h2>'
           '<p><strong>Lo que se queda Lavandi de cada pedido:</strong> %s</p>'
-          '<p><strong>El precio del lavado:</strong> %s</p>'
+          '<p><strong>El precio del lavado:</strong> %s La tabla: %s.</p>'
           '<p><strong>Si se suma como lavandería fundadora:</strong> %s</p>'
           '<p class="nota">No le prometemos un número de pedidos: la aplicación apenas va a empezar. Le prometemos lo que sí depende de nosotros.</p></div></div>'
-          ) % (pendiente('comision'), pendiente('precio'), pendiente('ventaja_fundadoras'))
+          ) % (pendiente('comision'), pendiente('precio'), pendiente('tabulador'), FUNDADORAS % pendiente('ventaja_fundadoras'))
     c += '<div class="tarjeta"><h2>¿Le interesa?</h2><p>Hable con %s. Le explicamos todo en una visita de 15 minutos, sin compromiso.</p></div>' % pendiente('contacto')
     return documento('Hoja de presentación Lavandi', [pagina(c, PIE, 'Hoja para lavanderías')])
 
@@ -65,9 +66,11 @@ def guion_llamada():
         ('¿Cuántos pedidos me van a llegar?', 'No le voy a prometer un número. La aplicación apenas va a empezar y depende de cuánta gente la use en su zona. Lo que sí le aseguro es que cobra sin perseguir pagos y que usted decide su horario.'),
         ('Yo ya tengo mis clientes.', 'Qué bueno. Lavandi no le pide dejar a nadie: sus clientes de siempre siguen siendo suyos. Es un canal más.'),
         ('Yo ya entrego a domicilio.', 'Entonces su lavandería ya trabaja como lo pide Lavandi: con hora y a domicilio. Eso juega a su favor.'),
-        ('¿Cuándo empiezo a recibir pedidos?', 'Cuando la aplicación abra en su ciudad; le avisamos con tiempo. Mientras tanto, a las fundadoras les ofrecemos esto: %s.' % pendiente('ventaja_fundadoras')),
-        ('¿Quién pone el precio?', pendiente('precio')),
-        ('¿Tengo que firmar o pagar algo para entrar?', 'Para mostrar interés, solo una carta que no lo obliga a nada. Lo que cuesta estar en Lavandi es lo que le dije: %s.' % pendiente('comision')),
+        ('¿Cuándo empiezo a recibir pedidos?', 'Cuando abra en su ciudad; le avisamos con tiempo. Las fundadoras reciben el distintivo de lavandería fundadora y una comisión menor: %s.' % pendiente('ventaja_fundadoras')),
+        ('¿Quién pone el precio?', '%s La tabla: %s.' % (pendiente('precio'), pendiente('tabulador'))),
+        ('¿Quién recoge y entrega la ropa?', '%s. ¿Usted tiene gente que pueda hacerlo? Anote la respuesta.' % pendiente('reparto')),
+        ('¿Van a repartir con Rappi o DiDi?', 'No. Lavandi tiene su propia aplicación para quien recoge y entrega la ropa.'),
+        ('¿Tengo que firmar o pagar algo para entrar?', 'Solo una carta de interés, que no lo obliga a nada. Lo que cuesta estar en Lavandi es la comisión: %s.' % pendiente('comision')),
         ('¿Y si se pierde o se daña una prenda?', 'Es una pregunta justa. La vamos a responder por escrito antes de abrir y prefiero no contestársela a medias.'),
     ]
     p1 = cabeza('Guion para llamar a lavanderías')
@@ -79,7 +82,7 @@ def guion_llamada():
     p2 = cabeza('Guion para llamar a lavanderías')
     p2 += '<div class="bloque"><h2>Las dudas que más se van a oír</h2><p class="tenue">Conteste corto y con la verdad. Si no sabe algo, dígalo y comprométase a responder por escrito.</p></div>'
     p2 += '<div class="rejilla r2">%s</div>' % ''.join('<div class="duda"><p class="q">%s</p><p>%s</p></div>' % (e(q), r) for q, r in dudas)
-    p2 += '<div class="tarjeta limon"><h3>Lo que nunca se dice</h3><ul class="lista"><li>Un número de pedidos o de clientes.</li><li>Que Lavandi lava, o que la lavandería “trabaja para” Lavandi. Es socia.</li><li>Una fecha de apertura que no esté confirmada por escrito.</li></ul></div>'
+    p2 += '<div class="tarjeta limon"><h3>Lo que nunca se dice</h3><ul class="lista"><li>Un número de pedidos o de clientes.</li><li>Que Lavandi lava, o que la lavandería “trabaja para” Lavandi. Es socia.</li><li>Una fecha de apertura que no esté confirmada por escrito.</li><li>Lo que la aplicación no va a tener, como repartir con Rappi, DiDi o Uber, o cobrar por prenda.</li></ul></div>'
     return documento('Guion de llamada Lavandi', [pagina(p1, PIE, 'Guion de llamada · 1 de 2'), pagina(p2, PIE, 'Guion de llamada · 2 de 2')])
 
 
@@ -130,7 +133,7 @@ def carta_interes():
     c += '<div class="rejilla r2">%s</div>' % campos(['Nombre de la lavandería', 'Teléfono o WhatsApp', 'Dirección', 'Colonia y ciudad', 'Nombre de quien firma', 'Es dueño o encargado'])
     c += '<div class="campo"><span class="et">Servicios que ofrece</span><div class="opciones">%s</div></div>' % ''.join('<span class="casilla">%s</span>' % e(s) for s in servicios)
     c += '<div class="campo"><span class="et">Días y horario de atención</span><div class="rayita"></div></div>'
-    c += '<div class="tarjeta limon"><h3>Lo que Lavandi ofrece a las lavanderías fundadoras</h3><p>%s</p></div>' % pendiente('ventaja_fundadoras')
+    c += '<div class="tarjeta limon"><h3>Lo que Lavandi ofrece a las lavanderías fundadoras</h3><p>%s</p></div>' % (FUNDADORAS % pendiente('ventaja_fundadoras'))
     c += '<div class="rejilla r2"><div class="campo"><span class="et">Firma de la lavandería</span><div class="caja"></div></div><div class="campo"><span class="et">Por Lavandi: nombre y firma</span><div class="caja"></div></div></div>'
     c += '<div class="campo" style="max-width:2.6in"><span class="et">Fecha</span><div class="rayita"></div></div>'
     c += '<p class="nota"><strong>Aviso de privacidad:</strong> %s</p>' % pendiente('aviso_privacidad')
@@ -162,10 +165,12 @@ def hoja_visita():
     p1 += pregunta(4, '¿Cómo le hacen sus clientes los pedidos?', op('En persona', 'WhatsApp', 'Llamada', 'Algún programa o aplicación: ________'))
     p1 += pregunta(5, '¿Qué es lo más difícil de su negocio hoy?', raya + raya)
     p2 = cabeza('Hoja de visita')
-    p2 += '<div class="tarjeta suave"><h3>Ahora sí, presente Lavandi</h3><p>Use la presentación para la visita. Al terminar, haga las tres preguntas de abajo.</p></div>'
+    p2 += '<div class="tarjeta suave"><h3>Ahora sí, presente Lavandi</h3><p>Use la presentación para la visita. Al terminar, haga las preguntas de abajo.</p></div>'
     p2 += pregunta(6, '¿Le interesaría ser lavandería fundadora?', op('Sí, firma la carta', 'Lo va a pensar', 'No'))
     p2 += pregunta(7, 'Lavandi se queda con %s de cada pedido. ¿Qué le parece?' % pendiente('comision'), op('Le parece bien', 'Le parece alto', 'No acepta') + '<div class="opciones"><span>¿Cuánto le parecería justo? ______</span></div>')
-    p2 += pregunta(8, '¿Qué le preocupa o qué le haría decir que sí?', raya + raya)
+    p2 += pregunta(8, 'En Lavandi, el precio lo pone Lavandi y es el mismo en todas las lavanderías. ¿Qué le parece?', op('Le parece bien', 'No le gusta', 'No acepta'))
+    p2 += pregunta(9, '¿Tiene gente que pueda recoger y entregar los pedidos de Lavandi?', op('Sí', 'Solo cerca de la lavandería', 'No'))
+    p2 += pregunta(10, '¿Qué le preocupa o qué le haría decir que sí?', raya + raya)
     p2 += '<div class="rejilla r2"><div class="campo"><span class="et">Siguiente paso</span>%s</div><div class="campo"><span class="et">Foto del local</span>%s</div></div>' % (
         op('Mandar hoja', 'Volver a visitar', 'Firmó carta', 'Nada más'), op('Se tomó', 'No se tomó'))
     p2 += '<p class="nota">Pase las respuestas al libro de resultados el mismo día. Así se ve en el resumen cuánto cobran las lavanderías de la zona y cuántas aceptan.</p>'
@@ -179,11 +184,13 @@ def formato_registro():
     c += '<div class="rejilla r2">%s</div>' % ''.join('<div class="campo"><span class="et">%s</span><div class="rayita"></div></div>' % e(x) for x in [
         'Nombre de la lavandería, como lo verán los clientes', 'Responsable', 'Dirección', 'Colonia, ciudad y código postal',
         'Quién atiende la aplicación', 'Celular de quien atiende la aplicación'])
-    c += '<div class="campo"><span class="et">Servicios y precios</span><table class="tabla llenar"><tr><th>Servicio</th><th>Se cobra por</th><th>Precio</th></tr>%s</table></div>' % (
-        ''.join('<tr><td>%s</td><td></td><td></td></tr>' % s for s in ['Lavado', 'Lavado y planchado', 'Planchado', 'Lavado en seco', 'Edredones y cobijas', '']))
+    c += '<div class="campo"><span class="et">Servicios que ofrece</span><table class="tabla llenar"><tr><th>Servicio</th><th>Lo ofrece</th><th>Notas</th></tr>%s</table></div>' % (
+        ''.join('<tr><td>%s</td><td></td><td></td></tr>' % s for s in ['Lavado', 'Lavado y planchado', 'Planchado', 'Lavado en seco', 'Edredones y cobijas']))
+    c += '<div class="campo"><span class="et">¿Tiene gente para recoger y entregar?</span><div class="opciones"><span class="casilla">Sí</span><span class="casilla">Solo cerca de la lavandería</span><span class="casilla">No</span></div></div>'
     c += '<div class="rejilla r2"><div class="campo"><span class="et">Días y horario de atención</span><div class="caja"></div></div><div class="campo"><span class="et">Horas en que puede recibir pedidos</span><div class="caja"></div></div></div>'
     c += '<div class="tarjeta suave"><h3>Foto del local</h3><p>Una foto de la fachada, de día y con el letrero a la vista. Es la que verán los clientes.</p></div>'
-    c += '<p class="nota"><strong>Precios:</strong> %s<br><strong>Aviso de privacidad:</strong> %s</p>' % (pendiente('precio'), pendiente('aviso_privacidad'))
+    c += '<p class="nota"><strong>Precios:</strong> %s La tabla: %s.<br><strong>Quién recoge y entrega:</strong> %s<br><strong>Aviso de privacidad:</strong> %s</p>' % (
+        pendiente('precio'), pendiente('tabulador'), pendiente('reparto'), pendiente('aviso_privacidad'))
     c += '<div class="rejilla r2"><div class="campo"><span class="et">Firma de la lavandería</span><div class="caja"></div></div><div class="campo"><span class="et">Fecha</span><div class="rayita"></div></div></div>'
     return documento('Formato de registro Lavandi', [pagina(c, PIE, 'Formato de registro')])
 
@@ -200,7 +207,7 @@ def entrevista_personas():
            '<li>Al empezar: “Estamos preguntando cómo resuelve la gente su ropa. Son diez minutos y no le vamos a vender nada.”</li>'
            '<li>Anote lo que la persona dice con sus palabras. No la corrija ni la convenza.</li><li>Una hoja por persona. Páselas al libro de resultados.</li></ul></div>')
     p1 += '<div class="rejilla r4">%s</div>' % ''.join('<div class="campo"><span class="et">%s</span><div class="rayita"></div></div>' % e(x) for x in ['Colonia', 'Entrevistó', 'Fecha', 'Precio que se probó'])
-    p1 += '<p class="nota">El precio de la pregunta 5 lo fija usted antes de salir: el mismo en todas las entrevistas de una zona, con el envío incluido.</p>'
+    p1 += '<p class="nota">En la pregunta 5 pruebe el pedido mínimo de Lavandi: 250 pesos, con el envío incluido. Use el mismo en todas las entrevistas de una zona; si el dueño decide otro mínimo, pruebe ese.</p>'
     p1 += pregunta(1, '¿Quién lava la ropa en su casa? ¿Tienen lavadora?', op('Tiene lavadora', 'No tiene') + op('Lava alguien de la casa', 'Paga a alguien', 'Usa lavandería'))
     p1 += pregunta(2, '¿Cada cuánto usa una lavandería, y para qué?', op('Cada semana', 'Cada mes', 'A veces', 'Nunca') + op('Toda la ropa', 'Planchado', 'Edredones', 'Lavado en seco'))
     p1 += pregunta(3, 'La última vez, ¿cuánto pagó y cuántos kilos eran?', '<div class="opciones"><span>$ ______</span><span>______ kg</span><span class="casilla">No se acuerda</span></div>')
@@ -208,10 +215,11 @@ def entrevista_personas():
     p2 = cabeza('Entrevista · para comprobar el negocio')
     p2 += pregunta(5, 'Si pudiera pedir en una aplicación, elegir la hora en que pasan por su ropa y saber en qué va, pagando %s por su pedido, ¿lo usaría?' % hueco('precio que se está probando'),
                    op('Sí, seguro', 'Tal vez', 'No') + '<div class="opciones"><span>¿Por qué? ______________________________________</span></div>')
-    p2 += pregunta(6, '¿Qué le haría confiar su ropa a una lavandería que no conoce?', raya + raya)
-    p2 += pregunta(7, '¿Qué le haría dejar de usarla?', raya + raya)
-    p2 += pregunta(8, 'Si tiene lavadora: ¿en qué casos sí mandaría a lavar?', op('Nunca', 'Edredones o cobijas', 'Planchado', 'Cuando no tiene tiempo') + raya)
-    p2 += pregunta(9, '¿Le podemos avisar cuando Lavandi abra? (solo si dice que sí)', '<div class="opciones"><span>Nombre ________________</span><span>WhatsApp ________________</span></div>')
+    p2 += pregunta(6, 'En Lavandi se paga al pedir. Si paga en efectivo, ¿le acomodaría pagar antes en una tienda?', op('Sí', 'No', 'Solo pagaría al recibir su ropa'))
+    p2 += pregunta(7, '¿Qué le haría confiar su ropa a una lavandería que no conoce?', raya + raya)
+    p2 += pregunta(8, '¿Qué le haría dejar de usarla?', raya + raya)
+    p2 += pregunta(9, 'Si tiene lavadora: ¿en qué casos sí mandaría a lavar?', op('Nunca', 'Edredones o cobijas', 'Planchado', 'Cuando no tiene tiempo') + raya)
+    p2 += pregunta(10, '¿Le podemos avisar cuando Lavandi abra? (solo si dice que sí)', '<div class="opciones"><span>Nombre ________________</span><span>WhatsApp ________________</span></div>')
     p2 += '<p class="nota"><strong>Aviso de privacidad</strong> (antes de anotar nombre o teléfono): %s</p>' % pendiente('aviso_privacidad')
     return documento('Entrevista a personas Lavandi', [pagina(p1, PIE, 'Entrevista · 1 de 2'), pagina(p2, PIE, 'Entrevista · 2 de 2')])
 
@@ -260,13 +268,13 @@ def guia_kit():
                                      ('Formato de registro', 'Los datos para darla de alta, cuando la aplicación esté por abrir.')]),
         ('Para comprobar el negocio', [('Entrevista a personas', 'Diez minutos con gente de la zona: ¿pedirían por una aplicación?'),
                                        ('Libro de resultados', 'Donde se pasan visitas y entrevistas. El resumen se calcula solo.')]),
-        ('Para explorar', [('Conversación con personas que lavan en casa', 'Solo para escuchar. Todavía no se les puede sumar.')]),
+        ('Para explorar', [('Conversación con personas que lavan en casa', 'Solo para escuchar: todavía no se les puede sumar. Con sus respuestas usted decide, por escrito, si se suman.')]),
     ]
     p1 = '<div class="cabeza">%s<p class="ceja">Guía del kit</p></div>' % lockup()
     p1 += '<div class="bloque"><h1>Kit para sumar lavanderías y comprobar el negocio</h1><p class="entrada">Todo lo necesario para invitar lavanderías por teléfono, por WhatsApp y en persona, y para preguntarle a la gente si usaría Lavandi. Esta guía dice qué pieza usar con quién y en qué orden.</p></div>'
     p1 += '<div class="rejilla r2">%s</div>' % ''.join(
         '<div class="tarjeta"><h2>%s</h2>%s</div>' % (e(g), ''.join('<p><strong>%s.</strong> <span class="tenue">%s</span></p>' % (e(n), e(d)) for n, d in ps)) for g, ps in piezas)
-    ruta = ['Empiece por Durango capital, donde arranca Lavandi: 152 lavanderías, 78 con teléfono. Vea en la lista de qué tipo es cada una y llame con el guion.',
+    ruta = ['Lavandi arranca en Durango y en La Laguna a la vez. La semilla es Durango capital: la meta para abrir es 100 de sus 152 lavanderías, y 78 tienen teléfono. Vea en la lista de qué tipo es cada una y llame con el guion.',
             'Si no contesta o lo pide, mande los mensajes de WhatsApp con la imagen.',
             'Visite con la presentación y la hoja de visita. Escuche primero.',
             'Si dice que sí, firme con ella la carta de interés y mande el mensaje de bienvenida.',
@@ -276,18 +284,17 @@ def guia_kit():
     p2 = '<div class="cabeza">%s<p class="ceja">Guía del kit</p></div>' % lockup()
     p2 += ('<div class="rejilla r2"><div class="tarjeta"><h2>Lo que sí prometemos</h2><ul class="lista"><li>Cobra sin perseguir pagos: el cliente paga en la aplicación.</li>'
            '<li>Sus pedidos en un solo lugar: acepta, rechaza y marca en qué va cada uno.</li><li>Ella decide su horario y sus servicios.</li><li>Su nombre a la vista: Lavandi no lava, lavan sus socios.</li></ul></div>'
-           '<div class="tarjeta limon"><h2>Lo que no prometemos</h2><ul class="lista"><li>Un número de pedidos o de clientes. Otras empresas lo prometieron, no lo cumplieron y perdieron la confianza de las lavanderías.</li>'
-           '<li>Una fecha de apertura que no esté confirmada por escrito.</li><li>Qué pasa si se daña una prenda, hasta tenerlo por escrito.</li></ul></div></div>')
-    falta = faltan()
+           '<div class="tarjeta limon"><h2>Lo que no prometemos</h2><ul class="lista"><li>Un número de pedidos o de clientes. Otras empresas lo prometieron y perdieron la confianza de las lavanderías.</li>'
+           '<li>Una fecha de apertura que no esté confirmada por escrito.</li><li>Qué pasa si se daña una prenda, hasta tenerlo por escrito.</li>'
+           '<li>Lo que la aplicación no va a tener: repartir con Rappi, DiDi o Uber, o cobrar por prenda. No está contratado.</li></ul></div></div>')
     filas = ''.join('<tr><td>%s</td><td>%s</td></tr>' % (e(ETIQUETA_PENDIENTE[c][:1].upper() + ETIQUETA_PENDIENTE[c][1:]), pendiente(c)) for c in ETIQUETA_PENDIENTE)
     p2 += ('<div class="bloque"><h2>Lo que falta antes de usar el kit</h2><p>Donde una pieza dice <span class="pend">Por definir</span>, falta un dato que decide usted. '
            'Mientras quede uno, esa pieza no se le entrega a una lavandería. Nos manda los datos y le devolvemos el kit completo.</p>'
            '<table class="tabla"><tr><th>Dato</th><th>Estado</th></tr>%s</table></div>') % filas
-    if falta:
-        p2 += '<p class="nota">Faltan %d de %d datos.</p>' % (len(falta), len(ETIQUETA_PENDIENTE))
-    p2 += ('<div class="tarjeta suave"><h2>Personas que lavan en su casa</h2><p>Lavandi está pensada para lavanderías. Antes de invitar a personas que lavan en su casa hay que saber si conviene: '
-           'quién responde por el cuidado de la ropa, cómo se gana la confianza de quien pide y cómo cobra alguien sin negocio establecido. La conversación de este kit sirve para escucharlas. '
-           'Con esas respuestas usted decide, por escrito, si se suman.</p></div>')
+    p2 += ('<div class="tarjeta limon"><h2>Por escrito antes de dar de alta a las lavanderías</h2><ul class="lista">'
+           '<li>La regla para que una lavandería no se quede con los clientes que le lleva Lavandi.</li>'
+           '<li>Qué pasa si se daña o se pierde una prenda: el seguro y la responsiva que está buscando.</li>'
+           '<li>Quién recoge y entrega la ropa.</li></ul></div>')
     p2 += ('<div class="firma-naz"><span><span class="clave">◣</span>Preparado por el equipo de Nazmelia para Lavandi<br><span style="color:#A9B1B4">Nazmelia, a cargo del desarrollo de la plataforma</span></span>'
            '<img src="%s" alt="Nazmelia"></div>') % firma_nazmelia()
     return documento('Guía del kit Lavandi', [pagina(p1, PIE, 'Guía del kit · 1 de 2'), pagina(p2, '', 'Guía del kit · 2 de 2')])
@@ -320,7 +327,7 @@ GUIA_TIPOS = [
         'decide': 'El dueño, que casi siempre está ahí.',
         'importa': 'Que la conozcan y llenar sus máquinas.',
         'decir': ['“Su lavandería aparece con su nombre ante gente de la zona que todavía no la conoce.”',
-                  '“A las primeras lavanderías les ofrecemos esto: %s.”' % pendiente('ventaja_fundadoras')],
+                  '“A las primeras lavanderías les ofrecemos esto. %s.”' % (FUNDADORAS % pendiente('ventaja_fundadoras'))],
         'evitar': 'Prometer que con Lavandi va a recuperar su inversión o a tener cierto número de pedidos. Es quien más quiere oírlo y quien más se decepciona.',
         'entrar': 'En persona. Carta de interés y mensaje de bienvenida. Cambie su tipo a «Nueva» en la lista.'}),
     ('Cadena', {
@@ -335,10 +342,10 @@ GUIA_TIPOS = [
         'reconocer': 'Su nombre dice tintorería o planchaduría. Cobra por prenda, no por kilo.',
         'decide': 'El dueño.',
         'importa': 'Las prendas delicadas, que nada se pierda y su precio por prenda.',
-        'decir': ['“Sus servicios aparecen por su nombre: lavado en seco, planchado.”',
-                  '“Quien pide sabe que su ropa va con usted.”'],
-        'evitar': 'Hablar de kilos. Prometer qué pasa si se daña una prenda: todavía no está por escrito.',
-        'entrar': 'Presentación con la lámina para tintorerías. En el formato de registro, precio por servicio.'}),
+        'decir': ['“¿También lava por kilo? Eso es lo que hoy puede recibir por Lavandi.”',
+                  '“Su tintorería aparece con su nombre, y quien pide sabe que su ropa va con usted.”'],
+        'evitar': 'Prometer que en Lavandi cobra por prenda: Lavandi pone el precio, por kilo. Prometer qué pasa si se daña una prenda: todavía no está por escrito.',
+        'entrar': 'Solo si también lava por kilo. Presentación con la lámina para tintorerías. En el formato de registro, los servicios que ofrece.'}),
 ]
 
 

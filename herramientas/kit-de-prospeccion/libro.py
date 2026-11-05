@@ -12,23 +12,28 @@ AZUL, AZUL_CLARO, AMARILLO, GRIS = '297899', 'E3F1F6', 'FFF4CC', '515A64'
 LINEA = Border(bottom=Side(style='thin', color='DCE0E5'))
 FILAS = 300  # renglones preparados para llenar
 TIPOS = ['De barrio', 'Establecida', 'Nueva', 'Cadena', 'Tintorería o planchaduría']
+ZONAS = ['Durango capital', 'Gómez Palacio y Lerdo', 'Torreón', 'Matamoros', 'Resto del estado de Durango']  # las de la lista del cliente
+META_DURANGO = 100  # guía de la reunión, pregunta 3
 
 HOJAS = {
     'Visitas': [
-        ('Lavandería', 28, None), ('Zona o colonia', 20, None), ('Tipo de lavandería', 20, TIPOS),
+        ('Lavandería', 28, None), ('Zona', 20, ZONAS), ('Colonia', 18, None), ('Tipo de lavandería', 20, TIPOS),
         ('¿Lleva menos de un año abierta?', 12, ['Sí', 'No']), ('Fecha', 12, None), ('Quién visitó', 16, None),
         ('Precio por kilo ($)', 12, 'num'), ('Mínimo de kilos', 10, 'num'), ('Planchado ($)', 11, 'num'),
         ('¿Entrega a domicilio?', 16, ['No', 'Sí, sin costo', 'Sí, cobra envío']), ('Costo del envío ($)', 12, 'num'),
         ('Pedidos al día', 10, 'num'), ('¿Le cabrían más?', 12, ['Sí', 'No']), ('Cómo le cobran', 16, None),
         ('Cómo le piden', 16, None), ('¿Quiere ser fundadora?', 18, ['Sí, firmó', 'Lo va a pensar', 'No']),
         ('La comisión le parece', 16, ['Bien', 'Alta', 'No acepta']), ('Comisión que le parece justa', 16, None),
+        ('Que Lavandi ponga el precio le parece', 16, ['Bien', 'No le gusta', 'No acepta']),
+        ('¿Tiene gente para recoger y entregar?', 16, ['Sí', 'Solo cerca', 'No']),
         ('Lo que le preocupa', 36, None), ('Siguiente paso', 16, ['Mandar hoja', 'Volver a visitar', 'Firmó carta', 'Nada más']),
     ],
     'Entrevistas': [
         ('Colonia', 20, None), ('Fecha', 12, None), ('Precio que se probó ($)', 12, 'num'),
         ('¿Tiene lavadora?', 12, ['Sí', 'No']), ('¿Usa lavandería?', 14, ['Cada semana', 'Cada mes', 'A veces', 'Nunca']),
         ('Pagó la última vez ($)', 12, 'num'), ('Kilos', 8, 'num'), ('Cómo la pide', 16, ['En persona', 'WhatsApp', 'Le recogen en casa']),
-        ('Cómo paga', 14, ['Efectivo', 'Transferencia', 'Tarjeta']), ('¿Usaría Lavandi a ese precio?', 16, ['Sí, seguro', 'Tal vez', 'No']),
+        ('Cómo paga', 14, ['Efectivo', 'Transferencia', 'Tarjeta']), ('¿Pagaría antes en una tienda?', 14, ['Sí', 'No', 'Solo al recibir']),
+        ('¿Usaría Lavandi a ese precio?', 16, ['Sí, seguro', 'Tal vez', 'No']),
         ('Por qué', 32, None), ('Qué le daría confianza', 32, None), ('Qué le haría dejarla', 32, None), ('¿Quiere aviso?', 10, ['Sí', 'No']),
     ],
     'Lavan en casa': [
@@ -92,8 +97,12 @@ def construir(ruta):
         ('Lavanderías', [
             ('Lavanderías visitadas', '=' + nv, '0', ''),
             ('Quieren ser fundadoras y firmaron la carta', '=COUNTIF(%s,"Sí, firmó")' % v['¿Quiere ser fundadora?'], '0', ''),
+            ('Firmaron en Durango capital, de la meta de %d' % META_DURANGO, '=COUNTIFS(%s,"Durango capital",%s,"Sí, firmó")' % (v['Zona'], v['¿Quiere ser fundadora?']), '0',
+             'La meta para abrir en Durango capital es %d de sus 152 lavanderías.' % META_DURANGO),
             ('… de cada 100 visitadas', pct('COUNTIF(%s,"Sí, firmó")' % v['¿Quiere ser fundadora?'], nv), '0%', 'Cuántas dicen que sí de cada 100 que se visitan.'),
             ('Les parece bien la comisión', pct('COUNTIF(%s,"Bien")' % v['La comisión le parece'], 'COUNTA(%s)' % v['La comisión le parece']), '0%', 'Entre las que respondieron a la pregunta de la comisión.'),
+            ('Les parece bien que Lavandi ponga el precio', pct('COUNTIF(%s,"Bien")' % v['Que Lavandi ponga el precio le parece'], 'COUNTA(%s)' % v['Que Lavandi ponga el precio le parece']), '0%', 'Lavandi pone un solo precio para todas.'),
+            ('Tienen gente para recoger y entregar', pct('COUNTIF(%s,"Sí")' % v['¿Tiene gente para recoger y entregar?'], 'COUNTA(%s)' % v['¿Tiene gente para recoger y entregar?']), '0%', 'Ayuda a decidir quién recoge y entrega.'),
             ('Precio por kilo, promedio ($)', '=IFERROR(AVERAGE(%s),"-")' % v['Precio por kilo ($)'], '#,##0.00', ''),
             ('Precio por kilo, el más bajo ($)', '=IF(COUNT(%s)=0,"-",MIN(%s))' % (v['Precio por kilo ($)'], v['Precio por kilo ($)']), '#,##0.00', ''),
             ('Precio por kilo, el más alto ($)', '=IF(COUNT(%s)=0,"-",MAX(%s))' % (v['Precio por kilo ($)'], v['Precio por kilo ($)']), '#,##0.00', ''),
@@ -113,6 +122,7 @@ def construir(ruta):
             ('Usarían Lavandi al precio que se probó: sí, seguro', pct('COUNTIF(%s,"Sí, seguro")' % en['¿Usaría Lavandi a ese precio?'], 'COUNTA(%s)' % en['¿Usaría Lavandi a ese precio?']), '0%', ''),
             ('… tal vez', pct('COUNTIF(%s,"Tal vez")' % en['¿Usaría Lavandi a ese precio?'], 'COUNTA(%s)' % en['¿Usaría Lavandi a ese precio?']), '0%', ''),
             ('Pagan en efectivo', pct('COUNTIF(%s,"Efectivo")' % en['Cómo paga'], 'COUNTA(%s)' % en['Cómo paga']), '0%', ''),
+            ('Pagarían antes en una tienda', pct('COUNTIF(%s,"Sí")' % en['¿Pagaría antes en una tienda?'], 'COUNTA(%s)' % en['¿Pagaría antes en una tienda?']), '0%', 'Entre quienes respondieron. En Lavandi se paga al pedir.'),
             ('Lo que pagaron la última vez, promedio ($)', '=IFERROR(AVERAGE(%s),"-")' % en['Pagó la última vez ($)'], '#,##0.00', ''),
             ('Quieren que les avisen cuando abra', '=COUNTIF(%s,"Sí")' % en['¿Quiere aviso?'], '0', ''),
         ]),
@@ -138,7 +148,7 @@ def construir(ruta):
     pasos = [
         'Cada hoja de visita en papel es un renglón de la hoja Visitas; cada entrevista, un renglón de Entrevistas.',
         'Las columnas con flecha se eligen de una lista. Los montos van como número, sin signo de pesos: 28, no $28.',
-        'Ejemplo de un renglón de Visitas: Lavandería La Burbuja · Centro · Precio por kilo 28 · ¿Entrega a domicilio? Sí, cobra envío · Costo del envío 30 · ¿Quiere ser fundadora? Lo va a pensar.',
+        'Ejemplo de un renglón de Visitas: Lavandería La Burbuja · Durango capital · Centro · Precio por kilo 28 · ¿Entrega a domicilio? Sí, cobra envío · Costo del envío 30 · ¿Quiere ser fundadora? Lo va a pensar.',
         'Las llamadas se siguen anotando en la lista de lavanderías. Este libro es para las visitas y las entrevistas.',
     ]
     for i, t in enumerate(pasos, 1):

@@ -32,16 +32,17 @@ LAMINAS = [
      'texto': 'Un pedido nuevo llega con la hora de recolección y el servicio. Usted lo acepta o lo rechaza con un toque.',
      'nota': 'Ejemplo para ilustrar. La aplicación final puede verse distinta.'},
     {'tipo': 'costo', 'titulo': 'Lo que cuesta, con claridad',
-     'filas': [('Lo que se queda Lavandi de cada pedido', 'comision'), ('El precio del lavado', 'precio')],
+     'filas': [('Lo que se queda Lavandi de cada pedido', 'comision'), ('El precio del lavado', 'precio'),
+               ('La tabla de precios', 'tabulador'), ('Quién recoge y entrega la ropa', 'reparto')],
      'no': 'No le prometemos un número de pedidos: la aplicación apenas va a empezar. Le prometemos lo que sí depende de nosotros.'},
     {'tipo': 'cierre', 'titulo': 'Sea lavandería fundadora',
-     'ventaja': 'ventaja_fundadoras',
+     'ventaja': 'ventaja_fundadoras', 'ventaja_texto': 'El distintivo de lavandería fundadora y una comisión menor durante un tiempo: ',
      'pasos': ['Firme la carta de interés. No lo obliga a nada.', 'Le avisamos cuando la aplicación esté por abrir en su ciudad.', 'Damos de alta su lavandería, con sus servicios y su horario.'],
      'contacto': 'contacto'},
     {'tipo': 'opcional', 'ceja': 'Lámina opcional · para cadenas', 'titulo': 'Para negocios con varias sucursales',
      'pasos': ['Empezamos con una sucursal, la que usted elija.', 'Cada sucursal aparece con su nombre y su zona.', 'Usted decide si suma las demás, y cuándo.']},
     {'tipo': 'opcional', 'ceja': 'Lámina opcional · para tintorerías y planchadurías', 'titulo': 'Para tintorerías y planchadurías',
-     'pasos': ['Sus servicios aparecen por su nombre: lavado en seco, planchado.', 'Quien pide sabe qué tintorería cuida su ropa.', ('El precio de sus servicios', 'precio')]},
+     'pasos': ['Recibe por Lavandi su lavado por kilo, con su nombre a la vista.', 'Quien pide sabe qué tintorería cuida su ropa.', ('El precio', 'precio')]},
 ]
 
 # ------------------------------------------------------------------ PDF (HTML)
@@ -75,8 +76,8 @@ CSS = """
 .cel .si { background: var(--agua-profundo); color: #fff; } .cel .no { border: 1.5pt solid var(--linea); }
 .cel .semana { background: var(--cielo-suave); border-radius: 12pt; padding: 14pt; font-size: 13pt; }
 .cel .semana b { font: 900 26pt/1 var(--f-display); color: var(--agua-profundo); display: block; }
-.costos { display: grid; gap: 20pt; margin-top: 10pt; }
-.costo { display: grid; grid-template-columns: 5in 1fr; gap: 24pt; align-items: center; font-size: 23pt; border-bottom: 1pt solid var(--linea); padding-bottom: 12pt; }
+.costos { display: grid; gap: 10pt; }
+.costo { display: grid; grid-template-columns: 5.6in 1fr; gap: 24pt; align-items: center; font-size: 19pt; border-bottom: 1pt solid var(--linea); padding-bottom: 8pt; }
 .costo span:first-child { font-weight: 700; }
 .aviso { background: var(--limon-suave); border-radius: 14pt; padding: 24pt 28pt; font-size: 22pt; line-height: 1.4; max-width: 11.5in; margin-top: 16pt; }
 .cierre-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 36pt; margin-top: 10pt; }
@@ -118,8 +119,8 @@ def html_presentacion():
         elif t == 'costo':
             c += '<div class="costos">%s</div><p class="aviso">%s</p>' % (''.join('<div class="costo"><span>%s</span><span>%s</span></div>' % (e(a), pendiente(k)) for a, k in l['filas']), e(l['no']))
         elif t == 'cierre':
-            c += ('<div class="cierre-dos"><div class="pasos">%s</div><div class="caja-v"><h3>Lo que reciben las fundadoras</h3><p>%s</p><h3>Hable con</h3><p>%s</p></div></div>') % (
-                ''.join('<div class="paso"><div class="num">%d</div><p>%s</p></div>' % (i, e(p)) for i, p in enumerate(l['pasos'], 1)), pendiente(l['ventaja']), pendiente(l['contacto']))
+            c += ('<div class="cierre-dos"><div class="pasos">%s</div><div class="caja-v"><h3>Lo que reciben las fundadoras</h3><p>%s%s</p><h3>Hable con</h3><p>%s</p></div></div>') % (
+                ''.join('<div class="paso"><div class="num">%d</div><p>%s</p></div>' % (i, e(p)) for i, p in enumerate(l['pasos'], 1)), e(l['ventaja_texto']), pendiente(l['ventaja']), pendiente(l['contacto']))
         elif t == 'opcional':
             c = '<p class="ceja" style="font-size:14pt">%s</p>' % e(l['ceja']) + c
             items = [e(p) if isinstance(p, str) else '<strong>%s:</strong> %s' % (e(p[0]), pendiente(p[1])) for p in l['pasos']]
@@ -260,19 +261,19 @@ def pptx_presentacion(ruta):
             caja(s, 8.6, 4.55, 2.7, 1.0, CIELO_S, radio=0.1, nombre='Semana')
             texto(s, 8.75, 4.62, 2.4, 0.9, [[('Esta semana', {'tam': 11})], [('12 pedidos', {'tam': 22, 'negrita': True, 'color': AGUA_P, 'fuente': F_TIT})]])
         elif t == 'costo':
-            y = 2.0
+            y = 1.75
             for etiqueta, clave in l['filas']:
-                texto(s, 0.8, y, 5.2, 0.8, etiqueta, tam=23, color=TINTA, negrita=True)
-                texto(s, 6.2, y, 6.4, 0.8, [run_pendiente(clave)], tam=23)
-                y += 1.05
-            caja(s, 0.8, 4.4, 11.7, 1.5, LIMON_S, radio=0.1, nombre='Lo que no prometemos')
-            texto(s, 1.15, 4.4, 11.0, 1.5, l['no'], tam=22, color=TINTA, ancla=MSO_ANCHOR.MIDDLE)
+                texto(s, 0.8, y, 5.2, 0.75, etiqueta, tam=20, color=TINTA, negrita=True)
+                texto(s, 6.2, y, 6.4, 0.75, [run_pendiente(clave)], tam=20)
+                y += 0.82
+            caja(s, 0.8, 5.25, 11.7, 1.35, LIMON_S, radio=0.1, nombre='Lo que no prometemos')
+            texto(s, 1.15, 5.25, 11.0, 1.35, l['no'], tam=20, color=TINTA, ancla=MSO_ANCHOR.MIDDLE)
         elif t == 'cierre':
             for i, p in enumerate(l['pasos']):
                 numero(s, 0.8, 2.0 + i * 1.3, 0.62, i + 1)
                 texto(s, 1.65, 1.9 + i * 1.3, 5.0, 0.85, p, tam=21, ancla=MSO_ANCHOR.MIDDLE)
             caja(s, 7.0, 1.9, 5.5, 4.0, CIELO_S, radio=0.06, nombre='Fundadoras y contacto')
-            texto(s, 7.35, 2.2, 4.9, 3.5, [[('Lo que reciben las fundadoras', {'tam': 22, 'negrita': True, 'color': TINTA, 'fuente': F_TIT})], [run_pendiente(l['ventaja'])],
+            texto(s, 7.35, 2.2, 4.9, 3.5, [[('Lo que reciben las fundadoras', {'tam': 22, 'negrita': True, 'color': TINTA, 'fuente': F_TIT})], [(l['ventaja_texto'], {}), run_pendiente(l['ventaja'])],
                                             [('Hable con', {'tam': 22, 'negrita': True, 'color': TINTA, 'fuente': F_TIT})], [run_pendiente(l['contacto'])]], tam=19)
         if t == 'opcional':
             texto(s, 0.8, 0.3, 11.7, 0.3, l['ceja'].upper(), tam=12, color=AGUA_P, negrita=True)
