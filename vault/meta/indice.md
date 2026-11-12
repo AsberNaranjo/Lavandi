@@ -16,6 +16,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[prompt-recuperar-informe-fase1]] — el bloque para buscar en otro equipo el informe de junio y su Excel de lavanderías, y fusionarlo con el listado nuevo (C-113)
 - [[prompt-maestro-01-fundacion-v4]] — `superseded` el 2026-09-25. Se conserva: las citas con número de línea de antes de esa fecha apuntan aquí
 - [[convenciones]] — reglas del vault, grados, marcadores, espejo Notion
+- [[pase-de-proyecto]] — **para retomar el proyecto en otra computadora**: qué está en GitHub, qué se quedó fuera y por qué, qué instalar, en qué estado quedó el trabajo y qué sigue (2026-11-12)
 - [[estado-del-proyecto]] — **en qué estado está todo**: fases, calendario, obligaciones, pagos, trámites y lo que sigue, con evidencia por fila. Es la fuente del tablero
 - **Tablero del proyecto**: <https://claude.ai/artifact/T2tZpPePdPhccB4GmFRjbK> — espejo del vault, privado. Cómo se actualiza: `herramientas/tablero/README.md`
 - [[deuda-de-decision]] — qué falta decidir y quién bloquea
@@ -35,7 +36,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 - [[propuesta-de-valor]] — marketplace desde cero en las dos plazas; el producto se sostiene sobre el reclutamiento
 - [[competencia]] — grado E: nadie con el modelo de esta plataforma en el territorio; los precios locales no están en internet. **Segundo barrido del 2026-09-25**: cuatro modelos de "app de lavandería"; el nuestro solo lo hacen LavaGo y Laundryheap, fuera del territorio; UrbanClean ya tiene sucursal con domicilio en Torreón
-- [[listado-de-lavanderias]] — grado E: las 415 lavanderías y tintorerías del DENUE en el territorio, por plaza, en Excel para que el cliente las llame; lecciones aprendidas del informe de junio. Versión para el cliente, solo para prospectar: `cliente/comunicaciones/lavanderias-para-invitar.xlsx`
+- [[listado-de-lavanderias]] — grado E: las 415 lavanderías y tintorerías del DENUE en el territorio, por plaza, en Excel para que el cliente las llame; lecciones aprendidas del informe de junio (la única copia de ese informe, con la marca "Limpia+", está en `negocio/antecedentes/informe_fase1.html`; no se manda así al cliente). Versión para el cliente, solo para prospectar: `cliente/comunicaciones/lavanderias-para-invitar.xlsx`
 - [[2026-10-25-propuesta-kit-de-socios]] — propuesta al cliente del kit de 11 piezas para invitar lavanderías y comprobar el negocio, y las tres preguntas que tiene que responder; cortesía (C-116, C-119); sin enviar
 - [[encargo-kit-de-prospeccion]] — qué piezas lleva el kit, el límite de la cortesía y las reglas que no rompe; las piezas viven en `cliente/kit-de-prospeccion/`
 - [[recalibracion-2026-10-30]] — preparación de Nadir para la reunión larga con el cliente: quince hallazgos, cuatro caminos (recomendado B con algo de C), decisiones por tomar y agenda. No se comparte
