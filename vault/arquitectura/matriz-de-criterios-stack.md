@@ -25,7 +25,7 @@ ceremonia: fijar los pesos después de ver las opciones es elegir primero y just
 > *"Stack abierto: construye la matriz desde cero. **Primero los criterios y sus pesos, después los
 > candidatos** — nunca al revés."* — `prompt-maestro-01-fundacion-v4.md:278-279`
 
-`estado: borrador` hasta que Nadir ajuste los pesos y responda DD-038.
+`estado: borrador` hasta que Nadir ajuste los pesos y responda DD-038. **Pasó a `vigente` el 2026-11-12: ver el recuadro de arriba.**
 
 ## Primero: lo que no se pondera, se cumple o se descarta
 

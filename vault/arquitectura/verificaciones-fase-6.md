@@ -97,3 +97,39 @@ candidatos concretos, y el método no deja mirar candidatos antes de fijar los p
 **Lo que no se verificó:** las condiciones actuales de cada servicio (minutos de compilación, precios, versión de
 Xcode), el precio vigente del Apple Developer Program y si depurar fallas nativas de iPhone sin Mac resulta práctico.
 Como plan de respaldo existe rentar un Mac en la nube.
+
+## Datos de candidatos del 2026-11-12 (paso 6)
+
+> Grado E, `SIN VERIFICAR`, consultados el 2026-11-12 por dos subagentes de investigación y revisados por Claude. Son
+> la base de los puntajes de `ADR-0002`, `ADR-0003` y `ADR-0004`. Los costos en MXN son cálculos con el FIX de Banxico
+> del 2026-11-12 (18.6188 MXN por USD), no cotizaciones.
+
+### App móvil
+
+| Dato | Qué toca | Fuente |
+|---|---|---|
+| Expo SDK 58 (2026-10-15) trae React Native 0.88. `expo-maps` pasó de alfa a estable en la 58.0.0: usa Apple Maps en iOS y Google en Android, pero exige iOS 17 o más | G-2; BR-42 | https://raw.githubusercontent.com/expo/expo/main/packages/expo-maps/CHANGELOG.md · https://docs.expo.dev/versions/latest/sdk/maps/ |
+| `react-native-maps` 1.29.11 (2026-09-27), MIT: sin `provider` usa MapKit en iOS y Google en Android | G-2 | https://github.com/react-native-maps/react-native-maps/releases |
+| Capacitor: `@capacitor/google-maps` usa Google también en iOS, así que no cumple G-2. La única opción con MapKit es `@capgo/capacitor-native-map`, creada el 2026-10-18, con 2 estrellas y licencia MPL-2.0 | G-2 | https://capacitorjs.com/docs/apis/google-maps · https://github.com/Cap-go/capacitor-native-map |
+| Flutter: `apple_maps_flutter` 1.4.0 lleva unos 21 meses sin cambios y se declara "developers preview" | G-2 | https://pub.dev/packages/apple_maps_flutter |
+| .NET MAUI y Kotlin Multiplatform: para compilar iPhone exigen Mac con Xcode | Equipo sin Mac (C-137) | https://learn.microsoft.com/en-us/dotnet/maui/ios/pair-to-mac · https://kotlinlang.org/docs/multiplatform/quickstart.html |
+| Conekta: SDK nativos `conekta-components-compose` 1.2.0 (Android, Compose, minSdk 24) y `conekta-components-ios` 1.2.0 (iOS 15+). El envoltorio oficial para React Native, `conekta-elements-react-native`, sigue en la 0.0.1 (2026-03-03) y no funciona en Expo Go | G-3; ADR-0010 | https://github.com/conekta/conekta-elements-react-native · https://github.com/conekta/conekta-components-ios · https://repo1.maven.org/maven2/io/conekta/conekta-components-compose/maven-metadata.xml |
+| Conekta tiene un checkout redirigido (`HostedPayment`) que devuelve una URL y confirma el pago por webhook, y funciona desde cualquier framework. La API directa de tokens es solo para cuentas con PCI | G-3; ADR-0010 | https://developers.conekta.com/docs/componente-de-pago.md · https://developers.conekta.com/docs/checkout-tokenizer-sdk.md |
+| **OXXO.** La lista vigente de redes de Conekta Efectivo (actualizada el 2026-08-03) no incluye OXXO. El tutorial "Pagos con OXXO Pay" sigue publicado con la misma fecha. En 2024 Conekta acordó vender los activos de OXXO PAY a Digital@FEMSA. Coincide con R-028 y DD-056: hay que confirmarlo con Conekta | G-3; DD-056 | https://developers.conekta.com/tutorials/oxxopay · https://www.contxto.com/en/payments/conekta-to-sell-oxxo-pay-assets-to-digitalfemsa-in-2024/ |
+| Avisos: `@react-native-firebase/messaging` 27.1.1 funciona en Expo con development build | ADR-0008 | https://rnfirebase.io/ |
+| Inicio de sesión: la versión gratuita de `@react-native-google-signin/google-signin` 17.0.0 se apoya en el SDK de Android en desuso; la recomendada es de pago | ADR-0005 | https://react-native-google-signin.github.io/docs/install |
+| EAS: el plan gratuito da 15 compilaciones de iOS y 15 de Android, con cola de baja prioridad. El plan Starter cuesta 19 USD al mes. EAS Submit viene incluido | ADR-0012 | https://expo.dev/pricing |
+
+### Backend
+
+| Dato | Qué toca | Fuente |
+|---|---|---|
+| Laravel 13.42.0 al 2026-11-10 | ADR-0003 | https://packagist.org/packages/laravel/framework |
+| Filament 5.11.2 (2026-11-07), MIT. Exporta a CSV y XLSX de fábrica, con colas y lotes de trabajos. Los mapas solo con plugins: `cheesegrits/filament-google-maps`, en beta, y Pinpoint | ADR-0003; ADR-0009 | https://filamentphp.com/docs/5.x/actions/export · https://filamentphp.com/plugins/cheesegrits-google-maps |
+| `conekta/conekta-php` 9.0.0 (2026-07-10), oficial. Los webhooks reintentan 13 veces en unas 24 h. **La firma de los webhooks no está confirmada**: hay que validarla en el sandbox | ADR-0010 | https://packagist.org/packages/conekta/conekta-php · https://developers.conekta.com/resources/webhooks |
+| `laravel-notification-channels/fcm` 6.2.0 y `kreait/firebase-php` 8.6.0. FCM no tiene costo | ADR-0008 | https://packagist.org/packages/laravel-notification-channels/fcm · https://firebase.google.com/pricing |
+| `socialiteproviders/apple` 6.1.0 (2026-09-19) valida el token de identidad de las apps nativas | ADR-0005 | https://packagist.org/packages/socialiteproviders/apple |
+| Laravel Reverb 1.13.0, MIT, en el propio servidor sin costo. No tiene cliente oficial para React Native | ADR-0007 | https://packagist.org/packages/laravel/reverb |
+| Costo de arranque: Forge con DigitalOcean sale en unos 1,180 MXN al mes; Laravel Cloud, en unos 750 a 1,030; Supabase Pro, en unos 465 más el panel; NestJS con DigitalOcean, en unos 863. La base de datos administrada de 1 GiB en DigitalOcean cuesta 15.15 USD con PostgreSQL o con MySQL | G-4; DD-070 | https://www.digitalocean.com/pricing/managed-databases · https://laravel.com/cloud/pricing · https://supabase.com/pricing.md · https://www.banxico.org.mx/tipcamb/tipCamMIAction.do?idioma=sp |
+| Almacenamiento: Cloudflare R2 cuesta 0.015 USD por GB al mes, con 10 GB gratis y descarga sin costo. DigitalOcean Spaces cuesta 5 USD al mes con 250 GiB | ADR-0006 | https://developers.cloudflare.com/r2/pricing/ · https://www.digitalocean.com/pricing/spaces-object-storage |
+| Correo: Amazon SES cuesta 0.16 USD por cada mil correos para las cuentas nuevas desde el 2026-07-21. Resend tiene 3,000 gratis al mes | ADR-0014 | https://aws.amazon.com/ses/pricing/ · https://resend.com/pricing |

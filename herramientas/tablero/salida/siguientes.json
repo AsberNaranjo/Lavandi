@@ -1,9 +1,9 @@
 [
  {
   "orden": 1,
-  "accion": "Confirmar por escrito el traspaso y decir desde cuándo cuentan los \"tres meses\" (DD-067, DD-068). Va en el issue del 2026-11-12",
-  "quien": "Nadir",
-  "desbloquea": "Que las decisiones técnicas de Arthur cuenten como C firme, y el calendario de la Orden de Cambio",
+  "accion": "Asentar lo que Arthur acordó con Nadir sobre desde cuándo cuentan los \"tres meses\" (DD-068) y con qué cuenta de Apple se prueba en iPhone (DD-069)",
+  "quien": "Arthur",
+  "desbloquea": "El calendario de la Orden de Cambio",
   "limite": "2026-11-15",
   "vencida": false,
   "dias_vencida": 0,
@@ -61,7 +61,7 @@
  },
  {
   "orden": 7,
-  "accion": "Cerrar la Fase 6: puntuar candidatos con la matriz vigente, hacer la prueba en iPhone (DD-069) y escribir los ADR-0002 a 0014. El ADR-0015, los pesos, DD-039 y DD-040 ya quedaron el 2026-11-12",
+  "accion": "Cerrar la Fase 6: escribir los ADR-0005 a 0014, decidir el hosting (DD-070) y hacer la prueba en iPhone (DD-069). Ya quedaron los ADR-0002, 0003, 0004 y 0015, los pesos, DD-039 y DD-040",
   "quien": "Arthur, con Claude",
   "desbloquea": "Las Fases 7 y 8, y con ellas el desarrollo",
   "limite": "2026-11-22",
