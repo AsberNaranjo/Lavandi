@@ -2,7 +2,7 @@
 estado: vigente
 grado: mixto
 fuente: hechos del repo al 2026-11-12 (B), con cita en cada fila; declaraciones de Nadir y, desde el traspaso, de Arthur en las actas (C); calendario y obligaciones del contrato (A)
-fecha: 2026-11-12
+fecha: 2026-11-13
 dueño: Arthur Naranjo
 ---
 # Estado del proyecto
@@ -39,7 +39,7 @@ haya hecho. Si se hizo, se asienta en un acta y aquí cambia el estado.
 | 4 | Design system | cerrada | `design-system/design-system.md` `vigente`; tokens, componentes y muestra. DD-039 cerrada el 2026-11-12: la v1 lleva solo modo claro (C-141). El adaptador de tokens espera al ADR-0013 |
 | 5 | Arquitectura C4 | cerrada con pendientes | C1, C2 y C3 en `borrador`; ADR-0001. DD-040 cerrada el 2026-11-12: panel web completo, más una vista reducida de administración en la app (C-140). Falta la máquina de estados del pedido (C3) |
 | 5-bis | Análisis funcional | cerrada | `contrato/inventario-funcional.md` `vigente`: 76 funciones. Su veredicto, con la estimación media: **no está listo** (§7) |
-| 6 | Stack | en curso | Desde el 2026-11-12 la lleva Arthur Naranjo, que toma las decisiones técnicas (C-132; acordado entre los dos, C-143). El 2026-11-12 se decidieron el paso 4 y el paso 5: construir sobre piezas probadas (`ADR-0015`, C-139) y los pesos del 2026-09-25 (C-142). La matriz pasó a `vigente`, con la familiaridad calificada según el perfil de Arthur (C-135). En el paso 6 se decidieron React Native con Expo (`ADR-0002`, C-144), Laravel con Filament (`ADR-0003`, C-145) y PostgreSQL (`ADR-0004`, C-146). Van 4 de los 14 ADRs; faltan el 0005 al 0014. El hosting queda en DD-070. Hay insumos nuevos: `investigacion-proyectos-base.md` y `cruce-enatega-inventario.md` (2026-10-28), `referentes-de-codigo-abierto.md` (recuperada el 2026-11-12) y la compilación para iPhone sin Mac en `verificaciones-fase-6.md` |
+| 6 | Stack | cerrada con pendientes | La lleva Arthur Naranjo desde el traspaso (C-132; acordado con Nadir, C-143). Matriz `vigente` con los pesos del 2026-09-25 (C-142). **13 de los 14 ADRs están `vigente`** (`arquitectura/adr/`): construir sobre piezas probadas (0015); React Native con Expo (0002); Laravel con Filament (0003); PostgreSQL con PostGIS (0004); correo y contraseña, Google con Credential Manager y Apple (0005); fotos en S3 privado (0006); consulta cada 30 s más aviso (0007); FCM directo (0008); `react-native-maps` con iOS 18 y Android 11 como mínimos (0009); checkout redirigido de Conekta (0010); landing en el mismo Laravel (0011); tres entornos (0012); script de tokens (0013). Pendientes: correo, `ADR-0014` en borrador (DD-071); hosting (DD-070); prueba en iPhone (DD-069); OXXO (DD-056); los cinco momentos de aviso (DD-011) |
 | 7 | Formas de trabajo | sin empezar | `vault/formas-de-trabajo/` vacío |
 | 8 | Instrumental de Claude | sin empezar | `.claude/agents/` y `.claude/skills/` vacíos |
 
@@ -143,7 +143,7 @@ Ordenado por lo que más bloquea. Es la respuesta corta a "¿qué sigue?". La fe
 | 4 | Avisar por escrito a EL CLIENTE que el desarrollo va atrasado (RN-34, DD-064). Borrador listo: `cliente/comunicaciones/2026-10-09-aviso-de-retraso-del-desarrollo.md`. Lo envía Nadir | Nadir | Que el retraso quede explicado por escrito | 2026-10-11 | El contrato pide 48 h de aviso; el retraso existe desde el 2026-09-28 |
 | 5 | Negociar con EL CLIENTE la Orden de Cambio por etapas (camino B de la recalibración), con alcance, calendario e hitos de pago por etapa | Nadir, con el cálculo de horas de Arthur | Que el calendario nuevo y los pagos 2 y 3 queden por escrito | sin fecha | Depende de DD-068 |
 | 6 | Calcular las horas de la etapa 1: cruzar el inventario de 76 funciones con lo que el cliente marcó "para abrir" | Arthur, con Claude | El tamaño de la etapa 1 y la propuesta de la Orden de Cambio | 2026-11-19 | Estimación de Claude, con sesiones diarias de 2 h (C-134) |
-| 7 | Cerrar la Fase 6: escribir los ADR-0005 a 0014, decidir el hosting (DD-070) y hacer la prueba en iPhone (DD-069). Ya quedaron los ADR-0002, 0003, 0004 y 0015, los pesos, DD-039 y DD-040 | Arthur, con Claude | Las Fases 7 y 8, y con ellas el desarrollo | 2026-11-22 | Estimación de Claude, con sesiones diarias de 2 h (C-134) |
+| 7 | Cerrar los pendientes de la Fase 6: hosting (DD-070), correo (DD-071) y prueba en iPhone (DD-069). La fase quedó cerrada con pendientes el 2026-11-13 | Arthur, con Claude | El primer despliegue y la prueba temprana (R-025) | 2026-11-22 | Estimación de Claude, con sesiones diarias de 2 h (C-134) |
 | 8 | Cerrar la Fase 7: el formato de la sesión de 2 h, ramas y pull requests hacia Nadir, la integración continua y la tabla que liga cada criterio del A.4 a su prueba | Arthur, con Claude | El desarrollo con trazabilidad | 2026-11-26 | Estimación de Claude |
 | 9 | Cerrar la Fase 8: el equipo de agentes del proyecto, sus traspasos y la regla de "terminado" | Arthur, con Claude | Trabajar con agentes en paralelo en cada sesión (C-134) | 2026-11-29 | Estimación de Claude |
 | 10 | Empezar las 12 plantillas en Canva, en una cuenta a nombre del cliente | Por definir: Nadir o Arthur | El criterio de aceptación del branding (A.4.1) | 2026-11-08 | Antes de la semana 10 (C-73) |

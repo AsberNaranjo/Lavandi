@@ -2,7 +2,7 @@
 estado: borrador
 grado: E
 fuente: búsquedas y lecturas de fuentes oficiales del 2026-09-28 (Conekta, Apple Developer, Google Play Console, Google Maps Platform, Firebase, StatCounter), hechas por un subagente de investigación y revisadas por Claude; todo SIN VERIFICAR hasta que Nadir lo confirme; la sección de candidatos, de la investigación del 2026-10-09 sobre construir, adaptar o comprar; la última, búsqueda del 2026-11-12 sobre compilar para iPhone sin Mac
-fecha: 2026-11-12
+fecha: 2026-11-13
 dueño: Nadir Hadad Navarrete
 ---
 # Verificaciones externas de la Fase 6
@@ -133,3 +133,17 @@ Como plan de respaldo existe rentar un Mac en la nube.
 | Costo de arranque: Forge con DigitalOcean sale en unos 1,180 MXN al mes; Laravel Cloud, en unos 750 a 1,030; Supabase Pro, en unos 465 más el panel; NestJS con DigitalOcean, en unos 863. La base de datos administrada de 1 GiB en DigitalOcean cuesta 15.15 USD con PostgreSQL o con MySQL | G-4; DD-070 | https://www.digitalocean.com/pricing/managed-databases · https://laravel.com/cloud/pricing · https://supabase.com/pricing.md · https://www.banxico.org.mx/tipcamb/tipCamMIAction.do?idioma=sp |
 | Almacenamiento: Cloudflare R2 cuesta 0.015 USD por GB al mes, con 10 GB gratis y descarga sin costo. DigitalOcean Spaces cuesta 5 USD al mes con 250 GiB | ADR-0006 | https://developers.cloudflare.com/r2/pricing/ · https://www.digitalocean.com/pricing/spaces-object-storage |
 | Correo: Amazon SES cuesta 0.16 USD por cada mil correos para las cuentas nuevas desde el 2026-07-21. Resend tiene 3,000 gratis al mes | ADR-0014 | https://aws.amazon.com/ses/pricing/ · https://resend.com/pricing |
+
+## Datos del 2026-11-13 (para los ADR-0005, 0011, 0012 y 0014, y para DD-070)
+
+> Grado E, `SIN VERIFICAR`, consultados el 2026-11-13 por un subagente de investigación y revisados por Claude.
+
+| Dato | Qué toca | Fuente |
+|---|---|---|
+| **PostGIS en Laravel Cloud: no confirmado.** Su Postgres sin servidor "admite una amplia gama de extensiones", pero solo nombra `pgvector`. Neon, que está debajo, sí trae PostGIS (3.5.7 en PG17 y 3.6.4 en PG18) | DD-070; ADR-0004 | https://laravel.com/cloud/docs/resources/databases/postgres · https://neon.com/docs/extensions/pg-extensions |
+| **PostGIS en DigitalOcean:** sí, en clusters Standard Edition de PG14 a PG18. Los Advanced Edition no lo traen | DD-070; ADR-0004 | https://docs.digitalocean.com/products/databases/postgresql/details/supported-extensions/ |
+| Laravel Cloud: planes Starter de 5 USD, Growth de 20 y Business de 200, más consumo. Entornos ilimitados, con apagado automático cuando no se usan. Buckets sobre R2 a 0.02 USD por GB al mes. **Las aplicaciones no se transfieren a otra organización**, y la facturación puede ir a nombre de una persona o de una empresa | DD-070; ADR-0012 | https://laravel.com/cloud/docs/pricing · https://laravel.com/cloud/docs/applications.md · https://laravel.com/cloud/docs/organizations.md |
+| Google quitó el inicio de sesión antiguo de Android de `play-services-auth` 22.0.0 (2026-08-26) y manda usar Credential Manager | ADR-0005 | https://developers.google.com/android/guides/releases |
+| `react-native-nitro-google-signin` 2.3.1, MIT, usa Credential Manager y funciona con Expo 49 o superior. Universal Sign In cuesta 79 USD al año (personal) o 249 (equipo). `expo-auth-session` ya no es viable con Google en Android, porque Google no acepta esquemas de URI propios | ADR-0005 | https://registry.npmjs.org/react-native-nitro-google-signin/latest · https://universal-sign-in.com/ · https://developers.google.com/identity/protocols/oauth2/native-app · https://docs.expo.dev/guides/google-authentication/ |
+| Laravel 13 trae transporte oficial para Resend y para Amazon SES. El plan gratuito de Resend da 100 correos al día y 3,000 al mes; al pasarse responde 429 y no reintenta. **SES exige salir del sandbox**, por región, y AWS responde en hasta 96 horas | ADR-0014; DD-071 | https://laravel.com/docs/13.x/mail · https://resend.com/docs/knowledge-base/account-quotas-and-limits · https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html |
+| **Tailwind Plus:** no se pudo leer su licencia sin iniciar sesión. Según fragmentos de su FAQ, permite "un sitio a la medida para un solo cliente" y prohíbe revenderlo o derivar plantillas. **ThemeForest, licencia Regular:** se puede crear un producto final para un cliente y transferírselo | ADR-0011 | https://tailwindcss.com/plus/license · https://themeforest.net/licenses/terms/regular |

@@ -1,8 +1,8 @@
 ---
 estado: vigente
 grado: mixto
-fuente: sesión 2026-09-07 (Fases 0–3), actualizada con C-24 a C-32, con C-46 a C-53 del 2026-09-11, con C-65 a C-70 del 2026-09-12 al 2026-09-17 y con C-132 a C-148 del 2026-11-12 (traspaso y decisiones de la Fase 6)
-fecha: 2026-11-12
+fuente: sesión 2026-09-07 (Fases 0–3), actualizada con C-24 a C-32, con C-46 a C-53 del 2026-09-11, con C-65 a C-70 del 2026-09-12 al 2026-09-17 con C-132 a C-148 del 2026-11-12 (traspaso y decisiones de la Fase 6) y con C-149 a C-153 del 2026-11-13 (cierre de la Fase 6)
+fecha: 2026-11-13
 dueño: Nadir Hadad Navarrete
 ---
 # Deuda de decisión
@@ -79,7 +79,8 @@ cerrar la Fase 6.
 | DD-067 | **¿Nadir confirma por escrito el traspaso?** Que Arthur desarrolle el producto de principio a fin y se lo entregue a Nadir, que tome las decisiones técnicas y que Nadir siga con todo lo de EL CLIENTE (C-132, C-133). Incluye el uso de issues (C-138) | Nadir, por issue | Que las decisiones técnicas de Arthur cuenten como C firme | 6 | 2026-11-15 | **cerrada** el 2026-11-12 por C-143: Arthur y Nadir lo acordaron directamente; no se manda issue |
 | DD-068 | **"Tres meses" desde cuándo** (C-136). ¿Desde el arranque del 2026-09-07, lo que ya cubre el contrato, o desde ahora, hasta mediados de febrero de 2027? | Arthur, que lo habló con Nadir (C-143) | El calendario de la Orden de Cambio; el tamaño de la etapa 1 | 6 | 2026-11-15 | abierta: falta asentar lo acordado |
 | DD-069 | **Cuenta de Apple para la prueba temprana en iPhone.** La del cliente depende del D-U-N-S (B.10), que no ha empezado. ¿Se prueba con una cuenta de Nadir o de Arthur mientras tanto? Grado E: toda ruta sin Mac exige la membresía del Apple Developer Program (`verificaciones-fase-6.md`, sección del 2026-11-12) | Arthur, que lo habló con Nadir (C-143) | La prueba de iPhone antes del ADR-0002 (R-025) | 6 | 2026-11-19 | abierta: falta asentar lo acordado |
-| DD-070 | **¿Dónde corre el backend Laravel?** (C-147) Opciones evaluadas el 2026-11-12, grado E. **(a) Laravel Cloud:** administrado, de 750 a 1,030 MXN al mes, con PostgreSQL sobre Neon y Reverb administrado. **(b) Forge con DigitalOcean:** VPS de 4 GB más base de datos administrada y Spaces, unos 1,180 MXN al mes; parches y seguridad a cargo de Arthur. Las dos caben en el ANEXO B.4 y deben dar PostgreSQL con PostGIS (ADR-0004). Recomendación de Claude: (a), por las 14 h por semana | Arthur | ADR-0012, el primer despliegue y los respaldos | 6 | 2026-11-22 | abierta |
+| DD-070 | **¿Dónde corre el backend Laravel?** (C-147) Opciones evaluadas el 2026-11-12, grado E. **(a) Laravel Cloud:** administrado, de 750 a 1,030 MXN al mes, con PostgreSQL sobre Neon y Reverb administrado. **(b) Forge con DigitalOcean:** VPS de 4 GB más base de datos administrada y Spaces, unos 1,180 MXN al mes; parches y seguridad a cargo de Arthur. Las dos caben en el ANEXO B.4 y deben dar PostgreSQL con PostGIS (ADR-0004). **Actualización del 2026-11-13 (E):** que Laravel Cloud admita PostGIS **no está confirmado** (solo nombra `pgvector`; Neon, que está debajo, sí lo tiene); DigitalOcean lo admite en clusters Standard Edition. En Laravel Cloud las apps no se transfieren entre organizaciones: la organización tendría que nacer a nombre del cliente. **Recomendación de Claude, revisada:** (b), salvo que una prueba con `CREATE EXTENSION postgis;` confirme (a) | Arthur | ADR-0012, el primer despliegue y los respaldos | 6 | 2026-11-22 | abierta |
+| DD-071 | **¿Resend o Amazon SES para el correo automático?** (C-151) Resend: gratis hasta 100 al día y 3,000 al mes, driver oficial en Laravel 13, se configura en minutos. SES: 0.16 USD por cada mil, pero hay que salir del sandbox (hasta 96 h) y suma una cuenta de AWS a nombre del cliente. Recomendación de Claude: Resend (`ADR-0014`) | Arthur | ADR-0014; el primer correo de confirmación y de recuperación de contraseña | 6 | 2026-11-22 | abierta |
 
 ## Cerradas
 
