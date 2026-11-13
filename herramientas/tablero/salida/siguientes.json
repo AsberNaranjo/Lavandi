@@ -61,7 +61,7 @@
  },
  {
   "orden": 7,
-  "accion": "Cerrar los pendientes de la Fase 6: hosting (DD-070), correo (DD-071) y prueba en iPhone (DD-069). La fase quedó cerrada con pendientes el 2026-11-13",
+  "accion": "Cerrar los pendientes de la Fase 6: hosting (DD-070, lo decide Arthur con Nadir; mientras tanto, solo local, C-154), correo (DD-071) y prueba en iPhone (DD-069). La fase quedó cerrada con pendientes el 2026-11-13",
   "quien": "Arthur, con Claude",
   "desbloquea": "El primer despliegue y la prueba temprana (R-025)",
   "limite": "2026-11-22",

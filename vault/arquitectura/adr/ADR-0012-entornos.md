@@ -49,6 +49,14 @@ avisos se haría en producción.
 | **Prueba** | En el hosting de DD-070, con datos de prueba | Perfil `preview` de EAS: APK interno en Android y TestFlight en iPhone | Sandbox de Conekta | Proyecto de Firebase de prueba |
 | **Producción** | En el hosting de DD-070 | Perfil `production` de EAS, publicado en las dos tiendas | Producción de Conekta | Proyecto de Firebase de producción |
 
+> **Mientras DD-070 siga abierta, solo existe el entorno local (C-154).** El hosting se decide con Nadir. Hasta
+> entonces:
+> - el backend corre en la máquina de Arthur;
+> - la app de desarrollo se conecta a él por la red local o por un túnel;
+> - para recibir webhooks de Conekta en local también hace falta un túnel.
+>
+> El entorno de prueba, que es el que acredita el hito alterno del pago 2, nace cuando se decida el hosting.
+
 **El "ambiente de prueba" del BR-06 es el entorno de prueba.** La validación conforme al A.4.3 se documenta ahí, con
 evidencia.
 
