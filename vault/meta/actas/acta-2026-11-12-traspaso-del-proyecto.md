@@ -46,6 +46,21 @@ Hasta hoy, grado C era "lo que Nadir declaró en sesión" (`CLAUDE.md` §3). En 
   que lo pueda ver desde ahí." "Sí, falta el stack y las fases están entre finalizadas/en progreso." Llegó por Arthur
   en la sesión del 2026-10-28 y no se asentó entonces.
 
+Las cuatro decisiones técnicas siguientes las tomó Arthur en la misma sesión, eligiendo entre opciones que Claude le
+presentó con su recomendación. Valen para trabajar y quedan firmes cuando se cierre DD-067.
+
+- C-139. **C (Arthur).** Construir, adaptar o comprar (DD-063): **"Piezas probadas"**, la opción recomendada (OP-01).
+  Las otras opciones presentadas eran el híbrido con Enatega y comprar el servidor de Enatega. Queda en
+  [[ADR-0015-construir-adaptar-o-comprar]].
+- C-140. **C (Arthur).** Dónde vive el Módulo D (DD-040): primero respondió **"Mixto"**. A la repregunta eligió
+  **"Web completo + vista en app"**: el panel completo es web (las 7 funciones y los 11 indicadores) y, además, la
+  app móvil trae una vista reducida para el administrador, con consultas rápidas y avisos. Las opciones descartadas
+  fueron "web que sirve en celular" y "repartido por función".
+- C-141. **C (Arthur).** Modo claro y oscuro (DD-039): **"Solo claro en v1"**, la opción recomendada.
+- C-142. **C (Arthur).** Pesos de la matriz: **"Los del 25 sep"**, la opción recomendada. Familiaridad 30, velocidad
+  25, proveedor único y ruta de salida 15, tiempo real 10, costo 10, multi-plaza 10. La familiaridad se califica con
+  el perfil de Arthur (C-135).
+
 ## Decisiones tomadas en la sesión
 
 | # | Decisión | Opciones consideradas | Quién decide | Nota resultante |
@@ -56,6 +71,10 @@ Hasta hoy, grado C era "lo que Nadir declaró en sesión" (`CLAUDE.md` §3). En 
 | 4 | Lo que haga falta de Nadir se le pide por GitHub Issue en `nhadadn/Lavandi` (C-138). Mientras `gh` no esté instalado, Claude deja el borrador y Arthur lo pega | Mensajes sueltos | Nadir (C-138) | Borrador del issue de esta sesión |
 | 5 | La nota de referentes de código abierto del 2026-10-28, que se perdió sin commit, se recupera del registro de esa sesión, junto con la revisión de LaundryEase de hoy | Rehacer la búsqueda | Arthur | [[referentes-de-codigo-abierto]] |
 | 6 | El estado del proyecto se pone al día al 2026-11-12 | — | Arthur | [[estado-del-proyecto]] |
+| 7 | Construir sobre piezas probadas. Ninguna plantilla ni base ajena, y Shita se descarta | OP-01 a OP-07; híbrido con Enatega; comprar su servidor; Shita | Arthur (C-139) | [[ADR-0015-construir-adaptar-o-comprar]] |
+| 8 | Módulo D: panel web completo, más una vista reducida de administración en la app | Web aparte; dentro de la app; web que sirve en celular; repartido por función | Arthur (C-140) | [[c2-contenedores]]. Cierra DD-040 |
+| 9 | La v1 lleva solo modo claro. El bloque oscuro de `tokens.json` se conserva sin usarse, para agregarlo después | Claro y oscuro desde la v1 | Arthur (C-141) | [[design-system]]. Cierra DD-039 |
+| 10 | Pesos de la matriz fijados: la propuesta del 2026-09-25 | La del 2026-09-11 | Arthur (C-142) | [[matriz-de-criterios-stack]], ahora `vigente` |
 
 ## Preguntas abiertas que salieron de la sesión
 
@@ -64,7 +83,7 @@ Hasta hoy, grado C era "lo que Nadir declaró en sesión" (`CLAUDE.md` §3). En 
 | 1 | ¿Nadir confirma por escrito el traspaso y su límite (C-132, C-133, C-138)? | Que las decisiones técnicas de Arthur cuenten como C firme | DD-067 |
 | 2 | ¿Los tres meses se cuentan desde cuándo (C-136)? | El calendario de la Orden de Cambio y el tamaño de la etapa 1 | DD-068 |
 | 3 | ¿Con qué cuenta de Apple se hace la prueba temprana en iPhone, si la del cliente depende del D-U-N-S? | La prueba de iPhone antes del ADR-0002 (R-025) | DD-069 |
-| 4 | ¿Shita se descarta? Su licencia quitó el aviso original de Enatega, y la nota de proyectos base lo propone como OP-08 | ADR-0015 | Dentro de DD-063 |
+| 4 | ¿Shita se descarta? Su licencia quitó el aviso original de Enatega, y la nota de proyectos base lo propone como OP-08 | Resuelta: ADR-0015 lo descarta (C-139). Se le informa a Nadir en el issue | DD-063, cerrada |
 
 ## Datos grado E de la sesión
 

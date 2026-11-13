@@ -563,11 +563,11 @@
   "fase": "4",
   "limite": "2026-09-14",
   "limite_fecha": "2026-09-14",
-  "abierta": true,
-  "vencida": true,
-  "dias_vencida": 59,
+  "abierta": false,
+  "vencida": false,
+  "dias_vencida": null,
   "contractual": false,
-  "estado": "abierta"
+  "estado": "cerrada"
  },
  {
   "id": "DD-040",
@@ -578,11 +578,11 @@
   "fase": "5",
   "limite": "2026-09-18",
   "limite_fecha": "2026-09-18",
-  "abierta": true,
-  "vencida": true,
-  "dias_vencida": 55,
+  "abierta": false,
+  "vencida": false,
+  "dias_vencida": null,
   "contractual": false,
-  "estado": "abierta"
+  "estado": "cerrada"
  },
  {
   "id": "DD-041",
@@ -923,11 +923,11 @@
   "fase": "6",
   "limite": "2026-10-16",
   "limite_fecha": "2026-10-16",
-  "abierta": true,
-  "vencida": true,
-  "dias_vencida": 27,
+  "abierta": false,
+  "vencida": false,
+  "dias_vencida": null,
   "contractual": false,
-  "estado": "abierta"
+  "estado": "cerrada"
  },
  {
   "id": "DD-064",

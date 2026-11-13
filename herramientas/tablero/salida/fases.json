@@ -31,15 +31,15 @@
   "orden": 4,
   "fase": "4",
   "nombre": "Design system",
-  "estado": "cerrada con pendientes",
-  "evidencia": "design-system/design-system.md vigente; tokens, componentes y muestra. Abierta DD-039: si la v1 lleva modo claro y oscuro"
+  "estado": "cerrada",
+  "evidencia": "design-system/design-system.md vigente; tokens, componentes y muestra. DD-039 cerrada el 2026-11-12: la v1 lleva solo modo claro (C-141). El adaptador de tokens espera al ADR-0013"
  },
  {
   "orden": 5,
   "fase": "5",
   "nombre": "Arquitectura C4",
   "estado": "cerrada con pendientes",
-  "evidencia": "C1, C2 y C3 en borrador; ADR-0001. Abierta DD-040: dónde vive el panel de administración"
+  "evidencia": "C1, C2 y C3 en borrador; ADR-0001. DD-040 cerrada el 2026-11-12: panel web completo, más una vista reducida de administración en la app (C-140). Falta la máquina de estados del pedido (C3)"
  },
  {
   "orden": 6,
@@ -53,7 +53,7 @@
   "fase": "6",
   "nombre": "Stack",
   "estado": "en curso",
-  "evidencia": "Desde el 2026-11-12 la lleva Arthur Naranjo, que toma las decisiones técnicas (C-132; falta la confirmación escrita de Nadir, DD-067). El paso previo sigue en arquitectura/planteamiento-fase-6.md y en la sala, sin respuestas asentadas. La matriz sigue en borrador, con pesos propuestos para el perfil de Nadir: hay que rehacerlos con el de Arthur (C-135). Cero de los catorce ADRs (0002 a 0015). Hay insumos nuevos: investigacion-proyectos-base.md y cruce-enatega-inventario.md (2026-10-28), referentes-de-codigo-abierto.md (recuperada el 2026-11-12) y la compilación para iPhone sin Mac en verificaciones-fase-6.md"
+  "evidencia": "Desde el 2026-11-12 la lleva Arthur Naranjo, que toma las decisiones técnicas (C-132; falta la confirmación escrita de Nadir, DD-067). El 2026-11-12 se decidieron el paso 4 y el paso 5: construir sobre piezas probadas (ADR-0015, C-139) y los pesos del 2026-09-25 (C-142). La matriz pasó a vigente, con la familiaridad calificada según el perfil de Arthur (C-135). Va 1 de los 14 ADRs; faltan el 0002 al 0014 (paso 6). Hay insumos nuevos: investigacion-proyectos-base.md y cruce-enatega-inventario.md (2026-10-28), referentes-de-codigo-abierto.md (recuperada el 2026-11-12) y la compilación para iPhone sin Mac en verificaciones-fase-6.md"
  },
  {
   "orden": 8,
