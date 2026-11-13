@@ -20,7 +20,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[estado-del-proyecto]] — **en qué estado está todo**: fases, calendario, obligaciones, pagos, trámites y lo que sigue, con evidencia por fila. Es la fuente del tablero
 - **Tablero del proyecto**: <https://claude.ai/artifact/T2tZpPePdPhccB4GmFRjbK> — espejo del vault, privado. Cómo se actualiza: `herramientas/tablero/README.md`
 - [[deuda-de-decision]] — qué falta decidir y quién bloquea
-- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]] · [[acta-2026-09-20-feedback-del-manual]] · [[acta-2026-09-25-analisis-funcional]] · [[acta-2026-09-29-sesion-tecnica-y-plantilla-landing]] · [[acta-2026-09-30-segunda-revision-del-manual]] · [[acta-2026-10-09-tablero-del-proyecto]] · [[acta-2026-10-09-antes-del-stack]] · [[acta-2026-10-17-listado-de-lavanderias]] · [[acta-2026-10-25-kit-de-socios]] · [[acta-2026-11-05-resultados-de-la-recalibracion]] · [[acta-2026-11-12-traspaso-del-proyecto]]
+- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]] · [[acta-2026-09-20-feedback-del-manual]] · [[acta-2026-09-25-analisis-funcional]] · [[acta-2026-09-29-sesion-tecnica-y-plantilla-landing]] · [[acta-2026-09-30-segunda-revision-del-manual]] · [[acta-2026-10-09-tablero-del-proyecto]] · [[acta-2026-10-09-antes-del-stack]] · [[acta-2026-10-17-listado-de-lavanderias]] · [[acta-2026-10-25-kit-de-socios]] · [[acta-2026-11-05-resultados-de-la-recalibracion]] · [[acta-2026-11-12-traspaso-del-proyecto]] · [[acta-2026-11-13-cierre-de-la-fase-6]]
 
 ## Contrato (grado A leído)
 
@@ -100,7 +100,17 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[verificaciones-fase-6]] — grado E del 2026-09-28: **OXXO Pay ya no sería de Conekta** (R-028), iniciar sesión con Apple, prueba cerrada de Google Play (R-029), precios de mapas, versiones de iOS y Android en México. Desde el 2026-11-12, también **cómo compilar para iPhone sin Mac**
 - [[investigacion-proyectos-base]] y [[cruce-enatega-inventario]] — proyectos base y cuánto aporta Enatega (2026-10-28), insumo para DD-063
 - [[referentes-de-codigo-abierto]] — dos búsquedas en GitHub (lavanderías y servicios con recolección, 2026-10-28), recuperada el 2026-11-12, con la revisión en vivo de LaundryEase y **la advertencia sobre la licencia de Shita**
-- pendiente: diez ADRs, de `ADR-0005` a `ADR-0014` (el de correo se agregó el 2026-09-25)
+- [[ADR-0005-autenticacion]] — correo y contraseña; Google con `react-native-nitro-google-signin` (Credential Manager); Apple en iPhone (C-149)
+- [[ADR-0006-almacenamiento-de-imagenes]] — fotos y evidencias en S3 privado del proveedor del hosting (C-152)
+- [[ADR-0007-tiempo-real]] — consulta cada 30 s más un aviso FCM al cambiar el estado (C-152)
+- [[ADR-0008-avisos-push]] — Firebase Cloud Messaging directo (C-152)
+- [[ADR-0009-mapas]] — `react-native-maps`; mínimos iOS 18 y Android 11 (BR-42); Google Maps web en el panel (C-152)
+- [[ADR-0010-pasarela-de-pago]] — checkout redirigido de Conekta y confirmación por webhook (C-152)
+- [[ADR-0011-landing]] — en el mismo Laravel, editable desde Filament; plantilla solo con licencia que permita entregarla (C-150)
+- [[ADR-0012-entornos]] — local, prueba y producción; producción en cuentas del cliente (C-152)
+- [[ADR-0013-adaptador-de-tokens]] — script propio que genera el tema de la app y las variables CSS (C-152)
+- [[ADR-0014-correo-automatico]] — **borrador**: Resend recomendado, pendiente (C-151, DD-071)
+- **Fase 6 cerrada con pendientes el 2026-11-13** ([[acta-2026-11-13-cierre-de-la-fase-6]]): DD-069, DD-070 y DD-071
 
 ## Formas de trabajo (Fase 7)
 
