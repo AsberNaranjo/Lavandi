@@ -28,6 +28,11 @@ Coahuila (`legal/NSV-2026-001-v8.pdf:4:Cláusula I`).
 
 - EL PRESTADOR es Nadir Hadad Navarrete, bajo la marca **Nazmelia**. Nazmelia es marca de EL
   PRESTADOR y no se cede (`NSV-2026-001-v8.pdf:10:Cláusula IX`). No se mezcla con la marca del producto.
+- **Quién ejecuta, desde el 2026-11-12.** El producto lo desarrolla **Arthur Naranjo** de principio a fin,
+  y se lo entrega a Nadir. Las decisiones técnicas que el método le atribuye a Nadir (stack, pesos, ADRs)
+  las toma Arthur. Nadir sigue a cargo de todo lo de EL CLIENTE: firma, Órdenes de Cambio, avisos,
+  notificaciones y envíos (`vault/meta/actas/acta-2026-11-12-traspaso-del-proyecto.md`, C-132 y C-133;
+  falta la confirmación escrita de Nadir, DD-067).
 - Calendario contractual: 16 semanas del 7 de septiembre al 27 de diciembre de 2026, más 30 días
   de operación; liquidación final el 26 de enero de 2027 (`NSV-2026-001-v8.pdf:5:Cláusula II`).
 - El contrato vive en `legal/`. Su lectura ejecutiva vive en `vault/contrato/`.
@@ -57,7 +62,7 @@ Coahuila (`legal/NSV-2026-001-v8.pdf:4:Cláusula I`).
 |---|---|---|
 | **A** | Obligación ejecutiva contractual | `NSV-2026-001-v8.pdf:pág:cláusula` o `NSV-2026-001-v8.pdf:pág:ANEXO X, Sección X.Y` |
 | **B** | Hecho verificable en el repo | `ruta/archivo:línea` |
-| **C** | Dato o decisión que Nadir declaró en sesión | `vault/meta/actas/acta-AAAA-MM-DD-<tema>.md:línea` (o el número `C-NN` del acta) |
+| **C** | Dato o decisión que Nadir declaró en sesión. Desde el 2026-11-12, también lo que Arthur declara sobre lo técnico (acta del traspaso) | `vault/meta/actas/acta-AAAA-MM-DD-<tema>.md:línea` (o el número `C-NN` del acta) |
 | **D** | Decisión técnica tomada aquí, con ADR | `vault/arquitectura/adr/ADR-000X.md` |
 | **E** | Dato externo buscado por Claude | fuente + fecha de consulta + `SIN VERIFICAR` |
 | **S** | Supuesto | Solo en `vault/riesgos-supuestos/supuestos.md`, con dueño y fecha límite. **Nunca** en prosa como hecho |

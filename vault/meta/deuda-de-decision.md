@@ -1,8 +1,8 @@
 ---
 estado: vigente
 grado: mixto
-fuente: sesión 2026-09-07 (Fases 0–3), actualizada con C-24 a C-32, con C-46 a C-53 del 2026-09-11 y con C-65 a C-70 del 2026-09-12 al 2026-09-17
-fecha: 2026-10-09
+fuente: sesión 2026-09-07 (Fases 0–3), actualizada con C-24 a C-32, con C-46 a C-53 del 2026-09-11, con C-65 a C-70 del 2026-09-12 al 2026-09-17 y con C-132 a C-138 del 2026-11-12 (traspaso)
+fecha: 2026-11-12
 dueño: Nadir Hadad Navarrete
 ---
 # Deuda de decisión
@@ -12,6 +12,10 @@ Se cierra con la respuesta, la fecha y dónde quedó asentada (acta, ADR o nota)
 
 ## Abiertas
 
+**Desde el traspaso del 2026-11-12** (`acta-2026-11-12-traspaso-del-proyecto.md`, C-132 y decisión 1), las filas
+técnicas donde dice "Nadir" las responde **Arthur Naranjo**: DD-039, DD-040, DD-063 y las de la Fase 6. Lo del
+negocio y lo de EL CLIENTE sigue en Nadir. Esta tabla aún no recoge la recalibración del 2026-11-05: se depura al
+cerrar la Fase 6.
 
 | ID     | Decisión o dato pendiente                                                                                                                                                                             | Quién responde                                             | Qué bloquea                                                            | Fase | Límite sugerido                   | Estado                                       |
 | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------- | ---- | --------------------------------- | -------------------------------------------- |
@@ -72,6 +76,9 @@ Se cierra con la respuesta, la fecha y dónde quedó asentada (acta, ADR o nota)
 | DD-063 | **Construir, adaptar o comprar (`ADR-0015`).** Nadir preguntó si conviene comprar una plantilla de app y adaptarla (C-107). Se decide antes de los pesos y solo contra las puertas G-1 a G-5, para no elegir primero y justificar después; incluye confirmar G-5, la puerta de la cesión, que es propuesta de Claude. Agenda y opciones en `arquitectura/planteamiento-fase-6.md`, pasos 4 y 5 | Nadir, sobre recomendación de Claude | Los pesos de la matriz y los ADR del framework móvil y del backend | 6 | 2026-10-16 | abierta |
 | DD-064 | **¿Nadir avisa por escrito a EL CLIENTE que el desarrollo va atrasado?** El contrato pide aviso con 48 h ante un retraso previsto (RN-34). El desarrollo debía arrancar el 2026-09-28 y no ha arrancado (R-026); el aviso del branding tampoco salió (DD-036). Si parte de la causa son trámites o insumos del cliente sin registro, solo un aviso escrito lo deja asentado. Pregunta P-11 de la sala | Nadir | Que el retraso quede explicado por escrito; el reporte semanal (O-29) | 7 | 2026-10-11 | en curso — Nadir dijo que sí (C-109); borrador en `cliente/comunicaciones/2026-10-09-aviso-de-retraso-del-desarrollo.md`, lo envía Nadir — **contractual** |
 | DD-066 | **¿La lavandería propia del cliente entra a Lavandi?** C-33 (2026-09-07) dijo que no debe considerarse en el contexto del proyecto. C-120 (2026-10-26) dice que el cliente no tiene prospectos y que solo tiene esa lavandería. Si entrara, resolvería la lavandería real que piden las pruebas (R-010-bis), pero las demás lavanderías podrían preguntar si compiten en igualdad | Nadir / EL CLIENTE | Pregunta 3 de la guía; R-005, R-010-bis; el guion del kit (respuesta a "¿el dueño tiene lavandería?") | 7 | antes de la reunión | abierta |
+| DD-067 | **¿Nadir confirma por escrito el traspaso?** Que Arthur desarrolle el producto de principio a fin y se lo entregue a Nadir, que tome las decisiones técnicas y que Nadir siga con todo lo de EL CLIENTE (C-132, C-133). Incluye el uso de issues (C-138) | Nadir, por issue | Que las decisiones técnicas de Arthur cuenten como C firme | 6 | 2026-11-15 | abierta |
+| DD-068 | **"Tres meses" desde cuándo** (C-136). ¿Desde el arranque del 2026-09-07, lo que ya cubre el contrato, o desde ahora, hasta mediados de febrero de 2027? | Nadir | El calendario de la Orden de Cambio; el tamaño de la etapa 1 | 6 | 2026-11-15 | abierta |
+| DD-069 | **Cuenta de Apple para la prueba temprana en iPhone.** La del cliente depende del D-U-N-S (B.10), que no ha empezado. ¿Se prueba con una cuenta de Nadir o de Arthur mientras tanto? Grado E: toda ruta sin Mac exige la membresía del Apple Developer Program (`verificaciones-fase-6.md`, sección del 2026-11-12) | Nadir | La prueba de iPhone antes del ADR-0002 (R-025) | 6 | 2026-11-19 | abierta |
 
 ## Cerradas
 

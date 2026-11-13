@@ -85,7 +85,7 @@
   "limite_fecha": "2026-09-13",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 26,
+  "dias_vencida": 60,
   "contractual": false,
   "estado": "abierta (se mantiene mientras tanto)"
  },
@@ -100,7 +100,7 @@
   "limite_fecha": "2026-09-13",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 26,
+  "dias_vencida": 60,
   "contractual": false,
   "estado": "abierta"
  },
@@ -145,7 +145,7 @@
   "limite_fecha": "2026-09-20",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 19,
+  "dias_vencida": 53,
   "contractual": false,
   "estado": "en curso — ver negocio/metodo-de-precio.md"
  },
@@ -160,7 +160,7 @@
   "limite_fecha": "2026-09-27",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 12,
+  "dias_vencida": 46,
   "contractual": false,
   "estado": "abierta"
  },
@@ -175,7 +175,7 @@
   "limite_fecha": "2026-10-04",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 5,
+  "dias_vencida": 39,
   "contractual": false,
   "estado": "abierta"
  },
@@ -190,7 +190,7 @@
   "limite_fecha": "2026-10-04",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 5,
+  "dias_vencida": 39,
   "contractual": false,
   "estado": "abierta"
  },
@@ -205,7 +205,7 @@
   "limite_fecha": "2026-10-04",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 5,
+  "dias_vencida": 39,
   "contractual": false,
   "estado": "abierta"
  },
@@ -234,8 +234,8 @@
   "limite": "2026-10-11",
   "limite_fecha": "2026-10-11",
   "abierta": true,
-  "vencida": false,
-  "dias_vencida": null,
+  "vencida": true,
+  "dias_vencida": 32,
   "contractual": false,
   "estado": "abierta"
  },
@@ -250,7 +250,7 @@
   "limite_fecha": "2026-09-13",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 26,
+  "dias_vencida": 60,
   "contractual": false,
   "estado": "abierta"
  },
@@ -265,7 +265,7 @@
   "limite_fecha": "2026-09-13",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 26,
+  "dias_vencida": 60,
   "contractual": false,
   "estado": "abierta (abre C-31)"
  },
@@ -280,7 +280,7 @@
   "limite_fecha": "2026-09-13",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 26,
+  "dias_vencida": 60,
   "contractual": false,
   "estado": "abierta"
  },
@@ -295,7 +295,7 @@
   "limite_fecha": "2026-09-13",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 26,
+  "dias_vencida": 60,
   "contractual": false,
   "estado": "abierta — crítica"
  },
@@ -310,7 +310,7 @@
   "limite_fecha": "2026-09-20",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 19,
+  "dias_vencida": 53,
   "contractual": false,
   "estado": "abierta"
  },
@@ -340,7 +340,7 @@
   "limite_fecha": "2026-09-16",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 23,
+  "dias_vencida": 57,
   "contractual": false,
   "estado": "abierta — cambió de naturaleza por C-63"
  },
@@ -355,7 +355,7 @@
   "limite_fecha": "2026-09-13",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 26,
+  "dias_vencida": 60,
   "contractual": false,
   "estado": "abierta"
  },
@@ -370,7 +370,7 @@
   "limite_fecha": "2026-09-13",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 26,
+  "dias_vencida": 60,
   "contractual": false,
   "estado": "abierta"
  },
@@ -400,7 +400,7 @@
   "limite_fecha": "2026-09-09",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 30,
+  "dias_vencida": 64,
   "contractual": false,
   "estado": "abierta"
  },
@@ -415,7 +415,7 @@
   "limite_fecha": "2026-09-13",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 26,
+  "dias_vencida": 60,
   "contractual": false,
   "estado": "abierta"
  },
@@ -445,7 +445,7 @@
   "limite_fecha": "2026-09-13",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 26,
+  "dias_vencida": 60,
   "contractual": false,
   "estado": "abierta"
  },
@@ -460,7 +460,7 @@
   "limite_fecha": "2026-09-09",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 30,
+  "dias_vencida": 64,
   "contractual": false,
   "estado": "abierta"
  },
@@ -475,7 +475,7 @@
   "limite_fecha": "2026-09-09",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 30,
+  "dias_vencida": 64,
   "contractual": false,
   "estado": "abierta"
  },
@@ -490,7 +490,7 @@
   "limite_fecha": "2026-09-09",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 30,
+  "dias_vencida": 64,
   "contractual": false,
   "estado": "abierta"
  },
@@ -565,7 +565,7 @@
   "limite_fecha": "2026-09-14",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 25,
+  "dias_vencida": 59,
   "contractual": false,
   "estado": "abierta"
  },
@@ -580,7 +580,7 @@
   "limite_fecha": "2026-09-18",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 21,
+  "dias_vencida": 55,
   "contractual": false,
   "estado": "abierta"
  },
@@ -640,7 +640,7 @@
   "limite_fecha": "2026-10-03",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 6,
+  "dias_vencida": 40,
   "contractual": true,
   "estado": "abierta — contractual"
  },
@@ -655,7 +655,7 @@
   "limite_fecha": "2026-09-23",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 16,
+  "dias_vencida": 50,
   "contractual": false,
   "estado": "abierta"
  },
@@ -670,7 +670,7 @@
   "limite_fecha": "2026-09-27",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 12,
+  "dias_vencida": 46,
   "contractual": true,
   "estado": "abierta — contractual"
  },
@@ -685,7 +685,7 @@
   "limite_fecha": "2026-10-04",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 5,
+  "dias_vencida": 39,
   "contractual": false,
   "estado": "abierta"
  },
@@ -715,7 +715,7 @@
   "limite_fecha": "2026-09-24",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 15,
+  "dias_vencida": 49,
   "contractual": false,
   "estado": "abierta"
  },
@@ -730,7 +730,7 @@
   "limite_fecha": "2026-09-23",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 16,
+  "dias_vencida": 50,
   "contractual": true,
   "estado": "abierta — contractual"
  },
@@ -760,7 +760,7 @@
   "limite_fecha": "2026-10-02",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 7,
+  "dias_vencida": 41,
   "contractual": false,
   "estado": "abierta"
  },
@@ -775,7 +775,7 @@
   "limite_fecha": "2026-10-02",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 7,
+  "dias_vencida": 41,
   "contractual": false,
   "estado": "abierta"
  },
@@ -790,7 +790,7 @@
   "limite_fecha": "2026-10-02",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 7,
+  "dias_vencida": 41,
   "contractual": false,
   "estado": "abierta"
  },
@@ -805,7 +805,7 @@
   "limite_fecha": "2026-10-02",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 7,
+  "dias_vencida": 41,
   "contractual": false,
   "estado": "abierta"
  },
@@ -865,7 +865,7 @@
   "limite_fecha": "2026-10-03",
   "abierta": true,
   "vencida": true,
-  "dias_vencida": 6,
+  "dias_vencida": 40,
   "contractual": false,
   "estado": "abierta"
  },
@@ -894,8 +894,8 @@
   "limite": "2026-10-16",
   "limite_fecha": "2026-10-16",
   "abierta": true,
-  "vencida": false,
-  "dias_vencida": null,
+  "vencida": true,
+  "dias_vencida": 27,
   "contractual": false,
   "estado": "abierta"
  },
@@ -909,8 +909,8 @@
   "limite": "2026-10-11",
   "limite_fecha": "2026-10-11",
   "abierta": true,
-  "vencida": false,
-  "dias_vencida": null,
+  "vencida": true,
+  "dias_vencida": 32,
   "contractual": false,
   "estado": "abierta"
  },
@@ -924,8 +924,8 @@
   "limite": "2026-10-16",
   "limite_fecha": "2026-10-16",
   "abierta": true,
-  "vencida": false,
-  "dias_vencida": null,
+  "vencida": true,
+  "dias_vencida": 27,
   "contractual": false,
   "estado": "abierta"
  },
@@ -939,9 +939,84 @@
   "limite": "2026-10-11",
   "limite_fecha": "2026-10-11",
   "abierta": true,
-  "vencida": false,
-  "dias_vencida": null,
+  "vencida": true,
+  "dias_vencida": 32,
   "contractual": true,
   "estado": "en curso — Nadir dijo que sí (C-109)"
+ },
+ {
+  "id": "DD-065",
+  "num": 65,
+  "decision": "¿El kit para sumar lavanderías va como cortesía o como Orden de Cambio?",
+  "quien": "",
+  "bloquea": "",
+  "fase": "",
+  "limite": "",
+  "limite_fecha": null,
+  "abierta": false,
+  "vencida": false,
+  "dias_vencida": null,
+  "contractual": false,
+  "estado": "Cerrada"
+ },
+ {
+  "id": "DD-066",
+  "num": 66,
+  "decision": "¿La lavandería propia del cliente entra a Lavandi?",
+  "quien": "Nadir / EL CLIENTE",
+  "bloquea": "Pregunta 3 de la guía",
+  "fase": "7",
+  "limite": "antes de la reunión",
+  "limite_fecha": null,
+  "abierta": true,
+  "vencida": false,
+  "dias_vencida": null,
+  "contractual": false,
+  "estado": "abierta"
+ },
+ {
+  "id": "DD-067",
+  "num": 67,
+  "decision": "¿Nadir confirma por escrito el traspaso?",
+  "quien": "Nadir, por issue",
+  "bloquea": "Que las decisiones técnicas de Arthur cuenten como C firme",
+  "fase": "6",
+  "limite": "2026-11-15",
+  "limite_fecha": "2026-11-15",
+  "abierta": true,
+  "vencida": false,
+  "dias_vencida": null,
+  "contractual": false,
+  "estado": "abierta"
+ },
+ {
+  "id": "DD-068",
+  "num": 68,
+  "decision": "\"Tres meses\" desde cuándo",
+  "quien": "Nadir",
+  "bloquea": "El calendario de la Orden de Cambio",
+  "fase": "6",
+  "limite": "2026-11-15",
+  "limite_fecha": "2026-11-15",
+  "abierta": true,
+  "vencida": false,
+  "dias_vencida": null,
+  "contractual": false,
+  "estado": "abierta"
+ },
+ {
+  "id": "DD-069",
+  "num": 69,
+  "decision": "Cuenta de Apple para la prueba temprana en iPhone",
+  "quien": "Nadir",
+  "bloquea": "La prueba de iPhone antes del ADR-0002 (R-025)",
+  "fase": "6",
+  "limite": "2026-11-19",
+  "limite_fecha": "2026-11-19",
+  "abierta": true,
+  "vencida": false,
+  "dias_vencida": null,
+  "contractual": false,
+  "estado": "abierta"
  }
 ]
