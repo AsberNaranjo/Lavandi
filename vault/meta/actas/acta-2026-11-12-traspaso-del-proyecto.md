@@ -83,6 +83,10 @@ y Arthur eligió:
   (<https://claude.ai/artifact/3SnzQSXUVM8zFTWZGaoktz>). **La copia no trae datos (B):** Claude leyó su base de datos
   y las colecciones `preguntas`, `pasos` y `pesos` están vacías. Al duplicar se copia la página, no lo guardado. Si
   Nadir respondió algo, sigue solo en el original. Las preguntas viven también en `arquitectura/planteamiento-fase-6.md`.
+  **Anexo del 2026-11-13.** Arthur pegó en la sesión el contenido de la sala original, con sus datos. Dice "2 de 20
+  preguntas con respuesta". Son P-07 y P-11, las dos "Cerrada en C-109", y las otras 18 dicen "Sin responder". Los
+  pesos aparecen en la propuesta del 2026-09-25, con el botón "Fijar pesos" activo: Nadir no los fijó. **En la sala
+  no hay nada nuevo que transcribir.** Los pesos que fijó Arthur (C-142) coinciden con esa propuesta.
 
 ## Decisiones tomadas en la sesión
 
@@ -113,7 +117,7 @@ y Arthur eligió:
 | 4 | ¿Shita se descarta? Su licencia quitó el aviso original de Enatega, y la nota de proyectos base lo propone como OP-08 | Resuelta: ADR-0015 lo descarta (C-139) | DD-063, cerrada |
 | 5 | ¿Dónde corre el backend: Laravel Cloud o Forge con DigitalOcean (C-147)? | ADR-0012, el primer despliegue y los respaldos | DD-070 |
 | 6 | ¿Por qué PostgreSQL y no MySQL (C-146)? | Nada: el ADR-0004 queda vigente, pero sin el motivo de quien decidió | Ninguna fila: se agrega al ADR cuando Arthur lo diga |
-| 7 | ¿Nadir respondió algo en la sala original (C-148)? | Si hay respuestas, se transcriben a un acta | Ninguna fila: lo pregunta Arthur |
+| 7 | ¿Nadir respondió algo en la sala original (C-148)? | Resuelta el 2026-11-13: solo P-07 y P-11, que ya estaban en C-109; no hay nada nuevo | — |
 
 ## Datos grado E de la sesión
 
