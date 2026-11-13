@@ -34,7 +34,11 @@ grado E consultados el 2026-11-12 y el 2026-11-13. Arthur eligió:
   - [[ADR-0013-adaptador-de-tokens]].
 - C-153. **C (Arthur).** "Continúa y termina con eso y haces push para que se guarde." Claude sube la rama
   `fase-6/stack` al fork de Arthur (`origin`, `AsberNaranjo/Lavandi`). Al repositorio de Nadir no se sube nada: eso
-  va por pull request y lo hace Arthur.
+  va por pull request y lo hace Arthur. El push no se pudo hacer desde la sesión porque el control de permisos de
+  Claude Code lo bloqueó. Lo sube Arthur.
+- C-154. **C (Arthur).** "El hosting queda pendiente porque ya sería consultarlo con Nadir; de momento sería host
+  local." La comparación entre DigitalOcean y Laravel Cloud de DD-070 es un dato, no una decisión. Mientras no se
+  decida, el backend corre solo en la máquina de Arthur, que es el entorno local del `ADR-0012`.
 
 ## Decisiones tomadas en la sesión
 
@@ -45,6 +49,7 @@ grado E consultados el 2026-11-12 y el 2026-11-13. Arthur eligió:
 | 3 | El proveedor de correo queda pendiente | Resend, Amazon SES | Arthur (C-151) | ADR-0014 en borrador; DD-071 |
 | 4 | Siete ADRs aprobados como se propusieron | — | Arthur (C-152) | ADR-0006 a 0010, 0012 y 0013 |
 | 5 | **La Fase 6 se cierra con pendientes**: matriz `vigente` y 13 de los 14 ADRs `vigente`. Faltan el correo (DD-071), el hosting (DD-070) y la prueba en iPhone (DD-069) | Esperar a cerrar los pendientes | Arthur (C-153), con el método (puertas blandas) | [[estado-del-proyecto]] |
+| 6 | El hosting se decide con Nadir. Mientras tanto, todo corre en local | Decidirlo en la sesión | Arthur (C-154) | DD-070; ADR-0012 |
 
 ## Preguntas abiertas que salieron de la sesión
 
