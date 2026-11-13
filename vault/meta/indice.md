@@ -90,13 +90,14 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 ## Stack (Fase 6)
 
 - **Desde el 2026-11-12 la Fase 6 la decide Arthur Naranjo** ([[acta-2026-11-12-traspaso-del-proyecto]], C-132; falta la confirmación escrita de Nadir, DD-067)
-- [[matriz-de-criterios-stack]] — cuatro puertas eliminatorias y siete criterios con peso propuesto, **revisados el 2026-09-25 con el inventario funcional**. DD-038 respondida. **Detenida hasta fijar los pesos, ahora con el perfil de Arthur (C-135)**
+- [[matriz-de-criterios-stack]] — cuatro puertas eliminatorias y los criterios ponderados. **`vigente` desde el 2026-11-12: pesos fijados (C-142)**, con la familiaridad según el perfil de Arthur (C-135)
+- [[ADR-0015-construir-adaptar-o-comprar]] — **construir sobre piezas probadas**, sin plantilla ni base ajena; Shita descartado (C-139, cierra DD-063)
 - [[planteamiento-fase-6]] — **el paso previo a los pesos** (C-105 a C-107): lo que no está a discusión, cinco puertas, 20 preguntas críticas en seis pasos y las opciones de construir, adaptar o comprar. Es la fuente de la sala
 - **Sala de la Fase 6**: <https://claude.ai/artifact/WN6jmpKuxSkgFrf8GDAXDB> — donde Nadir responde; privada. Cómo se usa: `herramientas/sala-fase-6/README.md`
 - [[verificaciones-fase-6]] — grado E del 2026-09-28: **OXXO Pay ya no sería de Conekta** (R-028), iniciar sesión con Apple, prueba cerrada de Google Play (R-029), precios de mapas, versiones de iOS y Android en México. Desde el 2026-11-12, también **cómo compilar para iPhone sin Mac**
 - [[investigacion-proyectos-base]] y [[cruce-enatega-inventario]] — proyectos base y cuánto aporta Enatega (2026-10-28), insumo para DD-063
 - [[referentes-de-codigo-abierto]] — dos búsquedas en GitHub (lavanderías y servicios con recolección, 2026-10-28), recuperada el 2026-11-12, con la revisión en vivo de LaundryEase y **la advertencia sobre la licencia de Shita**
-- pendiente: catorce ADRs, de `ADR-0002` a `ADR-0015` (el de correo se agregó el 2026-09-25; el de construir, adaptar o comprar, el 2026-10-09)
+- pendiente: trece ADRs, de `ADR-0002` a `ADR-0014` (el de correo se agregó el 2026-09-25). El `ADR-0015` quedó el 2026-11-12
 
 ## Formas de trabajo (Fase 7)
 

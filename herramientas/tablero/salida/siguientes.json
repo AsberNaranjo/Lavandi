@@ -61,7 +61,7 @@
  },
  {
   "orden": 7,
-  "accion": "Cerrar la Fase 6: rehacer los pesos con el perfil de Arthur, decidir construir, adaptar o comprar (ADR-0015), DD-039 y DD-040, hacer la prueba en iPhone (DD-069) y escribir los ADR-0002 a 0014",
+  "accion": "Cerrar la Fase 6: puntuar candidatos con la matriz vigente, hacer la prueba en iPhone (DD-069) y escribir los ADR-0002 a 0014. El ADR-0015, los pesos, DD-039 y DD-040 ya quedaron el 2026-11-12",
   "quien": "Arthur, con Claude",
   "desbloquea": "Las Fases 7 y 8, y con ellas el desarrollo",
   "limite": "2026-11-22",
