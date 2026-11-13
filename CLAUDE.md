@@ -32,7 +32,7 @@ Coahuila (`legal/NSV-2026-001-v8.pdf:4:Cláusula I`).
   y se lo entrega a Nadir. Las decisiones técnicas que el método le atribuye a Nadir (stack, pesos, ADRs)
   las toma Arthur. Nadir sigue a cargo de todo lo de EL CLIENTE: firma, Órdenes de Cambio, avisos,
   notificaciones y envíos (`vault/meta/actas/acta-2026-11-12-traspaso-del-proyecto.md`, C-132 y C-133;
-  falta la confirmación escrita de Nadir, DD-067).
+  acordado entre los dos, C-143).
 - Calendario contractual: 16 semanas del 7 de septiembre al 27 de diciembre de 2026, más 30 días
   de operación; liquidación final el 26 de enero de 2027 (`NSV-2026-001-v8.pdf:5:Cláusula II`).
 - El contrato vive en `legal/`. Su lectura ejecutiva vive en `vault/contrato/`.

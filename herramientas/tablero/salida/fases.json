@@ -53,7 +53,7 @@
   "fase": "6",
   "nombre": "Stack",
   "estado": "en curso",
-  "evidencia": "Desde el 2026-11-12 la lleva Arthur Naranjo, que toma las decisiones técnicas (C-132; falta la confirmación escrita de Nadir, DD-067). El 2026-11-12 se decidieron el paso 4 y el paso 5: construir sobre piezas probadas (ADR-0015, C-139) y los pesos del 2026-09-25 (C-142). La matriz pasó a vigente, con la familiaridad calificada según el perfil de Arthur (C-135). Va 1 de los 14 ADRs; faltan el 0002 al 0014 (paso 6). Hay insumos nuevos: investigacion-proyectos-base.md y cruce-enatega-inventario.md (2026-10-28), referentes-de-codigo-abierto.md (recuperada el 2026-11-12) y la compilación para iPhone sin Mac en verificaciones-fase-6.md"
+  "evidencia": "Desde el 2026-11-12 la lleva Arthur Naranjo, que toma las decisiones técnicas (C-132; acordado entre los dos, C-143). El 2026-11-12 se decidieron el paso 4 y el paso 5: construir sobre piezas probadas (ADR-0015, C-139) y los pesos del 2026-09-25 (C-142). La matriz pasó a vigente, con la familiaridad calificada según el perfil de Arthur (C-135). En el paso 6 se decidieron React Native con Expo (ADR-0002, C-144), Laravel con Filament (ADR-0003, C-145) y PostgreSQL (ADR-0004, C-146). Van 4 de los 14 ADRs; faltan el 0005 al 0014. El hosting queda en DD-070. Hay insumos nuevos: investigacion-proyectos-base.md y cruce-enatega-inventario.md (2026-10-28), referentes-de-codigo-abierto.md (recuperada el 2026-11-12) y la compilación para iPhone sin Mac en verificaciones-fase-6.md"
  },
  {
   "orden": 8,

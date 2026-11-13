@@ -69,7 +69,7 @@ Lavandi. Lo común (esqueleto del proyecto, inicio de sesión, base de datos, ar
 de librerías y servicios ya hechos, con licencias que permitan cederlo. No se adopta ninguna plantilla ni base ajena.
 
 La decidió Arthur Naranjo el 2026-11-12 (`acta-2026-11-12-traspaso-del-proyecto.md`, C-139), sobre la recomendación
-escrita en `planteamiento-fase-6.md`. Queda firme cuando Nadir confirme el traspaso (DD-067).
+escrita en `planteamiento-fase-6.md`. El traspaso lo acordaron Arthur y Nadir entre los dos (C-143).
 
 Los proyectos abiertos se usan **como referencia de reglas, no de código**. LaundryEase aporta el ciclo del pedido, la
 cancelación y el envío; OwnFleet, la lavandería que reparte con su gente; Enatega, las pantallas de tres lados

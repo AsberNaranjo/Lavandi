@@ -89,15 +89,18 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Stack (Fase 6)
 
-- **Desde el 2026-11-12 la Fase 6 la decide Arthur Naranjo** ([[acta-2026-11-12-traspaso-del-proyecto]], C-132; falta la confirmación escrita de Nadir, DD-067)
+- **Desde el 2026-11-12 la Fase 6 la decide Arthur Naranjo** ([[acta-2026-11-12-traspaso-del-proyecto]], C-132; acordado entre los dos, C-143)
 - [[matriz-de-criterios-stack]] — cuatro puertas eliminatorias y los criterios ponderados. **`vigente` desde el 2026-11-12: pesos fijados (C-142)**, con la familiaridad según el perfil de Arthur (C-135)
 - [[ADR-0015-construir-adaptar-o-comprar]] — **construir sobre piezas probadas**, sin plantilla ni base ajena; Shita descartado (C-139, cierra DD-063)
+- [[ADR-0002-framework-movil]] — **React Native con Expo**, compilando sin Mac con EAS (C-144); 76 puntos contra 74 de Capacitor
+- [[ADR-0003-backend-y-lenguaje]] — **Laravel con Filament** para la API y el panel web (C-145); el hosting queda en DD-070
+- [[ADR-0004-base-de-datos]] — **PostgreSQL con PostGIS** (C-146), contra la recomendación de MySQL 8
 - [[planteamiento-fase-6]] — **el paso previo a los pesos** (C-105 a C-107): lo que no está a discusión, cinco puertas, 20 preguntas críticas en seis pasos y las opciones de construir, adaptar o comprar. Es la fuente de la sala
 - **Sala de la Fase 6**: <https://claude.ai/artifact/WN6jmpKuxSkgFrf8GDAXDB> — donde Nadir responde; privada. Cómo se usa: `herramientas/sala-fase-6/README.md`
 - [[verificaciones-fase-6]] — grado E del 2026-09-28: **OXXO Pay ya no sería de Conekta** (R-028), iniciar sesión con Apple, prueba cerrada de Google Play (R-029), precios de mapas, versiones de iOS y Android en México. Desde el 2026-11-12, también **cómo compilar para iPhone sin Mac**
 - [[investigacion-proyectos-base]] y [[cruce-enatega-inventario]] — proyectos base y cuánto aporta Enatega (2026-10-28), insumo para DD-063
 - [[referentes-de-codigo-abierto]] — dos búsquedas en GitHub (lavanderías y servicios con recolección, 2026-10-28), recuperada el 2026-11-12, con la revisión en vivo de LaundryEase y **la advertencia sobre la licencia de Shita**
-- pendiente: trece ADRs, de `ADR-0002` a `ADR-0014` (el de correo se agregó el 2026-09-25). El `ADR-0015` quedó el 2026-11-12
+- pendiente: diez ADRs, de `ADR-0005` a `ADR-0014` (el de correo se agregó el 2026-09-25)
 
 ## Formas de trabajo (Fase 7)
 
