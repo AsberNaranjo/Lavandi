@@ -1,9 +1,9 @@
 ---
 estado: vigente
 grado: mixto
-fuente: hechos del repo al 2026-10-09 (B), con cita en cada fila; declaraciones de Nadir de las actas (C); calendario y obligaciones del contrato (A)
-fecha: 2026-10-09
-dueño: Nadir Hadad Navarrete
+fuente: hechos del repo al 2026-11-12 (B), con cita en cada fila; declaraciones de Nadir y, desde el traspaso, de Arthur en las actas (C); calendario y obligaciones del contrato (A)
+fecha: 2026-11-12
+dueño: Arthur Naranjo
 ---
 # Estado del proyecto
 
@@ -39,7 +39,7 @@ haya hecho. Si se hizo, se asienta en un acta y aquí cambia el estado.
 | 4 | Design system | cerrada con pendientes | `design-system/design-system.md` `vigente`; tokens, componentes y muestra. Abierta DD-039: si la v1 lleva modo claro y oscuro |
 | 5 | Arquitectura C4 | cerrada con pendientes | C1, C2 y C3 en `borrador`; ADR-0001. Abierta DD-040: dónde vive el panel de administración |
 | 5-bis | Análisis funcional | cerrada | `contrato/inventario-funcional.md` `vigente`: 76 funciones. Su veredicto, con la estimación media: **no está listo** (§7) |
-| 6 | Stack | en curso | Desde el 2026-10-09 empieza por un paso previo: el planteamiento crítico, en `arquitectura/planteamiento-fase-6.md` y en la sala (https://claude.ai/artifact/WN6jmpKuxSkgFrf8GDAXDB), con 20 preguntas en seis pasos (C-105 a C-107). La matriz sigue en `borrador` esperando los pesos; cero de los catorce ADRs (0002 a 0015). DD-062 sigue abierta: la conversación técnica de C-94 no dejó rastro |
+| 6 | Stack | en curso | Desde el 2026-11-12 la lleva Arthur Naranjo, que toma las decisiones técnicas (C-132; falta la confirmación escrita de Nadir, DD-067). El paso previo sigue en `arquitectura/planteamiento-fase-6.md` y en la sala, sin respuestas asentadas. La matriz sigue en `borrador`, con pesos propuestos para el perfil de Nadir: hay que rehacerlos con el de Arthur (C-135). Cero de los catorce ADRs (0002 a 0015). Hay insumos nuevos: `investigacion-proyectos-base.md` y `cruce-enatega-inventario.md` (2026-10-28), `referentes-de-codigo-abierto.md` (recuperada el 2026-11-12) y la compilación para iPhone sin Mac en `verificaciones-fase-6.md` |
 | 7 | Formas de trabajo | sin empezar | `vault/formas-de-trabajo/` vacío |
 | 8 | Instrumental de Claude | sin empezar | `.claude/agents/` y `.claude/skills/` vacíos |
 
@@ -52,10 +52,10 @@ de cada actividad tiene que coincidir con el de esa nota: el generador las cruza
 |---|---|---|
 | Kickoff, levantamiento de información, arranque de trámites B.10 a cargo de EL CLIENTE | cumplida | Kickoff y levantamiento: acta del 2026-09-07. Los trámites del B.10 no tienen registro: ver abajo |
 | Branding e identidad visual (A.1: 3 + 4 + 2 + 3 días = 12 días) | atrasada | La ventana cerró el 27 de septiembre. El manual quedó sin observaciones el 30 (C-103), pero faltan las 12 plantillas, el `.ai` del símbolo y la notificación de entrega (DD-050) |
-| Diseño de la experiencia y pantallas | atrasada | Hay design system y seis componentes base (Fase 4), pero no hay pantallas diseñadas en el vault. La ventana cierra el 11 de octubre |
-| Desarrollo de la aplicación, primera iteración | no ha empezado | Debía arrancar el 28 de septiembre. El método prohíbe escribir código hasta cerrar las Fases 6 a 8, y la 6 está detenida |
-| Desarrollo, segunda iteración | por venir | — |
-| Landing page y plantillas de redes sociales | por venir | Las plantillas se adelantaron (C-73) y no han empezado. Para la landing, Nadir quiere comprar una plantilla (C-95) |
+| Diseño de la experiencia y pantallas | atrasada | Hay design system y seis componentes base (Fase 4), pero no hay pantallas diseñadas en el vault. La ventana cerró el 11 de octubre |
+| Desarrollo de la aplicación, primera iteración | atrasada | Su ventana (28 de septiembre al 8 de noviembre) cerró sin que empezara. El método prohíbe escribir código hasta cerrar las Fases 6 a 8. La recalibración propone construir por etapas, con calendario nuevo firmado (`meta/recalibracion-2026-10-30.md` §3) |
+| Desarrollo, segunda iteración | atrasada | Su ventana empezó el 2 de noviembre y no ha arrancado, porque depende de la primera |
+| Landing page y plantillas de redes sociales | no ha empezado | Su ventana corre del 9 al 29 de noviembre. Las plantillas se adelantaron (C-73) y no han empezado. Para la landing, Nadir quiere comprar una plantilla, que se evalúa en el ADR-0011 (C-95) |
 | Panel de indicadores del negocio | por venir | — |
 | Pruebas de aceptación y ajustes | por venir | — |
 | Envío de la aplicación a App Store y Google Play | por venir | Depende de las cuentas de desarrollador del cliente, sin registro |
@@ -127,6 +127,9 @@ Las obligaciones y sus criterios son los de `contrato/obligaciones-ejecutivas.md
 | Aviso de privacidad publicado | sin registro | Toca en la semana 12 |
 | Registro de marca (IMPI) | sin registro | Falta la búsqueda fonética (DD-030) y saber con qué licencia se usó Berlin Sans FB (DD-060) |
 
+Al 2026-11-05, sobre todos estos trámites el cliente escribió "Aún no se hace nada" (`cliente/comunicaciones/2026-11-05-reporte-del-formulario.md`).
+Es una marca del cliente en papel, todavía sin confirmar por escrito.
+
 ## Lo que sigue
 
 Ordenado por lo que más bloquea. Es la respuesta corta a "¿qué sigue?". La fecha límite va en formato
@@ -134,13 +137,16 @@ Ordenado por lo que más bloquea. Es la respuesta corta a "¿qué sigue?". La fe
 
 | # | Acción | Quién | Qué desbloquea | Fecha límite | De dónde sale la fecha |
 |---|---|---|---|---|---|
-| 1 | Responder la sala de la Fase 6 en una sesión propia: si el modelo es el correcto, si cabe, construir o comprar (DD-063) y, al final, los pesos. Después, candidatos y ADRs | Nadir, con Claude | Las Fases 7 y 8, y con ellas el arranque del desarrollo | 2026-09-27 | El calendario pide arquitectura, stack y formas de trabajo cerradas antes de la semana 4 |
-| 2 | Reunión con EL CLIENTE para sus ocho decisiones del negocio (la sesión de asesoría, O-23), con la guía `vault/cliente/comunicaciones/2026-10-09-guia-de-reunion-decisiones-del-negocio.md`. Nadir anota las respuestas; después se le mandan por escrito para que las confirme | Nadir, con EL CLIENTE | Quién recoge y entrega, cómo se cobra, con qué lavanderías y en qué ciudad se arranca: varias decisiones de la Fase 6 dependen de esto (C-109) | sin fecha | Nadir pidió no poner fechas (C-109) |
-| 3 | Decidir si la v1 lleva modo claro y oscuro (DD-039) y dónde vive el panel de administración (DD-040) | Nadir | Dos ADRs de la Fase 6 y el diseño de pantallas | 2026-09-18 | Límite sugerido de DD-040 |
-| 4 | Confirmar las horas reales por semana para el producto (repregunta de C-91, supuesto S-006) | Nadir | Saber si el alcance cabe: hoy, con la estimación media, no está listo | 2026-10-11 | Fin de la semana 5 |
-| 5 | Avisar por escrito a EL CLIENTE que el desarrollo va atrasado (RN-34, DD-064). Borrador listo: `vault/cliente/comunicaciones/2026-10-09-aviso-de-retraso-del-desarrollo.md`; lo envía Nadir por correo | Nadir | Que el retraso quede explicado por escrito | 2026-10-11 | El contrato pide 48 h de aviso; el retraso existe desde el 2026-09-28 |
-| 6 | Pedir por escrito a EL CLIENTE el estado de los trámites del B.10 | Nadir | La publicación en las tiendas y los cobros en producción, de los que depende el pago 2 | 2026-10-11 | La cuenta de Apple toca en las semanas 5 y 6 |
-| 7 | Notificar por correo la entrega parcial del branding: logotipo, paleta, tipografías, manual y guía | Nadir | Que lo terminado quede con fecha cierta (DD-050) | 2026-10-11 | Fin de la semana 5 |
-| 8 | Empezar las 12 plantillas en Canva, en una cuenta a nombre del cliente | Nadir, con Claude | El criterio de aceptación del branding (A.4.1) | 2026-11-08 | Antes de la semana 10 (C-73) |
-| 9 | Empezar el reporte semanal a EL CLIENTE | Nadir | La comunicación semanal durante el desarrollo (O-29) | 2026-10-09 | El calendario pone el desarrollo desde la semana 4 |
-| 10 | Preguntar al diseñador con qué licencia usó Berlin Sans FB, y hacer la búsqueda fonética ante el IMPI | Nadir | El registro de la marca (DD-060, DD-030) | sin fecha | Antes del trámite ante el IMPI |
+| 1 | Confirmar por escrito el traspaso y decir desde cuándo cuentan los "tres meses" (DD-067, DD-068). Va en el issue del 2026-11-12 | Nadir | Que las decisiones técnicas de Arthur cuenten como C firme, y el calendario de la Orden de Cambio | 2026-11-15 | Fin de la semana 10 |
+| 2 | Pedir por escrito a EL CLIENTE que arranque los trámites del B.10: D-U-N-S, cuentas de Apple y de Google y alta en Conekta | Nadir | La publicación en las tiendas y los cobros en producción, de los que depende el pago 2 | 2026-11-15 | El D-U-N-S y la cuenta de Apple pueden tardar hasta unas seis semanas juntos (`contrato/calendario-contractual.md`, E) |
+| 3 | Enviar al cliente el reporte «Lo que nos dejó la reunión» y el kit actualizado, y confirmar las dos lecturas dudosas de su letra (`meta/pase-de-proyecto.md`, "Lo que sigue") | Nadir | Las decisiones del negocio: precio, comisión y quién entrega (DD-010, DD-020, DD-022) | 2026-11-15 | Fin de la semana 10 |
+| 4 | Avisar por escrito a EL CLIENTE que el desarrollo va atrasado (RN-34, DD-064). Borrador listo: `cliente/comunicaciones/2026-10-09-aviso-de-retraso-del-desarrollo.md`. Lo envía Nadir | Nadir | Que el retraso quede explicado por escrito | 2026-10-11 | El contrato pide 48 h de aviso; el retraso existe desde el 2026-09-28 |
+| 5 | Negociar con EL CLIENTE la Orden de Cambio por etapas (camino B de la recalibración), con alcance, calendario e hitos de pago por etapa | Nadir, con el cálculo de horas de Arthur | Que el calendario nuevo y los pagos 2 y 3 queden por escrito | sin fecha | Depende de DD-068 |
+| 6 | Calcular las horas de la etapa 1: cruzar el inventario de 76 funciones con lo que el cliente marcó "para abrir" | Arthur, con Claude | El tamaño de la etapa 1 y la propuesta de la Orden de Cambio | 2026-11-19 | Estimación de Claude, con sesiones diarias de 2 h (C-134) |
+| 7 | Cerrar la Fase 6: rehacer los pesos con el perfil de Arthur, decidir construir, adaptar o comprar (ADR-0015), DD-039 y DD-040, hacer la prueba en iPhone (DD-069) y escribir los ADR-0002 a 0014 | Arthur, con Claude | Las Fases 7 y 8, y con ellas el desarrollo | 2026-11-22 | Estimación de Claude, con sesiones diarias de 2 h (C-134) |
+| 8 | Cerrar la Fase 7: el formato de la sesión de 2 h, ramas y pull requests hacia Nadir, la integración continua y la tabla que liga cada criterio del A.4 a su prueba | Arthur, con Claude | El desarrollo con trazabilidad | 2026-11-26 | Estimación de Claude |
+| 9 | Cerrar la Fase 8: el equipo de agentes del proyecto, sus traspasos y la regla de "terminado" | Arthur, con Claude | Trabajar con agentes en paralelo en cada sesión (C-134) | 2026-11-29 | Estimación de Claude |
+| 10 | Empezar las 12 plantillas en Canva, en una cuenta a nombre del cliente | Por definir: Nadir o Arthur | El criterio de aceptación del branding (A.4.1) | 2026-11-08 | Antes de la semana 10 (C-73) |
+| 11 | Empezar el reporte semanal a EL CLIENTE | Nadir | La comunicación semanal durante el desarrollo (O-29) | 2026-10-09 | El calendario pone el desarrollo desde la semana 4 |
+| 12 | Preguntar al diseñador con qué licencia usó Berlin Sans FB, y hacer la búsqueda fonética ante el IMPI | Nadir | El registro de la marca (DD-060, DD-030) | sin fecha | Antes del trámite ante el IMPI |
+| 13 | Notificar por correo la entrega parcial del branding: logotipo, paleta, tipografías, manual y guía | Nadir | Que lo terminado quede con fecha cierta (DD-050) | 2026-10-11 | Fin de la semana 5 |

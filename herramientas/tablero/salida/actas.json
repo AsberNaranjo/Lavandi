@@ -142,5 +142,45 @@
   "declaraciones": 1,
   "primera": "C-104",
   "ultima": "C-104"
+ },
+ {
+  "fecha": "2026-10-17",
+  "tema": "Listado de lavanderías",
+  "archivo": "vault/meta/actas/acta-2026-10-17-listado-de-lavanderias.md",
+  "declaraciones": 2,
+  "primera": "C-112",
+  "ultima": "C-113"
+ },
+ {
+  "fecha": "2026-10-25",
+  "tema": "Kit para sumar lavanderías",
+  "archivo": "vault/meta/actas/acta-2026-10-25-kit-de-socios.md",
+  "declaraciones": 6,
+  "primera": "C-114",
+  "ultima": "C-119"
+ },
+ {
+  "fecha": "2026-10-26",
+  "tema": "Comentarios a la guía de la reunión",
+  "archivo": "vault/meta/actas/acta-2026-10-26-comentarios-a-la-guia.md",
+  "declaraciones": 8,
+  "primera": "C-120",
+  "ultima": "C-127"
+ },
+ {
+  "fecha": "2026-11-05",
+  "tema": "Resultados de la recalibración",
+  "archivo": "vault/meta/actas/acta-2026-11-05-resultados-de-la-recalibracion.md",
+  "declaraciones": 4,
+  "primera": "C-128",
+  "ultima": "C-131"
+ },
+ {
+  "fecha": "2026-11-12",
+  "tema": "Traspaso del proyecto",
+  "archivo": "vault/meta/actas/acta-2026-11-12-traspaso-del-proyecto.md",
+  "declaraciones": 7,
+  "primera": "C-132",
+  "ultima": "C-138"
  }
 ]

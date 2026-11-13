@@ -1,8 +1,8 @@
 ---
 estado: borrador
 grado: E
-fuente: búsquedas y lecturas de fuentes oficiales del 2026-09-28 (Conekta, Apple Developer, Google Play Console, Google Maps Platform, Firebase, StatCounter), hechas por un subagente de investigación y revisadas por Claude; todo SIN VERIFICAR hasta que Nadir lo confirme; la sección final, de la investigación del 2026-10-09 sobre construir, adaptar o comprar
-fecha: 2026-10-09
+fuente: búsquedas y lecturas de fuentes oficiales del 2026-09-28 (Conekta, Apple Developer, Google Play Console, Google Maps Platform, Firebase, StatCounter), hechas por un subagente de investigación y revisadas por Claude; todo SIN VERIFICAR hasta que Nadir lo confirme; la sección de candidatos, de la investigación del 2026-10-09 sobre construir, adaptar o comprar; la última, búsqueda del 2026-11-12 sobre compilar para iPhone sin Mac
+fecha: 2026-11-12
 dueño: Nadir Hadad Navarrete
 ---
 # Verificaciones externas de la Fase 6
@@ -80,3 +80,20 @@ candidatos concretos, y el método no deja mirar candidatos antes de fijar los p
 | Conekta no tiene SDK oficial de Flutter; los complementos de terceros están desactualizados. Hay SDK nativos de Android e iOS, y ConektaJS tokeniza en web | G-3 (RN-28) | https://developers.conekta.com/tutorials/card · https://pub.dev/packages/flutter_conekta/score |
 | FlutterFlow trae como mapa nativo el de Google en las dos plataformas; exportar el código es de un solo sentido y solo en planes de pago | G-2, G-5 | https://www.flutterflow.io/pricing |
 | Supabase: plan gratuito que se pausa tras una semana sin uso; Pro desde 25 dólares al mes. Se puede alojar uno mismo | G-4 (RN-22) | https://supabase.com/pricing |
+
+## Búsqueda del 2026-11-12: compilar para iPhone sin Mac
+
+> Grado E, `SIN VERIFICAR`, consultado el 2026-11-12. La pregunta vino de Arthur (C-137): el equipo no tiene Mac, y
+> Xcode solo corre en macOS. Nombra frameworks concretos, igual que la sección anterior: cuenta en el paso 6.
+
+| Dato | Qué toca | Fuente |
+|---|---|---|
+| Con Expo, EAS Build compila el binario de iPhone, firmado, en máquinas de Expo: no hace falta Mac ni Xcode local. EAS Submit lo sube a App Store Connect y a TestFlight desde Windows o Linux | G-1, R-025; la prueba temprana | https://docs.expo.dev/submit/ios · https://docs.expo.dev/tutorial/eas/ios-production-build.md · https://blog.openreplay.com/build-ios-app-without-mac/ |
+| `--auto-submit` sube la versión a TestFlight para pruebas internas, pero no la manda a revisión de la App Store | Calendario de publicación | https://docs.expo.dev/tutorial/eas/ios-production-build.md |
+| Sin Mac no hay simulador de iPhone: se prueba en un iPhone físico, con una versión de desarrollo o por TestFlight | La prueba temprana; hace falta un iPhone | https://docs.expo.dev/submit/testflight.md |
+| Para Capacitor, la compilación de iPhone sin Mac depende de terceros con Macs en la nube: Capawesome Cloud, Capgo Build y Codemagic. Las fuentes son sobre todo de los mismos proveedores | G-1, R-025 | https://capawesome.io/solutions/build-without-mac/ · https://capgo.app/docs/builder/ · https://capgo.app/blog/comparing-ci-cd-platforms-for-ios-apps/ |
+| Toda ruta sin Mac necesita una cuenta del Apple Developer Program, de unos 99 USD al año según una sola fuente. Firmar y repartir por TestFlight la exigen | DD-017, DD-069 | https://blog.openreplay.com/build-ios-app-without-mac/ |
+
+**Lo que no se verificó:** las condiciones actuales de cada servicio (minutos de compilación, precios, versión de
+Xcode), el precio vigente del Apple Developer Program y si depurar fallas nativas de iPhone sin Mac resulta práctico.
+Como plan de respaldo existe rentar un Mac en la nube.
