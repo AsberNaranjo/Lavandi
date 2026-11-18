@@ -39,3 +39,16 @@ falta para el sprint 1. **No hace falta Android Studio ni una Mac:** la app se c
 | 9 | JDK 17 (opcional) | Solo si se quiere compilar Android en local | EAS lo hace en la nube |
 
 Las versiones exactas se confirman al instalar (E).
+
+## Las skills externas, en el sprint 1
+
+Arthur las eligió el 2026-11-18 (C-163; [[equipo-de-agentes]]). Van en el repositorio de código, cada una en una rama
+aparte, y se leen antes de usarse. Los comandos salen de la documentación de cada una (E, 2026-11-18).
+
+| # | Qué | Cómo | Ajuste |
+|---|---|---|---|
+| 1 | Laravel Boost | En `servidor/`: `composer require laravel/boost --dev` y después `php artisan boost:install` | Agrega un bloque al `CLAUDE.md`; las reglas del proyecto siguen arriba. En el `.env` local, `BOOST_RULES_ENABLED=false`. Tinker se queda apagado |
+| 2 | La skill de Filament | La instala Boost cuando detecta Filament 5 | — |
+| 3 | El plugin de Expo | En Claude Code: `/plugin install expo@claude-plugins-official` | Leer antes `eas-workflows`, porque preautoriza `eas-cli` |
+| 4 | La skill de Callstack | `npx skills@latest add callstackincubator/agent-skills --skill react-native-testing` | Comprobar que funciona en Windows |
+| 5 | Maestro y su MCP | Instalar la CLI de Maestro y después `claude mcp add maestro -- maestro mcp` | — |

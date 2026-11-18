@@ -45,6 +45,12 @@ Las filas `fuera del código` no cambian de estado.
 - **Una fila nunca avanza por una afirmación.** Cada cambio cita su evidencia grado B: `ruta:línea` del test y la
   salida, o la ruta de la evidencia.
 
+## Pruebas en el teléfono
+
+El recorrido completo del A.4.3 se corre con Maestro (`maestro test <flujo>.yaml`), en un Android y en un iPhone
+reales. El MCP de Maestro sirve para explorar la pantalla mientras se escribe el flujo (C-163). La salida del
+comando y el video son la evidencia, con fecha y con el entorno identificado.
+
 ## Salida
 
 La tabla actualizada y, por criterio, lo que falta para el siguiente estado. Al cierre del sprint, la lista de

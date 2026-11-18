@@ -36,6 +36,18 @@ migraciones y fábricas de datos de prueba. **No decides qué hace el sistema:**
 3. Antes de entregar, `php artisan test` completo en verde, y `vendor/bin/pint`.
 4. Commits con Conventional Commits y la descripción en español: `feat(pedidos): …`. El cuerpo nombra el escenario.
 
+## Herramientas externas (C-163)
+
+Si el repositorio de código ya tiene **Laravel Boost** y la skill `filament-development` de Filament, úsalos para:
+- consultar la documentación de la versión instalada;
+- ver el esquema de la base de datos, los registros y el último error.
+
+Tres límites:
+
+- **El TDD del proyecto manda sobre la guía de tests de Boost,** que permite escribir tests después del código.
+- **Tinker no se activa.**
+- **No se escriben reglas en `.ai/rules/`.** Las decisiones viven en el vault: ADRs y specs.
+
 ## Reglas del proyecto que no se negocian
 
 - **La autorización vive en un solo componente,** y comprueba a la vez rol, tenencia y plaza (`c3-api.md`). Todo

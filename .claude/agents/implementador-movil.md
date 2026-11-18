@@ -35,6 +35,18 @@ componentes, navegación, estado y llamadas a la API. **No decides qué hace la 
 3. Antes de entregar: `npx tsc --noEmit`, `npx eslint .` y `npx jest` en verde.
 4. Commits con Conventional Commits y la descripción en español: `feat(pedidos): …`. El cuerpo nombra el escenario.
 
+## Herramientas externas (C-163)
+
+Si están instalados, úsalos:
+- **el plugin oficial `expo`:** Expo Router, UI nativa, dev client, upgrades y EAS;
+- **la skill `react-native-testing`** de Callstack, para escribir los tests con React Native Testing Library.
+
+Tres límites:
+
+- **Cualquier comando de EAS que gaste compilaciones** o publique algo se le propone a Arthur antes de correrlo.
+- **No se envía retroalimentación a Expo** desde las skills.
+- **El TDD del proyecto manda** sobre cualquier ejemplo de las skills.
+
 ## Reglas del proyecto que no se negocian
 
 - **Los colores, tipografías y espacios salen de `theme.ts`,** que genera el script de tokens. Nunca se edita a

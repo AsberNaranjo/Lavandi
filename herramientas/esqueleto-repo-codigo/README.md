@@ -13,6 +13,8 @@ otro, para que la integración continua exista desde el primer commit, como pide
    porque cada trabajo se salta solo si su carpeta todavía no existe.
 4. Las sesiones se arrancan desde el repositorio de código, sumando el del vault:
    `claude --add-dir <ruta al repositorio del vault>`. Así se cargan los agentes y las skills del proyecto.
+5. En el sprint 1 se instalan las skills externas elegidas (C-163): `vault/formas-de-trabajo/entorno-local.md`,
+   sección "Las skills externas".
 
 **Antes de transferir el repositorio al cliente** (Cláusula IX), se revisa el `CLAUDE.md`. Habla del repositorio del
 vault, que no se cede.
