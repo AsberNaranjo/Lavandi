@@ -71,9 +71,9 @@
  },
  {
   "orden": 8,
-  "accion": "Cerrar los pendientes de la Fase 7: crear el repositorio de código con el esqueleto (DD-073), decidir quién abre las cuentas de prueba (DD-072) y que Nadir apruebe los protocolos con el cliente (DD-074). La fase quedó cerrada con pendientes el 2026-11-17",
+  "accion": "Cerrar los pendientes de la Fase 7: que Nadir apruebe los protocolos con el cliente (DD-074) y decidir el espejo a Notion (DD-075). El repositorio (DD-073) y las cuentas de prueba (DD-072) se cerraron el 2026-11-18 (C-169, C-170)",
   "quien": "Arthur con Nadir",
-  "desbloquea": "El sprint 1 y los avisos formales al cliente",
+  "desbloquea": "Los avisos formales al cliente",
   "limite": "2026-11-24",
   "vencida": false,
   "dias_vencida": 0,
@@ -81,7 +81,7 @@
  },
  {
   "orden": 9,
-  "accion": "Preparar el sprint 1: instalar lo que falta del entorno local (formas-de-trabajo/entorno-local.md), crear el repositorio de código con el esqueleto (DD-073), escribir con el especificador la primera spec y hacer la prueba temprana en iPhone (DD-069)",
+  "accion": "Preparar el sprint 1. Hecho el 2026-11-18: el entorno local (formas-de-trabajo/entorno-local.md, C-166). Falta: abrir las cuentas de prueba con el correo de Arthur (C-170), los mocks (C-167) y, con ellos, la primera spec. La prueba temprana en iPhone espera (DD-069, C-164)",
   "quien": "Arthur, con Claude",
   "desbloquea": "El desarrollo del producto",
   "limite": "2026-11-24",

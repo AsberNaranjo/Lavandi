@@ -201,6 +201,14 @@
  },
  {
   "fecha": "2026-11-18",
+  "tema": "Entorno local y mocks",
+  "archivo": "vault/meta/actas/acta-2026-11-18-entorno-y-mocks.md",
+  "declaraciones": 7,
+  "primera": "C-164",
+  "ultima": "C-170"
+ },
+ {
+  "fecha": "2026-11-18",
   "tema": "Fase 8: instrumental de Claude",
   "archivo": "vault/meta/actas/acta-2026-11-18-fase-8-instrumental.md",
   "declaraciones": 3,

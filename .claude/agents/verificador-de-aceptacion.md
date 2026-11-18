@@ -27,7 +27,7 @@ Las filas `fuera del código` no cambian de estado.
 
 - La tabla de trazabilidad.
 - Las specs (`vault/specs/`).
-- El repositorio de código en `main`: los tests y su resultado.
+- El código en `main` (`movil/` y `servidor/`): los tests y su resultado.
 - Las evidencias en `vault/specs/<capacidad>/evidencias/`.
 
 ## Reglas para mover una fila

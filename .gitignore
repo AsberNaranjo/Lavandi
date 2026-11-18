@@ -37,3 +37,22 @@ desktop.ini
 # Claude Code local
 .claude/settings.local.json
 .claude/worktrees/
+
+# Código del producto (movil/ y servidor/, en este mismo repositorio desde C-169)
+servidor/vendor/
+servidor/public/build/
+servidor/public/hot
+servidor/bootstrap/cache/*.php
+.phpunit.result.cache
+*.log
+movil/android/
+movil/ios/
+movil/web-build/
+
+# Más secretos y firmas: viven en el hosting y en los secretos de EAS (ADR-0012)
+*.p8
+*.p12
+*.jks
+*.keystore
+google-services.json
+GoogleService-Info.plist

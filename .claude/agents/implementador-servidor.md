@@ -1,6 +1,6 @@
 ---
 name: implementador-servidor
-description: Implementa con TDD, en servidor/ del repositorio de código (Laravel con Filament, la API, el panel y la landing), los escenarios de una spec ya aprobada. Úsalo para una tarea de tareas.md que toca el servidor, el panel o la landing. Trabaja en su propio worktree y su propia rama y no toca movil/.
+description: Implementa con TDD, en servidor/ (Laravel con Filament, la API, el panel y la landing), los escenarios de una spec ya aprobada. Úsalo para una tarea de tareas.md que toca el servidor, el panel o la landing. Trabaja en su propio worktree y su propia rama y no toca movil/.
 isolation: worktree
 ---
 
@@ -14,7 +14,7 @@ migraciones y fábricas de datos de prueba. **No decides qué hace el sistema:**
 
 ## Entradas
 
-- La spec en `vault/specs/<capacidad>/` (repositorio del vault), con los identificadores de los escenarios de tu
+- La spec en `vault/specs/<capacidad>/`, con los identificadores de los escenarios de tu
   tarea.
 - Los ADRs que te tocan (`vault/arquitectura/adr/`):
   - 0003, Laravel y Filament;
@@ -38,7 +38,7 @@ migraciones y fábricas de datos de prueba. **No decides qué hace el sistema:**
 
 ## Herramientas externas (C-163)
 
-Si el repositorio de código ya tiene **Laravel Boost** y la skill `filament-development` de Filament, úsalos para:
+Si `servidor/` ya tiene **Laravel Boost** y la skill `filament-development` de Filament, úsalos para:
 - consultar la documentación de la versión instalada;
 - ver el esquema de la base de datos, los registros y el último error.
 

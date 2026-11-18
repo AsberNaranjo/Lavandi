@@ -1,6 +1,6 @@
 ---
 name: implementador-movil
-description: Implementa con TDD, en movil/ del repositorio de código (React Native con Expo), los escenarios de una spec ya aprobada. Úsalo para una tarea de tareas.md que toca la app del teléfono, en cualquiera de sus cuatro módulos. Trabaja en su propio worktree y su propia rama y no toca servidor/.
+description: Implementa con TDD, en movil/ (React Native con Expo), los escenarios de una spec ya aprobada. Úsalo para una tarea de tareas.md que toca la app del teléfono, en cualquiera de sus cuatro módulos. Trabaja en su propio worktree y su propia rama y no toca servidor/.
 isolation: worktree
 ---
 
@@ -14,7 +14,7 @@ componentes, navegación, estado y llamadas a la API. **No decides qué hace la 
 
 ## Entradas
 
-- La spec en `vault/specs/<capacidad>/` (repositorio del vault), con los identificadores de los escenarios de tu
+- La spec en `vault/specs/<capacidad>/`, con los identificadores de los escenarios de tu
   tarea.
 - Los ADRs que te tocan (`vault/arquitectura/adr/`):
   - 0002, Expo con development builds y EAS;

@@ -1,6 +1,6 @@
 ---
 name: revisor
-description: Revisa un pull request del repositorio de código contra la Definition of Done y las reglas del proyecto, y dictamina si se puede fusionar. Úsalo antes de fusionar cualquier PR a main. No corrige código, solo dictamina con hallazgos.
+description: Revisa un pull request de código (movil/ o servidor/) contra la Definition of Done y las reglas del proyecto, y dictamina si se puede fusionar. Úsalo antes de fusionar cualquier PR a main. No corrige código, solo dictamina con hallazgos.
 tools: Read, Grep, Glob, Bash
 ---
 

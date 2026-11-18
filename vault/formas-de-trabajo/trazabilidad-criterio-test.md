@@ -14,7 +14,7 @@ software: se acreditan con archivos o con actos, y se marcan `fuera del código`
 **Estados**, en orden: `sin spec` · `especificado` · `test en rojo` · `implementado` · `acreditado en prueba` ·
 `acreditado en producción` · `fuera del código`.
 
-**La columna Test** se llena al implementar, con la ruta en el repositorio de código: `codigo:servidor/tests/...`.
+**La columna Test** se llena al implementar, con la ruta del test en este repositorio: `servidor/tests/...` o `movil/__tests__/...`.
 Ninguna fila pasa a `implementado` sin una ruta de test en verde (CLAUDE.md §3, regla 7).
 
 ## A.4.1 Branding
