@@ -1,8 +1,8 @@
 ---
 estado: borrador
 grado: E
-fuente: búsquedas y lecturas de fuentes oficiales del 2026-09-28 (Conekta, Apple Developer, Google Play Console, Google Maps Platform, Firebase, StatCounter), hechas por un subagente de investigación y revisadas por Claude; todo SIN VERIFICAR hasta que Nadir lo confirme; la sección de candidatos, de la investigación del 2026-10-09 sobre construir, adaptar o comprar; la última, búsqueda del 2026-11-12 sobre compilar para iPhone sin Mac
-fecha: 2026-11-13
+fuente: búsquedas y lecturas de fuentes oficiales del 2026-09-28 (Conekta, Apple Developer, Google Play Console, Google Maps Platform, Firebase, StatCounter), hechas por un subagente de investigación y revisadas por Claude; todo SIN VERIFICAR hasta que Nadir lo confirme; la sección de candidatos, de la investigación del 2026-10-09 sobre construir, adaptar o comprar; la búsqueda del 2026-11-12 sobre compilar para iPhone sin Mac; los datos del 2026-11-13; y la búsqueda del 2026-11-15 sobre más opciones de hosting
+fecha: 2026-11-15
 dueño: Nadir Hadad Navarrete
 ---
 # Verificaciones externas de la Fase 6
@@ -147,3 +147,20 @@ Como plan de respaldo existe rentar un Mac en la nube.
 | `react-native-nitro-google-signin` 2.3.1, MIT, usa Credential Manager y funciona con Expo 49 o superior. Universal Sign In cuesta 79 USD al año (personal) o 249 (equipo). `expo-auth-session` ya no es viable con Google en Android, porque Google no acepta esquemas de URI propios | ADR-0005 | https://registry.npmjs.org/react-native-nitro-google-signin/latest · https://universal-sign-in.com/ · https://developers.google.com/identity/protocols/oauth2/native-app · https://docs.expo.dev/guides/google-authentication/ |
 | Laravel 13 trae transporte oficial para Resend y para Amazon SES. El plan gratuito de Resend da 100 correos al día y 3,000 al mes; al pasarse responde 429 y no reintenta. **SES exige salir del sandbox**, por región, y AWS responde en hasta 96 horas | ADR-0014; DD-071 | https://laravel.com/docs/13.x/mail · https://resend.com/docs/knowledge-base/account-quotas-and-limits · https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html |
 | **Tailwind Plus:** no se pudo leer su licencia sin iniciar sesión. Según fragmentos de su FAQ, permite "un sitio a la medida para un solo cliente" y prohíbe revenderlo o derivar plantillas. **ThemeForest, licencia Regular:** se puede crear un producto final para un cliente y transferírselo | ADR-0011 | https://tailwindcss.com/plus/license · https://themeforest.net/licenses/terms/regular |
+
+## Datos del 2026-11-15: más opciones de hosting (para DD-070)
+
+> Grado E, `SIN VERIFICAR`, consultados por Claude el 2026-11-15, a pedido de Arthur, que administra sus otros
+> sistemas en el cPanel de GoDaddy (C-159). Las conversiones usan el FIX del 2026-11-12 (18.6188 MXN por USD). Los
+> precios bajos son de promoción y se pagan por adelantado a 24 o 36 meses; no se confirmó si incluyen IVA.
+
+| Dato | Qué toca | Fuente |
+|---|---|---|
+| **GoDaddy cPanel compartido:** su tabla de componentes solo lista MySQL. En un plan compartido no se instalan extensiones, así que no hay PostGIS. Las colas de Laravel correrían con cron, sin Supervisor (foros, no documentación de GoDaddy) | DD-070; reabriría el ADR-0004 | https://www.godaddy.com/help/which-components-does-my-hosting-support-5614 · https://laracasts.com/discuss/channels/laravel/laravel-queuework-setup-in-background-cpanel |
+| **GoDaddy VPS:** acceso root; desde 8.99 USD al mes (unos 167 MXN) en promoción a 36 meses. PostgreSQL y PostGIS se instalan a mano | DD-070 | https://www.godaddy.com/hosting/vps-hosting |
+| **Hostinger VPS KVM 2:** 2 vCPU, 8 GB de RAM y 100 GB NVMe; MX$154.99 al mes en promoción a 24 meses, renueva a MX$273.99 | DD-070 | https://www.hostinger.com/mx/vps/docker/kong |
+| **Vultr** tiene centro de datos en la Ciudad de México y PostgreSQL administrado desde unos 15 USD al mes (estimación de terceros, sin región). PostGIS sin confirmar | DD-070 | https://blogs.vultr.com/Diecinueve-Vultrs-19th-Cloud-Location-is-in-Mexico-City · https://www.vultr.com/products/managed-databases/ |
+| **Paneles para un VPS:** Forge, unos 12 USD al mes; Ploi, unos 8 USD, con plan gratis de un servidor y un sitio; Coolify, gratis y de código abierto (Apache 2.0) | DD-070 | https://benjamincrozat.com/laravel-forge · https://toolradar.com/tools/ploi · https://lumadock.com/tutorials/deploy-laravel-on-coolify |
+| **Oracle Cloud Always Free:** un servidor completo gratis, pero Oracle recupera las instancias ociosas (CPU debajo de 20% en 7 días). Hay reportes, sin confirmar, de que recortó el plan a la mitad en junio de 2026. Sirve para prueba, no para producción | ADR-0012 (entorno de prueba) | https://docs.oracle.com/iaas/Content/FreeTier/resourceref.htm · https://linuxiac.com/oracle-quietly-cuts-free-tier-ampere-a1-resources-in-half/ |
+| **Descartados:** Vercel (su plan gratis es solo para uso no comercial y no soporta PHP de forma oficial); Render gratis (el servidor se duerme a los 15 minutos y la base de datos caduca a los 30 días); Hetzner (subió precios dos veces en 2026 y no está claro qué vende en Estados Unidos) | DD-070 | https://vercel.com/docs/plans/hobby · https://render.com/docs/free · https://www.bitdoze.com/es/hetzner-cloud-precios-2026/ |
+| **Next.js en lugar de Laravel:** no trae base de datos, colas, tareas programadas ni correo; cada pieza se arma aparte. Puntaje propuesto con la matriz vigente: 65, contra 96 de Laravel. No se abrió ADR, porque Arthur no cambió la decisión (C-160) | ADR-0003 | https://payloadcms.com/docs/v3/jobs-queue/overview.md · https://npmjs.com/package/conekta |

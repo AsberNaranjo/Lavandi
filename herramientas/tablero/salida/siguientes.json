@@ -5,8 +5,8 @@
   "quien": "Arthur",
   "desbloquea": "El calendario de la Orden de Cambio",
   "limite": "2026-11-15",
-  "vencida": false,
-  "dias_vencida": 0,
+  "vencida": true,
+  "dias_vencida": 3,
   "origen_fecha": "Fin de la semana 10"
  },
  {
@@ -15,8 +15,8 @@
   "quien": "Nadir",
   "desbloquea": "La publicación en las tiendas y los cobros en producción, de los que depende el pago 2",
   "limite": "2026-11-15",
-  "vencida": false,
-  "dias_vencida": 0,
+  "vencida": true,
+  "dias_vencida": 3,
   "origen_fecha": "El D-U-N-S y la cuenta de Apple pueden tardar hasta unas seis semanas juntos (contrato/calendario-contractual.md, E)"
  },
  {
@@ -25,8 +25,8 @@
   "quien": "Nadir",
   "desbloquea": "Las decisiones del negocio: precio, comisión y quién entrega (DD-010, DD-020, DD-022)",
   "limite": "2026-11-15",
-  "vencida": false,
-  "dias_vencida": 0,
+  "vencida": true,
+  "dias_vencida": 3,
   "origen_fecha": "Fin de la semana 10"
  },
  {
@@ -36,7 +36,7 @@
   "desbloquea": "Que el retraso quede explicado por escrito",
   "limite": "2026-10-11",
   "vencida": true,
-  "dias_vencida": 33,
+  "dias_vencida": 38,
   "origen_fecha": "El contrato pide 48 h de aviso; el retraso existe desde el 2026-09-28"
  },
  {
@@ -71,13 +71,13 @@
  },
  {
   "orden": 8,
-  "accion": "Cerrar la Fase 7: el formato de la sesión de 2 h, ramas y pull requests hacia Nadir, la integración continua y la tabla que liga cada criterio del A.4 a su prueba",
-  "quien": "Arthur, con Claude",
-  "desbloquea": "El desarrollo con trazabilidad",
-  "limite": "2026-11-26",
+  "accion": "Cerrar los pendientes de la Fase 7: crear el repositorio de código con el esqueleto (DD-073), decidir quién abre las cuentas de prueba (DD-072) y que Nadir apruebe los protocolos con el cliente (DD-074). La fase quedó cerrada con pendientes el 2026-11-17",
+  "quien": "Arthur con Nadir",
+  "desbloquea": "El sprint 1 y los avisos formales al cliente",
+  "limite": "2026-11-24",
   "vencida": false,
   "dias_vencida": 0,
-  "origen_fecha": "Estimación de Claude"
+  "origen_fecha": "Una semana, el plazo de un sprint (C-157)"
  },
  {
   "orden": 9,
@@ -96,7 +96,7 @@
   "desbloquea": "El criterio de aceptación del branding (A.4.1)",
   "limite": "2026-11-08",
   "vencida": true,
-  "dias_vencida": 5,
+  "dias_vencida": 10,
   "origen_fecha": "Antes de la semana 10 (C-73)"
  },
  {
@@ -106,7 +106,7 @@
   "desbloquea": "La comunicación semanal durante el desarrollo (O-29)",
   "limite": "2026-10-09",
   "vencida": true,
-  "dias_vencida": 35,
+  "dias_vencida": 40,
   "origen_fecha": "El calendario pone el desarrollo desde la semana 4"
  },
  {
@@ -126,7 +126,7 @@
   "desbloquea": "Que lo terminado quede con fecha cierta (DD-050)",
   "limite": "2026-10-11",
   "vencida": true,
-  "dias_vencida": 33,
+  "dias_vencida": 38,
   "origen_fecha": "Fin de la semana 5"
  }
 ]

@@ -2,8 +2,8 @@
 estado: vigente
 grado: B
 fuente: estructura del repo
-fecha: 2026-10-09
-dueño: Nadir Hadad Navarrete
+fecha: 2026-11-17
+dueño: Arthur Naranjo
 ---
 # Índice (MOC raíz)
 
@@ -20,7 +20,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[estado-del-proyecto]] — **en qué estado está todo**: fases, calendario, obligaciones, pagos, trámites y lo que sigue, con evidencia por fila. Es la fuente del tablero
 - **Tablero del proyecto**: <https://claude.ai/artifact/T2tZpPePdPhccB4GmFRjbK> — espejo del vault, privado. Cómo se actualiza: `herramientas/tablero/README.md`
 - [[deuda-de-decision]] — qué falta decidir y quién bloquea
-- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]] · [[acta-2026-09-20-feedback-del-manual]] · [[acta-2026-09-25-analisis-funcional]] · [[acta-2026-09-29-sesion-tecnica-y-plantilla-landing]] · [[acta-2026-09-30-segunda-revision-del-manual]] · [[acta-2026-10-09-tablero-del-proyecto]] · [[acta-2026-10-09-antes-del-stack]] · [[acta-2026-10-17-listado-de-lavanderias]] · [[acta-2026-10-25-kit-de-socios]] · [[acta-2026-11-05-resultados-de-la-recalibracion]] · [[acta-2026-11-12-traspaso-del-proyecto]] · [[acta-2026-11-13-cierre-de-la-fase-6]]
+- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]] · [[acta-2026-09-20-feedback-del-manual]] · [[acta-2026-09-25-analisis-funcional]] · [[acta-2026-09-29-sesion-tecnica-y-plantilla-landing]] · [[acta-2026-09-30-segunda-revision-del-manual]] · [[acta-2026-10-09-tablero-del-proyecto]] · [[acta-2026-10-09-antes-del-stack]] · [[acta-2026-10-17-listado-de-lavanderias]] · [[acta-2026-10-25-kit-de-socios]] · [[acta-2026-11-05-resultados-de-la-recalibracion]] · [[acta-2026-11-12-traspaso-del-proyecto]] · [[acta-2026-11-13-cierre-de-la-fase-6]] · [[acta-2026-11-17-fase-7-formas-de-trabajo]]
 
 ## Contrato (grado A leído)
 
@@ -114,7 +114,17 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Formas de trabajo (Fase 7)
 
-- pendiente
+- [[formas-de-trabajo]] — **el índice de la fase**: qué nota responde a cada punto del método, su estado y quién decide
+- [[ciclo-openspec-tdd]] — qué se escribe antes de qué: spec en el vault, test en rojo, código, trazabilidad
+- [[definicion-de-listo-y-terminado]] — cuándo una tarea entra al sprint y cuándo está terminada; terminado no es aceptado
+- [[trazabilidad-criterio-test]] — los 19 criterios del A.4 y las 4 medidas de seguridad, cada uno con cómo se acredita
+- [[sprint-y-sesion-diaria]] — sprint de una semana (C-157), la sesión de 22 a 24 h y qué entra a mitad del sprint
+- [[repositorios-ramas-y-revision]] — el código en un repositorio aparte (C-156), ramas, commits y PR a Nadir por sprint (C-158)
+- [[integracion-continua]] — qué hace fallar la del vault (corre desde hoy) y la del código (esqueleto listo)
+- [[protocolos-con-el-cliente]] — **borrador, lo aprueba Nadir (DD-074)**: reporte semanal, notificación de entrega, aviso de retraso, requerimiento escrito y Orden de Cambio
+- [[espejo-notion]] — borrador: hoy no existe; recomendación, no montarlo hasta que alguien lo consulte (DD-075)
+- [[registro-de-horas]] — horas reales por función, para recalibrar S-006 al cerrar el sprint 2
+- **Fase 7 cerrada con pendientes el 2026-11-17** ([[acta-2026-11-17-fase-7-formas-de-trabajo]]): DD-072, DD-073, DD-074 y DD-075
 
 ## Riesgos y supuestos
 
@@ -123,11 +133,11 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 ## Cliente
 
 - [[recibido/README|cliente/recibido]] — **el buzón de todo lo que llega de EL CLIENTE**: una subcarpeta por fecha, archivos sin renombrar, y un `indice.md` por tanda que dice qué dice cada uno y a dónde fue. Es el espejo de `comunicaciones/`, que guarda lo que sale
-- `cliente/reportes-semanales/` · `cliente/notificaciones-de-entrega/` · `cliente/requerimientos/` · `cliente/comunicaciones/`
+- `cliente/reportes-semanales/` · `cliente/notificaciones-de-entrega/` · `cliente/requerimientos/` · `cliente/ordenes-de-cambio/` · `cliente/comunicaciones/`. Cómo se usa cada una: [[protocolos-con-el-cliente]]
 - Comunicaciones enviadas: [[2026-09-20-respuesta-al-feedback-del-manual]] (**2026-09-20 13:00, WhatsApp, literal**: devuelve el manual 1.1, pregunta el fondo hueso, deja el calzado como Orden de Cambio y propone que esta ronda cuente como la primera) · [[2026-09-07-lista-de-nombres-para-el-cliente]] y [[2026-09-08-lista-de-nombres-de-categoria]] (ambas enviadas, C-43)
 - Sin enviar: [[2026-09-30-confirmacion-de-la-llamada]] (**la que sigue, hoy, por WhatsApp**: pone por escrito lo que se acordó en la llamada y manda el manual 1.2) · [[2026-09-30-respuesta-a-la-segunda-revision]] (superada por la llamada; se conserva como guion de lo que quedó abierto) · [[2026-09-19-acuerdo-de-apoyo-con-contenido]] (la cortesía con principio, final y límites) · [[2026-09-12-alcance-para-el-cliente]] (qué recibe, qué necesita hacer él, qué se cotiza aparte) · [[2026-09-09-aviso-de-retraso-branding]] (**vencido, DD-036**) · [[2026-09-11-requerimiento-de-insumos-de-producto]] (seis decisiones de operación) · [[2026-09-09-lista-de-nombres-globales]] (archivada por C-46, ya no se manda)
 
 ## Plantillas
 
-- adr · acta-de-sesion · hipotesis · riesgo · supuesto · spec-openspec · nota-de-decision-de-marca · reporte-semanal-cliente · nota-ejecutiva-cliente
+- adr · acta-de-sesion · hipotesis · riesgo · supuesto · spec-openspec · nota-de-decision-de-marca · reporte-semanal-cliente · nota-ejecutiva-cliente · notificacion-de-entrega · requerimiento-escrito · aviso-de-retraso · orden-de-cambio (las cuatro últimas, en borrador hasta DD-074)
 
