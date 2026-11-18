@@ -21,7 +21,7 @@ su cuenta, conectada con la de Nadir, desde la que le manda los cambios por pull
 vault/                     el método, las specs, los ADRs y la trazabilidad
 legal/                     el contrato
 herramientas/              las herramientas del método, el script de tokens y las verificaciones de CI
-mocks Desarrollo Temsa L/  las pantallas navegables (C-167)
+mocks/                     las pantallas navegables y las propuestas visuales (C-167, C-175)
 movil/                     app de React Native con Expo (ADR-0002)
 servidor/                  Laravel con Filament: API, panel y landing (ADR-0003, ADR-0011)
 ```

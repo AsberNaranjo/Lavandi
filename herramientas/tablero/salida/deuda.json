@@ -1108,5 +1108,35 @@
   "dias_vencida": null,
   "contractual": false,
   "estado": "abierta"
+ },
+ {
+  "id": "DD-076",
+  "num": 76,
+  "decision": "¿Qué beneficio da llevar más prendas?",
+  "quien": "EL CLIENTE, vía Nadir",
+  "bloquea": "La pantalla de selección de servicio y el cálculo del cobro (DD-012)",
+  "fase": "2",
+  "limite": "antes de la spec de pedido",
+  "limite_fecha": null,
+  "abierta": true,
+  "vencida": false,
+  "dias_vencida": null,
+  "contractual": false,
+  "estado": "abierta"
+ },
+ {
+  "id": "DD-077",
+  "num": 77,
+  "decision": "¿El seguimiento muestra la ubicación del pedido en un mapa?",
+  "quien": "Nadir, con EL CLIENTE",
+  "bloquea": "La spec de seguimiento y la promesa de la landing",
+  "fase": "5-bis",
+  "limite": "antes de la spec de seguimiento",
+  "limite_fecha": null,
+  "abierta": true,
+  "vencida": false,
+  "dias_vencida": null,
+  "contractual": true,
+  "estado": "abierta — contractual"
  }
 ]

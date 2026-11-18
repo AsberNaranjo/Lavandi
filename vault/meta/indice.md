@@ -136,7 +136,9 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Mocks
 
-- `mocks Desarrollo Temsa L/` (fuera del vault, en la raíz del repositorio): las pantallas navegables del producto, por módulo, con su función, su cita y lo pendiente. Se abre `index.html` con doble clic. Nombre pedido por Arthur (C-167)
+- `mocks/` (fuera del vault, en la raíz del repositorio): las pantallas navegables del producto, por módulo, con su función, su cita y lo pendiente, más las propuestas visuales de Arthur (`Lavandi - Propuesta 0X/`). Se abre `index.html` con doble clic (C-167, C-175)
+- En Claude Design, el diseño "Desarrollo Temsa L" (https://claude.ai/artifact/NxESkTp9RKZ4zRFJGDCd85): el módulo del usuario en 18 pantallas navegables (C-171). Es privado de Arthur
+- [[lista-de-precios-recibida-2026-11-14]]: la libreta de precios del cliente, por grupo de servicio (C-172, C-173)
 
 ## Riesgos y supuestos
 
