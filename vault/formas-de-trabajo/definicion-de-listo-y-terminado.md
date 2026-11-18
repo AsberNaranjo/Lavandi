@@ -33,7 +33,7 @@ Propuesta de Claude, aceptada por Arthur con "adelante, termina la fase" (C-155)
 6. **Hay evidencia del criterio,** si la tarea acredita uno del A.4: captura o video en Android y en iPhone cuando
    aplique, guardados en `vault/specs/<capacidad>/evidencias/`.
 7. **Las horas están registradas** en [[registro-de-horas]].
-8. **Está en `main`** del repositorio de código de Arthur.
+8. **Está en `main`** del fork de Arthur.
 
 ## Terminado no es aceptado
 

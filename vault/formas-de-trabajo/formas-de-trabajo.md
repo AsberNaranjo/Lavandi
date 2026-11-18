@@ -30,5 +30,5 @@ Cambio y plan del sprint.
 
 **Archivos fuera del vault:**
 
-- `.github/workflows/vault.yml` y `herramientas/ci/verificar_vault.py`: la integración continua de este repositorio.
-- `herramientas/esqueleto-repo-codigo/`: el arranque del repositorio de código, con su integración continua.
+- `.github/workflows/vault.yml` y `.github/workflows/ci.yml`, con sus verificaciones en `herramientas/ci/`: la
+  integración continua del vault y la del código, las dos en este repositorio (C-169).

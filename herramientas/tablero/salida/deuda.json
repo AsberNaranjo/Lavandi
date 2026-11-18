@@ -1058,11 +1058,11 @@
   "fase": "7",
   "limite": "2026-11-24",
   "limite_fecha": "2026-11-24",
-  "abierta": true,
+  "abierta": false,
   "vencida": false,
   "dias_vencida": null,
   "contractual": false,
-  "estado": "abierta"
+  "estado": "cerrada"
  },
  {
   "id": "DD-073",
@@ -1073,11 +1073,11 @@
   "fase": "7",
   "limite": "2026-11-24",
   "limite_fecha": "2026-11-24",
-  "abierta": true,
+  "abierta": false,
   "vencida": false,
   "dias_vencida": null,
   "contractual": false,
-  "estado": "abierta"
+  "estado": "cerrada"
  },
  {
   "id": "DD-074",

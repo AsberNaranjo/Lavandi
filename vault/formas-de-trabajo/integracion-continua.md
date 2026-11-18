@@ -1,16 +1,19 @@
 ---
 estado: vigente
 grado: D
-fuente: prompt-maestro-01-fundacion-v5.md, Fase 7 (B); .github/workflows/vault.yml (B); herramientas/esqueleto-repo-codigo/ (B); ADR-0002, ADR-0003, ADR-0004, ADR-0012 y ADR-0013 (D); CLAUDE.md §4 y §5 (B)
-fecha: 2026-11-17
+fuente: prompt-maestro-01-fundacion-v5.md, Fase 7 (B); .github/workflows/vault.yml y ci.yml (B); herramientas/ci/ (B); acta-2026-11-18-entorno-y-mocks.md C-169 (C); ADR-0002, ADR-0003, ADR-0004, ADR-0012 y ADR-0013 (D); CLAUDE.md §4, §5 y §9 (B)
+fecha: 2026-11-18
 dueño: Arthur Naranjo
 ---
 # Integración continua
 
-Hay dos, una por repositorio. Las dos corren con GitHub Actions en cada push y en cada pull request. **Un pull
-request con la integración continua en rojo no se fusiona.**
+Hay dos flujos en este mismo repositorio (C-169): uno para el vault y otro para el código. Los dos corren con
+GitHub Actions en cada push y en cada pull request. **Un pull request con la integración continua en rojo no se
+fusiona.**
 
-## La del repositorio del vault (corre desde hoy)
+## La del vault
+
+Corre desde el 2026-11-17.
 
 Archivo: `.github/workflows/vault.yml`.
 
@@ -23,10 +26,11 @@ Al cerrar la Fase 7 pasan las 138 notas. Para que pasaran se corrigió una:
 `cliente/comunicaciones/2026-09-20-respuesta-al-feedback-del-manual.md` decía `estado: enviada`, que no está en el
 vocabulario. Ahora dice `vigente`, y el envío se conserva en su campo `enviada:`.
 
-## La del repositorio de código (lista para copiar)
+## La del código
 
-Archivo: `herramientas/esqueleto-repo-codigo/.github/workflows/ci.yml`. Se copia el día que se cree el repositorio
-de código (DD-073).
+Archivo: `.github/workflows/ci.yml`, con sus verificaciones en `herramientas/ci/`. Hasta el 2026-11-18 esperaba en un
+esqueleto para un repositorio aparte; con C-169 pasó a la raíz de este. Ya corre: las reglas pasan sobre todo el
+repositorio (0 apariciones de la marca en el código y 0 secretos versionados, comprobado el 2026-11-18).
 
 **Pasa en verde sin código.** Cada trabajo se salta solo si su carpeta todavía no existe. Así la integración
 continua existe desde el primer commit, como pide el método.

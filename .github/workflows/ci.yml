@@ -1,5 +1,5 @@
-# Integración continua del repositorio de código.
-# Qué la hace fallar y por qué: vault/formas-de-trabajo/integracion-continua.md (repositorio del vault).
+# Integración continua del código (movil/ y servidor/).
+# Qué la hace fallar y por qué: vault/formas-de-trabajo/integracion-continua.md
 # Cada trabajo se salta si su carpeta todavía no existe, así que pasa en verde desde el primer commit.
 # Las versiones de PHP, Node y PostGIS se confirman en el sprint 1, al crear los proyectos (E).
 name: ci

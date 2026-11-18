@@ -103,8 +103,8 @@ Reglas duras:
 - No elegir stack sin matriz de criterios ponderados previa y ADR. Sin ADR, la decisión no existe.
 - No presentar un supuesto como hecho, ni una spec como implementación.
 - No escribir código de producto mientras la fase de cimiento (Fases 0 a 8) no esté cerrada. **El cimiento cerró
-  el 2026-11-18** (`vault/meta/actas/acta-2026-11-18-fase-8-instrumental.md`). Desde entonces, el código vive en el
-  repositorio de código y se escribe con `vault/formas-de-trabajo/`.
+  el 2026-11-18** (`vault/meta/actas/acta-2026-11-18-fase-8-instrumental.md`). Desde entonces, el código vive en `movil/`
+  y `servidor/` de este repositorio (§9) y se escribe con `vault/formas-de-trabajo/`.
 - No inventar datos de mercado, precios ni preferencias (regla 3 de evidencia).
 - No adular ni suavizar. Si la propuesta de valor no se sostiene, si el margen no da o si el
   calendario no cierra, la frase es **"no está listo"**, seguida del motivo y la evidencia.
@@ -121,8 +121,8 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
 
 - Rama principal `main`. Durante el cimiento: un commit por fase cerrada, con mensaje que nombre
   la fase (`Fase N: <qué cerró>`). Trabajo intermedio de una fase abierta: `wip(fase-N): <qué>`.
-- **El código vive en un repositorio aparte** (C-156). Ramas, commits, revisión y el PR a Nadir por sprint (C-158):
-  `vault/formas-de-trabajo/repositorios-ramas-y-revision.md`.
+- **El código vive en este mismo repositorio** (C-169, que reemplaza a C-156). Ramas, commits, revisión y el PR a
+  Nadir por sprint (C-158): `vault/formas-de-trabajo/repositorios-ramas-y-revision.md`.
 - `legal/` se versiona (el contrato es la fuente de verdad ejecutiva) pero no se espeja.
 
 ## 8. Dónde está cada cosa
@@ -142,3 +142,19 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
 | Qué agente hace qué y cómo se traspasan el trabajo | `vault/formas-de-trabajo/equipo-de-agentes.md` |
 | Convenciones del vault | `vault/meta/convenciones.md` |
 | Mapa de todo | `vault/meta/indice.md` |
+
+## 9. Código del producto
+
+Desde el 2026-11-18 el código vive aquí (C-169): `movil/`, la app de React Native con Expo (ADR-0002), y `servidor/`,
+Laravel con Filament para la API, el panel y la landing (ADR-0003 y ADR-0011). Cómo se trabaja: `vault/formas-de-trabajo/`.
+
+1. **Test primero,** con el identificador del escenario en el nombre (`pedidos-E03: …`). Nada es "implementado" sin
+   un test en verde.
+2. **Sin escenario no hay código.** Lo que no está en la spec se pregunta: puede ser una Orden de Cambio.
+3. **Marca y dominio, siempre de configuración.** La integración continua falla si aparecen en `movil/` o en
+   `servidor/` (`herramientas/ci/verificar_marca.py`).
+4. **Ningún secreto versionado** (`herramientas/ci/verificar_secretos.py`).
+5. **La autorización vive en un solo componente,** con rol, tenencia y plaza. Toda fila de operación lleva su plaza.
+6. **Commits de Claude, nunca a `main`.** Conventional Commits con la descripción en español: `feat(pedidos): …`.
+7. **Al entregar se cede solo el código** (`NSV-2026-001-v8.pdf:10:Cláusula IX`): `movil/` y `servidor/` se separan
+   del vault, del contrato y de las herramientas del método antes de transferirlos.

@@ -25,7 +25,7 @@ que mañana se pueda arrancar sin reconstruir nada de memoria.
 6. **Las verificaciones.** Corre `python herramientas/ci/verificar_vault.py` y
    `python herramientas/tablero/construir_tablero.py`. Si fallan, se corrige antes del commit.
 7. **El commit.**
-   - En el repositorio del vault, en una rama de trabajo y **nunca en `main`**.
+   - En una rama de trabajo y **nunca en `main`**.
    - El mensaje sigue `vault/formas-de-trabajo/repositorios-ramas-y-revision.md`.
    - **No se hace push si Arthur no lo pide.**
 8. **Para mañana.** Tres líneas:

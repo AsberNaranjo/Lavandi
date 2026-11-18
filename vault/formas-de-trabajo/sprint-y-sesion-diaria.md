@@ -34,14 +34,14 @@ C-157 lo dice: ya vamos atrasados. Los hechos:
 
 - El contrato ponía el desarrollo en las semanas 4 a 13, del 28 de septiembre al 6 de diciembre de 2026
   (A, Cláusula II; `contrato/calendario-contractual.md`).
-- Hoy, 17 de noviembre, es la semana 11 y el desarrollo no ha empezado (B: no existe el repositorio de código).
+- Hoy, 17 de noviembre, es la semana 11 y el desarrollo no ha empezado (B: no existen `movil/` ni `servidor/`).
 - La estimación media es de 389 h (S-006). Con 11 h comprometidas por semana son unas 35 semanas.
 
 **No está listo:** el alcance completo no cabe en el calendario del contrato. La ruta es la de la recalibración:
 construir por etapas, con alcance y calendario nuevos firmados en una Orden de Cambio. Depende de DD-068 y la
 negocia Nadir ([[protocolos-con-el-cliente]]).
 
-**Cuándo empieza el sprint 1:** cuando cierre la Fase 8 y exista el repositorio de código (DD-073).
+**Cuándo empieza el sprint 1:** cerrada la Fase 8, cuando estén las cuentas de prueba (DD-072) y la primera spec.
 
 ## La semana
 

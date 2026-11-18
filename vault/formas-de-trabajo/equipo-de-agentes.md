@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: prompt-maestro-01-fundacion-v5.md, Fase 8 (B); .claude/agents/ y .claude/skills/ (B); documentación de Claude Code sobre subagentes, skills, memoria y worktrees, consultada el 2026-11-18 (E); acta-2026-11-18-fase-8-instrumental.md C-161 a C-163 (C); skills externas revisadas el 2026-11-18 (E)
+fuente: prompt-maestro-01-fundacion-v5.md, Fase 8 (B); .claude/agents/ y .claude/skills/ (B); documentación de Claude Code sobre subagentes, skills, memoria y worktrees, consultada el 2026-11-18 (E); acta-2026-11-18-fase-8-instrumental.md C-161 a C-163 (C); acta-2026-11-18-entorno-y-mocks.md C-169 (C); skills externas revisadas el 2026-11-18 (E)
 fecha: 2026-11-18
 dueño: Arthur Naranjo
 ---
@@ -12,22 +12,20 @@ reutilizó ninguno de otros proyectos. Propuesta de Claude, aceptada por Arthur 
 
 ## Dónde viven y cómo se cargan
 
-- **Los agentes** están en `.claude/agents/` y **las skills** en `.claude/skills/`, en este repositorio, el del
-  vault. Son método de EL PRESTADOR y no se ceden al cliente (A, Cláusula IX).
-- **Las sesiones de desarrollo** arrancan en el repositorio de código y suman este con
-  `claude --add-dir <ruta al vault>`. Claude Code carga los agentes y las skills de un directorio sumado así, pero
-  **no** su `CLAUDE.md` (E, documentación de Claude Code, 2026-11-18). Por eso el repositorio de código trae su
-  propio `CLAUDE.md`, en `herramientas/esqueleto-repo-codigo/`.
+- **Los agentes** están en `.claude/agents/` y **las skills** en `.claude/skills/`. Son método de EL PRESTADOR
+  y no se ceden al cliente (A, Cláusula IX): al entregar, solo salen `movil/` y `servidor/`.
+- **Todo vive en este repositorio,** el código incluido (C-169). Las sesiones arrancan aquí, y Claude Code carga
+  los agentes, las skills y el `CLAUDE.md` sin pasos extra.
 - **Los dos implementadores trabajan en un worktree aislado** (`isolation: worktree`). Así pueden trabajar en
-  paralelo sin pisarse. El archivo `.worktreeinclude` del repositorio de código les copia los `.env` locales.
+  paralelo sin pisarse. El archivo `.worktreeinclude` de la raíz les copia los `.env` locales.
 
 ## Los seis agentes
 
 | Agente | Qué **decide** | Su carpeta | Por qué hace falta |
 |---|---|---|---|
 | `especificador` | Qué requisitos y escenarios tiene una capacidad, con qué cita, y si algo está fuera del alcance | `vault/specs/` | El ciclo empieza por la spec, y "sin cita no entra" es lo que detecta las Órdenes de Cambio antes de construir de más (A, Cláusula IV) |
-| `implementador-servidor` | Cómo se implementa un escenario en el servidor, el panel o la landing | `servidor/` (repositorio de código) | Es la mitad más grande del sistema (ADR-0003). Va separado de la app para trabajar en paralelo |
-| `implementador-movil` | Cómo se implementa un escenario en la app | `movil/` (repositorio de código) | Otra tecnología (ADR-0002) y otras reglas: tokens generados y pruebas en teléfono real |
+| `implementador-servidor` | Cómo se implementa un escenario en el servidor, el panel o la landing | `servidor/` | Es la mitad más grande del sistema (ADR-0003). Va separado de la app para trabajar en paralelo |
+| `implementador-movil` | Cómo se implementa un escenario en la app | `movil/` | Otra tecnología (ADR-0002) y otras reglas: tokens generados y pruebas en teléfono real |
 | `revisor` | Si un PR se puede fusionar | Ninguna: no edita | Con una sola persona, sin revisión nadie más vería el código. Vigila lo que más se puede equivocar: la autorización por rol, tenencia y plaza |
 | `verificador-de-aceptacion` | Si un criterio del A.4 avanza de estado, y si un entregable se puede notificar | La tabla de trazabilidad y las carpetas `evidencias/` | La aceptación mueve los pagos 2 y 3. Notificar algo sin probar le da al cliente una observación fundada |
 | `redactor-cliente` | Qué mensaje corresponde y cómo se dice | Borradores en `vault/cliente/` | El contrato exige el reporte semanal, los avisos con 48 h, la notificación de entregas y los requerimientos escritos (Cláusulas III, IV y XII). **Nunca envía:** envía Nadir |
@@ -56,7 +54,7 @@ regla 7).
 Los agentes del proyecto deciden; las skills externas les dan conocimiento del stack. Arthur pidió buscarlas
 (C-162) y eligió tres (C-163).
 
-**Cuándo se instalan:** en el sprint 1, en el repositorio de código, cada una en una rama aparte y leída antes de
+**Cuándo se instalan:** en el sprint 1, en `servidor/` o en `movil/`, cada una en una rama aparte y leída antes de
 usarse. Los pasos están en [[entorno-local]].
 
 | Skill | Publica y licencia (E) | Para quién | Con qué ajustes |

@@ -14,8 +14,8 @@ Qué se escribe antes de qué, desde la idea hasta el código en `main`. Propues
 
 | Pieza | Repositorio | Ruta |
 |---|---|---|
-| La spec: propuesta, requisitos con escenarios, diseño y tareas | Este, el del vault | `vault/specs/<capacidad>/` |
-| El código y sus tests | El de código (C-156) | `movil/` y `servidor/` |
+| La spec: propuesta, requisitos con escenarios, diseño y tareas | Este | `vault/specs/<capacidad>/` |
+| El código y sus tests | Este mismo (C-169) | `movil/` y `servidor/` |
 | La tabla que liga cada criterio del A.4 con su test | Este | [[trazabilidad-criterio-test]] |
 
 La spec sigue el formato de openspec, con la plantilla `plantillas/plantilla-spec-openspec.md`. La herramienta de
@@ -35,7 +35,7 @@ la fuente de las specs es el vault.
 
    La spec pasa a `vigente` cuando Arthur la aprueba.
 2. **Definition of Ready.** La tarea entra al sprint solo si cumple [[definicion-de-listo-y-terminado]].
-3. **Rama.** En el repositorio de código, una rama por cambio ([[repositorios-ramas-y-revision]]).
+3. **Rama.** Una rama por cambio ([[repositorios-ramas-y-revision]]).
 4. **Rojo, verde, refactor, por escenario:**
    - el test se escribe primero, lleva el identificador del escenario en su nombre y falla;
    - se escribe el código mínimo que lo pone en verde;

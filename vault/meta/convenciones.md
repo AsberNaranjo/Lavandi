@@ -94,7 +94,7 @@ Ver `CLAUDE.md`, sección 3. Formatos de cita:
 - No se comparte con EL CLIENTE.
 
 ## Git
-`main`. Un commit por fase cerrada (`Fase N: …`); trabajo intermedio `wip(fase-N): …`. Después del cimiento, y en el repositorio de código: `formas-de-trabajo/repositorios-ramas-y-revision.md`.
+`main`. Un commit por fase cerrada (`Fase N: …`); trabajo intermedio `wip(fase-N): …`. Después del cimiento, y para el código: `formas-de-trabajo/repositorios-ramas-y-revision.md`.
 
 ## Actas
 Toda sesión con Nadir produce un acta en `meta/actas/acta-AAAA-MM-DD-<tema>.md`. Lo que Nadir dice

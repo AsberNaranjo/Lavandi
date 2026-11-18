@@ -15,8 +15,8 @@ objetivo es que a las 22:10 los agentes ya estén trabajando.
      hecho y cuántas horas van;
    - lo que quedó pendiente en el último cierre de sesión;
    - las filas de `vault/meta/deuda-de-decision.md` que se cerraron desde la última sesión y desbloquean algo.
-2. **Los repositorios.** En el del vault y en el de código: la rama actual, si hay cambios sin commit y los PR
-   abiertos. **Si alguno está en `main` con cambios, se avisa antes de seguir.**
+2. **El repositorio.** La rama actual, si hay cambios sin commit y los PR abiertos. **Si está en `main` con
+   cambios, se avisa antes de seguir.**
 3. **Las tareas del día.** De las comprometidas en el sprint, elige las que cumplen la Definition of Ready
    (`vault/formas-de-trabajo/definicion-de-listo-y-terminado.md`). Si una no la cumple, dice qué le falta y no la
    propone.
