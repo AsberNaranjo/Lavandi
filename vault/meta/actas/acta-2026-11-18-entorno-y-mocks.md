@@ -54,6 +54,14 @@ Arthur respondió a los cuatro pasos para preparar el sprint 1:
   enseguida: "Sí, que quede todo en mocks, por favor." **Corrige a C-174 en el nombre de la carpeta:** es `mocks/`,
   no `mocks-lavandi/`. Lo que quedaba en la carpeta vieja (`index.html`, `LEEME.md` y las propuestas 02 y 03 de
   Arthur) se movió a `mocks/` sin sobrescribir nada, y la carpeta vieja se borró vacía.
+- C-176. **C (Arthur).** Pidió agregar al diseño de Claude Design la "PROPUESTA 2" con las imágenes de GPT de
+  `mocks/Lavandi - Propuesta 01` y `03`, después de renombrar su primer título a "PROPUESTA 1". Autorizó el push:
+  "Sí" (`mocks/lavandi` subida al fork y la rama vieja borrada de ahí).
+- C-177. **C (Nadir, por Arthur).** Sobre el kit que "trae el mock de cómo debe quedar": "Me dice que el 1 y 3
+  deberían de ser", es decir, el Kit para sumar lavanderías (`cliente/kit-de-prospeccion/`) y la identidad de marca
+  de Claude Design (`diseno/lavandi-identidad/`). Arthur: ponerlo como "PROPUESTA 3 (Nadir)"; "no es una propuesta,
+  pero es ya ver los mocks que en teoría ya fueron aprobados". Se agregó al diseño la lámina 5 del kit (la app de la
+  lavandería) y las seis láminas de identidad. La identidad usa Quicksand y Figtree, no las tipografías vigentes.
 
 ## Decisiones tomadas en la sesión
 
