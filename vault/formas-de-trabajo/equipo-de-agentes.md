@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: prompt-maestro-01-fundacion-v5.md, Fase 8 (B); .claude/agents/ y .claude/skills/ (B); documentación de Claude Code sobre subagentes, skills, memoria y worktrees, consultada el 2026-11-18 (E); acta-2026-11-18-fase-8-instrumental.md C-161 (C)
+fuente: prompt-maestro-01-fundacion-v5.md, Fase 8 (B); .claude/agents/ y .claude/skills/ (B); documentación de Claude Code sobre subagentes, skills, memoria y worktrees, consultada el 2026-11-18 (E); acta-2026-11-18-fase-8-instrumental.md C-161 a C-163 (C); skills externas revisadas el 2026-11-18 (E)
 fecha: 2026-11-18
 dueño: Arthur Naranjo
 ---
@@ -50,6 +50,37 @@ regla 7).
 | `cierre-de-sesion` | A las 23:50, o con "cerramos" | Registra horas para recalibrar S-006 y deja el vault al día para arrancar mañana sin reconstruir nada |
 | `cierre-de-sprint` | Los domingos, o con "cierra el sprint" | El PR semanal hacia Nadir (C-158) y el reporte semanal al cliente (A, Cláusula III) |
 | `asentar-acta` | Cuando Arthur o Nadir declaran o deciden algo | Sin acta no hay grado C (CLAUDE.md §3) |
+
+## Skills externas
+
+Los agentes del proyecto deciden; las skills externas les dan conocimiento del stack. Arthur pidió buscarlas
+(C-162) y eligió tres (C-163).
+
+**Cuándo se instalan:** en el sprint 1, en el repositorio de código, cada una en una rama aparte y leída antes de
+usarse. Los pasos están en [[entorno-local]].
+
+| Skill | Publica y licencia (E) | Para quién | Con qué ajustes |
+|---|---|---|---|
+| **Laravel Boost**, con la skill `filament-development` de Filament 5 | Laravel y Filament; MIT | `implementador-servidor` y `revisor` | Sin registro de reglas (`BOOST_RULES_ENABLED=false`), porque compite con el vault. Tinker apagado. **El TDD del proyecto va por encima de su guía de tests,** que admite escribirlos después del código |
+| **Plugin `expo`**: 24 skills de Expo Router, UI nativa, dev client, upgrades y EAS | Expo; MIT | `implementador-movil` | Se leen antes sus scripts de Node y los comandos de `eas-cli` que preautoriza. Su MCP pide cuenta de Expo, y la búsqueda en la documentación es de pago |
+| **`react-native-testing`** de Callstack, que mantiene React Native Testing Library, y el **MCP de Maestro**, que viene en su CLI | Callstack, MIT; Maestro, en su CLI | `implementador-movil` y `verificador-de-aceptacion` | De Callstack solo esa skill. `SIN VERIFICAR`: si sus symlinks funcionan en Windows |
+
+**Revisadas y descartadas** (E, 2026-11-18):
+
+| Qué | Por qué |
+|---|---|
+| `superpowers` | Un hook inyecta su método en cada sesión, y ofrece fusionar a la rama base en local: choca con "nunca a `main`" |
+| `security-guidance` | Sus hooks mandan cada diff al modelo. Ya existe `/security-review` |
+| `webapp-testing` de Anthropic | Pide correr un script sin leerlo |
+| `pr-review-toolkit` | Opcional; el `revisor`, `/code-review` y `/security-review` ya lo cubren. Arthur no lo eligió (C-163) |
+| El MCP de Conekta | Sin licencia, y operaría pagos reales |
+| Las skills de Software Mansion | No declaran licencia, y su foco (animaciones, audio) no es este |
+| Skills comunitarias de Maestro | Sin licencia y poco mantenidas; el MCP oficial basta |
+
+Fuentes: https://laravel.com/docs/13.x/boost · https://github.com/laravel/boost ·
+https://github.com/filamentphp/filament (skill `filament-development`) · https://github.com/expo/skills ·
+https://github.com/callstackincubator/agent-skills · https://docs.maestro.dev/get-started/maestro-mcp ·
+https://github.com/anthropics/claude-plugins-official · https://github.com/obra/superpowers
 
 ## Protocolo de traspaso
 

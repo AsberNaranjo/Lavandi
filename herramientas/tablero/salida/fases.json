@@ -67,6 +67,6 @@
   "fase": "8",
   "nombre": "Instrumental de Claude",
   "estado": "cerrada",
-  "evidencia": "La cerró Arthur el 2026-11-18 (C-161). Seis agentes en .claude/agents/ (especificador, implementador-servidor, implementador-movil, revisor, verificador-de-aceptacion y redactor-cliente), cuatro skills en .claude/skills/ (arranque-de-sesion, cierre-de-sesion, cierre-de-sprint y asentar-acta) y el protocolo de traspaso en formas-de-trabajo/equipo-de-agentes.md. Con esta fase cierra el cimiento: desde aquí se escribe código del producto, en el repositorio de código. Se ajustan con el uso en el sprint 1"
+  "evidencia": "La cerró Arthur el 2026-11-18 (C-161). Seis agentes en .claude/agents/ (especificador, implementador-servidor, implementador-movil, revisor, verificador-de-aceptacion y redactor-cliente), cuatro skills en .claude/skills/ (arranque-de-sesion, cierre-de-sesion, cierre-de-sprint y asentar-acta) y el protocolo de traspaso en formas-de-trabajo/equipo-de-agentes.md. Skills externas elegidas para el sprint 1: Laravel Boost con Filament, el plugin de Expo, la skill react-native-testing y el MCP de Maestro (C-163). Con esta fase cierra el cimiento: desde aquí se escribe código del producto, en el repositorio de código. Se ajustan con el uso en el sprint 1"
  }
 ]
