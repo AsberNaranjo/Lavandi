@@ -2,7 +2,7 @@
 estado: vigente
 grado: mixto
 fuente: hechos del repo al 2026-11-12 (B), con cita en cada fila; declaraciones de Nadir y, desde el traspaso, de Arthur en las actas (C); calendario y obligaciones del contrato (A)
-fecha: 2026-11-17
+fecha: 2026-11-18
 dueño: Arthur Naranjo
 ---
 # Estado del proyecto
@@ -41,7 +41,7 @@ haya hecho. Si se hizo, se asienta en un acta y aquí cambia el estado.
 | 5-bis | Análisis funcional | cerrada | `contrato/inventario-funcional.md` `vigente`: 76 funciones. Su veredicto, con la estimación media: **no está listo** (§7) |
 | 6 | Stack | cerrada con pendientes | La lleva Arthur Naranjo desde el traspaso (C-132; acordado con Nadir, C-143). Matriz `vigente` con los pesos del 2026-09-25 (C-142). **13 de los 14 ADRs están `vigente`** (`arquitectura/adr/`): construir sobre piezas probadas (0015); React Native con Expo (0002); Laravel con Filament (0003); PostgreSQL con PostGIS (0004); correo y contraseña, Google con Credential Manager y Apple (0005); fotos en S3 privado (0006); consulta cada 30 s más aviso (0007); FCM directo (0008); `react-native-maps` con iOS 18 y Android 11 como mínimos (0009); checkout redirigido de Conekta (0010); landing en el mismo Laravel (0011); tres entornos (0012); script de tokens (0013). Pendientes: correo, `ADR-0014` en borrador (DD-071); hosting (DD-070); prueba en iPhone (DD-069); OXXO (DD-056); los cinco momentos de aviso (DD-011) |
 | 7 | Formas de trabajo | cerrada con pendientes | La cerró Arthur el 2026-11-17 (C-155). Nueve notas en `formas-de-trabajo/` (índice: `formas-de-trabajo/formas-de-trabajo.md`): ciclo openspec + TDD, Definition of Ready y Definition of Done, trazabilidad de los 19 criterios del A.4 más las 4 medidas de seguridad, sprint de una semana (C-157), repositorio de código aparte (C-156), PR a Nadir por sprint (C-158), integración continua y registro de horas. La integración continua del vault corre desde `.github/workflows/vault.yml`; la del código espera en `herramientas/esqueleto-repo-codigo/`. Pendientes: el repositorio de código (DD-073), las cuentas de prueba (DD-072), los protocolos con el cliente, en borrador hasta que los apruebe Nadir (DD-074), y el espejo a Notion (DD-075) |
-| 8 | Instrumental de Claude | sin empezar | `.claude/agents/` y `.claude/skills/` vacíos |
+| 8 | Instrumental de Claude | cerrada | La cerró Arthur el 2026-11-18 (C-161). Seis agentes en `.claude/agents/` (especificador, implementador-servidor, implementador-movil, revisor, verificador-de-aceptacion y redactor-cliente), cuatro skills en `.claude/skills/` (arranque-de-sesion, cierre-de-sesion, cierre-de-sprint y asentar-acta) y el protocolo de traspaso en `formas-de-trabajo/equipo-de-agentes.md`. **Con esta fase cierra el cimiento:** desde aquí se escribe código del producto, en el repositorio de código. Se ajustan con el uso en el sprint 1 |
 
 ## Actividades del calendario contractual
 
@@ -145,7 +145,7 @@ Ordenado por lo que más bloquea. Es la respuesta corta a "¿qué sigue?". La fe
 | 6 | Calcular las horas de la etapa 1: cruzar el inventario de 76 funciones con lo que el cliente marcó "para abrir" | Arthur, con Claude | El tamaño de la etapa 1 y la propuesta de la Orden de Cambio | 2026-11-19 | Estimación de Claude, con sesiones diarias de 2 h (C-134) |
 | 7 | Cerrar los pendientes de la Fase 6: hosting (DD-070, lo decide Arthur con Nadir; mientras tanto, solo local, C-154), correo (DD-071) y prueba en iPhone (DD-069). La fase quedó cerrada con pendientes el 2026-11-13 | Arthur, con Claude | El primer despliegue y la prueba temprana (R-025) | 2026-11-22 | Estimación de Claude, con sesiones diarias de 2 h (C-134) |
 | 8 | Cerrar los pendientes de la Fase 7: crear el repositorio de código con el esqueleto (DD-073), decidir quién abre las cuentas de prueba (DD-072) y que Nadir apruebe los protocolos con el cliente (DD-074). La fase quedó cerrada con pendientes el 2026-11-17 | Arthur con Nadir | El sprint 1 y los avisos formales al cliente | 2026-11-24 | Una semana, el plazo de un sprint (C-157) |
-| 9 | Cerrar la Fase 8: el equipo de agentes del proyecto, sus traspasos y la regla de "terminado" | Arthur, con Claude | Trabajar con agentes en paralelo en cada sesión (C-134) | 2026-11-29 | Estimación de Claude |
+| 9 | Preparar el sprint 1: instalar lo que falta del entorno local (`formas-de-trabajo/entorno-local.md`), crear el repositorio de código con el esqueleto (DD-073), escribir con el `especificador` la primera spec y hacer la prueba temprana en iPhone (DD-069) | Arthur, con Claude | El desarrollo del producto | 2026-11-24 | Una semana, el plazo de un sprint (C-157) |
 | 10 | Empezar las 12 plantillas en Canva, en una cuenta a nombre del cliente | Por definir: Nadir o Arthur | El criterio de aceptación del branding (A.4.1) | 2026-11-08 | Antes de la semana 10 (C-73) |
 | 11 | Empezar el reporte semanal a EL CLIENTE | Nadir | La comunicación semanal durante el desarrollo (O-29) | 2026-10-09 | El calendario pone el desarrollo desde la semana 4 |
 | 12 | Preguntar al diseñador con qué licencia usó Berlin Sans FB, y hacer la búsqueda fonética ante el IMPI | Nadir | El registro de la marca (DD-060, DD-030) | sin fecha | Antes del trámite ante el IMPI |

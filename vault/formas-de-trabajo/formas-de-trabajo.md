@@ -2,7 +2,7 @@
 estado: vigente
 grado: mixto
 fuente: prompt-maestro-01-fundacion-v5.md, Fase 7 (B); acta-2026-11-17-fase-7-formas-de-trabajo.md C-155 a C-158 (C)
-fecha: 2026-11-17
+fecha: 2026-11-18
 dueño: Arthur Naranjo
 ---
 # Formas de trabajo
@@ -22,9 +22,11 @@ Cómo se construye el producto desde la Fase 7. Cada nota responde a un punto de
 | Reporte semanal, notificación de entrega, requerimientos escritos y Órdenes de Cambio | [[protocolos-con-el-cliente]] | **borrador:** lo aprueba Nadir (DD-074) | Nadir |
 | Regla Obsidian → Notion | [[espejo-notion]] | borrador (DD-075) | Arthur con Nadir |
 | Horas reales por función, para recalibrar S-006 | [[registro-de-horas]] | vigente | Arthur |
+| Fase 8: los agentes, las skills y el protocolo de traspaso | [[equipo-de-agentes]] | vigente | Arthur (C-161) |
+| Lo que falta instalar para trabajar en local | [[entorno-local]] | vigente | Arthur |
 
-**Plantillas nuevas** en `plantillas/`: notificación de entrega, requerimiento escrito, aviso de retraso y Orden de
-Cambio.
+**Plantillas nuevas** en `plantillas/`: notificación de entrega, requerimiento escrito, aviso de retraso, Orden de
+Cambio y plan del sprint.
 
 **Archivos fuera del vault:**
 

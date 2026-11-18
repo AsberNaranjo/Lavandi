@@ -81,13 +81,13 @@
  },
  {
   "orden": 9,
-  "accion": "Cerrar la Fase 8: el equipo de agentes del proyecto, sus traspasos y la regla de \"terminado\"",
+  "accion": "Preparar el sprint 1: instalar lo que falta del entorno local (formas-de-trabajo/entorno-local.md), crear el repositorio de código con el esqueleto (DD-073), escribir con el especificador la primera spec y hacer la prueba temprana en iPhone (DD-069)",
   "quien": "Arthur, con Claude",
-  "desbloquea": "Trabajar con agentes en paralelo en cada sesión (C-134)",
-  "limite": "2026-11-29",
+  "desbloquea": "El desarrollo del producto",
+  "limite": "2026-11-24",
   "vencida": false,
   "dias_vencida": 0,
-  "origen_fecha": "Estimación de Claude"
+  "origen_fecha": "Una semana, el plazo de un sprint (C-157)"
  },
  {
   "orden": 10,

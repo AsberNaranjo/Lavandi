@@ -2,7 +2,7 @@
 estado: vigente
 grado: mixto
 fuente: acta-2026-11-17-fase-7-formas-de-trabajo.md C-157 (C); acta-2026-11-12-traspaso-del-proyecto.md C-134 (C); NSV-2026-001-v8.pdf:5:Cláusula II y :6:Cláusula III.A (A); calendario-contractual.md (B); supuestos.md S-006 (S)
-fecha: 2026-11-17
+fecha: 2026-11-18
 dueño: Arthur Naranjo
 ---
 # Sprint y sesión diaria
@@ -44,6 +44,10 @@ negocia Nadir ([[protocolos-con-el-cliente]]).
 **Cuándo empieza el sprint 1:** cuando cierre la Fase 8 y exista el repositorio de código (DD-073).
 
 ## La semana
+
+**El plan de cada sprint** vive en `formas-de-trabajo/sprints/sprint-NN.md`, con la plantilla
+`plantillas/plantilla-sprint.md`. Lo crea la skill `cierre-de-sprint` y lo usa la skill `arranque-de-sesion`
+([[equipo-de-agentes]]).
 
 | Día | Qué pasa |
 |---|---|

@@ -2,7 +2,7 @@
 estado: vigente
 grado: B
 fuente: estructura del repo
-fecha: 2026-11-17
+fecha: 2026-11-18
 dueño: Arthur Naranjo
 ---
 # Índice (MOC raíz)
@@ -20,7 +20,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[estado-del-proyecto]] — **en qué estado está todo**: fases, calendario, obligaciones, pagos, trámites y lo que sigue, con evidencia por fila. Es la fuente del tablero
 - **Tablero del proyecto**: <https://claude.ai/artifact/T2tZpPePdPhccB4GmFRjbK> — espejo del vault, privado. Cómo se actualiza: `herramientas/tablero/README.md`
 - [[deuda-de-decision]] — qué falta decidir y quién bloquea
-- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]] · [[acta-2026-09-20-feedback-del-manual]] · [[acta-2026-09-25-analisis-funcional]] · [[acta-2026-09-29-sesion-tecnica-y-plantilla-landing]] · [[acta-2026-09-30-segunda-revision-del-manual]] · [[acta-2026-10-09-tablero-del-proyecto]] · [[acta-2026-10-09-antes-del-stack]] · [[acta-2026-10-17-listado-de-lavanderias]] · [[acta-2026-10-25-kit-de-socios]] · [[acta-2026-11-05-resultados-de-la-recalibracion]] · [[acta-2026-11-12-traspaso-del-proyecto]] · [[acta-2026-11-13-cierre-de-la-fase-6]] · [[acta-2026-11-17-fase-7-formas-de-trabajo]]
+- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]] · [[acta-2026-09-20-feedback-del-manual]] · [[acta-2026-09-25-analisis-funcional]] · [[acta-2026-09-29-sesion-tecnica-y-plantilla-landing]] · [[acta-2026-09-30-segunda-revision-del-manual]] · [[acta-2026-10-09-tablero-del-proyecto]] · [[acta-2026-10-09-antes-del-stack]] · [[acta-2026-10-17-listado-de-lavanderias]] · [[acta-2026-10-25-kit-de-socios]] · [[acta-2026-11-05-resultados-de-la-recalibracion]] · [[acta-2026-11-12-traspaso-del-proyecto]] · [[acta-2026-11-13-cierre-de-la-fase-6]] · [[acta-2026-11-17-fase-7-formas-de-trabajo]] · [[acta-2026-11-18-fase-8-instrumental]]
 
 ## Contrato (grado A leído)
 
@@ -124,7 +124,15 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[protocolos-con-el-cliente]] — **borrador, lo aprueba Nadir (DD-074)**: reporte semanal, notificación de entrega, aviso de retraso, requerimiento escrito y Orden de Cambio
 - [[espejo-notion]] — borrador: hoy no existe; recomendación, no montarlo hasta que alguien lo consulte (DD-075)
 - [[registro-de-horas]] — horas reales por función, para recalibrar S-006 al cerrar el sprint 2
+- [[entorno-local]] — lo que hay en la máquina de Arthur y lo que falta instalar para el sprint 1
 - **Fase 7 cerrada con pendientes el 2026-11-17** ([[acta-2026-11-17-fase-7-formas-de-trabajo]]): DD-072, DD-073, DD-074 y DD-075
+
+## Instrumental de Claude (Fase 8)
+
+- [[equipo-de-agentes]] — los seis agentes, qué decide cada uno, las cuatro skills y el protocolo de traspaso
+- Agentes en `.claude/agents/`: `especificador` · `implementador-servidor` · `implementador-movil` · `revisor` · `verificador-de-aceptacion` · `redactor-cliente`
+- Skills en `.claude/skills/`: `arranque-de-sesion` · `cierre-de-sesion` · `cierre-de-sprint` · `asentar-acta`
+- **Fase 8 cerrada el 2026-11-18** ([[acta-2026-11-18-fase-8-instrumental]]). **Con ella cierra el cimiento**
 
 ## Riesgos y supuestos
 
@@ -139,5 +147,5 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Plantillas
 
-- adr · acta-de-sesion · hipotesis · riesgo · supuesto · spec-openspec · nota-de-decision-de-marca · reporte-semanal-cliente · nota-ejecutiva-cliente · notificacion-de-entrega · requerimiento-escrito · aviso-de-retraso · orden-de-cambio (las cuatro últimas, en borrador hasta DD-074)
+- adr · acta-de-sesion · hipotesis · riesgo · supuesto · spec-openspec · nota-de-decision-de-marca · reporte-semanal-cliente · nota-ejecutiva-cliente · notificacion-de-entrega · requerimiento-escrito · aviso-de-retraso · orden-de-cambio (estas cuatro, en borrador hasta DD-074) · sprint
 

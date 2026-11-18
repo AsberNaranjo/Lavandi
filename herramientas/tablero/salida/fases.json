@@ -66,7 +66,7 @@
   "orden": 9,
   "fase": "8",
   "nombre": "Instrumental de Claude",
-  "estado": "sin empezar",
-  "evidencia": ".claude/agents/ y .claude/skills/ vacíos"
+  "estado": "cerrada",
+  "evidencia": "La cerró Arthur el 2026-11-18 (C-161). Seis agentes en .claude/agents/ (especificador, implementador-servidor, implementador-movil, revisor, verificador-de-aceptacion y redactor-cliente), cuatro skills en .claude/skills/ (arranque-de-sesion, cierre-de-sesion, cierre-de-sprint y asentar-acta) y el protocolo de traspaso en formas-de-trabajo/equipo-de-agentes.md. Con esta fase cierra el cimiento: desde aquí se escribe código del producto, en el repositorio de código. Se ajustan con el uso en el sprint 1"
  }
 ]

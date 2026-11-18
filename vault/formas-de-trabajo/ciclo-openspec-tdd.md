@@ -2,7 +2,7 @@
 estado: vigente
 grado: D
 fuente: prompt-maestro-01-fundacion-v5.md, Fase 7 (B); plantilla-spec-openspec.md (B); CLAUDE.md §3, regla 7 (B); acta-2026-11-17-fase-7-formas-de-trabajo.md C-155 y C-156 (C)
-fecha: 2026-11-17
+fecha: 2026-11-18
 dueño: Arthur Naranjo
 ---
 # Ciclo openspec + TDD
@@ -24,13 +24,16 @@ la fuente de las specs es el vault.
 
 ## El orden
 
-1. **Spec.** Se escribe en `vault/specs/<capacidad>/`:
-   - la propuesta: por qué, qué cambia y qué no;
-   - los requisitos, cada uno con su cita: A (contrato) o D (ADR). Un requisito sin cita no entra;
-   - los escenarios en forma **Dado / Cuando / Entonces**, cada uno con un identificador: `<capacidad>-E01`,
-     `<capacidad>-E02`…;
-   - el diseño, solo si hay una decisión no trivial, que remite a su ADR;
-   - las tareas, cada una con el test que la cierra.
+1. **Spec.** La escribe el agente `especificador` en `vault/specs/<capacidad>/` ([[equipo-de-agentes]]):
+   - `propuesta.md`: por qué, qué cambia y qué no;
+   - `spec.md`: los requisitos, cada uno con su cita, A (contrato) o D (ADR), y sus escenarios en forma
+     **Dado / Cuando / Entonces**, cada uno con un identificador: `<capacidad>-E01`, `<capacidad>-E02`…. Un
+     requisito sin cita no entra;
+   - `diseno.md`: solo si hay una decisión no trivial, y remite a su ADR;
+   - `tareas.md`: cada tarea con el test que la cierra;
+   - `evidencias/`: las capturas y videos que acreditan criterios del A.4.
+
+   La spec pasa a `vigente` cuando Arthur la aprueba.
 2. **Definition of Ready.** La tarea entra al sprint solo si cumple [[definicion-de-listo-y-terminado]].
 3. **Rama.** En el repositorio de código, una rama por cambio ([[repositorios-ramas-y-revision]]).
 4. **Rojo, verde, refactor, por escenario:**

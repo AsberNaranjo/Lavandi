@@ -102,7 +102,9 @@ Reglas duras:
 - No presentar una decisión técnica como si viniera del contrato.
 - No elegir stack sin matriz de criterios ponderados previa y ADR. Sin ADR, la decisión no existe.
 - No presentar un supuesto como hecho, ni una spec como implementación.
-- No escribir código de producto mientras la fase de cimiento (Fases 0 a 8) no esté cerrada.
+- No escribir código de producto mientras la fase de cimiento (Fases 0 a 8) no esté cerrada. **El cimiento cerró
+  el 2026-11-18** (`vault/meta/actas/acta-2026-11-18-fase-8-instrumental.md`). Desde entonces, el código vive en el
+  repositorio de código y se escribe con `vault/formas-de-trabajo/`.
 - No inventar datos de mercado, precios ni preferencias (regla 3 de evidencia).
 - No adular ni suavizar. Si la propuesta de valor no se sostiene, si el margen no da o si el
   calendario no cierra, la frase es **"no está listo"**, seguida del motivo y la evidencia.
@@ -137,5 +139,6 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
 | Supuestos y riesgos | `vault/riesgos-supuestos/` |
 | Decisiones técnicas | `vault/arquitectura/adr/` |
 | Cómo se trabaja: sprint, DoR y DoD, trazabilidad, integración continua | `vault/formas-de-trabajo/formas-de-trabajo.md` |
+| Qué agente hace qué y cómo se traspasan el trabajo | `vault/formas-de-trabajo/equipo-de-agentes.md` |
 | Convenciones del vault | `vault/meta/convenciones.md` |
 | Mapa de todo | `vault/meta/indice.md` |
