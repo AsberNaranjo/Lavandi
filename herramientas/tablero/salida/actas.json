@@ -198,5 +198,13 @@
   "declaraciones": 6,
   "primera": "C-155",
   "ultima": "C-160"
+ },
+ {
+  "fecha": "2026-11-18",
+  "tema": "Fase 8: instrumental de Claude",
+  "archivo": "vault/meta/actas/acta-2026-11-18-fase-8-instrumental.md",
+  "declaraciones": 1,
+  "primera": "C-161",
+  "ultima": "C-161"
  }
 ]
