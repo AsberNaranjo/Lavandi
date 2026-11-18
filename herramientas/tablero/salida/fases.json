@@ -59,8 +59,8 @@
   "orden": 8,
   "fase": "7",
   "nombre": "Formas de trabajo",
-  "estado": "sin empezar",
-  "evidencia": "vault/formas-de-trabajo/ vacío"
+  "estado": "cerrada con pendientes",
+  "evidencia": "La cerró Arthur el 2026-11-17 (C-155). Nueve notas en formas-de-trabajo/ (índice: formas-de-trabajo/formas-de-trabajo.md): ciclo openspec + TDD, Definition of Ready y Definition of Done, trazabilidad de los 19 criterios del A.4 más las 4 medidas de seguridad, sprint de una semana (C-157), repositorio de código aparte (C-156), PR a Nadir por sprint (C-158), integración continua y registro de horas. La integración continua del vault corre desde .github/workflows/vault.yml; la del código espera en herramientas/esqueleto-repo-codigo/. Pendientes: el repositorio de código (DD-073), las cuentas de prueba (DD-072), los protocolos con el cliente, en borrador hasta que los apruebe Nadir (DD-074), y el espejo a Notion (DD-075)"
  },
  {
   "orden": 9,

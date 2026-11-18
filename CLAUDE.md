@@ -119,7 +119,8 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
 
 - Rama principal `main`. Durante el cimiento: un commit por fase cerrada, con mensaje que nombre
   la fase (`Fase N: <qué cerró>`). Trabajo intermedio de una fase abierta: `wip(fase-N): <qué>`.
-- Convención de ramas, commits y revisión para desarrollo: se define en `vault/formas-de-trabajo/` (Fase 7).
+- **El código vive en un repositorio aparte** (C-156). Ramas, commits, revisión y el PR a Nadir por sprint (C-158):
+  `vault/formas-de-trabajo/repositorios-ramas-y-revision.md`.
 - `legal/` se versiona (el contrato es la fuente de verdad ejecutiva) pero no se espeja.
 
 ## 8. Dónde está cada cosa
@@ -135,5 +136,6 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
 | Lo que Nadir declaró (grado C) | `vault/meta/actas/` |
 | Supuestos y riesgos | `vault/riesgos-supuestos/` |
 | Decisiones técnicas | `vault/arquitectura/adr/` |
+| Cómo se trabaja: sprint, DoR y DoD, trazabilidad, integración continua | `vault/formas-de-trabajo/formas-de-trabajo.md` |
 | Convenciones del vault | `vault/meta/convenciones.md` |
 | Mapa de todo | `vault/meta/indice.md` |
