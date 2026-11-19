@@ -1138,5 +1138,20 @@
   "dias_vencida": null,
   "contractual": true,
   "estado": "abierta — contractual"
+ },
+ {
+  "id": "DD-078",
+  "num": 78,
+  "decision": "Pedidos de noche y un día para lavar",
+  "quien": "EL CLIENTE, vía Nadir",
+  "bloquea": "La spec de agenda (F-A07) y el horario de la lavandería (Módulo B)",
+  "fase": "5-bis",
+  "limite": "antes de la spec de agenda",
+  "limite_fecha": null,
+  "abierta": true,
+  "vencida": false,
+  "dias_vencida": null,
+  "contractual": false,
+  "estado": "abierta"
  }
 ]
