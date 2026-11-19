@@ -203,9 +203,9 @@
   "fecha": "2026-11-18",
   "tema": "Entorno local y mocks",
   "archivo": "vault/meta/actas/acta-2026-11-18-entorno-y-mocks.md",
-  "declaraciones": 12,
+  "declaraciones": 14,
   "primera": "C-164",
-  "ultima": "C-175"
+  "ultima": "C-177"
  },
  {
   "fecha": "2026-11-18",
@@ -214,5 +214,13 @@
   "declaraciones": 3,
   "primera": "C-161",
   "ultima": "C-163"
+ },
+ {
+  "fecha": "2026-11-18",
+  "tema": "Pedidos de noche",
+  "archivo": "vault/meta/actas/acta-2026-11-18-pedidos-de-noche.md",
+  "declaraciones": 2,
+  "primera": "C-178",
+  "ultima": "C-179"
  }
 ]
