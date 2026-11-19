@@ -1153,5 +1153,20 @@
   "dias_vencida": null,
   "contractual": false,
   "estado": "abierta"
+ },
+ {
+  "id": "DD-079",
+  "num": 79,
+  "decision": "¿Se cambia Conekta por otra pasarela?",
+  "quien": "Nadir con EL CLIENTE; la pasarela que se elija, Arthur con ADR",
+  "bloquea": "La integración de pagos, el ADR-0010, el criterio A43-4 de la trazabilidad y el alta del cliente (B.6)",
+  "fase": "6",
+  "limite": "antes de la spec de pago",
+  "limite_fecha": null,
+  "abierta": true,
+  "vencida": false,
+  "dias_vencida": null,
+  "contractual": true,
+  "estado": "abierta — contractual"
  }
 ]

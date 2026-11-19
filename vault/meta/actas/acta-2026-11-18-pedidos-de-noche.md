@@ -26,6 +26,12 @@ Continúa la numeración de [[acta-2026-11-18-entorno-y-mocks]], que llega hasta
 
   No es una decisión: es una regla de operación que alguien les explicó a lavanderías. Para usarla en la spec, el
   cliente la confirma por escrito (DD-078).
+- C-180. **C (Arthur).** "Búscame las opciones para meterle los pagos con tarjeta a la app; se descarta Conekta."
+  No dijo quién lo decidió ni por qué. **Conekta es grado A**: el contrato la nombra en la p. 16 (A.3 #10), la p. 19
+  (la pasarela y la conciliación del panel), la p. 20 (los datos de tarjeta los resguarda Conekta), la p. 21 (el
+  criterio de aceptación del A.4.3) y el ANEXO B.6. Cambiarla exige una Orden de Cambio firmada por los dos
+  (Cláusula IV). Mientras no exista, el `ADR-0010` sigue vigente; se buscaron las alternativas para que Nadir
+  negocie con datos (DD-079).
 
 ## Lo que toca
 
@@ -53,3 +59,4 @@ Ninguna. La regla se archiva y se convierte en preguntas.
 | 3 | ¿El usuario elige la ventana de recolección dentro del horario de la lavandería, o la app le propone la primera disponible? | La pantalla de fecha y hora (F-A07) | DD-078 |
 | 4 | ¿Cuándo debe aceptar la lavandería un pedido de noche: al abrir o antes de la recolección? | El plazo para aceptar (BR-26) | DD-078 |
 | 5 | ¿Fines de semana y días festivos? | El cálculo de fechas | DD-078 |
+| 6 | ¿Quién decidió descartar Conekta y por qué? ¿El cliente acepta la Orden de Cambio? | Cambiar de pasarela; el criterio A.4.3 y el ADR-0010 | DD-079 |
