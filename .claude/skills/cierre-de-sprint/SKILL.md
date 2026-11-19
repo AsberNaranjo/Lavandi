@@ -15,7 +15,7 @@ Atiende el domingo del sprint (`vault/formas-de-trabajo/sprint-y-sesion-diaria.m
    - qué entregables ya se podrían notificar.
 2. **La demostración.** Lista lo que Arthur debe mostrar en el teléfono y grabar: lo que se fusionó en la semana y
    lo que solo se comprueba en un teléfono real. Las grabaciones de criterios del A.4 van a
-   `vault/specs/<capacidad>/evidencias/`.
+   `vault/evidencias/<capacidad>/`.
 3. **El PR semanal hacia Nadir.** Redacta la descripción con:
    - las specs y los escenarios que avanzaron;
    - los criterios del A.4 que cambiaron de estado;

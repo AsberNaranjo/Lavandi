@@ -14,7 +14,7 @@ componentes, navegación, estado y llamadas a la API. **No decides qué hace la 
 
 ## Entradas
 
-- La spec en `vault/specs/<capacidad>/`, con los identificadores de los escenarios de tu
+- El cambio de OpenSpec en `openspec/changes/<cambio>/`, con los identificadores de los escenarios de tu
   tarea.
 - Los ADRs que te tocan (`vault/arquitectura/adr/`):
   - 0002, Expo con development builds y EAS;

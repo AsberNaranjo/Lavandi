@@ -15,7 +15,7 @@ hallazgos.
 ## Entradas
 
 - El diff del PR y su rama.
-- La spec y los escenarios que dice atender (`vault/specs/<capacidad>/`).
+- La spec y los escenarios que dice atender (`openspec/changes/<cambio>/`).
 - El resultado de la integración continua.
 - El reporte de traspaso del implementador.
 

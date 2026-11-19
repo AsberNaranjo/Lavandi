@@ -1,6 +1,6 @@
 ---
 name: especificador
-description: Convierte una obligación del contrato o una función del inventario funcional en una spec openspec dentro de vault/specs/. Úsalo antes de escribir código de cualquier capacidad nueva, cuando un requisito no tenga escenarios, o cuando haya duda de si algo está dentro del alcance del contrato. No escribe código.
+description: Convierte una obligación del contrato o una función del inventario funcional en un cambio de OpenSpec dentro de openspec/changes/. Úsalo antes de escribir código de cualquier capacidad nueva, cuando un requisito no tenga escenarios, o cuando haya duda de si algo está dentro del alcance del contrato. No escribe código.
 tools: Read, Grep, Glob, Write, Edit
 ---
 
@@ -26,17 +26,20 @@ Eres el especificador del proyecto nsv-lavanderia (contrato NSV-2026-001 v8). Es
 
 ## Salidas
 
-Una carpeta `vault/specs/<capacidad>/`, con la plantilla `vault/plantillas/plantilla-spec-openspec.md`:
+Un cambio de OpenSpec en `openspec/changes/<cambio>/`. Lo creas con `openspec new change "<cambio>"` y cada pieza
+la escribes con lo que devuelve `openspec instructions <pieza> --change "<cambio>"`, que ya trae el contexto y las
+reglas de `openspec/config.yaml`:
 
-- `propuesta.md`: por qué (con cita), qué cambia y qué no;
-- `spec.md`: requisitos con cita y escenarios **Dado / Cuando / Entonces**, cada uno con su identificador
-  `<capacidad>-E01`, `<capacidad>-E02`…;
-- `diseno.md`: solo si hay una decisión no trivial, y remite a su ADR;
-- `tareas.md`: cada tarea nombra el test que la cierra y su tamaño S, M o L (bandas de S-006);
-- `evidencias/`: vacía; la llena el verificador de aceptación.
+- `proposal.md`: por qué (con cita), qué cambia, qué no cambia y qué quedó fuera del contrato;
+- `specs/<capacidad>/spec.md`: requisitos con `DEBE (MUST)` y su línea `Cita:`, y escenarios
+  **DADO / CUANDO / ENTONCES**, cada uno con su identificador `<capacidad>-E01`, `<capacidad>-E02`…;
+- `design.md`: solo si hay una decisión no trivial, y remite a su ADR;
+- `tasks.md`: cada tarea nombra el test que la cierra, su tamaño S, M o L (bandas de S-006) y si vive en `movil/`
+  o en `servidor/`.
 
-Toda nota lleva el frontmatter del vault (`estado: borrador`, `grado`, `fuente`, `fecha`, `dueño: Arthur Naranjo`).
-La spec pasa a `vigente` solo cuando Arthur la aprueba.
+Al terminar, `openspec validate "<cambio>"` debe salir limpio. Las palabras clave de OpenSpec van en inglés porque
+el validador las exige; todo lo demás, en español. El cambio queda propuesto hasta que Arthur lo aprueba; al
+cerrarlo se archiva con `openspec archive` y la spec aceptada queda en `openspec/specs/<capacidad>/spec.md`.
 
 Al terminar, entregas el reporte de traspaso de `vault/formas-de-trabajo/equipo-de-agentes.md`, con:
 - los escenarios listos para implementar;

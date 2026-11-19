@@ -1,0 +1,47 @@
+---
+estado: vigente
+grado: C
+fuente: sesión de Arthur Naranjo con Claude Code del 2026-11-19
+fecha: 2026-11-19
+dueño: Arthur Naranjo
+---
+# Acta — 2026-11-19 — Normativa del contrato y arranque del desarrollo
+
+Participantes: Arthur Naranjo · Claude Code.
+Continúa la numeración de [[acta-2026-11-18-pedidos-de-noche]], que llega hasta C-180.
+
+## Declaraciones
+
+- C-181. **C (Arthur).** "Ok, lo ideal es comenzar con la APP y no desviarnos de ninguna manera sobre el contrato,
+  así que déjalo por NORMATIVA en el CLAUDE.md: que no se debe salir de lo ya establecido en el contrato." Queda
+  como la sección 2-bis de `CLAUDE.md`.
+- C-182. **C (Arthur).** "Lo ideal es comenzar con la APP." El desarrollo empieza por el Módulo A, el del usuario,
+  con el servidor mínimo que necesita.
+- C-183. **C (Arthur).** "Instala el OpenSpec en el proyecto, o actívalo, ya que ya se tiene instalado en global."
+  Se corrió `openspec init --tools claude` en el repositorio (OpenSpec 1.3.1).
+- C-184. **C (Arthur).** "Después de eso también aplica el /graphify para generar nodos."
+- C-185. **C (Arthur).** "Ahora sí empiezas a darme las fases de seguimiento, sprints, del cómo se va a comenzar a
+  trabajar […] y antes de continuar, comenzar a ver cómo repartir las tareas de desarrollo de nuestra parte y con
+  Nadir. Usa los agentes necesarios para agilizar este proceso."
+
+## Decisiones tomadas en la sesión
+
+| # | Decisión | Opciones consideradas | Quién decide | Nota resultante |
+|---|---|---|---|---|
+| 1 | No se construye nada que el contrato no establezca; lo demás es posible Orden de Cambio | — | Arthur (C-181) | `CLAUDE.md` §2-bis |
+| 2 | Se empieza por la app: Módulo A | Empezar por la landing o por el panel | Arthur (C-182) | `formas-de-trabajo/sprints/plan-de-sprints.md` |
+| 3 | Las specs viven en `openspec/`: el cambio en curso en `openspec/changes/<cambio>/` y la spec aceptada en `openspec/specs/<capacidad>/spec.md`. `vault/specs/` deja de usarse | Dejar la fuente en `vault/specs/` con la herramienta solo local, como decía el ciclo del 2026-11-18 | Propuesta de Claude que se desprende de C-183; Arthur la puede corregir | [[ciclo-openspec-tdd]] |
+
+**Lo que implica la decisión 3.** OpenSpec solo lee `openspec/`, así que la spec sale del vault: Obsidian y el espejo
+de Notion ya no la ven. Las palabras clave de la herramienta se quedan en inglés porque su validador las exige
+(`## Why`, `## What Changes`, `### Requirement:`, `#### Scenario:`, `MUST`); el texto va en español y los escenarios
+usan **DADO / CUANDO / ENTONCES**. Se probó en una copia aparte el 2026-11-19: un cambio con frontmatter, texto en
+español y "DEBE (MUST)" valida y se archiva sin errores. Las reglas están en `openspec/config.yaml`.
+
+## Preguntas abiertas que salieron de la sesión
+
+Ninguna nueva. La normativa vuelve más urgente la fila que ya estaba abierta:
+
+| # | Pregunta | Bloquea | Fila en `deuda-de-decision.md` |
+|---|---|---|---|
+| 1 | ¿Quién decidió descartar Conekta y el cliente firma la Orden de Cambio? Sin ella, la normativa deja Conekta | La spec de pago | DD-079 |

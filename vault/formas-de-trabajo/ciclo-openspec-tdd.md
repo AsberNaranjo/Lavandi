@@ -1,8 +1,8 @@
 ---
 estado: vigente
 grado: D
-fuente: prompt-maestro-01-fundacion-v5.md, Fase 7 (B); plantilla-spec-openspec.md (B); CLAUDE.md §3, regla 7 (B); acta-2026-11-17-fase-7-formas-de-trabajo.md C-155 y C-156 (C)
-fecha: 2026-11-18
+fuente: prompt-maestro-01-fundacion-v5.md, Fase 7 (B); openspec/config.yaml (B); CLAUDE.md §2-bis y §3, regla 7 (B); acta-2026-11-17-fase-7-formas-de-trabajo.md C-155 y C-156 (C); acta-2026-11-19-normativa-y-arranque.md C-181 y C-183 (C)
+fecha: 2026-11-19
 dueño: Arthur Naranjo
 ---
 # Ciclo openspec + TDD
@@ -14,26 +14,42 @@ Qué se escribe antes de qué, desde la idea hasta el código en `main`. Propues
 
 | Pieza | Repositorio | Ruta |
 |---|---|---|
-| La spec: propuesta, requisitos con escenarios, diseño y tareas | Este | `vault/specs/<capacidad>/` |
+| El cambio en curso: propuesta, requisitos con escenarios, diseño y tareas | Este | `openspec/changes/<cambio>/` |
+| La spec aceptada de cada capacidad, ya fusionada | Este | `openspec/specs/<capacidad>/spec.md` |
+| Los cambios cerrados | Este | `openspec/changes/archive/` |
+| Las reglas que OpenSpec le pasa a Claude | Este | `openspec/config.yaml` |
+| Las capturas y videos que acreditan criterios del A.4 | Este | `vault/evidencias/<capacidad>/` |
 | El código y sus tests | Este mismo (C-169) | `movil/` y `servidor/` |
 | La tabla que liga cada criterio del A.4 con su test | Este | [[trazabilidad-criterio-test]] |
 
-La spec sigue el formato de openspec, con la plantilla `plantillas/plantilla-spec-openspec.md`. La herramienta de
-línea de comandos de OpenSpec es opcional y local: la rama `chore/claude-openspec-setup` la deja fuera de git, y
-la fuente de las specs es el vault.
+**OpenSpec está activo en el repositorio** desde el 2026-11-19 (C-183), con la versión 1.3.1. Antes, la fuente de
+las specs era `vault/specs/` y la herramienta era opcional; eso quedó atrás (decisión 3 del acta
+[[acta-2026-11-19-normativa-y-arranque]]). Lo que cambia:
+
+- **La spec ya no está en el vault.** Obsidian y el espejo de Notion no la ven; se lee en el repositorio.
+- **Las palabras clave de la herramienta van en inglés,** porque su validador las exige: `## Why`,
+  `## What Changes`, `### Requirement:`, `#### Scenario:` y la palabra `MUST` en cada requisito. El texto va en
+  español: "La app DEBE (MUST)…", y los escenarios usan **DADO / CUANDO / ENTONCES**.
+- **Las reglas del proyecto viajan con la herramienta.** `openspec/config.yaml` lleva la NORMATIVA (§2-bis) y las
+  reglas de cada pieza; `openspec instructions` se las entrega a Claude cada vez.
+- **La plantilla `plantilla-spec-openspec.md` queda `superseded`.**
+
+**Los comandos.** En Claude Code: `/opsx:propose` (crea el cambio con todas sus piezas), `/opsx:explore` (pensar
+antes de proponer), `/opsx:apply` (implementar las tareas) y `/opsx:archive` (cerrar el cambio y fusionar su spec).
+En la terminal: `openspec list`, `openspec validate <cambio>` y `openspec archive <cambio>`.
 
 ## El orden
 
-1. **Spec.** La escribe el agente `especificador` en `vault/specs/<capacidad>/` ([[equipo-de-agentes]]):
-   - `propuesta.md`: por qué, qué cambia y qué no;
-   - `spec.md`: los requisitos, cada uno con su cita, A (contrato) o D (ADR), y sus escenarios en forma
-     **Dado / Cuando / Entonces**, cada uno con un identificador: `<capacidad>-E01`, `<capacidad>-E02`…. Un
-     requisito sin cita no entra;
-   - `diseno.md`: solo si hay una decisión no trivial, y remite a su ADR;
-   - `tareas.md`: cada tarea con el test que la cierra;
-   - `evidencias/`: las capturas y videos que acreditan criterios del A.4.
+1. **Spec.** La escribe el agente `especificador` como un cambio de OpenSpec en `openspec/changes/<cambio>/`
+   ([[equipo-de-agentes]]):
+   - `proposal.md`: por qué, qué cambia, qué no y qué quedó fuera del contrato;
+   - `specs/<capacidad>/spec.md`: los requisitos, cada uno con su cita, A (contrato) o D (ADR), y sus escenarios
+     en forma **DADO / CUANDO / ENTONCES**, cada uno con un identificador: `<capacidad>-E01`, `<capacidad>-E02`….
+     Un requisito sin cita no entra (NORMATIVA, `CLAUDE.md` §2-bis);
+   - `design.md`: solo si hay una decisión no trivial, y remite a su ADR;
+   - `tasks.md`: cada tarea con el test que la cierra.
 
-   La spec pasa a `vigente` cuando Arthur la aprueba.
+   `openspec validate <cambio>` sale limpio y Arthur aprueba el cambio antes de implementarlo.
 2. **Definition of Ready.** La tarea entra al sprint solo si cumple [[definicion-de-listo-y-terminado]].
 3. **Rama.** Una rama por cambio ([[repositorios-ramas-y-revision]]).
 4. **Rojo, verde, refactor, por escenario:**
@@ -44,8 +60,9 @@ la fuente de las specs es el vault.
    ruta del test.
 6. **Pull request.** La integración continua en verde, la revisión del agente revisor (Fase 8) y la aprobación de
    Arthur ([[integracion-continua]]).
-7. **Cierre.** Las tareas de la spec quedan marcadas, cada una con su test; la spec pasa a `vigente`; se registran
-   las horas en [[registro-de-horas]].
+7. **Cierre.** Las tareas del cambio quedan marcadas, cada una con su test; el cambio se archiva con
+   `openspec archive <cambio>` y su spec se fusiona en `openspec/specs/<capacidad>/spec.md`, donde se escribe el
+   `## Purpose` en español; se registran las horas en [[registro-de-horas]].
 
 ## Cómo se nombran los tests
 

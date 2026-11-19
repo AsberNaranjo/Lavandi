@@ -23,7 +23,7 @@ reutilizó ninguno de otros proyectos. Propuesta de Claude, aceptada por Arthur 
 
 | Agente | Qué **decide** | Su carpeta | Por qué hace falta |
 |---|---|---|---|
-| `especificador` | Qué requisitos y escenarios tiene una capacidad, con qué cita, y si algo está fuera del alcance | `vault/specs/` | El ciclo empieza por la spec, y "sin cita no entra" es lo que detecta las Órdenes de Cambio antes de construir de más (A, Cláusula IV) |
+| `especificador` | Qué requisitos y escenarios tiene una capacidad, con qué cita, y si algo está fuera del alcance | `openspec/changes/` | El ciclo empieza por la spec, y "sin cita no entra" es lo que detecta las Órdenes de Cambio antes de construir de más (A, Cláusula IV) |
 | `implementador-servidor` | Cómo se implementa un escenario en el servidor, el panel o la landing | `servidor/` | Es la mitad más grande del sistema (ADR-0003). Va separado de la app para trabajar en paralelo |
 | `implementador-movil` | Cómo se implementa un escenario en la app | `movil/` | Otra tecnología (ADR-0002) y otras reglas: tokens generados y pruebas en teléfono real |
 | `revisor` | Si un PR se puede fusionar | Ninguna: no edita | Con una sola persona, sin revisión nadie más vería el código. Vigila lo que más se puede equivocar: la autorización por rol, tenencia y plaza |

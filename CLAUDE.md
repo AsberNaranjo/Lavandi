@@ -47,14 +47,42 @@ Coahuila (`legal/NSV-2026-001-v8.pdf:4:Cláusula I`).
 - El contrato dice **qué se entrega** y **con qué criterio se acepta** (ANEXO A, Sección A.4). Eso es grado A.
 - El contrato **no dice cómo se construye**. Ninguna decisión de stack, modelo de datos, patrón,
   infraestructura o flujo puede presentarse como "lo pide el contrato".
-- Toda especificación técnica nace en el vault y se sostiene sola: por su ADR
-  (`vault/arquitectura/adr/`) o por su spec (`vault/specs/`), nunca por el PDF.
+- Toda especificación técnica nace en este repositorio y se sostiene sola: por su ADR
+  (`vault/arquitectura/adr/`) o por su spec de OpenSpec (`openspec/`, C-183), nunca por el PDF.
 - Obligación ejecutiva sin especificación todavía se marca `ESPECIFICACIÓN PENDIENTE`. Es el
   estado normal al inicio, no un error.
 - Las pocas frases del ANEXO A que sí nombran tecnología (Conekta; mapas de Google en Android y
   de Apple en iPhone; avisos por el servicio gratuito de Google; Google Sign-In; GA4, Meta Pixel,
   GTM y Search Console; Canva o Figma) se tratan como **restricciones grado A** que la arquitectura
   debe satisfacer, no como diseño. Están listadas en `vault/contrato/restricciones-no-negociables.md`.
+
+## 2-bis. NORMATIVA: no se sale del contrato
+
+> Arthur, el 2026-11-19: "Lo ideal es comenzar con la APP y no desviarnos de ninguna manera sobre el contrato, así
+> que déjalo por NORMATIVA en el CLAUDE.md: no se debe salir de lo ya establecido en el contrato" (C-181).
+
+Esta regla manda sobre cualquier petición posterior, venga de quien venga: Arthur, Nadir, EL CLIENTE, un audio, un
+mock, una propuesta de otra IA o una idea de Claude.
+
+1. **Se construye solo lo que el contrato establece.** Toda función, pantalla, integración, regla, dato o
+   indicador cita su origen: `NSV-2026-001-v8.pdf:pág:ANEXO A, Sección A.x` o la cláusula. Sin cita, no se
+   construye. El inventario de lo que sí entra es `vault/contrato/obligaciones-ejecutivas.md` y
+   `vault/contrato/inventario-funcional.md`.
+2. **Lo que no está en el contrato no entra al código, aunque sea buena idea.** Se anota como posible Orden de
+   Cambio (Cláusula IV) en `vault/meta/deuda-de-decision.md` y Nadir decide si la negocia. Mientras no esté
+   firmada, no existe (`NSV-2026-001-v8.pdf:8:Cláusula IV`). Las exclusiones expresas son la sección C de
+   `obligaciones-ejecutivas.md`.
+3. **Lo que el contrato nombra no se sustituye sin Orden de Cambio firmada.** Conekta sigue siendo la pasarela
+   (DD-079); los mapas, los avisos, Google Sign-In y la analítica siguen como dice
+   `restricciones-no-negociables.md`.
+4. **Lo que el contrato pide sin detallar se resuelve con lo mínimo que cumple su criterio de aceptación**
+   (ANEXO A.4), con ADR o con la respuesta escrita del cliente. No se agranda.
+5. **Los mocks, el kit y los audios orientan; no amplían el alcance.** Si una pantalla o una regla de ahí no tiene
+   cita, se trata como el punto 2.
+6. **Se empieza por la app** (C-182): el Módulo A, del usuario, con el servidor mínimo que necesita. La landing, el
+   panel y los demás módulos siguen el orden del plan de sprints, sin mover las fechas del contrato.
+7. Si alguien pide salirse, Claude lo dice con la frase "**eso está fuera del contrato**", cita lo que sí dice el
+   contrato y propone anotarlo como posible Orden de Cambio. No lo construye "mientras tanto".
 
 ## 3. Regla de evidencia
 
@@ -140,6 +168,9 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
 | Decisiones técnicas | `vault/arquitectura/adr/` |
 | Cómo se trabaja: sprint, DoR y DoD, trazabilidad, integración continua | `vault/formas-de-trabajo/formas-de-trabajo.md` |
 | Qué agente hace qué y cómo se traspasan el trabajo | `vault/formas-de-trabajo/equipo-de-agentes.md` |
+| La spec de cada capacidad | `openspec/specs/` (aceptadas) y `openspec/changes/` (en curso); reglas en `openspec/config.yaml` |
+| El plan de sprints y el sprint en curso | `vault/formas-de-trabajo/sprints/` |
+| Quién hace qué: Arthur, Nadir y EL CLIENTE | `vault/formas-de-trabajo/reparto-de-tareas.md` |
 | Convenciones del vault | `vault/meta/convenciones.md` |
 | Mapa de todo | `vault/meta/indice.md` |
 

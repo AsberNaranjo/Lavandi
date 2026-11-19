@@ -26,9 +26,9 @@ Las filas `fuera del código` no cambian de estado.
 ## Entradas
 
 - La tabla de trazabilidad.
-- Las specs (`vault/specs/`).
+- Las specs (`openspec/specs/` las aceptadas y `openspec/changes/` las que están en curso).
 - El código en `main` (`movil/` y `servidor/`): los tests y su resultado.
-- Las evidencias en `vault/specs/<capacidad>/evidencias/`.
+- Las evidencias en `vault/evidencias/<capacidad>/`.
 
 ## Reglas para mover una fila
 

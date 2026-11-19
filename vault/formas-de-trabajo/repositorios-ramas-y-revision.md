@@ -55,7 +55,7 @@ Para el código, **Conventional Commits con la descripción en español**:
 ```
 tipo(alcance): qué cambia, en presente
 
-Escenario: pedidos-E03 · Spec: vault/specs/pedidos/
+Escenario: pedidos-E03 · Spec: openspec/changes/pedidos/
 ```
 
 - **Tipos:** `feat`, `fix`, `test`, `refactor`, `docs`, `chore`, `ci`, `build`. Son términos técnicos y se dejan

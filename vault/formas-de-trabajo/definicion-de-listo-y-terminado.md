@@ -11,8 +11,8 @@ Propuesta de Claude, aceptada por Arthur con "adelante, termina la fase" (C-155)
 
 ## Definition of Ready: cuándo una tarea puede entrar al sprint
 
-1. **Tiene spec** en `vault/specs/<capacidad>/`, con requisitos citados (A o D) y escenarios con identificador
-   ([[ciclo-openspec-tdd]]).
+1. **Tiene spec** en `openspec/changes/<cambio>/`, validada con `openspec validate`, con requisitos citados (A o D)
+   y escenarios con identificador ([[ciclo-openspec-tdd]]).
 2. **No depende de una respuesta que no existe.** Si toca una fila `abierta` de la deuda de decisión, entra solo la
    parte que no depende de ella, y lo demás queda fuera o configurable. Ejemplo: el cobro no entra mientras
    DD-012 siga abierta.
@@ -31,7 +31,7 @@ Propuesta de Claude, aceptada por Arthur con "adelante, termina la fase" (C-155)
 4. **Sin marca ni dominio escritos a mano, y sin secretos.** Lo comprueba la integración continua.
 5. **La spec está al día:** tareas marcadas, cada una con su test, y la tabla de trazabilidad actualizada.
 6. **Hay evidencia del criterio,** si la tarea acredita uno del A.4: captura o video en Android y en iPhone cuando
-   aplique, guardados en `vault/specs/<capacidad>/evidencias/`.
+   aplique, guardados en `vault/evidencias/<capacidad>/`.
 7. **Las horas están registradas** en [[registro-de-horas]].
 8. **Está en `main`** del fork de Arthur.
 

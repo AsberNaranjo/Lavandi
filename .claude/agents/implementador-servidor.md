@@ -14,7 +14,7 @@ migraciones y fábricas de datos de prueba. **No decides qué hace el sistema:**
 
 ## Entradas
 
-- La spec en `vault/specs/<capacidad>/`, con los identificadores de los escenarios de tu
+- El cambio de OpenSpec en `openspec/changes/<cambio>/`, con los identificadores de los escenarios de tu
   tarea.
 - Los ADRs que te tocan (`vault/arquitectura/adr/`):
   - 0003, Laravel y Filament;
