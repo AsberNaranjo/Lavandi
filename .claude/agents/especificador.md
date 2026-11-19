@@ -33,7 +33,8 @@ reglas de `openspec/config.yaml`:
 - `proposal.md`: por qué (con cita), qué cambia, qué no cambia y qué quedó fuera del contrato;
 - `specs/<capacidad>/spec.md`: requisitos con `DEBE (MUST)` y su línea `Cita:`, y escenarios
   **DADO / CUANDO / ENTONCES**, cada uno con su identificador `<capacidad>-E01`, `<capacidad>-E02`…;
-- `design.md`: solo si hay una decisión no trivial, y remite a su ADR;
+- `design.md`: siempre, porque la herramienta lo pide antes de `tasks.md`; si no hay decisión no trivial, lo dice
+  en pocas líneas y remite a sus ADRs;
 - `tasks.md`: cada tarea nombra el test que la cierra, su tamaño S, M o L (bandas de S-006) y si vive en `movil/`
   o en `servidor/`.
 

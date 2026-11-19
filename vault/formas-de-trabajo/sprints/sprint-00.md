@@ -17,11 +17,11 @@ técnica más 1 h de la spec del registro, que es parte de F-A02.
 
 | # | Tarea (spec y escenarios) | Función (inventario) | Tamaño | Agente | Rama | Estado |
 |---|---|---|---|---|---|---|
-| 1 | Spec del cambio `base-tecnica` en `openspec/changes/base-tecnica/`: propuesta, requisitos con cita y escenarios. Cubre que la API responde con PostGIS en local, que la app arranca, que el nombre del producto sale de la configuración y que la app pide iOS 18 y Android 11 como mínimo (A43-1, ADR-0009) | F-T04, F-T05, F-T12 | S (1 h) | `especificador` | la de trabajo del vault | por hacer |
+| 1 | Spec del cambio `base-tecnica` en `openspec/changes/base-tecnica/`: propuesta, requisitos con cita y escenarios. Cubre que la API responde con PostGIS en local, que la app arranca, que el nombre del producto sale de la configuración y que la app pide iOS 18 y Android 11 como mínimo (A43-1, ADR-0009) | F-T04, F-T05, F-T12 | S (1 h) | `especificador` | la de trabajo del vault | en revisión |
 | 2 | Crear `servidor/`: Laravel 13, Filament 5 y Sanctum (ADR-0003), conectado al PostGIS local (ADR-0004, C-166), con los tests de `base-tecnica` en verde y `.env.example` sin secretos | F-T04, F-T05 | S (2 h) | `implementador-servidor` | `chore/base-servidor` | por hacer |
 | 3 | Crear `movil/`: Expo SDK 58 (ADR-0002), Jest con `jest-expo` y React Native Testing Library, con los tests de `base-tecnica` en verde | F-T12 | S (2 h) | `implementador-movil` | `chore/base-movil` | por hacer |
 | 4 | Instalar las skills externas de C-163: Laravel Boost con `filament-development` (`BOOST_RULES_ENABLED=false`), el plugin `expo`, `react-native-testing` de Callstack y el MCP de Maestro ([[equipo-de-agentes]]) | — (instrumental) | S (1 h) | Arthur, con Claude | `chore/skills-externas` | por hacer |
-| 5 | Spec del cambio `registro-e-inicio-de-sesion` en `openspec/changes/`, aprobada por Arthur el domingo 22 | F-A02, F-T07, F-T09, F-T13 | S (1 h) | `especificador` | la de trabajo del vault | por hacer |
+| 5 | Spec del cambio `registro-e-inicio-de-sesion` en `openspec/changes/`, aprobada por Arthur el domingo 22 | F-A02, F-T07, F-T09, F-T13 | S (1 h) | `especificador` | la de trabajo del vault | en revisión |
 
 Estados: `por hacer` · `en curso` · `en revisión` · `terminada` · `sale del sprint`.
 
@@ -37,6 +37,10 @@ corre en paralelo desde el jueves.
 | 4 | Las cuatro skills ya se eligieron (C-163) | `servidor/` creado. Si los symlinks de la skill de Callstack fallan en Windows, se anota (`SIN VERIFICAR` en [[equipo-de-agentes]]) |
 
 ## Lo que entró a mitad del sprint, y lo que salió a cambio
+
+- **2026-11-19:** las specs de las tareas 1 y 5 quedaron escritas y validadas con `openspec validate`, junto con las
+  otras 24 del plan (C-186). Esperan la aprobación de Arthur. Antes de las tareas 2 y 3 hacen falta DD-088 (el
+  identificador de la app) y DD-089; antes del sprint 01, DD-086, DD-087, DD-090 y DD-071.
 
 ## Cierre
 

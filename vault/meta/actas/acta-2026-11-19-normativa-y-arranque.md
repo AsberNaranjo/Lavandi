@@ -23,6 +23,11 @@ Continúa la numeración de [[acta-2026-11-18-pedidos-de-noche]], que llega hast
 - C-185. **C (Arthur).** "Ahora sí empiezas a darme las fases de seguimiento, sprints, del cómo se va a comenzar a
   trabajar […] y antes de continuar, comenzar a ver cómo repartir las tareas de desarrollo de nuestra parte y con
   Nadir. Usa los agentes necesarios para agilizar este proceso."
+- C-186. **C (Arthur).** "Ok, entonces /opsx:explore + /opsx:propose. Cuando tengas los specs vemos cómo incluir a
+  Nadir; si no, pues de modo igual ya apoyará con lo del contacto con el cliente. Ahora inicia todo y genera un PDF
+  donde estén los specs que se van a hacer por fase, ya sabes, cubriendo lo del contrato, y cuando termines de hacer
+  todo, pues hibernas el equipo." Se exploró la cobertura del plan contra el contrato y se propusieron sus 26 cambios
+  de OpenSpec; el PDF queda en `notas-locales/`.
 
 ## Decisiones tomadas en la sesión
 
@@ -31,6 +36,8 @@ Continúa la numeración de [[acta-2026-11-18-pedidos-de-noche]], que llega hast
 | 1 | No se construye nada que el contrato no establezca; lo demás es posible Orden de Cambio | — | Arthur (C-181) | `CLAUDE.md` §2-bis |
 | 2 | Se empieza por la app: Módulo A | Empezar por la landing o por el panel | Arthur (C-182) | `formas-de-trabajo/sprints/plan-de-sprints.md` |
 | 3 | Las specs viven en `openspec/`: el cambio en curso en `openspec/changes/<cambio>/` y la spec aceptada en `openspec/specs/<capacidad>/spec.md`. `vault/specs/` deja de usarse | Dejar la fuente en `vault/specs/` con la herramienta solo local, como decía el ciclo del 2026-11-18 | Propuesta de Claude que se desprende de C-183; Arthur la puede corregir | [[ciclo-openspec-tdd]] |
+| 4 | Se proponen de una vez los 26 cambios del plan, de `base-tecnica` a `publicacion`, uno por capacidad, solo con requisitos nuevos (`ADDED`). Todos quedan como propuesta: cada uno se aprueba antes de su sprint | Proponer solo los de H0 y H1 | Arthur (C-186) | `openspec/changes/` |
+| 5 | `design.md` siempre existe, aunque sea breve, porque la herramienta lo pide antes de `tasks.md` | Dejarlo solo para decisiones no triviales, como decía el ciclo | Claude, por la herramienta; Arthur lo puede corregir | `openspec/config.yaml` |
 
 **Lo que implica la decisión 3.** OpenSpec solo lee `openspec/`, así que la spec sale del vault: Obsidian y el espejo
 de Notion ya no la ven. Las palabras clave de la herramienta se quedan en inglés porque su validador las exige

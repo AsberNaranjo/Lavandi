@@ -46,7 +46,8 @@ En la terminal: `openspec list`, `openspec validate <cambio>` y `openspec archiv
    - `specs/<capacidad>/spec.md`: los requisitos, cada uno con su cita, A (contrato) o D (ADR), y sus escenarios
      en forma **DADO / CUANDO / ENTONCES**, cada uno con un identificador: `<capacidad>-E01`, `<capacidad>-E02`….
      Un requisito sin cita no entra (NORMATIVA, `CLAUDE.md` §2-bis);
-   - `design.md`: solo si hay una decisión no trivial, y remite a su ADR;
+   - `design.md`: siempre, porque la herramienta lo pide antes de `tasks.md`; si no hay decisión no trivial, lo
+     dice en pocas líneas y remite a sus ADRs;
    - `tasks.md`: cada tarea con el test que la cierra.
 
    `openspec validate <cambio>` sale limpio y Arthur aprueba el cambio antes de implementarlo.

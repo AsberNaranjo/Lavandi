@@ -27,7 +27,13 @@ rehace al cerrar el sprint 02, con las horas reales (recalibración de S-006, [[
    - el recorrido completo en local, con la lavandería atendiendo y el usuario siguiendo su pedido, al cerrar el
      sprint 17 (21 de marzo de 2027).
 5. **Lo que más pesa** es la administración con los indicadores: 101 horas, diez sprints (H9).
-6. **El orden no cambia el alcance.** Se construyen las 76 funciones del contrato. Lo que se mueve son las fechas, y
+6. **Al especificar, las horas salieron al doble.** Las 26 specs de OpenSpec (2026-11-19, C-186) suman 810 horas con la
+   misma banda media, contando las tareas bloqueadas, contra las 389 de este plan. El plan pesó cada función una vez;
+   las specs la parten en tareas del servidor y de la app, de 2 horas como mínimo, y suman las pruebas en el teléfono
+   y en los navegadores. Con 11 horas por semana, 810 horas terminarían hacia abril de 2028. **No está listo:** el
+   número que vale es el de las horas reales, que se mide en los sprints 00 a 02, y con él se rehace este plan el 6 de
+   diciembre. Detalle por fase: `notas-locales/lavandi-specs-por-fase.pdf`.
+7. **El orden no cambia el alcance.** Se construyen las 76 funciones del contrato. Lo que se mueve son las fechas, y
    eso solo vale con Orden de Cambio firmada (`NSV-2026-001-v8.pdf:8:Cláusula IV`).
 
 ## Reglas del plan
@@ -145,8 +151,7 @@ hito ([[trazabilidad-criterio-test]]).
   - Sostén técnico: ADR-0006.
 - **Las lavanderías de este hito son de prueba,** sembradas en la base. El alta real llega en H5.
 - **Bloqueos:**
-  - BR-15: qué es "cercana", qué es "activa" y qué es "disponibilidad". No tiene fila en la deuda: ver la propuesta
-    al final.
+  - BR-15: qué es "cercana", qué es "activa" y qué es "disponibilidad". Es la fila DD-083.
   - BR-16 y DD-010: quién fija el precio y en qué unidad va el lavado en seco.
 - **Del cliente:** DD-010 y BR-16 antes del sprint 06 (28 de diciembre). Sin respuesta, el precio queda como dato
   configurable y la spec lleva `SIN RESPUESTA`.
@@ -346,7 +351,7 @@ sprint:
 | Hasta 20 horas de soporte en los 60 días tras la publicación | `:23:A.7` | Por venir |
 | La revisión de las tiendas y la corrección de rechazos | `:5-6:Cláusula II` y `:23:A.7` | Es tiempo de calendario, no horas de Arthur |
 
-Ver la propuesta de fila al final.
+Es la fila DD-085.
 
 ## Fuera del contrato: posibles Órdenes de Cambio
 

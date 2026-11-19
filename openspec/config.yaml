@@ -40,7 +40,7 @@ rules:
     - "Si un escenario depende de una fila abierta de la deuda de decisión, se escribe igual y lleva la línea 'SIN RESPUESTA — bloquea: <escenario> (DD-xxx)'. Nunca se inventa la regla de negocio: precios, comisiones, plazos y textos legales se preguntan."
     - "Si el escenario acredita un criterio del ANEXO A.4, se nombra el criterio (por ejemplo A43-4) para la tabla de trazabilidad."
   design:
-    - "Solo existe si hay una decisión técnica no trivial. Remite al ADR que la sostiene y no lo repite."
+    - "Siempre existe, porque la herramienta lo pide antes de tasks.md. Si no hay una decisión técnica no trivial, lo dice en pocas líneas y remite a los ADRs que la sostienen, sin repetirlos."
     - "Una decisión técnica nueva necesita su ADR en vault/arquitectura/adr/ antes de implementarse. Ninguna decisión técnica se presenta como si viniera del contrato."
   tasks:
     - "Cada tarea nombra el test que la cierra con el identificador del escenario (pedidos-E03) y su tamaño S, M o L."
