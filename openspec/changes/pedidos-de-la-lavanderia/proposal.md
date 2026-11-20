@@ -13,6 +13,8 @@ mecanismo de "tiempo real" ya está decidido: consulta cada 30 segundos (ADR-000
   oculta (ADR-0007). Es la primera pantalla de la app con consulta periódica; `estados-del-pedido` la reutiliza.
 - **Aceptar un pedido,** con la hora de aceptación.
 - **Rechazar un pedido con motivo obligatorio,** guardado con el pedido.
+- **Sin pago acreditado no hay pedido para la lavandería** (C-188): un pedido cuyo pago la pasarela no ha confirmado no
+  aparece en la lista ni se acepta o se rechaza.
 - **Escenarios escritos y bloqueados:** los datos de recolección que ve la lavandería (DD-022, DD-014), el plazo para
   responder y lo que pasa si no responde (BR-26), el pedido que llega de noche (DD-078, pregunta 4), lo que pasa con
   el pedido y el cobro después de un rechazo (DD-016, DD-012) y el aviso de pedido nuevo con la app cerrada (DD-054).
@@ -22,8 +24,8 @@ mecanismo de "tiempo real" ya está decidido: consulta cada 30 segundos (ADR-000
 - Los botones Recolectado → En proceso → Listo → En proceso de entrega (F-B03) y los cinco estados que ve el usuario,
   con su mapeo (BR-22, DD-011): son de `estados-del-pedido`.
 - Los avisos al usuario y los cinco momentos (DD-011): son de `avisos`.
-- El cobro, los reembolsos y cuándo un pedido queda confirmado frente al pago (DD-012): son de `pago` y de
-  `resumen-y-confirmacion`.
+- El cobro, los reembolsos y la confirmación del pedido cuando la pasarela confirma el pago (C-188, DD-012): son de
+  `pago` y de `resumen-y-confirmacion`. Aquí solo se lee `pedidos.confirmado_en`.
 - La asignación del repartidor (DD-014): es de `repartidor`.
 - El historial de pedidos completados, con su monto y su calificación (F-B04): es de `historial-de-la-lavanderia`.
 - El monitoreo de pedidos activos en el panel (F-D04): es de `administracion`.
@@ -55,8 +57,10 @@ Ninguna.
 - **`movil/`:** la pantalla de pedidos del Módulo B, con la tarjeta de pedido de socio lavandería
   (`vault/design-system/componentes.md`, componente 4), la pantalla de rechazo y la consulta periódica de 30 segundos.
   Si DD-054 se aprueba, la recepción del aviso con `@react-native-firebase/messaging` (ADR-0008).
-- **Base de datos:** la respuesta de la lavandería en el pedido: aceptado o rechazado, con su hora y su motivo.
+- **Base de datos:** ninguna tabla nueva. La respuesta de la lavandería es un evento en `pedido_eventos` (estado, hora
+  y motivo) y el estado actual en `pedidos`, las dos de `resumen-y-confirmacion` (ADR-0016).
 - **Dependencias:** ninguna nueva mientras DD-054 siga abierta.
-- **ADRs:** ADR-0003, ADR-0005, ADR-0007 y ADR-0008.
-- **Cambios de los que depende:** `resumen-y-confirmacion` (el pedido confirmado con folio), `alta-de-lavanderias` y
-  `autorizacion-por-rol`.
+- **ADRs:** ADR-0003, ADR-0005, ADR-0007, ADR-0008 y ADR-0016.
+- **Cambios de los que depende:** `modelo-de-datos`, `resumen-y-confirmacion` (el pedido con folio), `pago` (la
+  confirmación al acreditarse el pago), `alta-de-lavanderias` y `autorizacion-por-rol`. Para E15 y E16, además,
+  `avisos` (la tabla `dispositivos`), que va después en el plan.

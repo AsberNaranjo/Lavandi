@@ -38,7 +38,7 @@ Ninguna.
 
 - **`servidor/`:** una página de indicadores en el panel de Filament, con widgets de barras, dona, línea, indicador destacado y tablas; las consultas de cada indicador, que también usará `exportacion`; el mapa de calor con agregados calculados en el servidor; el registro de actividad que alimenta los usuarios activos. Tests en `servidor/tests/Feature/Indicadores/`.
 - **`movil/`:** nada.
-- **Base de datos:** el registro de actividad por usuario y día (qué lo escribe espera la fila «usuario activo»); los cortes del semáforo y el intervalo de refresco como datos de configuración. Sin tablas de cifras precalculadas mientras las consultas en vivo alcancen.
+- **Base de datos:** crea `actividad_usuarios`, una fila por persona y día (qué la escribe espera DD-111). Los cortes del semáforo y el intervalo de refresco van como datos de configuración. Los demás indicadores se calculan de `pedidos`, `pedido_eventos`, `pagos` y `calificaciones`, sin tablas propias; si una consulta resulta lenta, se agrega una vista materializada, que no cambia ninguna tabla (DD-116, `vault/arquitectura/modelo-de-datos.md`). El detalle está en `design.md`, sección "Tablas y migración".
 - **Dependencias:** ninguna fuera de los ADR: las gráficas y widgets de Filament (ADR-0003), PostGIS para las zonas (ADR-0004) y Google Maps JavaScript en el panel (ADR-0009).
 - **Cambios de los que depende:** `administracion`, `estados-del-pedido`, `pago`, `direcciones`, `plazas-y-zonas`, `historial-y-calificacion`, `repartidor` y `alta-de-lavanderias`.
-- **ADRs:** ADR-0003, ADR-0004, ADR-0007 y ADR-0009.
+- **ADRs:** ADR-0003, ADR-0004, ADR-0007, ADR-0009 y ADR-0016 (modelo de datos).

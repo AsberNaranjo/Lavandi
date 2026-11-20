@@ -86,7 +86,7 @@ Cada hito termina con algo que se puede enseñar en el teléfono el domingo.
 | H1 · La persona entra | Registro, inicio de sesión con correo y con Google, recuperación de la contraseña y bienvenida | 01–03 | 23 nov–13 dic | 26 | SEG-2, A43-6 | 2 |
 | H2 · Encuentra su lavandería | Mapa con lavanderías cercanas, filtros y perfil de la lavandería | 03–07 | 7 dic–10 ene 2027 | 45 | A43-2, A43-6 | 2 |
 | H3 · Pide | Fecha y hora, dirección, resumen y confirmación con folio y correo | 07–09 | 4–24 ene | 27 | A43-2 | 2 |
-| H4 · Paga | Pago con tarjeta y en efectivo en el sandbox de Conekta | 09–10 | 18–31 ene | 12 | A43-2, A43-4 (en sandbox), SEG-4 | 2 |
+| H4 · Paga | Pago con tarjeta y en efectivo en el modo de prueba de la pasarela (Stripe o Mercado Pago, DD-079) | 09–10 | 18–31 ene | 12 | A43-2, A43-4 (en sandbox), SEG-4 | 2 |
 | H5 · La lavandería recibe | Alta de la lavandería, aprobación desde la administración, pedidos en tiempo real, aceptar o rechazar | 11–14 | 1–28 feb | 39 | SEG-3, A43-6 | 2 |
 | H6 · La persona sigue su pedido | Cambios de estado de la lavandería en 60 s o menos y avisos al teléfono: **el recorrido completo en local** | 14–17 | 22 feb–21 mar | 34 | A43-2, A43-3, A43-5 | 2 |
 | H7 · La persona vuelve | Historial, calificación, perfil y soporte: **Módulo A completo** | 17–18 | 15–28 mar | 14 | A43-6 | 2 |
@@ -304,11 +304,11 @@ plantilla `plantillas/plantilla-sprint.md`.
 
 | Sprint | Del – al | Hito | Cambios de OpenSpec | Funciones | Horas |
 |---|---|---|---|---|---|
-| 00 | 19–22 nov 2026 | H0 | `base-tecnica`; spec de `registro-e-inicio-de-sesion` | F-T04, F-T05, F-T12 | 6 |
+| 00 | 19–22 nov 2026 | H0 | `base-tecnica`; spec de `registro-e-inicio-de-sesion`; `modelo-de-datos` (13 h, nuevo el 2026-11-20: termina en el sprint 01, antes de la primera migración) | F-T04, F-T05, F-T12 | 6 |
 | 01 | 23–29 nov | H1 | `registro-e-inicio-de-sesion`: correo, contraseña y sesión | F-A02, F-T07, F-T09 | 11 |
 | 02 | 30 nov–6 dic | H1 | `registro-e-inicio-de-sesion`: Google y recuperación por correo. **Recalibración** | F-A02, F-T07, F-T13 | 11 |
 | 03 | 7–13 dic | H1 → H2 | `bienvenida`; `plazas-y-zonas` | F-A01, F-T13, F-T05 | 11 |
-| 04 | 14–20 dic | H2 | `plazas-y-zonas`; `lavanderias-cercanas` | F-T05, F-T03, F-A03 | 11 |
+| 04 | 14–20 dic | H2 | `plazas-y-zonas`; la migración de `perfil-de-lavanderia` (tarea 1.1, se adelanta: `lavanderias-cercanas` lee sus tablas); `lavanderias-cercanas` | F-T05, F-T03, F-A03 | 11 |
 | 05 | 21–27 dic | H2 | `lavanderias-cercanas`. **Termina el calendario del contrato** | F-A03, F-A04 | 11 |
 | 06 | 28 dic–3 ene 2027 | H2 | `lavanderias-cercanas`; `perfil-de-lavanderia` | F-A04, F-T06, F-A05 | 11 |
 | 07 | 4–10 ene | H2 → H3 | `perfil-de-lavanderia`; `agenda-de-recoleccion`; `direcciones` | F-A05, F-A06, F-A07, F-A08 | 11 |
@@ -336,6 +336,25 @@ plantilla `plantillas/plantilla-sprint.md`.
 | 33 | 5–11 jul | H10 → H11 | `landing`; `medicion-de-la-landing`; `textos-legales`; `publicacion` | F-L12, F-T16, F-T17, F-T18, F-T04 | 11 |
 | 34 | 12–18 jul | H11 | `publicacion`: ambiente de prueba y producción | F-T04, F-T08, F-T12 | 11 |
 | 35 | 19–25 jul | H11 | `publicacion`: compilaciones y envío a las tiendas | F-T12 | 9 |
+
+## La re-propuesta del 2026-11-20
+
+Las 26 specs se re-propusieron con el modelo de datos aprobado (C-193), y se sumó `modelo-de-datos`. La tabla de arriba
+todavía usa las horas de antes; se recalibra con Arthur.
+
+- **Unas 62 horas más**, contando las bloqueadas: 13 de `modelo-de-datos` y unas 49 de tareas de migración y escenarios
+  nuevos (C-188) en los demás cambios.
+- **Un cambio de orden:** la migración de `perfil-de-lavanderia` se adelanta al sprint 04, porque `lavanderias-cercanas`
+  lee sus tablas.
+- **Llaves hacia tablas que nacen después:** `repartidor` le agrega la llave a `pedidos.id_repartidores` y a
+  `calificaciones.id_repartidores`; `historial-y-calificacion`, a `calificaciones.id_pedidos`. No se mueve ningún
+  sprint por eso.
+- **No está listo para H3 y H4 sin DD-079.** Con C-188, el folio solo aparece cuando la pasarela confirma el pago, y el
+  pago real necesita la pasarela elegida y firmada; el efectivo, además, DD-056. Lo que no depende del proveedor sí se
+  puede implementar.
+- **Escenarios que esperan a un cambio posterior**, ya bloqueados por su fila de la deuda: `pedidos-lavanderia` E15 y E16
+  (`dispositivos`), `avisos` E20 y la parte del repartidor de `autorizacion` (tablas de `repartidor`),
+  `administracion` E02 (`actividad_usuarios`) e `historial-lavanderia` E03 y E07 (`comisiones`).
 
 ## Lo que no está en las 389 horas
 
@@ -388,7 +407,7 @@ incluido que prometió el kit es una forma de fijar el precio (DD-010).
 | 28 dic | Quién fija el precio y en qué unidad va el lavado en seco | EL CLIENTE, vía Nadir | DD-010, BR-16 |
 | 4 ene 2027 | La regla de los pedidos de noche, por escrito | EL CLIENTE, vía Nadir | DD-078 |
 | 11 ene | Pedir el D-U-N-S y arrancar los demás trámites | EL CLIENTE, vía Nadir | DD-084 |
-| 18 ene | Cuándo se cobra; Conekta o la Orden de Cambio; cancelación; envío | EL CLIENTE y Nadir | DD-012, DD-079, DD-016, DD-019, DD-025 |
+| 18 ene | Cuándo se cobra; la firma del cliente al cambio de pasarela, Stripe o Mercado Pago (C-191, C-192); cancelación; envío | EL CLIENTE y Nadir | DD-012, DD-079, DD-016, DD-019, DD-025 |
 | 1 feb | Cómo entra cada rol, y el aviso a la lavandería | Nadir | DD-053, DD-054 |
 | 22 feb | Los cinco momentos de los avisos | Nadir con EL CLIENTE | DD-011 |
 | 22 mar | Quién asigna al repartidor y cuánto gana | EL CLIENTE | DD-014, DD-019 |

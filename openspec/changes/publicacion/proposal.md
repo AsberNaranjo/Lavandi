@@ -19,7 +19,9 @@ Si la publicación se atrasa por causas ajenas, el pago 2 se acredita con la app
 - Compilaciones de producción firmadas para Android y para iPhone, con las firmas guardadas en EAS (A43-1).
 - Envío a App Store Connect y a Google Play Console del cliente, liberación simultánea en las dos tiendas y la dirección
   del aviso de privacidad declarada en cada ficha (A43-1).
-- Conekta con las llaves de producción del cliente y su webhook registrado en https, y una transacción real (A43-4).
+- La pasarela con las llaves de producción del cliente y su webhook registrado en https, y una transacción real (A43-4).
+  El contrato dice Conekta hasta que el cliente firme el cambio; por mientras queda abierta entre Stripe y Mercado Pago
+  y no se integra ninguna (C-192, DD-079).
 - La validación del A.4.3 en el ambiente de prueba, para el hito alterno del pago 2.
 
 **Qué NO cambia**
@@ -28,7 +30,7 @@ Si la publicación se atrasa por causas ajenas, el pago 2 se acredita con la app
   (ADR-0009).
 - El cobro, los webhooks idempotentes y su firma: los especifica `pago` (ADR-0010). Aquí solo se pasa a producción.
 - Los avisos: los especifica `avisos` (ADR-0008). Aquí solo el proyecto de Firebase de cada entorno.
-- Las cuentas de desarrollador, la de Conekta, el dominio y el alojamiento los contrata EL CLIENTE a su nombre; EL
+- Las cuentas de desarrollador, la de la pasarela, el dominio y el alojamiento los contrata EL CLIENTE a su nombre; EL
   PRESTADOR solo pide accesos de colaborador (`NSV-2026-001-v8.pdf:27:ANEXO B, Sección B.2`;
   `NSV-2026-001-v8.pdf:34:ANEXO B, Sección B.11`). Los trámites del B.10 son suyos.
 - La revisión de las tiendas no depende de EL PRESTADOR (`NSV-2026-001-v8.pdf:5:Cláusula II`). Se atienden hasta 2
@@ -40,8 +42,9 @@ Si la publicación se atrasa por causas ajenas, el pago 2 se acredita con la app
 
 **Fuera del contrato** (posibles Órdenes de Cambio, `NSV-2026-001-v8.pdf:8:Cláusula IV`)
 
-- Otra pasarela en lugar de Conekta (C-180): el contrato la nombra en el criterio de aceptación. DD-079.
-- Efectivo sin OXXO, si Conekta ya no genera fichas de OXXO: cambia lo que dice el contrato y queda por escrito.
+- Otra pasarela en lugar de Conekta (C-180): el contrato la nombra en el criterio de aceptación. Por mientras queda
+  abierta entre Stripe y Mercado Pago (C-192), y no se integra ninguna hasta que el cliente firme el cambio. DD-079.
+- Efectivo sin OXXO, si la pasarela no genera fichas de OXXO: cambia lo que dice el contrato y queda por escrito.
   DD-056.
 
 ## Capabilities
@@ -49,7 +52,7 @@ Si la publicación se atrasa por causas ajenas, el pago 2 se acredita con la app
 ### New Capabilities
 
 - `publicacion`: los entornos de prueba y producción, las comunicaciones cifradas, las compilaciones firmadas, el envío
-  y la publicación simultánea en las dos tiendas, y Conekta en producción.
+  y la publicación simultánea en las dos tiendas, y la pasarela en producción.
 
 ### Modified Capabilities
 
@@ -58,12 +61,13 @@ Si la publicación se atrasa por causas ajenas, el pago 2 se acredita con la app
 ## Impact
 
 - `servidor/`: configuración por entorno leída de variables de entorno; https obligatorio; prueba de salud del entorno
-  desplegado; llaves de producción de Conekta y registro de su webhook.
+  desplegado; llaves de producción de la pasarela y registro de su webhook.
 - `movil/`: `eas.json` con los perfiles `preview` y `production` y sus perfiles de envío; `app.config` con el
   identificador, la API, Firebase y la llave de mapas de cada perfil.
-- Base de datos: ninguna tabla nueva. Las migraciones corren en prueba y en producción sobre PostgreSQL con PostGIS
-  (ADR-0004).
+- Base de datos: ninguna tabla nueva. Las migraciones de los demás cambios corren en prueba y en producción sobre
+  PostgreSQL con PostGIS (ADR-0004); las tablas que usa están en `design.md`, "Tablas y migración".
 - Dependencias: EAS Build y EAS Submit (ADR-0002); el hosting de DD-070; servicios en cuentas del cliente.
-- ADRs: ADR-0002, ADR-0004, ADR-0008, ADR-0009, ADR-0010 y ADR-0012.
+- ADRs: ADR-0002, ADR-0004, ADR-0008, ADR-0009, ADR-0010 (se reemplaza al elegir la pasarela, DD-079), ADR-0012 y
+  ADR-0016.
 - Depende de `base-tecnica`, `pago`, `avisos` y `textos-legales`, y de que estén terminados los cambios del recorrido
   del A.4.3.

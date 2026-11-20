@@ -2,13 +2,13 @@
 
 ### Requirement: Los cinco estados que ve el usuario
 
-El seguimiento del pedido DEBE (MUST) darle al usuario, en la api y en la app, los cinco estados del contrato, con esos nombres y en este orden: Confirmado, Recolectado, En proceso, Listo y Entregado. El pedido recién confirmado arranca en Confirmado. Mientras el pedido siga en el flujo, el usuario ve siempre uno de los cinco como estado actual, con su nombre escrito, y ningún nombre que no esté entre ellos.
+El seguimiento del pedido DEBE (MUST) darle al usuario, en la api y en la app, los cinco estados del contrato, con esos nombres y en este orden: Confirmado, Recolectado, En proceso, Listo y Entregado. El pedido entra al flujo en Confirmado cuando la pasarela confirma su pago (C-188); antes de eso está en un estado interno, que fija la máquina de estados (DD-123) y que no es uno de los cinco. Mientras el pedido siga en el flujo, el usuario ve siempre uno de los cinco como estado actual, con su nombre escrito, y ningún nombre que no esté entre ellos.
 
-Cita: A → `NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3` (Módulo A, numerales 11 y 12)
+Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (Módulo A, numerales 10, 11 y 12); D → ADR-0016 (`pedidos.confirmado_en` se llena cuando la pasarela confirma el pago)
 
 #### Scenario: estados-E01 — La api entrega el pedido recién confirmado en Confirmado
 
-- **DADO** un pedido que su usuario acaba de confirmar (Módulo A, numeral 11)
+- **DADO** un pedido cuyo pago acaba de confirmar la pasarela, con su folio (Módulo A, numerales 10 y 11)
 - **CUANDO** el usuario consulta ese pedido a la api
 - **ENTONCES** la api responde "Confirmado" como estado actual
 - **Y** entrega los cinco estados en el orden del contrato
@@ -89,6 +89,19 @@ Criterio: SEG-3
 
 Criterio: SEG-3
 
+### Requirement: Sin pago acreditado, la lavandería no ve ni mueve el pedido
+
+La api DEBE (MUST) dejar fuera del alcance de la lavandería un pedido cuyo pago la pasarela no ha confirmado: no se lo devuelve, no le deja moverlo y no lo pasa a Recolectado, porque sin pago no hay recolección. La regla no depende del nombre del estado interno en que el pedido espera su pago (DD-123), sino de que su pago no esté acreditado. Al repartidor se le aplica la misma regla en el cambio `repartidor`.
+
+Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (Módulo A, numerales 9, 10 y 11: resumen, pago y confirmación con folio, en ese orden; C-188); D → ADR-0016 (`pedidos.confirmado_en` se llena cuando la pasarela confirma el pago)
+
+#### Scenario: estados-E23 — La lavandería no recibe ni mueve un pedido sin pago
+
+- **DADO** un pedido hecho a la lavandería al aceptar el resumen, cuyo pago la pasarela todavía no confirma
+- **CUANDO** la lavandería lo consulta o intenta marcarlo "Recolectado"
+- **ENTONCES** la api rechaza la petición sin devolver datos del pedido
+- **Y** el estado del pedido no cambia y no se agrega ningún evento a `pedido_eventos`
+
 ### Requirement: Correspondencia entre los botones de la lavandería y los estados del usuario
 
 La api DEBE (MUST) traducir cada botón de la lavandería al estado que ve el usuario. Recolectado, En proceso y Listo se ven con el mismo nombre. Lo que ve el usuario cuando la lavandería marca En proceso de entrega, y si la lavandería puede marcar Entregado, no lo dice el contrato: esos escenarios se escriben y quedan bloqueados hasta que se decida.
@@ -121,16 +134,17 @@ SIN RESPUESTA — bloquea: estados-E13 (DD-022). Los botones del Módulo B termi
 
 ### Requirement: Historial de cada cambio de estado
 
-La api DEBE (MUST) guardar cada cambio de estado de un pedido con el estado anterior, el nuevo, la hora del cambio y quién lo hizo, sin borrar ni sobrescribir los cambios anteriores.
+La api DEBE (MUST) guardar cada cambio de estado de un pedido como un evento nuevo en `pedido_eventos`, con el estado nuevo, la hora del cambio y quién lo hizo; el estado anterior de cada cambio es el del evento previo del mismo pedido. Los cambios anteriores no se borran ni se sobrescriben, y la base DEBE (MUST) rechazar editar o borrar un evento.
 
-Cita: A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` (Base de datos: "pedidos, pagos e historial completo")
+Cita: A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` (Base de datos: "pedidos, pagos e historial completo"); D → ADR-0016, regla 6
 
 #### Scenario: estados-E14 — Cada cambio queda en el historial
 
 - **DADO** un pedido que la lavandería pasó de Confirmado a Recolectado y luego a En proceso
-- **CUANDO** se consulta el historial de ese pedido en la base
-- **ENTONCES** hay dos registros, en orden
-- **Y** cada uno lleva el estado anterior, el nuevo, su hora y la lavandería que lo hizo
+- **CUANDO** se consulta el historial de ese pedido en `pedido_eventos`
+- **ENTONCES** hay un evento por cada uno de esos dos cambios, en orden, después de los eventos anteriores del pedido
+- **Y** cada uno lleva el estado nuevo, su hora y la cuenta de la lavandería que lo hizo, y su estado anterior es el del evento previo
+- **Y** la base de datos rechaza editar o borrar cualquiera de ellos (modelo-E12)
 
 ### Requirement: El cambio se ve en 60 segundos o menos
 
@@ -209,7 +223,7 @@ Cita: A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3`
 
 Criterio: A43-2
 
-SIN RESPUESTA — bloquea: estados-E21 (DD-012, que detiene el cobro del cambio `pago`; DD-014 y DD-022, quién marca Entregado)
+SIN RESPUESTA — bloquea: estados-E21 (DD-012, que detiene el cobro del cambio `pago`; DD-079, la pasarela de cuyo sandbox depende el pago; DD-014 y DD-022, quién marca Entregado)
 
 #### Scenario: estados-E22 — El recorrido completo en el teléfono
 
@@ -219,4 +233,4 @@ SIN RESPUESTA — bloquea: estados-E21 (DD-012, que detiene el cobro del cambio 
 
 Criterio: A43-2
 
-SIN RESPUESTA — bloquea: estados-E22 (DD-012; DD-014 y DD-022; DD-069 en iPhone)
+SIN RESPUESTA — bloquea: estados-E22 (DD-012; DD-079, la pasarela; DD-014 y DD-022; DD-069 en iPhone)

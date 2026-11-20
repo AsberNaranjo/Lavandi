@@ -102,3 +102,29 @@ Cita: A → `NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3` (Módulo A #14 y Mód
 - **Y** la pantalla de calificación pide una o dos calificaciones, según esa misma respuesta
 
 SIN RESPUESTA — bloquea: historial-E11 (DD-052)
+
+### Requirement: Cada calificación es de la lavandería o del repartidor del pedido
+Cada calificación DEBE (MUST) quedar ligada a su pedido y a exactamente uno de los dos que lo atendieron: la lavandería o el repartidor de ese pedido. La base DEBE (MUST) rechazar una calificación con los dos o con ninguno, y un pedido DEBE (MUST) tener a lo más una calificación por cada calificado. La calificación del servicio del Módulo A #14 se guarda como calificación de la lavandería del pedido; si el usuario califica también al repartidor lo decide DD-052.
+
+Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #5, calificación y reseñas de la lavandería), `NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3` (Módulo A #14 y Módulo B #4) y `NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3` (Módulo C #4); D → ADR-0016 (tabla `calificaciones`)
+
+#### Scenario: historial-E12 — La calificación del servicio queda con la lavandería del pedido
+- **DADO** un pedido Entregado del usuario, atendido por la lavandería L
+- **CUANDO** el usuario lo califica con 4 estrellas
+- **ENTONCES** la calificación queda guardada con el pedido y con la lavandería L
+- **Y** no queda ligada a ningún repartidor
+
+Criterio: A43-6
+
+#### Scenario: historial-E13 — La base rechaza una calificación con los dos calificados o con ninguno
+- **DADO** un pedido Entregado con su lavandería y su repartidor
+- **CUANDO** se intenta guardar una calificación ligada a los dos a la vez, una sin ninguno, o una segunda calificación de la misma lavandería para el mismo pedido
+- **ENTONCES** la base de datos rechaza la fila, aunque el código no lo haya validado
+
+#### Scenario: historial-E14 — El usuario califica también al repartidor
+- **DADO** un pedido Entregado que atendió un repartidor
+- **CUANDO** el usuario califica al repartidor
+- **ENTONCES** la calificación queda como otra fila, con el pedido y el repartidor, sin lavandería
+- **Y** el repartidor la puede mostrar como calificación recibida (Módulo C #4)
+
+SIN RESPUESTA — bloquea: historial-E14 (DD-052)

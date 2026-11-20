@@ -3,8 +3,8 @@
 Cada tarea va en rojo, verde y refactor: primero el test que falla, con el identificador del escenario en su nombre;
 luego el código mínimo; luego la limpieza. Horas: listas 12 (M + S + M); bloqueadas 11; el plan le da 5 a F-A07.
 
-- [ ] 1.1 agenda-E01, agenda-E02, agenda-E03, agenda-E04: ventanas de una hora dentro del horario sembrado de la lavandería, en la hora local de la plaza, y día sin servicio — test: `servidor/tests/Feature/Agenda/VentanasTest.php` — tamaño M
-- [ ] 1.2 agenda-E09, agenda-E11, agenda-E12: solo ventanas futuras, anticipación y horizonte leídos de la configuración de la plaza, y validación de una ventana elegida con la misma lógica — test: `servidor/tests/Feature/Agenda/ValidarVentanaTest.php` — tamaño S
+- [ ] 1.1 agenda-E01, agenda-E02, agenda-E03, agenda-E04: ventanas de una hora dentro del horario sembrado en `lavanderia_horarios`, en la hora local de la plaza (`plazas.zona_horaria`), y día sin servicio — test: `servidor/tests/Feature/Agenda/VentanasTest.php` — tamaño M
+- [ ] 1.2 agenda-E09, agenda-E11, agenda-E12: solo ventanas futuras, anticipación y horizonte leídos de dos claves de `parametros_plaza`, y validación de una ventana elegida con la misma lógica — test: `servidor/tests/Feature/Agenda/ValidarVentanaTest.php` — tamaño S
 
 ## 2. App: selector de fecha y hora
 

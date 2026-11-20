@@ -15,7 +15,7 @@ fijado.
 - [ ] 2.2 autorizacion-E08: el usuario ve sus pedidos de todas las plazas — test: `servidor/tests/Feature/Autorizacion/UsuarioTodasLasPlazasTest.php` — tamaño S
 - [ ] 2.3 autorizacion-E09: una lavandería no ve los datos de otra, con la primera ruta del Módulo B — test: `servidor/tests/Feature/Autorizacion/LavanderiaAisladaTest.php` — tamaño S
 - [ ] 2.4 autorizacion-E10: la lavandería solo ve a los usuarios que le pidieron, dentro de sus pedidos — test: `servidor/tests/Feature/Autorizacion/LavanderiaYSusClientesTest.php` — tamaño M
-- [ ] 2.5 autorizacion-E11: el repartidor solo ve lo asignado; se escribe cuando `repartidor` cree la asignación (H8) — test: `servidor/tests/Feature/Autorizacion/RepartidorAsignadoTest.php` — tamaño S
+- [ ] 2.5 autorizacion-E11: el repartidor solo ve lo asignado; se escribe cuando `repartidor` cree `repartidores` y `pedido_asignaciones` (H8) — test: `servidor/tests/Feature/Autorizacion/RepartidorAsignadoTest.php` — tamaño S
 
 ## 3. Plaza y administración
 

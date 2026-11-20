@@ -52,8 +52,10 @@ Ninguna.
   decisión 4) detrás de una interfaz que los tests simulan; la consulta de zona con PostGIS (ADR-0004).
 - **`movil/`:** el formulario de dirección, la elección en el mapa con `react-native-maps` sin `provider` (ADR-0009) y
   la lista de favoritas con recogida y entrega.
-- **Base de datos:** la tabla de direcciones del usuario, con su punto geográfico, su colonia y si es favorita. Las
-  zonas vienen de `plazas-y-zonas`.
+- **Base de datos:** nace la tabla `direcciones`, con su `id_publico`, su plaza, su punto geográfico, su colonia
+  obligatoria y si es favorita (columnas en `design.md`, tomadas de `vault/arquitectura/modelo-de-datos.md`). Las zonas
+  (`zonas`) vienen de `plazas-y-zonas`. La copia de la dirección en el pedido (`pedido_direcciones`) la hace
+  `resumen-y-confirmacion`.
 - **Dependencias:** la llave de Google Geocoding por entorno, en variables de entorno y nunca en el repositorio
   (ADR-0012). `react-native-maps` ya entra con `lavanderias-cercanas`.
-- **ADRs:** ADR-0002, ADR-0003, ADR-0004, ADR-0009 y ADR-0012.
+- **ADRs:** ADR-0002, ADR-0003, ADR-0004, ADR-0009, ADR-0012 y ADR-0016 (modelo de datos).

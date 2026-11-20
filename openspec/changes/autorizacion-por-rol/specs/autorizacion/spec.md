@@ -14,7 +14,8 @@ Cita: D → ADR-0003 (la autorización por rol, tenencia y plaza vive en `api`) 
 - **DADO** una ruta de la API que devuelve o cambia datos y no declara su regla en el componente de autorización
 - **CUANDO** corren las pruebas de `servidor/`
 - **ENTONCES** la prueba de cobertura de reglas falla y nombra esa ruta
-- **Y** las rutas que no piden sesión, como el inicio de sesión o el webhook de Conekta, lo declaran expresamente
+- **Y** las rutas que no piden sesión, como el inicio de sesión o el aviso de la pasarela (webhook), lo declaran
+  expresamente
 
 Criterio: SEG-3
 
@@ -87,7 +88,7 @@ le corresponde") y `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #5)
 #### Scenario: autorizacion-E07 — Un usuario no ve los datos de otro
 
 - **DADO** dos usuarios, cada uno con un pedido, una dirección guardada y un cobro
-- **CUANDO** el primero pide por su identificador el pedido, la dirección o el cobro del segundo
+- **CUANDO** el primero pide por su `id_publico` el pedido, la dirección o el cobro del segundo
 - **ENTONCES** `servidor/` no devuelve ningún dato del segundo usuario
 
 Criterio: SEG-3
@@ -118,7 +119,7 @@ Criterio: SEG-3
 #### Scenario: autorizacion-E10 — La lavandería solo ve a los usuarios que le pidieron
 
 - **DADO** una lavandería, un usuario que le hizo un pedido y otro que nunca le ha pedido
-- **CUANDO** la lavandería consulta sus pedidos, y pide por su identificador al segundo usuario o un pedido suyo con otra
+- **CUANDO** la lavandería consulta sus pedidos, y pide por su `id_publico` al segundo usuario o un pedido suyo con otra
   lavandería
 - **ENTONCES** ve los datos del primer usuario solo dentro del pedido que le hizo
 - **Y** no recibe ningún dato del segundo
@@ -146,7 +147,7 @@ Criterio: SEG-3
 ### Requirement: La plaza separa a los socios
 
 `servidor/` DEBE (MUST) restringir a cada socio lavandería y a cada socio repartidor a la plaza en la que opera: no ve
-pedidos, socios ni usuarios de otra plaza, aunque conozca su identificador.
+pedidos, socios ni usuarios de otra plaza, aunque conozca su `id_publico`.
 
 Cita: D → ADR-0003 (autorización por rol, tenencia y plaza) · A → `NSV-2026-001-v8.pdf:4:Cláusula I` (expansión a otras
 plazas sin rediseño)
@@ -154,7 +155,7 @@ plazas sin rediseño)
 #### Scenario: autorizacion-E12 — Un socio no ve otra plaza
 
 - **DADO** una lavandería y un repartidor de la plaza P1, y un pedido de la plaza P2
-- **CUANDO** cada uno pide ese pedido por su identificador
+- **CUANDO** cada uno pide ese pedido por su `id_publico`
 - **ENTONCES** `servidor/` no le devuelve ningún dato
 
 Criterio: SEG-3

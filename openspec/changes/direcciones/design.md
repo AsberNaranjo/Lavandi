@@ -41,6 +41,45 @@ No hay decisión técnica nueva: se aplica el ADR-0009 y las decisiones de `pres
 6. **El aislamiento vive en el componente de autorización** que nace en H1 con el rol de usuario (`CLAUDE.md` §9.5). Una
    dirección ajena responde igual que una que no existe, para no revelar que existe.
 
+## Tablas y migración
+
+**Crea** `direcciones`, con una migración que pasa la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E16).
+Las columnas son las de `vault/arquitectura/modelo-de-datos.md`:
+
+| Columna | Regla |
+|---|---|
+| `id_direcciones` | Llave primaria, `bigint` autoincremental |
+| `id_publico` | ULID, único. La API identifica la dirección por él, nunca por `id_direcciones` (modelo-E15) |
+| `id_usuarios` | Foránea a `usuarios.id_usuarios`, con índice y `ON DELETE RESTRICT` |
+| `id_plazas` | Foránea a `plazas.id_plazas`, con índice y `ON DELETE RESTRICT`. Sale de la zona que contiene el punto, al guardar. Si el punto no cae en ninguna zona activa, queda vacía (ver Open Questions) |
+| `alias` | El nombre de la favorita ("Casa"); opcional en las que no son favoritas |
+| `calle`, `numero_exterior`, `numero_interior`, `colonia`, `codigo_postal`, `municipio`, `referencias` | Texto. `colonia` es `NOT NULL` (direcciones-E02); `numero_interior` y `referencias`, opcionales |
+| `ubicacion` | `geography(Point, 4326)`, con índice GiST (ADR-0004) |
+| `es_favorita` | `boolean`, falso por omisión |
+| `deleted_at` | `timestamptz`. Borrado suave: una dirección que ya usó un pedido no se borra (ADR-0016, regla 6) |
+
+- **Únicos:** `id_publico`; y `(id_direcciones, id_plazas)`, para que la foránea compuesta de `pedido_direcciones`
+  (`resumen-y-confirmacion`) haga que la base rechace una dirección de otra plaza, como pide direcciones-E12
+  (ADR-0016, regla 4).
+- **Sin trigger:** `direcciones` no está entre las tablas del historial; se borra en suave.
+- **Modelo de Eloquent:** `Direccion`, sobre la clase base `App\Models\Modelo`, con `$table = 'direcciones'`,
+  `$primaryKey = 'id_direcciones'`, `HasUlids` para `id_publico` y `SoftDeletes`. Es el modelo que usa de ejemplo
+  modelo-E16.
+
+**Usa, sin crearlas:**
+
+| Tabla | Para qué | La crea |
+|---|---|---|
+| `usuarios` | La dueña de cada dirección | `registro-e-inicio-de-sesion` |
+| `plazas`, `zonas` | La plaza de la dirección y la zona de servicio (`zonas.poligono`, `zonas.activa`) | `plazas-y-zonas` |
+| `lavanderias` | La plaza de la lavandería elegida (`id_plazas`), para direcciones-E12 | `perfil-de-lavanderia` |
+
+**Lo que no escribe:** el pedido. La recogida y la entrega elegidas viajan en la app hasta el resumen, como la ventana
+de `agenda-de-recoleccion`, y el servidor solo las valida. La copia en `pedido_direcciones` la hace
+`resumen-y-confirmacion`, que va después en el plan (sprint 09). Por eso direcciones-E07 a direcciones-E10 se prueban
+aquí con la validación de la API y la elección en la app; que la dirección quede en el pedido se prueba en
+`resumen-y-confirmacion`.
+
 ## Risks / Trade-offs
 
 - [Direcciones mal geocodificadas en colonias sin número claro] → Si la geocodificación no encuentra la dirección, la
@@ -65,3 +104,10 @@ No hay decisión técnica nueva: se aplica el ADR-0009 y las decisiones de `pres
   ADR**: servicio de pago o lista propia.
 - **DD-083:** si la lavandería atiende toda su plaza o un radio (direcciones-E13).
 - **¿El TERRITORIO INICIAL es una plaza o dos?** Pendiente de Nadir en `modelo-multi-plaza.md`; es DD-093.
+- **`id_plazas` de una dirección fuera de toda zona.** El modelo dice que la plaza sale de la zona que contiene el
+  punto, pero no qué pasa si no cae en ninguna. direcciones-E11 deja que esa dirección exista y la rechaza al elegirla,
+  así que esta spec deja la columna vacía en ese caso; la foránea compuesta de `pedido_direcciones` impide usarla en un
+  pedido. Si Arthur prefiere rechazarla al guardar, `id_plazas` pasa a `NOT NULL` y cambia el momento del rechazo de
+  direcciones-E11. **Lo decide Arthur antes de la tarea 1.1.**
+- **`created_at` y `updated_at`.** El modelo no los lista en ninguna tabla. Esta migración no los agrega por su cuenta;
+  si se agregan, van como `timestamptz` (modelo-E08).

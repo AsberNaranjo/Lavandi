@@ -28,6 +28,18 @@
 
 No hay decisión técnica nueva: el cambio aplica ADR-0002, ADR-0003 y ADR-0011. Lo que sí hay que decidir está abajo.
 
+## Tablas y migración
+
+No crea tablas ni migraciones, y no lee ni escribe ninguna tabla de `vault/arquitectura/modelo-de-datos.md` (ADR-0016).
+
+- `usuarios.terminos_aceptados_en` nace en `registro-e-inicio-de-sesion`. La llena el registro si EL CLIENTE pide la
+  constancia de aceptación (registro-E29, bloqueado por DD-080). Este cambio no la toca, tampoco al cargar una versión
+  nueva (textos-legales-E04).
+- El texto vigente de cada documento no tiene tabla en el modelo. Si la pregunta abierta 1 se resuelve con un archivo en
+  el almacenamiento (ADR-0006), no hace falta ninguna. Si se resuelve con un recurso de Filament, la tabla tiene que
+  entrar antes a `modelo-de-datos.md` y su migración pasará la prueba de esquema de `modelo-de-datos` (modelo-E01 a
+  modelo-E16); no llevaría el trigger `impedir_cambio()`.
+
 ## Risks / Trade-offs
 
 - [Sin el aviso publicado no se envía a las tiendas] → la Cláusula IV prevé ese caso: si la publicación se atrasa por
@@ -45,8 +57,8 @@ No hay decisión técnica nueva: el cambio aplica ADR-0002, ADR-0003 y ADR-0011.
    ADR-0011 o decida con ADR-0006.**
 2. **En qué pantallas de la app aparecen los enlaces.** El consentimiento va en el registro (F-A02). Si además van en el
    perfil (F-A15) o en otra pantalla, no lo dice el contrato: **pregunta para Arthur.** No se diseña aquí.
-3. **Cómo los abre la app.** Recomendación: en el navegador del sistema, igual que el checkout de Conekta (ADR-0010), sin
-   dependencia nueva. Una vista dentro de la app también cumple la spec. Lo decide Arthur.
+3. **Cómo los abre la app.** Recomendación: en el navegador del sistema, igual que el checkout redirigido de la
+   pasarela (ADR-0010; cuál pasarela, DD-079), sin dependencia nueva. Una vista dentro de la app también cumple la spec. Lo decide Arthur.
 4. **El formato en que llegan los documentos** (Word, PDF o texto) y si hay **un solo documento de términos o uno por
    tipo de usuario**: el B.7 dice que los términos regulan la relación "con usuarios, socios lavandería y repartidores".
    Se propone agregarlo a DD-080.

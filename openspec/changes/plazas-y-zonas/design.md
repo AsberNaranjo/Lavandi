@@ -1,7 +1,8 @@
 ## Context
 
-`base-tecnica` deja PostgreSQL con PostGIS en local (ADR-0004). Este cambio pone la dimensión de plaza antes de que
-nazcan las primeras filas de operación, las lavanderías de prueba de `lavanderias-cercanas`. La regla y la definición
+`base-tecnica` deja PostgreSQL con PostGIS en local (ADR-0004), y `modelo-de-datos`, las reglas comunes y la prueba
+de esquema (ADR-0016). Este cambio pone la dimensión de plaza antes de que nazcan las primeras filas de operación, las
+lavanderías de prueba del hito H2 (la tabla `lavanderias` la crea `perfil-de-lavanderia`). La regla y la definición
 de plaza son las de `vault/arquitectura/modelo-multi-plaza.md`: una plaza es un área operativa formada por zonas, no
 una unidad política, porque el propio territorio inicial mezcla un estado entero con dos municipios sueltos
 (`NSV-2026-001-v8.pdf:4:Cláusula I`). El ANEXO C pone la carga de zonas y la configuración de una ciudad nueva como
@@ -35,10 +36,36 @@ trabajo de EL PRESTADOR, sin pantalla (`NSV-2026-001-v8.pdf:38:ANEXO C, Sección
    ciudad antes de abrirla al público" (`:38:C.3`) se hacen en el entorno de prueba, con la plaza activa y datos de
    prueba (ADR-0012), no con un tercer estado.
 5. **La prueba de esquema usa una lista de excepciones a la vista** y no una lista de tablas de operación. Así, una
-   tabla nueva sin plaza hace fallar la suite hasta que alguien decida, por escrito, que no es de operación.
+   tabla nueva sin plaza hace fallar la suite hasta que alguien decida, por escrito, que no es de operación. **La lista
+   es una sola:** la de tablas sin plaza de `modelo-de-datos` (`servidor/config/modelo.php`, su diseño, decisión 2).
+   modelo-E05 exige que la columna exista; plazas-E09 agrega que sea no nula y con llave foránea a `plazas`. La llave
+   compuesta con la plaza en las tablas hijas la verifica modelo-E06.
 6. **Las plazas de prueba son ficticias** ("Plaza de prueba 1") y solo se siembran en local y en prueba (ADR-0012).
 
-Ninguna de estas decisiones elige tecnología nueva: siguen ADR-0004, ADR-0009 y ADR-0012.
+Ninguna de estas decisiones elige tecnología nueva: siguen ADR-0004, ADR-0009, ADR-0012 y ADR-0016.
+
+## Tablas y migración
+
+Este cambio crea tres tablas, tal como las fija `vault/arquitectura/modelo-de-datos.md` (columna "Nace en"):
+
+| Tabla | Columnas | Llaves, únicos y `CHECK` |
+|---|---|---|
+| `plazas` | `id_plazas`, `nombre`, `zona_horaria`, `activa` | Llave `id_plazas`. No lleva `id_plazas` como foránea: está en la lista de tablas sin plaza. `zona_horaria` no nula; que sea una zona IANA válida lo valida el código (plazas-E02), porque un `CHECK` no puede consultar la base de husos |
+| `zonas` | `id_zonas`, `id_plazas`, `nombre`, `poligono` (`geography(MultiPolygon, 4326)`), `activa` | Llave `id_zonas`. Llave foránea `id_plazas` a `plazas`, no nula, con índice y `ON DELETE RESTRICT`. Índice GiST en `poligono`. La fuente del polígono es DD-094 |
+| `parametros_plaza` | `id_parametros_plaza`, `id_plazas`, `clave`, `valor` (`jsonb`), `vigente_desde`, `vigente_hasta` | Llave `id_parametros_plaza`. Llave foránea `id_plazas` a `plazas`, no nula, con `ON DELETE RESTRICT`. Único `(id_plazas, clave, vigente_desde)`, que también sirve de índice de la llave foránea. `vigente_desde` y `vigente_hasta` en `timestamptz`. Cada `clave` se valida en el código |
+
+- **`parametros_plaza` nace vacía.** Este cambio no lee ni escribe ninguna clave. Las claves que el modelo prevé (el
+  envío, DD-019 y DD-025; la anticipación y el horizonte de la agenda, DD-099; el texto de la cancelación, DD-016) las
+  agrega y las valida el cambio que las usa (`agenda-de-recoleccion`, `resumen-y-confirmacion`), cuando su fila de la
+  deuda se responda.
+- **Usa, de otro cambio:** `usuarios` (`registro-e-inicio-de-sesion`), solo para plazas-E07: la cuenta no tiene
+  `id_plazas`.
+- **Modelos de Eloquent:** `Plaza`, `Zona` y `ParametroPlaza`, sobre `App\Models\Modelo`, cada uno con su `$table` y su
+  `$primaryKey`, y las relaciones con `id_plazas` nombrada. El polígono se lee y se consulta con las funciones de
+  PostGIS, sin paquete de tipos espaciales (ver Open Questions).
+- **La migración pasa la prueba de esquema de `modelo-de-datos`** (modelo-E01 a modelo-E16). Ninguna de estas tablas
+  lleva el trigger `impedir_cambio()`, que es solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`.
+- **Sin `created_at` ni `updated_at`:** el modelo no los lista (ver Open Questions).
 
 ## Risks / Trade-offs
 
@@ -65,3 +92,12 @@ Ninguna de estas decisiones elige tecnología nueva: siguen ADR-0004, ADR-0009 y
   falta ADR. Si se quiere un paquete de tipos espaciales, necesita ADR.
 - **La fuente de los límites oficiales** (por ejemplo, el marco geoestadístico del INEGI) y su licencia: grado E,
   `SIN VERIFICAR`.
+- **Con qué reconoce la carga una plaza que ya existe.** plazas-E08 pide que volver a cargar el mismo archivo no
+  duplique. Para eso la carga necesita una llave natural, por ejemplo `nombre` único en `plazas` y
+  `(id_plazas, nombre)` único en `zonas`, que el modelo de datos no trae. Lo decide Arthur en el modelo antes de la
+  tarea 1.1.
+- **`zonas.activa`.** El modelo la trae, pero la spec resuelve un punto solo por plaza activa (plazas-E04 a E06). Si
+  una zona que no está activa deja de dar servicio dentro de una plaza activa, falta su escenario; sin escenario, la
+  resolución no la mira.
+- **Las marcas `created_at` y `updated_at`.** Ninguna tabla del modelo las lista, y Eloquent las escribe por omisión.
+  O el modelo las agrega, en `timestamptz`, o cada modelo declara `$timestamps = false`. La tarea 1.1 lo necesita.

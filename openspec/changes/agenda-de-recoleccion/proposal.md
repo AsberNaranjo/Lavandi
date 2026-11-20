@@ -52,9 +52,10 @@ Ninguna.
   validación que reusa la misma lógica (el componente `agenda` del C3). La consumen después `resumen-y-confirmacion` y
   `pedidos-de-la-lavanderia`.
 - **`movil/`:** la pantalla de fecha y hora del pedido nuevo, con el componente 2 del design system.
-- **Base de datos:** dos datos de configuración por plaza (anticipación mínima y días hacia adelante). Si el horario y
-  las ventanas de disponibilidad de la lavandería no nacieron en H2 (`lavanderias-cercanas` o `perfil-de-lavanderia`),
-  nacen aquí, con datos sembrados; su edición sigue siendo de F-B06. La zona horaria de la plaza viene de
-  `plazas-y-zonas`.
+- **Base de datos:** ninguna tabla nueva (`vault/arquitectura/modelo-de-datos.md`, columna "Nace en"). El horario y
+  las ventanas de disponibilidad se leen de `lavanderia_horarios`, que crea `perfil-de-lavanderia` con lavanderías de
+  prueba; su edición sigue siendo de F-B06. La anticipación mínima y los días hacia adelante son dos claves de
+  `parametros_plaza`, y la zona horaria es `plazas.zona_horaria`; las dos tablas las crea `plazas-y-zonas`.
 - **Dependencias:** ninguna nueva.
-- **ADRs:** ADR-0002 (app), ADR-0003 (las reglas viven en `api`) y ADR-0004 (PostgreSQL y modelo multi-plaza).
+- **ADRs:** ADR-0002 (app), ADR-0003 (las reglas viven en `api`), ADR-0004 (PostgreSQL y modelo multi-plaza) y
+  ADR-0016 (modelo de datos).

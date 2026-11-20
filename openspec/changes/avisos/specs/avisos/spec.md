@@ -24,7 +24,7 @@ Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Servicios externos, 
 
 La app DEBE (MUST) registrar en la api el token de Firebase del teléfono al iniciar sesión, y actualizarlo cuando Firebase lo renueve. La api DEBE (MUST) ligar el token a la cuenta y borrarlo al cerrar la sesión o cuando el servicio avise que ya no sirve, para que los avisos de una cuenta no lleguen a un teléfono que ya no es suyo.
 
-Cita: D → ADR-0008; A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` (Separación por tipo de usuario)
+Cita: D → ADR-0008; A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` (Separación por tipo de usuario); D → ADR-0016 (tabla `dispositivos`, con `token_fcm` único)
 
 #### Scenario: avisos-E03 — La app registra el token del teléfono
 
@@ -51,6 +51,13 @@ Cita: D → ADR-0008; A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` (Sepa
 - **DADO** un teléfono registrado cuyo token el servicio de avisos ya no reconoce
 - **CUANDO** la api le manda un aviso y el servicio responde que el token no es válido
 - **ENTONCES** la api borra ese token
+
+#### Scenario: avisos-E21 — Un teléfono que pasa a otra cuenta
+
+- **DADO** un teléfono registrado a la cuenta A
+- **CUANDO** la cuenta B inicia sesión en ese teléfono y la app registra el mismo token
+- **ENTONCES** la api liga el token solo a la cuenta B
+- **Y** los avisos de los pedidos de la cuenta A ya no se mandan a ese teléfono
 
 ### Requirement: El permiso de avisos y el seguimiento sin avisos
 

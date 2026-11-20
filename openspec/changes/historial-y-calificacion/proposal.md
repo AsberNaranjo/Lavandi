@@ -7,9 +7,10 @@ El Módulo A pide un "Historial de pedidos" con "Lista con filtro por fecha y op
 - El usuario ve la lista de sus pedidos, cada uno con su folio, su fecha, su lavandería y su estado (F-A13).
 - Filtra esa lista por un rango de fechas (F-A13).
 - Tiene la opción de repetir un pedido. Qué datos se copian del pedido original queda bloqueado (DD-107).
-- Califica el servicio de un pedido con 1 a 5 estrellas y un comentario opcional (F-A14). Se guarda en el componente `calificaciones` de `vault/arquitectura/c3-api.md`, ligada al pedido.
+- Califica el servicio de un pedido con 1 a 5 estrellas y un comentario opcional (F-A14). Se guarda en la tabla `calificaciones` (componente `calificaciones` de `vault/arquitectura/c3-api.md`), ligada al pedido y a la lavandería del pedido.
+- Cada calificación es de la lavandería o del repartidor del pedido, exactamente uno de los dos, y la base lo impone (ADR-0016).
 - La API solo le entrega y le deja calificar sus propios pedidos (SEG-3).
-- A quién llega la calificación queda bloqueado (DD-052).
+- Si el usuario califica también al repartidor queda bloqueado (DD-052).
 
 **Qué NO cambia**
 
@@ -37,7 +38,7 @@ Ninguna.
 
 - **`servidor/`:** la API del historial del usuario (lista y filtro) y la de calificaciones, dentro del componente de autorización único (`CLAUDE.md` §9.5).
 - **`movil/`:** las pantallas "Mis pedidos" y "Califica tu servicio" del Módulo A.
-- **Base de datos:** una tabla nueva de calificaciones ligada al pedido. Los pedidos ya existen desde H3 y H6.
+- **Base de datos** (ADR-0016, `vault/arquitectura/modelo-de-datos.md`): completa `calificaciones`, que nace en `perfil-de-lavanderia`, con `id_repartidores` y la regla de exactamente un calificado por fila. Los pedidos ya existen desde H3 y H6.
 - **Dependencias:** ninguna nueva.
-- **ADRs:** ADR-0002 (app), ADR-0003 (API), ADR-0004 (base de datos) y ADR-0005 (sesión con tokens de Sanctum).
-- **Depende de** que existan los cambios `resumen-y-confirmacion`, `estados-del-pedido` y `autorizacion-por-rol`.
+- **ADRs:** ADR-0002 (app), ADR-0003 (API), ADR-0004 (base de datos), ADR-0005 (sesión con tokens de Sanctum) y ADR-0016 (modelo de datos).
+- **Depende de** que existan los cambios `modelo-de-datos`, `perfil-de-lavanderia`, `resumen-y-confirmacion`, `estados-del-pedido` y `autorizacion-por-rol`. La llave de `id_repartidores` necesita además la tabla `repartidores`, del cambio `repartidor`, que va después en el plan (`design.md`, Risks).

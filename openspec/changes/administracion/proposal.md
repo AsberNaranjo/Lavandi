@@ -7,7 +7,7 @@ El contrato pide un panel de administración con siete secciones (`NSV-2026-001-
 - **Gestión de usuarios (F-D03):** la lista de usuarios, el filtro de usuarios activos de un periodo, el historial de pedidos de cada uno, el bloqueo y su levantamiento.
 - **Monitoreo de pedidos (F-D04):** todos los pedidos activos de todas las plazas en una vista que se refresca sola cada 30 s, con un mapa web que pone un marcador en la dirección de cada pedido.
 - **Comisiones (F-D05):** un porcentaje global y uno propio por socio, sin valores de fábrica, y el cálculo de la comisión de cada pedido cuando EL CLIENTE fije la base.
-- **Reportes financieros (F-D06):** los ingresos del periodo, las comisiones por socio y en total, y la conciliación de los pagos contra los movimientos de Conekta.
+- **Reportes financieros (F-D06):** los ingresos del periodo, las comisiones por socio y en total, y la conciliación de los pagos contra los movimientos de la pasarela. El contrato dice "conciliación con Conekta" (`NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`, Módulo D #6); la pasarela sigue abierta hasta que el cliente firme el cambio (DD-079, C-192). La conciliación espera esa firma y DD-112.
 - **Avisos masivos (F-D07):** un aviso con título y texto al celular de todas las cuentas o de un segmento, por FCM.
 
 **Qué NO cambia:**
@@ -30,7 +30,7 @@ El contrato pide un panel de administración con siete secciones (`NSV-2026-001-
 
 ### New Capabilities
 
-- `administracion`: las secciones 3 a 7 del Módulo D en el panel web: usuarios, monitoreo de pedidos con mapa, comisiones, reportes financieros con la conciliación de Conekta y avisos masivos.
+- `administracion`: las secciones 3 a 7 del Módulo D en el panel web: usuarios, monitoreo de pedidos con mapa, comisiones, reportes financieros con la conciliación con la pasarela y avisos masivos.
 
 ### Modified Capabilities
 
@@ -38,9 +38,9 @@ Ninguna.
 
 ## Impact
 
-- **`servidor/`:** recursos y páginas de Filament en el panel web; el cálculo de la comisión; la lectura de los movimientos de Conekta para conciliar; el envío masivo por FCM; el rechazo de sesiones de un usuario bloqueado en la API. Tests en `servidor/tests/Feature/Administracion/`.
+- **`servidor/`:** recursos y páginas de Filament en el panel web; el cálculo de la comisión; la lectura de los movimientos de la pasarela para conciliar, cuando cierren DD-112 y DD-079; el envío masivo por FCM; el rechazo de sesiones de un usuario bloqueado en la API. Tests en `servidor/tests/Feature/Administracion/`.
 - **`movil/`:** nada. Si Arthur define la vista reducida de C-140, va en otro cambio.
-- **Base de datos:** la marca de bloqueo en la cuenta; los porcentajes de comisión, global y por socio, con su plaza; la comisión de cada pedido, cuando DD-020 diga cómo; el resultado de cada conciliación. Toda fila de operación lleva su plaza (`modelo-multi-plaza.md`).
-- **Dependencias:** ninguna fuera de los ADR: Filament 5 (ADR-0003), Google Maps JavaScript en el panel con plugin de Filament o componente propio (ADR-0009), `conekta/conekta-php` (ADR-0010) y `laravel-notification-channels/fcm` (ADR-0008).
-- **Cambios de los que depende:** `plazas-y-zonas`, `autorizacion-por-rol`, `alta-de-lavanderias`, `repartidor`, `estados-del-pedido`, `pago`, `avisos`, `direcciones` y `registro-e-inicio-de-sesion`.
-- **ADRs:** ADR-0003, ADR-0004, ADR-0005, ADR-0007, ADR-0008, ADR-0009 y ADR-0010.
+- **Base de datos:** crea `comisiones` (el porcentaje global de cada plaza y el propio de cada lavandería, con su vigencia) y `avisos_masivos`. Escribe el bloqueo en `usuarios` (`estado` y `bloqueado_en`). `movimientos_pasarela`, para la conciliación, nace cuando se responda DD-112. Toda fila de operación lleva su plaza (`modelo-multi-plaza.md`). El detalle está en `design.md`, sección "Tablas y migración" (`vault/arquitectura/modelo-de-datos.md`, ADR-0016).
+- **Dependencias:** ninguna fuera de los ADR: Filament 5 (ADR-0003), Google Maps JavaScript en el panel con plugin de Filament o componente propio (ADR-0009) y `laravel-notification-channels/fcm` (ADR-0008). La librería de la pasarela, para conciliar, se elige con DD-079; ADR-0010 se reemplaza al elegirla.
+- **Cambios de los que depende:** `plazas-y-zonas`, `autorizacion-por-rol`, `alta-de-lavanderias`, `repartidor`, `estados-del-pedido`, `pago`, `avisos`, `direcciones` y `registro-e-inicio-de-sesion`. Además, administracion-E02 lee `actividad_usuarios`, que crea `indicadores`, posterior en el plan.
+- **ADRs:** ADR-0003, ADR-0004, ADR-0005, ADR-0007, ADR-0008, ADR-0009, ADR-0010 y ADR-0016.

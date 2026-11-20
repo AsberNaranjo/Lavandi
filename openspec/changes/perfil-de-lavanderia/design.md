@@ -27,21 +27,63 @@ es de negocio: quién fija el precio y en qué unidad va el lavado en seco (DD-0
    configuración (ADR-0006). Las fotos de prueba son imágenes neutras, sin marca (`CLAUDE.md` §5), y solo se siembran en
    local y en prueba (ADR-0012).
 2. **Precio por lavandería y tipo de servicio, con monto y unidad como datos.** Es la forma más general: cubre que el
-   precio lo fije la lavandería o que lo fije {{MARCA}} y se cargue en cada una (DD-010), sin migración. El monto va en
-   pesos con centavos, en un tipo decimal.
-3. **Los tres tipos de servicio son una lista cerrada en el código,** con los nombres del contrato. No es una tabla
-   editable: agregar un tipo, como el calzado, es Orden de Cambio (DD-046).
+   precio lo fije la lavandería o que lo fije {{MARCA}} y se cargue en cada una (DD-010), sin migración. Es una fila
+   de `lavanderia_servicios`: `precio` en pesos, `numeric(12,2)`, y la unidad como llave a `unidades_medida`
+   (ADR-0016, reglas 2 y 7).
+3. **Los tres tipos de servicio son las filas del catálogo `tipos_servicio`** (ADR-0016, regla 2), sembradas con los
+   nombres del contrato: `estandar`, `planchado` y `seco`. Ninguna pantalla ni comando agrega tipos: un tipo nuevo,
+   como el calzado, sería una fila, pero es Orden de Cambio (DD-046). Lo mismo con `unidades_medida`: la semilla es
+   `kg`, y la pieza entra solo si DD-010 la pide.
 4. **Las reseñas no llevan datos de quien califica** (`NSV-2026-001-v8.pdf:10:Cláusula X`): EL PRESTADOR trata datos
    como encargado y EL CLIENTE define las finalidades. Si el cliente pide mostrar el nombre, cambia
    perfil-lavanderia-E08.
 5. **El pedido en curso vive en el teléfono** hasta el resumen. El servidor no guarda borradores en este cambio.
+6. **La API identifica la lavandería por su `id_publico`** (ULID), nunca por `id_lavanderias` (`modelo-de-datos`,
+   modelo-E15). Las reseñas no llevan ningún identificador de quien calificó (perfil-lavanderia-E08).
 
-Ninguna elige tecnología nueva: siguen ADR-0003, ADR-0006 y ADR-0012.
+Ninguna elige tecnología nueva: siguen ADR-0003, ADR-0006, ADR-0012 y ADR-0016.
+
+## Tablas y migración
+
+Este cambio crea siete tablas, tal como las fija `vault/arquitectura/modelo-de-datos.md` (columna "Nace en"). Las dos
+primeras son catálogos, en la lista de tablas sin plaza de `modelo-de-datos`; las otras cinco son de operación y
+llevan `id_plazas`, no nula y con llave foránea a `plazas` (plazas-E09).
+
+| Tabla | Columnas | Llaves, únicos y `CHECK` |
+|---|---|---|
+| `tipos_servicio` | `id_tipos_servicio`, `codigo`, `nombre`, `activo` | Llave `id_tipos_servicio`. `codigo` único (ver Open Questions). Semilla: `estandar` (lavado estándar), `planchado` (lavado con planchado) y `seco` (lavado en seco) |
+| `unidades_medida` | `id_unidades_medida`, `codigo`, `nombre` | Llave `id_unidades_medida`. `codigo` único (ver Open Questions). Semilla: `kg` (kilo) |
+| `lavanderias` | `id_lavanderias`, `id_publico`, `id_plazas`, `id_usuarios`, `nombre`, `descripcion`, `telefono`, `calle`, `numero`, `colonia`, `codigo_postal`, `ubicacion` (`geography(Point, 4326)`), `estado`, `aprobada_en`, `deleted_at` | Llave `id_lavanderias`. `id_publico` ULID único. Único `(id_lavanderias, id_plazas)`, al que apuntan las llaves compuestas de sus hijas. Llaves foráneas a `plazas` y a `usuarios` (quien la administra), con índice. Índice GiST en `ubicacion`. `CHECK (estado IN ('pendiente', 'activa', 'suspendida', 'baja'))`. `aprobada_en` en `timestamptz`. Borrado suave con `deleted_at` |
+| `lavanderia_servicios` | `id_lavanderia_servicios`, `id_lavanderias`, `id_plazas`, `id_tipos_servicio`, `id_unidades_medida`, `precio`, `activo` | Llave `id_lavanderia_servicios`. Llave compuesta `(id_lavanderias, id_plazas)` a `lavanderias`. Llaves foráneas a `tipos_servicio` y a `unidades_medida`. Único `(id_lavanderias, id_tipos_servicio)`. `precio` en `numeric(12,2)` con `CHECK (precio >= 0)`. Quién fija el precio: DD-010 |
+| `lavanderia_horarios` | `id_lavanderia_horarios`, `id_lavanderias`, `id_plazas`, `dia_semana`, `hora_inicio`, `hora_fin` | Llave `id_lavanderia_horarios`. Llave compuesta `(id_lavanderias, id_plazas)` a `lavanderias`. `CHECK (dia_semana BETWEEN 1 AND 7)` y `CHECK (hora_fin > hora_inicio)`. El cupo por ventana entra como columna cuando DD-099 diga cuánto; los festivos, con DD-078 |
+| `lavanderia_fotos` | `id_lavanderia_fotos`, `id_lavanderias`, `id_plazas`, `ruta`, `orden` | Llave `id_lavanderia_fotos`. Llave compuesta `(id_lavanderias, id_plazas)` a `lavanderias`. En la base solo va la ruta; la foto vive en S3 (ADR-0006) |
+| `calificaciones` | `id_calificaciones`, `id_pedidos`, `id_plazas`, `id_usuarios`, `id_lavanderias`, `id_repartidores`, `estrellas`, `comentario` | Llave `id_calificaciones`. Llave foránea a `usuarios` (quien calificó) y llave compuesta `(id_lavanderias, id_plazas)` a `lavanderias`. `CHECK (estrellas BETWEEN 1 AND 5)`. `CHECK (num_nonnulls(id_lavanderias, id_repartidores) = 1)`: exactamente un calificado. Únicos `(id_pedidos, id_lavanderias)` y `(id_pedidos, id_repartidores)`: una por pedido y calificado |
+
+- **Toda llave foránea** lleva su índice y `ON DELETE RESTRICT` (modelo-E09 y modelo-E10). Las tablas hijas llevan dos
+  llaves: la simple de `id_plazas` a `plazas` (plazas-E09) y la compuesta con `id_lavanderias` (modelo-E06), para que
+  la base rechace un servicio, un horario, una foto o una calificación de otra plaza.
+- **`lavanderia_horarios` guarda horas del día, no instantes:** `hora_inicio` y `hora_fin` son `time`, leídas en la
+  `zona_horaria` de la plaza. El día 1 es el lunes (ISO 8601). Pueden ir varias filas por día.
+- **`calificaciones` nace como base.** `id_pedidos` e `id_repartidores` nacen opcionales y **sin llave foránea**,
+  porque `pedidos` y `repartidores` todavía no existen: las calificaciones de prueba de este hito no tienen pedido. La
+  llave compuesta hacia `pedidos` la agrega `historial-y-calificacion`, que completa la tabla; la de `repartidores`, la
+  agrega `repartidor`, que la crea. Ninguno de los dos borra ni cambia lo que hay (ADR-0016, regla 9).
+- **Las lavanderías de prueba** se siembran con estado `activa`, en una plaza de prueba, y cada una con una cuenta de
+  prueba como quien la administra. El alta real y cómo llega el socio son de `alta-de-lavanderias` (DD-053).
+  `lavanderias-cercanas` siembra sobre estas mismas tablas.
+- **Usa, de otros cambios:** `plazas` (`plazas-y-zonas`) y `usuarios` (`registro-e-inicio-de-sesion`).
+- **Modelos de Eloquent:** `TipoServicio`, `UnidadMedida`, `Lavanderia`, `LavanderiaServicio`, `LavanderiaHorario`,
+  `LavanderiaFoto` y `Calificacion`, sobre `App\Models\Modelo`, cada uno con su `$table` y su `$primaryKey`, y cada
+  relación con sus llaves nombradas. `Lavanderia` usa `SoftDeletes` y el ULID público.
+- **La migración pasa la prueba de esquema de `modelo-de-datos`** (modelo-E01 a modelo-E16). Ninguna de estas tablas
+  lleva el trigger `impedir_cambio()`, que es solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`.
+- **Sin `created_at` ni `updated_at`:** el modelo no los lista, y la reseña necesita su fecha (ver Open Questions).
 
 ## Risks / Trade-offs
 
 - [A quién se califica, DD-052] → si el usuario también califica al repartidor, esas calificaciones no van en este
-  perfil. Hoy la tabla de calificaciones es solo de lavandería.
+  perfil. La tabla ya admite las dos, exactamente un calificado por fila (ADR-0016), y el perfil cuenta solo las que
+  tienen `id_lavanderias` (perfil-lavanderia-E18, bloqueado por DD-052).
 - [La libreta de precios del 2026-11-14] → no se usa ni para los datos de prueba: es un borrador de una lavandería sin
   identificar (`mocks/LEEME.md`) y trae precios por prenda.
 - [Una URL vence con la pantalla abierta] → la imagen ya cargada sigue en pantalla; al volver a entrar, la app pide el
@@ -63,3 +105,16 @@ Ninguna elige tecnología nueva: siguen ADR-0003, ADR-0006 y ADR-0012.
 - **El vencimiento de las URLs:** es un valor técnico de la configuración; lo fija Arthur.
 - **Pregunta de diseño:** el design system no tiene componente para la galería de fotos, la lista de reseñas ni la
   selección de servicio. La tarea los crea con los tokens, o se agregan antes a `vault/design-system/componentes.md`.
+
+**Del modelo de datos, para Arthur (las necesita la tarea 1.1):**
+
+- **La fecha de la reseña.** perfil-lavanderia-E08 devuelve la fecha de cada reseña, pero `calificaciones` no tiene
+  columna de fecha en el modelo, y ninguna tabla lista `created_at` ni `updated_at`, que Eloquent escribe por omisión.
+  O el modelo agrega las marcas de Laravel en `timestamptz` (`timestampsTz()`), o `calificaciones` lleva una columna
+  propia que termine en `_en`. Sin una de las dos, perfil-lavanderia-E08 no se puede cumplir.
+- **`codigo` único en los catálogos.** El modelo lo escribe para `roles`, no para `tipos_servicio` ni para
+  `unidades_medida`. Este diseño lo pone igual en los dos, porque la semilla y el código buscan por `codigo`; falta que
+  el modelo lo diga.
+- **El orden con `lavanderias-cercanas`.** Ese cambio va antes en el plan y lee `lavanderias` y `calificaciones`, que
+  crea la tarea 1.1 de este cambio (ver el `design.md` de `lavanderias-cercanas`, Open Questions). Lo decide Arthur al
+  rehacer el plan.

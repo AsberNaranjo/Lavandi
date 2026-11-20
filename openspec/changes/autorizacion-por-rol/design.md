@@ -33,15 +33,35 @@
 
 ## Decisions
 
-No hay decisión nueva tomada aquí; lo sostienen ADR-0003, ADR-0004 y ADR-0005:
+No hay decisión nueva tomada aquí; lo sostienen ADR-0003, ADR-0004, ADR-0005 y ADR-0016:
 
 1. **Toda decisión de acceso se toma en `servidor/`.** La app solo esconde lo que el servidor ya rechaza, porque un
    cliente móvil no puede custodiar el aislamiento (`c2-contenedores.md`; ADR-0003).
 2. **El panel de Filament usa el mismo componente** que la API, con el rol de administración (ADR-0005).
-3. **La plaza viene de la fila:** lavanderías, repartidores y pedidos llevan su plaza (modelo multi-plaza, ADR-0004;
-   `CLAUDE.md` §9.5). El usuario no tiene plaza; la tiene su domicilio (`modelo-multi-plaza.md`). Por eso la plaza
+3. **La plaza viene de la fila:** toda tabla de operación lleva `id_plazas` (ADR-0016, regla 4; ADR-0004;
+   `CLAUDE.md` §9.5). `usuarios` no tiene plaza; la tiene su dirección (`direcciones.id_plazas`). Por eso la plaza
    restringe a los socios y no al usuario (autorizacion-E08).
 4. **Las pruebas corren sobre PostgreSQL real** (`ciclo-openspec-tdd.md`), con un sembrado de dos plazas.
+5. **La API identifica cada fila por su `id_publico`,** nunca por la llave interna (ADR-0016, regla 5). Las pruebas
+   contra fugas piden los datos ajenos por `id_publico`.
+
+## Tablas y migración
+
+Este cambio no crea tablas ni migraciones (`vault/arquitectura/modelo-de-datos.md`, columna "Nace en"). Lee:
+
+| Tabla | Qué usa el componente | La crea |
+|---|---|---|
+| `usuarios`, `roles`, `rol_usuario` | El rol de cada cuenta (`roles.codigo`: `usuario`, `lavanderia`, `repartidor`, `administracion`). `rol_usuario` ya admite varios roles por cuenta; que la v1 permita uno lo impone el código (DD-053) | `registro-e-inicio-de-sesion` |
+| `lavanderias` | La tenencia del socio lavandería (`id_usuarios`), su plaza (`id_plazas`) y su `estado` (autorizacion-E05) | `perfil-de-lavanderia`; el alta real, `alta-de-lavanderias` |
+| `pedidos` y sus hijas | De quién es el pedido (`id_usuarios`), qué lavandería lo atiende (`id_lavanderias`), qué repartidor lo reparte (`id_repartidores`) y su plaza | `resumen-y-confirmacion` |
+| `direcciones` | La dueña (`id_usuarios`) | `direcciones` |
+| `pagos` | El cobro, por su pedido (`id_pedidos`) y su plaza | `pago` |
+| `calificaciones` | Lo que el perfil de la lavandería hace público | `perfil-de-lavanderia` |
+| `repartidores`, `pedido_asignaciones` | La tenencia del socio repartidor (`id_usuarios`), su plaza, su `estado` y sus pedidos asignados | `repartidor` (H8), **después de este cambio** |
+
+Como `repartidores` y `pedido_asignaciones` nacen en H8, la parte del repartidor de autorizacion-E02, autorizacion-E12
+y autorizacion-E14, y todo autorizacion-E11, no se pueden probar en H5: se escriben con la lavandería en H5 y se
+completan con el repartidor en H8.
 
 ## Risks / Trade-offs
 
@@ -49,10 +69,10 @@ No hay decisión nueva tomada aquí; lo sostienen ADR-0003, ADR-0004 y ADR-0005:
 - [Filament consulta los modelos directamente y puede saltarse las reglas de la API] → El mecanismo del componente
   tiene que servir también al panel (ver Open Questions); autorizacion-E03 y autorizacion-E13 lo prueban.
 - [Las rutas del Módulo B llegan en el mismo hito, y las del Módulo C en H8] → autorizacion-E09 y autorizacion-E10 se
-  escriben con la primera ruta del Módulo B; autorizacion-E11, cuando `repartidor` cree la asignación. El cambio no se
-  puede archivar completo antes de H8.
-- [DD-053 abre cuentas con más de un rol] → Cambia cómo se guarda el rol y autorizacion-E04. Cuesta poco si se decide
-  antes del sprint 11.
+  escriben con la primera ruta del Módulo B; autorizacion-E11, cuando `repartidor` cree `repartidores` y
+  `pedido_asignaciones`. El cambio no se puede archivar completo antes de H8.
+- [DD-053 abre cuentas con más de un rol] → La tabla no cambia: `rol_usuario` ya lo admite (ADR-0016). Cambian el
+  código del componente y autorizacion-E04. Cuesta poco si se decide antes del sprint 11.
 - [Responder "prohibido" confirma que el dato existe] → Se decide junto con el mecanismo (Open Questions).
 
 ## Open Questions
@@ -67,6 +87,7 @@ No hay decisión nueva tomada aquí; lo sostienen ADR-0003, ADR-0004 y ADR-0005:
   `registro-e-inicio-de-sesion` ya fijó el mecanismo, este cambio lo sigue.** Lo decide Arthur antes de
   autorizacion-E01.
 - **Qué responde `servidor/` a un acceso denegado:** 403, o 404 para no confirmar que el dato existe. Va en el mismo ADR.
-- **Cómo se guarda el rol de una cuenta:** depende de DD-053.
+- **Cómo se guarda el rol de una cuenta:** resuelta por el modelo de datos (C-193): `rol_usuario`, que crea
+  `registro-e-inicio-de-sesion`. Si una cuenta puede tener más de uno sigue en DD-053, y solo toca el código.
 - **¿Se archiva en H5 lo de la lavandería y la administración, y se abre otro cambio para el repartidor en H8?** Lo
   decide Arthur.

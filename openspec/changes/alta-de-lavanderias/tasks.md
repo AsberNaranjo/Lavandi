@@ -2,6 +2,10 @@ Cada tarea se hace en rojo, verde y refactor: primero el test que falla, con el 
 nombre; luego el código mínimo que lo pone en verde; luego la limpieza con el test en verde. Tamaños de S-006: S = 2 h,
 M = 5 h, L = 12 h.
 
+## 0. Base de datos en el servidor
+
+- [ ] 0.1 modelo-E01 a modelo-E16 sobre `lavanderias`: migración que la completa con `estado` (`CHECK` de `pendiente`, `activa`, `suspendida` y `baja`, obligatorio, por omisión `activa`) y `aprobada_en` (opcional), y llena `aprobada_en` en las filas que ya existen; el modelo `Lavanderia` (de `perfil-de-lavanderia`) recibe los dos campos, sin cambiar su `$table` ni su `$primaryKey` — test: `servidor/tests/Feature/AltaLavanderias/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` — tamaño S
+
 ## 1. Registro de la lavandería en el servidor
 
 - [ ] 1.1 alta-lavanderias-E01, alta-lavanderias-E02: registro completo y registro incompleto, con la foto en el almacenamiento S3 privado — test: `servidor/tests/Feature/AltaLavanderias/RegistroTest.php` — tamaño M
@@ -16,8 +20,8 @@ M = 5 h, L = 12 h.
 ## 3. Gestión de lavanderías en el panel de Filament
 
 - [ ] 3.1 alta-lavanderias-E13: lista de lavanderías con su estado y su plaza, y edición con las validaciones del registro — test: `servidor/tests/Feature/AltaLavanderias/PanelEdicionTest.php` — tamaño M
-- [ ] 3.2 alta-lavanderias-E14, alta-lavanderias-E15: suspender y levantar la suspensión, con su efecto en la búsqueda y en los pedidos nuevos — test: `servidor/tests/Feature/AltaLavanderias/PanelSuspensionTest.php` — tamaño S
-- [ ] 3.3 alta-lavanderias-E17: baja que conserva la lavandería y sus pedidos en la base — test: `servidor/tests/Feature/AltaLavanderias/PanelBajaTest.php` — tamaño S
+- [ ] 3.2 alta-lavanderias-E14, alta-lavanderias-E15: suspender (`estado = 'suspendida'`) y levantar la suspensión (de vuelta a `activa` si `aprobada_en` tiene fecha, a `pendiente` si no), con su efecto en la búsqueda y en los pedidos nuevos — test: `servidor/tests/Feature/AltaLavanderias/PanelSuspensionTest.php` — tamaño S
+- [ ] 3.3 alta-lavanderias-E17: baja (`estado = 'baja'`, sin `deleted_at`) que conserva la lavandería y sus pedidos en la base — test: `servidor/tests/Feature/AltaLavanderias/PanelBajaTest.php` — tamaño S
 
 ## 4. Pantallas del Módulo B en la app
 
@@ -34,6 +38,10 @@ M = 5 h, L = 12 h.
 - [ ] 5.6 alta-lavanderias-E23: cupo por ventana, bloqueada por BR-17 y DD-099 — test: `servidor/tests/Feature/AltaLavanderias/VentanasTest.php` — tamaño S
 - [ ] 5.7 alta-lavanderias-E24: ventanas fuera del horario de atención, bloqueada por DD-078 — test: `servidor/tests/Feature/AltaLavanderias/VentanasTest.php` — tamaño S
 
-Listas para el sprint (grupos 1 a 4): 4 tareas M y 6 tareas S, **32 h**. Bloqueadas (grupo 5), tamaño tentativo: 2 M y
-5 S, **20 h**. El plan de sprints le da **15 h** a este cambio (F-B01, F-D01 y F-B06, tres M). Las tareas listas ya
-pasan el doble del plan.
+## Horas
+
+- **Listas para el sprint** (grupos 0 a 4): 4 tareas M y 7 tareas S, **34 h**. Antes de alinear con el modelo eran
+  32 h; la migración de 0.1 suma 2 h.
+- **Bloqueadas** (grupo 5), tamaño tentativo: 2 M y 5 S, **20 h**, sin cambio.
+- **Contra el plan:** el plan de sprints le da **15 h** a este cambio (F-B01, F-D01 y F-B06, tres M). Las listas pasan
+  el plan por 19 h (antes, por 17 h); con las bloqueadas, por 39 h (antes, por 37 h).

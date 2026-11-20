@@ -29,6 +29,23 @@ Tres lecturas que fijan los escenarios; Arthur las aprueba con la spec:
 3. **"Del día" y "de la semana"** se cuentan en la zona horaria de la plaza (`vault/arquitectura/modelo-multi-plaza.md`).
    La semana va de lunes a domingo.
 
+## Tablas y migración
+
+No crea tablas ni migración. Lee, sin escribir, tablas que crean otros cambios (`vault/arquitectura/modelo-de-datos.md`,
+ADR-0016):
+
+| Tabla | Para qué | La crea |
+|---|---|---|
+| `pedidos` | Los pedidos de la lavandería por `id_lavanderias` e `id_plazas`, con su folio (E01, E02, E05 y E06); con E03 y E07, el monto y la copia `comision_porcentaje` | `resumen-y-confirmacion` |
+| `pedido_eventos` y `estados_pedido` | El paso a Entregado y su `ocurrido_en`, que dan la fecha del historial y los conteos del día y de la semana (E01 y E05) | `resumen-y-confirmacion` (base) y `estados-del-pedido` |
+| `plazas` | La `zona_horaria` de la plaza, para "del día" y "de la semana" | `plazas-y-zonas` |
+| `calificaciones` | Las filas con `id_lavanderias`: la calificación recibida y su promedio (E04 y E08, bloqueados por DD-052) | `perfil-de-lavanderia` (base) y `historial-y-calificacion` |
+| `comisiones` | El monto neto de comisión, si DD-013 y DD-020 lo piden (E03 y E07, bloqueados) | `administracion` |
+
+`comisiones` nace en `administracion` (sprints 21 a 24), después de este cambio (sprints 20 y 21). Solo la necesitan
+E03 y E07, que ya están bloqueados. `pedidos` trae además su columna `comision_porcentaje`; si vale para el monto neto
+de un pedido ya cobrado lo dice DD-020 ("desde cuándo aplica un cambio de porcentaje").
+
 ## Risks / Trade-offs
 
 - [Se usa el historial antes de cerrar DD-013 y DD-052] → la lavandería ve folio y fecha, pero no monto ni

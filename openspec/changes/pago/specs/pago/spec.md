@@ -1,21 +1,25 @@
 ## ADDED Requirements
 
-### Requirement: Pago con tarjeta de crédito o débito con Conekta
+### Requirement: Pago con tarjeta de crédito o débito por la pasarela
 
 El sistema DEBE (MUST) permitir que el usuario pague su pedido dentro de la app con tarjeta de crédito o débito a
-través de Conekta. `servidor/` crea la orden en Conekta con el monto que él mismo calcula, nunca con un monto que mande
-la app, y la app abre el checkout que esa orden devuelve.
+través de la pasarela, con su checkout redirigido. `servidor/` crea la orden en la pasarela con el monto que él mismo
+calcula, nunca con un monto que mande la app, y la app abre el checkout que esa orden devuelve.
 
-Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #10) y `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`
-("Permite que el usuario pague dentro de la aplicación") · D → ADR-0010
+Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #10: "Conekta: tarjeta de crédito o débito y OXXO
+Pay") y `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` ("Permite que el usuario pague dentro de la aplicación") · D →
+ADR-0010 (el mecanismo; el proveedor queda abierto por C-192 y DD-079)
 
 #### Scenario: pago-E01 — Crear el checkout de un cobro pendiente
 
-- **DADO** un pedido del usuario con un cobro pendiente de monto M, preparado en la prueba
+- **DADO** un pedido del usuario en el estado previo al pago, con un cobro pendiente de monto M preparado en la prueba
 - **CUANDO** el usuario pide pagarlo con tarjeta, aunque su petición traiga otro monto
-- **ENTONCES** `servidor/` crea en Conekta (simulado) una orden por M, ligada a ese cobro
-- **Y** devuelve la URL del checkout de Conekta
+- **ENTONCES** `servidor/` crea en la pasarela simulada una orden por M, ligada a ese cobro por su `id_pasarela_orden`
+- **Y** devuelve la URL del checkout
 - **Y** si el cobro ya tenía un checkout vigente, devuelve ese mismo en lugar de crear otro
+
+Con la pasarela simulada, este escenario no depende del proveedor. La misma orden contra el sandbox de la pasarela
+elegida es la tarea 3.3, bloqueada por DD-079.
 
 #### Scenario: pago-E02 — La app abre el checkout sin pedir la tarjeta
 
@@ -30,35 +34,36 @@ Criterio: SEG-4
 #### Scenario: pago-E03 — Pago con tarjeta aprobado
 
 - **DADO** un cobro pendiente con su checkout creado
-- **CUANDO** llega a `servidor/` el webhook auténtico de Conekta que confirma el pago de esa orden
-- **ENTONCES** el cobro queda pagado
-- **Y** `servidor/` responde 200 al webhook
+- **CUANDO** llega a `servidor/` el aviso auténtico de la pasarela (webhook) que confirma el pago de esa orden
+- **ENTONCES** el cobro queda `pagado`, con su `pagado_en`
+- **Y** `servidor/` responde 200 al aviso
 
-Criterio: A43-4 (en sandbox; en producción se acredita en `publicacion`), A43-2
+Criterio: A43-2. A43-4 avanza a `implementado` solo con la tarea 3.3, contra el sandbox de la pasarela elegida
+(DD-079); en producción se acredita en `publicacion`.
 
 #### Scenario: pago-E04 — Pago con tarjeta rechazado
 
 - **DADO** un cobro pendiente con su checkout creado
-- **CUANDO** llega el webhook auténtico de Conekta que avisa que el pago se rechazó
-- **ENTONCES** el cobro sigue sin pagar
+- **CUANDO** llega el aviso auténtico de la pasarela que dice que el pago se rechazó
+- **ENTONCES** el cobro sigue sin pagar y el pedido sigue en el estado previo al pago, sin folio
 - **Y** el usuario puede volver a intentar el pago del mismo cobro
 
 Criterio: A43-2
 
 ### Requirement: Ningún número de tarjeta en la plataforma
 
-La plataforma DEBE (MUST) no guardar nunca números de tarjeta, fechas de vencimiento ni códigos de seguridad. La
-tarjeta la captura y la resguarda Conekta; de cada pago, la base de datos solo guarda la referencia que devuelve
-Conekta.
+La plataforma NO DEBE (MUST NOT) guardar nunca números de tarjeta, fechas de vencimiento ni códigos de seguridad. La
+tarjeta la captura y la resguarda la pasarela; de cada pago, la base de datos solo guarda la referencia que devuelve la
+pasarela (`id_pasarela_orden`) y cuál fue (`pasarela`).
 
-Cita: A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` (Datos de tarjeta)
+Cita: A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` (Datos de tarjeta) · D → ADR-0016
 
 #### Scenario: pago-E05 — El esquema no tiene dónde guardar una tarjeta
 
 - **DADO** la base de datos con todas las migraciones aplicadas
 - **CUANDO** la prueba recorre todas sus tablas y columnas
 - **ENTONCES** ninguna columna está hecha para un número de tarjeta, una fecha de vencimiento o un código de seguridad
-- **Y** lo único que liga un pago con Conekta es la referencia que devuelve Conekta
+- **Y** lo único que liga un pago con la pasarela es su `id_pasarela_orden`, junto con la columna `pasarela`
 
 Criterio: SEG-4
 
@@ -66,17 +71,18 @@ Criterio: SEG-4
 
 - **DADO** un usuario que ya pagó un pedido con tarjeta
 - **CUANDO** paga un pedido nuevo
-- **ENTONCES** puede usar esa tarjeta como una referencia guardada en Conekta
+- **ENTONCES** puede usar esa tarjeta como una referencia guardada en la pasarela
 - **Y** la plataforma sigue sin conocer su número
 
-SIN RESPUESTA — bloquea: pago-E06 (DD-055). Si la tarjeta se guarda o se cobra cada vez. ADR-0010, punto 5, pide
-además verificar en el sandbox que el checkout redirigido permite reutilizarla.
+SIN RESPUESTA — bloquea: pago-E06 (DD-055, DD-079). Si la tarjeta se guarda o se cobra cada vez, y si el checkout
+redirigido de la pasarela elegida permite reutilizarla. Si DD-055 dice que sí, nace `metodos_pago_guardados` en
+`perfil-y-soporte`.
 
 ### Requirement: El pago se confirma solo en el servidor
 
-`servidor/` DEBE (MUST) dar un cobro por pagado únicamente cuando recibe la confirmación de Conekta por webhook. Ninguna
-petición de la app, ni su regreso desde el checkout, marca un cobro como pagado. Mientras la confirmación no llega, la
-app muestra que el pago se está procesando.
+`servidor/` DEBE (MUST) dar un cobro por pagado únicamente cuando recibe la confirmación de la pasarela por webhook.
+Ninguna petición de la app, ni su regreso desde el checkout, marca un cobro como pagado. Mientras la confirmación no
+llega, la app muestra que el pago se está procesando.
 
 Cita: A → `NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.4` ("verifica los pagos") · D → ADR-0010 (punto 1)
 
@@ -86,131 +92,181 @@ Cita: A → `NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.4` ("verifica los pagos"
 - **CUANDO** la app avisa a `servidor/` que volvió del checkout por la dirección de éxito, o manda cualquier petición
   que diga que ya pagó
 - **ENTONCES** el cobro sigue pendiente
-- **Y** solo un webhook auténtico de Conekta lo puede marcar como pagado
+- **Y** solo un aviso auténtico de la pasarela lo puede marcar como pagado
 
 #### Scenario: pago-E08 — La app espera la confirmación del servidor
 
-- **DADO** que el usuario volvió a la app desde el checkout de Conekta
+- **DADO** que el usuario volvió a la app desde el checkout de la pasarela
 - **CUANDO** la app consulta el cobro en `servidor/` y sigue pendiente
 - **ENTONCES** muestra "Procesando pago" y sigue consultando
 - **Y** cuando `servidor/` lo da por pagado, o informa que el intento se rechazó, la app muestra ese resultado
 
-### Requirement: Webhooks de Conekta auténticos y procesados una sola vez
+### Requirement: El pago acreditado confirma el pedido; sin pago no hay recolección
 
-`servidor/` DEBE (MUST) comprobar que cada webhook viene de Conekta antes de usarlo, y procesar cada evento una sola vez:
-si el mismo evento llega dos veces, la segunda no cambia nada. A cada evento auténtico responde 200.
+Cuando un cobro queda `pagado`, `servidor/` DEBE (MUST) pasar su pedido a Confirmado en la misma transacción, con la
+operación de confirmar de `resumen-y-confirmacion`. Un pedido sin un cobro `pagado` NO DEBE (MUST NOT) confirmarse, y
+por eso no llega a la lavandería ni al repartidor y no se recolecta.
 
-Cita: D → ADR-0010 (punto 2) · A → `NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.4` ("verifica los pagos")
+Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (Módulo A #10 y #11: el pago y después la confirmación con
+folio; C-188) y `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3` ("elegir lavandería, agendar recolección, pagar y dar
+seguimiento") · D → ADR-0010 (punto 1)
 
-#### Scenario: pago-E09 — Un webhook que no viene de Conekta se rechaza
+#### Scenario: pago-E18 — El pago acreditado confirma el pedido
 
-- **DADO** un cobro pendiente
-- **CUANDO** llega al webhook una petición que dice que ese cobro se pagó, sin una firma válida de Conekta
-- **ENTONCES** `servidor/` la rechaza sin responder 200
-- **Y** el cobro sigue pendiente
-
-Cómo autentica Conekta sus webhooks no está confirmado (ADR-0010, grado E). Se confirma en el sandbox antes de escribir
-este test (ver `design.md`).
-
-#### Scenario: pago-E10 — El mismo evento llega dos veces
-
-- **DADO** un webhook auténtico de pago ya procesado
-- **CUANDO** Conekta lo vuelve a mandar con el mismo identificador de evento
-- **ENTONCES** `servidor/` responde 200
-- **Y** no duplica el pago ni cambia nada
-
-### Requirement: Cada pago queda registrado para la conciliación con Conekta
-
-`servidor/` DEBE (MUST) guardar de cada pago confirmado la referencia de la orden de Conekta, el monto, el método
-(tarjeta u OXXO Pay), la fecha de confirmación, el pedido y su plaza, para que el Módulo D lo concilie con Conekta.
-
-Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #6: "conciliación con Conekta"),
-`NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` (la base de datos guarda "pagos") y `NSV-2026-001-v8.pdf:4:Cláusula I`
-(la plaza, por el modelo multi-plaza)
-
-#### Scenario: pago-E11 — Pago confirmado con su referencia de Conekta
-
-- **DADO** un cobro de un pedido de la plaza P
-- **CUANDO** se procesa el webhook auténtico que confirma su pago
-- **ENTONCES** el pago queda guardado con la referencia de la orden de Conekta, el monto, el método, la fecha de
-  confirmación, el pedido y la plaza P
-
-### Requirement: Pago en efectivo con OXXO Pay
-
-El sistema DEBE (MUST) permitir que el usuario pague su pedido en efectivo con OXXO Pay a través de Conekta: recibe una
-ficha para pagar en una tienda OXXO, y el cobro queda pendiente hasta que Conekta confirme el pago al servidor.
-
-Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #10), `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`
-("generar fichas de pago en tiendas OXXO") y `NSV-2026-001-v8.pdf:45:ANEXO D, Sección D.3` (OXXO Pay)
-
-#### Scenario: pago-E12 — Ficha de OXXO Pay
-
-- **DADO** un pedido con un cobro pendiente
-- **CUANDO** el usuario elige pagar con OXXO Pay
-- **ENTONCES** recibe en la app una ficha para pagar en una tienda OXXO
-- **Y** el cobro queda pendiente hasta que llegue el webhook auténtico de Conekta que confirma el pago
-
-SIN RESPUESTA — bloquea: pago-E12 (DD-056). Conekta ya no generaría fichas de OXXO (grado E, R-028): falta confirmarlo
-por escrito con Conekta y que EL CLIENTE decida, por escrito y firmado por ambas partes, qué efectivo se ofrece.
-
-#### Scenario: pago-E13 — Ficha vencida sin pagar
-
-- **DADO** una ficha de OXXO Pay que el usuario no pagó
-- **CUANDO** Conekta avisa que la ficha venció
-- **ENTONCES** el cobro queda vencido, sin pagar
-- **Y** el pedido sigue la regla que fije el modelo de cobro
-
-SIN RESPUESTA — bloquea: pago-E13 (DD-056, DD-012). Qué pasa con el pedido mientras la ficha espera el pago y cuando
-vence (BR-20).
-
-### Requirement: Cuándo se cobra, por cuánto y cómo se ajusta
-
-El sistema DEBE (MUST) cobrar cada pedido en el momento y por el monto que fije el modelo de cobro de EL CLIENTE,
-partiendo del precio estimado que muestra el resumen, y aplicar con Conekta los ajustes y reembolsos que ese modelo
-indique.
-
-Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #9: "precio estimado"; #10) · D → ADR-0010
-(punto 3)
-
-#### Scenario: pago-E14 — Momento y monto del cobro
-
-- **DADO** un pedido confirmado en el resumen, con su precio estimado
-- **CUANDO** llega el momento de cobrar que fije el modelo de cobro
-- **ENTONCES** `servidor/` crea el cobro pendiente del pedido por el monto que fije ese modelo
+- **DADO** un pedido en el estado previo al pago, con su cobro pendiente
+- **CUANDO** se procesa el aviso auténtico de la pasarela que confirma ese cobro
+- **ENTONCES** el cobro queda `pagado` y el pedido pasa a Confirmado, con folio y `confirmado_en`, en la misma
+  transacción
+- **Y** el aviso queda en `eventos_pasarela` como procesado
 
 Criterio: A43-2
 
-SIN RESPUESTA — bloquea: pago-E14 (DD-012, DD-013). Cuándo se cobra (al pedir con el estimado, al pesar, o apartar y
-cobrar después) y si el monto incluye la comisión de Conekta o la absorbe alguien más.
+#### Scenario: pago-E19 — Sin pago acreditado el pedido no se confirma
+
+- **DADO** un pedido en el estado previo al pago cuyo cobro está `pendiente`, `fallido` o `vencido`
+- **CUANDO** cualquier petición o componente intenta pasarlo a Confirmado
+- **ENTONCES** `servidor/` lo rechaza
+- **Y** el pedido sigue sin folio y sin `confirmado_en`
+
+Que un pedido sin confirmar no llega a la lavandería ni al repartidor lo prueban `pedidos-de-la-lavanderia` y
+`repartidor`.
+
+### Requirement: Avisos de la pasarela auténticos y procesados una sola vez
+
+`servidor/` DEBE (MUST) comprobar que cada aviso (webhook) viene de la pasarela antes de usarlo, y procesar cada evento
+una sola vez: lo guarda en `eventos_pasarela` y, si el mismo evento llega dos veces, la segunda no cambia nada. A cada
+evento auténtico responde 200.
+
+Cita: D → ADR-0010 (punto 2) y ADR-0016 (regla 10: `eventos_pasarela`) · A → `NSV-2026-001-v8.pdf:29:ANEXO B, Sección
+B.4` ("verifica los pagos")
+
+#### Scenario: pago-E09 — Un aviso que no viene de la pasarela se rechaza
+
+- **DADO** un cobro pendiente
+- **CUANDO** llega al webhook una petición que dice que ese cobro se pagó, sin la prueba de autenticidad de la pasarela
+- **ENTONCES** `servidor/` la rechaza sin responder 200
+- **Y** el cobro sigue pendiente
+
+SIN RESPUESTA — bloquea: pago-E09 (DD-079). Cómo prueba sus avisos la pasarela, con firma o con una consulta de la
+orden, depende del proveedor que se elija; lo fija el ADR que reemplace a ADR-0010, junto con lo que pide DD-102.
+
+#### Scenario: pago-E10 — El mismo evento llega dos veces
+
+- **DADO** un aviso auténtico de pago ya procesado y guardado en `eventos_pasarela`
+- **CUANDO** la pasarela lo vuelve a mandar con el mismo `id_pasarela_evento`
+- **ENTONCES** `servidor/` responde 200
+- **Y** no duplica el pago ni cambia nada, porque el único `(pasarela, id_pasarela_evento)` lo impide también en la base
+
+### Requirement: Cada pago queda registrado para la conciliación
+
+`servidor/` DEBE (MUST) guardar de cada pago confirmado la pasarela que cobró, la referencia de su orden, el monto, el
+método (tarjeta o efectivo), la fecha de confirmación, el pedido y su plaza, para que el Módulo D lo concilie con la
+pasarela.
+
+Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #6: "conciliación con Conekta"),
+`NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` (la base de datos guarda "pagos") y `NSV-2026-001-v8.pdf:4:Cláusula I`
+(la plaza, por el modelo multi-plaza) · D → ADR-0016
+
+#### Scenario: pago-E11 — Pago confirmado con su referencia de la pasarela
+
+- **DADO** un cobro de un pedido de la plaza P
+- **CUANDO** se procesa el aviso auténtico que confirma su pago
+- **ENTONCES** el pago queda guardado con su `pasarela`, su `id_pasarela_orden`, su `monto`, su `metodo`, su
+  `pagado_en`, su `id_pedidos` y la plaza P en `id_plazas`
+
+### Requirement: Pago en efectivo
+
+El sistema DEBE (MUST) permitir que el usuario pague su pedido en efectivo a través de la pasarela: recibe una ficha o
+referencia para pagar en tienda, y el cobro queda pendiente hasta que la pasarela confirme el pago al servidor. El
+efectivo DEBE (MUST) vencer antes de la ventana de recolección del pedido.
+
+Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #10), `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`
+("generar fichas de pago en tiendas OXXO") y `NSV-2026-001-v8.pdf:45:ANEXO D, Sección D.3` (OXXO Pay); A →
+`NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (#10 antes de #11; C-188)
+
+#### Scenario: pago-E12 — Ficha para pagar en efectivo
+
+- **DADO** un pedido con un cobro pendiente
+- **CUANDO** el usuario elige pagar en efectivo
+- **ENTONCES** recibe en la app la ficha o referencia para pagar en tienda, guardada en `referencia_efectivo`
+- **Y** el cobro queda pendiente hasta que llegue el aviso auténtico de la pasarela que confirma el pago
+
+SIN RESPUESTA — bloquea: pago-E12 (DD-056, DD-079). Qué efectivo se ofrece lo decide EL CLIENTE por escrito, firmado
+por ambas partes; con qué pasarela, DD-079.
+
+#### Scenario: pago-E13 — Ficha vencida sin pagar
+
+- **DADO** una ficha de efectivo que el usuario no pagó
+- **CUANDO** llega su `vence_en`, o la pasarela avisa que venció
+- **ENTONCES** el cobro queda `vencido`, sin pagar
+- **Y** el pedido no se confirma ni se recolecta; lo demás que le pase lo fija el modelo de cobro
+
+SIN RESPUESTA — bloquea: pago-E13 (DD-056, DD-012, DD-079). Qué pasa con el pedido mientras la ficha espera el pago y
+cuando vence (BR-20, DD-123).
+
+#### Scenario: pago-E20 — El efectivo vence antes de la ventana de recolección
+
+- **DADO** un pedido con su ventana de recolección y un cobro en efectivo pendiente
+- **CUANDO** se genera su ficha o referencia
+- **ENTONCES** su `vence_en` queda antes de `ventana_inicio`, con el plazo que fije el modelo de cobro
+- **Y** si llega `vence_en` sin pago, el cobro queda `vencido` y el pedido no se recolecta
+
+SIN RESPUESTA — bloquea: pago-E20 (DD-012, DD-056, DD-079). Cuánto antes de la ventana vence el efectivo, y si la
+pasarela elegida deja fijar el vencimiento de la ficha.
+
+### Requirement: Cuándo se cobra, por cuánto y cómo se ajusta
+
+El sistema DEBE (MUST) cobrar cada pedido antes de recolectarlo, después de que el usuario acepta el resumen, por el
+monto que fije el modelo de cobro de EL CLIENTE a partir del precio estimado, y aplicar por la pasarela los ajustes y
+reembolsos que ese modelo indique.
+
+Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #9: "precio estimado"; #10) y
+`NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (#9 a #11, en ese orden; C-188) · D → ADR-0010 (punto 3)
+
+#### Scenario: pago-E14 — Momento y monto del cobro
+
+- **DADO** un pedido recién creado al aceptar el resumen, en el estado previo al pago, con su precio estimado
+- **CUANDO** el usuario elige cómo pagar
+- **ENTONCES** `servidor/` crea su cobro pendiente, de `tipo` `cobro`, por el monto que fije el modelo de cobro
+- **Y** el pedido no se recolecta mientras ese cobro no quede `pagado`
+
+Criterio: A43-2
+
+SIN RESPUESTA — bloquea: pago-E14 (DD-012, DD-013). El momento ya lo fijó C-188: antes de recolectar. Falta el monto:
+cómo se estima el peso antes de recolectar, si el envío va en el mismo cobro y si el monto incluye la comisión de la
+pasarela o la absorbe alguien más.
 
 #### Scenario: pago-E15 — Ajuste cuando el monto final es distinto del estimado
 
 - **DADO** un pedido pagado con el monto estimado
 - **CUANDO** se conoce su monto final y es distinto del estimado
-- **ENTONCES** `servidor/` cobra la diferencia o reembolsa el excedente con Conekta, según el modelo de cobro
+- **ENTONCES** `servidor/` cobra la diferencia, con otra fila de `pagos` de `tipo` `ajuste`, o reembolsa el excedente,
+  con una fila de `reembolsos`, por la pasarela y según el modelo de cobro
 
-SIN RESPUESTA — bloquea: pago-E15 (DD-012). ADR-0010, punto 3, prevé el cargo adicional o el reembolso parcial solo si
-DD-012 lo confirma.
+SIN RESPUESTA — bloquea: pago-E15 (DD-012, DD-079). ADR-0010, punto 3, prevé el cargo adicional o el reembolso parcial
+solo si DD-012 lo confirma; cómo se hace depende de la pasarela elegida.
 
 #### Scenario: pago-E16 — Reembolso al cancelar o al rechazar el pedido
 
 - **DADO** un pedido pagado
 - **CUANDO** el pedido se cancela, o la lavandería lo rechaza
-- **ENTONCES** `servidor/` reembolsa con Conekta lo que fijen la política de cancelación y el modelo de cobro
+- **ENTONCES** `servidor/` reembolsa por la pasarela lo que fijen la política de cancelación y el modelo de cobro, con
+  una fila de `reembolsos` que no pasa de lo pagado
 
-SIN RESPUESTA — bloquea: pago-E16 (DD-012, DD-016). Qué pasa con el pago si la lavandería rechaza el pedido es DD-103.
+SIN RESPUESTA — bloquea: pago-E16 (DD-012, DD-016, DD-079). Qué pasa con el pago si la lavandería rechaza el pedido es
+DD-103.
 
-### Requirement: Llaves de Conekta por entorno
+### Requirement: Llaves de la pasarela por entorno
 
-`servidor/` DEBE (MUST) tomar las llaves de Conekta de la configuración de cada entorno, nunca del código: en local y en
-prueba, las del sandbox; en producción, las de la cuenta de EL CLIENTE.
+`servidor/` DEBE (MUST) tomar las llaves de la pasarela de la configuración de cada entorno, nunca del código: en local
+y en prueba, las de su sandbox; en producción, las de la cuenta de EL CLIENTE.
 
 Cita: D → ADR-0012 · A → `NSV-2026-001-v8.pdf:34:ANEXO B, Sección B.11` (cuentas a nombre de EL CLIENTE) y
 `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3` ("en modo producción")
 
 #### Scenario: pago-E17 — La llave sale de la configuración del entorno
 
-- **DADO** el entorno de pruebas automáticas, con una llave de sandbox en su configuración
-- **CUANDO** `servidor/` crea una orden en Conekta (simulado)
+- **DADO** el entorno de pruebas automáticas, con una llave de prueba en su configuración
+- **CUANDO** `servidor/` crea una orden en la pasarela simulada
 - **ENTONCES** la petición va autenticada con la llave de esa configuración
-- **Y** el código de `servidor/` no contiene ninguna llave de Conekta escrita a mano
+- **Y** el código de `servidor/` no contiene ninguna llave de la pasarela escrita a mano

@@ -35,6 +35,6 @@ Ninguna.
 
 - **`servidor/`:** las consultas del historial y de las estadísticas de la lavandería, dentro del componente de autorización único.
 - **`movil/`:** las pantallas "Historial de pedidos" y "Estadísticas" del Módulo B.
-- **Base de datos:** sin tablas nuevas. Lee los pedidos, sus estados y, cuando cierre DD-052, las calificaciones.
+- **Base de datos:** sin tablas nuevas ni migración. Lee `pedidos`, `pedido_eventos`, `estados_pedido` y `plazas`; cuando cierre DD-052, `calificaciones`; cuando cierren DD-013 y DD-020, `comisiones`. El detalle está en `design.md`, sección "Tablas y migración".
 - **Dependencias:** ninguna nueva.
-- **ADRs:** ADR-0002, ADR-0003 y ADR-0004.
+- **ADRs:** ADR-0002, ADR-0003, ADR-0004 y ADR-0016 (modelo de datos).

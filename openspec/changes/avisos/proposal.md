@@ -42,7 +42,7 @@ Ninguna.
 
 - **`servidor/`:** el componente `avisos` de la api, con el canal de FCM (`laravel-notification-channels/fcm` 6.2.0 y `kreait/firebase-php` 8.6.0, versiones grado E de `arquitectura/verificaciones-fase-6.md`); un punto de la api para registrar y borrar el token del teléfono; escuchas de los eventos del pedido.
 - **`movil/`:** `@react-native-firebase/messaging` 27.1.1 (grado E) en un development build (ADR-0002), la petición del permiso y el manejador de mensajes con la app abierta y en segundo plano.
-- **Base de datos:** una tabla de tokens de teléfono ligada a la cuenta.
+- **Base de datos:** crea `dispositivos` (ADR-0016, `arquitectura/modelo-de-datos.md`): el token de FCM de cada teléfono, único, ligado a la cuenta por `id_usuarios`, con su plataforma y su último uso.
 - **Cuentas y secretos:** el proyecto de Firebase de prueba que abrió Arthur con su correo (C-170, ADR-0012); la credencial del servidor y los archivos de Firebase de la app viven fuera del repositorio (ADR-0012). En iPhone hace falta la clave de la cuenta de desarrollador de Apple (DD-069).
-- **ADRs:** ADR-0008 (FCM directo), ADR-0007 (el aviso adelanta la consulta), ADR-0012 (un proyecto de Firebase por entorno), ADR-0002 y ADR-0003 (stack).
-- **Depende de:** `registro-e-inicio-de-sesion` (la sesión), `resumen-y-confirmacion` (el pedido confirmado) y `estados-del-pedido` (los cambios de estado).
+- **ADRs:** ADR-0008 (FCM directo), ADR-0007 (el aviso adelanta la consulta), ADR-0012 (un proyecto de Firebase por entorno), ADR-0002 y ADR-0003 (stack) y ADR-0016 (modelo de datos).
+- **Depende de:** `modelo-de-datos` (las reglas de la tabla), `registro-e-inicio-de-sesion` (la sesión), `resumen-y-confirmacion` (el pedido confirmado) y `estados-del-pedido` (los cambios de estado). Para avisos-E20, además, `repartidor`, que va después en el plan.

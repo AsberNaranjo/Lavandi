@@ -4,7 +4,7 @@ El A.5 cierra con una obligación: "Descarga de reportes en formato CSV y Excel 
 
 ## What Changes
 
-- **Descarga en CSV y en Excel (XLSX)** de cada reporte: los 11 indicadores del A.5 y los tres reportes financieros (ingresos, comisiones y conciliación con Conekta). Se construyen los dos formatos: el A.5 dice "CSV y Excel", aunque el A.4.4 acepte "CSV o Excel".
+- **Descarga en CSV y en Excel (XLSX)** de cada reporte: los 11 indicadores del A.5 y los tres reportes financieros (ingresos, comisiones y conciliación con la pasarela; la pasarela sigue abierta, DD-079). Se construyen los dos formatos: el A.5 dice "CSV y Excel", aunque el A.4.4 acepte "CSV o Excel".
 - **Cualquier rango de fechas,** con los dos extremos incluidos y sin tope de duración.
 - **Archivos que se abren bien:** el CSV conserva acentos y eñes en Excel, y ningún texto se escribe como fórmula (ADR-0003).
 - **Generación en segundo plano,** con aviso en el panel cuando el archivo está listo. Solo lo descarga quien lo pidió.
@@ -31,10 +31,10 @@ Ninguna.
 
 - **`servidor/`:** un exportador de Filament por reporte, que lee la misma consulta que el panel; el formulario de rango; la escritura segura del CSV y del XLSX; la cola y el aviso de archivo listo. Tests en `servidor/tests/Feature/Exportacion/`.
 - **`movil/`:** nada.
-- **Base de datos:** las tablas que pide la exportación de Filament para sus trabajos en cola y sus lotes, y las notificaciones del panel.
+- **Base de datos:** no crea tablas del negocio. Lee lo que leen `indicadores` y `administracion`. Usa las tablas del framework que pide la exportación de Filament (`exports` y `job_batches`) y las notificaciones del panel (`notifications`); `exports` y `notifications` todavía no están en la lista de excepciones de la prueba de esquema de `modelo-de-datos` (ver `design.md`, sección "Tablas y migración").
 - **Almacenamiento:** los archivos generados, mientras se descargan. En qué disco viven es una pregunta abierta de
   `design.md`; el ADR-0006 es para fotos y evidencias.
 - **Hosting:** hace falta un proceso de colas corriendo en el entorno de prueba y en el de producción (DD-070).
 - **Dependencias:** ninguna fuera de los ADR: la exportación de Filament, con CSV y XLSX (ADR-0003).
 - **Cambios de los que depende:** `indicadores` y `administracion`.
-- **ADRs:** ADR-0003; el hosting, DD-070.
+- **ADRs:** ADR-0003 y ADR-0016 (modelo de datos); el hosting, DD-070.

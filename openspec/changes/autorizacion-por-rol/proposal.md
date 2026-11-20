@@ -55,8 +55,11 @@ Ninguna.
   de la API y de cada recurso del panel; las pruebas en `servidor/tests/Feature/Autorizacion/` y un sembrado de dos
   plazas para el barrido.
 - `movil/`: nada que entre ahora. La entrada por rol (autorizacion-E06) espera a DD-053.
-- Base de datos: el rol de cada cuenta, cuya forma depende de DD-053, y la plaza de lavanderías, repartidores y pedidos,
-  que ya prevé el modelo multi-plaza (ADR-0004).
+- Base de datos: ninguna tabla nueva. El rol de cada cuenta vive en `roles` y `rol_usuario`, de
+  `registro-e-inicio-de-sesion`, y la plaza en la columna `id_plazas` de cada tabla de operación
+  (`vault/arquitectura/modelo-de-datos.md`; detalle en `design.md`). `repartidores` y `pedido_asignaciones` nacen
+  después, en `repartidor` (H8).
 - Dependencias: ninguna nueva. Sanctum y Filament ya están (ADR-0003, ADR-0005).
-- ADRs: ADR-0003, ADR-0004 y ADR-0005. Falta el ADR del mecanismo del componente (ver `design.md`).
+- ADRs: ADR-0003, ADR-0004, ADR-0005 y ADR-0016 (modelo de datos). Falta el ADR del mecanismo del componente (ver
+  `design.md`).
 - Trazabilidad: SEG-3 y A43-6.

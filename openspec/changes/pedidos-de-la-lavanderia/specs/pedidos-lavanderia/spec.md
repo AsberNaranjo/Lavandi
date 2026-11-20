@@ -128,6 +128,23 @@ Criterio: A43-6
 
 SIN RESPUESTA — bloquea: pedidos-lavanderia-E14 (DD-016, DD-012; BR-22 y BR-26; DD-103)
 
+### Requirement: Sin pago acreditado, el pedido no llega a la lavandería
+El servidor DEBE (MUST) entregarle a la lavandería solo pedidos cuyo pago ya confirmó la pasarela. Un pedido que se creó al aceptar el resumen y todavía no tiene su pago acreditado, o cuyo pago venció o falló, NO DEBE (MUST NOT) aparecer en su lista ni poder aceptarse o rechazarse, porque sin pago no hay recolección.
+
+Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3, Módulo A #9, #10 y #11` (resumen, pago y confirmación con folio, en ese orden; C-188); D → `ADR-0016` (`pedidos.confirmado_en` se llena cuando la pasarela confirma el pago)
+
+#### Scenario: pedidos-lavanderia-E17 — Un pedido sin pago acreditado no aparece en la lista
+- **DADO** una lavandería con un pedido confirmado, con su pago acreditado, y otro creado al aceptar el resumen cuyo
+  pago la pasarela todavía no confirma
+- **CUANDO** pide su lista de pedidos activos
+- **ENTONCES** recibe solo el pedido con el pago acreditado
+
+#### Scenario: pedidos-lavanderia-E18 — Un pedido sin pago acreditado no se acepta ni se rechaza
+- **DADO** un pedido hecho a la lavandería cuyo pago la pasarela no ha confirmado
+- **CUANDO** la lavandería intenta aceptarlo o rechazarlo
+- **ENTONCES** el servidor rechaza la acción sin revelar los datos del pedido
+- **Y** el pedido no cambia y no se agrega ningún evento a su historial
+
 ### Requirement: Aviso de pedido nuevo a la lavandería
 La API DEBE (MUST) avisar por FCM a la lavandería de cada pedido nuevo que le llegue, en los términos que fije DD-054,
 y el aviso recibido con la app abierta DEBE (MUST) provocar una consulta inmediata de la lista.

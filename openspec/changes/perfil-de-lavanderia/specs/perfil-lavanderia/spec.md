@@ -145,3 +145,57 @@ Criterio: A43-2 (tramo "elegir lavandería")
 - **CUANDO** la persona intenta continuar
 - **ENTONCES** la app no avanza
 - **Y** dice con texto que falta elegir un tipo de servicio
+
+### Requirement: Horario de la lavandería por día de la semana
+
+El servidor DEBE (MUST) guardar el horario de cada lavandería en filas por día de la semana, del 1 al 7, cada una con
+su hora de inicio y su hora de fin y de la misma plaza que la lavandería, y la base DEBE (MUST) rechazar un horario que
+termina antes de empezar o con un día fuera de rango. En este cambio el horario es de prueba y el perfil no lo muestra.
+
+Cita: A → `NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #1 y #6`; D → ADR-0016
+
+#### Scenario: perfil-lavanderia-E14 — El horario de prueba queda guardado por día
+
+- **DADO** una lavandería de prueba activa
+- **CUANDO** se guarda un horario de prueba para un día de la semana, con su hora de inicio y su hora de fin
+- **ENTONCES** queda una fila de ese día ligada a la lavandería y a su misma plaza
+- **Y** un horario de esa lavandería con otra plaza se rechaza
+
+#### Scenario: perfil-lavanderia-E15 — La base rechaza un horario imposible
+
+- **DADO** una lavandería de prueba
+- **CUANDO** se intenta guardar un horario cuya hora de fin es igual o anterior a su hora de inicio, o uno con un día
+  fuera del 1 al 7
+- **ENTONCES** la base de datos rechaza la fila, aunque el código no lo haya validado
+
+### Requirement: Cada calificación es de un solo calificado
+
+La base DEBE (MUST) guardar cada calificación con estrellas de 1 a 5 y de exactamente un calificado, la lavandería o el
+repartidor, nunca los dos ni ninguno. El perfil de la lavandería DEBE (MUST) contar solo las calificaciones de esa
+lavandería.
+
+Cita: A → `NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo A #14 y Módulo B #4` y `NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3, Módulo C #4`; D → ADR-0016
+
+#### Scenario: perfil-lavanderia-E16 — Sin calificado, o con los dos, no se guarda
+
+- **DADO** la tabla de calificaciones
+- **CUANDO** se intenta guardar una calificación sin lavandería ni repartidor, o con los dos
+- **ENTONCES** la base de datos la rechaza
+
+#### Scenario: perfil-lavanderia-E17 — Las estrellas van de 1 a 5
+
+- **DADO** una lavandería de prueba
+- **CUANDO** se intenta guardar una calificación suya con 0 o con 6 estrellas
+- **ENTONCES** la base de datos la rechaza
+- **Y** una calificación con 1 estrella y otra con 5 quedan guardadas
+
+#### Scenario: perfil-lavanderia-E18 — La calificación del repartidor no entra al perfil de la lavandería
+
+- **DADO** una lavandería de prueba con dos calificaciones suyas, y un pedido suyo en el que la persona calificó
+  también al repartidor
+- **CUANDO** la app pide el perfil de la lavandería
+- **ENTONCES** el promedio, el número de calificaciones y las reseñas cuentan solo las dos de la lavandería
+
+SIN RESPUESTA — bloquea: perfil-lavanderia-E18 (DD-052). No está decidido si el usuario califica al repartidor; la
+tabla ya lo admite sin migración. Además necesita `pedidos` y `repartidores`, que crean `resumen-y-confirmacion` y
+`repartidor`.

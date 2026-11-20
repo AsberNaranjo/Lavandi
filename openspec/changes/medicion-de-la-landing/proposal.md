@@ -57,7 +57,8 @@ Pixel registran eventos, el candado activo en la dirección acordada y 70 o más
   mapa del sitio y del archivo de robots; el bloque de información estructurada; la redirección a https de la landing;
   la optimización de imágenes.
 - `movil/`: nada.
-- Base de datos: nada nuevo. La información estructurada lee las plazas activas de `plazas-y-zonas`.
+- Base de datos: nada nuevo. La información estructurada lee `plazas` y `zonas`, de `plazas-y-zonas` (`design.md`,
+  "Tablas y migración").
 - Dependencias: Lighthouse CI en la integración continua (`vault/formas-de-trabajo/integracion-continua.md`);
   Playwright para interceptar las llamadas a GA4 y a Meta Pixel (`vault/formas-de-trabajo/ciclo-openspec-tdd.md`).
   GTM, GA4, Meta Pixel y Search Console son servicios de terceros en cuentas del cliente.

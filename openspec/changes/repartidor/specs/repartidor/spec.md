@@ -111,6 +111,20 @@ SIN RESPUESTA — bloquea: repartidor-E13 (DD-014)
 
 SIN RESPUESTA — bloquea: repartidor-E14 (DD-054)
 
+### Requirement: Solo se ofrecen pedidos con pago acreditado
+La API DEBE (MUST) ofrecerle al repartidor solo pedidos con su pago acreditado: un pedido que todavía no se confirma por su pago no aparece en su lista, no se le entrega por su identificador y no se puede aceptar.
+
+Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (Módulo A #9, #10 y #11: resumen con precio estimado, pago y confirmación con folio, en ese orden) y `NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3` (Módulo C #2)
+
+Regla de Arthur: "no se va a recolectar si no ha sido pagado" (C-188, `vault/meta/actas/acta-2026-11-19-normativa-y-arranque.md`).
+
+#### Scenario: repartidor-E30 — Un pedido sin pago acreditado no se le ofrece
+- **DADO** un repartidor activo y un pedido de su plaza cuyo pago la pasarela todavía no confirma, sin `confirmado_en`, con una asignación para él sembrada por la fábrica
+- **CUANDO** pide su lista de pedidos asignados, pide ese pedido por su identificador o intenta aceptarlo
+- **ENTONCES** el pedido no aparece en su lista
+- **Y** la API rechaza entregárselo y rechaza la aceptación
+- **Y** cuando la pasarela confirma el pago y el pedido queda Confirmado, el pedido aparece en su lista
+
 ### Requirement: Aceptar o rechazar con motivo
 El repartidor DEBE (MUST) poder aceptar o rechazar cada pedido que tiene asignado. El rechazo DEBE (MUST) llevar un motivo escrito.
 

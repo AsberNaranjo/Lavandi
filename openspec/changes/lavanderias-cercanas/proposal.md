@@ -8,9 +8,10 @@ acepta: "elegir lavandería" (`NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3`).
 
 ## What Changes
 
-- La tabla de lavanderías con su plaza, su ubicación y su estado, sembrada solo con lavanderías de prueba.
-- Una tabla mínima de calificaciones de 1 a 5, sembrada, para el filtro y el perfil. El vínculo con el pedido llega en
-  `historial-y-calificacion`.
+- Lavanderías de prueba sembradas, con su plaza, su ubicación y su estado, en la tabla `lavanderias`, que crea
+  `perfil-de-lavanderia` (ADR-0016).
+- Calificaciones de prueba de 1 a 5, sembradas en `calificaciones` (también de `perfil-de-lavanderia`), para el filtro
+  y la tarjeta. El vínculo con el pedido llega en `historial-y-calificacion`.
 - La consulta de lavanderías activas para un punto, con su distancia en línea recta calculada en la base.
 - Los filtros por distancia máxima y por calificación mínima, combinables.
 - En la app: el mapa nativo de cada plataforma, el permiso de ubicación solo mientras se usa, los pines con su tarjeta,
@@ -47,12 +48,12 @@ Ninguna.
 
 ## Impact
 
-- **`servidor/`:** migraciones de `lavanderias` (con plaza, ubicación geográfica e índice espacial) y de
-  `calificaciones` mínima; la consulta de cercanas con sus filtros, detrás de la sesión de Sanctum y del componente de
-  autorización; el sembrado de prueba, que no corre en producción.
+- **`servidor/`:** la consulta de cercanas con sus filtros sobre `lavanderias`, `plazas` y `calificaciones`, detrás de
+  la sesión de Sanctum y del componente de autorización; el sembrado de prueba, que no corre en producción.
 - **`movil/`:** la pantalla principal con el mapa, el permiso de ubicación, la tarjeta de lavandería (componente 1 de
   `vault/design-system/componentes.md`) y la pantalla de filtros.
-- **Base:** dos tablas nuevas, las dos con plaza obligatoria (`plazas-y-zonas`).
+- **Base:** no crea tablas. Lee `lavanderias` y `calificaciones`, de `perfil-de-lavanderia`, y `plazas`, de
+  `plazas-y-zonas` (`vault/arquitectura/modelo-de-datos.md`, columna "Nace en").
 - **Dependencias:** `react-native-maps` (ADR-0009) y un módulo de ubicación del SDK de Expo (ver `design.md`). La llave
   de Google Maps para Android, de prueba, en la configuración del entorno (ADR-0012).
-- **ADRs:** ADR-0002, ADR-0003, ADR-0004, ADR-0009 y ADR-0012.
+- **ADRs:** ADR-0002, ADR-0003, ADR-0004, ADR-0009, ADR-0012 y ADR-0016.

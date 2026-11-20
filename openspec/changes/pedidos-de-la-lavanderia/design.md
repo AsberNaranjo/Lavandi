@@ -39,26 +39,56 @@ No hay una decisión técnica nueva que no esté en un ADR. Este cambio usa:
 - **ADR-0008**, solo si DD-054 se aprueba: aviso FCM de pedido nuevo a la lavandería.
 - **La autorización** la decide el componente único de `autorizacion-por-rol`, con rol, tenencia y plaza
   (`CLAUDE.md` §9.5).
+- **ADR-0016:** la respuesta de la lavandería se guarda como un evento del pedido (sección siguiente).
+
+## Tablas y migración
+
+Este cambio **no crea tablas ni columnas, y no tiene migración**. Lee y escribe las de otros cambios, según la columna
+"Nace en" de `vault/arquitectura/modelo-de-datos.md`:
+
+| Tabla | Qué hace aquí | Nace en |
+|---|---|---|
+| `pedidos` | Lee la lista de la lavandería: sus pedidos por `id_lavanderias`, solo con `confirmado_en` lleno (C-188), con `folio`, `ventana_inicio` y `ventana_fin`. Al responder, cambia `id_estados_pedido` | `resumen-y-confirmacion` |
+| `pedido_eventos` | Agrega un evento por respuesta: el estado nuevo en `id_estados_pedido`, la cuenta de la lavandería en `id_usuarios`, el motivo del rechazo en `motivo` y la hora en `ocurrido_en`. Nunca edita ni borra | `resumen-y-confirmacion`; `estados-del-pedido` le pone el trigger `impedir_cambio()` |
+| `estados_pedido` | Lee los estados de "espera respuesta", "aceptado" y "rechazado". Cuáles son esas filas lo fija DD-123 | `resumen-y-confirmacion` |
+| `pedido_servicios` | Lee el servicio que muestra la tarjeta (E03) | `resumen-y-confirmacion` |
+| `pedido_direcciones` | La dirección de recolección, solo cuando respondan DD-022 y DD-014 (E04) | `resumen-y-confirmacion` |
+| `lavanderias` | Lee la lavandería de la cuenta (`id_usuarios`) y su plaza | `perfil-de-lavanderia`; `alta-de-lavanderias` |
+| `dispositivos` | Solo si DD-054 se aprueba: el teléfono de la lavandería para el aviso de pedido nuevo (E15, E16) | `avisos`, **posterior en el plan** (sprints 16 y 17) |
+
+- **La respuesta y el estado actual van juntos.** Aceptar o rechazar agrega su evento y cambia
+  `pedidos.id_estados_pedido` en la misma transacción (ADR-0016, segunda excepción: el estado actual vive también en
+  `pedidos` para la consulta cada 30 s). La hora de la respuesta es `ocurrido_en` y el motivo, `motivo`.
+- **Sin pago no hay pedido para la lavandería** (C-188). La lista y las dos acciones solo ven pedidos con
+  `pedidos.confirmado_en` lleno, que se llena cuando la pasarela confirma el pago. Un pago de efectivo vencido nunca lo
+  llena (E17, E18).
+- **Plaza:** el evento lleva `id_plazas`, con la llave compuesta `(id_pedidos, id_plazas)` hacia `pedidos` que trae su
+  tabla.
+- **Prueba de esquema:** no aplica, porque no hay migración. Las tablas que usa ya la pasan en sus cambios.
 
 ## Risks / Trade-offs
 
-- [La máquina de estados está pendiente] → La respuesta de la lavandería se especifica en términos neutros: "espera
-  su respuesta", "aceptado" y "rechazado". Cómo se guarda es la pregunta abierta 1.
-- [Qué es un pedido "confirmado" depende de cuándo se cobra (DD-012): con OXXO el pago se confirma horas después] →
-  La lista toma como confirmado lo que definan `resumen-y-confirmacion` y `pago`. Si DD-012 sigue abierta en H5, la
-  prueba usa pedidos confirmados sembrados.
+- [La máquina de estados está pendiente, DD-123] → La respuesta de la lavandería se especifica en términos neutros:
+  "espera su respuesta", "aceptado" y "rechazado". Se guarda como evento en `pedido_eventos`; qué fila de
+  `estados_pedido` es cada una lo fija DD-123 (límite 2027-01-04, antes del sprint 13). Sin ella, las pruebas de E07,
+  E08 y E12 no tienen con qué estado cerrar.
+- [Cuándo un pedido está confirmado] → Lo respondió C-188: cuando la pasarela confirma el pago, y no antes. La lista
+  toma `pedidos.confirmado_en`; con un pago de efectivo, el pedido aparece hasta que se acredita. Si `pago` no está
+  terminado en H5, la prueba usa pedidos con `confirmado_en` sembrado.
 - [Sin DD-054, con la app cerrada la lavandería no se entera de un pedido nuevo, y el recorrido completo del A.4.3 se
   puede atorar] → E15 y E16 quedan bloqueados. La lista con la app abierta funciona sin ellos.
 - [En iPhone, los avisos dependen de la cuenta de Apple (DD-069, DD-017)] → Se prueban primero en Android.
 - [Sin plazo para responder, un pedido puede quedarse esperando sin fin] → E10 queda bloqueado; es DD-103.
-- [Las horas no caben en el plan] → Las tareas listas suman 25 h y las bloqueadas unas 23 h más, contra 12 h del plan
-  para F-B02. Se reporta para la recalibración de S-006.
+- [El aviso de pedido nuevo necesita `dispositivos`, que nace en `avisos`, después de este cambio en el plan] → E15 y
+  E16 ya estaban bloqueados por DD-054; además esperan esa tabla. No se mueve aquí.
+- [Las horas no caben en el plan] → Las tareas listas suman 27 h y las bloqueadas 23 h más, contra 12 h del plan para
+  F-B02. Se reporta para la recalibración de S-006.
 
 ## Open Questions
 
-1. **Cómo se guarda la respuesta de la lavandería.** Propuesta, no decisión: como datos propios del pedido (si
-   respondió, cuándo y con qué motivo), aparte de los cinco estados que ve el usuario, para no adelantar la máquina de
-   estados de BR-22. Toca el componente `pedido`, que sigue pendiente. ¿Arthur lo decide aquí o necesita ADR?
+1. **Cómo se guarda la respuesta de la lavandería.** El modelo lo responde: un evento en `pedido_eventos`, con su
+   motivo, y el estado actual en `pedidos` (ADR-0016). Falta qué fila de `estados_pedido` representa "espera
+   respuesta", "aceptado" y "rechazado", y cómo se relacionan con los cinco estados que ve el usuario: es DD-123.
 2. **¿ADR-0007 cubre la lista de la lavandería?** Su decisión habla de "la pantalla del pedido" y de las tablas del
    panel. Aplicarla a esta lista es una lectura. Si Arthur lo lee distinto, se enmienda el ADR.
 3. **El motivo.** Se especifica como texto libre obligatorio, que es la lectura mínima del contrato. ¿Tiene longitud

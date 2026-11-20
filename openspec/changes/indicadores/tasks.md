@@ -1,7 +1,10 @@
 Cada tarea sigue rojo, verde, refactor: primero el test con el identificador del escenario, que falla; luego el código
-mínimo que lo pone en verde; luego la limpieza. Todas viven en `servidor/`. Tamaños de S-006: S = 2 h, M = 5 h.
+mínimo que lo pone en verde; luego la limpieza. Todas viven en `servidor/`. Tamaños de S-006, banda media: S = 2 h,
+M = 5 h.
 
-**Horas:** 64 en total, 48 sin bloqueo y 16 bloqueadas, contra 57 del plan (F-I01 a F-I11).
+## 0. Tablas y migración (servidor/)
+
+- [ ] 0.1 Migración de `actividad_usuarios`, con su llave primaria compuesta `(id_usuarios, fecha)`, y su acceso desde Eloquent como lo resuelva `registro-e-inicio-de-sesion` para `rol_usuario`, que sostiene indicadores-E06 e indicadores-E07 — test: `servidor/tests/Feature/Indicadores/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E16) — tamaño S
 
 ## 1. Operaciones (servidor/)
 
@@ -13,8 +16,8 @@ mínimo que lo pone en verde; luego la limpieza. Todas viven en `servidor/`. Tam
 
 ## 2. Usuarios (servidor/)
 
-- [ ] 2.1 indicadores-E06: registro de actividad por usuario y día, y personas distintas en línea de tendencia — test: `servidor/tests/Feature/Indicadores/UsuariosActivosTest.php` — tamaño M
-- [ ] 2.2 indicadores-E07: qué escribe en el registro de actividad — test: `servidor/tests/Feature/Indicadores/UsuariosActivosTest.php` — tamaño S — bloqueada: BR-33, DD-111
+- [ ] 2.1 indicadores-E06: personas distintas por día, semana y mes, leídas de `actividad_usuarios`, en línea de tendencia — test: `servidor/tests/Feature/Indicadores/UsuariosActivosTest.php` — tamaño M
+- [ ] 2.2 indicadores-E07: qué escribe en `actividad_usuarios` — test: `servidor/tests/Feature/Indicadores/UsuariosActivosTest.php` — tamaño S — bloqueada: BR-33, DD-111
 - [ ] 2.3 indicadores-E08: porcentaje que vuelve a pedir, por mes de registro — test: `servidor/tests/Feature/Indicadores/RetencionPorMesDeRegistroTest.php` — tamaño M
 - [ ] 2.4 indicadores-E09: monto promedio y su tendencia frente al periodo anterior — test: `servidor/tests/Feature/Indicadores/MontoPromedioTest.php` — tamaño S
 - [ ] 2.5 indicadores-E10: qué monto cuenta, estimado o final — test: `servidor/tests/Feature/Indicadores/MontoPromedioTest.php` — tamaño S — bloqueada: DD-012
@@ -43,3 +46,10 @@ mínimo que lo pone en verde; luego la limpieza. Todas viven en `servidor/`. Tam
 - [ ] 6.1 indicadores-E21: refresco automático con intervalo de configuración — test: `servidor/tests/Feature/Indicadores/PanelEnTiempoRealTest.php` — tamaño S
 - [ ] 6.2 indicadores-E22: el valor del intervalo — test: `servidor/tests/Feature/Indicadores/PanelEnTiempoRealTest.php` — tamaño S — bloqueada: BR-33, DD-116, necesita ADR
 - [ ] 6.3 indicadores-E23: cada indicador con las cifras de la base, sin cifras de ejemplo en el código — test: `servidor/tests/Feature/Indicadores/DatosRealesTest.php` — tamaño S
+
+## Horas
+
+- **Este archivo:** 50 h sin bloqueo y 16 h bloqueadas, 66 h en total.
+- **Contra la versión anterior (64 h; 48 sin bloqueo y 16 bloqueadas):** 2 h más, de la migración de
+  `actividad_usuarios` (0.1, S). La tarea 2.1 conserva su tamaño M: le quedan la consulta y la línea de tendencia.
+- **Contra el plan:** el plan de sprints le da 57 h (F-I01 a F-I11). La diferencia pasa de 7 h a 9 h.

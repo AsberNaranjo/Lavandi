@@ -1,10 +1,14 @@
+## 0. Servidor: la base de datos
+
+- [ ] 0.1 modelo-E01 a modelo-E16 sobre `dispositivos`: migración que la crea con `id_dispositivos`, `id_usuarios` (foránea con índice y `ON DELETE RESTRICT`), `token_fcm` único, `plataforma` con su `CHECK` (`ios`, `android`) y `ultimo_uso_en`; el modelo de Eloquent `Dispositivo` declara su `$table` y su `$primaryKey`, y su `belongsTo` hacia `Usuario` nombra `id_usuarios` — test: `servidor/tests/Feature/Avisos/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` — tamaño S
+
 ## 1. Servidor: el canal de Firebase Cloud Messaging
 
 - [ ] 1.1 avisos-E01, avisos-E02 y avisos-E16: canal de FCM con el servicio simulado en las pruebas; un fallo del servicio no detiene el cambio de estado y queda en la bitácora; cada mensaje lleva la parte de Android y la de iPhone — test: `servidor/tests/Feature/Avisos/CanalDeAvisosTest.php` — tamaño M
 
 ## 2. Servidor: los teléfonos registrados
 
-- [ ] 2.1 avisos-E04, avisos-E05 y avisos-E06: registrar el token ligado a la cuenta, borrarlo al cerrar la sesión y cuando el servicio lo rechaza — test: `servidor/tests/Feature/Avisos/TelefonosRegistradosTest.php` — tamaño S
+- [ ] 2.1 avisos-E04, avisos-E05, avisos-E06 y avisos-E21: registrar el token en `dispositivos` ligado a la cuenta, con su plataforma; pasarlo a la cuenta que inicia sesión si ya existía; borrarlo al cerrar la sesión y cuando el servicio lo rechaza — test: `servidor/tests/Feature/Avisos/TelefonosRegistradosTest.php` — tamaño S
 
 ## 3. Servidor: los momentos y el mensaje de cambio de estado
 
@@ -13,7 +17,7 @@
 
 ## 4. App: recibir los avisos
 
-- [ ] 4.1 avisos-E03 y avisos-E17: módulo de mensajería de Firebase en el development build; el token va a la api al iniciar sesión y al renovarse; el manejador de segundo plano se registra al arrancar; la captura del aviso en Android va a `vault/evidencias/avisos/` — test: `movil/__tests__/avisos/telefono.test.ts` — tamaño M
+- [ ] 4.1 avisos-E03 y avisos-E17: módulo de mensajería de Firebase en el development build; el token va a la api, con la plataforma del teléfono, al iniciar sesión y al renovarse; el manejador de segundo plano se registra al arrancar; la captura del aviso en Android va a `vault/evidencias/avisos/` — test: `movil/__tests__/avisos/telefono.test.ts` — tamaño M
 - [ ] 4.2 avisos-E07 y avisos-E08: petición del permiso de avisos, y la app sin errores si el usuario lo niega — test: `movil/__tests__/avisos/permiso.test.tsx` — tamaño S
 - [ ] 4.3 avisos-E15: el mensaje de cambio de estado adelanta la consulta del seguimiento abierto — test: `movil/__tests__/avisos/adelanta-la-consulta.test.tsx` — tamaño S
 
@@ -26,4 +30,8 @@
 
 Cada tarea va en rojo, verde y refactor: primero el test que falla, con el identificador del escenario en su nombre; luego el código mínimo; luego la limpieza. Tamaños de S-006: S = 2 h, M = 5 h, L = 12 h.
 
-Suma: los grupos 1 a 4 dan 20 h (2 M y 5 S); el grupo 5, bloqueado, 8 h más. El plan le da 17 h a este cambio (F-T02, L, y F-A17, M): sin las bloqueadas, se pasa por 3 h.
+## Horas
+
+- **Listas** (grupos 0 a 4): 2 M y 6 S, **22 h**. Antes de alinear con el modelo eran 20 h; la migración de 0.1 suma 2 h. avisos-E21 entra en la tarea 2.1 sin cambiar su tamaño.
+- **Bloqueadas** (grupo 5): 4 S, **8 h**, sin cambio.
+- **Contra el plan:** el plan le da 17 h a este cambio (F-T02, L, y F-A17, M). Sin las bloqueadas, se pasa por 5 h (antes, por 3 h); con ellas, por 13 h (antes, por 11 h).

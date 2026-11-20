@@ -25,6 +25,12 @@ No hay decisión técnica no trivial. Lo sostienen ADR-0002 (la app) y ADR-0013 
 nombre del producto sale de la configuración que deja `base`. Ninguno de los seis componentes del design system cubre
 estas pantallas (`vault/contrato/inventario-funcional.md`, sección 8): se arman con los tokens.
 
+## Tablas y migración
+
+No crea ni usa tablas: todo vive en `movil/` y el servidor no cambia. No hay migración, ni prueba de esquema de
+`modelo-de-datos` que correr. Las pantallas a las que lleva (registrarse o iniciar sesión) usan las tablas de
+`registro-e-inicio-de-sesion`, no esta.
+
 ## Risks / Trade-offs
 
 - [El contenido de EL CLIENTE no llega para el 7 de diciembre] → Las pantallas se construyen con contenido

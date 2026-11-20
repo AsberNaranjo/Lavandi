@@ -32,6 +32,14 @@ No hay decisión técnica nueva: el cambio aplica ADR-0011 y ADR-0012, sin repet
 usa el mismo mecanismo que `publicacion` (publicacion-E04); lo implementa la primera tarea que llegue y la otra solo lo
 prueba en sus rutas.
 
+## Tablas y migración
+
+No crea tablas ni migraciones: ninguna tabla de `vault/arquitectura/modelo-de-datos.md` nace aquí (ADR-0016). Para la
+zona de servicio de la información estructurada (medicion-E10) solo lee las plazas activas y sus zonas activas,
+`plazas` (`id_plazas`, `nombre`, `activa`) y `zonas` (`id_plazas`, `nombre`, `activa`), que nacen en `plazas-y-zonas`.
+El identificador del contenedor de GTM, el dominio y los datos de contacto salen de la configuración de cada entorno, y
+ningún evento de medición se guarda en la base.
+
 ## Risks / Trade-offs
 
 - [GTM y Meta Pixel bajan la velocidad en teléfono] → carga en diferido y criterio de reversión de ADR-0011.

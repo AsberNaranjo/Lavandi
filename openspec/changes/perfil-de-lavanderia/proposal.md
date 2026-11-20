@@ -12,6 +12,13 @@ se acepta después de "elegir lavandería" (`NSV-2026-001-v8.pdf:21:ANEXO A, Sec
   calificación promedio, número de calificaciones y reseñas.
 - Las fotos en el almacenamiento privado del entorno, entregadas con URLs firmadas que vencen.
 - Los servicios que ofrece cada lavandería, de entre los tres del contrato, con su precio y su unidad como datos.
+- Las tablas de la lavandería que el modelo de datos pone aquí (ADR-0016, C-193): los catálogos `tipos_servicio` y
+  `unidades_medida`, `lavanderias` (con las de prueba), `lavanderia_servicios`, `lavanderia_horarios`,
+  `lavanderia_fotos` y la base de `calificaciones`.
+- El horario de cada lavandería por día de la semana (`lavanderia_horarios`), que ninguna spec creaba. En este cambio
+  es de prueba y el perfil no lo muestra.
+- Cada calificación es de la lavandería o del repartidor, exactamente uno, y el perfil cuenta solo las de la
+  lavandería. Si el usuario califica al repartidor sigue en DD-052.
 - En la app: la pantalla del perfil y la selección de un tipo de servicio, que queda guardada para el paso de agenda.
 - Todo con lavanderías y fotos de prueba, sembradas; el alta real llega en H5.
 
@@ -48,10 +55,12 @@ Ninguna.
 
 ## Impact
 
-- **`servidor/`:** descripción de la lavandería; tablas de servicios ofrecidos (con precio, unidad y plaza) y de fotos
-  (con plaza y orden); la consulta del perfil; el disco S3 privado y las URLs firmadas; el sembrado de prueba.
+- **`servidor/`:** la migración de `tipos_servicio`, `unidades_medida`, `lavanderias`, `lavanderia_servicios`,
+  `lavanderia_horarios`, `lavanderia_fotos` y `calificaciones`; la consulta del perfil; el disco S3 privado y las URLs
+  firmadas; el sembrado de prueba.
 - **`movil/`:** la pantalla del perfil y la de selección de servicio; el pedido en curso guardado en el teléfono.
-- **Base:** dos tablas nuevas y una columna en lavanderías, todas con plaza (`plazas-y-zonas`).
+- **Base:** siete tablas nuevas, con las columnas de `vault/arquitectura/modelo-de-datos.md`; las cinco de operación,
+  con plaza (`plazas-y-zonas`). `lavanderias-cercanas` lee `lavanderias` y `calificaciones`.
 - **Dependencias:** el adaptador S3 de Flysystem para el `Storage` de Laravel (ADR-0006). Sin dependencias nuevas en la
   app.
-- **ADRs:** ADR-0003, ADR-0006 y ADR-0012.
+- **ADRs:** ADR-0003, ADR-0006, ADR-0012 y ADR-0016.

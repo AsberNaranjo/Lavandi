@@ -165,13 +165,13 @@ SIN RESPUESTA — bloquea: administracion-E16 (DD-020, por ampliar: desde cuánd
 
 ### Requirement: Ingresos y comisiones por periodo
 
-El panel DEBE (MUST) mostrar, para el periodo que elija la administración, los ingresos, que son lo cobrado a los usuarios con pago confirmado por Conekta, y las comisiones, por socio y en total. La fecha de un ingreso es la de la confirmación del pago, en la hora de su plaza.
+El panel DEBE (MUST) mostrar, para el periodo que elija la administración, los ingresos, que son lo cobrado a los usuarios con pago confirmado por la pasarela, y las comisiones, por socio y en total. La fecha de un ingreso es la de la confirmación del pago, en la hora de su plaza.
 
 Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #6); D → ADR-0010
 
 #### Scenario: administracion-E17 — Ingresos de un periodo
 
-- **DADO** pagos confirmados por Conekta en marzo y en abril, y una orden de marzo sin confirmar
+- **DADO** pagos confirmados por la pasarela en marzo y en abril, y una orden de marzo sin confirmar
 - **CUANDO** la administración pide los ingresos de marzo
 - **ENTONCES** ve la suma de los pagos confirmados en marzo
 - **Y** no cuenta los de abril ni la orden sin confirmar
@@ -194,33 +194,39 @@ SIN RESPUESTA — bloquea: administracion-E18 (DD-012, DD-016)
 
 SIN RESPUESTA — bloquea: administracion-E19 (DD-020; depende de administracion-E15)
 
-### Requirement: Conciliación con Conekta
+### Requirement: Conciliación con la pasarela
 
-El panel DEBE (MUST) conciliar, para el periodo que elija la administración, los pagos que registró la plataforma contra los movimientos de Conekta, y señalar cada diferencia: un movimiento de Conekta sin pedido, un pedido pagado sin movimiento en Conekta o un monto que no coincide.
+El panel DEBE (MUST) conciliar, para el periodo que elija la administración, los pagos que registró la plataforma contra los movimientos de la pasarela, y señalar cada diferencia: un movimiento de la pasarela sin pedido, un pedido pagado sin movimiento en la pasarela o un monto que no coincide.
 
-Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #6); D → ADR-0010
+Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #6: "Ingresos por periodo, comisiones y conciliación con Conekta"); D → ADR-0010
+
+La pasarela queda abierta hasta que el cliente firme el cambio (DD-079, C-192); mientras tanto, el contrato dice Conekta.
 
 #### Scenario: administracion-E20 — Periodo sin diferencias
 
-- **DADO** tres pedidos con pago confirmado en el periodo y los mismos tres movimientos en Conekta (simulado)
+- **DADO** tres pedidos con pago confirmado en el periodo y los mismos tres movimientos en la pasarela (simulada)
 - **CUANDO** la administración concilia el periodo
 - **ENTONCES** el reporte marca los tres como conciliados
 
 Criterio: A43-6
 
+SIN RESPUESTA — bloquea: administracion-E20 (DD-112: de dónde salen los movimientos y la forma de `movimientos_pasarela`; DD-079: la pasarela)
+
 #### Scenario: administracion-E21 — Periodo con diferencias
 
-- **DADO** un movimiento de Conekta sin pedido, un pedido pagado sin movimiento y un pedido cuyo monto no coincide con su movimiento (simulado)
+- **DADO** un movimiento de la pasarela sin pedido, un pedido pagado sin movimiento y un pedido cuyo monto no coincide con su movimiento (simulado)
 - **CUANDO** la administración concilia el periodo
 - **ENTONCES** el reporte señala cada uno con su tipo de diferencia
 
-#### Scenario: administracion-E22 — La comisión que retiene Conekta
+SIN RESPUESTA — bloquea: administracion-E21 (DD-112 y DD-079)
 
-- **DADO** movimientos de Conekta con su comisión por transacción
+#### Scenario: administracion-E22 — La comisión que retiene la pasarela
+
+- **DADO** movimientos de la pasarela con su comisión por transacción
 - **CUANDO** la administración concilia el periodo
-- **ENTONCES** la comisión de Conekta se muestra y se descuenta según quién la absorba
+- **ENTONCES** la comisión de la pasarela se muestra y se descuenta según quién la absorba
 
-SIN RESPUESTA — bloquea: administracion-E22 (DD-013: quién absorbe la comisión de Conekta)
+SIN RESPUESTA — bloquea: administracion-E22 (DD-013: quién absorbe la comisión de la pasarela; DD-079: la pasarela)
 
 ### Requirement: Avisos masivos
 

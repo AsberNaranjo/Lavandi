@@ -58,14 +58,16 @@ recuperar una contraseña" (`NSV-2026-001-v8.pdf:30:ANEXO B, Sección B.5`). Es 
 
 ## Impact
 
-- **`servidor/`:** la tabla de cuentas con su rol, los tokens de Sanctum y los de recuperación; las rutas de la API de
+- **`servidor/`:** las tablas `roles`, `usuarios`, `rol_usuario` y `cuentas_externas` (ADR-0016), los tokens de
+  Sanctum y los de recuperación; las rutas de la API de
   registro, sesión, Google, Apple y recuperación; el componente de autorización; el correo de recuperación y el
   formulario de la contraseña nueva (dónde vive es una pregunta abierta de `design.md`).
 - **`movil/`:** las pantallas de registro, inicio de sesión y recuperación; el módulo de sesión; los botones de
   Google y de Apple; las piezas de formulario con los tokens del design system (ADR-0013).
-- **Base de datos:** migraciones nuevas. La cuenta no lleva plaza: el usuario no pertenece a una plaza, su domicilio
-  sí (`vault/arquitectura/modelo-multi-plaza.md`).
+- **Base de datos:** una migración con las cuatro primeras tablas del negocio, sobre las reglas de `modelo-de-datos`
+  (`vault/arquitectura/modelo-de-datos.md`, columna "Nace en"). La cuenta no lleva plaza: el usuario no pertenece a
+  una plaza, su domicilio sí (`vault/arquitectura/modelo-multi-plaza.md`).
 - **Dependencias:** `react-native-nitro-google-signin` 2.3.1; `expo-apple-authentication` y
   `socialiteproviders/apple`, cuando DD-069 se cierre; el almacenamiento del token en el teléfono, cuando tenga ADR.
 - **Cuentas:** el cliente OAuth de Google de prueba, a nombre de Arthur (DD-072, C-170).
-- **ADRs:** ADR-0005, ADR-0003, ADR-0012, ADR-0013 y ADR-0014 (en borrador, DD-071).
+- **ADRs:** ADR-0005, ADR-0003, ADR-0012, ADR-0013, ADR-0014 (en borrador, DD-071) y ADR-0016 (el modelo de datos).

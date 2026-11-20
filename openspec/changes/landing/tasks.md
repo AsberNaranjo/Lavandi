@@ -5,6 +5,11 @@ Horas con las bandas de S-006 (S = 2, M = 5): **39 h**, contra **30 h** del plan
 inventario). La diferencia sale de las pruebas en tres navegadores, del panel de testimonios y de la acreditación. De
 las 39 h, 4 h están bloqueadas (tareas 5.2 y 7.1).
 
+Con el modelo de datos (ADR-0016) las horas no cambian: este cambio no crea tablas del modelo, así que no lleva tarea de
+migración. Las tareas 4.1 y 4.2 esperan a que las tablas de testimonios y de logos de prensa entren a
+`vault/arquitectura/modelo-de-datos.md` (`design.md`, "Tablas y migración"); cuando entren, se agrega su tarea de
+migración antes de la 4.1.
+
 ## 1. Portada y estructura
 
 - [ ] 1.1 landing-E01, landing-E02: ruta pública de la portada y vista Blade con las variables CSS de los tokens y las 12 secciones en su orden, con contenido de prueba — test: `servidor/tests/Browser/Landing/DoceSeccionesTest.php` (Chromium, WebKit y Firefox; escritorio y teléfono) — tamaño M
@@ -23,8 +28,8 @@ las 39 h, 4 h están bloqueadas (tareas 5.2 y 7.1).
 
 ## 4. Contenido editable desde el panel
 
-- [ ] 4.1 landing-E15, landing-E16, landing-E19: testimonios en Filament con interruptor de activo y orden; de 3 a 5 tarjetas con marcadores de posición; edición solo con permiso de administración — test: `servidor/tests/Feature/Landing/TestimoniosTest.php` — tamaño M
-- [ ] 4.2 landing-E17, landing-E18: logos de prensa activables y la sección presente sin logos activos — test: `servidor/tests/Feature/Landing/PrensaTest.php` — tamaño S
+- [ ] 4.1 landing-E15, landing-E16, landing-E19: testimonios en Filament con interruptor de activo y orden; de 3 a 5 tarjetas con marcadores de posición; edición solo con permiso de administración (espera: la tabla de testimonios en `modelo-de-datos.md`) — test: `servidor/tests/Feature/Landing/TestimoniosTest.php` — tamaño M
+- [ ] 4.2 landing-E17, landing-E18: logos de prensa activables y la sección presente sin logos activos (espera: la tabla de logos de prensa en `modelo-de-datos.md`) — test: `servidor/tests/Feature/Landing/PrensaTest.php` — tamaño S
 - [ ] 4.3 landing-E20: preguntas frecuentes en acordeón, con toque y con teclado — test: `servidor/tests/Browser/Landing/PreguntasFrecuentesTest.php` — tamaño S
 
 ## 5. Formularios y contacto

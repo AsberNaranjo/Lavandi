@@ -89,18 +89,22 @@ Sostiene O-26, que no tiene criterio en el A.4; el criterio propio está en `vau
 
 ### Requirement: Toda fila de operación lleva su plaza
 
-El servidor DEBE (MUST) exigir, en cada tabla que describe operación (zonas, lavanderías, sus servicios, precios,
-fotos y calificaciones, y las que vengan: pedidos, repartidores, comisiones), una plaza obligatoria ligada a la tabla
-de plazas. Las tablas de cuentas y de infraestructura quedan fuera, en una lista explícita.
+El servidor DEBE (MUST) exigir, en cada tabla que describe operación (`zonas`, `parametros_plaza`, `lavanderias`,
+`lavanderia_servicios` con su precio, `lavanderia_horarios`, `lavanderia_fotos` y `calificaciones`, y las que vengan:
+`pedidos`, `repartidores`, `comisiones`), una plaza obligatoria, `id_plazas`, ligada a la tabla `plazas`. Las tablas
+sin plaza quedan fuera, en la lista cerrada de `modelo-de-datos`: las del framework, los catálogos, `plazas`, las de
+cuentas y las de la pasarela.
 
-Cita: A → `NSV-2026-001-v8.pdf:4:Cláusula I`; D → ADR-0004
+Cita: A → `NSV-2026-001-v8.pdf:4:Cláusula I`; D → ADR-0004 y ADR-0016
 
 #### Scenario: plazas-E09 — La prueba de esquema exige la plaza
 
 - **DADO** el esquema con todas sus migraciones aplicadas
-- **CUANDO** la prueba revisa cada tabla que no está en la lista de excepciones (usuarios, tokens, sesiones,
-  migraciones, colas, caché y la propia tabla de plazas)
-- **ENTONCES** cada una tiene su columna de plaza, no nula y con llave foránea a la tabla de plazas
+- **CUANDO** la prueba revisa cada tabla que no está en la lista de tablas sin plaza de `modelo-de-datos`
+  (`servidor/config/modelo.php`: las del framework, los catálogos, `plazas`, `usuarios`, `rol_usuario`,
+  `cuentas_externas`, `dispositivos`, `actividad_usuarios`, `eventos_pasarela`, `metodos_pago_guardados` y `movimientos_pasarela`)
+- **ENTONCES** cada una tiene su columna `id_plazas` con llave foránea a `plazas`, no nula salvo en las cuatro de
+  plaza opcional (`avisos_masivos`, `reportes_soporte`, `repartidores` y `direcciones`)
 - **Y** si una tabla nueva no la tiene ni está en la lista, la prueba falla
 
 ### Requirement: Territorio inicial cargado

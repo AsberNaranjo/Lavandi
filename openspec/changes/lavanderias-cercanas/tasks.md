@@ -1,17 +1,19 @@
 Cada tarea va en rojo, verde y refactor: primero el test que falla, luego el código mínimo, luego la limpieza. Una
-tarea sin test en verde no se marca. Tamaños de S-006: S = 2 h, M = 5 h, L = 12 h. Requiere `plazas-y-zonas`.
+tarea sin test en verde no se marca. Tamaños de S-006: S = 2 h, M = 5 h, L = 12 h. Requiere `plazas-y-zonas` y la
+tarea 1.1 de `perfil-de-lavanderia`, la migración que crea `lavanderias` y `calificaciones`; en el plan, ese cambio va
+después (ver `design.md`, Open Questions). Este cambio no crea tablas.
 
 ## 1. Lavanderías de prueba y consulta de cercanas
 
-- [ ] 1.1 cercanas-E06, cercanas-E07, cercanas-E10, cercanas-E11 (`servidor/`): migración de lavanderías con plaza,
-  ubicación `geography` con índice espacial y estado; sembrado de prueba; consulta por punto con distancia en línea
-  recta, detrás de la sesión y del componente de autorización — test:
-  `servidor/tests/Feature/Cercanas/ConsultaDeCercanasTest.php` — tamaño M
+- [ ] 1.1 cercanas-E06, cercanas-E07, cercanas-E10, cercanas-E11 (`servidor/`): lavanderías de prueba sembradas en
+  `lavanderias`, con plaza, `ubicacion` y `estado`; consulta por punto con distancia en línea recta sobre
+  `lavanderias.ubicacion`, que identifica cada lavandería por su `id_publico`, detrás de la sesión y del componente de
+  autorización — test: `servidor/tests/Feature/Cercanas/ConsultaDeCercanasTest.php` — tamaño M
 - [ ] 1.2 cercanas-E22 (`servidor/`): el sembrado de prueba del hito no corre en producción — test:
   `servidor/tests/Feature/Cercanas/DatosDePruebaTest.php` — tamaño S
-- [ ] 1.3 cercanas-E16, cercanas-E17, cercanas-E18 (`servidor/`): tabla mínima de calificaciones con plaza, sembrada;
-  filtros por distancia máxima y calificación mínima, combinables — test:
-  `servidor/tests/Feature/Cercanas/FiltrosTest.php` — tamaño S
+- [ ] 1.3 cercanas-E16, cercanas-E17, cercanas-E18 (`servidor/`): calificaciones de prueba de lavandería sembradas en
+  `calificaciones`; filtros por distancia máxima y calificación mínima, combinables, con el promedio de las filas que
+  tienen `id_lavanderias` — test: `servidor/tests/Feature/Cercanas/FiltrosTest.php` — tamaño S
 - [ ] 1.4 cercanas-E08, cercanas-E09, cercanas-E19, cercanas-E20 (`servidor/`): límite de cercanía configurable, resto
   de "activa", disponibilidad y orden por defecto — test: `servidor/tests/Feature/Cercanas/DefinicionDeCercanaTest.php`
   — tamaño S. **No entra al sprint** mientras DD-083 y DD-078 sigan abiertas
@@ -45,3 +47,6 @@ tarea sin test en verde no se marca. Tamaños de S-006: S = 2 h, M = 5 h, L = 12
 - Listas: 23 h (1.1, 1.2, 1.3, 2.1, 2.2, 3.1 y 4.1). Bloqueadas: 6 h (1.4, 2.3 y 3.2). Total: 29 h.
 - El plan da 22 h a este cambio (F-T03 M, F-A03 L y F-A04 M). Diferencia: +7 h. Las listas quedan 1 h arriba del plan;
   el resto es lo que espera DD-083 y DD-078.
+- **Con el modelo de datos (C-193) las horas no cambian.** Las tareas 1.1 y 1.3 ya no crean tablas, pero conservan su
+  tamaño: les quedan la consulta espacial, el sembrado y los filtros. La migración de `lavanderias` y `calificaciones`
+  se cuenta en `perfil-de-lavanderia`, tarea 1.1.

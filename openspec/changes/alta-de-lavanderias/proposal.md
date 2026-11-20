@@ -67,10 +67,12 @@ Ninguna.
   (ADR-0009); subida de la foto al almacenamiento S3 privado (ADR-0006).
 - **`movil/`:** las pantallas de registro y de perfil y horarios del Módulo B, con la toma o elección de la foto y su
   compresión antes de subirla (ADR-0006). Es la primera pantalla de la app que sube una foto.
-- **Base de datos:** el estado de la lavandería (suspendida, dada de baja y, según DD-053, con alta o pendiente), su
-  horario por día y sus ventanas de disponibilidad. La lavandería ya tiene plaza desde `plazas-y-zonas`.
+- **Base de datos** (ADR-0016, `vault/arquitectura/modelo-de-datos.md`): completa `lavanderias`, que nace en
+  `perfil-de-lavanderia`, con `estado` (`pendiente`, `activa`, `suspendida`, `baja`) y `aprobada_en`. El horario y las
+  ventanas van en `lavanderia_horarios`, los servicios en `lavanderia_servicios` y la foto en `lavanderia_fotos`, las
+  tres de `perfil-de-lavanderia`. La plaza sale de las `zonas` de `plazas-y-zonas`.
 - **Dependencias:** ninguna nueva en el servidor. En la app, una librería para tomar, elegir y comprimir la foto, que
   ningún ADR nombra (ver `design.md`, preguntas abiertas).
 - **ADRs:** ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0009 y ADR-0013 (el tema del panel).
-- **Cambios de los que depende:** `plazas-y-zonas`, `direcciones`, `perfil-de-lavanderia`, `lavanderias-cercanas`,
-  `resumen-y-confirmacion` y `autorizacion-por-rol`.
+- **Cambios de los que depende:** `modelo-de-datos`, `plazas-y-zonas`, `direcciones`, `perfil-de-lavanderia`,
+  `lavanderias-cercanas`, `resumen-y-confirmacion` y `autorizacion-por-rol`.

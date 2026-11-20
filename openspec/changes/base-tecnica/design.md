@@ -20,6 +20,7 @@
 **Non-Goals:**
 
 - Tablas del negocio, plazas y zonas (llegan con `registro-e-inicio-de-sesion` y `plazas-y-zonas`).
+- Las reglas comunes del modelo de datos y su prueba de esquema (llegan con `modelo-de-datos`).
 - Entornos de prueba y de producción, compilaciones firmadas y envío a las tiendas (`publicacion`, DD-070).
 - Mapas, avisos, pagos y correo.
 
@@ -39,6 +40,26 @@ Lo que sigue son detalles de implementación, no decisiones:
 - Las versiones mínimas se fijan con el mecanismo que Expo documenta para eso. La prueba lee la configuración
   resultante, no el mecanismo.
 - La app lee su configuración de las variables del entorno, a través de la configuración de Expo.
+
+## Tablas y migración
+
+- **No crea tablas del negocio.** El modelo de datos aprobado (ADR-0016, C-193; `vault/arquitectura/modelo-de-datos.md`)
+  dice en su columna "Nace en" qué cambio crea cada tabla, y ninguna nace aquí.
+- **El orden de los cambios:** `base-tecnica` → `modelo-de-datos` → `registro-e-inicio-de-sesion`. `modelo-de-datos` va
+  justo después de este cambio y antes de la primera tabla del negocio: trae la prueba de esquema (modelo-E01 a
+  modelo-E16), la clase base `App\Models\Modelo` y la función `impedir_cambio()`. Así, `usuarios`, la primera tabla,
+  ya nace revisada.
+- **Lo que este cambio sí deja en la base:** la extensión PostGIS (base-E02) y las tablas del framework que trae la
+  instalación: `migrations`, `cache`, `cache_locks`, `jobs`, `job_batches`, `failed_jobs`, `sessions`,
+  `password_reset_tokens` y `personal_access_tokens` (Sanctum), más `spatial_ref_sys` de PostGIS. Conservan su nombre
+  (ADR-0016, regla 8) y la prueba de esquema las excluye (`modelo-de-datos`, diseño, decisión 2).
+- **La tabla `users` que trae Laravel no se crea.** La cuenta se llama `usuarios`, con llave `id_usuarios`, y nace en
+  `registro-e-inicio-de-sesion` (ADR-0016, reglas 5 y 8). La migración inicial de Laravel se queda solo con
+  `password_reset_tokens` y `sessions`, y se quitan el modelo `User` y su fábrica. Dejarla haría fallar la prueba de
+  esquema en cuanto entre `modelo-de-datos` (llave `id`, nombre en inglés), y las migraciones solo van hacia adelante
+  (regla 9). El panel de base-E03 no la necesita: solo pide iniciar sesión y en este cambio no existe ninguna cuenta.
+- **Sin trigger:** este cambio no crea `pedidos`, `pedido_eventos`, `pagos` ni `reembolsos`, las únicas tablas que
+  llevan `impedir_cambio()`.
 
 ## Risks / Trade-offs
 

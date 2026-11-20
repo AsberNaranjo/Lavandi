@@ -2,8 +2,8 @@
 
 ### Requirement: Resumen del pedido antes de confirmar
 
-Antes de confirmar, la app DEBE (MUST) mostrar el resumen del pedido con el servicio, la fecha y la ventana de
-recolección, la dirección de recogida y la de entrega, el precio estimado y la política de cancelación. El precio DEBE
+Antes de pagar y de confirmar, la app DEBE (MUST) mostrar el resumen del pedido con el servicio, la fecha y la ventana
+de recolección, la dirección de recogida y la de entrega, el precio estimado y la política de cancelación. El precio DEBE
 (MUST) presentarse como estimado.
 
 Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #9`
@@ -13,7 +13,7 @@ Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #9`
 - **DADO** un usuario que eligió lavandería, servicio, ventana de recolección y direcciones
 - **CUANDO** llega al resumen del pedido
 - **ENTONCES** ve la lavandería, el servicio, la fecha con su ventana, la dirección de recogida y la de entrega
-- **Y** el botón para confirmar
+- **Y** el botón para aceptar el resumen y seguir al pago
 
 Criterio: A43-2
 
@@ -39,71 +39,104 @@ DD-025: si va aparte, incluido en un pedido mínimo o gratis desde un umbral).
 
 - **DADO** la política de cancelación de la plaza
 - **CUANDO** se arma el resumen
-- **ENTONCES** el resumen muestra esa política antes del botón para confirmar
+- **ENTONCES** el resumen muestra esa política antes del botón para aceptarlo
 
 SIN RESPUESTA — bloquea: confirmacion-E04 (DD-016: la política la define EL CLIENTE). Se puede construir como texto de
 configuración por plaza; su contenido no se inventa.
 
-### Requirement: El pedido se registra confirmado, con folio y plaza
+### Requirement: El pedido nace al aceptar el resumen, antes del pago
 
-Al confirmarse, el servidor DEBE (MUST) registrar el pedido en estado Confirmado, con un número de folio que no se
-repite, la plaza de su lavandería, el servicio, la ventana de recolección y las direcciones de recogida y de entrega.
+Al aceptar el usuario el resumen, el servidor DEBE (MUST) crear el pedido en un estado interno previo al pago, sin folio
+y sin `confirmado_en`, con la plaza de su lavandería, la ventana de recolección, el servicio con el precio de la
+lavandería en ese momento y la copia de las direcciones de recogida y de entrega. Esa copia NO DEBE (MUST NOT) cambiar
+si después cambian el precio de la lavandería o la dirección guardada. Cada cambio de estado del pedido DEBE (MUST)
+quedar también en su historial, en la misma transacción.
 
-Cita: A → `NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo A #11 y #12`; A → `NSV-2026-001-v8.pdf:4:Cláusula I`; D → ADR-0004
+Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3, Módulo A #9, #10 y #11` (resumen, pago y confirmación, en
+ese orden; C-188); A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` ("historial completo"); A →
+`NSV-2026-001-v8.pdf:4:Cláusula I`; D → ADR-0016
 
-#### Scenario: confirmacion-E05 — El pedido nace Confirmado, con folio y plaza
+#### Scenario: confirmacion-E05 — El pedido nace antes del pago, con su plaza y su copia
 
 - **DADO** un resumen con ventana y direcciones válidas
-- **CUANDO** el pedido se confirma
-- **ENTONCES** el servidor lo registra en estado Confirmado, con su folio
-- **Y** con la plaza de su lavandería, el servicio, la ventana y las dos direcciones
+- **CUANDO** el usuario lo acepta
+- **ENTONCES** el servidor crea el pedido en el estado previo al pago, sin folio y sin `confirmado_en`
+- **Y** con la plaza de su lavandería, la ventana, el servicio con el precio por kilo copiado de la lavandería y las dos
+  direcciones copiadas
+- **Y** guarda ese primer estado en `pedido_eventos`
 
 Criterio: A43-2
 
-#### Scenario: confirmacion-E06 — Dos pedidos nunca comparten folio
+SIN RESPUESTA — bloquea: solo el código y el nombre del estado previo al pago (DD-123). El escenario se prueba con un
+estado de prueba del catálogo `estados_pedido`, que no es ninguno de los cinco del usuario.
 
-- **DADO** varios pedidos que se confirman, algunos al mismo tiempo
+#### Scenario: confirmacion-E14 — La copia no cambia con el precio ni con la dirección guardada
+
+- **DADO** un pedido creado con el precio por kilo de su lavandería y con la dirección favorita "Casa"
+- **CUANDO** la lavandería cambia su precio y la dirección "Casa" se edita o se borra
+- **ENTONCES** el pedido conserva el precio y la dirección que copió al crearse
+
+### Requirement: El pedido se confirma solo con el pago acreditado
+
+El servidor DEBE (MUST) pasar el pedido a Confirmado, con un folio que no se repite en su plaza y con `confirmado_en`,
+solo cuando el componente de cobro le avisa que la pasarela confirmó su pago. El botón del resumen y las peticiones de
+la app NO DEBEN (MUST NOT) confirmar un pedido.
+
+Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3, Módulo A #10, #11 y #12` (el pago y después la confirmación
+con folio; C-188); A → `NSV-2026-001-v8.pdf:4:Cláusula I`; D → ADR-0010 (punto 1: el pago se da por bueno solo con el
+webhook) y ADR-0016
+
+#### Scenario: confirmacion-E06 — Dos pedidos de la misma plaza nunca comparten folio
+
+- **DADO** varios pedidos de la misma plaza que se confirman, algunos al mismo tiempo
 - **CUANDO** el servidor les asigna folio
 - **ENTONCES** cada pedido tiene un folio distinto
-- **Y** la base de datos rechaza cualquier folio repetido
+- **Y** la base de datos rechaza un folio repetido en la misma plaza, con el único `(id_plazas, folio)`
 
-#### Scenario: confirmacion-E07 — Qué confirma el pedido
+#### Scenario: confirmacion-E07 — El botón del resumen no confirma el pedido
 
-- **DADO** un usuario en el resumen del pedido
-- **CUANDO** toca el botón del resumen, o cuando llega el aviso de pago de Conekta a `api`
-- **ENTONCES** el pedido se confirma en el momento que fije el modelo de cobro
-- **Y** el texto del botón del resumen dice lo que de verdad pasa al tocarlo
+- **DADO** un pedido en el estado previo al pago
+- **CUANDO** el usuario toca el botón del resumen, o la app manda cualquier petición que diga que ya pagó
+- **ENTONCES** el pedido no pasa a Confirmado ni recibe folio
+- **Y** el texto del botón dice que lleva al pago
 
-SIN RESPUESTA — bloquea: confirmacion-E07 (DD-012: si se cobra al pedir con un estimado, al pesar, o se aparta y se
-captura después; DD-079: la pasarela, que sigue siendo Conekta mientras no haya Orden de Cambio firmada).
+#### Scenario: confirmacion-E13 — El pago acreditado confirma el pedido
 
-### Requirement: Revalidación al confirmar
+- **DADO** un pedido en el estado previo al pago
+- **CUANDO** el componente de cobro avisa que la pasarela confirmó su pago (en la prueba, la llamada directa a la
+  operación de confirmar)
+- **ENTONCES** el pedido pasa a Confirmado, con su folio y con `confirmado_en`
+- **Y** el cambio queda en `pedido_eventos`, en la misma transacción
+- **Y** se publica el evento de pedido confirmado, del que cuelga el correo
 
-Al confirmar, el servidor DEBE (MUST) volver a validar la ventana de recolección y las direcciones con las mismas reglas
-con que se ofrecieron, y DEBE (MUST) rechazar la confirmación, sin registrar el pedido ni gastar un folio, si alguna dejó
-de valer.
+Criterio: A43-2
+
+### Requirement: Revalidación al aceptar el resumen
+
+Al aceptar el usuario el resumen, el servidor DEBE (MUST) volver a validar la ventana de recolección y las direcciones
+con las mismas reglas con que se ofrecieron, y DEBE (MUST) rechazarlo, sin crear el pedido, si alguna dejó de valer.
 
 Cita: A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3`; D → ADR-0003
 
 #### Scenario: confirmacion-E08 — La ventana dejó de estar disponible
 
 - **DADO** un resumen abierto con la ventana 10:00–11:00
-- **CUANDO** el usuario confirma cuando esa ventana ya empezó
-- **ENTONCES** el servidor rechaza la confirmación con su motivo, sin registrar el pedido ni asignar folio
+- **CUANDO** el usuario lo acepta cuando esa ventana ya empezó
+- **ENTONCES** el servidor lo rechaza con su motivo, sin crear el pedido
 - **Y** la app lleva al usuario a elegir otra ventana, con los demás datos del pedido intactos
 
 Criterio: A43-2
 
 ### Requirement: Pantalla de confirmación
 
-Al confirmarse el pedido, la app DEBE (MUST) mostrar su número de folio y su resumen.
+Cuando el pedido queda Confirmado, la app DEBE (MUST) mostrar su número de folio y su resumen.
 
 Cita: A → `NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo A #11`
 
 #### Scenario: confirmacion-E09 — La pantalla muestra el folio y el resumen
 
-- **DADO** un pedido que el servidor registró como Confirmado
-- **CUANDO** la app recibe la respuesta
+- **DADO** un pedido que el servidor ya pasó a Confirmado después de su pago
+- **CUANDO** la app lo consulta
 - **ENTONCES** muestra el folio del pedido
 - **Y** el resumen con la lavandería, el servicio, la fecha con su ventana y la dirección de recogida
 
@@ -147,7 +180,7 @@ Cita: A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3`
 #### Scenario: confirmacion-E12 — Otro usuario no ve un pedido ajeno
 
 - **DADO** dos usuarios, cada uno con un pedido confirmado
-- **CUANDO** uno pide el pedido del otro, por su identificador o por su folio
+- **CUANDO** uno pide el pedido del otro, por su `id_publico` o por su folio
 - **ENTONCES** el servidor responde como si ese pedido no existiera
 - **Y** no devuelve ningún dato de él
 

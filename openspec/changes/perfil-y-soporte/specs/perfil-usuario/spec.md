@@ -62,12 +62,12 @@ Cita: A → `NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3` (Módulo A #15, "mét
 
 Criterio: SEG-4
 
-#### Scenario: perfil-usuario-E07 — Tarjeta guardada como referencia de Conekta
-- **DADO** un usuario que ya pagó con tarjeta en Conekta
+#### Scenario: perfil-usuario-E07 — Tarjeta guardada como referencia de la pasarela
+- **DADO** un usuario que ya pagó con tarjeta en la pasarela
 - **CUANDO** abre los métodos de pago de su perfil
 - **ENTONCES** ve, guarda o elimina la referencia de su tarjeta según fije la respuesta pendiente
 
-SIN RESPUESTA — bloquea: perfil-usuario-E07 (DD-055; ADR-0010, punto 5: si el checkout redirigido no permite reutilizar la tarjeta, la v1 cobra cada vez)
+SIN RESPUESTA — bloquea: perfil-usuario-E07 (DD-055: si se guarda la tarjeta; DD-079: qué pasarela, y si su checkout redirigido permite reutilizarla; ADR-0010, punto 5: si no lo permite, la v1 cobra cada vez)
 
 ### Requirement: Notificaciones en el perfil
 El perfil DEBE (MUST) mostrar si los avisos de la app están activos en el teléfono y, si no lo están, ofrecer activarlos.

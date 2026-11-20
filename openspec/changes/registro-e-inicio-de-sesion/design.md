@@ -46,6 +46,41 @@ No hay decisión técnica nueva en este cambio. Lo sostienen:
 - **El componente único de autorización** lo decidió la Fase 5 en `vault/arquitectura/c3-api.md` ("las tres viven en
   un solo componente", grado D, sin ADR propio) y lo manda `CLAUDE.md` §9.5. Aquí nace solo con el rol. La tenencia y
   la plaza llegan con `autorizacion-por-rol` (hito H5), junto con la prueba contra fugas.
+- **ADR-0016:** las tablas y sus nombres (sección siguiente).
+
+## Tablas y migración
+
+Este cambio crea las cuatro primeras tablas del negocio, tal como las fija `vault/arquitectura/modelo-de-datos.md`
+(columna "Nace en"). Ninguna lleva `id_plazas`: las cuatro están en la lista cerrada de tablas sin plaza de
+`modelo-de-datos` (`servidor/config/modelo.php`).
+
+| Tabla | Columnas | Llaves, únicos y `CHECK` |
+|---|---|---|
+| `roles` | `id_roles`, `codigo`, `nombre` | Llave `id_roles`. `codigo` único. Semilla: `usuario`, `lavanderia`, `repartidor`, `administracion` |
+| `usuarios` | `id_usuarios`, `id_publico`, `nombre`, `correo`, `password`, `telefono`, `foto_ruta`, `estado`, `bloqueado_en`, `terminos_aceptados_en`, `deleted_at` | Llave `id_usuarios`. `id_publico` ULID único. `correo` único sin distinguir mayúsculas (índice único sobre `lower(correo)`). `password` opcional, porque quien entra con Google o con Apple no tiene; si existe, va con hash. `CHECK (estado IN ('activo', 'bloqueado'))`. Borrado suave con `deleted_at`. Sin `id_plazas` |
+| `rol_usuario` | `id_usuarios`, `id_roles` | Llave compuesta `(id_usuarios, id_roles)`. Llaves foráneas a `usuarios` y a `roles`, con `ON DELETE RESTRICT`; la de `id_roles` lleva su propio índice, porque la llave compuesta solo cubre `id_usuarios` |
+| `cuentas_externas` | `id_cuentas_externas`, `id_usuarios`, `proveedor`, `sujeto`, `correo` | Llave `id_cuentas_externas`. Llave foránea `id_usuarios` a `usuarios`, con índice. Único `(proveedor, sujeto)`. `CHECK (proveedor IN ('google', 'apple'))` |
+
+- **Tipos:** `bloqueado_en`, `terminos_aceptados_en` y `deleted_at` son `timestamptz` (ADR-0016, regla 7).
+- **Lo que llena este cambio:** `id_publico`, `correo`, `password` con hash y `estado = 'activo'`; la fila de
+  `rol_usuario` con el rol `usuario` (registro-E01); la fila de `cuentas_externas` de Google (registro-E16) y, cuando
+  DD-069 se cierre, la de Apple (registro-E21). La misma cuenta de Google vuelve a entrar por su `(proveedor, sujeto)`.
+- **Lo que queda vacío, para su cambio:** `nombre`, hasta que se responda la pregunta 7; `telefono` y `foto_ruta`,
+  para `perfil-y-soporte` (F-A15); `estado = 'bloqueado'` y `bloqueado_en`, para `administracion` (F-D03);
+  `terminos_aceptados_en`, solo si DD-080 pide la constancia (registro-E29).
+- **Un rol por cuenta en la v1** lo impone el código, no la tabla (DD-053): un segundo rol sería otra fila de
+  `rol_usuario`.
+- **Tablas del framework que usa,** con su nombre de siempre y fuera de la prueba de esquema: `personal_access_tokens`
+  (los tokens de Sanctum), `password_reset_tokens` (la recuperación; su columna `email` guarda el `correo` de la
+  cuenta) y `sessions` (el panel).
+- **Modelos de Eloquent:** `Rol`, `Usuario` y `CuentaExterna`, sobre `App\Models\Modelo`, cada uno con su `$table` y
+  su `$primaryKey`; la relación de `Usuario` con `Rol` nombra la tabla `rol_usuario` y sus dos llaves. `Usuario` usa
+  los traits de autenticación de Laravel (los que arma `Illuminate\Foundation\Auth\User`), `HasApiTokens` de Sanctum y
+  `SoftDeletes`; `getEmailForPasswordReset()` devuelve `correo`, y el proveedor de `config/auth.php` apunta a
+  `Usuario`. La tabla `users` de Laravel no existe (`base-tecnica`, "Tablas y migración").
+- **La migración pasa la prueba de esquema de `modelo-de-datos`** (modelo-E01 a modelo-E16). Ninguna de estas tablas
+  lleva el trigger `impedir_cambio()`, que es solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`.
+- **Sin `created_at` ni `updated_at`:** el modelo no los lista. Ver Open Questions, pregunta 11.
 
 ## Risks / Trade-offs
 
@@ -59,8 +94,8 @@ No hay decisión técnica nueva en este cambio. Lo sostienen:
   `cloudflared`, que da `https`. SEG-1 se acredita en `publicacion`.
 - [El aviso de privacidad no llega para la semana 12 (B.10)] → No detiene el desarrollo: los enlaces van en
   configuración. Sí detiene el envío a las tiendas (DD-080).
-- [Una cuenta, un rol es recomendación y no decisión (DD-053)] → El rol se guarda de forma que agregar otro rol sea
-  un dato y no un rediseño. Se revisa cuando DD-053 se cierre.
+- [Una cuenta, un rol es recomendación y no decisión (DD-053)] → El rol vive en `rol_usuario`: agregar otro rol es
+  otra fila, no un rediseño (ADR-0016). Se revisa cuando DD-053 se cierre.
 
 ## Open Questions
 
@@ -89,3 +124,10 @@ mecanismo, no estos detalles:
    perfil.
 10. **El script de tokens** (ADR-0013) no tiene tarea en el plan, y la tarea 2.1 lo necesita para las piezas de
     formulario.
+
+**Del modelo de datos, para Arthur:**
+
+11. **Las marcas `created_at` y `updated_at`.** Ninguna tabla de `vault/arquitectura/modelo-de-datos.md` las lista, y
+    Eloquent las escribe por omisión. O el modelo las agrega a las tablas que las necesiten, en `timestamptz`
+    (`timestampsTz()`), o cada modelo declara `$timestamps = false`, quizá desde `App\Models\Modelo`. La tarea 1.1 lo
+    necesita.

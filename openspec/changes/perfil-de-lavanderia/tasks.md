@@ -1,21 +1,33 @@
 Cada tarea va en rojo, verde y refactor: primero el test que falla, luego el código mínimo, luego la limpieza. Una
-tarea sin test en verde no se marca. Tamaños de S-006: S = 2 h, M = 5 h, L = 12 h. Requiere `plazas-y-zonas` y
-`lavanderias-cercanas`.
+tarea sin test en verde no se marca. Tamaños de S-006: S = 2 h, M = 5 h, L = 12 h. La tarea 1.1 requiere
+`modelo-de-datos`, `registro-e-inicio-de-sesion` y `plazas-y-zonas`; las demás requieren además `lavanderias-cercanas`,
+que a su vez lee las tablas de la tarea 1.1 (ver `design.md`, Open Questions).
 
 ## 1. Perfil en el servidor
 
-- [ ] 1.1 perfil-lavanderia-E01, perfil-lavanderia-E02, perfil-lavanderia-E05, perfil-lavanderia-E07,
-  perfil-lavanderia-E08 (`servidor/`): descripción de la lavandería; tabla de servicios ofrecidos con precio, unidad y
-  plaza, sembrada; consulta del perfil con promedio, número de calificaciones y reseñas sin datos de quien califica;
-  suspendida o dada de baja, sin perfil — test: `servidor/tests/Feature/PerfilLavanderia/PerfilTest.php` — tamaño M
-- [ ] 1.2 perfil-lavanderia-E06 (`servidor/`): precio y unidad del lavado en seco — test:
+- [ ] 1.1 perfil-lavanderia-E14, perfil-lavanderia-E15, perfil-lavanderia-E16, perfil-lavanderia-E17 y la prueba de
+  esquema de `modelo-de-datos` (modelo-E01 a modelo-E16) sobre las tablas nuevas (`servidor/`): migración de
+  `tipos_servicio` y `unidades_medida` con su semilla, `lavanderias`, `lavanderia_servicios`, `lavanderia_horarios`,
+  `lavanderia_fotos` y `calificaciones`, con las columnas, los únicos y los `CHECK` de `design.md` ("Tablas y
+  migración"); modelos de Eloquent sobre `App\Models\Modelo`, con su `$table`, su `$primaryKey` y las llaves de cada
+  relación. Necesita las preguntas abiertas de la fecha de la reseña y de `codigo` único de `design.md` — test:
+  `servidor/tests/Feature/PerfilLavanderia/MigracionTest.php` y `servidor/tests/Feature/Modelo/` — tamaño M
+- [ ] 1.2 perfil-lavanderia-E01, perfil-lavanderia-E02, perfil-lavanderia-E05, perfil-lavanderia-E07,
+  perfil-lavanderia-E08 (`servidor/`): servicios de prueba sembrados en `lavanderia_servicios`; consulta del perfil por
+  `id_publico`, con descripción, servicios activos con su precio y su unidad, promedio, número de calificaciones y
+  reseñas sin datos de quien califica; suspendida o dada de baja, sin perfil — test:
+  `servidor/tests/Feature/PerfilLavanderia/PerfilTest.php` — tamaño M
+- [ ] 1.3 perfil-lavanderia-E06 (`servidor/`): precio y unidad del lavado en seco — test:
   `servidor/tests/Feature/PerfilLavanderia/LavadoEnSecoTest.php` — tamaño S. **No entra al sprint** mientras DD-010
   siga abierta
+- [ ] 1.4 perfil-lavanderia-E18 (`servidor/`): las calificaciones al repartidor no cuentan en el perfil de la
+  lavandería — test: `servidor/tests/Feature/PerfilLavanderia/PerfilTest.php` — tamaño S. **No entra al sprint**
+  mientras DD-052 siga abierta, ni antes de que existan `pedidos` y `repartidores`
 
 ## 2. Fotos
 
-- [ ] 2.1 perfil-lavanderia-E03, perfil-lavanderia-E04 (`servidor/`): disco S3 privado del entorno; tabla de fotos con
-  plaza y orden; fotos de prueba sembradas; URLs firmadas que vencen — test:
+- [ ] 2.1 perfil-lavanderia-E03, perfil-lavanderia-E04 (`servidor/`): disco S3 privado del entorno; fotos de prueba
+  sembradas en `lavanderia_fotos`, con su orden; URLs firmadas que vencen — test:
   `servidor/tests/Feature/PerfilLavanderia/FotosTest.php` — tamaño M
 
 ## 3. Pantalla del perfil
@@ -32,6 +44,11 @@ tarea sin test en verde no se marca. Tamaños de S-006: S = 2 h, M = 5 h, L = 12
 
 ## Horas
 
-- Listas: 17 h (1.1, 2.1, 3.1 y 4.1). Bloqueadas: 2 h (1.2). Total: 19 h.
-- El plan da 12 h a este cambio (F-T06 M, F-A05 M y F-A06 S). Diferencia: +7 h. F-T06 y F-A06 coinciden con el plan;
-  F-A05 se partió en servidor y app, y cada mitad pesa una M (+5 h); el lavado en seco suma 2 h bloqueadas.
+- Listas: 22 h (1.1, 1.2, 2.1, 3.1 y 4.1). Bloqueadas: 4 h (1.3 y 1.4). Total: 26 h.
+- El plan da 12 h a este cambio (F-T06 M, F-A05 M y F-A06 S). Diferencia: +14 h (antes de alinear con el modelo de
+  datos eran +7). F-T06 y F-A06 coinciden con el plan; F-A05 se partió en servidor y app, y cada mitad pesa una M
+  (+5 h); el lavado en seco suma 2 h bloqueadas.
+- **Lo que suma el modelo de datos (C-193):** +7 h. La migración de las siete tablas con sus modelos, que antes se
+  repartía entre este cambio y `lavanderias-cercanas` y ahora vive entera aquí, con los horarios que ninguna spec
+  creaba (tarea 1.1, M, +5 h), y la calificación del repartidor, bloqueada por DD-052 (tarea 1.4, S, +2 h). Las tareas
+  1.2 y 2.1 ya no crean tablas, pero conservan su tamaño.

@@ -2,7 +2,7 @@
 
 ### Requirement: Descarga de cada reporte en CSV y en Excel
 
-El panel DEBE (MUST) ofrecer la descarga en CSV y en Excel (XLSX) de cada reporte: los 11 indicadores del A.5 y los reportes financieros de ingresos, comisiones y conciliación con Conekta. El archivo trae las mismas cifras que muestra el panel para ese rango.
+El panel DEBE (MUST) ofrecer la descarga en CSV y en Excel (XLSX) de cada reporte: los 11 indicadores del A.5 y los reportes financieros de ingresos, comisiones y conciliación con la pasarela. El archivo trae las mismas cifras que muestra el panel para ese rango.
 
 Cita: A → `NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5`; A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #6); D → ADR-0003
 

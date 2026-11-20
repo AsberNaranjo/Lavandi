@@ -58,15 +58,18 @@ y extensible por filas.** Las reglas que lo hacen así:
 2. Catálogos para los valores que son datos: roles, tipos de servicio, unidades de medida y estados del pedido.
    `CHECK` para los valores técnicos que solo cambian con el código.
 3. Lo que se repite va en filas: servicios, direcciones, pagos, eventos y asignaciones de un pedido.
-4. Toda tabla de operación lleva `id_plazas`. En las tablas hijas, la llave foránea es compuesta con la plaza, para
-   que no pueda diferir de la de su padre.
+4. Toda tabla de operación lleva `id_plazas`, no nula salvo en cuatro tablas con una razón escrita en el modelo
+   (`avisos_masivos`, `reportes_soporte`, `repartidores` pendientes y `direcciones` fuera de zona). En las tablas hijas,
+   la llave foránea es compuesta con la plaza, para que no pueda diferir de la de su padre. Una llave hacia una tabla
+   que nace después entra opcional y sin llave, y la agrega el cambio que crea esa tabla.
 5. La llave interna es un `bigint` autoincremental llamado `id_<tabla>`, en minúsculas (`id_pedidos`,
    `id_tipos_servicio`), y la foránea lleva el nombre de la llave a la que apunta (C-190). Todo identificador empieza
    con `id_` y nunca termina en `_id` (C-194): lo que sale por la API usa un ULID público (`id_publico`), y lo que
    asigna la pasarela es `id_pasarela_<cosa>` (`id_pasarela_orden`).
 6. Llaves foráneas con índice y `ON DELETE RESTRICT`. Borrado suave en cuentas, socios y direcciones; pedidos, pagos y
    eventos no se borran nunca.
-7. Dinero en `numeric(12,2)`; horas en `timestamptz`; mapas en PostGIS `geography` con índice GiST.
+7. Dinero en `numeric(12,2)`; instantes en `timestamptz` (y `time` para las horas del día de un horario); mapas en
+   PostGIS `geography` con índice GiST. Toda tabla del negocio lleva `created_at` y `updated_at`, salvo las de enlace.
 8. Tablas y columnas en español y en `snake_case`. Las del framework conservan su nombre, y cada modelo declara su
    `$table`.
 9. Migraciones solo hacia adelante, una por cambio de OpenSpec; lo nuevo entra como opcional.
@@ -86,7 +89,7 @@ y extensible por filas.** Las reglas que lo hacen así:
 - **Negativas, y qué se hace con ellas:**
   - **Más tablas que un diseño plano** (unas 30). Se mitiga con una migración por cambio y con el diagrama de la nota.
   - **Las llaves compuestas de plaza son menos comunes en Laravel.** Se escriben en la migración, y la prueba de
-    esquema de `plazas-y-zonas` las verifica.
+    esquema de `modelo-de-datos` las verifica (modelo-E06).
   - **El pluralizador de Laravel es inglés, y Eloquent espera `id` y `<singular>_id`.** Cada modelo declara su
     `$table` y su `$primaryKey`, y cada relación nombra sus llaves; el revisor lo comprueba.
 - **Condiciona:**

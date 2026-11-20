@@ -37,6 +37,22 @@ No hay decisión técnica nueva. Se aplica el ADR-0003:
 2. **"CSV y Excel"** del A.5 manda sobre "CSV o Excel" del A.4.4: se construyen los dos.
 3. **"Cualquier rango de fechas"** no tiene tope de duración.
 
+## Tablas y migración
+
+No crea tablas del negocio ni migración propia (`vault/arquitectura/modelo-de-datos.md`, ADR-0016). Cada archivo sale de
+la consulta de `indicadores` o de `administracion`, que leen las tablas que nombra el `design.md` de cada uno. De las
+que crean esos dos cambios, entran a un archivo `actividad_usuarios` (`indicadores`) y `comisiones` (`administracion`).
+La descarga de la conciliación espera `movimientos_pasarela`, que nace con DD-112.
+
+La exportación usa además tablas del framework:
+
+- `job_batches`, para la cola y los lotes. Ya está en la lista de excepciones de `servidor/config/modelo.php`
+  (`modelo-de-datos`, decisión 2).
+- `exports`, de Filament, y `notifications`, de Laravel, para el aviso de archivo listo. **No están en esa lista.**
+  Sus migraciones de fábrica usan `id`, `user_id` y `notifiable_id`, que la prueba de esquema rechaza (modelo-E01 y
+  modelo-E02), y `exports` apunta a `users`, que aquí se llama `usuarios` (grado E, `SIN VERIFICAR` en Filament 5).
+  Ver Open Questions.
+
 ## Risks / Trade-offs
 
 - [El hosting no da un proceso de colas (DD-070)] → en local corre con el proceso de colas de Laravel; antes del
@@ -54,3 +70,7 @@ No hay decisión técnica nueva. Se aplica el ADR-0003:
    bytes (BOM). Lo decide Arthur.
 2. **En qué disco se guardan los archivos generados y cuánto tiempo.** El ADR-0006 es para fotos y evidencias. Lo
    decide Arthur; si cambia el almacén, necesita ADR.
+3. **`exports` y `notifications` frente a la prueba de esquema.** Hay que agregarlas a la lista de tablas del
+   framework en `servidor/config/modelo.php`, y que `exports` apunte a `usuarios.id_usuarios`. La lista es de
+   `modelo-de-datos`; lo decide Arthur allí, antes de la tarea 1.1, porque toda exportación de Filament escribe en
+   `exports`.

@@ -3,8 +3,8 @@
 ### Requirement: Entorno de prueba y entorno de producción
 
 Además del local, la plataforma DEBE (MUST) tener un entorno de prueba y uno de producción separados, cada uno con su
-servidor, su base y sus credenciales: prueba con el sandbox de Conekta y el Firebase de prueba; producción con los de
-producción, en cuentas a nombre de EL CLIENTE.
+servidor, su base y sus credenciales: prueba con el modo de prueba de la pasarela y el Firebase de prueba; producción
+con los de producción, en cuentas a nombre de EL CLIENTE.
 
 Cita: A → `NSV-2026-001-v8.pdf:7:Cláusula IV` y `NSV-2026-001-v8.pdf:34:ANEXO B, Sección B.11`; D → ADR-0012
 
@@ -12,7 +12,7 @@ Cita: A → `NSV-2026-001-v8.pdf:7:Cláusula IV` y `NSV-2026-001-v8.pdf:34:ANEXO
 
 - **DADO** la configuración del entorno de prueba
 - **CUANDO** el servidor crea una orden de pago o manda un aviso
-- **ENTONCES** usa el sandbox de Conekta y el proyecto de Firebase de prueba
+- **ENTONCES** usa las credenciales del modo de prueba de la pasarela y el proyecto de Firebase de prueba
 - **Y** con la configuración de producción usa los de producción
 - **Y** ninguna llave, token ni credencial está escrita en el código: todas salen de las variables del entorno
 
@@ -29,7 +29,7 @@ SIN RESPUESTA — bloquea: publicacion-E02 (DD-070)
 
 - **DADO** las cuentas de EL CLIENTE, con Arthur como colaborador revocable
 - **CUANDO** se despliega a producción
-- **ENTONCES** el hosting, Firebase, Google Cloud, Conekta, la organización de Expo y el correo de producción están a
+- **ENTONCES** el hosting, Firebase, Google Cloud, la pasarela, la organización de Expo y el correo de producción están a
   nombre de EL CLIENTE
 - **Y** el mapa de cuentas, con fecha, queda en `vault/evidencias/publicacion/`
 
@@ -155,10 +155,11 @@ Criterio: A43-1
 
 SIN RESPUESTA — bloquea: publicacion-E13 (DD-080, DD-121)
 
-### Requirement: Conekta en modo producción
+### Requirement: La pasarela en modo producción
 
-En producción, el cobro DEBE (MUST) usar la cuenta de Conekta de EL CLIENTE en modo producción, con sus llaves leídas
-del entorno y su webhook registrado en una dirección https, y DEBE (MUST) procesar con éxito una transacción real.
+En producción, el cobro DEBE (MUST) usar la cuenta de la pasarela de EL CLIENTE en modo producción, con sus llaves leídas
+del entorno y su webhook registrado en una dirección https, y DEBE (MUST) procesar con éxito una transacción real. El
+contrato nombra a Conekta en este criterio; cuál pasarela se integra lo fija DD-079 (C-192).
 
 Cita: A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3` y `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3`; D → ADR-0010
 
@@ -166,16 +167,18 @@ Cita: A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3` y `NSV-2026-001-v8.
 
 - **DADO** el servidor con la configuración de producción
 - **CUANDO** se crea una orden de pago
-- **ENTONCES** va al modo producción de Conekta con las llaves del entorno
-- **Y** la dirección del webhook de producción es https y valida la firma, como en el sandbox (ADR-0010)
+- **ENTONCES** va al modo producción de la pasarela con las llaves del entorno
+- **Y** la dirección del webhook de producción es https y valida la firma, como en el modo de prueba (ADR-0010)
 
 Criterio: A43-4
 
+SIN RESPUESTA — bloquea: publicacion-E14 (DD-079)
+
 #### Scenario: publicacion-E15 — Una transacción real
 
-- **DADO** la cuenta de Conekta de EL CLIENTE dada de alta y en modo producción
+- **DADO** la cuenta de la pasarela de EL CLIENTE dada de alta y en modo producción
 - **CUANDO** se paga un pedido real desde la app de producción
-- **ENTONCES** Conekta procesa la transacción con éxito y el webhook confirma el pago
+- **ENTONCES** la pasarela procesa la transacción con éxito y el webhook confirma el pago
 - **Y** el comprobante, con fecha, queda en `vault/evidencias/publicacion/`
 
 Criterio: A43-4
@@ -192,11 +195,11 @@ Cita: A → `NSV-2026-001-v8.pdf:7:Cláusula IV`; D → ADR-0012
 #### Scenario: publicacion-E16 — El hito alterno del pago 2
 
 - **DADO** el entorno de prueba desplegado y las compilaciones `preview` instaladas en un Android y en un iPhone
-- **CUANDO** se recorre el pedido completo —elegir lavandería, agendar, pagar en el sandbox y dar seguimiento— y se
-  revisan los demás criterios del A.4.3
+- **CUANDO** se recorre el pedido completo —elegir lavandería, agendar, pagar en el modo de prueba de la pasarela y dar
+  seguimiento— y se revisan los demás criterios del A.4.3
 - **ENTONCES** cada criterio queda con su evidencia, con fecha, en un acta de validación en
   `vault/evidencias/publicacion/`
 
 Criterio: A43-1, y los demás del A.4.3 en el ambiente de prueba
 
-SIN RESPUESTA — bloquea: publicacion-E16 (DD-070; en iPhone, DD-069 y DD-084)
+SIN RESPUESTA — bloquea: publicacion-E16 (DD-070 y DD-079; en iPhone, DD-069 y DD-084)
