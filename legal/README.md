@@ -1,6 +1,6 @@
 # legal/ — instrumentos contractuales
 
-Esta carpeta **no se espeja a Notion** bajo ninguna audiencia.
+Esta carpeta no se modifica: solo se agregan versiones nuevas del contrato.
 
 | Archivo | Qué es | md5 | Estado |
 |---|---|---|---|

@@ -67,25 +67,26 @@ Ver `CLAUDE.md`, sección 3. Formatos de cita:
 | `F-XNN` | Función del inventario funcional. La letra dice de dónde viene: A, B, C y D son los módulos del A.3; L, la landing (A.2); I, los indicadores (A.5); T, lo transversal | `contrato/inventario-funcional.md` |
 | `BR-NN` | Fila de brecha ejecutivo→técnico | `contrato/brecha-ejecutivo-tecnico.md` |
 | `RN-NN` | Restricción no negociable | `contrato/restricciones-no-negociables.md` |
-| `DD-NNN` | Deuda de decisión | `meta/deuda-de-decision.md` |
+| `DD-NNN` | Deuda de decisión | `meta/deuda-de-decision.md` hasta DD-069; desde el 2026-11-20, una nota por decisión en `meta/deuda/` |
 | `C-NN` | Declaración de Nadir | acta correspondiente |
 | `ADR-000X` | Decisión técnica | `arquitectura/adr/` |
 | `H-00X` | Hipótesis | `negocio/hipotesis-criticas.md` |
 | `R-00X` | Riesgo | `riesgos-supuestos/riesgos.md` |
 | `S-00X` | Supuesto | `riesgos-supuestos/supuestos.md` |
 
-## Espejo Notion
-- Regla base: se espeja todo `vault/`; `legal/` nunca.
-- **Audiencia (respondida el 2026-09-07, C-28): EL CLIENTE no consulta el Notion.** Por tanto se espeja
-  **todo** `vault/`, incluidos `negocio/` y `riesgos-supuestos/`.
-- Si en el futuro se le da acceso al cliente, la regla cambia a la opción restrictiva (se excluyen
-  `negocio/` y `riesgos-supuestos/`) y se registra en un acta antes de compartir nada.
-- Cadencia y responsable del espejo: se definen en `formas-de-trabajo/` (Fase 7). Nada nace en Notion.
+## Espejo Notion — retirado
+Retirado el 2026-11-20 por Nadir (C-138): el repo es la única copia del vault. La regla anterior (se
+espejaba todo `vault/` porque EL CLIENTE no consulta el Notion, C-28) queda solo como antecedente.
+
+## Trabajo entre dos personas
+Dos personas con Claude Code (C-137). Rama por tarea, pull request revisado por la otra persona,
+validación con `herramientas/validar-vault/validar.py`. Reglas completas en
+`formas-de-trabajo/colaboracion-en-el-vault.md`.
 
 ## Tablero del proyecto
-- El tablero (<https://claude.ai/artifact/T2tZpPePdPhccB4GmFRjbK>) es **un espejo del vault**, como Notion: no guarda nada propio y no se edita a mano. Se rehace con `herramientas/tablero/construir_tablero.py`.
+- El tablero (<https://claude.ai/artifact/T2tZpPePdPhccB4GmFRjbK>) es **un espejo del vault**: no guarda nada propio y no se edita a mano. Se rehace con `herramientas/tablero/construir_tablero.py`.
 - El estado de fases, actividades, obligaciones, pagos y trámites vive en `meta/estado-del-proyecto.md`, con vocabulario fijo y evidencia por fila. Si cambia un estado, se cambia ahí primero.
-- **No se comparte con EL CLIENTE tal como está**: muestra deuda y riesgos. Para el cliente haría falta otra versión, sin esas pestañas, asentada antes en un acta (misma regla que el espejo de Notion, C-28).
+- **No se comparte con EL CLIENTE tal como está**: muestra deuda y riesgos. Para el cliente haría falta otra versión, sin esas pestañas, asentada antes en un acta (la regla de C-28).
 
 ## Salas de decisión
 - Una **sala** es una página donde Nadir responde las preguntas de una fase (la primera: <https://claude.ai/artifact/WN6jmpKuxSkgFrf8GDAXDB>, Fase 6). Como el tablero, sus preguntas salen del vault y se rehacen con un generador.
@@ -94,7 +95,7 @@ Ver `CLAUDE.md`, sección 3. Formatos de cita:
 - No se comparte con EL CLIENTE.
 
 ## Git
-`main`. Un commit por fase cerrada (`Fase N: …`); trabajo intermedio `wip(fase-N): …`. Convención de desarrollo en Fase 7.
+`main`, protegida: todo entra por pull request. Un commit por fase cerrada (`Fase N: …`); trabajo intermedio `wip(fase-N): …`. Ramas, revisión y choques: `formas-de-trabajo/colaboracion-en-el-vault.md`.
 
 ## Actas
 Toda sesión con Nadir produce un acta en `meta/actas/acta-AAAA-MM-DD-<tema>.md`. Lo que Nadir dice

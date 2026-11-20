@@ -75,17 +75,17 @@ Reglas duras:
    `vault/meta/deuda-de-decision.md`. Jamás se rellena con una suposición disfrazada de hecho.
 7. Ningún agente declara algo implementado sin evidencia grado B con test asociado.
 
-## 4. Vault (Obsidian) y espejo a Notion
+## 4. Vault (Obsidian)
 
 - Obsidian abre en `vault/`. Árbol por dominio, sin prefijos numéricos, nombres en kebab-case.
 - **Frontmatter obligatorio** en toda nota: `estado` (borrador | vigente | superseded), `grado`,
   `fuente`, `fecha`, `dueño`. Sin frontmatter, la nota no cuenta.
-- Nada nace en Notion. Notion es un espejo de solo lectura del vault.
-- Se espeja todo el vault **excepto** `legal/` (que además vive fuera de `vault/`).
-- **Audiencia del espejo.** Nadir declaró el 2026-09-07 (acta C-28) que EL CLIENTE **no** consulta
-  el Notion: se espeja todo `vault/`. Si algún día se le da acceso al cliente, quedan fuera además
-  `vault/negocio/` y `vault/riesgos-supuestos/`, y el cambio se asienta en un acta antes de compartir.
-  La regla vigente vive en `vault/meta/convenciones.md`, sección "Espejo Notion".
+- **El repo es la única copia del vault.** No hay espejo a Notion: Nadir lo retiró el 2026-11-20 (C-138).
+- Trabajan **dos personas, cada una con Claude Code** (C-137). Nadie escribe directo en `main`: rama por
+  tarea y pull request que revisa la otra persona. Reglas completas, incluidos los archivos que un agente
+  no edita sin aprobación: `vault/formas-de-trabajo/colaboracion-en-el-vault.md`.
+- Antes de abrir un PR: `python herramientas/validar-vault/validar.py`. La CI corre lo mismo.
+- Decisión pendiente nueva: una nota `vault/meta/deuda/DD-NNN.md`, no una fila más en la tabla.
 - Plantillas en `vault/plantillas/`. Toda nota nueva de un tipo con plantilla usa la plantilla.
 - Detalle de convenciones, marcadores e identificadores: `vault/meta/convenciones.md`.
 
@@ -115,7 +115,8 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
 - Rama principal `main`. Durante el cimiento: un commit por fase cerrada, con mensaje que nombre
   la fase (`Fase N: <qué cerró>`). Trabajo intermedio de una fase abierta: `wip(fase-N): <qué>`.
 - Convención de ramas, commits y revisión para desarrollo: se define en `vault/formas-de-trabajo/` (Fase 7).
-- `legal/` se versiona (el contrato es la fuente de verdad ejecutiva) pero no se espeja.
+- `legal/` se versiona: el contrato es la fuente de verdad ejecutiva.
+- Nadie escribe directo en `main`: rama por tarea y pull request (`vault/formas-de-trabajo/colaboracion-en-el-vault.md`).
 
 ## 8. Dónde está cada cosa
 
@@ -126,7 +127,8 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
 | Restricciones que toda arquitectura debe cumplir | `vault/contrato/restricciones-no-negociables.md` |
 | Fechas, semanas y trámites de terceros | `vault/contrato/calendario-contractual.md` |
 | Si el instrumento está sano | `vault/contrato/nota-de-saneamiento.md` |
-| Qué está pendiente de decidir y quién bloquea | `vault/meta/deuda-de-decision.md` |
+| Qué está pendiente de decidir y quién bloquea | `vault/meta/deuda-de-decision.md` y `vault/meta/deuda/` |
+| Cómo trabajamos los dos en el repo | `vault/formas-de-trabajo/colaboracion-en-el-vault.md` |
 | Lo que Nadir declaró (grado C) | `vault/meta/actas/` |
 | Supuestos y riesgos | `vault/riesgos-supuestos/` |
 | Decisiones técnicas | `vault/arquitectura/adr/` |
