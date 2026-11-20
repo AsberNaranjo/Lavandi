@@ -20,7 +20,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[estado-del-proyecto]] — **en qué estado está todo**: fases, calendario, obligaciones, pagos, trámites y lo que sigue, con evidencia por fila. Es la fuente del tablero
 - **Tablero del proyecto**: <https://claude.ai/artifact/T2tZpPePdPhccB4GmFRjbK> — espejo del vault, privado. Cómo se actualiza: `herramientas/tablero/README.md`
 - [[deuda-de-decision]] — qué falta decidir y quién bloquea
-- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]] · [[acta-2026-09-20-feedback-del-manual]] · [[acta-2026-09-25-analisis-funcional]] · [[acta-2026-09-29-sesion-tecnica-y-plantilla-landing]] · [[acta-2026-09-30-segunda-revision-del-manual]] · [[acta-2026-10-09-tablero-del-proyecto]] · [[acta-2026-10-09-antes-del-stack]] · [[acta-2026-10-17-listado-de-lavanderias]] · [[acta-2026-10-25-kit-de-socios]] · [[acta-2026-11-05-resultados-de-la-recalibracion]]
+- Actas: [[acta-2026-09-07-fundacion]] · [[acta-2026-09-08-nombres-de-categoria]] · [[acta-2026-09-09-nombres-globales]] · [[acta-2026-09-10-brief-fijado]] · [[acta-2026-09-11-archivo-del-prompt-maestro]] · [[acta-2026-09-11-lavandi-y-arranque-tecnico]] · [[acta-2026-09-12-paleta-y-logotipo]] · [[acta-2026-09-12-marca-visual]] · [[acta-2026-09-12-aprobacion-del-nombre]] · [[acta-2026-09-17-riesgo-aceptado]] · [[acta-2026-09-17-apoyo-con-contenido]] · [[acta-2026-09-19-terminos-del-apoyo-y-canva]] · [[acta-2026-09-20-feedback-del-manual]] · [[acta-2026-09-25-analisis-funcional]] · [[acta-2026-09-29-sesion-tecnica-y-plantilla-landing]] · [[acta-2026-09-30-segunda-revision-del-manual]] · [[acta-2026-10-09-tablero-del-proyecto]] · [[acta-2026-10-09-antes-del-stack]] · [[acta-2026-10-17-listado-de-lavanderias]] · [[acta-2026-10-25-kit-de-socios]] · [[acta-2026-11-05-resultados-de-la-recalibracion]] · [[acta-2026-11-20-decisiones-de-maquetas]]
 
 ## Contrato (grado A leído)
 
@@ -39,6 +39,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[listado-de-lavanderias]] — grado E: las 415 lavanderías y tintorerías del DENUE en el territorio, por plaza, en Excel para que el cliente las llame; lecciones aprendidas del informe de junio (la única copia de ese informe, con la marca "Limpia+", está en `negocio/antecedentes/informe_fase1.html`; no se manda así al cliente). Versión para el cliente, solo para prospectar: `cliente/comunicaciones/lavanderias-para-invitar.xlsx`
 - [[2026-10-25-propuesta-kit-de-socios]] — propuesta al cliente del kit de 11 piezas para invitar lavanderías y comprobar el negocio, y las tres preguntas que tiene que responder; cortesía (C-116, C-119); sin enviar
 - [[encargo-kit-de-prospeccion]] — qué piezas lleva el kit, el límite de la cortesía y las reglas que no rompe; las piezas viven en `cliente/kit-de-prospeccion/`
+- [[encargo-revision-ux-y-maquetas-modulo-a]] — la revisión de las cuatro propuestas de maqueta del Módulo A y la Propuesta 5 convergida; las maquetas viven en el lienzo "Lavandi" de claude.ai
 - [[recalibracion-2026-10-30]] — preparación de Nadir para la reunión larga con el cliente: quince hallazgos, cuatro caminos (recomendado B con algo de C), decisiones por tomar y agenda. No se comparte
 - [[2026-10-30-minuta-de-recalibracion]] — la minuta para que el cliente confirme por escrito lo acordado en la recalibración; se llena con las 21 respuestas de la guía
 - [[2026-11-05-reporte-del-formulario]] — reporte para el cliente sobre lo que dejó la reunión (formulario y guía llenados en papel): lo que quedó claro, la primera etapa, ocho descubrimientos y lo que falta; con la transcripción de las 20 fotos. Sin enviar
@@ -80,6 +81,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[c3-api]] — componentes de `api`, el contenedor crítico e incierto; `autorizacion` y la prueba anti-fuga
 - [[modelo-multi-plaza]] — **criterio de aceptación propuesto para O-26**, la única obligación que no tenía
 - [[presupuesto-de-mapas]] — cinco decisiones que bajan el consumo de 6 eventos por pedido a 1 o 2
+- [[pasarelas-candidatas]] — ocho pasarelas distintas de Conekta contra seis requisitos; grado E, sin verificar; insumo de `ADR-0010`
 - [[cobertura-de-la-brecha]] — dónde quedó cada una de las 25 filas BR de esta fase
 - ADRs: [[ADR-0001-formato-de-diagramas]]
 
