@@ -28,7 +28,11 @@ Nadir lo pidió el 2026-11-20 (C-139). Es regla para cualquier sesión, de cualq
 - Un artefacto publicado (lienzo, tablero, sala) no sustituye al vault: la nota que lo explica y enlaza va
   en el vault.
 - **Claude administra el vault de Obsidian.** En cada sesión, sin que se le pida:
-  0. al empezar, lee las tareas `en-curso` de `vault/meta/trabajo/` y abre la suya con
+  0. **al empezar, pregunta quién está trabajando** (Nadir Hadad Navarrete o Arthur Naranjo) y lo anota en
+     el campo `dueño` de su tarea. Pueden usar la misma cuenta de Claude, así que la cuenta no dice quién
+     escribe (C-220). Sin esa respuesta, la sesión no asienta ninguna declaración grado C ni nada reservado
+     a Nadir. Si a media sesión cambia quien escribe, se dice y se anota. Luego lee las tareas `en-curso` de
+     `vault/meta/trabajo/` y abre la suya con
      `plantilla-tarea-en-curso`; si otra toca las mismas notas, lo dice antes de escribir;
   1. archiva lo que se decidió (acta, ADR, spec o nota de deuda) con frontmatter y grado;
   2. actualiza `vault/meta/indice.md` y los enlaces `[[nota]]` de lo que creó o movió;

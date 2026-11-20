@@ -15,6 +15,10 @@ Nadir Hadad Navarrete y Arthur Naranjo, cada uno con Claude Code. Lo que cualqui
 sesión es grado C, con su nombre en el acta (C-143). Aprobar envíos al cliente, dominio e IMPI, y lo que se
 firma como EL PRESTADOR siguen siendo de Nadir.
 
+Si usan la misma cuenta de Claude, la cuenta no distingue quién escribe: **al abrir cada sesión, Claude
+pregunta quién eres**, y sin esa respuesta no asienta nada grado C (C-220). Lo recomendado es una cuenta
+para cada uno.
+
 ## La idea en tres frases
 
 1. **Todo vive en el repo.** Decisiones, specs, actas y hallazgos se guardan en `vault/`. Lo que no está
