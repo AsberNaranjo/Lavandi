@@ -4,7 +4,7 @@ en su worktree, y terminan con su trabajo de la integración continua en verde.
 
 ## 1. Servidor
 
-- [ ] 1.1 base-E01, base-E02, base-E03, base-E08 y base-E10: crear `servidor/` con Laravel 13, Sanctum y Filament 5, sin la tabla `users`, el modelo `User` ni la fábrica que
+- [x] 1.1 base-E01, base-E02, base-E03, base-E08 y base-E10: crear `servidor/` con Laravel 13, Sanctum y Filament 5, sin la tabla `users`, el modelo `User` ni la fábrica que
   trae Laravel (su lugar es `usuarios`, de `registro-e-inicio-de-sesion`),
   conectado al PostGIS local; la primera migración habilita PostGIS; el panel pide iniciar sesión y no deja entrar a
   nadie; `.env.example` sin secretos; nombre y dirección desde configuración — test:
