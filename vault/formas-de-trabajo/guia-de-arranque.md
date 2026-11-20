@@ -9,6 +9,12 @@ dueño: Nadir Hadad Navarrete
 
 Para quien llega al repo. Diez minutos. El detalle está en [[colaboracion-en-el-vault]] y en `CLAUDE.md`.
 
+## Quiénes somos
+
+Nadir Hadad Navarrete y Arthur Naranjo, cada uno con Claude Code. Lo que cualquiera de los dos declara en
+sesión es grado C, con su nombre en el acta (C-143). Aprobar envíos al cliente, dominio e IMPI, y lo que se
+firma como EL PRESTADOR siguen siendo de Nadir.
+
 ## La idea en tres frases
 
 1. **Todo vive en el repo.** Decisiones, specs, actas y hallazgos se guardan en `vault/`. Lo que no está

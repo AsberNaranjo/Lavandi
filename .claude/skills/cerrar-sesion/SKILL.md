@@ -13,8 +13,8 @@ Este procedimiento la ejecuta. No espera a que un humano lo pida.
 1. **Qué cambió.** `git status` y `git diff --stat`. Repasa la conversación: ¿hubo una decisión, una
    respuesta de Nadir o del cliente, un dato nuevo, un hallazgo, un artefacto publicado?
 2. **Archivar lo que falte.**
-   - Declaración de Nadir → acta del día en `vault/meta/actas/` (`plantilla-acta-de-sesion`), con el
-     siguiente `C-NN` libre. Literal, no interpretada.
+   - Declaración de Nadir o de Arthur (las dos son grado C, C-143) → acta del día en `vault/meta/actas/` (`plantilla-acta-de-sesion`), con el
+     siguiente `C-NN` libre y el nombre de quien habló: `- C-NN (Nombre). …`. Literal, no interpretada.
    - Pregunta que quedó sin respuesta → nota `DD-NNN` con la skill `nueva-decision`.
    - Decisión técnica → ADR en `vault/arquitectura/adr/`.
    - Artefacto publicado (lienzo, página) → nota del vault que lo enlaza y dice qué es.

@@ -94,7 +94,7 @@ Coahuila (`legal/NSV-2026-001-v8.pdf:4:Cláusula I`).
 |---|---|---|
 | **A** | Obligación ejecutiva contractual | `NSV-2026-001-v8.pdf:pág:cláusula` o `NSV-2026-001-v8.pdf:pág:ANEXO X, Sección X.Y` |
 | **B** | Hecho verificable en el repo | `ruta/archivo:línea` |
-| **C** | Dato o decisión que Nadir declaró en sesión | `vault/meta/actas/acta-AAAA-MM-DD-<tema>.md:línea` (o el número `C-NN` del acta) |
+| **C** | Dato o decisión que Nadir Hadad Navarrete o Arthur Naranjo declaró en sesión (C-143) | `vault/meta/actas/acta-AAAA-MM-DD-<tema>.md:línea` (o el número `C-NN` del acta) |
 | **D** | Decisión técnica tomada aquí, con ADR | `vault/arquitectura/adr/ADR-000X.md` |
 | **E** | Dato externo buscado por Claude | fuente + fecha de consulta + `SIN VERIFICAR` |
 | **S** | Supuesto | Solo en `vault/riesgos-supuestos/supuestos.md`, con dueño y fecha límite. **Nunca** en prosa como hecho |
@@ -104,7 +104,11 @@ Reglas duras:
 2. Una mención suelta (README, TODO, comentario, nombre de variable) no es evidencia.
 3. **Prohibido inventar el negocio.** Precios, número de lavanderías, márgenes esperados,
    preferencias de usuarios: se preguntan, o se buscan y se etiquetan grado E. No se estiman en silencio.
-4. Un dato grado E no sube a grado C hasta que Nadir lo confirme explícitamente en un acta.
+4. Un dato grado E no sube a grado C hasta que Nadir o Arthur lo confirme explícitamente en un acta.
+   Cada declaración dice quién la hizo. Si contradice una anterior del otro, el acta nombra el `C-NN` que
+   revoca; si no queda claro cuál vale, se abre una `DD-` y ninguna de las dos se aplica hasta resolverla.
+   Lo que el contrato o el método reservan a Nadir sigue siendo solo de Nadir: aprobar envíos a EL CLIENTE,
+   dominio e IMPI, y lo que firme como EL PRESTADOR.
 5. **Dominio e IMPI**: la disponibilidad del dominio y la búsqueda fonética ante el IMPI las verifica
    Nadir. Claude entrega rúbrica y candidatos, nunca un veredicto de disponibilidad.
 6. "No sé / falta X" es una respuesta correcta y esperada. Lo que dependa de una respuesta que no
@@ -166,7 +170,7 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
 | Si el instrumento está sano | `vault/contrato/nota-de-saneamiento.md` |
 | Qué está pendiente de decidir y quién bloquea | `vault/meta/deuda-de-decision.md` y `vault/meta/deuda/` |
 | Cómo trabajamos los dos en el repo | `vault/formas-de-trabajo/colaboracion-en-el-vault.md` |
-| Lo que Nadir declaró (grado C) | `vault/meta/actas/` |
+| Lo que Nadir o Arthur declararon (grado C) | `vault/meta/actas/` |
 | Supuestos y riesgos | `vault/riesgos-supuestos/` |
 | Decisiones técnicas | `vault/arquitectura/adr/` |
 | Convenciones del vault | `vault/meta/convenciones.md` |
