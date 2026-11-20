@@ -13,7 +13,7 @@ en su worktree, y terminan con su trabajo de la integración continua en verde.
 
 ## 2. App
 
-- [ ] 2.1 base-E04, base-E05, base-E06, base-E07 y base-E09: crear `movil/` con Expo SDK 58 en TypeScript, con
+- [x] 2.1 base-E04, base-E05, base-E06, base-E07 y base-E09: crear `movil/` con Expo SDK 58 en TypeScript, con
   development build, Jest, `jest-expo` y React Native Testing Library; mínimos iOS 18 y Android 11; dirección de la API,
   identificador de la app y nombre desde configuración — test: `movil/__tests__/base/arranque.test.tsx` y
   `movil/__tests__/base/configuracion.test.ts` — tamaño S
