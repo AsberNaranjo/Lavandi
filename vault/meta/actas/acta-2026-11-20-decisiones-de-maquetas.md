@@ -31,6 +31,9 @@ Continúa la numeración de [[acta-2026-11-05-resultados-de-la-recalibracion]], 
 - C-140. Sobre C-54 a C-62 transcritas en dos actas del 2026-09-12: "La más reciente es la correcta." Por la
   hora de su commit, la más reciente es `acta-2026-09-12-marca-visual` (00:33, contra 00:00 de
   `acta-2026-09-12-paleta-y-logotipo`).
+- C-142. "Haz el 1 y el 2, esto debe de formar parte de claude.md para que el vault se mantenga actualizado y
+  no dependa de un humano para ejecutar el skill." El 1 es una guía de arranque para la otra persona; el 2,
+  el instrumental de Claude (skills, subagente revisor, hook de cierre y permisos).
 - C-141. Sobre el estado «enviada» que no está en las convenciones: "De acuerdo." Se lee como acuerdo con
   normalizarlo: la nota queda `vigente` y el envío va en su campo `enviada`.
 
@@ -48,6 +51,7 @@ Continúa la numeración de [[acta-2026-11-05-resultados-de-la-recalibracion]], 
 | 8 | Todo desarrollo y decisión se guarda en el repo en la misma sesión, y Claude administra el vault (C-139) | Nadir | `CLAUDE.md` §0-bis |
 | 9 | Vale la transcripción de C-54 a C-62 de `acta-2026-09-12-marca-visual`; la otra queda tachada (C-140) | Nadir | `acta-2026-09-12-paleta-y-logotipo` |
 | 10 | «Enviada» no es estado: campo `enviada` (C-141) | Nadir | `meta/convenciones.md` |
+| 11 | Guía de arranque y primer instrumental de la Fase 8: skills `cerrar-sesion`, `nueva-decision` y `nueva-spec`, subagente `revisor-de-evidencia`, hook de cierre que devuelve el turno si el vault quedó sin guardar o con errores, y prohibición de editar `legal/`. Todo en `CLAUDE.md` §0-bis para que no dependa de un humano (C-142) | Nadir | `formas-de-trabajo/guia-de-arranque.md`, `.claude/` |
 
 ## Lo que estas declaraciones no resuelven
 
@@ -58,6 +62,7 @@ Continúa la numeración de [[acta-2026-11-05-resultados-de-la-recalibracion]], 
 | 3 | Si se cobra el estimado, ¿qué pasa cuando el peso real difiere: cobro adicional, reembolso, tolerancia? | Texto de "Revisa y paga"; reembolsos | DD-069 |
 | 4 | Proveedores de pago en efectivo vigentes (C-134) | F-A10 efectivo | DD-056, sigue abierta |
 | 5 | ~~Resuelta por C-140 y C-141.~~ Al crear el validador aparecieron dos errores que ya existían: las actas `acta-2026-09-12-marca-visual` y `acta-2026-09-12-paleta-y-logotipo` transcriben C-54 a C-62 dos veces con redacción distinta, y una comunicación al cliente usa el estado «enviada». ¿Cuál acta es la fuente? | Citas a C-54 a C-62 | Anotado en `herramientas/validar-vault/excepciones.txt` |
+| 6 | Reparto de áreas entre las dos personas | Guía de arranque, sección "Quién lleva qué" | — |
 
 ## Nota sobre ADR-0001
 

@@ -14,7 +14,9 @@ toca: CLAUDE.md, meta/, formas-de-trabajo/, plantillas/, .claude/, herramientas/
 trabajar dos personas con Claude Code ([[colaboracion-en-el-vault]]), C-137 a C-141.
 
 **Toca.** `CLAUDE.md`, `vault/meta/`, `vault/formas-de-trabajo/`, `vault/plantillas/`, `.claude/`,
-`herramientas/validar-vault/`, `.github/workflows/`.
+`herramientas/validar-vault/`, `.github/workflows/`, `.claude/skills/`, `.claude/agents/`.
 
-**Al terminar.** Pull request de la rama `claude/dazzling-gates-53oar8`. Bloqueado: el push desde la
-sesión en la nube da 403; se sube con el parche desde una copia local.
+**Hecho.** PR [nhadadn/Lavandi#1](https://github.com/nhadadn/Lavandi/pull/1): maquetas, reglas de colaboración,
+guía de arranque e instrumental de Claude (C-132 a C-142).
+
+**Al terminar.** Se marca `terminada` cuando se una el PR.

@@ -99,7 +99,12 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Formas de trabajo (Fase 7)
 
-- pendiente
+- [[guia-de-arranque]] — **para quien llega**: cómo trabajamos, qué hace Claude solo y qué se le puede pedir
+- [[colaboracion-en-el-vault]] — dos personas con Claude Code: ramas, pull requests, qué no edita un agente, cómo se evitan los choques y qué valida la CI
+- Trabajo en curso: `meta/trabajo/`, una nota por tarea; el hook de inicio de sesión la lista
+- Decisiones pendientes nuevas: `meta/deuda/`, una nota por decisión
+- Instrumental de Claude (Fase 8, primera parte): `.claude/` — hooks de inicio y cierre, skills `cerrar-sesion`, `nueva-decision` y `nueva-spec`, subagente `revisor-de-evidencia`
+- pendiente: sprint, definición de listo y de terminado, ciclo openspec + TDD, cadencia con el cliente
 
 ## Riesgos y supuestos
 
@@ -114,5 +119,4 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 
 ## Plantillas
 
-- adr · acta-de-sesion · hipotesis · riesgo · supuesto · spec-openspec · nota-de-decision-de-marca · reporte-semanal-cliente · nota-ejecutiva-cliente
-- Trabajo en curso: `meta/trabajo/`, una nota por tarea; el hook de inicio de sesión la lista
+- adr · acta-de-sesion · hipotesis · riesgo · supuesto · spec-openspec · nota-de-decision-de-marca · reporte-semanal-cliente · nota-ejecutiva-cliente · deuda-de-decision · tarea-en-curso
