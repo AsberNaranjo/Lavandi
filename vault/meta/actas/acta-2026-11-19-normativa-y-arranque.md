@@ -28,6 +28,24 @@ Continúa la numeración de [[acta-2026-11-18-pedidos-de-noche]], que llega hast
   donde estén los specs que se van a hacer por fase, ya sabes, cubriendo lo del contrato, y cuando termines de hacer
   todo, pues hibernas el equipo." Se exploró la cobertura del plan contra el contrato y se propusieron sus 26 cambios
   de OpenSpec; el PDF queda en `notas-locales/`.
+- C-187. **C (Arthur), 21:10.** "De los specs, siento que faltó definir algo en el proceso, que es lo más importante:
+  ¿cómo va a estar la estructura de base de datos? […] Necesito saber cómo va a quedar, cómo se planteó." Pidió verlo
+  antes de que entre a las specs. Respuesta de Claude: el motor está decidido (ADR-0004) y hay reglas en
+  `arquitectura/modelo-multi-plaza.md` y `c3-api.md`, pero **no existe un modelo de datos completo**; cada spec define
+  sus tablas por su lado. Claude presentó una propuesta consolidada para aprobación.
+- C-188. **C (Arthur), 21:10.** Sobre DD-012: "Prácticamente se tiene que pagar antes de que llegue todo lo del
+  proceso: solicitas en base a los precios, hace el peso automático por la aplicación y te va a solicitar el pago. Si
+  no se hace el pago, no se va a proceder a hacer el proceso de recolección; no se va a recolectar si no ha sido
+  pagado." El orden del contrato lo sostiene: resumen con "precio estimado" (#9), pasarela de pago (#10) y
+  confirmación con folio (#11) (`NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3`), y el recorrido "elegir lavandería,
+  agendar recolección, pagar y dar seguimiento" (`NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3`). No consta si la
+  regla viene del cliente.
+- C-189. **C (Arthur), sobre el modelo de datos.** "Recuerda que hay que apegarnos al contrato, nunca hay que salirnos
+  del contrato, pero la base de datos hay que dejarla con la posibilidad y la escalabilidad, es decir, que quede
+  mutable pero bien definida: normalizada, con una buena estructura y con buenas prácticas." Coincide con una
+  obligación grado A: diseñar "bajo criterios de escalabilidad que permitan su expansión a plazas adicionales […] sin
+  necesidad de reescritura del sistema ni de rediseño de la base de datos" (`NSV-2026-001-v8.pdf:4:Cláusula I`).
+  Queda en `arquitectura/adr/ADR-0016-modelo-de-datos.md` y `arquitectura/modelo-de-datos.md`, en borrador.
 
 ## Decisiones tomadas en la sesión
 
@@ -38,6 +56,7 @@ Continúa la numeración de [[acta-2026-11-18-pedidos-de-noche]], que llega hast
 | 3 | Las specs viven en `openspec/`: el cambio en curso en `openspec/changes/<cambio>/` y la spec aceptada en `openspec/specs/<capacidad>/spec.md`. `vault/specs/` deja de usarse | Dejar la fuente en `vault/specs/` con la herramienta solo local, como decía el ciclo del 2026-11-18 | Propuesta de Claude que se desprende de C-183; Arthur la puede corregir | [[ciclo-openspec-tdd]] |
 | 4 | Se proponen de una vez los 26 cambios del plan, de `base-tecnica` a `publicacion`, uno por capacidad, solo con requisitos nuevos (`ADDED`). Todos quedan como propuesta: cada uno se aprueba antes de su sprint | Proponer solo los de H0 y H1 | Arthur (C-186) | `openspec/changes/` |
 | 5 | `design.md` siempre existe, aunque sea breve, porque la herramienta lo pide antes de `tasks.md` | Dejarlo solo para decisiones no triviales, como decía el ciclo | Claude, por la herramienta; Arthur lo puede corregir | `openspec/config.yaml` |
+| 6 | El modelo de datos se define completo antes de implementar, normalizado y extensible, sin construir lo que el contrato no pide | Que cada spec defina sus tablas por su lado, como quedó el 2026-11-19 | Arthur (C-187, C-189) | [[ADR-0016-modelo-de-datos]] |
 
 **Lo que implica la decisión 3.** OpenSpec solo lee `openspec/`, así que la spec sale del vault: Obsidian y el espejo
 de Notion ya no la ven. Las palabras clave de la herramienta se quedan en inglés porque su validador las exige

@@ -57,7 +57,7 @@ No hay decisión nueva tomada aquí; lo sostienen ADR-0003, ADR-0004 y ADR-0005:
 
 ## Open Questions
 
-- **Necesita ADR: el mecanismo del componente** (propuesta: ADR-0016, autorización). Opciones:
+- **Necesita ADR: el mecanismo del componente** (propuesta: ADR-0017, autorización; el ADR-0016 es el modelo de datos). Opciones:
   - (a) las Policies y Gates de Laravel por recurso, más ámbitos de consulta que filtran por tenencia y plaza;
   - (b) solo Policies, comprobadas en cada controlador;
   - (c) un servicio propio.
