@@ -50,6 +50,13 @@ Continúa la numeración de [[acta-2026-11-18-pedidos-de-noche]], que llega hast
   AI, que son el Id que sale, deben tener siempre esta nomenclatura: id_(nombre de la tabla). Se separan por _ los que
   serían espacios. Ejemplo: Id_Categorias_Especial, algo así es un ejemplo." Se aplica en minúsculas
   (`id_pedidos`, `id_tipos_servicio`) y la llave foránea toma el nombre de la llave a la que apunta (decisión 7).
+- C-191. **C (Nadir, transmitido por Arthur), sobre cambiar Conekta (DD-079).** "Es un cambio menor, inclusive se le
+  comentó que eso cambiaría; solo hay que hacer un aviso oficial al cliente para que quede pactado el cambio." Lo que
+  pide el contrato para que valga: "Cualquier cambio al alcance deberá formalizarse mediante Orden de Cambio firmada
+  por ambas partes" (`NSV-2026-001-v8.pdf:8:Cláusula IV`); "Toda modificación deberá constar por escrito y estar
+  firmada por ambas partes", y el contrato deja sin efecto "cualquier […] acuerdo previo, verbal o escrito"
+  (`NSV-2026-001-v8.pdf:12:Cláusula XIV`). El aviso sirve si el cliente lo firma: una Orden de Cambio de una hoja, sin
+  costo ni cambio de plazo. No consta qué pasarela reemplaza a Conekta.
 
 ## Decisiones tomadas en la sesión
 
@@ -75,4 +82,4 @@ Ninguna nueva. La normativa vuelve más urgente la fila que ya estaba abierta:
 
 | # | Pregunta | Bloquea | Fila en `deuda-de-decision.md` |
 |---|---|---|---|
-| 1 | ¿Quién decidió descartar Conekta y el cliente firma la Orden de Cambio? Sin ella, la normativa deja Conekta | La spec de pago | DD-079 |
+| 1 | ¿Quién decidió descartar Conekta y el cliente firma la Orden de Cambio? Sin ella, la normativa deja Conekta. Nadir lo ve como cambio menor que se pacta con un aviso oficial (C-191); falta elegir la pasarela que lo reemplaza y que el cliente firme | La spec de pago | DD-079 |
