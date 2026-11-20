@@ -36,8 +36,22 @@ Nadir lo pidió el 2026-11-20 (C-139). Es regla para cualquier sesión, de cualq
   4. corre `python herramientas/validar-vault/validar.py` y no termina con errores nuevos;
   5. hace commit y push en una rama, y avisa si el push falló;
   6. al terminar, marca su tarea `terminada` con el enlace al pull request.
-- El hook `.claude/hooks/session-start.sh` corre al iniciar cada sesión: trae lo último de origin si se
-  puede sin riesgo, avisa si `main` avanzó, lista las tareas en curso y valida el vault.
+- **No depende de que un humano lo pida (C-142).** Los pasos 1 a 6 los ejecuta la skill `cerrar-sesion`,
+  que Claude invoca solo al terminar cualquier trabajo que haya cambiado el repo o tomado una decisión.
+  Si no lo hace, el hook de cierre se lo devuelve.
+- **El instrumental que lo hace cumplir**, en `.claude/`:
+
+  | Pieza | Cuándo corre | Qué hace |
+  |---|---|---|
+  | `hooks/session-start.sh` | Al iniciar o reanudar | Trae lo último de origin si se puede sin riesgo, avisa si `main` avanzó, lista tareas en curso, valida |
+  | `hooks/stop-vault.sh` | Al terminar cada turno | Si el vault tiene cambios sin commit o no valida, devuelve el turno para ejecutar `cerrar-sesion` |
+  | skill `cerrar-sesion` | Al terminar, sola | Pasos 1 a 6 de arriba |
+  | skill `nueva-decision` | Cuando algo queda sin respuesta | Nota `DD-NNN` con el siguiente número libre |
+  | skill `nueva-spec` | Cuando se especifica una función | Spec en `vault/specs/` con su cita del contrato |
+  | subagente `revisor-de-evidencia` | Antes de abrir un PR que toque `vault/`, y al revisar el de la otra persona | Afirmaciones sin grado ni cita, datos inventados, decisiones presentadas como contrato |
+  | `settings.json` | Siempre | Registra los hooks; prohíbe editar `legal/` |
+
+- Guía para quien llega: `vault/formas-de-trabajo/guia-de-arranque.md`.
 - La estructura del vault (carpetas, plantillas, `vault/.obsidian/`, la validación) la propone y mantiene
   Claude. Un cambio de estructura entra por pull request como cualquier otro.
 
