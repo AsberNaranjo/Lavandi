@@ -27,16 +27,21 @@ Esta acta empieza en C-214.
   favor de qué pasarela.
 - C-217 (Nadir Hadad Navarrete). Sobre el cierre del cimiento (Fases 6, 7 y 8): pregunta cuáles son. No lo
   confirma todavía.
+- C-218 (Nadir Hadad Navarrete). Después de ver qué cerró Arthur en cada fase (6 stack, 7 formas de trabajo,
+  8 instrumental de Claude): "Sí, confirmo las fases." Con esto el cierre del cimiento del 2026-11-18 tiene
+  respaldo de Nadir, con los pendientes que cada fase dejó abiertos (ADR-0014, DD-069, DD-070, DD-074, DD-127).
+  Pide además publicar la revisión de evidencia como comentario en el PR #2.
 
 ## Decisiones tomadas en la sesión
 | # | Decisión | Quién decide | Nota resultante |
 |---|---|---|---|
 | 1 | Lo que Arthur declare es grado C en todo, no solo en lo técnico (C-214). Corrige `CLAUDE.md` §3 y la regla 4 del PR #2 | Nadir | Al portar C-211 |
 | 2 | El traspaso queda confirmado por Nadir (C-215). Cierra DD-067 de la línea de Arthur con declaración de Nadir | Nadir | `acta-2026-11-12-traspaso-del-proyecto` |
+| 4 | Las Fases 6, 7 y 8 quedan confirmadas por Nadir (C-218); el cimiento cerrado el 2026-11-18 deja de descansar solo en Arthur | Nadir | `acta-2026-11-18-fase-8-instrumental` |
 | 3 | El cliente dio un OK expreso a sustituir Conekta; la firma sigue pendiente (C-216) | Nadir | DD-079 |
 
 ## Lo que estas declaraciones no resuelven
 | # | Pregunta | Bloquea | Fila |
 |---|---|---|---|
 | 1 | **El OK expreso no reemplaza la firma.** Por las Cláusulas IV y XIV, modificar el contrato exige acuerdo firmado por las dos partes. Mientras no se firme, Conekta sigue siendo la obligación grado A (`CLAUDE.md` §2-bis.3) y desarrollar contra otra pasarela es un riesgo que asume Nadir. ¿Por qué medio llegó el OK y para qué pasarela? Si fue por escrito (correo, WhatsApp), conviene archivarlo en `cliente/recibido/` | Integración de pagos (tareas 3.1 a 3.3 del cambio `pago`) | DD-079 |
-| 2 | ¿Se confirma el cierre de las Fases 6, 7 y 8? | Que el código de producto tenga respaldo de Nadir | C-217 |
+| 2 | ~~¿Se confirma el cierre de las Fases 6, 7 y 8?~~ Resuelta por C-218 | — | C-218 |
