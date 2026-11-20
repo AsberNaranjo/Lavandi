@@ -26,6 +26,13 @@ Continúa la numeración de [[acta-2026-11-05-resultados-de-la-recalibracion]], 
   agentica", y pidió mantener la documentación y las specs actualizadas y organizadas desde el comienzo con
   Obsidian.
 - C-138. "Quita el espejo a Notion."
+- C-139. "Lo que es necesario es que se instruya que cualquier desarrollo, decisión, etc. se guarde en el vault
+  y tú administres Obsidian en el proyecto. Todo debe de estar en el repo para estar sincronizados."
+- C-140. Sobre C-54 a C-62 transcritas en dos actas del 2026-09-12: "La más reciente es la correcta." Por la
+  hora de su commit, la más reciente es `acta-2026-09-12-marca-visual` (00:33, contra 00:00 de
+  `acta-2026-09-12-paleta-y-logotipo`).
+- C-141. Sobre el estado «enviada» que no está en las convenciones: "De acuerdo." Se lee como acuerdo con
+  normalizarlo: la nota queda `vigente` y el envío va en su campo `enviada`.
 
 ## Decisiones tomadas en la sesión
 | # | Decisión | Quién decide | Nota resultante |
@@ -38,6 +45,9 @@ Continúa la numeración de [[acta-2026-11-05-resultados-de-la-recalibracion]], 
 
 | 6 | Sin espejo a Notion: el repo es la única copia del vault (C-138). Revoca la regla de C-28 y la fila DD-005 | Nadir | `meta/convenciones.md`, `CLAUDE.md` §4 |
 | 7 | Forma de trabajo entre dos personas con Claude Code (C-137): rama y pull request para todo, una nota por decisión pendiente, configuración compartida de Obsidian y validación del vault en la CI | Nadir acepta la propuesta de Claude | `formas-de-trabajo/colaboracion-en-el-vault.md` |
+| 8 | Todo desarrollo y decisión se guarda en el repo en la misma sesión, y Claude administra el vault (C-139) | Nadir | `CLAUDE.md` §0-bis |
+| 9 | Vale la transcripción de C-54 a C-62 de `acta-2026-09-12-marca-visual`; la otra queda tachada (C-140) | Nadir | `acta-2026-09-12-paleta-y-logotipo` |
+| 10 | «Enviada» no es estado: campo `enviada` (C-141) | Nadir | `meta/convenciones.md` |
 
 ## Lo que estas declaraciones no resuelven
 
@@ -47,7 +57,7 @@ Continúa la numeración de [[acta-2026-11-05-resultados-de-la-recalibracion]], 
 | 2 | El tabulador de pesos por prenda no existe (C-131 ya decía que no hay precios). ¿Quién lo arma y con qué prendas? | El estimado de F-A09; el cobro | DD-068 |
 | 3 | Si se cobra el estimado, ¿qué pasa cuando el peso real difiere: cobro adicional, reembolso, tolerancia? | Texto de "Revisa y paga"; reembolsos | DD-069 |
 | 4 | Proveedores de pago en efectivo vigentes (C-134) | F-A10 efectivo | DD-056, sigue abierta |
-| 5 | Al crear el validador aparecieron dos errores que ya existían: las actas `acta-2026-09-12-marca-visual` y `acta-2026-09-12-paleta-y-logotipo` transcriben C-54 a C-62 dos veces con redacción distinta, y una comunicación al cliente usa el estado «enviada». ¿Cuál acta es la fuente? | Citas a C-54 a C-62 | Anotado en `herramientas/validar-vault/excepciones.txt` |
+| 5 | ~~Resuelta por C-140 y C-141.~~ Al crear el validador aparecieron dos errores que ya existían: las actas `acta-2026-09-12-marca-visual` y `acta-2026-09-12-paleta-y-logotipo` transcriben C-54 a C-62 dos veces con redacción distinta, y una comunicación al cliente usa el estado «enviada». ¿Cuál acta es la fuente? | Citas a C-54 a C-62 | Anotado en `herramientas/validar-vault/excepciones.txt` |
 
 ## Nota sobre ADR-0001
 

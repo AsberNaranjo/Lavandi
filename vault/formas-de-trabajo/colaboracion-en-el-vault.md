@@ -19,6 +19,12 @@ definición de terminado, el sprint y la cadencia con el cliente van en sus prop
 - **No hay espejo a Notion** (C-138). El repo es la única copia. Lo que haya hoy en Notion queda como
   histórico y no se actualiza.
 
+## Todo queda en el repo (C-139)
+
+Cualquier desarrollo, decisión o respuesta se guarda en el vault en la misma sesión en que ocurre, y
+Claude administra el vault: archiva, indexa, enlaza, cierra la deuda respondida, valida y hace commit. La
+lista completa está en `CLAUDE.md` §0-bis. Lo que no está en el repo, la otra persona no lo ve.
+
 ## Abrir el vault
 
 1. Clonar el repo.
