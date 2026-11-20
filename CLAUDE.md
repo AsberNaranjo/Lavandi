@@ -28,11 +28,16 @@ Nadir lo pidió el 2026-11-20 (C-139). Es regla para cualquier sesión, de cualq
 - Un artefacto publicado (lienzo, tablero, sala) no sustituye al vault: la nota que lo explica y enlaza va
   en el vault.
 - **Claude administra el vault de Obsidian.** En cada sesión, sin que se le pida:
+  0. al empezar, lee las tareas `en-curso` de `vault/meta/trabajo/` y abre la suya con
+     `plantilla-tarea-en-curso`; si otra toca las mismas notas, lo dice antes de escribir;
   1. archiva lo que se decidió (acta, ADR, spec o nota de deuda) con frontmatter y grado;
   2. actualiza `vault/meta/indice.md` y los enlaces `[[nota]]` de lo que creó o movió;
   3. cierra o actualiza la deuda de decisión que la sesión respondió;
   4. corre `python herramientas/validar-vault/validar.py` y no termina con errores nuevos;
-  5. hace commit y push en una rama, y avisa si el push falló.
+  5. hace commit y push en una rama, y avisa si el push falló;
+  6. al terminar, marca su tarea `terminada` con el enlace al pull request.
+- El hook `.claude/hooks/session-start.sh` corre al iniciar cada sesión: trae lo último de origin si se
+  puede sin riesgo, avisa si `main` avanzó, lista las tareas en curso y valida el vault.
 - La estructura del vault (carpetas, plantillas, `vault/.obsidian/`, la validación) la propone y mantiene
   Claude. Un cambio de estructura entra por pull request como cualquier otro.
 
