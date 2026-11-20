@@ -69,7 +69,7 @@ def main():
             if pathlib.PurePosixPath(destino).stem not in nombres:
                 errores.append(f"{rel}: enlace roto [[{destino}]]")
         for n, linea in enumerate(texto.splitlines(), 1):
-            m = re.match(r"^- (C-\d+)\.", linea)
+            m = re.match(r"^- (C-\d+)(?:\.| \()", linea)
             if m and "actas" in p.parts:
                 definiciones[m.group(1)].append(f"{rel}:{n}")
             m = re.match(r"^\|\s*(DD-\d+)\s*\|", linea)

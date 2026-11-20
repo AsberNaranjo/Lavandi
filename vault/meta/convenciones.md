@@ -71,7 +71,7 @@ Ver `CLAUDE.md`, sección 3. Formatos de cita:
 | `BR-NN` | Fila de brecha ejecutivo→técnico | `contrato/brecha-ejecutivo-tecnico.md` |
 | `RN-NN` | Restricción no negociable | `contrato/restricciones-no-negociables.md` |
 | `DD-NNN` | Deuda de decisión | `meta/deuda-de-decision.md` hasta DD-069; desde el 2026-11-20, una nota por decisión en `meta/deuda/` |
-| `C-NN` | Declaración de Nadir | acta correspondiente |
+| `C-NN` | Declaración de Nadir Hadad Navarrete o de Arthur Naranjo (C-143). Una sola serie para los dos; desde C-143 cada renglón dice quién: `- C-NN (Nombre). …` | acta correspondiente |
 | `ADR-000X` | Decisión técnica | `arquitectura/adr/` |
 | `H-00X` | Hipótesis | `negocio/hipotesis-criticas.md` |
 | `R-00X` | Riesgo | `riesgos-supuestos/riesgos.md` |
@@ -101,5 +101,8 @@ validación con `herramientas/validar-vault/validar.py`. Reglas completas en
 `main`, protegida: todo entra por pull request. Un commit por fase cerrada (`Fase N: …`); trabajo intermedio `wip(fase-N): …`. Ramas, revisión y choques: `formas-de-trabajo/colaboracion-en-el-vault.md`.
 
 ## Actas
-Toda sesión con Nadir produce un acta en `meta/actas/acta-AAAA-MM-DD-<tema>.md`. Lo que Nadir dice
-es grado C solo si está en un acta. Un dato E confirmado por Nadir se registra en la tabla final del acta.
+Toda sesión con Nadir o con Arthur Naranjo produce un acta en `meta/actas/acta-AAAA-MM-DD-<tema>.md`. Lo
+que cualquiera de los dos dice es grado C solo si está en un acta, con su nombre en el renglón (C-143). Un
+dato E confirmado por uno de ellos se registra en la tabla final del acta. Si dos actas del mismo día
+chocan en número, la segunda en unirse se renumera. Una declaración que contradice otra anterior nombra el
+`C-NN` que revoca; si no está claro cuál vale, se abre una `DD-`.
