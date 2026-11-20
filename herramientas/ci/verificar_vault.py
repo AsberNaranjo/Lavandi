@@ -17,6 +17,8 @@ import sys
 RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 VAULT = os.path.join(RAIZ, 'vault')
 CLAVES = ('estado', 'grado', 'fuente', 'fecha', 'dueño')
+# Notas de carpeta que explican el contenido, sin valor de evidencia; igual que en herramientas/validar-vault/validar.py.
+EXENTAS = {'README.md'}
 ESTADOS = ('borrador', 'vigente', 'superseded')
 
 
@@ -39,7 +41,7 @@ def main():
     for carpeta, subcarpetas, archivos in os.walk(VAULT):
         subcarpetas[:] = [s for s in subcarpetas if not s.startswith('.')]
         for nombre in sorted(archivos):
-            if not nombre.endswith('.md'):
+            if not nombre.endswith('.md') or nombre in EXENTAS:
                 continue
             ruta = os.path.join(carpeta, nombre)
             rel = os.path.relpath(ruta, RAIZ).replace(os.sep, '/')

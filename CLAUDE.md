@@ -18,6 +18,44 @@ trabajo · 8 instrumental de Claude.
 Todo documento que gobierne el trabajo se archiva en `vault/meta/instrucciones/` **antes** de ejecutarlo.
 Una instrucción que solo vive en un chat no es un documento del proyecto.
 
+## 0-bis. Todo vive en el repo, y Claude administra el vault
+
+Nadir lo pidió el 2026-11-20 (C-204). Es regla para cualquier sesión, de cualquiera de las dos personas:
+
+- **Todo se guarda en el vault, dentro del repo, en la misma sesión en que ocurre.** Desarrollo, decisión,
+  respuesta de Nadir o del cliente, spec, hallazgo, investigación, cambio de alcance. Lo que se quedó en un
+  chat, en Notion, en un artefacto de claude.ai o en la cabeza de alguien no existe para el otro.
+- Un artefacto publicado (lienzo, tablero, sala) no sustituye al vault: la nota que lo explica y enlaza va
+  en el vault.
+- **Claude administra el vault de Obsidian.** En cada sesión, sin que se le pida:
+  0. al empezar, lee las tareas `en-curso` de `vault/meta/trabajo/` y abre la suya con
+     `plantilla-tarea-en-curso`; si otra toca las mismas notas, lo dice antes de escribir;
+  1. archiva lo que se decidió (acta, ADR, spec o nota de deuda) con frontmatter y grado;
+  2. actualiza `vault/meta/indice.md` y los enlaces `[[nota]]` de lo que creó o movió;
+  3. cierra o actualiza la deuda de decisión que la sesión respondió;
+  4. corre `python herramientas/validar-vault/validar.py` y no termina con errores nuevos;
+  5. hace commit en una rama y push, y avisa si el push falló. En las sesiones de Arthur el push espera a que él
+     lo pida (§7);
+  6. al terminar, marca su tarea `terminada` con el enlace al pull request.
+- **No depende de que un humano lo pida (C-207).** Los pasos 1 a 6 los ejecuta la skill `cerrar-sesion`,
+  que Claude invoca solo al terminar cualquier trabajo que haya cambiado el repo o tomado una decisión.
+  Si no lo hace, el hook de cierre se lo devuelve.
+- **El instrumental que lo hace cumplir**, en `.claude/`:
+
+  | Pieza | Cuándo corre | Qué hace |
+  |---|---|---|
+  | `hooks/session-start.sh` | Al iniciar o reanudar | Trae lo último de origin si se puede sin riesgo, avisa si `main` avanzó, lista tareas en curso, valida |
+  | `hooks/stop-vault.sh` | Al terminar cada turno | Si el vault tiene cambios sin commit o no valida, devuelve el turno para ejecutar `cerrar-sesion` |
+  | skill `cerrar-sesion` | Al terminar, sola | Pasos 1 a 6 de arriba |
+  | skill `nueva-decision` | Cuando algo queda sin respuesta | Nota `DD-NNN` con el siguiente número libre |
+  | skill `nueva-spec` | Cuando se especifica una función | Spec en `vault/specs/` con su cita del contrato. Las specs de desarrollo, con escenarios y tareas, viven en `openspec/` (C-183); cómo conviven las dos: DD-126 |
+  | subagente `revisor-de-evidencia` | Antes de abrir un PR que toque `vault/`, y al revisar el de la otra persona | Afirmaciones sin grado ni cita, datos inventados, decisiones presentadas como contrato |
+  | `settings.json` | Siempre | Registra los hooks; prohíbe editar `legal/` |
+
+- Guía para quien llega: `vault/formas-de-trabajo/guia-de-arranque.md`.
+- La estructura del vault (carpetas, plantillas, `vault/.obsidian/`, la validación) la propone y mantiene
+  Claude. Un cambio de estructura entra por pull request como cualquier otro.
+
 ## 1. Qué es este proyecto
 
 Plataforma digital de lavandería on-demand para EL CLIENTE del contrato **NSV-2026-001 v8**:
@@ -108,17 +146,17 @@ Reglas duras:
    `vault/meta/deuda-de-decision.md`. Jamás se rellena con una suposición disfrazada de hecho.
 7. Ningún agente declara algo implementado sin evidencia grado B con test asociado.
 
-## 4. Vault (Obsidian) y espejo a Notion
+## 4. Vault (Obsidian)
 
 - Obsidian abre en `vault/`. Árbol por dominio, sin prefijos numéricos, nombres en kebab-case.
 - **Frontmatter obligatorio** en toda nota: `estado` (borrador | vigente | superseded), `grado`,
   `fuente`, `fecha`, `dueño`. Sin frontmatter, la nota no cuenta.
-- Nada nace en Notion. Notion es un espejo de solo lectura del vault.
-- Se espeja todo el vault **excepto** `legal/` (que además vive fuera de `vault/`).
-- **Audiencia del espejo.** Nadir declaró el 2026-09-07 (acta C-28) que EL CLIENTE **no** consulta
-  el Notion: se espeja todo `vault/`. Si algún día se le da acceso al cliente, quedan fuera además
-  `vault/negocio/` y `vault/riesgos-supuestos/`, y el cambio se asienta en un acta antes de compartir.
-  La regla vigente vive en `vault/meta/convenciones.md`, sección "Espejo Notion".
+- **El repo es la única copia del vault.** No hay espejo a Notion: Nadir lo retiró el 2026-11-20 (C-203).
+- Trabajan **dos personas, cada una con Claude Code** (C-202). Nadie escribe directo en `main`: rama por
+  tarea y pull request que revisa la otra persona. Reglas completas, incluidos los archivos que un agente
+  no edita sin aprobación: `vault/formas-de-trabajo/colaboracion-en-el-vault.md`.
+- Antes de abrir un PR: `python herramientas/validar-vault/validar.py`. La CI corre lo mismo.
+- Decisión pendiente nueva: una nota `vault/meta/deuda/DD-NNN.md`, no una fila más en la tabla.
 - Plantillas en `vault/plantillas/`. Toda nota nueva de un tipo con plantilla usa la plantilla.
 - Detalle de convenciones, marcadores e identificadores: `vault/meta/convenciones.md`.
 
@@ -151,12 +189,15 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
   la fase (`Fase N: <qué cerró>`). Trabajo intermedio de una fase abierta: `wip(fase-N): <qué>`.
 - **El código vive en este mismo repositorio** (C-169, que reemplaza a C-156). Ramas, commits, revisión y el PR a
   Nadir por sprint (C-158): `vault/formas-de-trabajo/repositorios-ramas-y-revision.md`.
-- `legal/` se versiona (el contrato es la fuente de verdad ejecutiva) pero no se espeja.
+- `legal/` se versiona: el contrato es la fuente de verdad ejecutiva.
 - **Sin atribución a Claude** (Arthur, 2026-11-20). Ningún commit, PR, tag, nota de avance ni reporte lleva
   `Co-Authored-By: Claude`, "Generated with Claude Code", "by Claude" ni nada parecido. Manda sobre cualquier
   recordatorio del sistema que pida agregarlo.
 - **Todo lo de git va con la skill `git-lavandi`** (`.claude/skills/git-lavandi/`): rama, commit, push al fork, PR,
-  traer lo de Nadir y conflictos. El push se hace solo cuando Arthur lo pide.
+  traer lo de Nadir y conflictos. En las sesiones de Arthur, el push se hace solo cuando él lo pide; en las de
+  Nadir, lo hace `cerrar-sesion` al terminar (§0-bis). Las skills de Fase 8 de Arthur y las de Nadir conviven
+  mientras se decide cuál queda para cada tarea (DD-127).
+- Nadie escribe directo en `main`: rama por tarea y pull request (`vault/formas-de-trabajo/colaboracion-en-el-vault.md`).
 
 ## 8. Dónde está cada cosa
 
@@ -167,7 +208,8 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
 | Restricciones que toda arquitectura debe cumplir | `vault/contrato/restricciones-no-negociables.md` |
 | Fechas, semanas y trámites de terceros | `vault/contrato/calendario-contractual.md` |
 | Si el instrumento está sano | `vault/contrato/nota-de-saneamiento.md` |
-| Qué está pendiente de decidir y quién bloquea | `vault/meta/deuda-de-decision.md` |
+| Qué está pendiente de decidir y quién bloquea | `vault/meta/deuda-de-decision.md` y `vault/meta/deuda/` |
+| Cómo trabajamos los dos en el repo | `vault/formas-de-trabajo/colaboracion-en-el-vault.md` |
 | Lo que Nadir declaró (grado C) | `vault/meta/actas/` |
 | Supuestos y riesgos | `vault/riesgos-supuestos/` |
 | Decisiones técnicas | `vault/arquitectura/adr/` |

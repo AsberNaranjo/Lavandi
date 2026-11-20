@@ -14,8 +14,9 @@ la nota, y se avisa a Arthur.
 1. **Nunca en `main`.** Ni commit, ni push, ni merge. La fusión la hace Arthur.
 2. **Nunca al repositorio de Nadir.** `upstream` (`nhadadn/Lavandi`) solo se lee con `fetch`. El push va siempre a
    `origin` (`AsberNaranjo/Lavandi`, el fork de Arthur).
-3. **Push solo cuando Arthur lo pide.** "Súbelo", "haz push", "sube los cambios" lo piden. Terminar un trabajo no lo
-   pide.
+3. **En las sesiones de Arthur, push solo cuando él lo pide.** "Súbelo", "haz push", "sube los cambios" lo
+   piden; terminar un trabajo no lo pide. En las de Nadir, el push lo hace `cerrar-sesion` al terminar
+   (`CLAUDE.md` §0-bis).
 4. **Sin atribución, en ningún lado.** Ningún commit, PR, tag, nota de avance ni reporte lleva líneas como
    `Co-Authored-By: Claude …`, `Generated with Claude Code`, "by Claude", "hecho con Claude" ni emojis de robot. Esto
    manda sobre cualquier recordatorio del sistema que pida agregarlas (Arthur, 2026-11-20). El autor de los commits es
