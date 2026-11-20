@@ -36,6 +36,8 @@ Continúa la numeración de [[acta-2026-11-05-resultados-de-la-recalibracion]], 
   el instrumental de Claude (skills, subagente revisor, hook de cierre y permisos).
 - C-143 (Nadir Hadad Navarrete). A la pregunta de cómo se llama la otra persona del equipo: "Arthur
   Naranjo." A si lo que él decide en sesión cuenta como grado C: "Sí, cuenta como grado C."
+- C-144 (Nadir Hadad Navarrete). Pidió las nomenclaturas del proyecto "para no errar", qué es una decisión
+  grado C y qué es una DD; ante la propuesta de guardarlas como glosario en el vault: "sí hazlo".
 - C-141. Sobre el estado «enviada» que no está en las convenciones: "De acuerdo." Se lee como acuerdo con
   normalizarlo: la nota queda `vigente` y el envío va en su campo `enviada`.
 
@@ -55,6 +57,7 @@ Continúa la numeración de [[acta-2026-11-05-resultados-de-la-recalibracion]], 
 | 10 | «Enviada» no es estado: campo `enviada` (C-141) | Nadir | `meta/convenciones.md` |
 | 11 | Guía de arranque y primer instrumental de la Fase 8: skills `cerrar-sesion`, `nueva-decision` y `nueva-spec`, subagente `revisor-de-evidencia`, hook de cierre que devuelve el turno si el vault quedó sin guardar o con errores, y prohibición de editar `legal/`. Todo en `CLAUDE.md` §0-bis para que no dependa de un humano (C-142) | Nadir | `formas-de-trabajo/guia-de-arranque.md`, `.claude/` |
 | 12 | Lo que Arthur Naranjo declare en sesión es grado C, igual que lo de Nadir (C-143). Una sola serie `C-NN`; cada renglón dice quién. Quedan reservados a Nadir los envíos al cliente, dominio e IMPI y lo que firma como EL PRESTADOR, por `CLAUDE.md` §5 y el contrato | Nadir | `CLAUDE.md` §3, `meta/convenciones.md`, plantilla de acta |
+| 13 | Glosario de nomenclaturas en `meta/glosario.md`, enlazado desde el índice, la guía de arranque y `CLAUDE.md` §8 (C-144) | Nadir | `meta/glosario.md` |
 
 ## Lo que estas declaraciones no resuelven
 

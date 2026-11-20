@@ -74,4 +74,5 @@ Propuesta 5. Lo decide Nadir y se anota aquí.
 | Quién está en qué | `vault/meta/trabajo/` |
 | Qué pide el contrato, función por función | `vault/contrato/inventario-funcional.md` |
 | Las maquetas | El lienzo "Lavandi" en claude.ai; [[encargo-revision-ux-y-maquetas-modulo-a]] lo explica |
+| Qué significa C, DD, BR, F-A09… | [[glosario]] |
 | El mapa de todo | [[indice]] |

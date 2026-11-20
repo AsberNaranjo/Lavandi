@@ -15,6 +15,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[arranque-sesion-fase-6]] — el bloque para abrir la sesión de la Fase 6: qué leer, cómo conducir la sala y qué no se negocia (C-105)
 - [[prompt-recuperar-informe-fase1]] — el bloque para buscar en otro equipo el informe de junio y su Excel de lavanderías, y fusionarlo con el listado nuevo (C-113)
 - [[prompt-maestro-01-fundacion-v4]] — `superseded` el 2026-09-25. Se conserva: las citas con número de línea de antes de esa fecha apuntan aquí
+- [[glosario]] — **las nomenclaturas en una página**: grados, C y DD, identificadores, marcadores y estados
 - [[convenciones]] — reglas del vault, grados, marcadores, trabajo entre dos personas
 - [[pase-de-proyecto]] — **para retomar el proyecto en otra computadora**: qué está en GitHub, qué se quedó fuera y por qué, qué instalar, en qué estado quedó el trabajo y qué sigue (2026-11-12)
 - [[estado-del-proyecto]] — **en qué estado está todo**: fases, calendario, obligaciones, pagos, trámites y lo que sigue, con evidencia por fila. Es la fuente del tablero
