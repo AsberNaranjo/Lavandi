@@ -61,6 +61,19 @@ lista completa está en `CLAUDE.md` §0-bis. Lo que no está en el repo, la otra
 | `CLAUDE.md` y `vault/meta/convenciones.md` | Cambian las reglas para los dos |
 | `vault/meta/instrucciones/` | Documentos que gobiernan el trabajo; una versión nueva se archiva al lado |
 
+## Quién está en qué
+
+Cada tarea abre una nota en `vault/meta/trabajo/` (plantilla `plantilla-tarea-en-curso`) con dueño, rama y
+qué notas toca. Al iniciar sesión, el hook `.claude/hooks/session-start.sh` trae lo último de origin, lista
+esas tareas y valida el vault, para que ningún agente trabaje sobre una copia vieja ni duplique trabajo.
+
+Reparto recomendado: por área, no por archivo (por ejemplo, una persona la Fase 6 y la otra las specs del
+Módulo A).
+
+Obsidian no se actualiza solo. Para ver lo que unió la otra persona: `git pull`, o el plugin de la
+comunidad *Obsidian Git* configurado **solo para traer** cambios cada pocos minutos, nunca para hacer
+commit o push automáticos (escribiría directo en `main`).
+
 ## Cómo se evitan los choques
 
 Los choques vienen de dos ramas que tocan el mismo renglón o toman el mismo número. Las reglas:

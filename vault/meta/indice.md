@@ -115,4 +115,4 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 ## Plantillas
 
 - adr · acta-de-sesion · hipotesis · riesgo · supuesto · spec-openspec · nota-de-decision-de-marca · reporte-semanal-cliente · nota-ejecutiva-cliente
-
+- Trabajo en curso: `meta/trabajo/`, una nota por tarea; el hook de inicio de sesión la lista
