@@ -1,0 +1,5 @@
+# Errores que ya existían cuando se creó el validador (2026-11-20). Una línea por error, copiada tal
+# como la imprime validar.py. Esta lista solo se achica: lo que se corrige se borra de aquí, y nada
+# nuevo entra sin acta que lo justifique.
+#
+# Los diez errores iniciales se corrigieron el 2026-11-20 (C-205, C-206). Hoy la lista está vacía.
