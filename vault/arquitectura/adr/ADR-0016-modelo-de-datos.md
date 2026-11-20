@@ -1,7 +1,7 @@
 ---
-estado: borrador
+estado: vigente
 grado: D
-fuente: acta-2026-11-19-normativa-y-arranque.md C-187, C-189 y C-190 (C); NSV-2026-001-v8.pdf:4:Cláusula I y :20:ANEXO A, Sección A.3 (A); ADR-0004 (D)
+fuente: acta-2026-11-19-normativa-y-arranque.md C-187, C-189 y C-190, y acta-2026-11-20-modelo-y-pasarela.md C-192 a C-194 (C); NSV-2026-001-v8.pdf:4:Cláusula I y :20:ANEXO A, Sección A.3 (A); ADR-0004 (D)
 fecha: 2026-11-19
 dueño: Arthur Naranjo
 adr: ADR-0016
@@ -61,16 +61,19 @@ y extensible por filas.** Las reglas que lo hacen así:
 4. Toda tabla de operación lleva `id_plazas`. En las tablas hijas, la llave foránea es compuesta con la plaza, para
    que no pueda diferir de la de su padre.
 5. La llave interna es un `bigint` autoincremental llamado `id_<tabla>`, en minúsculas (`id_pedidos`,
-   `id_tipos_servicio`), y la foránea lleva el nombre de la llave a la que apunta (C-190). Lo que sale por la API usa
-   un ULID público (`public_id`).
+   `id_tipos_servicio`), y la foránea lleva el nombre de la llave a la que apunta (C-190). Todo identificador empieza
+   con `id_` y nunca termina en `_id` (C-194): lo que sale por la API usa un ULID público (`id_publico`), y lo que
+   asigna la pasarela es `id_pasarela_<cosa>` (`id_pasarela_orden`).
 6. Llaves foráneas con índice y `ON DELETE RESTRICT`. Borrado suave en cuentas, socios y direcciones; pedidos, pagos y
    eventos no se borran nunca.
 7. Dinero en `numeric(12,2)`; horas en `timestamptz`; mapas en PostGIS `geography` con índice GiST.
 8. Tablas y columnas en español y en `snake_case`. Las del framework conservan su nombre, y cada modelo declara su
    `$table`.
 9. Migraciones solo hacia adelante, una por cambio de OpenSpec; lo nuevo entra como opcional.
+10. Ninguna tabla ni columna nombra a un proveedor de pagos: `eventos_pasarela`, `id_pasarela_orden`, y una columna
+    `pasarela` donde haga falta saber cuál cobró (C-192). Cambiar de proveedor no toca la base.
 
-**Decisión de Arthur Naranjo**, pendiente de su aprobación. Este ADR queda en `borrador` hasta que la dé.
+**Decisión de Arthur Naranjo**, aprobada el 2026-11-20 (C-193).
 
 ## Consecuencias
 

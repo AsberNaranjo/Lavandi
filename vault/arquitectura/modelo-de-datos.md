@@ -1,7 +1,7 @@
 ---
-estado: borrador
+estado: vigente
 grado: mixto
-fuente: NSV-2026-001-v8.pdf:4:Cláusula I, :16-20:ANEXO A, Sección A.3, :22:A.5 (A); ADR-0004, ADR-0005, ADR-0006, ADR-0010 (D); arquitectura/modelo-multi-plaza.md y c3-api.md (B); las 26 specs de openspec/changes/ (B); acta-2026-11-19-normativa-y-arranque.md C-187 a C-190 (C); diseño de Claude del 2026-11-19
+fuente: NSV-2026-001-v8.pdf:4:Cláusula I, :16-20:ANEXO A, Sección A.3, :22:A.5 (A); ADR-0004, ADR-0005, ADR-0006, ADR-0010 (D); arquitectura/modelo-multi-plaza.md y c3-api.md (B); las 26 specs de openspec/changes/ (B); acta-2026-11-19-normativa-y-arranque.md C-187 a C-190 y acta-2026-11-20-modelo-y-pasarela.md C-192 a C-194 (C); diseño de Claude del 2026-11-19
 fecha: 2026-11-19
 dueño: Arthur Naranjo
 ---
@@ -10,7 +10,7 @@ dueño: Arthur Naranjo
 La estructura completa de la base de datos, antes de escribir la primera migración. Arthur la pidió así: "apegarnos al
 contrato […] pero la base de datos hay que dejarla con la posibilidad y la escalabilidad: que quede mutable pero bien
 definida, normalizada, con una buena estructura y con buenas prácticas" (C-189). La decisión y sus alternativas
-están en [[ADR-0016-modelo-de-datos]]. **Es un borrador:** entra a las specs cuando Arthur lo apruebe.
+están en [[ADR-0016-modelo-de-datos]]. Arthur lo aprobó el 2026-11-20 para entrar a las specs (C-193).
 
 ## Lo que pide el contrato
 
@@ -61,8 +61,12 @@ nueva, nunca un cambio de lo existente:
 **Buenas prácticas.**
 - **Llaves.** La llave primaria es un `bigint` autoincremental que se llama `id_<tabla>`: `id_pedidos`,
   `id_tipos_servicio` (C-190). Va en minúsculas, porque PostgreSQL convierte a minúsculas los nombres sin comillas.
-  Lo que sale por la API se identifica con `public_id`, un ULID: así nadie adivina el pedido o la cuenta de otro
-  cambiando un número (`:20`, separación por tipo de usuario).
+  **Todo identificador empieza con `id_` y nunca termina en `_id`** (C-194). Lo que sale por la API se identifica con
+  `id_publico`, un ULID: así nadie adivina el pedido o la cuenta de otro cambiando un número (`:20`, separación por
+  tipo de usuario). Lo que asigna la pasarela es `id_pasarela_<cosa>`: `id_pasarela_orden`, `id_pasarela_evento`.
+- **Ningún nombre de proveedor de pagos** en tablas ni columnas (C-192): `eventos_pasarela`, `id_pasarela_orden` y una
+  columna `pasarela` donde haga falta saber cuál cobró. La pasarela está abierta entre Stripe y Mercado Pago (DD-079);
+  cambiarla no toca la base.
 - **Llaves foráneas en todas las relaciones,** con su índice. La foránea lleva el mismo nombre que la llave a la que
   apunta: `pedidos.id_usuarios` apunta a `usuarios.id_usuarios`. `ON DELETE RESTRICT` por omisión: el historial no se
   borra en cascada.
@@ -75,7 +79,7 @@ nueva, nunca un cambio de lo existente:
   `float`.
 - **Horas** en `timestamptz`, como instante absoluto. Se muestran en la zona horaria de la plaza.
 - **Mapas** en PostGIS (ADR-0004): puntos y polígonos `geography` con SRID 4326 e índice GiST.
-- **Integridad en la base, no solo en el código:** únicos (correo, folio por plaza, `public_id`) y `CHECK` (estrellas
+- **Integridad en la base, no solo en el código:** únicos (correo, folio por plaza, `id_publico`) y `CHECK` (estrellas
   de 1 a 5, montos y porcentajes en rango, ventana que termina después de empezar).
 - **Nombres:** tablas y columnas en español, en `snake_case`, tablas en plural (`CLAUDE.md` §6). Las tablas del
   framework conservan su nombre (`migrations`, `jobs`, `failed_jobs`, `cache`, `sessions`,
@@ -143,13 +147,13 @@ deuda: no se crea hasta que se responda.
 | `plazas` | `id_plazas`, `nombre`, `zona_horaria`, `activa` | Una plaza nueva es una fila. Abrirla fuera del territorio inicial es Orden de Cambio | `:4:Cláusula I` | `plazas-y-zonas` |
 | `zonas` | `id_zonas`, `id_plazas`, `nombre`, `poligono` (`geography(MultiPolygon)`), `activa` | Índice GiST. Fuente del polígono: DD-094 | `:4:Cláusula I`; `:15:A.2`, sección 7 | `plazas-y-zonas` |
 | `parametros_plaza` | `id_parametros_plaza`, `id_plazas`, `clave`, `valor` (`jsonb`), `vigente_desde`, `vigente_hasta` | Las reglas comerciales que el contrato deja abiertas y cambian con el tiempo: envío (DD-019, DD-025), anticipación y horizonte de la agenda (DD-099), texto de la cancelación (DD-016). Cada `clave` se valida en el código; único `(id_plazas, clave, vigente_desde)` | `:19:Módulo D`; `modelo-multi-plaza.md` | `plazas-y-zonas` |
-| `direcciones` | `id_direcciones`, `public_id`, `id_usuarios`, `id_plazas`, `alias`, `calle`, `numero_exterior`, `numero_interior`, `colonia`, `codigo_postal`, `municipio`, `referencias`, `ubicacion` (`geography(Point)`), `es_favorita`, `deleted_at` | La colonia es obligatoria. La plaza sale de la zona que contiene el punto | `:16:A.3 #8` | `direcciones` |
+| `direcciones` | `id_direcciones`, `id_publico`, `id_usuarios`, `id_plazas`, `alias`, `calle`, `numero_exterior`, `numero_interior`, `colonia`, `codigo_postal`, `municipio`, `referencias`, `ubicacion` (`geography(Point)`), `es_favorita`, `deleted_at` | La colonia es obligatoria. La plaza sale de la zona que contiene el punto | `:16:A.3 #8` | `direcciones` |
 
 ### Cuentas y acceso
 
 | Tabla | Columnas | Reglas | Cita | Nace en |
 |---|---|---|---|---|
-| `usuarios` | `id_usuarios`, `public_id`, `nombre`, `correo`, `password` (opcional si entra con Google o Apple), `telefono`, `foto_ruta`, `estado` (`activo`, `bloqueado`), `bloqueado_en`, `terminos_aceptados_en`, `deleted_at` | Toda cuenta, de cualquier rol. Correo único sin distinguir mayúsculas. La contraseña, con hash. Sin `id_plazas`: la persona no pertenece a una plaza, su dirección sí | `:16:A.3 #2`; `:17:A.3 #15`; `:18:Módulo C #1`; `:19:Módulo D #3`; `:20` | `registro-e-inicio-de-sesion` |
+| `usuarios` | `id_usuarios`, `id_publico`, `nombre`, `correo`, `password` (opcional si entra con Google o Apple), `telefono`, `foto_ruta`, `estado` (`activo`, `bloqueado`), `bloqueado_en`, `terminos_aceptados_en`, `deleted_at` | Toda cuenta, de cualquier rol. Correo único sin distinguir mayúsculas. La contraseña, con hash. Sin `id_plazas`: la persona no pertenece a una plaza, su dirección sí | `:16:A.3 #2`; `:17:A.3 #15`; `:18:Módulo C #1`; `:19:Módulo D #3`; `:20` | `registro-e-inicio-de-sesion` |
 | `rol_usuario` | `id_usuarios`, `id_roles` | Llave compuesta. En la v1, una cuenta tiene un rol (DD-053), y lo impone el código, no la tabla | `:20` | `registro-e-inicio-de-sesion` |
 | `cuentas_externas` | `id_cuentas_externas`, `id_usuarios`, `proveedor` (`google`, `apple`), `sujeto`, `correo` | Único `(proveedor, sujeto)`. Un proveedor nuevo es otra fila, no otra columna | `:16:A.3 #2`; ADR-0005 | `registro-e-inicio-de-sesion` |
 | `dispositivos` | `id_dispositivos`, `id_usuarios`, `token_fcm`, `plataforma` (`ios`, `android`), `ultimo_uso_en` | `token_fcm` único | `:19` (avisos); ADR-0008 | `avisos` |
@@ -159,17 +163,17 @@ deuda: no se crea hasta que se responda.
 
 | Tabla | Columnas | Reglas | Cita | Nace en |
 |---|---|---|---|---|
-| `lavanderias` | `id_lavanderias`, `public_id`, `id_plazas`, `id_usuarios`, `nombre`, `descripcion`, `telefono`, `calle`, `numero`, `colonia`, `codigo_postal`, `ubicacion` (`geography(Point)`), `estado` (`pendiente`, `activa`, `suspendida`, `baja`), `aprobada_en`, `deleted_at` | Único `(id_lavanderias, id_plazas)`, para las llaves compuestas de sus hijas. Índice GiST en `ubicacion` | `:17:Módulo B #1`; `:19:Módulo D #1`; `:16:A.3 #3 y #5` | `perfil-de-lavanderia` (de prueba); `alta-de-lavanderias` (alta real) |
+| `lavanderias` | `id_lavanderias`, `id_publico`, `id_plazas`, `id_usuarios`, `nombre`, `descripcion`, `telefono`, `calle`, `numero`, `colonia`, `codigo_postal`, `ubicacion` (`geography(Point)`), `estado` (`pendiente`, `activa`, `suspendida`, `baja`), `aprobada_en`, `deleted_at` | Único `(id_lavanderias, id_plazas)`, para las llaves compuestas de sus hijas. Índice GiST en `ubicacion` | `:17:Módulo B #1`; `:19:Módulo D #1`; `:16:A.3 #3 y #5` | `perfil-de-lavanderia` (de prueba); `alta-de-lavanderias` (alta real) |
 | `lavanderia_servicios` | `id_lavanderia_servicios`, `id_lavanderias`, `id_plazas`, `id_tipos_servicio`, `id_unidades_medida`, `precio`, `activo` | Único `(id_lavanderias, id_tipos_servicio)`. `precio >= 0`. Quién fija el precio: DD-010 | `:16:A.3 #5 y #6`; `:17:Módulo B #1` | `perfil-de-lavanderia` |
 | `lavanderia_horarios` | `id_lavanderia_horarios`, `id_lavanderias`, `id_plazas`, `dia_semana` (1 a 7), `hora_inicio`, `hora_fin` | `hora_fin > hora_inicio`. El cupo por ventana entra como columna cuando DD-099 diga cuánto; los festivos, con DD-078 | `:17:Módulo B #1 y #6` | `perfil-de-lavanderia` (**hueco de hoy:** ninguna spec la creaba) |
 | `lavanderia_fotos` | `id_lavanderia_fotos`, `id_lavanderias`, `ruta`, `orden` | La foto vive en S3 | `:16:A.3 #5`; `:17:Módulo B #1`; `:20` | `perfil-de-lavanderia` |
-| `repartidores` | `id_repartidores`, `public_id`, `id_plazas`, `id_usuarios`, `tipo_vehiculo`, `estado` (`pendiente`, `activo`, `suspendido`, `baja`), `aprobado_en`, `deleted_at` | Nombre, teléfono, correo y foto viven en `usuarios`. Único `(id_repartidores, id_plazas)`. **No tiene columnas de documentos:** la verificación documental está excluida (`:18`) | `:18:Módulo C #1`; `:19:Módulo D #2` | `repartidor` |
+| `repartidores` | `id_repartidores`, `id_publico`, `id_plazas`, `id_usuarios`, `tipo_vehiculo`, `estado` (`pendiente`, `activo`, `suspendido`, `baja`), `aprobado_en`, `deleted_at` | Nombre, teléfono, correo y foto viven en `usuarios`. Único `(id_repartidores, id_plazas)`. **No tiene columnas de documentos:** la verificación documental está excluida (`:18`) | `:18:Módulo C #1`; `:19:Módulo D #2` | `repartidor` |
 
 ### Pedidos
 
 | Tabla | Columnas | Reglas | Cita | Nace en |
 |---|---|---|---|---|
-| `pedidos` | `id_pedidos`, `public_id`, `id_plazas`, `folio`, `id_usuarios`, `id_lavanderias`, `id_repartidores`, `id_estados_pedido`, `ventana_inicio`, `ventana_fin`, `monto_estimado`, `monto_final`, `envio`, `comision_porcentaje`, `confirmado_en`, `cancelado_en` | Único `(id_plazas, folio)`; formato del folio: DD-101. Llaves compuestas con la plaza hacia `lavanderias` y `repartidores`. `ventana_fin > ventana_inicio`. Con C-188, `confirmado_en` se llena cuando Conekta confirma el pago | `:16:A.3 #7, #9 y #10`; `:17:A.3 #11 y #12` | `resumen-y-confirmacion` |
+| `pedidos` | `id_pedidos`, `id_publico`, `id_plazas`, `folio`, `id_usuarios`, `id_lavanderias`, `id_repartidores`, `id_estados_pedido`, `ventana_inicio`, `ventana_fin`, `monto_estimado`, `monto_final`, `envio`, `comision_porcentaje`, `confirmado_en`, `cancelado_en` | Único `(id_plazas, folio)`; formato del folio: DD-101. Llaves compuestas con la plaza hacia `lavanderias` y `repartidores`. `ventana_fin > ventana_inicio`. Con C-188, `confirmado_en` se llena cuando la pasarela confirma el pago | `:16:A.3 #7, #9 y #10`; `:17:A.3 #11 y #12` | `resumen-y-confirmacion` |
 | `pedido_servicios` | `id_pedido_servicios`, `id_pedidos`, `id_plazas`, `id_tipos_servicio`, `id_unidades_medida`, `cantidad_estimada`, `cantidad_real`, `precio_unitario` | El precio se copia al confirmar. Los subtotales son columnas generadas (`cantidad × precio_unitario`), no se capturan. Uno o varios por pedido: DD-098 | `:16:A.3 #6 y #9` | `resumen-y-confirmacion` |
 | `pedido_direcciones` | `id_pedido_direcciones`, `id_pedidos`, `tipo` (`recoleccion`, `entrega`), `id_direcciones`, las columnas de la dirección y `ubicacion` | La dirección se copia al confirmar; `id_direcciones` guarda de cuál salió. Único `(id_pedidos, tipo)` | `:16:A.3 #8` | `resumen-y-confirmacion` |
 | `pedido_eventos` | `id_pedido_eventos`, `id_pedidos`, `id_plazas`, `id_estados_pedido`, `id_usuarios` (quien hizo el cambio), `motivo`, `ocurrido_en` | Solo se agrega, nunca se edita. Guarda el rechazo de la lavandería con su motivo. Mide los 60 s del A.4.3 y alimenta los indicadores | `:17:A.3 #12`; Módulo B #2 y #3; `:20` ("historial completo"); `:21:A.4.3` | `resumen-y-confirmacion` (base); `estados-del-pedido` |
@@ -181,12 +185,12 @@ deuda: no se crea hasta que se responda.
 
 | Tabla | Columnas | Reglas | Cita | Nace en |
 |---|---|---|---|---|
-| `pagos` | `id_pagos`, `public_id`, `id_pedidos`, `id_plazas`, `tipo` (`cobro`, `ajuste`), `metodo` (`tarjeta`, `efectivo`), `monto`, `estado` (`pendiente`, `pagado`, `vencido`, `fallido`, `cancelado`), `conekta_orden_id`, `referencia_efectivo`, `vence_en`, `pagado_en` | Ningún dato de tarjeta. `conekta_orden_id` único. Un pedido puede tener un cobro y, si DD-012 lo pide, un ajuste | `:16:A.3 #10`; `:19`; `:20` | `pago` |
-| `reembolsos` | `id_reembolsos`, `id_pagos`, `id_plazas`, `monto`, `motivo`, `conekta_reembolso_id`, `estado`, `reembolsado_en` | `monto` no mayor que lo pagado. Cuándo se reembolsa: DD-012, DD-016 y DD-103 | `:16:A.3 #9` (cancelación); `:19:Módulo D #6` | `pago` |
-| `eventos_conekta` | `id_eventos_conekta`, `conekta_evento_id`, `tipo`, `contenido` (`jsonb`), `recibido_en`, `procesado_en`, `error` | `conekta_evento_id` único: un aviso repetido de Conekta no se procesa dos veces | `:19`; ADR-0010 | `pago` |
+| `pagos` | `id_pagos`, `id_publico`, `id_pedidos`, `id_plazas`, `tipo` (`cobro`, `ajuste`), `metodo` (`tarjeta`, `efectivo`), `pasarela`, `monto`, `estado` (`pendiente`, `pagado`, `vencido`, `fallido`, `cancelado`), `id_pasarela_orden`, `referencia_efectivo`, `vence_en`, `pagado_en` | Ningún dato de tarjeta. `pasarela` dice cuál cobró; sus valores, los de DD-079. Único `(pasarela, id_pasarela_orden)`. Un pedido puede tener un cobro y, si DD-012 lo pide, un ajuste | `:16:A.3 #10`; `:19`; `:20` | `pago` |
+| `reembolsos` | `id_reembolsos`, `id_pagos`, `id_plazas`, `monto`, `motivo`, `id_pasarela_reembolso`, `estado`, `reembolsado_en` | `monto` no mayor que lo pagado. La pasarela es la de su pago. Cuándo se reembolsa: DD-012, DD-016 y DD-103 | `:16:A.3 #9` (cancelación); `:19:Módulo D #6` | `pago` |
+| `eventos_pasarela` | `id_eventos_pasarela`, `pasarela`, `id_pasarela_evento`, `tipo`, `contenido` (`jsonb`), `recibido_en`, `procesado_en`, `error` | Único `(pasarela, id_pasarela_evento)`: un aviso repetido no se procesa dos veces | `:19`; ADR-0010 (se reemplaza al elegir la pasarela, DD-079) | `pago` |
 | `comisiones` | `id_comisiones`, `id_plazas`, `id_lavanderias`, `porcentaje`, `vigente_desde`, `vigente_hasta` | `id_lavanderias` vacío es la comisión global de la plaza. Porcentaje de 0 a 100 | `:19:Módulo D #5` | `administracion` |
-| ⛔ `metodos_pago_guardados` | `id_metodos_pago_guardados`, `id_usuarios`, `conekta_cliente_id`, `conekta_fuente_id`, `marca`, `ultimos_4`, `deleted_at` | Solo la referencia de Conekta | `:17:A.3 #15`; `:20` | `perfil-y-soporte`, si DD-055 dice que sí |
-| ⛔ `movimientos_conekta` | Según de dónde salgan los datos | Para la conciliación | `:19:Módulo D #6` | `administracion`, con DD-112 |
+| ⛔ `metodos_pago_guardados` | `id_metodos_pago_guardados`, `id_usuarios`, `pasarela`, `id_pasarela_cliente`, `id_pasarela_fuente`, `marca`, `ultimos_4`, `deleted_at` | Solo la referencia que da la pasarela | `:17:A.3 #15`; `:20` | `perfil-y-soporte`, si DD-055 dice que sí |
+| ⛔ `movimientos_pasarela` | Según de dónde salgan los datos | Para la conciliación | `:19:Módulo D #6` | `administracion`, con DD-112 |
 
 ### Comunicación y soporte
 
@@ -214,5 +218,6 @@ deuda: no se crea hasta que se responda.
 | DD-099 | La columna de cupo en `lavanderia_horarios` |
 | DD-101 | El formato del folio |
 | DD-055 | Si nace `metodos_pago_guardados` |
-| DD-112 | La forma de `movimientos_conekta` |
+| DD-112 | La forma de `movimientos_pasarela` |
+| DD-079 | Los valores de `pasarela`: Stripe o Mercado Pago, cuando el cliente firme el cambio (C-192) |
 | DD-093 y DD-094 | Las filas semilla de `plazas` y `zonas` |
