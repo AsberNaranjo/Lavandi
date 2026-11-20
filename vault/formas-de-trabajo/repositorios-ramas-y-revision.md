@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: mixto
-fuente: acta-2026-11-17-fase-7-formas-de-trabajo.md C-156 y C-158 (C); acta-2026-11-18-entorno-y-mocks.md C-169 (C); NSV-2026-001-v8.pdf:10:Cláusula IX (A); ADR-0013 (D); CLAUDE.md §5, §7 y §9 (B)
+fuente: acta-2026-11-17-fase-7-formas-de-trabajo.md C-156 y C-158 (C); acta-2026-11-18-entorno-y-mocks.md C-169 (C); acta-2026-11-20-modelo-y-pasarela.md C-195 (C); NSV-2026-001-v8.pdf:10:Cláusula IX (A); ADR-0013 (D); CLAUDE.md §5, §7 y §9 (B)
 fecha: 2026-11-18
 dueño: Arthur Naranjo
 ---
@@ -67,7 +67,15 @@ Para el vault se siguió la convención del cimiento mientras duraron las fases 
 `wip(fase-N): …`). Después:
 
 - `vault: <qué cambió>` para el trabajo diario;
+- `openspec: <qué cambió>` para las specs;
 - `Sprint N: <qué cerró>` al cierre de cada sprint.
+
+**Sin atribución.** Ningún commit, pull request ni nota de avance lleva `Co-Authored-By: Claude`, "Generated with
+Claude Code" ni otra firma de la herramienta (Arthur, 2026-11-20). El autor es el que tiene configurado git.
+
+**Cómo se hace en la práctica:** la skill `git-lavandi` (`.claude/skills/git-lavandi/SKILL.md`) lleva el
+procedimiento completo: revisar el estado, la rama, qué entra al commit, las verificaciones, el mensaje, el push al
+fork, la liga del PR, traer lo de Nadir y resolver conflictos.
 
 ## Revisión y cómo llega el trabajo a Nadir
 

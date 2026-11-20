@@ -22,7 +22,8 @@ Atiende el domingo del sprint (`vault/formas-de-trabajo/sprint-y-sesion-diaria.m
    - lo que quedó pendiente;
    - las horas de la semana.
 
-   **El PR lo abre Arthur**, desde el `main` de su fork. Claude no hace push al repositorio de Nadir.
+   **El PR lo abre Arthur**, desde el `main` de su fork. Claude no hace push al repositorio de Nadir. La descripción
+   va sin ninguna atribución a Claude, con el formato de la skill `git-lavandi` (paso 7).
 4. **El reporte semanal.** El `redactor-cliente` hace el borrador para Nadir con la plantilla
    `vault/plantillas/plantilla-reporte-semanal-cliente.md`. Lo aprueba y lo envía Nadir.
 5. **Las horas.** Suma las de `vault/formas-de-trabajo/registro-de-horas.md` y las compara contra las 11 h

@@ -26,7 +26,8 @@ que mañana se pueda arrancar sin reconstruir nada de memoria.
    `python herramientas/tablero/construir_tablero.py`. Si fallan, se corrige antes del commit.
 7. **El commit.**
    - En una rama de trabajo y **nunca en `main`**.
-   - El mensaje sigue `vault/formas-de-trabajo/repositorios-ramas-y-revision.md`.
+   - El mensaje sigue `vault/formas-de-trabajo/repositorios-ramas-y-revision.md`, sin ninguna atribución a Claude.
+   - Se hace con la skill `git-lavandi`.
    - **No se hace push si Arthur no lo pide.**
 8. **Para mañana.** Tres líneas:
    - lo que quedó a medias;

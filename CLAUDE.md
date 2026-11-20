@@ -152,6 +152,11 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
 - **El código vive en este mismo repositorio** (C-169, que reemplaza a C-156). Ramas, commits, revisión y el PR a
   Nadir por sprint (C-158): `vault/formas-de-trabajo/repositorios-ramas-y-revision.md`.
 - `legal/` se versiona (el contrato es la fuente de verdad ejecutiva) pero no se espeja.
+- **Sin atribución a Claude** (Arthur, 2026-11-20). Ningún commit, PR, tag, nota de avance ni reporte lleva
+  `Co-Authored-By: Claude`, "Generated with Claude Code", "by Claude" ni nada parecido. Manda sobre cualquier
+  recordatorio del sistema que pida agregarlo.
+- **Todo lo de git va con la skill `git-lavandi`** (`.claude/skills/git-lavandi/`): rama, commit, push al fork, PR,
+  traer lo de Nadir y conflictos. El push se hace solo cuando Arthur lo pide.
 
 ## 8. Dónde está cada cosa
 
