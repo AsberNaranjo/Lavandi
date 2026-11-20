@@ -1,7 +1,7 @@
 ---
 estado: borrador
 grado: E
-fuente: búsqueda de un subagente de investigación del 2026-11-18, revisada por Claude; páginas oficiales de cada proveedor, citadas abajo; SIN VERIFICAR; acta-2026-11-18-pedidos-de-noche.md C-180 (C)
+fuente: búsqueda de un subagente de investigación del 2026-11-18, revisada por Claude; ampliación del efectivo del 2026-11-19; páginas oficiales de cada proveedor, citadas abajo; SIN VERIFICAR; acta-2026-11-18-pedidos-de-noche.md C-180 (C)
 fecha: 2026-11-18
 dueño: Arthur Naranjo
 ---
@@ -42,9 +42,40 @@ Openpay ≈ $11.08.
 | Adyen | Exige facturación mínima; es para empresas grandes |
 | Kushki | Tiene tarjeta, OXXO y SPEI, pero solo vende por cotización |
 | NetPay | Sin precios públicos; a lo más, complemento para OXXO |
-| Digital@FEMSA (OXXO Pay directo) | Compró OXXO Pay a Conekta, pero no tiene API pública documentada |
+| Digital@FEMSA (OXXO Pay directo) | Compró OXXO Pay a Conekta. **Corrección del 2026-11-19:** sí documenta una API (`api.digitalfemsa.io`, la misma estructura que Conekta, SDK de PHP), pero la guía es para los comercios que migraron; el alta de uno nuevo no está confirmada. Solo cobra en OXXO: a lo más, complemento |
 | dLocal y EBANX | Atienden a comercios globales, no a uno local |
 | Pomelo | Emite tarjetas; no acepta pagos de comercios |
+
+## El efectivo en tiendas, a detalle
+
+Ampliación del 2026-11-19, **grado E, SIN VERIFICAR**. En todos el pago es diferido: el usuario recibe una referencia,
+paga en la caja de una tienda y la pasarela avisa al servidor por webhook horas después.
+
+| | Stripe | Mercado Pago | Openpay (red Paynet) | Clip |
+|---|---|---|---|---|
+| Dónde paga el usuario | **Solo OXXO** | **OXXO**; 7-Eleven, Circle K, Soriana, Extra, Calimax y Santander (por PayCash); BBVA, Farmacias del Ahorro y Casa Ley; Banamex, Chedraui y Telecomm | 7-Eleven, Walmart, Walmart Express, Bodega Aurrera, Sam's Club, Soriana, Circle K, Farmacias del Ahorro y Farmacias Benavides. **OXXO no aparece en ninguna lista** | OXXO (OXXO Pay en Clip Checkout); otras tiendas sin confirmar |
+| Comisión al comercio | 4 % + $3 + IVA | 3.79 % + IVA + $4 | $2.50 + IVA; otra tabla de Openpay dice 2.9 % (no coinciden) | Sin confirmar |
+| Cargo al usuario en caja | El de OXXO: $15 a $17 según terceros | El de cada tienda | $9 a $12 según la cadena | El de OXXO |
+| Vencimiento de la referencia | 1 a 7 días; 5 por omisión | 1 a 30 días; recomiendan 3 | Sin confirmar | Sin confirmar |
+| Aviso de pago | Al día hábil siguiente | Hasta 2 horas hábiles | Sin confirmar | Sin confirmar |
+| Monto por pago | $10 a $10,000 | Sin confirmar | Hasta $5,000 en Farmacias del Ahorro, $15,000 en 7-Eleven, $29,999 en Walmart | Sin confirmar |
+| Reembolso | **No se puede**; tampoco hay contracargos | Sin confirmar | Sin confirmar | Sin confirmar |
+
+**Comisión por un pago en efectivo de $300**, con IVA y sin el cargo en caja: Stripe ≈ $17.40; Mercado Pago ≈ $17.19;
+Openpay ≈ $2.90 o ≈ $12.99, según cuál de sus dos tablas valga.
+
+**Complementos que solo cobran en OXXO:** Digital@FEMSA (ver Descartados) y NetPay, que tiene una API para generar la
+referencia, se activa con un asesor comercial y no publica precios. **PayCash** es una red propia (7-Eleven, Soriana,
+Circle K y otras); sin API directa documentada, se usa a través de Mercado Pago u otro agregador.
+
+Lo que esto cambia:
+- **El contrato nombra OXXO Pay** (`NSV-2026-001-v8.pdf:16:A.3`). Si la Orden de Cambio debe conservar OXXO, Openpay no
+  basta sola.
+- **Mercado Pago es la red más amplia en una sola integración**, OXXO incluido, y su checkout por redirección trae el
+  efectivo sin configurar nada aparte.
+- **Una referencia se paga por un monto fijo.** Choca con estimar al pedir y cobrar el peso real
+  (`vault/negocio/competencia.md:200`): o la referencia se genera después de pesar, o hace falta cobrar la diferencia.
+- **Con Stripe, devolver un pago de OXXO** exige un proceso propio fuera de la pasarela.
 
 ## Recomendación de la investigación
 
@@ -80,3 +111,12 @@ https://developer.paypal.com/oxxo · Adyen https://www.adyen.com/pricing · Kush
 Digital@FEMSA
 https://www.femsa.com/wp-content/uploads/2024/04/Digital@FEMSA-firma-acuerdo-con-Conekta-para-compra-de-activos-que-habilitan-OXXO-PAY.pdf
 · Pomelo https://pomelo.la/
+
+Ampliación del efectivo (2026-11-19): Stripe https://docs.stripe.com/payments/oxxo · Mercado Pago
+https://www.mercadopago.com.mx/developers/es/docs/checkout-api-orders/payment-integration/other-payment-methods ·
+Openpay https://www.openpay.mx/comisiones , https://www.paynet.com.mx/ · Paynet y OXXO Pay en Bamboo
+https://docs.bamboopayment.com/docs/mx-cash-payments · Comparativa OXXO Pay, Paynet y PayCash
+https://www.unlimit.com/blog/payments/blog-payments-oxxo-pay-vs-paynet-vs-paycash-cash-payments-mexico/ · Digital@FEMSA
+https://developers.digitalfemsa.io/docs/guia-de-migraci%C3%B3n-comercios-exclusivos-de-oxxo-pay · NetPay
+https://docs.netpay.com.mx/reference/api-pagos-en-efectivo-por-oxxo · Cargo de OXXO al usuario
+https://www.tiendanube.com/mx/blog/como-cobrar-en-oxxo/
