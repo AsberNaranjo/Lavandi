@@ -143,10 +143,19 @@ Si encuentra algo, se quita. Una cita textual que nombre a Claude como agente de
    Si aparece en commits que **todavía no se suben**, se limpian así:
 
    ```bash
-   git filter-branch -f --msg-filter "sed -E '/^Co-Authored-By: .*(Claude|Anthropic)/Id; /Generated with \[?Claude/Id'" origin/<rama>..HEAD
+   git stash push -- <archivos sin guardar>      # filter-branch no corre con cambios sin guardar
+   FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch -f \
+     --msg-filter "sh .claude/skills/git-lavandi/limpiar-mensaje.sh" origin/<rama>..HEAD
+   git stash pop
+   git diff --stat <hash anterior> HEAD            # vacío: el contenido no cambió, solo los mensajes
    ```
 
-   Esto solo toca commits locales. En commits que ya están en `origin` no se toca nada: se le avisa a Arthur.
+   Esto solo toca commits locales. En commits que ya están en `origin` no se toca nada sin permiso de Arthur.
+
+   **Si Arthur pide limpiar lo ya subido de su fork** (así lo pidió para `arranque/lavandi` el 2026-11-20, C-196):
+   - el rango es `upstream/main..HEAD`, para no tocar nunca lo que ya está en el repositorio de Nadir;
+   - el push es `git push --force-with-lease=<rama>:<hash que tenía origin> origin <rama>`;
+   - se le avisa que cualquier otra copia del repositorio tiene que volver a bajar esa rama.
 3. **El push:**
    - **Rama nueva:** `git push -u origin <rama>`.
    - **Rama que ya existe en `origin`:** `git push origin <rama>`.
