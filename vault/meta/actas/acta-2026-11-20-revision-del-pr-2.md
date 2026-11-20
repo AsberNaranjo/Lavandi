@@ -31,6 +31,8 @@ Esta acta empieza en C-214.
   8 instrumental de Claude): "Sí, confirmo las fases." Con esto el cierre del cimiento del 2026-11-18 tiene
   respaldo de Nadir, con los pendientes que cada fase dejó abiertos (ADR-0014, DD-069, DD-070, DD-074, DD-127).
   Pide además publicar la revisión de evidencia como comentario en el PR #2.
+- C-219 (Nadir Hadad Navarrete). Sobre los dos errores que la revisión encontró en el PR #1 de Nadir (se tocó
+  `legal/README.md` y se tachó un acta ya unida a `main`): "Sí, hazlo, corrige tú."
 
 ## Decisiones tomadas en la sesión
 | # | Decisión | Quién decide | Nota resultante |
@@ -38,6 +40,7 @@ Esta acta empieza en C-214.
 | 1 | Lo que Arthur declare es grado C en todo, no solo en lo técnico (C-214). Corrige `CLAUDE.md` §3 y la regla 4 del PR #2 | Nadir | Al portar C-211 |
 | 2 | El traspaso queda confirmado por Nadir (C-215). Cierra DD-067 de la línea de Arthur con declaración de Nadir | Nadir | `acta-2026-11-12-traspaso-del-proyecto` |
 | 4 | Las Fases 6, 7 y 8 quedan confirmadas por Nadir (C-218); el cimiento cerrado el 2026-11-18 deja de descansar solo en Arthur | Nadir | `acta-2026-11-18-fase-8-instrumental` |
+| 5 | Se revierten los dos errores del PR #1 (C-219): `legal/README.md` vuelve a su texto de `main`, y `acta-2026-09-12-paleta-y-logotipo` vuelve a estar intacta. Que vale la transcripción de C-54 a C-62 de `acta-2026-09-12-marca-visual` (C-140) se registra en `herramientas/validar-vault/excepciones.txt`, no tachando el acta vieja | Nadir | `excepciones.txt` |
 | 3 | El cliente dio un OK expreso a sustituir Conekta; la firma sigue pendiente (C-216) | Nadir | DD-079 |
 
 ## Lo que estas declaraciones no resuelven
