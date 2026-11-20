@@ -1,7 +1,7 @@
 ---
 estado: borrador
 grado: D
-fuente: acta-2026-11-19-normativa-y-arranque.md C-187 y C-189 (C); NSV-2026-001-v8.pdf:4:Cláusula I y :20:ANEXO A, Sección A.3 (A); ADR-0004 (D)
+fuente: acta-2026-11-19-normativa-y-arranque.md C-187, C-189 y C-190 (C); NSV-2026-001-v8.pdf:4:Cláusula I y :20:ANEXO A, Sección A.3 (A); ADR-0004 (D)
 fecha: 2026-11-19
 dueño: Arthur Naranjo
 adr: ADR-0016
@@ -58,9 +58,11 @@ y extensible por filas.** Las reglas que lo hacen así:
 2. Catálogos para los valores que son datos: roles, tipos de servicio, unidades de medida y estados del pedido.
    `CHECK` para los valores técnicos que solo cambian con el código.
 3. Lo que se repite va en filas: servicios, direcciones, pagos, eventos y asignaciones de un pedido.
-4. Toda tabla de operación lleva `plaza_id`. En las tablas hijas, la llave foránea es compuesta con la plaza, para
+4. Toda tabla de operación lleva `id_plazas`. En las tablas hijas, la llave foránea es compuesta con la plaza, para
    que no pueda diferir de la de su padre.
-5. `bigint` como llave interna y ULID público (`public_id`) en lo que sale por la API.
+5. La llave interna es un `bigint` autoincremental llamado `id_<tabla>`, en minúsculas (`id_pedidos`,
+   `id_tipos_servicio`), y la foránea lleva el nombre de la llave a la que apunta (C-190). Lo que sale por la API usa
+   un ULID público (`public_id`).
 6. Llaves foráneas con índice y `ON DELETE RESTRICT`. Borrado suave en cuentas, socios y direcciones; pedidos, pagos y
    eventos no se borran nunca.
 7. Dinero en `numeric(12,2)`; horas en `timestamptz`; mapas en PostGIS `geography` con índice GiST.
@@ -82,7 +84,8 @@ y extensible por filas.** Las reglas que lo hacen así:
   - **Más tablas que un diseño plano** (unas 30). Se mitiga con una migración por cambio y con el diagrama de la nota.
   - **Las llaves compuestas de plaza son menos comunes en Laravel.** Se escriben en la migración, y la prueba de
     esquema de `plazas-y-zonas` las verifica.
-  - **El pluralizador de Laravel es inglés.** Cada modelo declara su `$table`; el revisor lo comprueba.
+  - **El pluralizador de Laravel es inglés, y Eloquent espera `id` y `<singular>_id`.** Cada modelo declara su
+    `$table` y su `$primaryKey`, y cada relación nombra sus llaves; el revisor lo comprueba.
 - **Condiciona:**
   - El `design.md` y el `tasks.md` de cada spec, que nombran las tablas que crean y su migración.
   - La máquina de estados del pedido (DD-123), que fija los estados internos de `estados_pedido`.

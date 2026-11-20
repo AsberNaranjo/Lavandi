@@ -46,6 +46,10 @@ Continúa la numeración de [[acta-2026-11-18-pedidos-de-noche]], que llega hast
   obligación grado A: diseñar "bajo criterios de escalabilidad que permitan su expansión a plazas adicionales […] sin
   necesidad de reescritura del sistema ni de rediseño de la base de datos" (`NSV-2026-001-v8.pdf:4:Cláusula I`).
   Queda en `arquitectura/adr/ADR-0016-modelo-de-datos.md` y `arquitectura/modelo-de-datos.md`, en borrador.
+- C-190. **C (Arthur), sobre el modelo de datos.** "Ojo, hay algo que a mí me gusta: en las tablas, los que son PK
+  AI, que son el Id que sale, deben tener siempre esta nomenclatura: id_(nombre de la tabla). Se separan por _ los que
+  serían espacios. Ejemplo: Id_Categorias_Especial, algo así es un ejemplo." Se aplica en minúsculas
+  (`id_pedidos`, `id_tipos_servicio`) y la llave foránea toma el nombre de la llave a la que apunta (decisión 7).
 
 ## Decisiones tomadas en la sesión
 
@@ -57,6 +61,7 @@ Continúa la numeración de [[acta-2026-11-18-pedidos-de-noche]], que llega hast
 | 4 | Se proponen de una vez los 26 cambios del plan, de `base-tecnica` a `publicacion`, uno por capacidad, solo con requisitos nuevos (`ADDED`). Todos quedan como propuesta: cada uno se aprueba antes de su sprint | Proponer solo los de H0 y H1 | Arthur (C-186) | `openspec/changes/` |
 | 5 | `design.md` siempre existe, aunque sea breve, porque la herramienta lo pide antes de `tasks.md` | Dejarlo solo para decisiones no triviales, como decía el ciclo | Claude, por la herramienta; Arthur lo puede corregir | `openspec/config.yaml` |
 | 6 | El modelo de datos se define completo antes de implementar, normalizado y extensible, sin construir lo que el contrato no pide | Que cada spec defina sus tablas por su lado, como quedó el 2026-11-19 | Arthur (C-187, C-189) | [[ADR-0016-modelo-de-datos]] |
+| 7 | La llave primaria autoincremental de cada tabla se llama `id_<tabla>` (`id_pedidos`, `id_tipos_servicio`). Va en minúsculas, porque PostgreSQL convierte a minúsculas todo nombre sin comillas: `Id_Pedidos` obligaría a escribir `"Id_Pedidos"` con comillas en cada consulta. La llave foránea lleva el mismo nombre que la llave a la que apunta (`pedidos.id_usuarios`), y `evento_id` de Conekta pasa a `conekta_evento_id` para no confundirse con una llave | `id` y `<singular>_id`, lo que espera Laravel y traía el borrador; `Id_<Tabla>` con mayúsculas, como el ejemplo de C-190 | Arthur (C-190) la nomenclatura; las minúsculas y el nombre de las llaves foráneas los propuso Claude, y Arthur los puede corregir | [[ADR-0016-modelo-de-datos]], [[modelo-de-datos]] |
 
 **Lo que implica la decisión 3.** OpenSpec solo lee `openspec/`, así que la spec sale del vault: Obsidian y el espejo
 de Notion ya no la ven. Las palabras clave de la herramienta se quedan en inglés porque su validador las exige
