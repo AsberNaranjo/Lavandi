@@ -174,4 +174,5 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
 | Supuestos y riesgos | `vault/riesgos-supuestos/` |
 | Decisiones técnicas | `vault/arquitectura/adr/` |
 | Convenciones del vault | `vault/meta/convenciones.md` |
+| Qué significa cada sigla y grado | `vault/meta/glosario.md` |
 | Mapa de todo | `vault/meta/indice.md` |
