@@ -42,6 +42,9 @@ dueño: <persona>
 ```
 Una nota `superseded` dice en su primera línea qué nota la reemplaza.
 
+Que algo ya se mandó al cliente no es un estado: la nota queda `vigente` y lleva el campo
+`enviada: AAAA-MM-DD HH:MM, por <medio>, a <quién> (C-NN)` (C-141).
+
 ## Grados y citas
 Ver `CLAUDE.md`, sección 3. Formatos de cita:
 - A: `NSV-2026-001-v8.pdf:4:Cláusula I` · `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3`

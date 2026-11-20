@@ -18,6 +18,24 @@ trabajo · 8 instrumental de Claude.
 Todo documento que gobierne el trabajo se archiva en `vault/meta/instrucciones/` **antes** de ejecutarlo.
 Una instrucción que solo vive en un chat no es un documento del proyecto.
 
+## 0-bis. Todo vive en el repo, y Claude administra el vault
+
+Nadir lo pidió el 2026-11-20 (C-139). Es regla para cualquier sesión, de cualquiera de las dos personas:
+
+- **Todo se guarda en el vault, dentro del repo, en la misma sesión en que ocurre.** Desarrollo, decisión,
+  respuesta de Nadir o del cliente, spec, hallazgo, investigación, cambio de alcance. Lo que se quedó en un
+  chat, en Notion, en un artefacto de claude.ai o en la cabeza de alguien no existe para el otro.
+- Un artefacto publicado (lienzo, tablero, sala) no sustituye al vault: la nota que lo explica y enlaza va
+  en el vault.
+- **Claude administra el vault de Obsidian.** En cada sesión, sin que se le pida:
+  1. archiva lo que se decidió (acta, ADR, spec o nota de deuda) con frontmatter y grado;
+  2. actualiza `vault/meta/indice.md` y los enlaces `[[nota]]` de lo que creó o movió;
+  3. cierra o actualiza la deuda de decisión que la sesión respondió;
+  4. corre `python herramientas/validar-vault/validar.py` y no termina con errores nuevos;
+  5. hace commit y push en una rama, y avisa si el push falló.
+- La estructura del vault (carpetas, plantillas, `vault/.obsidian/`, la validación) la propone y mantiene
+  Claude. Un cambio de estructura entra por pull request como cualquier otro.
+
 ## 1. Qué es este proyecto
 
 Plataforma digital de lavandería on-demand para EL CLIENTE del contrato **NSV-2026-001 v8**:
