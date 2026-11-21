@@ -7,6 +7,7 @@
 // dependencia nueva. Su trazo depende de la letra del sistema y se revisa en un teléfono real.
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { letra } from '../tema/letra';
 import { accesibilidad, color, espaciado, radio, tipografia } from '../tema/theme';
 
 interface Propiedades {
@@ -33,7 +34,7 @@ export function Encabezado({ titulo, alRegresar }: Propiedades) {
       ) : (
         <View style={estilos.lado} testID="sin-regreso" />
       )}
-      <Text accessibilityRole="header" numberOfLines={1} style={estilos.titulo}>
+      <Text accessibilityRole="header" numberOfLines={1} style={[estilos.titulo, letra('titulares', 'fuerte')]}>
         {titulo}
       </Text>
       {/* El lado derecho, vacío, equilibra el botón de la izquierda: el título no llega a la orilla. */}
@@ -70,7 +71,6 @@ const estilos = StyleSheet.create({
     flex: 1,
     color: color.semantico.texto,
     fontSize: tipografia.escala.cuerpo_grande,
-    fontWeight: tipografia.peso.fuerte,
     letterSpacing: tipografia.escala.cuerpo_grande * tipografia.espaciado_letra.titular,
   },
   lado: {

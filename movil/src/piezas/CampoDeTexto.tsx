@@ -1,9 +1,11 @@
 // Campo de texto de formulario, con su etiqueta y su error junto a él (registro-E04).
-// Colores y medidas de theme.ts (ADR-0013); el alto mínimo es el área táctil del design system. Con el foco, el borde
-// toma el color de foco: "foco visible siempre" (vault/design-system/componentes.md, reglas transversales).
+// Colores y medidas de theme.ts (ADR-0013); el alto mínimo es el área táctil del design system y el borde, el grosor de
+// control. Con el foco, el borde pasa al grosor y al color de foco: "foco visible siempre", contorno de 3 px
+// (vault/design-system/componentes.md, reglas transversales; DD-133, punto 5).
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
 
+import { letra } from '../tema/letra';
 import { tema } from '../tema/theme';
 
 export type TipoDeCampo = 'texto' | 'correo' | 'contrasena' | 'contrasena-nueva';
@@ -49,7 +51,7 @@ export function CampoDeTexto({ nombre, etiqueta, valor, alCambiar, error, tipo =
 
   return (
     <View style={estilos.contenedor} testID={`campo-${nombre}`}>
-      <Text style={estilos.etiqueta}>{etiqueta}</Text>
+      <Text style={[estilos.etiqueta, letra('cuerpo', 'semifuerte')]}>{etiqueta}</Text>
       <TextInput
         {...POR_TIPO[tipo]}
         accessibilityLabel={etiqueta}
@@ -57,10 +59,15 @@ export function CampoDeTexto({ nombre, etiqueta, valor, alCambiar, error, tipo =
         onChangeText={alCambiar}
         onFocus={() => setEnfocado(true)}
         onBlur={() => setEnfocado(false)}
-        style={[estilos.entrada, error ? estilos.entradaConError : null, enfocado ? estilos.entradaConFoco : null]}
+        style={[
+          estilos.entrada,
+          letra('cuerpo', 'regular'),
+          error ? estilos.entradaConError : null,
+          enfocado ? estilos.entradaConFoco : null,
+        ]}
       />
       {error ? (
-        <Text role="alert" accessibilityLiveRegion="polite" style={estilos.error}>
+        <Text role="alert" accessibilityLiveRegion="polite" style={[estilos.error, letra('cuerpo', 'regular')]}>
           {error}
         </Text>
       ) : null}
@@ -68,7 +75,11 @@ export function CampoDeTexto({ nombre, etiqueta, valor, alCambiar, error, tipo =
   );
 }
 
-const { color, espaciado, radio, tipografia, accesibilidad } = tema;
+const { color, espaciado, radio, tipografia, accesibilidad, grosor } = tema;
+
+// Lo que crece el borde con el foco. Crece hacia adentro, así que el relleno se achica lo mismo y lo que se escribe no
+// se mueve.
+const CRECE_CON_EL_FOCO = grosor.foco - grosor.control;
 
 const estilos = StyleSheet.create({
   contenedor: {
@@ -77,14 +88,13 @@ const estilos = StyleSheet.create({
   etiqueta: {
     color: color.semantico.texto,
     fontSize: tipografia.escala.menor,
-    fontWeight: tipografia.peso.semifuerte,
   },
   // Como el .entrada de los mocks (Propuesta 04, C-230).
   entrada: {
     minHeight: accesibilidad.area_tactil_minima_dp,
     paddingHorizontal: espaciado[3],
     paddingVertical: espaciado[2],
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: grosor.control,
     borderColor: color.semantico.borde_fuerte,
     borderRadius: radio.medio,
     backgroundColor: color.semantico.superficie,
@@ -95,11 +105,12 @@ const estilos = StyleSheet.create({
     borderColor: color.estado.error,
   },
   // Mientras escribe, el foco se ve aunque el campo tenga error: el error sigue escrito debajo y su color vuelve al
-  // salir. El design system pide un contorno de 3 px, pero tokens.json no tiene grosores de borde: mientras no exista
-  // ese token, se usa el mayor grosor que ya usa la app, el 1 del borde de Boton.
+  // salir.
   entradaConFoco: {
-    borderWidth: 1,
+    borderWidth: grosor.foco,
     borderColor: color.semantico.foco,
+    paddingHorizontal: espaciado[3] - CRECE_CON_EL_FOCO,
+    paddingVertical: espaciado[2] - CRECE_CON_EL_FOCO,
   },
   error: {
     color: color.estado.error,

@@ -2,6 +2,7 @@
 // bienvenida y de las informativas. Con el tamaño del cuerpo, como en las imágenes de la Propuesta 04 (C-230).
 import { StyleSheet, Text } from 'react-native';
 
+import { letra } from '../tema/letra';
 import { color, tipografia } from '../tema/theme';
 import type { Alineacion } from './Titulo';
 
@@ -11,7 +12,11 @@ interface Propiedades {
 }
 
 export function Parrafo({ children, alineacion = 'centro' }: Propiedades) {
-  return <Text style={[estilos.parrafo, alineacion === 'inicio' ? estilos.inicio : estilos.centro]}>{children}</Text>;
+  return (
+    <Text style={[estilos.parrafo, letra('cuerpo', 'regular'), alineacion === 'inicio' ? estilos.inicio : estilos.centro]}>
+      {children}
+    </Text>
+  );
 }
 
 const estilos = StyleSheet.create({

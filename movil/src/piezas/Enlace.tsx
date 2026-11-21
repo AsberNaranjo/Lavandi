@@ -5,6 +5,7 @@
 // un solo enlace.
 import { Pressable, StyleSheet, Text, type ViewStyle } from 'react-native';
 
+import { letra } from '../tema/letra';
 import { tema } from '../tema/theme';
 
 interface Propiedades {
@@ -25,7 +26,7 @@ const ALINEACION: Record<NonNullable<Propiedades['alinear']>, ViewStyle['alignSe
 };
 
 export function Enlace({ texto, alTocar, pregunta, alinear = 'inicio', menor = false }: Propiedades) {
-  const estiloDelEnlace = [estilos.texto, pregunta || menor ? estilos.menor : null];
+  const estiloDelEnlace = [estilos.texto, letra('cuerpo', 'semifuerte'), pregunta || menor ? estilos.menor : null];
   return (
     <Pressable
       role="link"
@@ -34,7 +35,7 @@ export function Enlace({ texto, alTocar, pregunta, alinear = 'inicio', menor = f
       style={[estilos.enlace, { alignSelf: ALINEACION[alinear] }]}
     >
       {pregunta ? (
-        <Text style={[estilos.pregunta, estilos.menor]}>
+        <Text style={[estilos.pregunta, letra('cuerpo', 'regular'), estilos.menor]}>
           {pregunta}
           {' '}
           <Text style={estiloDelEnlace}>{texto}</Text>
@@ -56,7 +57,6 @@ const estilos = StyleSheet.create({
   texto: {
     color: color.semantico.accion,
     fontSize: tipografia.escala.cuerpo,
-    fontWeight: tipografia.peso.semifuerte,
     textDecorationLine: 'underline',
   },
   pregunta: {
