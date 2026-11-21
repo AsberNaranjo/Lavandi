@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -44,6 +45,17 @@ class EstadoPedido extends Modelo
             'orden' => 'integer',
             'visible_usuario' => 'boolean',
         ];
+    }
+
+    /**
+     * Los estados que ve el usuario, en el orden del contrato: los cinco del seguimiento, de Confirmado a Entregado
+     * (Módulo A #12; ADR-0021, decisión 1). Deja fuera los internos, como por_pagar.
+     *
+     * @param  Builder<EstadoPedido>  $consulta
+     */
+    public function scopeDelSeguimiento(Builder $consulta): void
+    {
+        $consulta->where($consulta->qualifyColumn('visible_usuario'), true)->orderBy($consulta->qualifyColumn('orden'));
     }
 
     /**

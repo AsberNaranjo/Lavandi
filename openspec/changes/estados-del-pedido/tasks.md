@@ -4,7 +4,7 @@
 
 ## 1. Servidor: el estado del pedido y su consulta
 
-- [ ] 1.1 estados-E01 y estados-E11: la api entrega el pedido recién confirmado en Confirmado, con los cinco estados en orden, y la consulta del usuario devuelve el mismo nombre que marcó la lavandería en Recolectado, En proceso y Listo — test: `servidor/tests/Feature/Estados/EstadoVisibleTest.php` — tamaño S
+- [x] 1.1 estados-E01 y estados-E11: la api entrega el pedido recién confirmado en Confirmado, con los cinco estados en orden, y la consulta del usuario devuelve el mismo nombre que marcó la lavandería en Recolectado, En proceso y Listo — test: `servidor/tests/Feature/Estados/EstadoVisibleTest.php` — tamaño S
 
 ## 2. Servidor: los botones de la lavandería y el historial
 

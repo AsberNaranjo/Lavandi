@@ -49,6 +49,50 @@ Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cam
 | `lavanderias` | Lee qué lavandería tiene el pedido y su cuenta (`id_usuarios`), para la autorización | `perfil-de-lavanderia`; `alta-de-lavanderias` |
 | `usuarios` | Lee quién hizo el cambio y quién es dueño del pedido | `registro-e-inicio-de-sesion` |
 
+## Contrato de la API
+
+Lo agregó el implementador del servidor con la tarea 1.1 (estados-E01 y estados-E11). Es el mismo que está en el
+comentario de `servidor/app/Http/Controllers/Api/PedidosController.php`. Ninguna ruta es nueva: el seguimiento consulta
+`GET /api/pedidos/{id_publico}`, de `resumen-y-confirmacion`, con su sesión, su autorización y sus errores, que no
+cambian (confirmacion-E12: un pedido ajeno responde `404 { "message": "No existe el pedido." }`, y una cuenta sin el
+rol de usuario, como la de una lavandería, `403`).
+
+### Lo que agrega al pedido
+
+El pedido, como sale en todas las respuestas (también la de `POST /api/pedidos`), conserva todo lo que ya traía y suma
+una sola llave, `seguimiento`:
+
+```json
+{
+  "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",
+  "folio": "7KQ2M9XA",
+  "confirmado_en": "2026-12-03T15:30:00Z",
+  "estado": { "codigo": "recolectado", "nombre": "Recolectado", "visible_usuario": true },
+  "seguimiento": [
+    { "codigo": "confirmado", "nombre": "Confirmado" },
+    { "codigo": "recolectado", "nombre": "Recolectado" },
+    { "codigo": "en_proceso", "nombre": "En proceso" },
+    { "codigo": "listo", "nombre": "Listo" },
+    { "codigo": "entregado", "nombre": "Entregado" }
+  ],
+  "…": "el resto del pedido, igual que en resumen-y-confirmacion"
+}
+```
+
+| Campo | Qué es |
+|---|---|
+| `estado` | Sin cambio. El estado actual: su código en `estados_pedido`, el nombre que ve el usuario (`nombre_usuario`) y si lo ve (`visible_usuario`). En Recolectado, En proceso y Listo, el nombre es el mismo del botón que marcó la lavandería (estados-E11) |
+| `seguimiento` | Nueva. Los estados de `estados_pedido` con `visible_usuario` verdadero, en su `orden`: los cinco del contrato, de Confirmado a Entregado (Módulo A #12; estados-E01). Cada uno con su `codigo` y su `nombre` para el usuario. Es la misma lista para todo pedido, también en `por_pagar` |
+
+**Cómo pinta la app el seguimiento (estados-E02).** Ubica el estado actual en `seguimiento` por `estado.codigo`: los
+anteriores son los cumplidos y los siguientes, los pendientes. Con `estado.visible_usuario` en `false` (`por_pagar`), el
+pedido todavía no entra al flujo y ningún paso es el actual.
+
+**Pendiente para el cambio que siembre `en_entrega`.** ADR-0021 dice que el usuario lo ve como Listo. Si se siembra con
+`visible_usuario` verdadero, aparecería un sexto paso en `seguimiento`, y su `estado.codigo` no sería ninguno de los
+cinco. La prueba de estados-E01 lo detecta, porque exige exactamente los cinco. Ese cambio decide cómo queda la lista y
+cómo ubica la app el paso actual.
+
 ## Risks / Trade-offs
 
 - **[Entregado no tiene quién lo marque en este hito]** → Los botones de la lavandería terminan en "En proceso de entrega"; "Entregado" es un botón del repartidor (cambio `repartidor`, hito H8), o de la lavandería si DD-022 lo resuelve así. Al cerrar H6, el recorrido en local llega hasta Listo o En proceso de entrega, no hasta Entregado. Hay que decirlo antes de prometer el recorrido completo.
