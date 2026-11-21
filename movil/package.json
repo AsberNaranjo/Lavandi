@@ -9,7 +9,8 @@
     "ios": "expo start --ios",
     "test": "jest",
     "lint": "eslint .",
-    "tipos": "tsc --noEmit"
+    "tipos": "tsc --noEmit",
+    "tokens": "node ../herramientas/tokens/generar.js"
   },
   "dependencies": {
     "expo": "~58.0.26",
