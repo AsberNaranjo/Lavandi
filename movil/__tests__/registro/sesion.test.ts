@@ -38,16 +38,33 @@ function respuesta(status: number, cuerpo?: unknown) {
 
 const direccionOriginal = process.env.EXPO_PUBLIC_API_URL;
 const nombreOriginal = process.env.EXPO_PUBLIC_NOMBRE_APP;
+const plazoOriginal = process.env.EXPO_PUBLIC_API_PLAZO_MS;
 const fetchOriginal = global.fetch;
 let fetchFalso: jest.Mock;
 
-// Programa el servidor falso: cada "MÉTODO /ruta" con su respuesta, o con un error de red.
-function servidor(respuestas: Partial<Record<Ruta, ReturnType<typeof respuesta> | Error>>) {
+// El servidor acepta la conexión y no contesta: la petición solo termina si la app la cancela con su señal.
+const NO_CONTESTA = 'no-contesta';
+// Las peticiones que siguen esperando al terminar cada prueba: se cortan en afterEach, como si el servidor cerrara la
+// conexión, para que ningún plazo quede corriendo.
+let sinContestar: (() => void)[] = [];
+
+function errorDeCorte() {
+  return Object.assign(new Error('Aborted'), { name: 'AbortError' });
+}
+
+// Programa el servidor falso: cada "MÉTODO /ruta" con su respuesta, con un error de red o sin contestar.
+function servidor(respuestas: Partial<Record<Ruta, ReturnType<typeof respuesta> | Error | typeof NO_CONTESTA>>) {
   fetchFalso.mockImplementation(async (url: string, opciones: RequestInit = {}) => {
     const clave = `${opciones.method ?? 'GET'} ${url.slice(BASE.length)}` as Ruta;
     const programada = respuestas[clave];
     if (programada instanceof Error) {
       throw programada;
+    }
+    if (programada === NO_CONTESTA) {
+      return new Promise((_resolver, rechazar) => {
+        sinContestar.push(() => rechazar(errorDeCorte()));
+        opciones.signal?.addEventListener('abort', () => rechazar(errorDeCorte()));
+      });
     }
     if (!programada) {
       throw new Error(`El servidor falso no esperaba ${clave}`);
@@ -91,6 +108,13 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  sinContestar.forEach((cortar) => cortar());
+  sinContestar = [];
+  if (plazoOriginal === undefined) {
+    delete process.env.EXPO_PUBLIC_API_PLAZO_MS;
+  } else {
+    process.env.EXPO_PUBLIC_API_PLAZO_MS = plazoOriginal;
+  }
   if (direccionOriginal === undefined) {
     delete process.env.EXPO_PUBLIC_API_URL;
   } else {
@@ -130,6 +154,19 @@ describe('registro-E11: al volver a abrir la app, sigue dentro', () => {
   test('registro-E11 — sin conexión al abrir, no borra la sesión: solo el servidor dice que ya no sirve', async () => {
     await conSesionGuardada('token-guardado');
     servidor({ 'GET /cuenta': new TypeError('Network request failed') });
+
+    await abrirLaApp();
+
+    expect(await screen.findByRole('button', { name: 'Cerrar sesión' })).toBeOnTheScreen();
+    expect(screen).toHavePathname('/inicio');
+    await expect(leerToken()).resolves.toBe('token-guardado');
+  });
+
+  test('registro-E11 — si el servidor acepta y no contesta, al vencer el plazo entra con su sesión, como sin conexión', async () => {
+    // Un plazo corto para la prueba; en la app es de 15 s si la configuración no dice otro.
+    process.env.EXPO_PUBLIC_API_PLAZO_MS = '50';
+    await conSesionGuardada('token-guardado');
+    servidor({ 'GET /cuenta': NO_CONTESTA });
 
     await abrirLaApp();
 

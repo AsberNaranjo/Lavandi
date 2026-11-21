@@ -26,6 +26,28 @@ function opcional(valor: string | undefined): string | undefined {
   return limpio ? limpio : undefined;
 }
 
+// El plazo por omisión. Lo confirma Arthur.
+const PLAZO_DE_LA_API_POR_OMISION_MS = 15_000;
+
+/**
+ * Cuántos milisegundos espera la app la respuesta del servidor antes de cancelar la petición y tratarla como sin
+ * conexión (registro-E11 y registro-E13). Es opcional: sin él, 15000. Si trae algo que no es un número entero de
+ * milisegundos mayor que cero, falla en vez de inventar un plazo.
+ */
+export function plazoDeLaApi(): number {
+  const valor = opcional(process.env.EXPO_PUBLIC_API_PLAZO_MS);
+  if (valor === undefined) {
+    return PLAZO_DE_LA_API_POR_OMISION_MS;
+  }
+  const plazo = /^\d+$/.test(valor) ? Number(valor) : NaN;
+  if (!Number.isSafeInteger(plazo) || plazo <= 0) {
+    throw new Error(
+      'La variable de entorno EXPO_PUBLIC_API_PLAZO_MS no es un número entero de milisegundos mayor que 0.',
+    );
+  }
+  return plazo;
+}
+
 /**
  * El ID del cliente OAuth web de Google (ADR-0005 y ADR-0012). Es la audiencia del idToken que valida el servidor:
  * tiene que estar en su lista de clientes. Sin él, las pantallas de entrada no ofrecen Google.

@@ -93,6 +93,7 @@ async function pedir<T>(ruta: string, { metodo, cuerpo, token }: Peticion): Prom
       body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo),
     });
   } catch {
+    // Un error de red o el plazo vencido (consultarApi cancela la petición): para la persona, no hubo conexión.
     return { ok: false, motivo: 'sin-conexion' };
   }
 
