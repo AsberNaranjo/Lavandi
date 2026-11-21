@@ -52,14 +52,18 @@ export function ProveedorDeSesion({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let montado = true;
-    leerTokenVigente(() => !cambiada.current).then((guardado) => {
-      if (montado && !cambiada.current) {
-        setToken(guardado);
-      }
-      if (montado) {
-        setCargando(false);
-      }
-    });
+    leerTokenVigente(() => !cambiada.current)
+      // Si el almacén cifrado no deja leer ni borrar, la carga termina sin sesión: la persona vuelve a entrar, en vez
+      // de quedarse con la app en blanco.
+      .catch(() => null)
+      .then((guardado) => {
+        if (montado && !cambiada.current) {
+          setToken(guardado);
+        }
+        if (montado) {
+          setCargando(false);
+        }
+      });
     return () => {
       montado = false;
     };

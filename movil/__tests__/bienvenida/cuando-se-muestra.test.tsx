@@ -46,6 +46,35 @@ describe('bienvenida: a dónde llega la persona al abrir la app', () => {
     await abrirLaApp('/bienvenida');
   });
 
+  describe('si el almacén cifrado no deja leer la marca de la bienvenida', () => {
+    const leer = jest.mocked(SecureStore.getItemAsync);
+    let original: ReturnType<typeof leer.getMockImplementation>;
+
+    beforeEach(() => {
+      original = leer.getMockImplementation();
+      leer.mockImplementation(async (clave: string) => {
+        if (clave === 'bienvenida.vista') {
+          throw new Error('El almacén cifrado no respondió');
+        }
+        return original!(clave);
+      });
+    });
+
+    afterEach(() => {
+      leer.mockImplementation(original!);
+    });
+
+    test('bienvenida-E01 — la marca cuenta como no vista', async () => {
+      await expect(leerBienvenidaVista()).resolves.toBe(false);
+    });
+
+    test('bienvenida-E01 — sin sesión, la app no se queda en blanco: muestra la bienvenida', async () => {
+      await abrirLaApp('/bienvenida');
+
+      expect(await screen.findByTestId('pantalla-inicial')).toBeOnTheScreen();
+    });
+  });
+
   test('bienvenida-E02 — si ya vio la bienvenida y no tiene sesión, llega directo a la entrada', async () => {
     await marcarBienvenidaVista();
 

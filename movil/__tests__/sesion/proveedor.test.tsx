@@ -49,6 +49,40 @@ describe('ADR-0018: la sesión de la app sale del almacenamiento cifrado', () =>
     expect(result.current.estado).toBe('sin-sesion');
   });
 
+  test('registro-E11 (en parte) — si el almacén cifrado no se puede leer, la carga termina sin sesión', async () => {
+    jest.mocked(SecureStore.getItemAsync).mockRejectedValueOnce(new Error('El almacén cifrado no respondió'));
+
+    const { result } = await montar();
+
+    expect(result.current.estado).toBe('sin-sesion');
+    expect(result.current.token).toBeNull();
+  });
+
+  test('registro-E11 (en parte) — si el servidor rechaza el token y el teléfono no lo puede borrar, la carga termina sin sesión', async () => {
+    const direccionOriginal = process.env.EXPO_PUBLIC_API_URL;
+    process.env.EXPO_PUBLIC_API_URL = 'http://api.prueba.invalid/sesion-proveedor';
+    try {
+      global.fetch = jest.fn(async () => ({
+        ok: false,
+        status: 401,
+        json: async () => ({ message: 'Unauthenticated.' }),
+      })) as unknown as typeof fetch;
+      await guardarToken('token-revocado');
+      jest.mocked(SecureStore.deleteItemAsync).mockRejectedValueOnce(new Error('El almacén cifrado no respondió'));
+
+      const { result } = await montar();
+
+      expect(result.current.estado).toBe('sin-sesion');
+      expect(result.current.token).toBeNull();
+    } finally {
+      if (direccionOriginal === undefined) {
+        delete process.env.EXPO_PUBLIC_API_URL;
+      } else {
+        process.env.EXPO_PUBLIC_API_URL = direccionOriginal;
+      }
+    }
+  });
+
   test('registro-E11 (en parte) — sin token guardado, no hay sesión', async () => {
     const { result } = await montar();
 
