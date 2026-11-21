@@ -167,6 +167,15 @@ en la misma red y el APK es el de `-Modo wifi`.
 
 Cuando arranque, instala el APK y conecta el puerto con los dos comandos de `adb` de arriba.
 
+Para ver las lavanderías de prueba de Durango, pon la ubicación del emulador en el centro de la ciudad (longitud
+primero):
+
+```powershell
+& $adb emu geo fix -104.6532 24.0277
+```
+
+Las lavanderías de prueba salen del sembrado: `php artisan db:seed` en `servidor\`, y nunca en producción.
+
 **Lo que no funciona todavía en el APK:**
 - Google, porque falta el cliente OAuth de prueba (DD-072): el botón no aparece.
 - Apple solo existirá en iPhone (DD-069).
