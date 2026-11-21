@@ -5,7 +5,7 @@ después (ver `design.md`, Open Questions). Este cambio no crea tablas.
 
 ## 1. Lavanderías de prueba y consulta de cercanas
 
-- [ ] 1.1 cercanas-E06, cercanas-E07, cercanas-E10, cercanas-E11 (`servidor/`): lavanderías de prueba sembradas en
+- [x] 1.1 cercanas-E06, cercanas-E07, cercanas-E10, cercanas-E11 (`servidor/`): lavanderías de prueba sembradas en
   `lavanderias`, con plaza, `ubicacion` y `estado`; consulta por punto con distancia en línea recta sobre
   `lavanderias.ubicacion`, que identifica cada lavandería por su `id_publico`, detrás de la sesión y del componente de
   autorización — test: `servidor/tests/Feature/Cercanas/ConsultaDeCercanasTest.php` — tamaño M
