@@ -6,6 +6,7 @@ import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-li
 
 import { leerBienvenidaVista, marcarBienvenidaVista } from '../../src/bienvenida/vista';
 import { contenidoDeBienvenida } from '../../src/contenido/bienvenida';
+import { comprobarInstalacion } from '../../src/instalacion/marca';
 import { guardarToken } from '../../src/sesion/almacen';
 
 const APP = path.resolve(__dirname, '..', '..', 'app');
@@ -25,8 +26,11 @@ async function abrirLaApp(destino: string) {
 describe('bienvenida: a dónde llega la persona al abrir la app', () => {
   const nombreOriginal = process.env.EXPO_PUBLIC_NOMBRE_APP;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     almacen.__vaciar();
+    // Las aperturas de este archivo son de la misma instalación: la marca de instalación ya existe. La reinstalación
+    // se prueba en registro/reinstalacion.test.ts (registro-E32).
+    await comprobarInstalacion();
     process.env.EXPO_PUBLIC_NOMBRE_APP = 'Nombre de prueba';
   });
 

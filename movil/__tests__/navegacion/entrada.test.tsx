@@ -5,6 +5,7 @@ import path from 'node:path';
 import * as SecureStore from 'expo-secure-store';
 import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 
+import { comprobarInstalacion } from '../../src/instalacion/marca';
 import { guardarToken } from '../../src/sesion/almacen';
 
 const APP = path.resolve(__dirname, '..', '..', 'app');
@@ -57,6 +58,8 @@ describe('bienvenida-E04: la entrada ofrece registrarse o iniciar sesión', () =
   });
 
   test('registro-E11 (en parte) — con la sesión abierta, el inicio provisional muestra su título', async () => {
+    // La sesión es de esta misma instalación: la marca de instalación ya existe (registro-E32).
+    await comprobarInstalacion();
     await guardarToken('token-guardado');
 
     await renderRouter(APP, { initialUrl: '/inicio' });
