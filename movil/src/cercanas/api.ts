@@ -2,15 +2,19 @@
 // consulta, con el token de la sesión (sin sesión el servidor no contesta lavanderías, cercanas-E10), y la app no lo
 // guarda (design.md, decisión 6). Como las demás consultas, nunca lanza: devuelve un Resultado.
 import { pedir, type Resultado } from '../configuracion/api';
+import { esObjeto, numero, numeroOVacio } from '../configuracion/lectura';
 
 /**
- * El contrato de la consulta con el servidor (tarea 1.1 de lavanderias-cercanas), en un solo lugar para ajustarlo:
- * GET <ruta>?<latitud>=..&<longitud>=.., con la sesión, que contesta { "<lista>": [ LavanderiaCercana, … ] }.
+ * El contrato de la consulta con el servidor (tareas 1.1 y 1.3 de lavanderias-cercanas), en un solo lugar para
+ * ajustarlo: GET <ruta>?<latitud>=..&<longitud>=.., y los filtros que se pidan (<distanciaMaxima>=.. y
+ * <calificacionMinima>=..), con la sesión, que contesta { "<lista>": [ LavanderiaCercana, … ] }.
  */
 export const CONTRATO_DE_CERCANAS = {
   ruta: 'lavanderias/cercanas',
   latitud: 'latitud',
   longitud: 'longitud',
+  distanciaMaxima: 'distancia_maxima_metros',
+  calificacionMinima: 'calificacion_minima',
   lista: 'lavanderias',
 } as const;
 
@@ -37,11 +41,33 @@ export interface LavanderiaCercana {
   numero_de_calificaciones: number;
 }
 
-/** GET de las lavanderías cercanas a un punto, con la sesión (cercanas-E04). */
-export async function consultarCercanas(token: string, punto: Punto): Promise<Resultado<LavanderiaCercana[]>> {
-  const { ruta, latitud, longitud } = CONTRATO_DE_CERCANAS;
-  const consulta = `${latitud}=${encodeURIComponent(punto.latitud)}&${longitud}=${encodeURIComponent(punto.longitud)}`;
-  const resultado = await pedir<unknown>(`${ruta}?${consulta}`, { metodo: 'GET', token });
+/**
+ * Los filtros de la búsqueda (cercanas-E16 a E18 y E21): la distancia máxima en línea recta, en metros, y la
+ * calificación promedio mínima, de 1 a 5. Sin uno, o en null, la consulta no lo lleva. Se combinan.
+ */
+export interface FiltrosDeCercanas {
+  distanciaMaximaMetros?: number | null;
+  calificacionMinima?: number | null;
+}
+
+/** GET de las lavanderías cercanas a un punto, con la sesión y los filtros que se pidan (cercanas-E04 y E21). */
+export async function consultarCercanas(
+  token: string,
+  punto: Punto,
+  { distanciaMaximaMetros = null, calificacionMinima = null }: FiltrosDeCercanas = {},
+): Promise<Resultado<LavanderiaCercana[]>> {
+  const contrato = CONTRATO_DE_CERCANAS;
+  const parametros: [string, number | null][] = [
+    [contrato.latitud, punto.latitud],
+    [contrato.longitud, punto.longitud],
+    [contrato.distanciaMaxima, distanciaMaximaMetros],
+    [contrato.calificacionMinima, calificacionMinima],
+  ];
+  const consulta = parametros
+    .filter((parametro): parametro is [string, number] => parametro[1] !== null)
+    .map(([nombre, valor]) => `${nombre}=${encodeURIComponent(valor)}`)
+    .join('&');
+  const resultado = await pedir<unknown>(`${contrato.ruta}?${consulta}`, { metodo: 'GET', token });
   if (!resultado.ok) {
     return resultado;
   }
@@ -67,11 +93,8 @@ function leerLavanderia(fila: unknown): LavanderiaCercana | null {
   const longitud = numero(fila.longitud);
   const distancia = numero(fila.distancia_metros);
   const calificaciones = numero(fila.numero_de_calificaciones);
-  const promedio = fila.calificacion_promedio === null ? null : numero(fila.calificacion_promedio);
-  if (latitud === null || longitud === null || distancia === null || calificaciones === null) {
-    return null;
-  }
-  if (fila.calificacion_promedio !== null && promedio === null) {
+  const promedio = numeroOVacio(fila.calificacion_promedio);
+  if (latitud === null || longitud === null || distancia === null || calificaciones === null || promedio === undefined) {
     return null;
   }
   return {
@@ -83,15 +106,4 @@ function leerLavanderia(fila: unknown): LavanderiaCercana | null {
     calificacion_promedio: promedio,
     numero_de_calificaciones: calificaciones,
   };
-}
-
-// Un número, aunque llegue como texto: PostgreSQL entrega los decimales (el promedio, las coordenadas) como texto si
-// el servidor no los convierte.
-function numero(valor: unknown): number | null {
-  const convertido = typeof valor === 'string' && valor.trim() !== '' ? Number(valor) : valor;
-  return typeof convertido === 'number' && Number.isFinite(convertido) ? convertido : null;
-}
-
-function esObjeto(valor: unknown): valor is Record<string, unknown> {
-  return typeof valor === 'object' && valor !== null;
 }

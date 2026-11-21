@@ -22,6 +22,11 @@ export const TEXTOS = {
   sinUbicacion: 'No pudimos obtener tu ubicación. Revisa que esté activada.',
   // Solo en una compilación de Android sin la llave de Google Maps (src/cercanas/mapa.ts); en iPhone no pasa.
   mapaNoDisponible: 'El mapa no está disponible en esta versión de la app.',
+  // Los filtros de la búsqueda (cercanas-E21), con los textos del mock A04.
+  filtroDeDistancia: 'Distancia',
+  filtroDeCalificacion: 'Calificación',
+  sinCoincidencias: 'Ninguna lavandería coincide con estos filtros.',
+  quitarFiltros: 'Quitar filtros',
 } as const;
 
 const METROS_POR_KILOMETRO = 1000;
@@ -32,11 +37,31 @@ const METROS_POR_KILOMETRO = 1000;
  * el perfil (perfil-lavanderia-E10).
  */
 export function detalleDeLavanderia({ distancia_metros, calificacion_promedio }: LavanderiaCercana): string {
-  const metros = Math.round(distancia_metros);
-  const distancia =
-    metros < METROS_POR_KILOMETRO ? `A ${metros} m` : `A ${(distancia_metros / METROS_POR_KILOMETRO).toFixed(1)} km`;
-  const calificada = calificacion_promedio === null ? 'Aún sin calificaciones' : `Calificación ${calificacion_promedio.toFixed(1)}`;
-  return `${distancia} · ${calificada}`;
+  return `${distanciaEnTexto(distancia_metros)} · ${calificacionEnTexto(calificacion_promedio)}`;
+}
+
+/** "A 800 m", "A 1.2 km": menos de un kilómetro va en metros. */
+function distanciaEnTexto(distanciaMetros: number): string {
+  const metros = Math.round(distanciaMetros);
+  return metros < METROS_POR_KILOMETRO ? `A ${metros} m` : `A ${(distanciaMetros / METROS_POR_KILOMETRO).toFixed(1)} km`;
+}
+
+/**
+ * El promedio de calificaciones con un decimal, "Calificación 4.8", o, sin calificaciones, el texto que lo dice y
+ * ningún número: la tarjeta (cercanas-E12) y el perfil (perfil-lavanderia-E10) lo dicen igual.
+ */
+export function calificacionEnTexto(promedio: number | null): string {
+  return promedio === null ? 'Aún sin calificaciones' : `Calificación ${promedio.toFixed(1)}`;
+}
+
+/** Un corte de distancia de los filtros (cercanas-E21): "Hasta 500 m", "Hasta 3 km". */
+export function corteDeDistancia(metros: number): string {
+  return metros < METROS_POR_KILOMETRO ? `Hasta ${metros} m` : `Hasta ${metros / METROS_POR_KILOMETRO} km`;
+}
+
+/** Un corte de calificación de los filtros (cercanas-E21): "4.5 o más". */
+export function corteDeCalificacion(estrellas: number): string {
+  return `${estrellas} o más`;
 }
 
 /**

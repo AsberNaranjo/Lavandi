@@ -2,8 +2,8 @@
 // cada pantalla lleva su título. Solo modo claro en la v1 (C-141).
 //
 // Las pantallas se ven según la sesión (ADR-0018): con sesión no se ven el registro, el inicio de sesión ni la
-// recuperación, y llevan al inicio; sin sesión no se ven el inicio ni la lista y el perfil de las lavanderías
-// (lavanderias-cercanas), que llevan al arranque, y el arranque decide entre la bienvenida y el inicio de sesión
+// recuperación, y llevan al inicio; sin sesión no se ven el inicio, la lista y el perfil de las lavanderías
+// (lavanderias-cercanas) ni los pasos del pedido (perfil-de-lavanderia), que llevan al arranque, y el arranque decide entre la bienvenida y el inicio de sesión
 // (bienvenida-E01, E02 y E04; C-237). Mientras se lee la sesión no se muestra ninguna pantalla. La bienvenida y las
 // informativas no dependen de la sesión.
 //
@@ -47,6 +47,8 @@ function Pantallas({ letraLista }: { letraLista: boolean }) {
         <Stack.Screen name="inicio" />
         <Stack.Screen name="lavanderias/index" />
         <Stack.Screen name="lavanderias/[id]" />
+        <Stack.Screen name="pedido/servicio" />
+        <Stack.Screen name="pedido/fecha-y-hora" />
       </Stack.Protected>
       <Stack.Protected guard={!conSesion} redirectTo="/inicio">
         <Stack.Screen name="registro" />

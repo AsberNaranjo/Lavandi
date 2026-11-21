@@ -34,13 +34,17 @@ que a su vez lee las tablas de la tarea 1.1 (ver `design.md`, Open Questions).
 
 - [ ] 3.1 perfil-lavanderia-E09, perfil-lavanderia-E10 (`movil/`): fotos, descripción, servicios con precio por kilo,
   calificación y reseñas; sin calificaciones, el texto y ningún promedio — test:
-  `movil/__tests__/perfil-lavanderia/pantalla-de-perfil.test.tsx` — tamaño M
+  `movil/__tests__/perfil-lavanderia/pantalla-de-perfil.test.tsx` — tamaño M. **Avance:** todo menos las fotos, en
+  verde (perfil-lavanderia-E10 completo; perfil-lavanderia-E09 sin fotos). Las fotos esperan la tarea 2.1: la
+  pantalla deja su lugar, sin imágenes. Se marca cuando el test vea las fotos
 
 ## 4. Selección de servicio
 
-- [ ] 4.1 perfil-lavanderia-E11, perfil-lavanderia-E12, perfil-lavanderia-E13 (`movil/`): elegir un tipo de los que
+- [x] 4.1 perfil-lavanderia-E11, perfil-lavanderia-E12, perfil-lavanderia-E13 (`movil/`): elegir un tipo de los que
   ofrece la lavandería y guardarlo en el pedido en curso; sin tipo no se avanza — test:
-  `movil/__tests__/perfil-lavanderia/seleccion-de-servicio.test.tsx` — tamaño S
+  `movil/__tests__/perfil-lavanderia/seleccion-de-servicio.test.tsx` — tamaño S. Un solo tipo mientras DD-098 siga
+  abierta. El paso de fecha y hora (`movil/app/pedido/fecha-y-hora.tsx`) es provisional, solo con su encabezado,
+  hasta que lo llene `agenda-de-recoleccion`
 
 ## Horas
 

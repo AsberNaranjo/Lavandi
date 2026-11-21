@@ -39,8 +39,10 @@ después (ver `design.md`, Open Questions). Este cambio no crea tablas.
 
 ## 4. Pantalla de filtros
 
-- [ ] 4.1 cercanas-E21 (`movil/`): filtros de distancia y calificación con los cortes de la configuración; sin
-  resultados, el aviso y quitar filtros — test: `movil/__tests__/cercanas/pantalla-de-filtros.test.tsx` — tamaño S
+- [x] 4.1 cercanas-E21 (`movil/`): filtros de distancia y calificación con los cortes de la configuración; sin
+  resultados, el aviso y quitar filtros — test: `movil/__tests__/cercanas/pantalla-de-filtros.test.tsx` — tamaño S.
+  Los filtros viven en la lista "Elige tu lavandería"; los cortes, en `movil/src/configuracion/filtros.ts`, son los de
+  ejemplo del mock A04 hasta que DD-083 fije los valores
 
 ## Horas
 
