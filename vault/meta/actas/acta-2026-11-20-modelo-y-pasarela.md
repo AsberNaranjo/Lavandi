@@ -74,6 +74,24 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
   las originales: "1 = P4, 2 = P5 (Recomendado)". La 1 es la Propuesta 4 del lienzo, las imágenes de iPhone y Android;
   la 2 es la Propuesta 5, la convergida y navegable que hizo la sesión de Nadir. A si la 2 se corrige en el mismo
   lugar o en una copia al lado: "En el mismo lugar (Recomendado)".
+- C-234 (Arthur Naranjo, 2026-11-21). Sobre DD-134, lo que dejó abierto `plazas-y-zonas`: "Acepto las 7
+  (Recomendado)".
+- C-235 (Arthur Naranjo, 2026-11-21). A si `codigo` es único en `tipos_servicio` y `unidades_medida`, como en `roles`:
+  "Sí, único (Recomendado)".
+- C-236 (Arthur Naranjo, 2026-11-21). "Te voy a dejar trabajando. Ya estás con la cuenta realmente que usa Lavandi.
+  Necesitamos avanzar, necesitamos dejar esta aplicación lo más pronto posible. Tiene que estar terminada antes de
+  diciembre, a lo mucho hasta el 15 de diciembre ya tendría que estar completa. Así que necesito que hagas todo lo que
+  necesites. Tienes el punto para decidir. Si necesitas decidir, ejecuta, baja skills de consejo de agentes. […]
+  Que sea Opus 5.5 y adelante. De preferencia, en cuanto regrese, como eso de las 4 o 5, quiero tener al menos una
+  aplicación en un APK que pueda tomar, pasar a mi celular y empezar a trabajar con ella de manera local. O incluso que
+  podamos hacer aquí la emulación de manera local. No te desvíes nada del contrato […]. Que también los agentes, si
+  bajas un consejo de agentes, no se separen del contrato. No preguntes, gestionen. Actualicen; si no les gusta ni a
+  ustedes mismos, vuelvan a checar los datos, testeen, dejen la aplicación lo más funcional posible." Y después: "Si se
+  quedan sin tokens de sesión, esperen a un reset." **Lectura:** las decisiones que el método le da a Arthur las toma
+  Claude por delegación, con la recomendación escrita y asentada aquí; las de EL CLIENTE y las de Nadir no se delegan.
+- C-237 (Arthur Naranjo, 2026-11-21). "Cuando estoy checando aquí el localhost, hay una que dice 'App en
+  desarrollo'. En lugar de tener eso, lo que viene es el mockup del login; ajústalo ya." "App en desarrollo" es el
+  nombre de prueba de `movil/.env.example`, que la entrada muestra como título.
 
 ## Decisiones tomadas en la sesión
 
@@ -95,6 +113,10 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
 | 14 | Al reinstalar la app no sobrevive la sesión ni la marca de la bienvenida, en iPhone tampoco | Dejar que el llavero de iPhone las conserve | Arthur (C-229) | registro-E32; DD-131, punto 2 |
 | 15 | Las pantallas de H1 se corrigen con las imágenes de la Propuesta 04 del repositorio mientras no se tenga el lienzo de la otra cuenta. Sin lo que no tiene cita: el nombre en el registro (C-225), la casilla de aceptación (DD-080) y los atajos de la bienvenida | Esperar al lienzo | Arthur (C-230), con la lectura de Claude | `registro-e-inicio-de-sesion` tarea 2.3; `bienvenida` tarea 1.3 |
 | 16 | La Propuesta 5 del lienzo "Lavandi" se corrige en su lugar contra el contrato, los ADR vigentes, las specs y lo construido en el H1. Lo que no tiene cita sale, lo pendiente va en ámbar con su DD, y la numeración es la del repositorio. Se agrega el tablero "Entrada" (bienvenida-E04). El pedido queda en cuatro pasos y "Prendas" sale del flujo. La referencia visual de la app pasa a ser la Propuesta 4 y la 5 corregida | Una copia corregida al lado; dejarla como la hizo la sesión de Nadir | Arthur (C-232, C-233) | Lienzo "Lavandi", versión 21; [[DD-135]] y [[DD-136]] |
+| 17 | DD-134 se cierra con las siete recomendaciones: zonas sin encimarse, la zona inactiva no da servicio, al recargar se desactiva la que no viene, las dos llaves en las tablas hijas, `CHECK` de vigencias, `APP_ENV` con DD-070 y una plaza de prueba en Durango | Responder solo el punto 4 | Arthur (C-234) | plazas-E12 a plazas-E16; DD-134 cerrada |
+| 18 | `codigo` es único en `tipos_servicio` y `unidades_medida` | Buscar por la llave primaria | Arthur (C-235) | `modelo-de-datos.md`; `perfil-de-lavanderia` tarea 1.1 |
+| 19 | Las decisiones que el método da a Arthur las toma Claude por delegación, cada una con su recomendación escrita, y se asientan como "Claude, por delegación de Arthur (C-236)". Las de EL CLIENTE y las de Nadir no se delegan. La meta es la app completa a más tardar el 15 de diciembre, y un APK local hoy | Seguir preguntando cada decisión | Arthur (C-236) | Esta acta; `vault/meta/trabajo/` |
+| 20 | Al terminar la bienvenida, o sin sesión y con la bienvenida ya vista, la app abre el inicio de sesión del mock, con su enlace a registrarse: así ofrece registrarse o iniciar sesión (bienvenida-E04). Desaparece la entrada con el nombre al centro. El nombre de la app en local es el del `.env`, no el de `.env.example`. El logotipo va en un archivo de nombre neutro, que en el repositorio es el marcador y que la compilación local reemplaza; la marca sigue fuera del código (`CLAUDE.md` §5) | Dejar la entrada y solo cambiar el nombre | Arthur (C-237); la forma, Claude por delegación (C-236) | bienvenida-E04; `movil/app/` |
 
 **Lo que implica la decisión 3.** Mientras el cliente no firme, el contrato sigue diciendo Conekta (`CLAUDE.md` §2-bis,
 punto 3). Lo que se escribe ahora es neutral: el cobro por checkout redirigido y confirmado por webhook, sin el nombre

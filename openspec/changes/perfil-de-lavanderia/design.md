@@ -111,9 +111,8 @@ llevan `id_plazas`, no nula y con llave foránea a `plazas` (plazas-E09).
 
 - **La fecha de la reseña.** Resuelta: es `calificaciones.created_at`, en `timestamptz` (modelo-E17; ADR-0016,
   regla 7).
-- **`codigo` único en los catálogos.** El modelo lo escribe para `roles`, no para `tipos_servicio` ni para
-  `unidades_medida`. Este diseño lo pone igual en los dos, porque la semilla y el código buscan por `codigo`; falta que
-  el modelo lo diga.
+- **`codigo` único en los catálogos.** Resuelta: único en `tipos_servicio` y `unidades_medida`, como en `roles`
+  (C-235; `vault/arquitectura/modelo-de-datos.md`, tablas de catálogo).
 - **El orden con `lavanderias-cercanas`.** Ese cambio va antes en el plan y lee `lavanderias` y `calificaciones`, que
   crea la tarea 1.1 de este cambio (ver el `design.md` de `lavanderias-cercanas`, Open Questions). Lo decide Arthur al
   rehacer el plan.

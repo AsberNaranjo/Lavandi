@@ -46,6 +46,9 @@ Criterio: A43-6 (en parte: F-A01)
 - **CUANDO** la persona avanza
 - **ENTONCES** la app le ofrece registrarse o iniciar sesión
 
+La oferta es la pantalla de inicio de sesión, con su enlace a registrarse, como en el mock; no hay una pantalla de
+entrada aparte (C-237).
+
 ### Requirement: Contenido de EL CLIENTE fuera del código
 
 Los textos y las imágenes de la bienvenida y de las tres informativas DEBEN (MUST) salir de un archivo de contenido de
