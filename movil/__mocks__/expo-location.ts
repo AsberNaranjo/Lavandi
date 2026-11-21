@@ -42,6 +42,17 @@ const UBICACION_POR_OMISION: Coordenadas = { latitude: 0, longitude: 0 };
 let actual = SIN_PEDIR;
 let alPedir = permiso(PermissionStatus.GRANTED, true);
 let ubicacion: Coordenadas | Error = UBICACION_POR_OMISION;
+// Las precisiones con las que el teléfono no da la ubicación actual, como el emulador con la equilibrada, que en Android
+// sale de la red.
+let precisionesQueFallan: Accuracy[] = [];
+let ultimaConocida: Coordenadas | null = null;
+
+function posicion(coordenadas: Coordenadas) {
+  return {
+    coords: { ...coordenadas, altitude: null, accuracy: 10, altitudeAccuracy: null, heading: null, speed: null },
+    timestamp: 0,
+  };
+}
 
 export const getForegroundPermissionsAsync = jest.fn(async (): Promise<Permiso> => actual);
 
@@ -54,15 +65,17 @@ export const requestForegroundPermissionsAsync = jest.fn(async (): Promise<Permi
 export const getBackgroundPermissionsAsync = jest.fn(async (): Promise<Permiso> => SIN_PEDIR);
 export const requestBackgroundPermissionsAsync = jest.fn(async (): Promise<Permiso> => SIN_PEDIR);
 
-export const getCurrentPositionAsync = jest.fn(async () => {
+export const getCurrentPositionAsync = jest.fn(async (opciones?: { accuracy?: Accuracy }) => {
   if (ubicacion instanceof Error) {
     throw ubicacion;
   }
-  return {
-    coords: { ...ubicacion, altitude: null, accuracy: 10, altitudeAccuracy: null, heading: null, speed: null },
-    timestamp: 0,
-  };
+  if (opciones?.accuracy !== undefined && precisionesQueFallan.includes(opciones.accuracy)) {
+    throw new Error('Current location is unavailable.');
+  }
+  return posicion(ubicacion);
 });
+
+export const getLastKnownPositionAsync = jest.fn(async () => (ultimaConocida ? posicion(ultimaConocida) : null));
 
 /** Solo para las pruebas: el permiso que la app lee al abrir la pantalla. */
 export function __permiso(status: PermissionStatus, canAskAgain = status !== PermissionStatus.DENIED): void {
@@ -79,17 +92,30 @@ export function __ubicacion(valor: Coordenadas | Error): void {
   ubicacion = valor;
 }
 
+/** Solo para las pruebas: con qué precisiones el teléfono no da la ubicación actual. */
+export function __fallaConPrecision(precisiones: Accuracy[]): void {
+  precisionesQueFallan = precisiones;
+}
+
+/** Solo para las pruebas: la última ubicación que el teléfono recuerda, o null si no recuerda ninguna. */
+export function __ultimaConocida(valor: Coordenadas | null): void {
+  ultimaConocida = valor;
+}
+
 /** Solo para las pruebas: todo como en una app recién instalada, y las llamadas en cero. */
 export function __reiniciar(): void {
   actual = SIN_PEDIR;
   alPedir = permiso(PermissionStatus.GRANTED, true);
   ubicacion = UBICACION_POR_OMISION;
+  precisionesQueFallan = [];
+  ultimaConocida = null;
   for (const funcion of [
     getForegroundPermissionsAsync,
     requestForegroundPermissionsAsync,
     getBackgroundPermissionsAsync,
     requestBackgroundPermissionsAsync,
     getCurrentPositionAsync,
+    getLastKnownPositionAsync,
   ]) {
     funcion.mockClear();
   }

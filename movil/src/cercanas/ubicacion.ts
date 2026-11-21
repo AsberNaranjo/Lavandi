@@ -26,8 +26,24 @@ export async function pedirPermiso(): Promise<Permiso> {
   return respuesta.granted ? 'concedido' : 'sin-permiso';
 }
 
-/** Dónde está el teléfono ahora. La precisión equilibrada basta para buscar lavanderías en línea recta (ADR-0009). */
+/**
+ * Dónde está el teléfono ahora. La precisión equilibrada basta para buscar lavanderías en línea recta (ADR-0009). En
+ * Android esa precisión sale de la red; sin red (o en el emulador, que solo simula el GPS) no llega, y entonces se pide
+ * con precisión alta, que usa el GPS. Si tampoco llega, sirve la última ubicación que el teléfono recuerda. Sin
+ * ninguna, lanza: la pantalla lo dice (cercanas-E04).
+ */
 export async function ubicacionActual(): Promise<Punto> {
-  const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-  return { latitud: coords.latitude, longitud: coords.longitude };
+  for (const accuracy of [Location.Accuracy.Balanced, Location.Accuracy.High]) {
+    try {
+      const { coords } = await Location.getCurrentPositionAsync({ accuracy });
+      return { latitud: coords.latitude, longitud: coords.longitude };
+    } catch {
+      // Se intenta con la siguiente precisión.
+    }
+  }
+  const ultima = await Location.getLastKnownPositionAsync();
+  if (!ultima) {
+    throw new Error('Sin ubicación');
+  }
+  return { latitud: ultima.coords.latitude, longitud: ultima.coords.longitude };
 }

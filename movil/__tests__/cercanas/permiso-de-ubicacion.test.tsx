@@ -284,6 +284,39 @@ describe('cercanas-E04: con permiso, la consulta usa la ubicación del teléfono
     },
   );
 
+  // En Android, la precisión equilibrada sale de la red; sin red (o en el emulador, que solo simula el GPS) no llega.
+  test('cercanas-E04 — si la ubicación con precisión equilibrada no llega, la pide con precisión alta', async () => {
+    gps.__permiso(gps.PermissionStatus.GRANTED);
+    gps.__ubicacion(UBICACION);
+    gps.__fallaConPrecision([gps.Accuracy.Balanced]);
+
+    await abrirLaPantallaPrincipal('android');
+
+    await waitFor(() => expect(consultasDeCercanas()).toHaveLength(1));
+    expect(consultasDeCercanas()[0].url).toBe(URL_ESPERADA);
+  });
+
+  test('cercanas-E04 — si tampoco llega con precisión alta, usa la última ubicación que el teléfono recuerda', async () => {
+    gps.__permiso(gps.PermissionStatus.GRANTED);
+    gps.__fallaConPrecision([gps.Accuracy.Balanced, gps.Accuracy.High]);
+    gps.__ultimaConocida(UBICACION);
+
+    await abrirLaPantallaPrincipal('android');
+
+    await waitFor(() => expect(consultasDeCercanas()).toHaveLength(1));
+    expect(consultasDeCercanas()[0].url).toBe(URL_ESPERADA);
+  });
+
+  test('cercanas-E04 — sin ninguna ubicación, lo dice y no consulta', async () => {
+    gps.__permiso(gps.PermissionStatus.GRANTED);
+    gps.__fallaConPrecision([gps.Accuracy.Balanced, gps.Accuracy.High]);
+
+    await abrirLaPantallaPrincipal('android');
+
+    expect(await screen.findByText('No pudimos obtener tu ubicación. Revisa que esté activada.')).toBeOnTheScreen();
+    expect(consultasDeCercanas()).toEqual([]);
+  });
+
   // La ubicación viaja en la consulta y la app no la conserva (design.md, decisión 6).
   test('cercanas-E04 — la ubicación no se guarda en el teléfono', async () => {
     gps.__permiso(gps.PermissionStatus.GRANTED);
