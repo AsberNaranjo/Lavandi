@@ -34,7 +34,9 @@ que a su vez lee las tablas de la tarea 1.1 (ver `design.md`, Open Questions).
 
 - [ ] 3.1 perfil-lavanderia-E09, perfil-lavanderia-E10 (`movil/`): fotos, descripción, servicios con precio por kilo,
   calificación y reseñas; sin calificaciones, el texto y ningún promedio — test:
-  `movil/__tests__/perfil-lavanderia/pantalla-de-perfil.test.tsx` — tamaño M
+  `movil/__tests__/perfil-lavanderia/pantalla-de-perfil.test.tsx` — tamaño M. **Avance:** todo menos las fotos, en
+  verde (perfil-lavanderia-E10 completo; perfil-lavanderia-E09 sin fotos). Las fotos esperan la tarea 2.1: la
+  pantalla deja su lugar, sin imágenes. Se marca cuando el test vea las fotos
 
 ## 4. Selección de servicio
 

@@ -32,11 +32,21 @@ const METROS_POR_KILOMETRO = 1000;
  * el perfil (perfil-lavanderia-E10).
  */
 export function detalleDeLavanderia({ distancia_metros, calificacion_promedio }: LavanderiaCercana): string {
-  const metros = Math.round(distancia_metros);
-  const distancia =
-    metros < METROS_POR_KILOMETRO ? `A ${metros} m` : `A ${(distancia_metros / METROS_POR_KILOMETRO).toFixed(1)} km`;
-  const calificada = calificacion_promedio === null ? 'Aún sin calificaciones' : `Calificación ${calificacion_promedio.toFixed(1)}`;
-  return `${distancia} · ${calificada}`;
+  return `${distanciaEnTexto(distancia_metros)} · ${calificacionEnTexto(calificacion_promedio)}`;
+}
+
+/** "A 800 m", "A 1.2 km": menos de un kilómetro va en metros. */
+function distanciaEnTexto(distanciaMetros: number): string {
+  const metros = Math.round(distanciaMetros);
+  return metros < METROS_POR_KILOMETRO ? `A ${metros} m` : `A ${(distanciaMetros / METROS_POR_KILOMETRO).toFixed(1)} km`;
+}
+
+/**
+ * El promedio de calificaciones con un decimal, "Calificación 4.8", o, sin calificaciones, el texto que lo dice y
+ * ningún número: la tarjeta (cercanas-E12) y el perfil (perfil-lavanderia-E10) lo dicen igual.
+ */
+export function calificacionEnTexto(promedio: number | null): string {
+  return promedio === null ? 'Aún sin calificaciones' : `Calificación ${promedio.toFixed(1)}`;
 }
 
 /**

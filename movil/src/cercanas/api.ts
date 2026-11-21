@@ -2,6 +2,7 @@
 // consulta, con el token de la sesión (sin sesión el servidor no contesta lavanderías, cercanas-E10), y la app no lo
 // guarda (design.md, decisión 6). Como las demás consultas, nunca lanza: devuelve un Resultado.
 import { pedir, type Resultado } from '../configuracion/api';
+import { esObjeto, numero, numeroOVacio } from '../configuracion/lectura';
 
 /**
  * El contrato de la consulta con el servidor (tarea 1.1 de lavanderias-cercanas), en un solo lugar para ajustarlo:
@@ -67,11 +68,8 @@ function leerLavanderia(fila: unknown): LavanderiaCercana | null {
   const longitud = numero(fila.longitud);
   const distancia = numero(fila.distancia_metros);
   const calificaciones = numero(fila.numero_de_calificaciones);
-  const promedio = fila.calificacion_promedio === null ? null : numero(fila.calificacion_promedio);
-  if (latitud === null || longitud === null || distancia === null || calificaciones === null) {
-    return null;
-  }
-  if (fila.calificacion_promedio !== null && promedio === null) {
+  const promedio = numeroOVacio(fila.calificacion_promedio);
+  if (latitud === null || longitud === null || distancia === null || calificaciones === null || promedio === undefined) {
     return null;
   }
   return {
@@ -83,15 +81,4 @@ function leerLavanderia(fila: unknown): LavanderiaCercana | null {
     calificacion_promedio: promedio,
     numero_de_calificaciones: calificaciones,
   };
-}
-
-// Un número, aunque llegue como texto: PostgreSQL entrega los decimales (el promedio, las coordenadas) como texto si
-// el servidor no los convierte.
-function numero(valor: unknown): number | null {
-  const convertido = typeof valor === 'string' && valor.trim() !== '' ? Number(valor) : valor;
-  return typeof convertido === 'number' && Number.isFinite(convertido) ? convertido : null;
-}
-
-function esObjeto(valor: unknown): valor is Record<string, unknown> {
-  return typeof valor === 'object' && valor !== null;
 }
