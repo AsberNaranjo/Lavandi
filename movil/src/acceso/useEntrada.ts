@@ -1,8 +1,8 @@
 // Lo que comparten el registro y el inicio de sesión: mandar la petición, guardar la sesión y entrar al inicio, o
 // quedarse con los errores a la vista (registro-E04, E09 y E19).
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
+import { useAbrirComoPrimera } from '../navegacion/regresar';
 import { useSesion } from '../sesion/ProveedorDeSesion';
 import { iniciarSesionConGoogle, type Falla, type Resultado, type SesionNueva } from './api';
 import { pedirIdTokenDeGoogle } from './google';
@@ -12,7 +12,7 @@ import { errorDeCampo, MENSAJES, mensajeGeneral } from './mensajes';
 const CAMPOS = ['correo', 'password'] as const;
 
 export function useEntrada() {
-  const router = useRouter();
+  const abrirComoPrimera = useAbrirComoPrimera();
   const { iniciar } = useSesion();
   const [falla, setFalla] = useState<Falla>();
   const [errorGeneral, setErrorGeneral] = useState<string>();
@@ -30,11 +30,8 @@ export function useEntrada() {
     const resultado = await pedir();
     if (resultado.ok) {
       await iniciar(resultado.datos.token);
-      // Se vacía la pila: "atrás" ya no regresa a la entrada ni al formulario con la sesión abierta.
-      if (router.canDismiss()) {
-        router.dismissAll();
-      }
-      router.replace('/inicio');
+      // Se vacía la pila: "atrás" ya no regresa al formulario con la sesión abierta.
+      abrirComoPrimera('/inicio');
       return;
     }
     setFalla(resultado);

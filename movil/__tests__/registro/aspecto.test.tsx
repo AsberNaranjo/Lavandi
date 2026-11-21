@@ -4,12 +4,11 @@
 // grande, subtítulo y orden), el separador, los botones a todo lo ancho, el enlace de abajo y el lugar de Google, con
 // los colores y las medidas de theme.ts (ADR-0013). Lo que el mock trae sin cita no está (C-225, DD-080).
 import * as SecureStore from 'expo-secure-store';
-import { Stack } from 'expo-router';
-import { userEvent } from '@testing-library/react-native';
+import { router, Stack } from 'expo-router';
+import { act, userEvent } from '@testing-library/react-native';
 import { renderRouter, screen } from 'expo-router/testing-library';
 import { StyleSheet } from 'react-native';
 
-import Entrada from '../../app/entrada';
 import Inicio from '../../app/inicio';
 import InicioDeSesion from '../../app/inicio-de-sesion';
 import RecuperarContrasena from '../../app/recuperar-contrasena';
@@ -69,7 +68,6 @@ async function abrir(ruta: string) {
   await renderRouter(
     {
       _layout: Pila,
-      entrada: Entrada,
       registro: Registro,
       'inicio-de-sesion': InicioDeSesion,
       'recuperar-contrasena': RecuperarContrasena,
@@ -225,13 +223,12 @@ describe('registro-E04 (tarea 2.3): el registro con el aspecto de la Propuesta 0
 });
 
 describe('registro-E09 (tarea 2.3): el inicio de sesión con el aspecto de la Propuesta 04', () => {
-  test('registro-E09 — encabezado con regreso e "Iniciar sesión"; luego el saludo con el nombre de la configuración, los campos, "¿Olvidaste tu contraseña?", el botón, "o", Google y el enlace al registro, en ese orden', async () => {
+  test('registro-E09 — encabezado con "Iniciar sesión"; luego el saludo con el nombre de la configuración, los campos, "¿Olvidaste tu contraseña?", el botón, "o", Google y el enlace al registro, en ese orden', async () => {
     await abrir('/inicio-de-sesion');
     await screen.findByLabelText('Correo electrónico');
 
     const marcas = [
       '#encabezado',
-      '#regresar',
       'Iniciar sesión',
       'Hola de nuevo',
       'Entra a Nombre de prueba aspecto.',
@@ -330,30 +327,46 @@ describe('registro-E26 (tarea 2.3): la recuperación con el aspecto de la Propue
   });
 });
 
+// Sin la entrada (C-237), el inicio de sesión es la raíz sin sesión: abierto como primera pantalla, no regresa a ningún
+// lado; el registro regresa a él.
 describe('registro-E04 y registro-E09 (tarea 2.3): "Regresar" en el encabezado', () => {
-  test.each([
-    ['Crear cuenta', '/registro'],
-    ['Iniciar sesión', '/inicio-de-sesion'],
-  ])('registro-E04 y registro-E09 — desde la entrada, "%s" abre %s y "Regresar" vuelve a la entrada', async (boton, ruta) => {
-    const usuario = userEvent.setup();
-    await abrir('/entrada');
+  test('registro-E09 — abierto como primera pantalla, el inicio de sesión lleva su encabezado sin "Regresar"', async () => {
+    await abrir('/inicio-de-sesion');
 
-    await usuario.press(await screen.findByRole('button', { name: boton }));
-    expect(screen).toHavePathname(ruta);
-    await usuario.press(screen.getByRole('button', { name: 'Regresar' }));
-
-    expect(screen).toHavePathname('/entrada');
+    expect(await screen.findByRole('header', { name: 'Iniciar sesión' })).toBeOnTheScreen();
+    expect(screen.getByTestId('encabezado')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Regresar' })).not.toBeOnTheScreen();
   });
 
-  test.each([['/registro'], ['/inicio-de-sesion']])(
-    'registro-E04 y registro-E09 — abierta %s sin pantalla anterior, "Regresar" lleva a la entrada',
-    async (ruta) => {
-      const usuario = userEvent.setup();
-      await abrir(ruta);
+  test('registro-E09 — si se llegó desde otra pantalla, "Regresar" vuelve a ella', async () => {
+    const usuario = userEvent.setup();
+    await abrir('/recuperar-contrasena');
+    await screen.findByLabelText('Correo electrónico');
 
-      await usuario.press(await screen.findByRole('button', { name: 'Regresar' }));
+    await act(() => router.push('/inicio-de-sesion'));
+    expect(screen).toHavePathname('/inicio-de-sesion');
+    await usuario.press(await screen.findByRole('button', { name: 'Regresar' }));
 
-      expect(screen).toHavePathname('/entrada');
-    },
-  );
+    expect(screen).toHavePathname('/recuperar-contrasena');
+  });
+
+  test('registro-E04 — desde el inicio de sesión, "Regístrate" abre el registro y "Regresar" vuelve al inicio de sesión', async () => {
+    const usuario = userEvent.setup();
+    await abrir('/inicio-de-sesion');
+
+    await usuario.press(await screen.findByRole('link', { name: '¿No tienes cuenta? Regístrate' }));
+    expect(screen).toHavePathname('/registro');
+    await usuario.press(screen.getByRole('button', { name: 'Regresar' }));
+
+    expect(screen).toHavePathname('/inicio-de-sesion');
+  });
+
+  test('registro-E04 — abierto el registro sin pantalla anterior, "Regresar" lleva al inicio de sesión', async () => {
+    const usuario = userEvent.setup();
+    await abrir('/registro');
+
+    await usuario.press(await screen.findByRole('button', { name: 'Regresar' }));
+
+    expect(screen).toHavePathname('/inicio-de-sesion');
+  });
 });

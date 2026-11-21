@@ -1,6 +1,7 @@
 // El encabezado de las pantallas de registro, inicio de sesión y recuperación, como el .encabezado-app de las imágenes de
 // la Propuesta 04 (C-230): el botón "Regresar" y el título de la pantalla, sobre la superficie. Colores y medidas de
-// theme.ts (ADR-0013); el botón tiene el área táctil mínima.
+// theme.ts (ADR-0013); el botón tiene el área táctil mínima. Sin a dónde regresar (el inicio de sesión abierto como
+// primera pantalla, C-237) no hay botón, y su lugar queda vacío para que el título no se mueva.
 //
 // La flecha es el carácter "‹" con la escala tipográfica: la app no tiene una librería de íconos y agregarla es una
 // dependencia nueva. Su trazo depende de la letra del sistema y se revisa en un teléfono real.
@@ -10,23 +11,28 @@ import { accesibilidad, color, espaciado, radio, tipografia } from '../tema/them
 
 interface Propiedades {
   titulo: string;
-  alRegresar: () => void;
+  /** Sin él, la pantalla no regresa a ningún lado y no lleva el botón. */
+  alRegresar?: () => void;
 }
 
 export function Encabezado({ titulo, alRegresar }: Propiedades) {
   return (
     <View style={estilos.encabezado} testID="encabezado">
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Regresar"
-        onPress={alRegresar}
-        testID="regresar"
-        style={({ pressed }) => [estilos.regreso, pressed && estilos.regresoPresionado]}
-      >
-        <Text style={estilos.flecha} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          ‹
-        </Text>
-      </Pressable>
+      {alRegresar ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Regresar"
+          onPress={alRegresar}
+          testID="regresar"
+          style={({ pressed }) => [estilos.regreso, pressed && estilos.regresoPresionado]}
+        >
+          <Text style={estilos.flecha} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+            ‹
+          </Text>
+        </Pressable>
+      ) : (
+        <View style={estilos.lado} testID="sin-regreso" />
+      )}
       <Text accessibilityRole="header" numberOfLines={1} style={estilos.titulo}>
         {titulo}
       </Text>

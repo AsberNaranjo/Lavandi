@@ -26,7 +26,7 @@ import { espaciado } from '../src/tema/theme';
 
 export default function Registro() {
   const router = useRouter();
-  const regresar = useRegresar('/entrada');
+  const regresar = useRegresar('/inicio-de-sesion');
   const { enviando, errorGeneral, errorDe, entrarCon, entrarConGoogle } = useEntrada();
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');

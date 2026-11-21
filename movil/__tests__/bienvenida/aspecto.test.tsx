@@ -1,15 +1,15 @@
-// Spec: openspec/changes/bienvenida/, tarea 1.3 (C-230): el aspecto de la bienvenida, las tres informativas y la
-// entrada, ajustado a las imágenes de la Propuesta 04 de los mocks. No cambia ningún escenario (bienvenida-E01 a
-// bienvenida-E05): prueba la composición y el orden, los botones fijos abajo y a todo lo ancho, y los puntos de avance,
-// con los colores y las medidas de theme.ts (ADR-0013). Sin "Saltar" ni "Ya tengo cuenta" (C-225) y sin la cinta ni
-// las marcas del mock. El contenido es el de un archivo de prueba, como en bienvenida.test.tsx (bienvenida-E05).
+// Spec: openspec/changes/bienvenida/, tarea 1.3 (C-230): el aspecto de la bienvenida y las tres informativas, ajustado a
+// las imágenes de la Propuesta 04 de los mocks. No cambia ningún escenario (bienvenida-E01 a bienvenida-E05): prueba la
+// composición y el orden, los botones fijos abajo y a todo lo ancho, y los puntos de avance, con los colores y las
+// medidas de theme.ts (ADR-0013). Sin "Saltar" ni "Ya tengo cuenta" (C-225) y sin la cinta ni las marcas del mock. El
+// contenido es el de un archivo de prueba, como en bienvenida.test.tsx (bienvenida-E05). Ya no hay una entrada aparte:
+// la oferta de bienvenida-E04 es el inicio de sesión (C-237), cuyo aspecto prueba registro/aspecto.test.tsx.
 import * as SecureStore from 'expo-secure-store';
 import { Stack } from 'expo-router';
 import { renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import { StyleSheet } from 'react-native';
 
 import Bienvenida from '../../app/bienvenida';
-import Entrada from '../../app/entrada';
 import Informativa from '../../app/informativa/[numero]';
 import type { ContenidoDeBienvenida } from '../../src/contenido/bienvenida';
 import { ProveedorDeSesion } from '../../src/sesion/ProveedorDeSesion';
@@ -48,7 +48,7 @@ function Pila() {
 
 async function abrir(ruta: string) {
   await renderRouter(
-    { _layout: Pila, bienvenida: Bienvenida, 'informativa/[numero]': Informativa, entrada: Entrada },
+    { _layout: Pila, bienvenida: Bienvenida, 'informativa/[numero]': Informativa },
     { initialUrl: ruta, wrapper: ProveedorDeSesion },
   );
   await waitFor(() => expect(screen).toHavePathname(ruta));
@@ -198,34 +198,8 @@ describe('bienvenida-E03 (tarea 1.3): las informativas con el aspecto de la Prop
   });
 });
 
-describe('bienvenida-E04 (tarea 1.3): la entrada con el aspecto de la Propuesta 04', () => {
-  test('bienvenida-E04 — el nombre al centro y, fijos abajo, "Crear cuenta" e "Iniciar sesión"', async () => {
-    await abrir('/entrada');
-
-    const marcas = ['#contenido', NOMBRE, '#acciones', 'Crear cuenta', 'Iniciar sesión'];
-    expect(enOrden(marcas)).toEqual(marcas);
-    expect(screen.getByRole('header', { name: NOMBRE })).toHaveStyle({
-      fontSize: tipografia.escala.titulo_mayor,
-      textAlign: 'center',
-    });
-  });
-
-  test('bienvenida-E04 — "Crear cuenta" es el botón principal e "Iniciar sesión" un botón de texto, los dos a todo lo ancho', async () => {
-    await abrir('/entrada');
-
-    expect(estiloPlano(screen.getByRole('button', { name: 'Crear cuenta' }))).toMatchObject({
-      alignSelf: 'stretch',
-      backgroundColor: color.semantico.accion,
-    });
-    const iniciar = screen.getByRole('button', { name: 'Iniciar sesión' });
-    expect(estiloPlano(iniciar).alignSelf).toBe('stretch');
-    expect(estiloPlano(iniciar).backgroundColor).toBeUndefined();
-    expect(within(iniciar).getByText('Iniciar sesión')).toHaveStyle({ color: color.semantico.accion });
-  });
-});
-
 describe('bienvenida-E05 (tarea 1.3): lo que el mock dibuja y la app no trae', () => {
-  test.each([['/bienvenida'], ['/informativa/1'], ['/informativa/3'], ['/entrada']])(
+  test.each([['/bienvenida'], ['/informativa/1'], ['/informativa/3']])(
     'bienvenida-E05 — %s no lleva encabezado, ni la cinta del mock, ni "Texto provisional", ni "Saltar" o "Ya tengo cuenta"',
     async (ruta) => {
       await abrir(ruta);
