@@ -99,7 +99,9 @@ return [
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             // El enlace de recuperación vence a los 60 minutos y sirve una sola vez (ADR-0018, decisión 4).
             'expire' => (int) env('RECUPERACION_VENCE_MINUTOS', 60),
-            'throttle' => 60,
+            // Sin el freno propio del broker: con él, una segunda petición en el minuto no mandaba correo aunque
+            // estuviera dentro del límite (registro-E22 y registro-E31). El único freno es limite_por_minuto.
+            'throttle' => 0,
             // Peticiones del enlace por minuto, por correo y por dirección (ADR-0018, decisión 3). Lo aplica el
             // limitador recuperacion de App\Providers\RecuperacionServiceProvider; Laravel no lee esta llave.
             'limite_por_minuto' => (int) env('RECUPERACION_POR_MINUTO', 5),

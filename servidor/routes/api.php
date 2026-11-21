@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CuentaController;
+use App\Http\Controllers\Api\RecuperacionController;
 use App\Http\Controllers\Api\RegistroController;
 use App\Http\Controllers\Api\SesionController;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 // Públicas: las que abren una sesión (registro-e-inicio-de-sesion).
 Route::post('registro', RegistroController::class)->name('registro');
 Route::post('sesion', [SesionController::class, 'iniciar'])->name('sesion.iniciar');
+
+// Pública: la petición del enlace de recuperación, con su límite por correo y por dirección (registro-E31).
+Route::post('contrasena/olvido', RecuperacionController::class)
+    ->middleware('throttle:recuperacion')
+    ->name('contrasena.olvido');
 
 // Con sesión.
 Route::middleware('auth:sanctum')->group(function () {

@@ -38,7 +38,7 @@ nunca en las dos.
 - [ ] 3.2 registro-E19 y registro-E20: el botón de Google en las pantallas de entrada, con
   `react-native-nitro-google-signin`; en Android no se ofrece Apple — test: `movil/__tests__/registro/google.test.tsx`
   — tamaño M
-- [ ] 3.3 registro-E22, registro-E23, registro-E24, registro-E25 y registro-E31: el enlace que vence, en una página web
+- [x] 3.3 registro-E22, registro-E23, registro-E24, registro-E25 y registro-E31: el enlace que vence, en una página web
   del servidor, el correo capturado en local, la contraseña nueva que cierra las sesiones y el límite de peticiones
   (ADR-0018) — test:
   `servidor/tests/Feature/Registro/RecuperacionTest.php` — tamaño M
