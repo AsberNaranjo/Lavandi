@@ -1,17 +1,29 @@
-// Un párrafo centrado en el tono suave del texto, como el .suave de los mocks.
+// Un párrafo en el tono suave del texto, como el .suave de los mocks: el subtítulo de las pantallas y el texto de la
+// bienvenida y de las informativas. Con el tamaño del cuerpo, como en las imágenes de la Propuesta 04 (C-230).
 import { StyleSheet, Text } from 'react-native';
 
 import { color, tipografia } from '../tema/theme';
+import type { Alineacion } from './Titulo';
 
-export function Parrafo({ children }: { children: string }) {
-  return <Text style={estilos.parrafo}>{children}</Text>;
+interface Propiedades {
+  children: string;
+  alineacion?: Alineacion;
+}
+
+export function Parrafo({ children, alineacion = 'centro' }: Propiedades) {
+  return <Text style={[estilos.parrafo, alineacion === 'inicio' ? estilos.inicio : estilos.centro]}>{children}</Text>;
 }
 
 const estilos = StyleSheet.create({
   parrafo: {
     color: color.semantico.texto_suave,
-    fontSize: tipografia.escala.cuerpo_grande,
-    lineHeight: tipografia.escala.cuerpo_grande * tipografia.interlineado.normal,
+    fontSize: tipografia.escala.cuerpo,
+    lineHeight: tipografia.escala.cuerpo * tipografia.interlineado.normal,
+  },
+  centro: {
     textAlign: 'center',
+  },
+  inicio: {
+    textAlign: 'left',
   },
 });

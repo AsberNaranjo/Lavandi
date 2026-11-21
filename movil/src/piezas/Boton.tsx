@@ -1,6 +1,8 @@
 // Botón armado con los tokens, como el .btn de los mocks (mocks/comun/estilos.css, "6. Controles"). No es uno de los
 // seis componentes del design system: las pantallas de acceso se arman con los tokens (bienvenida, design.md).
-// Área táctil mínima de 48 (accesibilidad de tokens.json).
+// Área táctil mínima de 48 (accesibilidad de tokens.json). Como en las imágenes de la Propuesta 04 (C-230), va a todo
+// lo ancho y el principal lleva la letra fuerte. El mock lo dibuja de 52 de alto, medida que tokens.json no tiene:
+// aquí queda en el área táctil mínima.
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
 import { accesibilidad, color, espaciado, radio, tipografia } from '../tema/theme';
@@ -38,6 +40,7 @@ export function Boton({ children, onPress, variante = 'primario', ocupado = fals
 
 const estilos = StyleSheet.create({
   boton: {
+    alignSelf: 'stretch',
     minHeight: accesibilidad.area_tactil_minima_dp,
     paddingHorizontal: espaciado[4],
     borderRadius: radio.medio,
@@ -68,6 +71,7 @@ const estilos = StyleSheet.create({
   },
   textoPrimario: {
     color: color.semantico.accion_texto,
+    fontWeight: tipografia.peso.fuerte,
   },
   textoSecundario: {
     color: color.semantico.texto,

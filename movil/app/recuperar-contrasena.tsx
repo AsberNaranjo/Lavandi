@@ -1,32 +1,30 @@
 // "¿Olvidaste tu contraseña?" (registro-E26): manda el correo al servidor y le dice a la persona que revise su buzón.
 // El enlace del correo abre una página web del servidor (ADR-0018), y la respuesta es la misma exista o no la cuenta.
-import { useRouter } from 'expo-router';
+//
+// El aspecto es el de la imagen a02-recuperar de la Propuesta 04 de los mocks (tarea 2.3, C-230): encabezado con
+// regreso, título grande a la izquierda, el texto, el correo y el botón a todo lo ancho; el regreso queda en el
+// encabezado. Después de enviar, "Volver a iniciar sesión" es el botón principal, como en mocks/usuario/a02-recuperar.html.
+// De ese paso no entran el aviso de que el enlace vence ni "No me llegó, enviar otra vez": no están en las imágenes y el
+// segundo es un comportamiento que el escenario no pide.
 import { useState } from 'react';
 
 import { pedirRecuperacion, type Falla } from '../src/acceso/api';
 import { errorDeCampo, mensajeGeneral } from '../src/acceso/mensajes';
+import { useRegresar } from '../src/navegacion/regresar';
 import { Boton } from '../src/piezas/Boton';
 import { CampoDeTexto } from '../src/piezas/CampoDeTexto';
-import { Enlace } from '../src/piezas/Enlace';
-import { Pantalla } from '../src/piezas/Pantalla';
 import { MensajeDeError } from '../src/piezas/MensajeDeError';
-import { Parrafo } from '../src/piezas/Parrafo';
-import { Titulo } from '../src/piezas/Titulo';
+import { Pantalla } from '../src/piezas/Pantalla';
+import { Presentacion } from '../src/piezas/Presentacion';
+
+const ENCABEZADO = 'Recuperar contraseña';
 
 export default function RecuperarContrasena() {
-  const router = useRouter();
+  const volver = useRegresar('/inicio-de-sesion');
   const [correo, setCorreo] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [falla, setFalla] = useState<Falla>();
   const [enviadoA, setEnviadoA] = useState<string>();
-
-  function volver() {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/inicio-de-sesion');
-    }
-  }
 
   async function enviar() {
     setFalla(undefined);
@@ -42,18 +40,23 @@ export default function RecuperarContrasena() {
 
   if (enviadoA !== undefined) {
     return (
-      <Pantalla justificar="center">
-        <Titulo>Revisa tu correo</Titulo>
-        <Parrafo>{`Si hay una cuenta con ${enviadoA}, te llegará un enlace para crear una contraseña nueva.`}</Parrafo>
-        <Enlace texto="Volver a iniciar sesión" alTocar={volver} />
+      <Pantalla encabezado={{ titulo: ENCABEZADO, alRegresar: volver }}>
+        <Presentacion
+          titulo="Revisa tu correo"
+          texto={`Si hay una cuenta con ${enviadoA}, te llegará un enlace para crear una contraseña nueva.`}
+        />
+        <Boton onPress={volver}>Volver a iniciar sesión</Boton>
       </Pantalla>
     );
   }
 
   return (
-    <Pantalla desplazable justificar="center">
-      <Titulo>¿Olvidaste tu contraseña?</Titulo>
-      <Parrafo>Escribe tu correo. Te enviamos un enlace para crear una contraseña nueva.</Parrafo>
+    <Pantalla desplazable encabezado={{ titulo: ENCABEZADO, alRegresar: volver }}>
+      <Presentacion
+        titulo="¿Olvidaste tu contraseña?"
+        texto="Escribe tu correo. Te enviamos un enlace para crear una contraseña nueva."
+        alineacion="inicio"
+      />
       <CampoDeTexto
         nombre="correo"
         etiqueta="Correo electrónico"
@@ -66,7 +69,6 @@ export default function RecuperarContrasena() {
       <Boton ocupado={enviando} onPress={enviar}>
         Enviar enlace
       </Boton>
-      <Enlace texto="Volver a iniciar sesión" alTocar={volver} />
     </Pantalla>
   );
 }

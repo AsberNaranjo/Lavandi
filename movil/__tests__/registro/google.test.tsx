@@ -122,11 +122,14 @@ describe('registro-E19 y registro-E20: el botón de Google en las pantallas de e
   const USUARIO = { id_publico: '01JD0000000000000000000000', correo: 'persona@ejemplo.com', rol: 'usuario' };
   const PANTALLAS = ['/registro', '/inicio-de-sesion'];
   const direccionOriginal = process.env.EXPO_PUBLIC_API_URL;
+  // El nombre de la app es obligatorio en la configuración: el inicio de sesión lo muestra (tarea 2.3, C-230).
+  const nombreOriginal = process.env.EXPO_PUBLIC_NOMBRE_APP;
   const fetchOriginal = global.fetch;
   let fetchFalso: jest.Mock;
 
   beforeEach(() => {
     process.env.EXPO_PUBLIC_API_URL = BASE;
+    process.env.EXPO_PUBLIC_NOMBRE_APP = 'Nombre de prueba registro-E19';
     fetchFalso = jest.fn();
     global.fetch = fetchFalso as unknown as typeof fetch;
     almacen.__vaciar();
@@ -134,6 +137,7 @@ describe('registro-E19 y registro-E20: el botón de Google en las pantallas de e
 
   afterEach(() => {
     restaurar('EXPO_PUBLIC_API_URL', direccionOriginal);
+    restaurar('EXPO_PUBLIC_NOMBRE_APP', nombreOriginal);
     global.fetch = fetchOriginal;
     jest.restoreAllMocks();
   });
