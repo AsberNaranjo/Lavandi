@@ -20,18 +20,21 @@ export interface Punto {
   longitud: number;
 }
 
-/** Una lavandería como la devuelve la consulta. La API la identifica por su id_publico (design.md, decisión 8). */
+/**
+ * Una lavandería como la devuelve la consulta, con los nombres de campo del servidor (tarea 1.1 de
+ * lavanderias-cercanas). La API la identifica por su id_publico (design.md, decisión 8).
+ */
 export interface LavanderiaCercana {
   id_publico: string;
   nombre: string;
   latitud: number;
   longitud: number;
   /** La distancia en línea recta desde el punto de la consulta, en metros, calculada en la base (cercanas-E06). */
-  distancia_m: number;
+  distancia_metros: number;
   /** El promedio de sus calificaciones, o null si aún no tiene. */
-  calificacion: number | null;
+  calificacion_promedio: number | null;
   /** Cuántas calificaciones tiene. */
-  calificaciones: number;
+  numero_de_calificaciones: number;
 }
 
 /** GET de las lavanderías cercanas a un punto, con la sesión (cercanas-E04). */
@@ -62,13 +65,13 @@ function leerLavanderia(fila: unknown): LavanderiaCercana | null {
   }
   const latitud = numero(fila.latitud);
   const longitud = numero(fila.longitud);
-  const distancia = numero(fila.distancia_m);
-  const calificaciones = numero(fila.calificaciones);
-  const calificacion = fila.calificacion === null ? null : numero(fila.calificacion);
+  const distancia = numero(fila.distancia_metros);
+  const calificaciones = numero(fila.numero_de_calificaciones);
+  const promedio = fila.calificacion_promedio === null ? null : numero(fila.calificacion_promedio);
   if (latitud === null || longitud === null || distancia === null || calificaciones === null) {
     return null;
   }
-  if (fila.calificacion !== null && calificacion === null) {
+  if (fila.calificacion_promedio !== null && promedio === null) {
     return null;
   }
   return {
@@ -76,9 +79,9 @@ function leerLavanderia(fila: unknown): LavanderiaCercana | null {
     nombre: fila.nombre,
     latitud,
     longitud,
-    distancia_m: distancia,
-    calificacion,
-    calificaciones,
+    distancia_metros: distancia,
+    calificacion_promedio: promedio,
+    numero_de_calificaciones: calificaciones,
   };
 }
 

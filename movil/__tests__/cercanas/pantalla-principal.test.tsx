@@ -32,27 +32,27 @@ const UNO = {
   nombre: 'Lavandería de prueba uno',
   latitud: 24.031,
   longitud: -104.661,
-  distancia_m: 800,
-  calificacion: 4.5,
-  calificaciones: 3,
+  distancia_metros: 800,
+  calificacion_promedio: 4.5,
+  numero_de_calificaciones: 3,
 };
 const DOS = {
   id_publico: '01JD00000000000000000000C2',
   nombre: 'Lavandería de prueba dos',
   latitud: 24.021,
   longitud: -104.641,
-  distancia_m: 1200,
-  calificacion: 4.8,
-  calificaciones: 12,
+  distancia_metros: 1200,
+  calificacion_promedio: 4.8,
+  numero_de_calificaciones: 12,
 };
 const TRES = {
   id_publico: '01JD00000000000000000000C3',
   nombre: 'Lavandería de prueba tres',
   latitud: 24.041,
   longitud: -104.671,
-  distancia_m: 2700,
-  calificacion: null,
-  calificaciones: 0,
+  distancia_metros: 2700,
+  calificacion_promedio: null,
+  numero_de_calificaciones: 0,
 };
 const TRES_LAVANDERIAS = [UNO, DOS, TRES];
 const PLATAFORMAS = ['ios', 'android'] as const;

@@ -36,9 +36,9 @@ const LAVANDERIA = {
   nombre: 'Lavandería de prueba E04',
   latitud: 24.03,
   longitud: -104.66,
-  distancia_m: 700,
-  calificacion: 4.6,
-  calificaciones: 5,
+  distancia_metros: 700,
+  calificacion_promedio: 4.6,
+  numero_de_calificaciones: 5,
 };
 const PLATAFORMAS = ['ios', 'android'] as const;
 type Plataforma = (typeof PLATAFORMAS)[number];
@@ -308,17 +308,17 @@ describe('cercanas-E04: con permiso, la consulta usa la ubicación del teléfono
     });
 
     test('cercanas-E04 — si el servidor manda los números como texto, la app los lee como números', async () => {
-      servidor([{ ...LAVANDERIA, latitud: '24.03', longitud: '-104.66', distancia_m: '700', calificacion: '4.60' }]);
+      servidor([{ ...LAVANDERIA, latitud: '24.03', longitud: '-104.66', distancia_metros: '700', calificacion_promedio: '4.60' }]);
 
       await expect(consultarCercanas(TOKEN, PUNTO)).resolves.toEqual({ ok: true, datos: [LAVANDERIA] });
     });
 
     test('cercanas-E04 — una lavandería sin calificaciones llega con la calificación vacía', async () => {
-      servidor([{ ...LAVANDERIA, calificacion: null, calificaciones: 0 }]);
+      servidor([{ ...LAVANDERIA, calificacion_promedio: null, numero_de_calificaciones: 0 }]);
 
       await expect(consultarCercanas(TOKEN, PUNTO)).resolves.toEqual({
         ok: true,
-        datos: [{ ...LAVANDERIA, calificacion: null, calificaciones: 0 }],
+        datos: [{ ...LAVANDERIA, calificacion_promedio: null, numero_de_calificaciones: 0 }],
       });
     });
 

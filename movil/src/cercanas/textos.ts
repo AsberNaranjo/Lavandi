@@ -31,11 +31,11 @@ const METROS_POR_KILOMETRO = 1000;
  * Calificación 4.8". Menos de un kilómetro va en metros. Sin calificaciones no hay promedio que mostrar: lo dice, como
  * el perfil (perfil-lavanderia-E10).
  */
-export function detalleDeLavanderia({ distancia_m, calificacion }: LavanderiaCercana): string {
-  const metros = Math.round(distancia_m);
+export function detalleDeLavanderia({ distancia_metros, calificacion_promedio }: LavanderiaCercana): string {
+  const metros = Math.round(distancia_metros);
   const distancia =
-    metros < METROS_POR_KILOMETRO ? `A ${metros} m` : `A ${(distancia_m / METROS_POR_KILOMETRO).toFixed(1)} km`;
-  const calificada = calificacion === null ? 'Aún sin calificaciones' : `Calificación ${calificacion.toFixed(1)}`;
+    metros < METROS_POR_KILOMETRO ? `A ${metros} m` : `A ${(distancia_metros / METROS_POR_KILOMETRO).toFixed(1)} km`;
+  const calificada = calificacion_promedio === null ? 'Aún sin calificaciones' : `Calificación ${calificacion_promedio.toFixed(1)}`;
   return `${distancia} · ${calificada}`;
 }
 
