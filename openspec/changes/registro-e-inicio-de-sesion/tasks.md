@@ -30,6 +30,11 @@ nunca en las dos.
   las piezas de formulario con los tokens (ADR-0013), con expo-router (ADR-0017) y el token en el almacenamiento
   cifrado (ADR-0018) — test: `movil/__tests__/registro/pantallas.test.tsx` y
   `movil/__tests__/registro/sesion.test.ts` — tamaño M
+- [ ] 2.2 registro-E32: al primer arranque después de instalar, la app borra del almacén cifrado la sesión y la marca
+  de la bienvenida (C-229) — test: `movil/__tests__/registro/reinstalacion.test.ts` — tamaño S
+- [ ] 2.3 Ajuste visual de las pantallas de registro, inicio de sesión y recuperación a las imágenes de
+  `mocks/Lavandi - Propuesta 04/Usuario/` (C-230), sin lo que no tiene cita y sin cambiar ningún escenario — test:
+  los de las tareas 2.1, 3.2 y 3.4, en verde — tamaño S
 
 ## 3. Google y recuperación de la contraseña (sprint 02)
 
@@ -46,6 +51,8 @@ nunca en las dos.
   `movil/__tests__/registro/recuperacion.test.tsx` — tamaño S
 - [x] 3.5 registro-E18: Google con un correo que ya tiene cuenta con contraseña se liga si Google verificó el correo
   (C-224; era la 4.1, bloqueada por DD-091) — test: `servidor/tests/Feature/Registro/GoogleTest.php` — tamaño S
+- [ ] 3.6 registro-E16 y registro-E17: el servidor rechaza el `idToken` cuyo correo Google no verificó (C-228,
+  DD-128 cerrada) — test: `servidor/tests/Feature/Registro/GoogleTest.php` — tamaño S
 
 ## 4. Bloqueadas: no entran a un sprint hasta que se responda su fila
 

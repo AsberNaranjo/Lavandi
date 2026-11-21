@@ -112,6 +112,16 @@ Cita: A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` (Control de acceso); 
 - **ENTONCES** entra con su sesión, sin que se le pida el correo ni la contraseña
 - **Y** si el servidor ya no reconoce el token, la app lo borra y la lleva a la entrada
 
+#### Scenario: registro-E32 — Al reinstalar la app, la sesión no sobrevive
+
+- **DADO** que la persona inició sesión y vio la bienvenida, y después desinstaló la app
+- **CUANDO** la vuelve a instalar y la abre
+- **ENTONCES** no hay sesión y la app empieza en la bienvenida, en iPhone igual que en Android
+- **Y** la sesión anterior no se usa, aunque el almacén cifrado del teléfono la haya conservado
+
+Cita: C → C-229 (Arthur) · A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #1, la primera apertura de
+bienvenida-E01)
+
 #### Scenario: registro-E12 — Cerrar la sesión revoca el token
 
 - **DADO** una cuenta con la sesión iniciada
@@ -156,11 +166,12 @@ Criterio: SEG-3 (en parte: el rol de usuario)
 La app DEBE (MUST) ofrecer iniciar sesión con Google, con `react-native-nitro-google-signin`. El servidor DEBE (MUST)
 validar el `idToken` contra Google y contra el cliente OAuth configurado antes de emitir la sesión.
 
-Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #2, "con opción de Google Sign-In"); D → ADR-0005 · C → C-224 (registro-E18)
+Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #2, "con opción de Google Sign-In"); D → ADR-0005 · C → C-224 (registro-E18) y C-228 (el correo verificado)
 
 #### Scenario: registro-E16 — Entra con Google
 
-- **DADO** un `idToken` de Google válido, emitido para el cliente configurado, con un correo que no tiene cuenta
+- **DADO** un `idToken` de Google válido, emitido para el cliente configurado, con un correo que Google da por
+  verificado y que no tiene cuenta
 - **CUANDO** la app lo envía al servidor
 - **ENTONCES** se crea la cuenta con el rol de usuario y la respuesta trae un token de sesión
 - **Y** cuando esa misma cuenta de Google vuelve a entrar, recibe una sesión de la misma cuenta, sin crear otra
@@ -169,7 +180,8 @@ Criterio: A43-6 (en parte: F-A02)
 
 #### Scenario: registro-E17 — Un idToken no válido se rechaza
 
-- **DADO** un `idToken` vencido, con firma no válida o emitido para otro cliente
+- **DADO** un `idToken` vencido, con firma no válida, emitido para otro cliente o con un correo que Google no da por
+  verificado (C-228)
 - **CUANDO** la app lo envía al servidor
 - **ENTONCES** el servidor lo rechaza y no emite sesión
 
