@@ -112,6 +112,9 @@ jobs:
           cache-dependency-path: movil/package-lock.json
       - name: Dependencias
         run: npm ci
+      # La configuración de Expo falla si le faltan sus variables (base-E05); aquí salen de .env.example.
+      - name: Entorno de prueba
+        run: cp .env.example .env
       # Falla si TypeScript encuentra un error de tipos.
       - name: Tipos
         run: npx tsc --noEmit
