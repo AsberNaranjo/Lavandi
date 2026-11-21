@@ -44,4 +44,6 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     // Las direcciones de recogida y de entrega de la cuenta (direcciones). El contrato está en el controlador.
     Route::post('direcciones', [DireccionesController::class, 'guardar'])->name('direcciones.guardar');
     Route::get('direcciones/favoritas', [DireccionesController::class, 'favoritas'])->name('direcciones.favoritas');
+    Route::post('direcciones/recogida-y-entrega', [DireccionesController::class, 'recogidaYEntrega'])
+        ->name('direcciones.recogida-y-entrega');
 });
