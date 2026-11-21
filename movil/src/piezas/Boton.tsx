@@ -3,6 +3,7 @@
 // Como en las imágenes de la Propuesta 04 (C-230), va a todo lo ancho y el principal lleva la letra fuerte. Las medidas
 // salen de tokens.json (DD-133, punto 5): el principal mide el alto de botón principal; el secundario, el área táctil
 // mínima; los dos llevan el grosor de borde de control.
+import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
 import { accesibilidad, alto, color, espaciado, grosor, radio, tipografia } from '../tema/theme';
@@ -16,9 +17,11 @@ interface Props {
   variante?: Variante;
   /** Mientras se envía un formulario: muestra que trabaja y no deja volver a tocar (registro-E04). */
   ocupado?: boolean;
+  /** Lo que va a la izquierda del texto, como la "G" de Google (registro-E19). Ocupado, cede su lugar al indicador. */
+  delante?: ReactNode;
 }
 
-export function Boton({ children, onPress, variante = 'primario', ocupado = false }: Props) {
+export function Boton({ children, onPress, variante = 'primario', ocupado = false, delante = null }: Props) {
   const aspecto = ASPECTO[variante];
   return (
     <Pressable
@@ -28,7 +31,7 @@ export function Boton({ children, onPress, variante = 'primario', ocupado = fals
       onPress={onPress}
       style={({ pressed }) => [estilos.boton, aspecto.boton, pressed && aspecto.presionado]}
     >
-      {ocupado ? <ActivityIndicator color={aspecto.indicador} /> : null}
+      {ocupado ? <ActivityIndicator color={aspecto.indicador} /> : delante}
       <Text style={[estilos.texto, aspecto.texto]}>{children}</Text>
     </Pressable>
   );

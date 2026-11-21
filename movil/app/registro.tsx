@@ -3,9 +3,10 @@
 // En iPhone, "Continuar con Apple" es la tarea 4.3, bloqueada por DD-069; en Android no se ofrece (ADR-0005).
 //
 // El aspecto es el de la imagen a02-registro de la Propuesta 04 de los mocks (tarea 2.3, C-230): encabezado con
-// regreso, título grande, subtítulo, Google arriba, "o con tu correo", los campos y el botón a todo lo ancho. Del mock
-// no entran el campo "Nombre" (C-225: va en el perfil), la casilla "Acepto…" (registro-E29, bloqueado por DD-080), el
-// botón para ver la contraseña ni el texto de ayuda bajo ella: no tienen escenario.
+// regreso, título grande, subtítulo, Google arriba con la "G" de Google en lugar de la de relleno del mock (DD-133, punto
+// 3), "o con tu correo", los campos y el botón a todo lo ancho. Del mock no entran el campo "Nombre" (C-225: va en el
+// perfil), la casilla "Acepto…" (registro-E29, bloqueado por DD-080), el botón para ver la contraseña ni el texto de
+// ayuda bajo ella: no tienen escenario.
 import { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 
@@ -15,6 +16,7 @@ import { useEntrada } from '../src/acceso/useEntrada';
 import { direccionDeLosTerminos, direccionDelAvisoDePrivacidad } from '../src/configuracion/entorno';
 import { useRegresar } from '../src/navegacion/regresar';
 import { Boton } from '../src/piezas/Boton';
+import { BotonDeGoogle } from '../src/piezas/BotonDeGoogle';
 import { CampoDeTexto } from '../src/piezas/CampoDeTexto';
 import { Enlace } from '../src/piezas/Enlace';
 import { MensajeDeError } from '../src/piezas/MensajeDeError';
@@ -44,9 +46,7 @@ export default function Registro() {
       />
       {conGoogle ? (
         <>
-          <Boton variante="secundario" onPress={entrarConGoogle}>
-            Continuar con Google
-          </Boton>
+          <BotonDeGoogle onPress={entrarConGoogle} />
           <Separador texto="o con tu correo" />
         </>
       ) : null}

@@ -9,8 +9,9 @@
 //
 // El aspecto es el de la imagen a02-inicio-sesion de la Propuesta 04 de los mocks (tarea 2.3, C-230): encabezado
 // con regreso, el logotipo arriba y al centro (su archivo es de nombre neutro: C-237), el saludo con el nombre de la
-// configuración, los campos, "¿Olvidaste tu contraseña?" a la derecha, el botón, "o" y Google abajo. Del mock no entra
-// el botón para ver la contraseña, que no tiene escenario.
+// configuración, los campos, "¿Olvidaste tu contraseña?" a la derecha, el botón, "o" y Google abajo, con la "G" de Google
+// en lugar de la de relleno del mock (DD-133, punto 3). Del mock no entra el botón para ver la contraseña, que no tiene
+// escenario.
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
@@ -20,6 +21,7 @@ import { useEntrada } from '../src/acceso/useEntrada';
 import { nombreDeLaApp } from '../src/configuracion/entorno';
 import { useRegresarSiHayAnterior } from '../src/navegacion/regresar';
 import { Boton } from '../src/piezas/Boton';
+import { BotonDeGoogle } from '../src/piezas/BotonDeGoogle';
 import { CampoDeTexto } from '../src/piezas/CampoDeTexto';
 import { Enlace } from '../src/piezas/Enlace';
 import { Logotipo } from '../src/piezas/Logotipo';
@@ -63,9 +65,7 @@ export default function InicioDeSesion() {
       {googleDisponible() ? (
         <>
           <Separador texto="o" />
-          <Boton variante="secundario" onPress={entrarConGoogle}>
-            Continuar con Google
-          </Boton>
+          <BotonDeGoogle onPress={entrarConGoogle} />
         </>
       ) : null}
       <Enlace
