@@ -18,4 +18,10 @@ return [
      */
     'contrasena_minima' => (int) env('ACCESO_CONTRASENA_MINIMA', 8),
 
+    /*
+     * Los intentos por minuto, por correo y por dirección (ADR-0018, decisión 3). Lo aplica el limitador
+     * inicio-de-sesion de App\Providers\AppServiceProvider en POST /api/sesion (registro-E30).
+     */
+    'intentos_por_minuto' => (int) env('ACCESO_INTENTOS_POR_MINUTO', 5),
+
 ];

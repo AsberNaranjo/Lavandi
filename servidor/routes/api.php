@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Route;
 
 // Públicas: las que abren una sesión (registro-e-inicio-de-sesion).
 Route::post('registro', RegistroController::class)->name('registro');
-Route::post('sesion', [SesionController::class, 'iniciar'])->name('sesion.iniciar');
+Route::post('sesion', [SesionController::class, 'iniciar'])
+    ->middleware('throttle:inicio-de-sesion')
+    ->name('sesion.iniciar');
 
 // Con sesión, y por el componente único de autorización (registro-E14). Una ruta nueva sin las dos no pasa la prueba
 // tests/Feature/Registro/AutorizacionTest.php.
