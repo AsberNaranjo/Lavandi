@@ -5,7 +5,8 @@
 // Resultado.
 //
 // La geocodificación vive en el servidor (ADR-0009, decisión 4): la app manda la dirección escrita sin punto, y el
-// servidor la convierte una sola vez, al guardarla. La app nunca la consulta.
+// servidor la convierte una sola vez, al guardarla. La del mapa viaja con el punto del pin y no se geocodifica. La app
+// nunca consulta la geocodificación, ni de ida ni de vuelta.
 import { pedir, type Falla } from '../configuracion/api';
 import { esObjeto, numero } from '../configuracion/lectura';
 
@@ -58,6 +59,15 @@ export interface DireccionEscrita extends SenasDeLaDireccion, Favorita {
   origen: 'escrita';
 }
 
+/** Una dirección nueva marcada en el mapa: el punto del pin, que se guarda tal cual (direcciones-E04). */
+export interface DireccionDelMapa extends SenasDeLaDireccion, Favorita {
+  origen: 'mapa';
+  latitud: number;
+  longitud: number;
+}
+
+export type DireccionNueva = DireccionEscrita | DireccionDelMapa;
+
 /**
  * Una dirección nueva y falla con motivo propio: la escrita que el servicio de geocodificación no encontró, o el
  * servicio que no respondió. En los dos casos el servidor no guardó nada y la app ofrece el mapa (direcciones-E03).
@@ -67,7 +77,7 @@ export type FallaDelAlta = Falla | { ok: false; motivo: 'no-encontrada' } | { ok
 /** POST de una dirección nueva, con la sesión. Devuelve la dirección guardada, con su punto. */
 export async function guardarDireccion(
   token: string,
-  nueva: DireccionEscrita,
+  nueva: DireccionNueva,
 ): Promise<{ ok: true; datos: Direccion } | FallaDelAlta> {
   const { ruta, clave } = CONTRATO_DE_DIRECCIONES;
   const resultado = await pedir<unknown>(ruta, { metodo: 'POST', token, cuerpo: cuerpoDelAlta(nueva) });
@@ -80,11 +90,11 @@ export async function guardarDireccion(
 }
 
 // El cuerpo del alta: el texto de cada seña sin espacios de sobra; las vacías no viajan, y el servidor dice cuál
-// falta (direcciones-E02). El nombre solo viaja con la favorita.
-function cuerpoDelAlta({ es_favorita, alias, ...resto }: DireccionEscrita): Record<string, unknown> {
+// falta (direcciones-E02). El punto solo viaja con la del mapa, y el nombre solo con la favorita.
+function cuerpoDelAlta({ es_favorita, alias, ...resto }: DireccionNueva): Record<string, unknown> {
   const cuerpo: Record<string, unknown> = {};
   for (const [campo, valor] of Object.entries(resto)) {
-    const limpio = valor.trim();
+    const limpio = typeof valor === 'string' ? valor.trim() : valor;
     if (limpio !== '') {
       cuerpo[campo] = limpio;
     }

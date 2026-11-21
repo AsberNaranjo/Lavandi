@@ -15,6 +15,14 @@ export const TEXTOS_DE_DIRECCIONES = {
   colonia: 'Colonia',
   municipio: 'Municipio',
   referencias: 'Referencias (opcional)',
+  // En el mapa, sin geocodificación inversa, solo la colonia es obligatoria (direcciones-E04).
+  calleEnElMapa: 'Calle (opcional)',
+  numeroEnElMapa: 'Número (opcional)',
+  municipioEnElMapa: 'Municipio (opcional)',
+  instruccionDelMapa: 'Mueve el mapa para dejar el pin sobre tu puerta.',
+  // Sin escenario propio: sin permiso de ubicación, o sin ubicación, el mapa no tiene dónde abrirse.
+  sinUbicacionParaElMapa: 'Sin tu ubicación no podemos abrir el mapa. Puedes escribir la dirección.',
+  buscandoTuUbicacion: 'Buscando tu ubicación…',
   guardar: 'Guardar dirección',
   // La escrita que no se encontró, o el servicio que no respondió: se ofrece el mapa (direcciones-E03).
   noEncontrada: 'No encontramos la dirección. Márcala en el mapa.',

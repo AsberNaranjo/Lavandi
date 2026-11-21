@@ -12,7 +12,7 @@ luego el código mínimo; luego la limpieza.
 ## 2. App: formulario, mapa y elección
 
 - [x] 2.1 direcciones-E01, direcciones-E02, direcciones-E03: formulario de dirección escrita, con la colonia obligatoria y la salida al mapa si no se encuentra — test: `movil/__tests__/direcciones/formulario.test.tsx` — tamaño S
-- [ ] 2.2 direcciones-E04, direcciones-E05: marcar la dirección en el mapa con `react-native-maps` sin proveedor — test: `movil/__tests__/direcciones/mapa.test.tsx` — tamaño M
+- [x] 2.2 direcciones-E04, direcciones-E05: marcar la dirección en el mapa con `react-native-maps` sin proveedor — test: `movil/__tests__/direcciones/mapa.test.tsx` — tamaño M
 - [ ] 2.3 direcciones-E06, direcciones-E08, direcciones-E09, direcciones-E10, direcciones-E11: lista de favoritas, recogida y entrega, y el aviso de fuera de zona — test: `movil/__tests__/direcciones/recogida-y-entrega.test.tsx` — tamaño S
 
 ## 3. Bloqueadas: no entran al sprint mientras su fila siga abierta
