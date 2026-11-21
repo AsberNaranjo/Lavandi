@@ -46,6 +46,18 @@ sesión (C-226), con cinco agentes y las tablas en el Docker (C-227).
   autorización y el 403 o 404), [[DD-130]] (la librería del `idToken`) y [[DD-131]] (fuentes, reinstalación en iPhone y
   regreso).
 
+**2026-11-21, segunda vuelta** (C-228 a C-231):
+- registro-E16 y E17: Google sin correo verificado se rechaza (C-228, DD-128 cerrada).
+- registro-E32: al reinstalar no sobrevive la sesión, con una marca en los documentos de la app (C-229). Si escribir
+  la marca falla, la sesión se borra igual: nunca sobrevive una sesión vieja.
+- Las pantallas del H1 se ajustaron a la Propuesta 04 (C-230). Lo que quedó fuera es [[DD-133]].
+- La guía [[correr-la-app-en-local]] y `herramientas/vista-web/preparar.ps1` (C-231).
+- La app quedó con 214 tests, y el servidor, con 159.
+- **La revisión adversarial del servidor:** 24 hallazgos, de los que 2 de 3 verificadores confirmaron 9, que son 6
+  problemas.
+  - Cinco se corrigen en `fix/h1-revision-servidor`.
+  - El sexto es [[DD-132]], el ligado de Google a una cuenta que otra persona registró antes.
+
 **Pendiente.**
 - Probar en un teléfono con un development build: la app ya trae módulos nativos y la librería de Google no está
   probada con React Native 0.88.
