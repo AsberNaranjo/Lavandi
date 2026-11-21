@@ -14,7 +14,7 @@ M = 5 h, L = 12 h.
 
 ## 2. App (`movil/`)
 
-- [ ] 2.1 historial-E01: pantalla "Mis pedidos" con folio, fecha, lavandería e insignia de estado — test: `movil/__tests__/historial/lista.test.tsx` — tamaño S
+- [x] 2.1 historial-E01: pantalla "Mis pedidos" con folio, fecha, lavandería e insignia de estado — test: `movil/__tests__/historial/lista.test.tsx` — tamaño S
 - [ ] 2.2 historial-E03 e historial-E04: filtro por rango de fechas y mensaje de lista vacía — test: `movil/__tests__/historial/filtro-por-fecha.test.tsx` — tamaño S
 - [ ] 2.3 historial-E06, historial-E07 e historial-E08: pantalla de calificación con 5 estrellas y comentario opcional — test: `movil/__tests__/historial/calificacion.test.tsx` — tamaño S
 

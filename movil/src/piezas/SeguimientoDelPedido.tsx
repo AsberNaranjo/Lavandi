@@ -21,6 +21,7 @@ import type { PasoALaVista, Situacion } from '../estados/seguimiento';
 import { pasoParaLeer, pedidoConFolio, TEXTOS_DEL_SEGUIMIENTO } from '../estados/textos';
 import { letra } from '../tema/letra';
 import { color, espaciado, grosor, radio, tipografia } from '../tema/theme';
+import { colorDelEstado, InsigniaDeEstado } from './InsigniaDeEstado';
 
 interface Propiedades {
   /** Vacío hasta Confirmado: sin él no hay "Pedido …". */
@@ -40,29 +41,14 @@ export function SeguimientoDelPedido({ folio, lavanderia, pasos }: Propiedades) 
           {folio ? <Text style={[estilos.folio, letra('titulares', 'fuerte')]}>{pedidoConFolio(folio)}</Text> : null}
           <Text style={[estilos.lavanderia, letra('cuerpo', 'regular')]}>{lavanderia}</Text>
         </View>
-        {actual ? <Insignia paso={actual} /> : null}
+        {/* El estado actual, con el punto y el nombre en el color del estado. */}
+        {actual ? <InsigniaDeEstado codigo={actual.codigo} nombre={actual.nombre} testID="estado-actual" /> : null}
       </View>
       <View>
         {pasos.map((paso, indice) => (
           <Paso key={paso.codigo} paso={paso} ultimo={indice === pasos.length - 1} />
         ))}
       </View>
-    </View>
-  );
-}
-
-/** El color propio de cada uno de los cinco en color.pedido. */
-function colorDelEstado(codigo: string): string {
-  return codigo in color.pedido ? color.pedido[codigo as keyof typeof color.pedido] : color.semantico.accion;
-}
-
-// El estado actual, con el punto y el nombre en el color del estado.
-function Insignia({ paso }: { paso: PasoALaVista }) {
-  const tono = colorDelEstado(paso.codigo);
-  return (
-    <View style={[estilos.insignia, { borderColor: tono }]} testID="estado-actual">
-      <View style={[estilos.punto, { backgroundColor: tono }]} />
-      <Text style={[estilos.textoDeLaInsignia, letra('cuerpo', 'semifuerte'), { color: tono }]}>{paso.nombre}</Text>
     </View>
   );
 }
@@ -149,19 +135,6 @@ const estilos = StyleSheet.create({
   lavanderia: {
     color: color.semantico.texto_suave,
     fontSize: tipografia.escala.cuerpo,
-  },
-  insignia: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: espaciado[2],
-    paddingHorizontal: espaciado[3],
-    paddingVertical: espaciado[1],
-    borderWidth: grosor.control,
-    borderRadius: radio.pildora,
-    backgroundColor: color.semantico.superficie,
-  },
-  textoDeLaInsignia: {
-    fontSize: tipografia.escala.menor,
   },
   punto: {
     width: espaciado[2],
