@@ -83,7 +83,8 @@ function leerPedido(datos: unknown): PedidoEnSeguimiento | null {
   };
 }
 
-function leerEstado(datos: unknown): EstadoDelPedido | null {
+/** El estado de un pedido tal como llega, o null si no es del contrato. Lo lee también la lista de "Mis pedidos". */
+export function leerEstado(datos: unknown): EstadoDelPedido | null {
   if (
     !esObjeto(datos) ||
     typeof datos.codigo !== 'string' ||

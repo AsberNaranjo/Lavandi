@@ -9,7 +9,7 @@ import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-na
 import { letra } from '../tema/letra';
 import { tema } from '../tema/theme';
 
-export type TipoDeCampo = 'texto' | 'correo' | 'contrasena' | 'contrasena-nueva';
+export type TipoDeCampo = 'texto' | 'correo' | 'contrasena' | 'contrasena-nueva' | 'fecha';
 
 interface Propiedades {
   /** El nombre del campo en la API: une el campo con su error (`campo-<nombre>`). */
@@ -46,6 +46,14 @@ const POR_TIPO: Record<TipoDeCampo, TextInputProps> = {
     autoCorrect: false,
     autoComplete: 'new-password',
     textContentType: 'newPassword',
+  },
+  // Una fecha DD/MM/AAAA, como el filtro de "Mis pedidos" (historial-E03): el teclado de números de las dos plataformas,
+  // que no trae la diagonal; la pone quien usa el campo. La muestra del formato va en el texto suave.
+  fecha: {
+    keyboardType: 'number-pad',
+    maxLength: 'DD/MM/AAAA'.length,
+    placeholder: 'DD/MM/AAAA',
+    placeholderTextColor: tema.color.semantico.texto_suave,
   },
 };
 

@@ -93,4 +93,13 @@ Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cam
 - **El orden de `repartidores`** frente a esta migración (ver Risks).
 - **Pantallas sin componente.** El historial y la calificación no usan ninguno de los seis componentes de
   `vault/design-system/componentes.md`, salvo la insignia de estado del componente 3. La Definition of Ready pide que
-  el componente exista o que la tarea lo cree.
+  el componente exista o que la tarea lo cree. **Lista: resuelta en la tarea 2.1.** La insignia se extrajo del
+  seguimiento a `movil/src/piezas/InsigniaDeEstado.tsx`, sin cambiar cómo se ve, y la usan los dos; la tarjeta de cada
+  pedido (`movil/src/historial/TarjetaDePedido.tsx`) y el filtro se arman con las piezas y los tokens.
+- **Cómo se eligen las fechas del filtro en `movil/`: resuelta.** Dos campos de texto, "Desde" y "Hasta", en
+  DD/MM/AAAA, con el teclado de números de las dos plataformas (`number-pad`) y las diagonales que pone la app; antes de
+  mandar el rango, cada fecha tiene que existir y "Hasta" no puede ser anterior a "Desde", y un 422 del servidor va
+  junto a su campo. Es lo más simple que funciona igual en Android y en iPhone sin dependencia nativa nueva: React
+  Native no trae el selector de fechas del sistema, y uno propio de calendario es más código. Los atajos del mock
+  ("Últimos 30 días", "Este año") no entran: el rango basta. Vive en `movil/src/historial/FiltroPorFecha.tsx` y
+  `movil/src/historial/fechas.ts`. Se decidió por delegación de Arthur (C-236), con la tarea 2.2.

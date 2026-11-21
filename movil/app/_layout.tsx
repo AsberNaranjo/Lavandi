@@ -4,9 +4,9 @@
 // Las pantallas se ven según la sesión (ADR-0018): con sesión no se ven el registro, el inicio de sesión ni la
 // recuperación, y llevan al inicio; sin sesión no se ven el inicio, la lista y el perfil de las lavanderías
 // (lavanderias-cercanas) ni los pasos del pedido (perfil-de-lavanderia, agenda-de-recoleccion y direcciones), con su
-// resumen, su pago y su confirmación (resumen-y-confirmacion), su seguimiento (estados-del-pedido), ni el perfil y la
-// ayuda (perfil-y-soporte), que llevan al arranque, y el arranque decide entre la bienvenida y el inicio de sesión
-// (bienvenida-E01, E02 y E04; C-237).
+// resumen, su pago y su confirmación (resumen-y-confirmacion), su seguimiento (estados-del-pedido), el historial
+// (historial-y-calificacion), ni el perfil y la ayuda (perfil-y-soporte), que llevan al arranque, y el arranque decide
+// entre la bienvenida y el inicio de sesión (bienvenida-E01, E02 y E04; C-237).
 // Mientras se lee la sesión no se muestra ninguna pantalla. La bienvenida y las informativas no dependen de la sesión.
 //
 // Tampoco se muestra ninguna mientras carga la letra de la marca (adenda del 2026-11-21 de ADR-0013): la carga empieza
@@ -59,6 +59,7 @@ function Pantallas({ letraLista }: { letraLista: boolean }) {
         <Stack.Screen name="pedido/seguimiento/[id]" />
         <Stack.Screen name="perfil/index" />
         <Stack.Screen name="ayuda" />
+        <Stack.Screen name="pedidos/index" />
       </Stack.Protected>
       <Stack.Protected guard={!conSesion} redirectTo="/inicio">
         <Stack.Screen name="registro" />
