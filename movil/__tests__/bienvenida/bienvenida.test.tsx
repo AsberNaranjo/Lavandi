@@ -3,6 +3,7 @@
 // y sus imágenes, los toman del archivo y no de su código. Navegación con expo-router (ADR-0017).
 import path from 'node:path';
 import * as SecureStore from 'expo-secure-store';
+import { router } from 'expo-router';
 import { fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 
 import type { ContenidoDeBienvenida } from '../../src/contenido/bienvenida';
@@ -102,13 +103,28 @@ describe('bienvenida: la bienvenida y las tres informativas', () => {
     expect(ilustracion('informativa-3')).toEqual({ uri: 'prueba://informativa-3' });
   });
 
-  test('bienvenida-E04 — al avanzar desde la tercera, la app ofrece registrarse o iniciar sesión', async () => {
+  test('bienvenida-E04 — al avanzar desde la tercera, la app abre el inicio de sesión, que ofrece registrarse o iniciar sesión', async () => {
     await renderRouter(APP, { initialUrl: '/informativa/3' });
 
-    await avanzar('Siguiente de prueba', '/entrada');
+    await avanzar('Siguiente de prueba', '/inicio-de-sesion');
 
-    expect(screen.getByRole('button', { name: 'Crear cuenta' })).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Iniciar sesión' })).toBeOnTheScreen();
+    expect(await screen.findByRole('button', { name: 'Iniciar sesión' })).toBeOnTheScreen();
+    expect(screen.getByRole('link', { name: '¿No tienes cuenta? Regístrate' })).toBeOnTheScreen();
+  });
+
+  // DD-131, punto 3, por delegación (C-236): el inicio de sesión queda como primera pantalla.
+  test('bienvenida-E04 — al llegar al inicio de sesión desde la tercera, "atrás" ya no vuelve a las informativas', async () => {
+    await renderRouter(APP, { initialUrl: '/bienvenida' });
+    await avanzar('Comenzar de prueba', '/informativa/1');
+    await avanzar('Siguiente de prueba', '/informativa/2');
+    await avanzar('Siguiente de prueba', '/informativa/3');
+    expect(router.canGoBack()).toBe(true);
+
+    await avanzar('Siguiente de prueba', '/inicio-de-sesion');
+
+    await waitFor(() => expect(router.canGoBack()).toBe(false));
+    expect(screen.queryByTestId('informativa-3', { includeHiddenElements: true })).not.toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Regresar' })).not.toBeOnTheScreen();
   });
 
   test.each([['/bienvenida'], ['/informativa/1'], ['/informativa/2'], ['/informativa/3']])(
@@ -142,6 +158,12 @@ describe('bienvenida-E05: el contenido provisional vive en su propio archivo', (
   test('bienvenida-E05 — trae el lema y la ilustración de la bienvenida', () => {
     expect(provisional.bienvenida.lema.trim()).not.toBe('');
     expect(provisional.bienvenida.ilustracion).toBeTruthy();
+  });
+
+  // Decisión 20 del acta del 2026-11-20 (C-237): la ilustración provisional de la bienvenida es el logotipo, en su
+  // archivo de nombre neutro; la compilación local lo reemplaza por el de EL CLIENTE.
+  test('bienvenida-E05 — la ilustración provisional de la bienvenida es el logotipo', () => {
+    expect(provisional.bienvenida.ilustracion).toEqual(require('../../assets/marca/logotipo.png'));
   });
 
   test('bienvenida-E05 — trae tres informativas, cada una con título, texto e ilustración (C-225)', () => {

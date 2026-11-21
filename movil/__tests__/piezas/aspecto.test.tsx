@@ -1,12 +1,12 @@
 // Las piezas con las que se arman las pantallas de H1 con el aspecto de las imágenes de la Propuesta 04 de los mocks,
 // módulo del usuario (C-230): tareas 2.3 de registro-e-inicio-de-sesion y 1.3 de bienvenida. Cada color y cada medida
 // sale de theme.ts (ADR-0013): las pruebas comparan contra el tema, no contra números.
-import { fireEvent, render, screen, userEvent, within } from '@testing-library/react-native';
+import { render, screen, userEvent, within } from '@testing-library/react-native';
 import { StyleSheet, Text } from 'react-native';
 
-import { Boton } from '../../src/piezas/Boton';
 import { Encabezado } from '../../src/piezas/Encabezado';
 import { Enlace } from '../../src/piezas/Enlace';
+import { Logotipo } from '../../src/piezas/Logotipo';
 import { Pantalla } from '../../src/piezas/Pantalla';
 import { Presentacion } from '../../src/piezas/Presentacion';
 import { Separador } from '../../src/piezas/Separador';
@@ -82,6 +82,31 @@ describe('registro-E04 y registro-E09 (tarea 2.3): el encabezado con regreso y t
     expect(estiloPlano(regresar).minHeight).toBeGreaterThanOrEqual(accesibilidad.area_tactil_minima_dp);
   });
 
+  // El inicio de sesión abierto como primera pantalla es la raíz sin sesión (bienvenida-E04, C-237): no regresa a ningún
+  // lado. El título queda donde está en las demás pantallas.
+  test('registro-E09 — sin a dónde regresar, no hay "Regresar" y el lado izquierdo queda vacío, del mismo ancho', async () => {
+    await render(<Encabezado titulo="Iniciar sesión" />);
+
+    expect(screen.queryByRole('button', { name: 'Regresar' })).not.toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: 'Iniciar sesión' })).toBeOnTheScreen();
+    expect(screen.getByTestId('sin-regreso')).toHaveStyle({ minWidth: accesibilidad.area_tactil_minima_dp });
+  });
+
+  test('registro-E09 — la pantalla con encabezado sin regreso lo pone arriba del contenido', async () => {
+    await render(
+      <Pantalla encabezado={{ titulo: 'Iniciar sesión' }}>
+        <Text testID="contenido-de-prueba">Contenido</Text>
+      </Pantalla>,
+    );
+
+    expect(enOrden(['#encabezado', 'Iniciar sesión', '#contenido-de-prueba'])).toEqual([
+      '#encabezado',
+      'Iniciar sesión',
+      '#contenido-de-prueba',
+    ]);
+    expect(screen.queryByRole('button', { name: 'Regresar' })).not.toBeOnTheScreen();
+  });
+
   test('registro-E04 — la pantalla con encabezado lo pone arriba del contenido, que lleva el margen del mock', async () => {
     await render(
       <Pantalla encabezado={{ titulo: 'Crear cuenta', alRegresar: () => {} }}>
@@ -95,6 +120,39 @@ describe('registro-E04 y registro-E09 (tarea 2.3): el encabezado con regreso y t
       '#contenido-de-prueba',
     ]);
     expect(screen.getByTestId('contenido')).toHaveStyle({ paddingHorizontal: espaciado[4], gap: espaciado[4] });
+  });
+});
+
+// El logotipo en un archivo de nombre neutro (decisión 20 del acta del 2026-11-20, C-237): la marca no se escribe en el
+// código (CLAUDE.md §5). En el repositorio, el archivo es el marcador neutro de la plantilla.
+describe('registro-E09 (C-237): el logotipo', () => {
+  const nombreOriginal = process.env.EXPO_PUBLIC_NOMBRE_APP;
+
+  beforeEach(() => {
+    process.env.EXPO_PUBLIC_NOMBRE_APP = 'Nombre de prueba logotipo';
+  });
+
+  afterEach(() => {
+    if (nombreOriginal === undefined) {
+      delete process.env.EXPO_PUBLIC_NOMBRE_APP;
+    } else {
+      process.env.EXPO_PUBLIC_NOMBRE_APP = nombreOriginal;
+    }
+  });
+
+  test('registro-E09 — es la imagen de assets/marca/logotipo.png y su texto alternativo es el nombre de la configuración', async () => {
+    await render(<Logotipo />);
+
+    const logotipo = screen.getByRole('image', { name: 'Nombre de prueba logotipo' });
+    expect(logotipo.props.source).toEqual(require('../../assets/marca/logotipo.png'));
+  });
+
+  test('registro-E09 — va al centro, del tamaño del mock, sin deformarse', async () => {
+    await render(<Logotipo />);
+
+    const logotipo = screen.getByTestId('logotipo');
+    expect(logotipo).toHaveStyle({ alignSelf: 'center', width: espaciado[8], height: espaciado[8] });
+    expect(logotipo.props.resizeMode).toBe('contain');
   });
 });
 
@@ -170,75 +228,5 @@ describe('registro-E04, registro-E09 y bienvenida-E03 (tareas 2.3 y 1.3): el tí
       lineHeight: tipografia.escala.cuerpo * tipografia.interlineado.normal,
       textAlign: 'left',
     });
-  });
-});
-
-describe('bienvenida-E04 (tarea 1.3): el botón de texto de la entrada', () => {
-  test('bienvenida-E04 — sin fondo ni borde, con el texto en el color de acción, a todo lo ancho y con el área táctil mínima', async () => {
-    const alTocar = jest.fn();
-    const usuario = userEvent.setup();
-    await render(
-      <Boton variante="texto" onPress={alTocar}>
-        Iniciar sesión
-      </Boton>,
-    );
-
-    const boton = screen.getByRole('button', { name: 'Iniciar sesión' });
-    await usuario.press(boton);
-
-    expect(alTocar).toHaveBeenCalledTimes(1);
-    const estilo = estiloPlano(boton);
-    expect(estilo.backgroundColor).toBeUndefined();
-    expect(estilo.borderWidth ?? 0).toBe(0);
-    expect(estilo.alignSelf).toBe('stretch');
-    expect(estilo.minHeight).toBeGreaterThanOrEqual(accesibilidad.area_tactil_minima_dp);
-    expect(screen.getByText('Iniciar sesión')).toHaveStyle({
-      color: color.semantico.accion,
-      fontWeight: tipografia.peso.semifuerte,
-    });
-  });
-
-  // El toque que empieza, con la misma forma que arma userEvent de RNTL: deja el botón presionado para revisar su
-  // aspecto, sin soltarlo.
-  function empezarAToque() {
-    return {
-      preventDefault: () => {},
-      isDefaultPrevented: () => false,
-      stopPropagation: () => {},
-      isPropagationStopped: () => false,
-      persist: () => {},
-      isPersistent: () => false,
-      timeStamp: 0,
-      target: {},
-      currentTarget: { measure: () => {} },
-      nativeEvent: {
-        changedTouches: [],
-        identifier: 0,
-        locationX: 0,
-        locationY: 0,
-        pageX: 0,
-        pageY: 0,
-        target: 0,
-        timestamp: Date.now(),
-        touches: [],
-      },
-      dispatchConfig: { registrationName: 'onResponderGrant' },
-    };
-  }
-
-  // El color de acción sobre la superficie hundida da 4.09:1, debajo del 4.5:1 del texto normal (design-system.md,
-  // umbrales; ADR-0013). Al presionarlo, el texto pasa al color de acción presionado, que sí cumple.
-  test('bienvenida-E04 — presionado, el texto toma el color de acción presionado sobre la superficie hundida', async () => {
-    await render(
-      <Boton variante="texto" onPress={() => {}}>
-        Iniciar sesión
-      </Boton>,
-    );
-    const boton = screen.getByRole('button', { name: 'Iniciar sesión' });
-
-    await fireEvent(boton, 'responderGrant', empezarAToque());
-
-    expect(estiloPlano(boton).backgroundColor).toBe(color.semantico.superficie_hundida);
-    expect(screen.getByText('Iniciar sesión')).toHaveStyle({ color: color.semantico.accion_hover });
   });
 });

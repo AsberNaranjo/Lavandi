@@ -16,9 +16,9 @@ interface Props {
   justificar?: ViewStyle['justifyContent'];
   /** Si el contenido se desplaza: las pantallas con campos de texto. */
   desplazable?: boolean;
-  /** El encabezado con "Regresar" y el título: registro, inicio de sesión y recuperación. */
-  encabezado?: { titulo: string; alRegresar: () => void };
-  /** Los botones fijos abajo, fuera del contenido: la bienvenida, las informativas y la entrada. */
+  /** El encabezado con el título y, si hay a dónde, "Regresar": registro, inicio de sesión y recuperación. */
+  encabezado?: { titulo: string; alRegresar?: () => void };
+  /** Los botones fijos abajo, fuera del contenido: la bienvenida y las informativas. */
   acciones?: ReactNode;
 }
 

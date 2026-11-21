@@ -2,10 +2,15 @@
 // entorno trae el cliente de Google, y "¿Olvidaste tu contraseña?". En iPhone, "Continuar con Apple" es la tarea 4.3,
 // bloqueada por DD-069; en Android no se ofrece (ADR-0005).
 //
+// Es también la oferta de registrarse o iniciar sesión, con "¿No tienes cuenta? Regístrate" (bienvenida-E04, C-237):
+// sin sesión, la app llega aquí al terminar las informativas, al abrirse con la bienvenida ya vista y al cerrar la
+// sesión. Abierto como primera pantalla es la raíz sin sesión y no tiene "Regresar"; si se llegó desde otra, vuelve a
+// ella. "Regístrate" abre el registro encima, para que el regreso de Android y el gesto de iPhone vuelvan aquí (C-236).
+//
 // El aspecto es el de la imagen a02-inicio-sesion de la Propuesta 04 de los mocks (tarea 2.3, C-230): encabezado
-// con regreso, el saludo con el nombre de la configuración, los campos, "¿Olvidaste tu contraseña?" a la derecha, el
-// botón, "o" y Google abajo. Del mock no entran el logotipo (la marca no está decidida: DD-023 y DD-030) ni el botón
-// para ver la contraseña, que no tiene escenario.
+// con regreso, el logotipo arriba y al centro (su archivo es de nombre neutro: C-237), el saludo con el nombre de la
+// configuración, los campos, "¿Olvidaste tu contraseña?" a la derecha, el botón, "o" y Google abajo. Del mock no entra
+// el botón para ver la contraseña, que no tiene escenario.
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
@@ -13,10 +18,11 @@ import { iniciarSesion } from '../src/acceso/api';
 import { googleDisponible } from '../src/acceso/google';
 import { useEntrada } from '../src/acceso/useEntrada';
 import { nombreDeLaApp } from '../src/configuracion/entorno';
-import { useRegresar } from '../src/navegacion/regresar';
+import { useRegresarSiHayAnterior } from '../src/navegacion/regresar';
 import { Boton } from '../src/piezas/Boton';
 import { CampoDeTexto } from '../src/piezas/CampoDeTexto';
 import { Enlace } from '../src/piezas/Enlace';
+import { Logotipo } from '../src/piezas/Logotipo';
 import { MensajeDeError } from '../src/piezas/MensajeDeError';
 import { Pantalla } from '../src/piezas/Pantalla';
 import { Presentacion } from '../src/piezas/Presentacion';
@@ -24,13 +30,14 @@ import { Separador } from '../src/piezas/Separador';
 
 export default function InicioDeSesion() {
   const router = useRouter();
-  const regresar = useRegresar('/entrada');
+  const regresar = useRegresarSiHayAnterior();
   const { enviando, errorGeneral, errorDe, entrarCon, entrarConGoogle } = useEntrada();
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
 
   return (
     <Pantalla desplazable encabezado={{ titulo: 'Iniciar sesión', alRegresar: regresar }}>
+      <Logotipo />
       <Presentacion titulo="Hola de nuevo" texto={`Entra a ${nombreDeLaApp()}.`} />
       <CampoDeTexto
         nombre="correo"
@@ -65,7 +72,7 @@ export default function InicioDeSesion() {
         pregunta="¿No tienes cuenta?"
         texto="Regístrate"
         alinear="centro"
-        alTocar={() => router.replace('/registro')}
+        alTocar={() => router.push('/registro')}
       />
     </Pantalla>
   );

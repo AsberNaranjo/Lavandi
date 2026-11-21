@@ -1,16 +1,16 @@
 // El inicio provisional (C-225): a donde llega la persona al entrar, hasta que existan el mapa (H2) y el perfil (H7).
 // Solo tiene "Cerrar sesión" (registro-E13): la sesión borra el token del teléfono y pide al servidor revocarlo, y la
-// pantalla lleva a la entrada.
-import { useRouter } from 'expo-router';
+// pantalla lleva al inicio de sesión (C-237).
 import { useState } from 'react';
 
+import { useAbrirComoPrimera } from '../src/navegacion/regresar';
 import { Boton } from '../src/piezas/Boton';
 import { Pantalla } from '../src/piezas/Pantalla';
 import { Titulo } from '../src/piezas/Titulo';
 import { useSesion } from '../src/sesion/ProveedorDeSesion';
 
 export default function Inicio() {
-  const router = useRouter();
+  const abrirComoPrimera = useAbrirComoPrimera();
   const { cerrar } = useSesion();
   const [cerrando, setCerrando] = useState(false);
 
@@ -21,11 +21,9 @@ export default function Inicio() {
     } catch {
       // El teléfono no pudo borrar el token, pero la app ya quedó sin sesión y el servidor lo revoca: se sale igual.
     }
-    // Se vacía la pila: "atrás" ya no regresa a las pantallas de la sesión cerrada.
-    if (router.canDismiss()) {
-      router.dismissAll();
-    }
-    router.replace('/entrada');
+    // Se vacía la pila: "atrás" ya no regresa a las pantallas de la sesión cerrada, y el inicio de sesión queda como
+    // primera pantalla.
+    abrirComoPrimera('/inicio-de-sesion');
   }
 
   return (

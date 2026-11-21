@@ -1,6 +1,6 @@
 // A dónde llega la persona al abrir la app (bienvenida-E01 y bienvenida-E02, C-225): con sesión, al inicio; sin sesión
-// y sin haber visto la bienvenida, a la bienvenida; sin sesión y ya vista, a la entrada. Mientras lee el teléfono no
-// muestra nada.
+// y sin haber visto la bienvenida, a la bienvenida; sin sesión y ya vista, al inicio de sesión, que ofrece registrarse o
+// iniciar sesión (bienvenida-E04, C-237). Mientras lee el teléfono no muestra nada.
 import { Redirect } from 'expo-router';
 import { useEffect, useState } from 'react';
 
@@ -29,5 +29,5 @@ export default function Arranque() {
   if (estado === 'cargando' || bienvenidaVista === null) {
     return null;
   }
-  return <Redirect href={bienvenidaVista ? '/entrada' : '/bienvenida'} />;
+  return <Redirect href={bienvenidaVista ? '/inicio-de-sesion' : '/bienvenida'} />;
 }

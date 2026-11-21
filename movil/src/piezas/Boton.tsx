@@ -7,15 +7,12 @@ import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
 import { accesibilidad, color, espaciado, radio, tipografia } from '../tema/theme';
 
-type Variante = 'primario' | 'secundario' | 'texto';
+type Variante = 'primario' | 'secundario';
 
 interface Props {
   children: string;
   onPress: () => void;
-  /**
-   * primario: la acción principal de la pantalla; secundario: las demás, con borde; texto: la acción de apoyo bajo la
-   * principal, sin fondo ni borde, como el .btn-texto del mock.
-   */
+  /** primario: la acción principal de la pantalla; secundario: las demás, con borde. */
   variante?: Variante;
   /** Mientras se envía un formulario: muestra que trabaja y no deja volver a tocar (registro-E04). */
   ocupado?: boolean;
@@ -31,12 +28,8 @@ export function Boton({ children, onPress, variante = 'primario', ocupado = fals
       onPress={onPress}
       style={({ pressed }) => [estilos.boton, aspecto.boton, pressed && aspecto.presionado]}
     >
-      {({ pressed }) => (
-        <>
-          {ocupado ? <ActivityIndicator color={aspecto.indicador} /> : null}
-          <Text style={[estilos.texto, aspecto.texto, pressed && aspecto.textoPresionado]}>{children}</Text>
-        </>
-      )}
+      {ocupado ? <ActivityIndicator color={aspecto.indicador} /> : null}
+      <Text style={[estilos.texto, aspecto.texto]}>{children}</Text>
     </Pressable>
   );
 }
@@ -69,11 +62,6 @@ const estilos = StyleSheet.create({
   secundarioPresionado: {
     backgroundColor: color.semantico.fondo,
   },
-  // Sin fondo ni borde: solo al presionarlo se marca, con la superficie hundida.
-  deTexto: {},
-  deTextoPresionado: {
-    backgroundColor: color.semantico.superficie_hundida,
-  },
   texto: {
     fontSize: tipografia.escala.cuerpo,
     fontWeight: tipografia.peso.semifuerte,
@@ -85,38 +73,20 @@ const estilos = StyleSheet.create({
   textoSecundario: {
     color: color.semantico.texto,
   },
-  textoDeTexto: {
-    color: color.semantico.accion,
-  },
-  // Sobre la superficie hundida, el color de acción queda en 4.09:1, debajo del 4.5:1 del texto normal: al presionar,
-  // el texto pasa al de acción presionado, que llega a 6.27:1 (__tests__/tema/tema.test.ts).
-  textoDeTextoPresionado: {
-    color: color.semantico.accion_hover,
-  },
 });
 
-// Lo que cambia de una variante a otra: el fondo y el borde, el estado presionado del botón y de su texto, el texto y
-// el indicador de ocupado.
+// Lo que cambia de una variante a otra: el fondo y el borde, el estado presionado, el texto y el indicador de ocupado.
 const ASPECTO = {
   primario: {
     boton: estilos.primario,
     presionado: estilos.primarioPresionado,
     texto: estilos.textoPrimario,
-    textoPresionado: null,
     indicador: color.semantico.accion_texto,
   },
   secundario: {
     boton: estilos.secundario,
     presionado: estilos.secundarioPresionado,
     texto: estilos.textoSecundario,
-    textoPresionado: null,
     indicador: color.semantico.texto,
-  },
-  texto: {
-    boton: estilos.deTexto,
-    presionado: estilos.deTextoPresionado,
-    texto: estilos.textoDeTexto,
-    textoPresionado: estilos.textoDeTextoPresionado,
-    indicador: color.semantico.accion,
   },
 } as const satisfies Record<Variante, unknown>;

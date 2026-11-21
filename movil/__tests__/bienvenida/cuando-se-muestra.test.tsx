@@ -75,13 +75,14 @@ describe('bienvenida: a dónde llega la persona al abrir la app', () => {
     });
   });
 
-  test('bienvenida-E02 — si ya vio la bienvenida y no tiene sesión, llega directo a la entrada', async () => {
+  test('bienvenida-E02 — si ya vio la bienvenida y no tiene sesión, llega directo al inicio de sesión', async () => {
     await marcarBienvenidaVista();
 
-    await abrirLaApp('/entrada');
+    await abrirLaApp('/inicio-de-sesion');
+    expect(await screen.findByRole('link', { name: '¿No tienes cuenta? Regístrate' })).toBeOnTheScreen();
   });
 
-  test('bienvenida-E02 — con la sesión abierta entra directo, sin la bienvenida ni la entrada', async () => {
+  test('bienvenida-E02 — con la sesión abierta entra directo, sin la bienvenida ni el inicio de sesión', async () => {
     await marcarBienvenidaVista();
     await guardarToken('token-guardado');
 
@@ -117,7 +118,7 @@ describe('bienvenida: a dónde llega la persona al abrir la app', () => {
     await expect(leerBienvenidaVista()).resolves.toBe(false);
 
     await fireEvent.press(screen.getByRole('button', { name: siguiente }));
-    await waitFor(() => expect(screen).toHavePathname('/entrada'));
+    await waitFor(() => expect(screen).toHavePathname('/inicio-de-sesion'));
 
     await expect(leerBienvenidaVista()).resolves.toBe(true);
   });

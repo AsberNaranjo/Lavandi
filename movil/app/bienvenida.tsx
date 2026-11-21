@@ -3,8 +3,9 @@
 // Sin "Ya tengo cuenta": no tiene cita (C-225).
 //
 // El aspecto es el de la imagen a01-bienvenida de la Propuesta 04 de los mocks (tarea 1.3, C-230): el nombre, el lema
-// y la ilustración al centro, y "Comenzar" fijo abajo, a todo lo ancho. Del mock no entran el logotipo (la marca no
-// está decidida: DD-023 y DD-030) ni la cinta "Ejemplo para ilustrar".
+// y la ilustración al centro, y "Comenzar" fijo abajo, a todo lo ancho. Mientras no llegue la ilustración de EL
+// CLIENTE, el archivo de contenido pone en su lugar el logotipo de nombre neutro (C-237). Del mock no entra la cinta
+// "Ejemplo para ilustrar".
 import { useRouter } from 'expo-router';
 
 import { nombreDeLaApp } from '../src/configuracion/entorno';

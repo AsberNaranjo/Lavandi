@@ -10,7 +10,7 @@ export type Alineacion = 'centro' | 'inicio';
 
 interface Propiedades {
   children: string;
-  /** mayor: el nombre del producto en la bienvenida y la entrada; pantalla: el título grande de las demás. */
+  /** mayor: el nombre del producto en la bienvenida; pantalla: el título grande de las demás. */
   tamano?: 'mayor' | 'pantalla';
   alineacion?: Alineacion;
 }
