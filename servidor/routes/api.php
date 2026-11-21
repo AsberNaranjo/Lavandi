@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\CuentaController;
 use App\Http\Controllers\Api\RegistroController;
+use App\Http\Controllers\Api\SesionConGoogleController;
 use App\Http\Controllers\Api\SesionController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,7 @@ Route::post('registro', RegistroController::class)->name('registro');
 Route::post('sesion', [SesionController::class, 'iniciar'])
     ->middleware('throttle:inicio-de-sesion')
     ->name('sesion.iniciar');
+Route::post('sesion/google', SesionConGoogleController::class)->name('sesion.google');
 
 // Con sesión, y por el componente único de autorización (registro-E14). Una ruta nueva sin las dos no pasa la prueba
 // tests/Feature/Registro/AutorizacionTest.php.
