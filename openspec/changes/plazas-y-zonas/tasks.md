@@ -9,7 +9,7 @@ tarea sin test en verde no se marca. Tamaños de S-006: S = 2 h, M = 5 h, L = 12
   Eloquent `Plaza`, `Zona` y `ParametroPlaza` sobre `App\Models\Modelo`, con su `$table`, su `$primaryKey` y las llaves
   de cada relación. Necesita `modelo-de-datos`; la llave natural y `created_at` ya están resueltas en `design.md` —
   test: `servidor/tests/Feature/Plazas/MigracionTest.php` y `servidor/tests/Feature/Modelo/` — tamaño S
-- [ ] 1.2 plazas-E01, plazas-E02 (`servidor/`): zona horaria obligatoria y válida, y estado de la plaza; hora local de
+- [x] 1.2 plazas-E01, plazas-E02 (`servidor/`): zona horaria obligatoria y válida, y estado de la plaza; hora local de
   un instante — test: `servidor/tests/Feature/Plazas/FichaDePlazaTest.php` — tamaño S
 
 ## 2. Zonas y resolución de un punto
