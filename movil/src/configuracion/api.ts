@@ -27,7 +27,7 @@ export type Falla =
 export type Resultado<T> = { ok: true; datos: T } | Falla;
 
 export interface Peticion {
-  metodo: 'GET' | 'POST' | 'DELETE';
+  metodo: 'GET' | 'POST' | 'PATCH' | 'DELETE';
   cuerpo?: unknown;
   token?: string;
 }
