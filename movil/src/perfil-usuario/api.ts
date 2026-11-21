@@ -1,15 +1,17 @@
 // El perfil y el soporte de la cuenta (openspec/changes/perfil-y-soporte): leer el perfil y cambiar el nombre
-// (perfil-usuario-E01 y E02) y el número de WhatsApp de soporte (perfil-usuario-E09 y E10). Todo va con el token de la
-// sesión y actúa sobre la cuenta de la sesión: ninguna ruta recibe de quién. El contrato exacto con cada cuerpo y cada
-// error está en design.md, sección "Contrato de la API", y en el comentario de cada controlador de
-// servidor/app/Http/Controllers/Api/. Como las demás consultas, nunca lanza: devuelve un Resultado.
-import { pedir, type Resultado } from '../configuracion/api';
+// (perfil-usuario-E01 y E02), el número de WhatsApp de soporte (perfil-usuario-E09 y E10) y el reporte
+// (perfil-usuario-E11 y E12). Todo va con el token de la sesión y actúa sobre la cuenta de la sesión: ninguna ruta
+// recibe de quién. El contrato exacto con cada cuerpo y cada error está en design.md, sección "Contrato de la API", y en
+// el comentario de cada controlador de servidor/app/Http/Controllers/Api/. Como las demás consultas, nunca lanza:
+// devuelve un Resultado.
+import { pedir, type Falla, type Resultado } from '../configuracion/api';
 import { esObjeto } from '../configuracion/lectura';
 
 /** Las rutas del perfil y del soporte, en un solo lugar para ajustarlas. */
 export const CONTRATO_DEL_PERFIL = {
   perfil: 'perfil',
   soporte: 'soporte',
+  reportes: 'soporte/reportes',
 } as const;
 
 /** El perfil de la cuenta, como lo devuelve el servidor. Nunca trae un número de tarjeta (perfil-usuario-E06). */
@@ -82,4 +84,68 @@ export async function consultarSoporte(token: string): Promise<Resultado<Soporte
   }
   const { whatsapp } = resultado.datos;
   return { ok: true, datos: { whatsapp: typeof whatsapp === 'string' && SOLO_DIGITOS.test(whatsapp) ? whatsapp : null } };
+}
+
+/** El reporte que guardó el servidor (perfil-usuario-E11). */
+export interface Reporte {
+  descripcion: string;
+  /** El id_publico del pedido, o null si no es de un pedido. */
+  pedido: string | null;
+  /** "recibido", el único mientras no se responda DD-108. */
+  estado: string;
+  /** La fecha del reporte, en UTC. */
+  recibido_en: string;
+}
+
+/** Lo que manda la persona: la descripción, tal como la escribió, y su pedido si llegó desde uno. */
+export interface ReporteNuevo {
+  descripcion: string;
+  pedido: string | null;
+}
+
+/**
+ * Un reporte que el servidor no guardó porque no tiene a qué plaza ir: sin pedido, la cuenta no tiene pedidos ni
+ * direcciones guardadas con plaza (decisión 27 de acta-2026-11-20-modelo-y-pasarela). La app muestra su mensaje y ofrece
+ * el WhatsApp.
+ */
+export type FallaDelReporte = Falla | { ok: false; motivo: 'sin-plaza'; mensaje: string };
+
+// El motivo con el que el servidor rechaza un reporte sin plaza.
+const SIN_PLAZA = 'sin_plaza';
+
+/**
+ * POST del reporte, con la descripción tal como la escribió la persona: el servidor quita los espacios de los lados y
+ * rechaza la vacía (perfil-usuario-E12), con su error en "descripcion". Un pedido que no es de la cuenta responde 404
+ * (perfil-usuario-E13). En ningún error se guarda el reporte.
+ */
+export async function enviarReporte(
+  token: string,
+  { descripcion, pedido }: ReporteNuevo,
+): Promise<{ ok: true; datos: Reporte } | FallaDelReporte> {
+  const resultado = await pedir<unknown>(CONTRATO_DEL_PERFIL.reportes, {
+    metodo: 'POST',
+    token,
+    cuerpo: { descripcion, pedido },
+  });
+  if (!resultado.ok) {
+    return resultado.motivo === 'invalido' && resultado.motivoDelServidor === SIN_PLAZA
+      ? { ok: false, motivo: 'sin-plaza', mensaje: resultado.mensaje }
+      : resultado;
+  }
+  const reporte = esObjeto(resultado.datos) ? leerReporte(resultado.datos.reporte) : null;
+  // Una respuesta fuera del contrato no se pinta a medias: cuenta como falla del servidor.
+  return reporte ? { ok: true, datos: reporte } : { ok: false, motivo: 'servidor' };
+}
+
+function leerReporte(fila: unknown): Reporte | null {
+  if (
+    !esObjeto(fila) ||
+    typeof fila.descripcion !== 'string' ||
+    !(fila.pedido === null || typeof fila.pedido === 'string') ||
+    typeof fila.estado !== 'string' ||
+    typeof fila.recibido_en !== 'string'
+  ) {
+    return null;
+  }
+  return { descripcion: fila.descripcion, pedido: fila.pedido, estado: fila.estado, recibido_en: fila.recibido_en };
 }
