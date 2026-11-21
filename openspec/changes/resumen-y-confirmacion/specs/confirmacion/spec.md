@@ -127,6 +127,17 @@ Cita: A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3`; D → ADR-0003
 
 Criterio: A43-2
 
+#### Scenario: confirmacion-E15 — La dirección ya se usó con su plaza anterior
+
+- **DADO** una dirección guardada que ya se copió en un pedido de su plaza
+- **Y** las zonas cambiaron y su punto cae hoy en una zona de otra plaza
+- **CUANDO** el usuario acepta un resumen con esa dirección y una lavandería de la plaza de hoy
+- **ENTONCES** el servidor lo rechaza con el motivo `plaza_de_la_direccion_desactualizada`, sin crear el pedido
+- **Y** el pedido anterior y su copia de la dirección no cambian
+- **Y** la app ofrece guardar la dirección de nuevo
+
+Criterio: A43-2
+
 ### Requirement: Pantalla de confirmación
 
 Cuando el pedido queda Confirmado, la app DEBE (MUST) mostrar su número de folio y su resumen.

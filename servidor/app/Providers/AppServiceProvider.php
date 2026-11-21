@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Avisos\MandarCorreoDeConfirmacion;
 use App\Models\Usuario;
+use App\Pedidos\PedidoConfirmado;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -24,6 +27,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // El correo de confirmación cuelga del evento de pedido confirmado (confirmacion-E10; design.md, decisión 7).
+        Event::listen(PedidoConfirmado::class, MandarCorreoDeConfirmacion::class);
+
         // La regla de la contraseña sale de la configuración cada vez que se pide (ADR-0018, decisión 2).
         Password::defaults(fn (): Password => Password::min((int) config('acceso.contrasena_minima')));
 

@@ -6,15 +6,13 @@ use App\Autorizacion\Autorizacion;
 use App\Direcciones\AltaDeDireccion;
 use App\Direcciones\DireccionNoEncontrada;
 use App\Direcciones\GeocodificacionNoDisponible;
-use App\Direcciones\ZonaDeServicio;
+use App\Direcciones\RecogidaYEntrega;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GuardarDireccionRequest;
 use App\Http\Requests\RecogidaYEntregaRequest;
 use App\Http\Resources\DireccionResource;
-use App\Models\Direccion;
 use App\Models\Lavanderia;
 use App\Models\Usuario;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -122,8 +120,9 @@ use Illuminate\Support\Str;
  *
  *     200  { "recogida": { ...la dirección... }, "entrega": { ...la dirección... } }
  *          Las dos sirven para un pedido con esa lavandería. Con la entrega en la misma dirección, las dos son la misma.
- *          El servidor no guarda nada: la app las lleva hasta el resumen del pedido, que las copia al confirmarlo
- *          (resumen-y-confirmacion). No se consulta la geocodificación: se usa el punto guardado (direcciones-E07).
+ *          El servidor no guarda nada: la app las lleva hasta el resumen del pedido, y POST /api/pedidos las vuelve a
+ *          validar y las copia al crear el pedido (resumen-y-confirmacion). No se consulta la geocodificación: se usa
+ *          el punto guardado (direcciones-E07).
  *
  *     422  {
  *            "message": "La dirección está fuera de la zona de servicio.",
@@ -146,13 +145,10 @@ use Illuminate\Support\Str;
  */
 class DireccionesController extends Controller
 {
-    /** El mensaje para la persona de cada motivo de rechazo de la recogida o la entrega. */
-    private const MENSAJES_DE_RECHAZO = [
-        ZonaDeServicio::FUERA_DE_LA_ZONA => 'La dirección está fuera de la zona de servicio.',
-        ZonaDeServicio::OTRA_PLAZA => 'Esta lavandería no da servicio en esa dirección.',
-    ];
-
-    public function __construct(private readonly Autorizacion $autorizacion) {}
+    public function __construct(
+        private readonly Autorizacion $autorizacion,
+        private readonly RecogidaYEntrega $recogidaYEntrega,
+    ) {}
 
     public function guardar(GuardarDireccionRequest $peticion, AltaDeDireccion $alta): JsonResponse
     {
@@ -199,10 +195,15 @@ class DireccionesController extends Controller
         /** @var Usuario $usuario */
         $usuario = $peticion->user();
 
-        return response()->json(['direccion' => new DireccionResource($this->direccionDe($usuario, $direccion))]);
+        return response()->json([
+            'direccion' => new DireccionResource($this->recogidaYEntrega->direccion($usuario, $direccion)),
+        ]);
     }
 
-    public function recogidaYEntrega(RecogidaYEntregaRequest $peticion, ZonaDeServicio $zona): JsonResponse
+    /**
+     * La lógica vive en App\Direcciones\RecogidaYEntrega, que reusa la creación del pedido (confirmacion-E08).
+     */
+    public function recogidaYEntrega(RecogidaYEntregaRequest $peticion): JsonResponse
     {
         /** @var Usuario $usuario */
         $usuario = $peticion->user();
@@ -217,46 +218,18 @@ class DireccionesController extends Controller
             return response()->json(['message' => 'No existe la lavandería.'], 404);
         }
 
-        $recogida = $this->direccionDe($usuario, $peticion->validated('recogida'));
-        // Sin entrega, se entrega en la misma dirección de la recogida (direcciones-E09).
-        $conEntrega = $peticion->validated('entrega') !== null;
-        $entrega = $conEntrega ? $this->direccionDe($usuario, $peticion->validated('entrega')) : $recogida;
-
-        $motivos = array_filter([
-            'recogida' => $zona->motivoDeRechazo($recogida, $lavanderia),
-            'entrega' => $conEntrega ? $zona->motivoDeRechazo($entrega, $lavanderia) : null,
-        ]);
-
-        if ($motivos !== []) {
-            $errores = array_map(fn (string $motivo): array => [self::MENSAJES_DE_RECHAZO[$motivo]], $motivos);
-
-            return response()->json([
-                'message' => reset($errores)[0],
-                'errors' => $errores,
-                'motivos' => $motivos,
-            ], 422);
-        }
+        // 404 si una no es de la cuenta (DireccionNoVisible); 422 con los motivos si no sirven
+        // (DireccionesFueraDeServicio).
+        $direcciones = $this->recogidaYEntrega->elegir(
+            $usuario,
+            $peticion->validated('recogida'),
+            $peticion->validated('entrega'),
+        );
+        $this->recogidaYEntrega->validar($direcciones, $lavanderia);
 
         return response()->json([
-            'recogida' => new DireccionResource($recogida),
-            'entrega' => new DireccionResource($entrega),
+            'recogida' => new DireccionResource($direcciones->recogida),
+            'entrega' => new DireccionResource($direcciones->entrega),
         ]);
-    }
-
-    /**
-     * Una dirección de la cuenta, con su punto, por su identificador público. La de otra cuenta, una borrada y una que
-     * no existe responden lo mismo, 404, sin ningún dato (direcciones-E14; ADR-0019, decisión 3). Quién ve qué lo dice
-     * el componente de autorización.
-     *
-     * @throws HttpResponseException
-     */
-    private function direccionDe(Usuario $usuario, string $idPublico): Direccion
-    {
-        return $this->autorizacion->direccionesVisibles($usuario)
-            ->conCoordenadas()
-            // HasUlids guarda el ULID en minúsculas.
-            ->where('id_publico', Str::lower($idPublico))
-            ->first()
-            ?? throw new HttpResponseException(response()->json(['message' => 'No existe la dirección.'], 404));
     }
 }
