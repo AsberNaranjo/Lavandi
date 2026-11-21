@@ -7,6 +7,7 @@
 // bienvenida y las informativas no dependen de la sesión.
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, View } from 'react-native';
 
 import { ProveedorDeSesion, useSesion } from '../src/sesion/ProveedorDeSesion';
 import { color } from '../src/tema/theme';
@@ -23,14 +24,15 @@ export default function Raiz() {
 function Pantallas() {
   const { estado } = useSesion();
 
-  // Hasta saber si hay sesión no se muestra nada: ni el inicio sin sesión ni la entrada con ella (registro-E11).
+  // Hasta saber si hay sesión no se muestra ninguna pantalla, ni el inicio sin sesión ni la entrada con ella
+  // (registro-E11): solo el fondo de la app.
   if (estado === 'cargando') {
-    return null;
+    return <View testID="leyendo-la-sesion" style={estilos.fondo} />;
   }
   const conSesion = estado === 'con-sesion';
 
   return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.semantico.fondo } }}>
+    <Stack screenOptions={{ headerShown: false, contentStyle: estilos.fondo }}>
       <Stack.Protected guard={conSesion} redirectTo="/">
         <Stack.Screen name="inicio" />
       </Stack.Protected>
@@ -43,3 +45,10 @@ function Pantallas() {
     </Stack>
   );
 }
+
+const estilos = StyleSheet.create({
+  fondo: {
+    flex: 1,
+    backgroundColor: color.semantico.fondo,
+  },
+});
