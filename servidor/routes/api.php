@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CuentaController;
+use App\Http\Controllers\Api\DireccionesController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
 use App\Http\Controllers\Api\PerfilDeLavanderiaController;
 use App\Http\Controllers\Api\RecuperacionController;
@@ -45,4 +46,14 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     Route::get('lavanderias/{lavanderia}/ventanas', VentanasDeLavanderiaController::class)
         ->whereUlid('lavanderia')
         ->name('lavanderias.ventanas');
+
+    // Las direcciones de recogida y de entrega de la cuenta (direcciones). El contrato está en el controlador.
+    Route::post('direcciones', [DireccionesController::class, 'guardar'])->name('direcciones.guardar');
+    Route::get('direcciones/favoritas', [DireccionesController::class, 'favoritas'])->name('direcciones.favoritas');
+    Route::post('direcciones/recogida-y-entrega', [DireccionesController::class, 'recogidaYEntrega'])
+        ->name('direcciones.recogida-y-entrega');
+    // Una dirección de la cuenta, por su ULID. La de otra cuenta responde igual que una que no existe (direcciones-E14).
+    Route::get('direcciones/{direccion}', [DireccionesController::class, 'mostrar'])
+        ->whereUlid('direccion')
+        ->name('direcciones.mostrar');
 });

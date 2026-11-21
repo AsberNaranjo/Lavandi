@@ -80,6 +80,20 @@ de `agenda-de-recoleccion`, y el servidor solo las valida. La copia en `pedido_d
 aquí con la validación de la API y la elección en la app; que la dirección quede en el pedido se prueba en
 `resumen-y-confirmacion`.
 
+## Contrato de la API
+
+Lo agregó el implementador del servidor con las tareas 1.2 a 1.5. El contrato exacto, con cada cuerpo, respuesta y
+error, está en el comentario de `servidor/app/Http/Controllers/Api/DireccionesController.php`; esta tabla es el
+índice. Todas las rutas llevan `auth:sanctum` y `autorizar:usuario`, y la API identifica cada dirección por su
+`id_publico`.
+
+| Ruta | Para qué | Escenarios |
+|---|---|---|
+| `POST /api/direcciones` | Guarda una dirección escrita (`"origen": "escrita"`, se geocodifica una vez) o marcada en el mapa (`"origen": "mapa"`, con el pin). 201 con la dirección; 422 con el campo o con el motivo `direccion_no_encontrada`; 503 con `geocodificacion_no_disponible` | E01 a E04, E06 |
+| `GET /api/direcciones/favoritas` | Las favoritas de la cuenta, con su punto guardado | E06 a E08, E14 |
+| `GET /api/direcciones/{id_publico}` | Una dirección de la cuenta; la de otra cuenta, una borrada o una que no existe responden 404 igual | E14 |
+| `POST /api/direcciones/recogida-y-entrega` | Valida la recogida y la entrega para una lavandería. 200 con las dos; 422 con `motivos` por dirección: `fuera_de_la_zona_de_servicio` o `fuera_de_la_plaza_de_la_lavanderia`; 404 si la lavandería o una dirección no es visible | E07 a E12, E14 |
+
 ## Risks / Trade-offs
 
 - [Direcciones mal geocodificadas en colonias sin número claro] → Si la geocodificación no encuentra la dirección, la

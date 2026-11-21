@@ -41,6 +41,16 @@ return [
         'llaves' => env('GOOGLE_DIRECCION_DE_LLAVES', 'https://www.googleapis.com/oauth2/v3/certs'),
     ],
 
+    /*
+    | La geocodificación de las direcciones escritas con Google Geocoding (ADR-0009, decisión 4). La llave es de cada
+    | entorno y va solo en su .env (ADR-0012); sin ella, una dirección escrita no se puede guardar y la app ofrece
+    | marcarla en el mapa.
+    */
+    'geocodificacion' => [
+        'llave' => env('GOOGLE_GEOCODIFICACION_LLAVE'),
+        'direccion' => env('GOOGLE_GEOCODIFICACION_DIRECCION', 'https://maps.googleapis.com/maps/api/geocode/json'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
