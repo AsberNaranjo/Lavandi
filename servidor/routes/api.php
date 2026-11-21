@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\CuentaController;
 use App\Http\Controllers\Api\DireccionesController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
+use App\Http\Controllers\Api\PedidosController;
 use App\Http\Controllers\Api\PerfilDeLavanderiaController;
 use App\Http\Controllers\Api\RecuperacionController;
 use App\Http\Controllers\Api\RegistroController;
@@ -56,4 +57,8 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     Route::get('direcciones/{direccion}', [DireccionesController::class, 'mostrar'])
         ->whereUlid('direccion')
         ->name('direcciones.mostrar');
+
+    // Los pedidos de la cuenta (resumen-y-confirmacion). El contrato está en el controlador. Ninguna ruta confirma un
+    // pedido: lo confirma el cobro cuando la pasarela confirma el pago (C-188; confirmacion-E07).
+    Route::post('pedidos', [PedidosController::class, 'crear'])->name('pedidos.crear');
 });

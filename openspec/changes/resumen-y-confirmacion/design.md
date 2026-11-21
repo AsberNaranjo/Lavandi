@@ -134,6 +134,103 @@ Las columnas son las de `vault/arquitectura/modelo-de-datos.md`. Toda foránea l
 | `direcciones` | El origen de la copia | `direcciones` |
 | `pagos` | Que el pedido tenga un cobro pagado antes de confirmarlo (pago-E19) | `pago`, después de este cambio |
 
+## Contrato de la API
+
+Lo agregó el implementador del servidor con las tareas 1.2 a 1.6. Es el mismo que está en el comentario de
+`servidor/app/Http/Controllers/Api/PedidosController.php`. Todas las rutas llevan `auth:sanctum` y `autorizar:usuario`:
+sin sesión responden 401 (`{ "message": "Unauthenticated." }`) y con una cuenta sin el rol de usuario, 403
+(`{ "message": "Esta cuenta no tiene acceso." }`). La API identifica el pedido solo por su `id_publico`.
+
+**Ninguna ruta confirma un pedido.** Lo confirma el componente `cobro` del cambio `pago`, cuando la pasarela confirma el
+pago, con la operación de confirmar (`App\Pedidos\ConfirmacionDePedido`), que no es una ruta (C-188; confirmacion-E07).
+
+### El pedido, como sale en todas las respuestas
+
+```json
+{
+  "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",
+  "folio": null,
+  "confirmado_en": null,
+  "estado": { "codigo": "confirmado", "nombre": "Confirmado", "visible_usuario": true },
+  "lavanderia": { "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1u", "nombre": "Lavandería de prueba 1" },
+  "servicios": [
+    {
+      "codigo": "estandar",
+      "nombre": "Lavado estándar",
+      "unidad": { "codigo": "kg", "nombre": "kilo" },
+      "precio_unitario": "18.00",
+      "cantidad_estimada": null,
+      "monto_estimado": null
+    }
+  ],
+  "zona_horaria": "America/Mexico_City",
+  "ventana": {
+    "inicio": "2026-12-03T11:00:00-06:00",
+    "fin": "2026-12-03T12:00:00-06:00",
+    "fecha": "2026-12-03",
+    "hora_inicio": "11:00",
+    "hora_fin": "12:00"
+  },
+  "recogida": {
+    "alias": "Casa",
+    "calle": "Calle Ejemplo",
+    "numero_exterior": "123",
+    "numero_interior": "4",
+    "colonia": "Centro",
+    "codigo_postal": "34000",
+    "municipio": "Durango, Dgo.",
+    "referencias": "Portón gris",
+    "latitud": 24.0277,
+    "longitud": -104.6532
+  },
+  "entrega": { "…": "igual que recogida" },
+  "monto_estimado": null,
+  "envio": null
+}
+```
+
+| Campo | Qué es |
+|---|---|
+| `folio` | `null` hasta Confirmado; texto después. Su formato es DD-101 |
+| `confirmado_en` | `null` hasta Confirmado; el instante en UTC (`2026-12-03T15:30:00Z`) |
+| `estado` | El estado actual: su código en `estados_pedido`, su nombre para el usuario y si el usuario lo ve. En el estado previo al pago `visible_usuario` es `false` y la app no lo nombra (DD-123) |
+| `servicios` | Uno por ahora (DD-098). `precio_unitario` es el copiado al crear el pedido, en texto con dos decimales. `cantidad_estimada` y `monto_estimado` quedan `null` hasta DD-012 |
+| `ventana` | Como la da la agenda: instantes con el desfase de la plaza, y la fecha y las horas en la hora de la plaza |
+| `recogida`, `entrega` | La copia que guardó el pedido, no la dirección guardada (confirmacion-E14). Con la entrega en la recogida, las dos son la misma copia. Las señas que no son la colonia pueden ser `null` |
+| `monto_estimado`, `envio` | `null` hasta DD-012 y DD-010, y DD-019 y DD-025 (confirmacion-E02 y E03) |
+
+La política de cancelación no viaja todavía: espera DD-016 (confirmacion-E04).
+
+### `POST /api/pedidos` — acepta el resumen y crea el pedido antes del pago (confirmacion-E05, E07 y E14)
+
+```json
+{
+  "lavanderia": "01jd8x6m3v2c9q4w5e7r8t0y1u",
+  "servicio": "estandar",
+  "ventana": { "inicio": "2026-12-03T11:00:00-06:00", "fin": "2026-12-03T12:00:00-06:00" },
+  "recogida": "01jd8x6m3v2c9q4w5e7r8t0y1v",
+  "entrega": "01jd8x6m3v2c9q4w5e7r8t0y1w"
+}
+```
+
+- `lavanderia`: obligatorio, el `id_publico` de la lavandería elegida.
+- `servicio`: obligatorio, el código de uno de los servicios que da su perfil.
+- `ventana`: obligatoria, con `inicio` y `fin` tal como los dio `GET /api/lavanderias/{id_publico}/ventanas`.
+- `recogida`: obligatorio, el `id_publico` de una dirección de la cuenta.
+- `entrega`: opcional; sin ella, o con `null`, se entrega en la recogida.
+- Cualquier otro campo se ignora: ni un folio, ni un estado, ni que ya pagó confirman el pedido (confirmacion-E07).
+
+| Respuesta | Cuándo |
+|---|---|
+| `201 { "pedido": { …el pedido… } }` | El pedido nació en el estado previo al pago: `folio` y `confirmado_en` vacíos y `estado.visible_usuario` en `false`. La app sigue al pago |
+| `422 { "message", "errors": { "servicio": ["La lavandería no ofrece ese servicio."] } }` | El servicio no lo ofrece la lavandería, o no está activo |
+| `422 { "message", "errors": { "<campo>": ["…"] } }` | Falta un campo o no es válido |
+| `404 { "message": "No existe la lavandería." }` | No existe, o el usuario no la ve |
+| `404 { "message": "No existe la dirección." }` | La recogida o la entrega no existe, está borrada o es de otra cuenta: las tres responden igual |
+| `503 { "message": "Todavía no se pueden crear pedidos." }` | Falta el estado previo al pago (`config/pedidos.php`, DD-123) |
+
+En ningún error se crea el pedido.
+
 ## Risks / Trade-offs
 
 - [EL CLIENTE no acepta la regla de C-188 (DD-012 sigue parcial)] → Cambian confirmacion-E05, E07 y E13 y quién llama a
