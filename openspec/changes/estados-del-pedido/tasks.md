@@ -1,6 +1,6 @@
 ## 0. Servidor: la base de datos
 
-- [ ] 0.1 estados-E14: el historial de un pedido solo crece; el modelo de Eloquent `PedidoEvento` (de `resumen-y-confirmacion`) solo crea eventos, y la base rechaza editarlos o borrarlos con los triggers que puso `resumen-y-confirmacion` — test: `servidor/tests/Feature/Estados/HistorialTest.php` — tamaño S
+- [x] 0.1 estados-E14: el historial de un pedido solo crece; el modelo de Eloquent `PedidoEvento` (de `resumen-y-confirmacion`) solo crea eventos, y la base rechaza editarlos o borrarlos con los triggers que puso `resumen-y-confirmacion` — test: `servidor/tests/Feature/Estados/HistorialTest.php` — tamaño S
 
 ## 1. Servidor: el estado del pedido y su consulta
 
