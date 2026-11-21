@@ -20,20 +20,42 @@ interface Props {
   ocupado?: boolean;
   /** Lo que va a la izquierda del texto, como la "G" de Google (registro-E19). Ocupado, cede su lugar al indicador. */
   delante?: ReactNode;
+  /**
+   * Mientras falta lo que la acción necesita, como "Continuar" sin ventana elegida (agenda-E08): no se puede tocar y se
+   * ve apagado, como el .btn[disabled] de los mocks. El texto del botón dice qué falta.
+   */
+  deshabilitado?: boolean;
 }
 
-export function Boton({ children, onPress, variante = 'primario', ocupado = false, delante = null }: Props) {
+export function Boton({
+  children,
+  onPress,
+  variante = 'primario',
+  ocupado = false,
+  delante = null,
+  deshabilitado = false,
+}: Props) {
   const aspecto = ASPECTO[variante];
+  const apagado = deshabilitado && !ocupado;
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ busy: ocupado, disabled: ocupado }}
-      disabled={ocupado}
+      accessibilityState={{ busy: ocupado, disabled: ocupado || deshabilitado }}
+      disabled={ocupado || deshabilitado}
       onPress={onPress}
-      style={({ pressed }) => [estilos.boton, aspecto.boton, pressed && aspecto.presionado]}
+      style={({ pressed }) => [
+        estilos.boton,
+        aspecto.boton,
+        pressed && aspecto.presionado,
+        apagado && estilos.deshabilitado,
+      ]}
     >
       {ocupado ? <ActivityIndicator color={aspecto.indicador} /> : delante}
-      <Text style={[estilos.texto, aspecto.texto, letra('cuerpo', aspecto.peso)]}>{children}</Text>
+      <Text
+        style={[estilos.texto, aspecto.texto, letra('cuerpo', aspecto.peso), apagado && estilos.textoDeshabilitado]}
+      >
+        {children}
+      </Text>
     </Pressable>
   );
 }
@@ -74,6 +96,13 @@ const estilos = StyleSheet.create({
   },
   textoSecundario: {
     color: color.semantico.texto,
+  },
+  deshabilitado: {
+    backgroundColor: color.semantico.superficie_hundida,
+    borderColor: color.semantico.borde,
+  },
+  textoDeshabilitado: {
+    color: color.semantico.texto_deshabilitado,
   },
 });
 
