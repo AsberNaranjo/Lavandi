@@ -1,10 +1,12 @@
-// Pantalla de registro (registro-E04 y E28): solo el correo y la contraseña (C-225), y los enlaces a los documentos
-// legales que dé la configuración.
+// Pantalla de registro (registro-E04, E19, E20 y E28): solo el correo y la contraseña (C-225), "Continuar con
+// Google" si el entorno trae el cliente de Google, y los enlaces a los documentos legales que dé la configuración.
+// En iPhone, "Continuar con Apple" es la tarea 4.3, bloqueada por DD-069; en Android no se ofrece (ADR-0005).
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Linking } from 'react-native';
 
 import { registrar } from '../src/acceso/api';
+import { googleDisponible } from '../src/acceso/google';
 import { useEntrada } from '../src/acceso/useEntrada';
 import { direccionDeLosTerminos, direccionDelAvisoDePrivacidad } from '../src/configuracion/entorno';
 import { Boton } from '../src/piezas/Boton';
@@ -16,7 +18,7 @@ import { Titulo } from '../src/piezas/Titulo';
 
 export default function Registro() {
   const router = useRouter();
-  const { enviando, errorGeneral, errorDe, entrarCon } = useEntrada();
+  const { enviando, errorGeneral, errorDe, entrarCon, entrarConGoogle } = useEntrada();
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
 
@@ -26,6 +28,11 @@ export default function Registro() {
   return (
     <Pantalla desplazable justificar="center">
       <Titulo>Crear cuenta</Titulo>
+      {googleDisponible() ? (
+        <Boton variante="secundario" onPress={entrarConGoogle}>
+          Continuar con Google
+        </Boton>
+      ) : null}
       <CampoDeTexto
         nombre="correo"
         etiqueta="Correo electrónico"

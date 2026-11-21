@@ -35,7 +35,7 @@ nunca en las dos.
 
 - [ ] 3.1 registro-E16 y registro-E17: el servidor valida el `idToken` de Google contra el cliente configurado y crea
   o encuentra la cuenta — test: `servidor/tests/Feature/Registro/GoogleTest.php` — tamaño S
-- [ ] 3.2 registro-E19 y registro-E20: el botón de Google en las pantallas de entrada, con
+- [x] 3.2 registro-E19 y registro-E20: el botón de Google en las pantallas de entrada, con
   `react-native-nitro-google-signin`; en Android no se ofrece Apple — test: `movil/__tests__/registro/google.test.tsx`
   — tamaño M
 - [ ] 3.3 registro-E22, registro-E23, registro-E24, registro-E25 y registro-E31: el enlace que vence, en una página web

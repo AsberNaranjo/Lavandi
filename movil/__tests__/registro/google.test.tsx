@@ -3,9 +3,26 @@
 // __mocks__/react-native-nitro-modules.tsx.
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
+
+import * as SecureStore from 'expo-secure-store';
+import { userEvent } from '@testing-library/react-native';
+import { renderRouter, screen } from 'expo-router/testing-library';
+import { Platform } from 'react-native';
 import { NitroModules } from 'react-native-nitro-modules';
 
+import Inicio from '../../app/inicio';
+import InicioDeSesion from '../../app/inicio-de-sesion';
+import Registro from '../../app/registro';
 import { pedirIdTokenDeGoogle } from '../../src/acceso/google';
+import { leerToken } from '../../src/sesion/almacen';
+import { ProveedorDeSesion } from '../../src/sesion/ProveedorDeSesion';
+
+// La simulación de __mocks__/expo-secure-store.ts, la misma instancia que importa la app: el token queda en
+// memoria y se lee con leerToken.
+const almacen = SecureStore as unknown as { __vaciar(): void };
+
+// La primera pantalla tarda más mientras Jest prepara el entorno.
+jest.setTimeout(30_000);
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- la simulación trae su propia utilidad de limpieza
 const { reiniciarObjetosHibridos } = require('react-native-nitro-modules') as {
@@ -97,6 +114,118 @@ describe('registro-E19: Google devuelve el idToken a la app', () => {
     google.checkPlayServices.mockRejectedValue(new Error('[PLAY_SERVICES_NOT_AVAILABLE] Sin Play Services'));
 
     await expect(pedirIdTokenDeGoogle()).resolves.toEqual({ tipo: 'error', codigo: 'PLAY_SERVICES_NOT_AVAILABLE' });
+  });
+});
+
+describe('registro-E19 y registro-E20: el botón de Google en las pantallas de entrada', () => {
+  const BASE = 'http://api.prueba.invalid/registro-e19';
+  const USUARIO = { id_publico: '01JD0000000000000000000000', correo: 'persona@ejemplo.com', rol: 'usuario' };
+  const PANTALLAS = ['/registro', '/inicio-de-sesion'];
+  const direccionOriginal = process.env.EXPO_PUBLIC_API_URL;
+  const fetchOriginal = global.fetch;
+  let fetchFalso: jest.Mock;
+
+  beforeEach(() => {
+    process.env.EXPO_PUBLIC_API_URL = BASE;
+    fetchFalso = jest.fn();
+    global.fetch = fetchFalso as unknown as typeof fetch;
+    almacen.__vaciar();
+  });
+
+  afterEach(() => {
+    restaurar('EXPO_PUBLIC_API_URL', direccionOriginal);
+    global.fetch = fetchOriginal;
+    jest.restoreAllMocks();
+  });
+
+  function respuesta(status: number, cuerpo: unknown) {
+    return { ok: status >= 200 && status < 300, status, json: async () => cuerpo };
+  }
+
+  async function abrir(ruta: string) {
+    await renderRouter(
+      { registro: Registro, 'inicio-de-sesion': InicioDeSesion, inicio: Inicio },
+      { initialUrl: ruta, wrapper: ProveedorDeSesion },
+    );
+  }
+
+  test.each(PANTALLAS)(
+    'registro-E19 — en %s, con el idToken de Google, la app lo manda al servidor, guarda la sesión y entra',
+    async (ruta) => {
+      google.signIn.mockResolvedValue(EXITO);
+      fetchFalso.mockResolvedValue(respuesta(200, { token: 'token-google', usuario: USUARIO }));
+      const usuario = userEvent.setup();
+      await abrir(ruta);
+
+      await usuario.press(await screen.findByRole('button', { name: 'Continuar con Google' }));
+
+      expect(await screen.findByRole('button', { name: 'Cerrar sesión' })).toBeOnTheScreen();
+      expect(screen).toHavePathname('/inicio');
+      await expect(leerToken()).resolves.toBe('token-google');
+      const [url, opciones] = fetchFalso.mock.calls[0] as [string, RequestInit];
+      expect(url).toBe(`${BASE}/sesion/google`);
+      expect(JSON.parse(opciones.body as string)).toEqual({ id_token: 'id-token-de-google' });
+    },
+  );
+
+  test.each(PANTALLAS)(
+    'registro-E19 — en %s, si la persona cierra la ventana de Google, se queda en la pantalla sin mensaje de error',
+    async (ruta) => {
+      google.signIn.mockResolvedValue(CANCELADO);
+      const usuario = userEvent.setup();
+      await abrir(ruta);
+
+      await usuario.press(await screen.findByRole('button', { name: 'Continuar con Google' }));
+
+      expect(screen).toHavePathname(ruta);
+      expect(screen.queryByRole('alert')).not.toBeOnTheScreen();
+      expect(fetchFalso).not.toHaveBeenCalled();
+      await expect(leerToken()).resolves.toBeNull();
+    },
+  );
+
+  test('registro-E19 — si el servidor rechaza el idToken (registro-E17), muestra el error y no entra', async () => {
+    google.signIn.mockResolvedValue(EXITO);
+    fetchFalso.mockResolvedValue(
+      respuesta(422, { message: 'No se pudo validar la cuenta de Google.', errors: { id_token: ['No válido.'] } }),
+    );
+    const usuario = userEvent.setup();
+    await abrir('/inicio-de-sesion');
+
+    await usuario.press(await screen.findByRole('button', { name: 'Continuar con Google' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('No válido.');
+    expect(screen).toHavePathname('/inicio-de-sesion');
+    await expect(leerToken()).resolves.toBeNull();
+  });
+
+  test('registro-E19 — sin el cliente web de Google en la configuración, no ofrece Google y la pantalla abre igual', async () => {
+    delete process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+    await abrir('/registro');
+
+    expect(await screen.findByRole('button', { name: 'Crear cuenta' })).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Continuar con Google' })).not.toBeOnTheScreen();
+  });
+
+  test.each(PANTALLAS)(
+    'registro-E20 — en Android, %s ofrece el correo con la contraseña y Google, y no ofrece Apple',
+    async (ruta) => {
+      jest.replaceProperty(Platform, 'OS', 'android');
+      await abrir(ruta);
+
+      expect(await screen.findByLabelText('Correo electrónico')).toBeOnTheScreen();
+      expect(screen.getByLabelText('Contraseña')).toBeOnTheScreen();
+      expect(screen.getByRole('button', { name: 'Continuar con Google' })).toBeOnTheScreen();
+      expect(screen.queryByText(/Apple/)).not.toBeOnTheScreen();
+    },
+  );
+
+  // En iPhone, Google se ofrece igual. Apple en iPhone es la tarea 4.3, bloqueada por DD-069: esta prueba no lo pide.
+  test.each(PANTALLAS)('registro-E20 — en iPhone, %s también ofrece Google', async (ruta) => {
+    jest.replaceProperty(Platform, 'OS', 'ios');
+    await abrir(ruta);
+
+    expect(await screen.findByRole('button', { name: 'Continuar con Google' })).toBeOnTheScreen();
   });
 });
 
