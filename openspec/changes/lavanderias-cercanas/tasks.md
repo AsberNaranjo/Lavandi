@@ -20,9 +20,9 @@ después (ver `design.md`, Open Questions). Este cambio no crea tablas.
 
 ## 2. Mapa y ubicación en la app
 
-- [ ] 2.1 cercanas-E01, cercanas-E02 (`movil/`): `react-native-maps` sin proveedor; la llave de Google para Android
+- [x] 2.1 cercanas-E01, cercanas-E02 (`movil/`): `react-native-maps` sin proveedor; la llave de Google para Android
   desde la configuración del entorno — test: `movil/__tests__/cercanas/mapa-por-plataforma.test.tsx` — tamaño M
-- [ ] 2.2 cercanas-E03, cercanas-E04 (`movil/`): permiso de ubicación mientras se usa, con su texto, sin segundo plano;
+- [x] 2.2 cercanas-E03, cercanas-E04 (`movil/`): permiso de ubicación mientras se usa, con su texto, sin segundo plano;
   consulta con la ubicación actual — test: `movil/__tests__/cercanas/permiso-de-ubicacion.test.tsx` — tamaño S
 - [ ] 2.3 cercanas-E05 (`movil/`): qué consulta la app sin permiso de ubicación — test:
   `movil/__tests__/cercanas/permiso-de-ubicacion.test.tsx` — tamaño S. **No entra al sprint** mientras DD-083 siga
@@ -30,7 +30,7 @@ después (ver `design.md`, Open Questions). Este cambio no crea tablas.
 
 ## 3. Pantalla principal
 
-- [ ] 3.1 cercanas-E12, cercanas-E14, cercanas-E15 (`movil/`): un pin por lavandería, su tarjeta (componente 1 del
+- [x] 3.1 cercanas-E12, cercanas-E14, cercanas-E15 (`movil/`): un pin por lavandería, su tarjeta (componente 1 del
   design system) y el paso al perfil; el estado vacío; el acceso rápido a pedido nuevo — test:
   `movil/__tests__/cercanas/pantalla-principal.test.tsx` — tamaño M
 - [ ] 3.2 cercanas-E13 (`movil/`): el estado de disponibilidad en la tarjeta — test:

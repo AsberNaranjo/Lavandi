@@ -28,6 +28,9 @@ param(
     [string]$Logotipo = 'vault\marca\visual\logotipo\lavandi-logotipo-color.png',
     [string]$Jdk = "$env:LOCALAPPDATA\ittob-android\jdk17",
     [string]$Sdk = "$env:LOCALAPPDATA\lavandi-android\sdk",
+    # El CMake con ninja 1.12 o más nuevo: el 3.22 que pide React Native trae un ninja que no sabe de rutas largas y
+    # falla aunque Windows las tenga habilitadas (LongPathsEnabled).
+    [string]$Cmake = "$env:LOCALAPPDATA\lavandi-android\sdk\cmake\3.31.6",
     [string]$Arquitecturas = 'arm64-v8a,x86_64'
 )
 
@@ -46,6 +49,14 @@ $api = if ($Modo -eq 'usb') { 'http://127.0.0.1:8000/api' } else { "http://${Ip}
 
 if (Test-Path $destinoCompleto) {
     Write-Host "1/6 La copia aparte ya existe: se lleva a $Rama"
+    # El daemon de Gradle de la compilación anterior retiene archivos de android\, que el prebuild limpio borra.
+    $gradlewViejo = Join-Path $destinoCompleto 'movil\android\gradlew.bat'
+    if (Test-Path $gradlewViejo) {
+        $env:JAVA_HOME = $Jdk
+        & $gradlewViejo -p (Split-Path -Parent $gradlewViejo) --stop | Out-Null
+    }
+    # La copia es desechable: lo que el prebuild y el logotipo cambiaron en ella se descarta antes de moverla.
+    git -C $destinoCompleto reset --hard --quiet
     git -C $destinoCompleto checkout --detach $Rama
 } else {
     Write-Host "1/6 Copia aparte de $Rama en $destinoCompleto"
@@ -91,7 +102,9 @@ if ($texto -notmatch 'usesCleartextTraffic') {
     [System.IO.File]::WriteAllText($manifiesto, $texto)
 }
 # Con barras normales: en un .properties la barra invertida es un escape y la ruta quedaría rota.
-Set-Content -Path (Join-Path $android 'local.properties') -Value ("sdk.dir=" + ($Sdk -replace '\\', '/')) -Encoding ascii
+$propiedades = @("sdk.dir=" + ($Sdk -replace '\\', '/'))
+if (Test-Path $Cmake) { $propiedades += "cmake.dir=" + ($Cmake -replace '\\', '/') }
+Set-Content -Path (Join-Path $android 'local.properties') -Value $propiedades -Encoding ascii
 
 Write-Host "6/6 Compilación con Gradle ($Arquitecturas). La primera vez tarda: baja Gradle y sus dependencias."
 $env:JAVA_HOME = $Jdk
