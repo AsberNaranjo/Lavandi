@@ -24,7 +24,7 @@ nunca en las dos.
 
 ## 2. App: registro, inicio de sesión y sesión (sprint 01)
 
-- [ ] 2.1 registro-E04, registro-E09, registro-E11, registro-E13 y registro-E28: pantallas de registro y de inicio de
+- [x] 2.1 registro-E04, registro-E09, registro-E11, registro-E13 y registro-E28: pantallas de registro y de inicio de
   sesión contra la API, con los errores a la vista y los enlaces legales desde la configuración; la sesión que se
   conserva al volver a abrir la app y se borra al cerrarla; el inicio provisional con "Cerrar sesión" (C-225). Incluye
   las piezas de formulario con los tokens (ADR-0013), con expo-router (ADR-0017) y el token en el almacenamiento
@@ -35,14 +35,14 @@ nunca en las dos.
 
 - [x] 3.1 registro-E16 y registro-E17: el servidor valida el `idToken` de Google contra el cliente configurado y crea
   o encuentra la cuenta — test: `servidor/tests/Feature/Registro/GoogleTest.php` — tamaño S
-- [ ] 3.2 registro-E19 y registro-E20: el botón de Google en las pantallas de entrada, con
+- [x] 3.2 registro-E19 y registro-E20: el botón de Google en las pantallas de entrada, con
   `react-native-nitro-google-signin`; en Android no se ofrece Apple — test: `movil/__tests__/registro/google.test.tsx`
   — tamaño M
 - [x] 3.3 registro-E22, registro-E23, registro-E24, registro-E25 y registro-E31: el enlace que vence, en una página web
   del servidor, el correo capturado en local, la contraseña nueva que cierra las sesiones y el límite de peticiones
   (ADR-0018) — test:
   `servidor/tests/Feature/Registro/RecuperacionTest.php` — tamaño M
-- [ ] 3.4 registro-E26: la pantalla "¿Olvidaste tu contraseña?" — test:
+- [x] 3.4 registro-E26: la pantalla "¿Olvidaste tu contraseña?" — test:
   `movil/__tests__/registro/recuperacion.test.tsx` — tamaño S
 - [x] 3.5 registro-E18: Google con un correo que ya tiene cuenta con contraseña se liga si Google verificó el correo
   (C-224; era la 4.1, bloqueada por DD-091) — test: `servidor/tests/Feature/Registro/GoogleTest.php` — tamaño S
