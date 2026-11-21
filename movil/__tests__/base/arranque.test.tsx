@@ -1,7 +1,17 @@
 // Spec: openspec/changes/base-tecnica/specs/base/spec.md, escenarios base-E04 y base-E09.
-import { render, screen } from '@testing-library/react-native';
+// Desde ADR-0017 la app arranca con expo-router: el componente raíz es app/_layout.tsx, y la primera pantalla de una
+// app recién instalada y sin sesión es la bienvenida (bienvenida-E01).
+import path from 'node:path';
+import * as SecureStore from 'expo-secure-store';
+import { renderRouter, screen, waitFor } from 'expo-router/testing-library';
 
-import App from '../../App';
+const APP = path.resolve(__dirname, '..', '..', 'app');
+
+// El primer render carga expo-router y sus pantallas; con la caché de Babel vacía, como en la integración continua,
+// pasa de los 5 s que Jest da por omisión.
+jest.setTimeout(60_000);
+// La simulación de __mocks__/expo-secure-store.ts, la misma instancia que importa la app.
+const almacen = SecureStore as unknown as { __vaciar(): void };
 
 // Un nombre que no puede estar escrito en el código: si aparece en pantalla, salió de la configuración.
 const NOMBRE_DE_PRUEBA = 'Nombre de prueba base-E09';
@@ -12,6 +22,7 @@ describe('base: arranque de la app', () => {
   const nombreOriginal = process.env.EXPO_PUBLIC_NOMBRE_APP;
 
   beforeEach(() => {
+    almacen.__vaciar();
     process.env.EXPO_PUBLIC_NOMBRE_APP = NOMBRE_DE_PRUEBA;
   });
 
@@ -27,15 +38,21 @@ describe('base: arranque de la app', () => {
   test('base-E04 — la app arranca y muestra su primera pantalla sin errores', async () => {
     const errores = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    await render(<App />);
+    await renderRouter(APP, { initialUrl: '/' });
 
-    expect(screen.getByTestId('pantalla-inicial')).toBeOnTheScreen();
+    await waitFor(() => expect(screen.getByTestId('pantalla-inicial')).toBeOnTheScreen());
     expect(errores).not.toHaveBeenCalled();
   });
 
   test('base-E09 — la primera pantalla muestra el nombre que dice la configuración', async () => {
-    await render(<App />);
+    await renderRouter(APP, { initialUrl: '/' });
 
-    expect(screen.getByText(NOMBRE_DE_PRUEBA)).toBeOnTheScreen();
+    expect(await screen.findByText(NOMBRE_DE_PRUEBA)).toBeOnTheScreen();
+  });
+
+  test('ADR-0017 — la entrada de la app es la de expo-router', () => {
+    const paquete = jest.requireActual<{ main?: string }>('../../package.json');
+
+    expect(paquete.main).toBe('expo-router/entry');
   });
 });
