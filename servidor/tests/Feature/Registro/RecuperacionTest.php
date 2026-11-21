@@ -424,6 +424,32 @@ class RecuperacionTest extends TestCase
         Notification::assertSentOnDemandTimes(EnlaceDeRecuperacion::class, 7);
     }
 
+    #[TestDox('registro-E22 y E31: un correo que no es texto no rompe el límite: responde con el error del correo y no manda nada')]
+    public function test_registro_e22_y_e31_un_correo_que_no_es_texto_no_rompe_el_limite_y_responde_con_el_error_del_correo(): void
+    {
+        Notification::fake();
+        $this->cuenta();
+
+        $datos = ['correo' => [self::CORREO]];
+
+        // En JSON y como formulario (correo[]=…): las dos llegan al limitador como un arreglo.
+        foreach ([$this->postJson(route('contrasena.olvido'), $datos), $this->post(route('contrasena.olvido'), $datos)] as $respuesta) {
+            $respuesta->assertUnprocessable();
+            $respuesta->assertJsonValidationErrors(['correo' => 'El correo no es válido.']);
+        }
+
+        Notification::assertNothingSent();
+    }
+
+    #[TestDox('registro-E24: el formulario con un correo que no es texto se muestra sin correo, sin error del servidor')]
+    public function test_registro_e24_el_formulario_con_un_correo_que_no_es_texto_se_muestra_sin_correo(): void
+    {
+        $respuesta = $this->get(route('contrasena.formulario', ['token' => self::TOKEN_DE_PRUEBA]).'?correo[]='.self::CORREO);
+
+        $respuesta->assertOk();
+        $this->assertMatchesRegularExpression('~name="correo"[^>]*value=""~', (string) $respuesta->getContent());
+    }
+
     #[TestDox('registro-E31: el límite sale de la configuración de acceso, el mismo valor del inicio de sesión')]
     public function test_registro_e31_el_limite_sale_de_la_configuracion_de_acceso_el_mismo_valor_del_inicio_de_sesion(): void
     {

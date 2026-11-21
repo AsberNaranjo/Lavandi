@@ -162,6 +162,10 @@ class RegistroConCorreoTest extends TestCase
                 ['password' => self::CONTRASENA],
                 ['correo' => 'Escribe tu correo.'],
             ],
+            'correo que no es texto' => [
+                ['correo' => ['persona@ejemplo.com'], 'password' => self::CONTRASENA],
+                ['correo' => 'El correo no es válido.'],
+            ],
             'contraseña vacía' => [
                 ['correo' => 'persona@ejemplo.com', 'password' => ''],
                 ['password' => 'Escribe una contraseña.'],

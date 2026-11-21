@@ -15,6 +15,8 @@ use Illuminate\Support\ServiceProvider;
  * Cuenta por correo y por dirección, con el mismo valor y la misma clave que el límite del inicio de sesión
  * (acceso.intentos_por_minuto; registro-E30), pero con su propio contador: los intentos de entrar no gastan las
  * peticiones del enlace. La petición que pasa el límite recibe 429 y no llega al envío del correo.
+ *
+ * Un correo que no es texto cuenta como vacío: la validación, que corre después, responde con el error del campo.
  */
 class RecuperacionServiceProvider extends ServiceProvider
 {
@@ -22,7 +24,7 @@ class RecuperacionServiceProvider extends ServiceProvider
     {
         RateLimiter::for('recuperacion', fn (Request $request): Limit => Limit::perMinute(
             (int) config('acceso.intentos_por_minuto'),
-        )->by(Usuario::normalizarCorreo((string) $request->input('correo')).'|'.$request->ip())
+        )->by(Usuario::normalizarCorreo(is_string($correo = $request->input('correo')) ? $correo : '').'|'.$request->ip())
             ->response($this->demasiadosIntentos(...)));
     }
 

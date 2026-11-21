@@ -28,10 +28,11 @@ class AppServiceProvider extends ServiceProvider
         Password::defaults(fn (): Password => Password::min((int) config('acceso.contrasena_minima')));
 
         // El límite de intentos del inicio de sesión, por correo y por dirección (ADR-0018, decisión 3;
-        // registro-E30). Cuenta todo intento, abra sesión o no; al pasarlo, la contraseña ya no se revisa.
+        // registro-E30). Cuenta todo intento, abra sesión o no; al pasarlo, la contraseña ya no se revisa. Un correo
+        // que no es texto cuenta como vacío: la validación, que corre después, responde con el error del campo.
         RateLimiter::for('inicio-de-sesion', fn (Request $request): Limit => Limit::perMinute(
             (int) config('acceso.intentos_por_minuto'),
-        )->by(Usuario::normalizarCorreo((string) $request->input('correo')).'|'.$request->ip())
+        )->by(Usuario::normalizarCorreo(is_string($correo = $request->input('correo')) ? $correo : '').'|'.$request->ip())
             ->response(fn (Request $request, array $encabezados) => response()->json(
                 ['message' => 'Demasiados intentos. Espera un minuto y vuelve a intentarlo.'],
                 429,
