@@ -42,7 +42,7 @@ nunca en las dos.
   del servidor, el correo capturado en local, la contraseña nueva que cierra las sesiones y el límite de peticiones
   (ADR-0018) — test:
   `servidor/tests/Feature/Registro/RecuperacionTest.php` — tamaño M
-- [ ] 3.4 registro-E26: la pantalla "¿Olvidaste tu contraseña?" — test:
+- [x] 3.4 registro-E26: la pantalla "¿Olvidaste tu contraseña?" — test:
   `movil/__tests__/registro/recuperacion.test.tsx` — tamaño S
 - [ ] 3.5 registro-E18: Google con un correo que ya tiene cuenta con contraseña se liga si Google verificó el correo
   (C-224; era la 4.1, bloqueada por DD-091) — test: `servidor/tests/Feature/Registro/GoogleTest.php` — tamaño S

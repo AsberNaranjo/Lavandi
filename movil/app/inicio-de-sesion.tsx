@@ -1,4 +1,4 @@
-// Pantalla de inicio de sesión (registro-E09): correo y contraseña.
+// Pantalla de inicio de sesión (registro-E09 y E26): correo y contraseña, y "¿Olvidaste tu contraseña?".
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
@@ -36,6 +36,7 @@ export default function InicioDeSesion() {
         alCambiar={setPassword}
         error={errorDe('password')}
       />
+      <Enlace texto="¿Olvidaste tu contraseña?" alTocar={() => router.push('/recuperar-contrasena')} />
       <MensajeDeError texto={errorGeneral} />
       <Boton ocupado={enviando} onPress={() => entrarCon(() => iniciarSesion({ correo, password }))}>
         Iniciar sesión
