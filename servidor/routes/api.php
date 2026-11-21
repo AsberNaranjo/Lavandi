@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\RecuperacionController;
 use App\Http\Controllers\Api\RegistroController;
 use App\Http\Controllers\Api\SesionConGoogleController;
 use App\Http\Controllers\Api\SesionController;
+use App\Http\Controllers\Api\SoporteController;
 use App\Http\Controllers\Api\VentanasDeLavanderiaController;
 use Illuminate\Support\Facades\Route;
 
@@ -69,4 +70,7 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     // El perfil de la cuenta de la sesión, y ninguna otra (perfil-y-soporte). El contrato está en el controlador.
     Route::get('perfil', [PerfilController::class, 'mostrar'])->name('perfil.mostrar');
     Route::patch('perfil', [PerfilController::class, 'cambiar'])->name('perfil.cambiar');
+
+    // Soporte: el número de WhatsApp de la configuración (perfil-y-soporte). El contrato está en el controlador.
+    Route::get('soporte', SoporteController::class)->name('soporte');
 });
