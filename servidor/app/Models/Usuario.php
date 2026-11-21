@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Autorizacion\Autorizacion;
 use App\Models\Concerns\TieneIdPublico;
 use Database\Factories\UsuarioFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
@@ -29,7 +32,7 @@ use Laravel\Sanctum\HasApiTokens;
  * El correo se guarda en minúsculas y se busca sin distinguir mayúsculas, como lo exige el único sobre lower(correo).
  * La contraseña se guarda con el hash de Laravel y nunca sale en JSON (registro-E05 y registro-E06).
  */
-class Usuario extends Modelo implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
+class Usuario extends Modelo implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, FilamentUser
 {
     use Authenticatable;
     use Authorizable;
@@ -63,11 +66,20 @@ class Usuario extends Modelo implements AuthenticatableContract, AuthorizableCon
     }
 
     /**
+     * El correo como se guarda: sin espacios a los lados y en minúsculas. Quien busque una cuenta por el proveedor de
+     * autenticación de Laravel, que compara la columna tal cual, pasa el correo por aquí.
+     */
+    public static function normalizarCorreo(string $correo): string
+    {
+        return Str::lower(trim($correo));
+    }
+
+    /**
      * @return Attribute<string, string>
      */
     protected function correo(): Attribute
     {
-        return Attribute::make(set: fn (string $correo): string => Str::lower(trim($correo)));
+        return Attribute::make(set: fn (string $correo): string => self::normalizarCorreo($correo));
     }
 
     /**
@@ -104,5 +116,13 @@ class Usuario extends Modelo implements AuthenticatableContract, AuthorizableCon
     public function getEmailForPasswordReset(): string
     {
         return $this->correo;
+    }
+
+    /**
+     * Quién entra al panel lo decide el componente de autorización, también en local (registro-E15).
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return app(Autorizacion::class)->puedeEntrarAlPanel($this);
     }
 }

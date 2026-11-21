@@ -16,10 +16,10 @@ nunca en las dos.
   datos inválidos rechazados; inicio de sesión con token de Sanctum, consulta de la propia cuenta y cierre de sesión.
   Incluye la fábrica de cuentas para los tests — test: `servidor/tests/Feature/Registro/RegistroConCorreoTest.php` y
   `servidor/tests/Feature/Registro/SesionTest.php` — tamaño M
-- [ ] 1.3 registro-E14 y registro-E15: el componente único de autorización con el rol de usuario; toda ruta protegida
+- [x] 1.3 registro-E14 y registro-E15: el componente único de autorización con el rol de usuario; toda ruta protegida
   pasa por él y una cuenta de usuario no entra al panel — test:
   `servidor/tests/Feature/Registro/AutorizacionTest.php` — tamaño S
-- [ ] 1.4 registro-E30: el límite de intentos del inicio de sesión, con el valor en configuración (ADR-0018) — test:
+- [x] 1.4 registro-E30: el límite de intentos del inicio de sesión, con el valor en configuración (ADR-0018) — test:
   `servidor/tests/Feature/Registro/LimiteDeIntentosTest.php` — tamaño S
 
 ## 2. App: registro, inicio de sesión y sesión (sprint 01)
