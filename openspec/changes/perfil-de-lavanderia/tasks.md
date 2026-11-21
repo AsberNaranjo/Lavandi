@@ -40,9 +40,11 @@ que a su vez lee las tablas de la tarea 1.1 (ver `design.md`, Open Questions).
 
 ## 4. Selección de servicio
 
-- [ ] 4.1 perfil-lavanderia-E11, perfil-lavanderia-E12, perfil-lavanderia-E13 (`movil/`): elegir un tipo de los que
+- [x] 4.1 perfil-lavanderia-E11, perfil-lavanderia-E12, perfil-lavanderia-E13 (`movil/`): elegir un tipo de los que
   ofrece la lavandería y guardarlo en el pedido en curso; sin tipo no se avanza — test:
-  `movil/__tests__/perfil-lavanderia/seleccion-de-servicio.test.tsx` — tamaño S
+  `movil/__tests__/perfil-lavanderia/seleccion-de-servicio.test.tsx` — tamaño S. Un solo tipo mientras DD-098 siga
+  abierta. El paso de fecha y hora (`movil/app/pedido/fecha-y-hora.tsx`) es provisional, solo con su encabezado,
+  hasta que lo llene `agenda-de-recoleccion`
 
 ## Horas
 

@@ -1,7 +1,8 @@
 // El perfil de una lavandería (openspec/changes/perfil-de-lavanderia, perfil-lavanderia-E09 y E10): la tarjeta lleva
 // aquí con su id_publico (cercanas-E12) y la pantalla pide el perfil al servidor con la sesión. Muestra la descripción,
 // los servicios con su precio por kilo, la calificación promedio con el número de calificaciones y las reseñas; sin
-// calificaciones, lo dice y no muestra promedio. Abajo, "Pedir aquí", el acceso para pedir en esa lavandería.
+// calificaciones, lo dice y no muestra promedio. Abajo, "Pedir aquí", el acceso para pedir en esa lavandería: deja la
+// lavandería en el pedido en curso y abre la selección de servicio (perfil-lavanderia-E11).
 //
 // La composición es la de la imagen a05-lavanderia de la Propuesta 04 y el tablero "Perfil de la lavandería" de la
 // Propuesta 5 corregida (C-233). Las fotos llegan con la tarea 2.1 (perfil-lavanderia-E03, bloqueada): mientras, su
@@ -10,11 +11,14 @@
 //
 // Si el perfil no llega, sin escenario propio: los mensajes generales de la app, como la búsqueda de cercanas, y sin
 // "Pedir aquí".
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { mensajeDeLaFalla } from '../../src/cercanas/textos';
 import { useRegresar } from '../../src/navegacion/regresar';
+import { empezarPedido } from '../../src/pedido/pedidoEnCurso';
+import { RUTA_DEL_SERVICIO } from '../../src/pedido/rutas';
+import type { PerfilDeLavanderia as PerfilDeLavanderiaLeido } from '../../src/perfil/api';
 import { Resenas } from '../../src/perfil/Resenas';
 import { ServiciosYPrecios } from '../../src/perfil/ServiciosYPrecios';
 import { calificacionDelPerfil, TEXTOS_DEL_PERFIL } from '../../src/perfil/textos';
@@ -30,16 +34,23 @@ import { color, espaciado, radio, tipografia } from '../../src/tema/theme';
 const PROPORCION_DE_LAS_FOTOS = 16 / 9;
 
 export default function PerfilDeLavanderia() {
+  const router = useRouter();
   const regresar = useRegresar('/inicio');
   const { id } = useLocalSearchParams<{ id: string }>();
   const estado = usePerfilDeLavanderia(id);
   const perfil = estado.fase === 'listo' ? estado.perfil : null;
 
+  // "Pedir aquí" empieza el pedido en esta lavandería y abre la selección de servicio (perfil-lavanderia-E11).
+  function pedirAqui(lavanderia: PerfilDeLavanderiaLeido) {
+    empezarPedido(lavanderia);
+    router.push(RUTA_DEL_SERVICIO);
+  }
+
   return (
     <Pantalla
       desplazable
       encabezado={{ titulo: TEXTOS_DEL_PERFIL.encabezado, alRegresar: regresar }}
-      acciones={perfil ? <Boton onPress={() => {}}>{TEXTOS_DEL_PERFIL.pedirAqui}</Boton> : undefined}
+      acciones={perfil ? <Boton onPress={() => pedirAqui(perfil)}>{TEXTOS_DEL_PERFIL.pedirAqui}</Boton> : undefined}
     >
       {estado.fase === 'cargando' ? (
         <View style={estilos.cargando}>
