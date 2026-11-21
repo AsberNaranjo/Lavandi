@@ -20,7 +20,7 @@ tarea sin test en verde no se marca. Tamaños de S-006: S = 2 h, M = 5 h, L = 12
 
 ## 3. Abrir una plaza con datos
 
-- [ ] 3.1 plazas-E08 (`servidor/`): comando que carga una plaza y sus zonas desde un archivo GeoJSON, sin duplicar al
+- [x] 3.1 plazas-E08 (`servidor/`): comando que carga una plaza y sus zonas desde un archivo GeoJSON, sin duplicar al
   repetirse, con el sembrado de plazas de prueba — test: `servidor/tests/Feature/Plazas/AbrirPlazaConDatosTest.php` —
   tamaño S
 - [ ] 3.2 plazas-E09 (`servidor/`): prueba de esquema sobre la lista de tablas sin plaza de `servidor/config/modelo.php`
