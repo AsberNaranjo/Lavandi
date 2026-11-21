@@ -13,7 +13,7 @@ import { Boton } from '../src/piezas/Boton';
 import { CampoDeTexto } from '../src/piezas/CampoDeTexto';
 import { Enlace } from '../src/piezas/Enlace';
 import { Pantalla } from '../src/piezas/Pantalla';
-import { MensajeDeError } from '../src/piezas/Texto';
+import { MensajeDeError } from '../src/piezas/MensajeDeError';
 import { Titulo } from '../src/piezas/Titulo';
 
 export default function Registro() {

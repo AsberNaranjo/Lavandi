@@ -9,7 +9,8 @@ import { Boton } from '../src/piezas/Boton';
 import { CampoDeTexto } from '../src/piezas/CampoDeTexto';
 import { Enlace } from '../src/piezas/Enlace';
 import { Pantalla } from '../src/piezas/Pantalla';
-import { MensajeDeError, Parrafo } from '../src/piezas/Texto';
+import { MensajeDeError } from '../src/piezas/MensajeDeError';
+import { Parrafo } from '../src/piezas/Parrafo';
 import { Titulo } from '../src/piezas/Titulo';
 
 export default function RecuperarContrasena() {
@@ -43,7 +44,7 @@ export default function RecuperarContrasena() {
     return (
       <Pantalla justificar="center">
         <Titulo>Revisa tu correo</Titulo>
-        <Parrafo>Si hay una cuenta con {enviadoA}, te llegará un enlace para crear una contraseña nueva.</Parrafo>
+        <Parrafo>{`Si hay una cuenta con ${enviadoA}, te llegará un enlace para crear una contraseña nueva.`}</Parrafo>
         <Enlace texto="Volver a iniciar sesión" alTocar={volver} />
       </Pantalla>
     );
