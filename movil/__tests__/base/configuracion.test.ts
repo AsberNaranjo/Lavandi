@@ -143,7 +143,7 @@ describe('base-E07: la app toma la dirección de la API de su entorno', () => {
     expect(archivos.length).toBeGreaterThan(0);
 
     const direcciones = /https?:\/\/|\blocalhost\b|\b\d{1,3}(?:\.\d{1,3}){3}\b/i;
-    const hallazgos = archivos.filter((archivo) => direcciones.test(readFileSync(archivo, 'utf8')));
+    const hallazgos = archivos.filter((archivo) => direcciones.test(textoSinElChatDeWhatsApp(archivo)));
     expect(hallazgos).toEqual([]);
   });
 });
@@ -154,6 +154,17 @@ function archivosDeCodigo(): string[] {
     .map((archivo) => path.join(RAIZ, archivo))
     .filter((archivo) => existsSync(archivo));
   return [...raiz, ...recorrer(path.join(RAIZ, 'app')), ...recorrer(path.join(RAIZ, 'src'))];
+}
+
+// La única dirección escrita en la app: la del chat de WhatsApp de soporte, https://wa.me/<número>, en
+// src/perfil-usuario/whatsapp.ts (perfil-usuario-E09; openspec/changes/perfil-y-soporte/design.md, "Contrato de la
+// API"). Es la dirección pública de WhatsApp para abrir un chat, no la de la API, la de la marca ni la de un documento
+// legal; el número sí sale de la configuración del servidor. Solo en ese archivo y solo esa dirección.
+const CHAT_DE_WHATSAPP = path.join('src', 'perfil-usuario', 'whatsapp.ts');
+
+function textoSinElChatDeWhatsApp(archivo: string): string {
+  const texto = readFileSync(archivo, 'utf8');
+  return archivo.endsWith(CHAT_DE_WHATSAPP) ? texto.replace(/https:\/\/wa\.me\//g, '') : texto;
 }
 
 function recorrer(carpeta: string): string[] {
