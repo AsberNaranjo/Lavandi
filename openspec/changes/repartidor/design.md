@@ -60,7 +60,7 @@ repartidor filtran por esa columna, sin depender del estado interno previo al pa
 ## Tablas y migración
 
 Es una sola migración, hacia adelante (ADR-0016, regla 9), en la tarea 0.1. Pasa la prueba de esquema de
-`modelo-de-datos` (modelo-E01 a modelo-E16). Ninguna de las tres tablas lleva el trigger `impedir_cambio()`, que es
+`modelo-de-datos` (modelo-E01 a modelo-E17). Ninguna de las tres tablas lleva el trigger `impedir_cambio()`, que es
 solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`. Todas las llaves foráneas llevan su índice y
 `ON DELETE RESTRICT` (modelo-E09 y modelo-E10).
 

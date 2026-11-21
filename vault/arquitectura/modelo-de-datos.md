@@ -56,7 +56,7 @@ nueva, nunca un cambio de lo existente:
 | Un pedido lleva varios servicios (DD-098) | Varias filas en `pedido_servicios` | `pedidos` |
 | Se cobra una diferencia al pesar (DD-012) | Otra fila en `pagos` con tipo `ajuste` | `pedidos` |
 | Cambia la comisión (DD-020) | Una fila nueva en `comisiones` con su fecha de inicio; la anterior queda como historial | Los pedidos ya cobrados |
-| Se califica también al repartidor (DD-052) | Filas con `id_repartidores` en `calificaciones` | La tabla |
+| Se califica también al repartidor (DD-052: Nadir dijo que sí, C-200; falta asentarlo con el cliente) | Filas con `id_repartidores` en `calificaciones` | La tabla |
 | Se aprueba la verificación documental del repartidor (`:18`, Orden de Cambio) | Una tabla nueva `documentos_repartidor` | `repartidores` |
 
 **Buenas prácticas.**
@@ -66,7 +66,8 @@ nueva, nunca un cambio de lo existente:
   `id_publico`, un ULID: así nadie adivina el pedido o la cuenta de otro cambiando un número (`:20`, separación por
   tipo de usuario). Lo que asigna la pasarela es `id_pasarela_<cosa>`: `id_pasarela_orden`, `id_pasarela_evento`.
 - **Ningún nombre de proveedor de pagos** en tablas ni columnas (C-192): `eventos_pasarela`, `id_pasarela_orden` y una
-  columna `pasarela` donde haga falta saber cuál cobró. La pasarela está abierta entre Stripe y Mercado Pago (DD-079);
+  columna `pasarela` donde haga falta saber cuál cobró. La pasarela del contrato es Conekta hasta que el cliente firme el cambio; Stripe y Mercado Pago son candidatas
+  (C-192, C-216, DD-079);
   cambiarla no toca la base.
 - **Llaves foráneas en todas las relaciones,** con su índice. La foránea lleva el mismo nombre que la llave a la que
   apunta: `pedidos.id_usuarios` apunta a `usuarios.id_usuarios`. `ON DELETE RESTRICT` por omisión: el historial no se
@@ -197,11 +198,11 @@ deuda: no se crea hasta que se responda.
 
 | Tabla | Columnas | Reglas | Cita | Nace en |
 |---|---|---|---|---|
-| `pagos` | `id_pagos`, `id_publico`, `id_pedidos`, `id_plazas`, `tipo` (`cobro`, `ajuste`), `metodo` (`tarjeta`, `efectivo`), `pasarela`, `monto`, `estado` (`pendiente`, `pagado`, `vencido`, `fallido`, `cancelado`), `id_pasarela_orden`, `referencia_efectivo`, `vence_en`, `pagado_en` | Ningún dato de tarjeta. `pasarela` dice cuál cobró; sus valores, los de DD-079. Único `(pasarela, id_pasarela_orden)` y `(id_pagos, id_plazas)`. Un pedido puede tener un cobro y, si DD-012 lo pide, un ajuste | `:16:A.3 #10`; `:19`; `:20` | `pago` |
+| `pagos` | `id_pagos`, `id_publico`, `id_pedidos`, `id_plazas`, `tipo` (`cobro`, `ajuste`), `metodo` (`tarjeta`, `efectivo`), `pasarela`, `monto`, `estado` (`pendiente`, `pagado`, `vencido`, `fallido`, `cancelado`), `id_pasarela_orden`, `referencia_efectivo`, `vence_en`, `pagado_en` | Ningún dato de tarjeta. `pasarela` dice cuál cobró: `conekta` mientras el cliente no firme el cambio; la elegida, si se firma (DD-079). Único `(pasarela, id_pasarela_orden)` y `(id_pagos, id_plazas)`. Un pedido puede tener un cobro y, si DD-012 lo pide, un ajuste | `:16:A.3 #10`; `:19`; `:20` | `pago` |
 | `reembolsos` | `id_reembolsos`, `id_pagos`, `id_plazas`, `monto`, `motivo`, `id_pasarela_reembolso`, `estado` (`pendiente`, `reembolsado`, `fallido`), `reembolsado_en` | `monto` no mayor que lo pagado. La pasarela es la de su pago. Cuándo se reembolsa: DD-012, DD-016 y DD-103 | `:16:A.3 #9` (cancelación); `:19:Módulo D #6` | `pago` |
-| `eventos_pasarela` | `id_eventos_pasarela`, `pasarela`, `id_pasarela_evento`, `tipo`, `contenido` (`jsonb`), `recibido_en`, `procesado_en`, `error` | Único `(pasarela, id_pasarela_evento)`: un aviso repetido no se procesa dos veces | `:19`; ADR-0010 (se reemplaza al elegir la pasarela, DD-079) | `pago` |
+| `eventos_pasarela` | `id_eventos_pasarela`, `pasarela`, `id_pasarela_evento`, `tipo`, `contenido` (`jsonb`), `recibido_en`, `procesado_en`, `error` | Único `(pasarela, id_pasarela_evento)`: un aviso repetido no se procesa dos veces | `:19`; ADR-0010 (Conekta; se reemplaza si el cliente firma el cambio, DD-079) | `pago` |
 | `comisiones` | `id_comisiones`, `id_plazas`, `id_lavanderias`, `porcentaje`, `vigente_desde`, `vigente_hasta` | `id_lavanderias` vacío es la comisión global de la plaza. Porcentaje de 0 a 100 | `:19:Módulo D #5` | `administracion` |
-| ⛔ `metodos_pago_guardados` | `id_metodos_pago_guardados`, `id_usuarios`, `pasarela`, `id_pasarela_cliente`, `id_pasarela_fuente`, `marca`, `ultimos_4`, `deleted_at` | Solo la referencia que da la pasarela | `:17:A.3 #15`; `:20` | `perfil-y-soporte`, si DD-055 dice que sí |
+| ⛔ `metodos_pago_guardados` | `id_metodos_pago_guardados`, `id_usuarios`, `pasarela`, `id_pasarela_cliente`, `id_pasarela_fuente`, `marca`, `ultimos_4`, `deleted_at` | Solo la referencia que da la pasarela | `:17:A.3 #15`; `:20` | `perfil-y-soporte`: Nadir dijo que sí (C-198); espera saber si el checkout permite reutilizar la tarjeta (pago-E06, DD-079) |
 | ⛔ `movimientos_pasarela` | Según de dónde salgan los datos | Para la conciliación | `:19:Módulo D #6` | `administracion`, con DD-112 |
 
 ### Comunicación y soporte
@@ -229,7 +230,7 @@ deuda: no se crea hasta que se responda.
 | DD-053 | Si una cuenta puede tener más de un rol: la tabla ya lo permite; el código lo limita a uno |
 | DD-099 | La columna de cupo en `lavanderia_horarios` |
 | DD-101 | El formato del folio |
-| DD-055 | Si nace `metodos_pago_guardados` |
+| DD-055 | Nadir dijo que sí (C-198): se guarda solo la referencia. Falta saber si el checkout de la pasarela permite reutilizar la tarjeta (ADR-0010, punto 5; DD-079) para crear `metodos_pago_guardados` |
 | DD-112 | La forma de `movimientos_pasarela` |
-| DD-079 | Los valores de `pasarela`: Stripe o Mercado Pago, cuando el cliente firme el cambio (C-192) |
+| DD-079 | Los valores de `pasarela`: `conekta` mientras no se firme el cambio; la elegida, si se firma (C-216) |
 | DD-093 y DD-094 | Las filas semilla de `plazas` y `zonas` |

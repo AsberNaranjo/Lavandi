@@ -7,8 +7,8 @@
   entrada al panel (ADR-0005), los estados del pedido, el pago confirmado por el webhook de la pasarela (ADR-0010), los
   dispositivos registrados para avisos (ADR-0008) y las direcciones con coordenadas (ADR-0009).
 - Lo que más falta es del cliente: el modelo del dinero (DD-013) y la comisión (DD-020).
-- La pasarela sigue abierta (DD-079, C-192): el contrato dice Conekta hasta que el cliente firme el cambio. Este cambio
-  no nombra proveedor ni construye nada para uno; la conciliación espera la firma.
+- La pasarela es Conekta, la del contrato, mientras el cliente no firme el cambio (DD-079, C-192, C-216). Las tablas
+  de este cambio no nombran proveedor; la conciliación es con Conekta y espera DD-112, no la firma.
 - Las tablas siguen `vault/arquitectura/modelo-de-datos.md` y ADR-0016 (C-193).
 
 ## Goals / Non-Goals
@@ -56,7 +56,7 @@ sin pago acreditado no está activo y no entra al monitoreo (lectura 1).
 ## Tablas y migración
 
 Una sola migración, hacia adelante (ADR-0016, regla 9), en la tarea 0.1. Pasa la prueba de esquema de
-`modelo-de-datos` (modelo-E01 a modelo-E16). Ninguna tabla de este cambio lleva el trigger `impedir_cambio()`, que es
+`modelo-de-datos` (modelo-E01 a modelo-E17). Ninguna tabla de este cambio lleva el trigger `impedir_cambio()`, que es
 solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`. Todas las llaves foráneas llevan su índice y
 `ON DELETE RESTRICT`.
 
@@ -87,8 +87,8 @@ solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`. Todas las llaves fo
 
 Las dos tablas llevan `created_at` y `updated_at` en `timestamptz`, como todas las tablas del negocio con llave propia.
 
-**En espera (⛔):** `movimientos_pasarela` (E20 a E22) toma la forma que fije DD-112, según de dónde salgan los datos,
-y de la pasarela que se elija (DD-079). Es la tarea 0.2, bloqueada. No nombra a ningún proveedor (modelo-E14).
+**En espera (⛔):** `movimientos_pasarela` (E20 a E22) toma la forma que fije DD-112, según de dónde salgan los datos
+de Conekta (de la elegida, si se firma el cambio, DD-079). Es la tarea 0.2, bloqueada por DD-112. No nombra a ningún proveedor (modelo-E14).
 
 **Los modelos de Eloquent** (`Comision` y `AvisoMasivo`) heredan de `App\Models\Modelo` y declaran su `$table` y su
 `$primaryKey` (modelo-E16).
@@ -115,8 +115,9 @@ y de la pasarela que se elija (DD-079). Es la tarea 0.2, bloqueada. No nombra a 
 
 - [El plugin de mapas de Filament está en beta] → se hace como componente propio (ADR-0009). Si el mapa sin código a
   la medida pasa de 8 h, se reabre el ADR-0003, según su criterio de reversión.
-- [DD-079: la pasarela sigue abierta (C-192); el contrato dice Conekta hasta que el cliente firme el cambio] → la
-  conciliación espera a la pasarela elegida y a DD-112, y no se construye nada para un proveedor mientras tanto. El
+- [DD-079: el cliente firma el cambio de Conekta por Stripe o Mercado Pago (C-192, C-216)] → la conciliación se hace
+  con Conekta y espera DD-112; si se firma el cambio, la lectura de la elegida entra con su ADR. No se construye nada
+  de Stripe ni de Mercado Pago mientras tanto. El
   resto del cambio no depende del proveedor: lee `pagos`, que no lo nombra.
 - [DD-056: el efectivo sin OXXO] → la conciliación de los pagos en efectivo espera a que se cierre.
 - [La comisión no tiene base (DD-020)] → el porcentaje se configura desde ya; el cálculo, el reporte de comisiones y
@@ -130,7 +131,7 @@ y de la pasarela que se elija (DD-079). Es la tarea 0.2, bloqueada. No nombra a 
 
 1. **Qué entra en la vista reducida de administración de la app** (C-140). Pregunta para Arthur; no se diseña aquí.
 2. **De dónde salen los movimientos de la pasarela para conciliar:** su API o el reporte que se descarga de su panel.
-   Necesita ADR. Es DD-112, y depende de la pasarela que se elija (DD-079). Con el modelo de datos,
+   Necesita ADR. Es DD-112, con Conekta (con la elegida, si se firma el cambio, DD-079). Con el modelo de datos,
    `movimientos_pasarela` no nace hasta que se responda DD-112, así que E20 y E21 quedan bloqueados, como ya dice la
    fila DD-112.
 3. **Avisos masivos: temas de FCM o lista de tokens.** Condiciona cómo se arman los segmentos. Necesita ADR, o

@@ -5,8 +5,8 @@
 - Lo sostienen ADRs vigentes: la foto, ADR-0006 (bucket privado, URL firmada, compresión en el teléfono); el
   permiso de avisos, ADR-0008; la tarjeta guardada, ADR-0010, punto 5; el borrado de la cuenta, ADR-0005; las tablas,
   ADR-0016 y `vault/arquitectura/modelo-de-datos.md` (C-193).
-- La pasarela sigue abierta (DD-079, C-192): el contrato dice Conekta hasta que el cliente firme el cambio. Este
-  cambio no nombra proveedor y no integra ninguno.
+- La pasarela es Conekta mientras el cliente no firme el cambio (DD-079, C-192, C-216). Este cambio no nombra
+  proveedor y no integra ninguno: la integración es del cambio `pago`.
 
 ## Goals / Non-Goals
 
@@ -38,7 +38,7 @@ Ninguna decisión técnica nueva. Las piezas siguen a sus ADRs:
 ## Tablas y migración
 
 Las tablas siguen `vault/arquitectura/modelo-de-datos.md` y ADR-0016 (aprobados en C-193). Es una sola migración,
-hacia adelante, y pasa la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E16). Ninguna tabla de este
+hacia adelante, y pasa la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17). Ninguna tabla de este
 cambio lleva el trigger `impedir_cambio()`, que es solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`.
 
 **Crea `reportes_soporte`** (perfil-usuario-E11 a E14), tarea 0.1:
@@ -72,8 +72,8 @@ cambio lleva el trigger `impedir_cambio()`, que es solo de `pedidos`, `pedido_ev
 **En espera (⛔):** `metodos_pago_guardados` (E07) solo nace si DD-055 dice que sí. Es la tarea 3.0, bloqueada. Sus
 columnas, según el modelo y C-192, serían `id_metodos_pago_guardados`, `id_usuarios`, `pasarela`, `id_pasarela_cliente`,
 `id_pasarela_fuente`, `marca`, `ultimos_4` y `deleted_at`: solo la referencia que da la pasarela, nunca un dato de
-tarjeta (modelo-E13). No lleva plaza: está en la lista de tablas sin plaza de `servidor/config/modelo.php`. Los
-valores del `CHECK` de `pasarela` salen de DD-079.
+tarjeta (modelo-E13). No lleva plaza: está en la lista de tablas sin plaza de `servidor/config/modelo.php`. El
+`CHECK` de `pasarela` admite `conekta` mientras no se firme el cambio; la elegida, si se firma (DD-079).
 
 ## Risks / Trade-offs
 
@@ -91,7 +91,8 @@ valores del `CHECK` de `pasarela` salen de DD-079.
   además una página web donde pedir el borrado. Se verifica antes de implementar E15; si se confirma, necesita ampliar
   ADR-0005, y la página web tendría que caber en lo que el contrato ya pide.
 - **BR-25 y BR-09 ya tienen fila:** DD-108 y DD-109.
-- **DD-055** (tarjeta guardada), **DD-079** (la pasarela) y **DD-082** (número de WhatsApp).
+- **DD-055** (tarjeta guardada: Nadir dijo que sí, solo la referencia, C-198), **DD-079** (si el checkout de la
+  pasarela permite reutilizarla, como en pago-E06) y **DD-082** (número de WhatsApp).
 - **La plaza de un reporte sin pedido: necesita decisión de Arthur.** `reportes_soporte` lleva `id_plazas`, pero la
   persona no tiene plaza (`usuarios` no la lleva, por el modelo). Con pedido, la plaza es la del pedido. Sin pedido hay
   dos salidas: dejar `id_plazas` vacía, que choca con plazas-E09 ("no nula"), o tomar la plaza de la dirección

@@ -6,7 +6,7 @@ El Módulo A pide un "Perfil de usuario" con "Nombre, foto, direcciones guardada
 
 - El usuario cambia su nombre y su foto de perfil (F-A15). La foto se comprime en el teléfono y se guarda privada (ADR-0006).
 - El perfil muestra sus direcciones guardadas y lleva a editarlas (F-A15, con el cambio `direcciones`).
-- El perfil tiene la sección de métodos de pago sin pedir, guardar ni devolver jamás un número de tarjeta (F-A15, SEG-4). Si se guarda la tarjeta como referencia de la pasarela queda bloqueado (DD-055), y la pasarela misma sigue abierta (DD-079, C-192).
+- El perfil tiene la sección de métodos de pago sin pedir, guardar ni devolver jamás un número de tarjeta (F-A15, SEG-4). Guardar la tarjeta como referencia de la pasarela: Nadir dijo que sí (C-198, DD-055); queda bloqueado hasta saber si el checkout de la pasarela permite reutilizarla (ADR-0010, punto 5; DD-079), igual que pago-E06.
 - El perfil muestra si los avisos están activos en el teléfono y ofrece activarlos (F-A15, ADR-0008).
 - Soporte abre el chat de WhatsApp Business de EL CLIENTE con el número tomado de la configuración (F-A16). El número real es DD-082: no bloquea construir, bloquea acreditar en producción.
 - Soporte tiene un formulario de reporte que se guarda ligado al usuario y, si él quiere, a uno de sus pedidos (F-A16). A quién le llega queda bloqueado (DD-108).

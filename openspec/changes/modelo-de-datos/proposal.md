@@ -29,7 +29,8 @@ de `registro-e-inicio-de-sesion`, que crea las primeras tablas.
 
 - No se crea ninguna tabla del negocio. Cada cambio crea las suyas con su migración; la tabla de quién crea qué está
   en `vault/arquitectura/modelo-de-datos.md`, columna "Nace en".
-- No se integra ninguna pasarela. La integración espera a que el cliente firme el cambio de Conekta (DD-079).
+- No se integra ninguna pasarela: Conekta, la del contrato, entra con el cambio `pago`; el posible cambio de pasarela
+  es DD-079.
 - Las tablas del framework conservan su nombre (`migrations`, `jobs`, `cache`, `sessions`,
   `personal_access_tokens`): la prueba de esquema las excluye.
 

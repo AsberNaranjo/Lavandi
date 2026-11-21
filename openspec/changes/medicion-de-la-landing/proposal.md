@@ -20,7 +20,7 @@ Pixel registran eventos, el candado activo en la dirección acordada y 70 o más
   inicial.
 - Imágenes y contenido optimizados para teléfono, con Lighthouse en la integración continua como alerta temprana y
   PageSpeed Insights sobre la dirección publicada para acreditar (A42-4).
-- La portada en `{{DOMINIO}}` con el candado activo y http redirigido a https (A42-3).
+- La portada en `lavandi.mx` con el candado activo y http redirigido a https (A42-3).
 
 **Qué NO cambia**
 

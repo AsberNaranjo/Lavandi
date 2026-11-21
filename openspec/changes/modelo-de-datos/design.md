@@ -16,7 +16,8 @@ agentes (C-132), así que la prueba sustituye a la revisión a ojo de cada migra
 **Non-Goals:**
 
 - Crear tablas del negocio: cada cambio crea las suyas.
-- Elegir la pasarela: sigue abierta en DD-079.
+- Integrar la pasarela: Conekta, la del contrato, entra con `pago`; el posible cambio a Stripe o Mercado Pago es
+  DD-079.
 - Definir la máquina de estados del pedido: es DD-123.
 
 ## Decisions
@@ -83,5 +84,6 @@ nada que mover.
 
 ## Open Questions
 
-- Los valores de la columna `pasarela` (`CHECK`) salen de DD-079: Stripe o Mercado Pago, cuando el cliente firme.
+- Los valores de la columna `pasarela` (`CHECK`): `conekta`, la del contrato, y la que se elija si el cliente firma el
+  cambio de pasarela (DD-079), que entra en una migración hacia adelante.
 - La lista de estados internos de `estados_pedido` es DD-123; no cambia ninguna regla de este cambio.

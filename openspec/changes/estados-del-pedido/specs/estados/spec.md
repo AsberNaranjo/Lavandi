@@ -93,7 +93,7 @@ Criterio: SEG-3
 
 La api DEBE (MUST) dejar fuera del alcance de la lavandería un pedido cuyo pago la pasarela no ha confirmado: no se lo devuelve, no le deja moverlo y no lo pasa a Recolectado, porque sin pago no hay recolección. La regla no depende del nombre del estado interno en que el pedido espera su pago (DD-123), sino de que su pago no esté acreditado. Al repartidor se le aplica la misma regla en el cambio `repartidor`.
 
-Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (Módulo A, numerales 9, 10 y 11: resumen, pago y confirmación con folio, en ese orden; C-188); D → ADR-0016 (`pedidos.confirmado_en` se llena cuando la pasarela confirma el pago)
+Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (Módulo A, numerales 9, 10 y 11: resumen, pago y confirmación con folio, en ese orden; el orden apoya la regla, no la dice) · C → C-188 (Arthur) y C-197 (Nadir), que son la regla; D → ADR-0016 (`pedidos.confirmado_en` se llena cuando la pasarela confirma el pago)
 
 #### Scenario: estados-E23 — La lavandería no recibe ni mueve un pedido sin pago
 
@@ -223,7 +223,8 @@ Cita: A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3`
 
 Criterio: A43-2
 
-SIN RESPUESTA — bloquea: estados-E21 (DD-012, que detiene el cobro del cambio `pago`; DD-079, la pasarela de cuyo sandbox depende el pago; DD-014 y DD-022, quién marca Entregado)
+SIN RESPUESTA — bloquea: estados-E21 (DD-012, que detiene el cobro del cambio `pago`; DD-014 y DD-022, quién marca Entregado). El cobro corre contra el
+sandbox de Conekta, la pasarela del contrato: DD-079 ya no lo detiene
 
 #### Scenario: estados-E22 — El recorrido completo en el teléfono
 
@@ -233,4 +234,4 @@ SIN RESPUESTA — bloquea: estados-E21 (DD-012, que detiene el cobro del cambio 
 
 Criterio: A43-2
 
-SIN RESPUESTA — bloquea: estados-E22 (DD-012; DD-079, la pasarela; DD-014 y DD-022; DD-069 en iPhone)
+SIN RESPUESTA — bloquea: estados-E22 (DD-012; DD-055 y DD-079, por la pantalla de pago, pago-E02; DD-014 y DD-022; DD-069 en iPhone)

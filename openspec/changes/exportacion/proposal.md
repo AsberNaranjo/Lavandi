@@ -4,7 +4,7 @@ El A.5 cierra con una obligación: "Descarga de reportes en formato CSV y Excel 
 
 ## What Changes
 
-- **Descarga en CSV y en Excel (XLSX)** de cada reporte: los 11 indicadores del A.5 y los tres reportes financieros (ingresos, comisiones y conciliación con la pasarela; la pasarela sigue abierta, DD-079). Se construyen los dos formatos: el A.5 dice "CSV y Excel", aunque el A.4.4 acepte "CSV o Excel".
+- **Descarga en CSV y en Excel (XLSX)** de cada reporte: los 11 indicadores del A.5 y los tres reportes financieros (ingresos, comisiones y conciliación con la pasarela: Conekta mientras el cliente no firme el cambio, DD-079). Se construyen los dos formatos: el A.5 dice "CSV y Excel", aunque el A.4.4 acepte "CSV o Excel".
 - **Cualquier rango de fechas,** con los dos extremos incluidos y sin tope de duración.
 - **Archivos que se abren bien:** el CSV conserva acentos y eñes en Excel, y ningún texto se escribe como fórmula (ADR-0003).
 - **Generación en segundo plano,** con aviso en el panel cuando el archivo está listo. Solo lo descarga quien lo pidió.

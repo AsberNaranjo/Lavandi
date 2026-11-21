@@ -3,7 +3,7 @@ tarea sin test en verde no se marca. Tamaños de S-006: S = 2 h, M = 5 h, L = 12
 
 ## 1. Tablas y ficha de la plaza
 
-- [ ] 1.1 plazas-E03 y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E16) sobre las tablas nuevas
+- [ ] 1.1 plazas-E03 y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) sobre las tablas nuevas
   (`servidor/`): migración de `plazas`, `zonas` (polígono `geography` con índice GiST, ligada a su plaza) y
   `parametros_plaza`, con las columnas, los únicos y los `CHECK` de `design.md` ("Tablas y migración"); modelos de
   Eloquent `Plaza`, `Zona` y `ParametroPlaza` sobre `App\Models\Modelo`, con su `$table`, su `$primaryKey` y las llaves

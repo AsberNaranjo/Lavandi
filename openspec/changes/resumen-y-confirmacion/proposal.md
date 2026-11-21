@@ -30,7 +30,7 @@ su pago. Cierra el hito H3.
 - La "notificación push" de F-A11 se conecta en el cambio `avisos` (H6), cuando exista F-T02. Aquí queda el evento de
   pedido confirmado del que colgará.
 - El cobro es del cambio `pago` (H4): crea el cobro, recibe la confirmación de la pasarela y llama a la confirmación del
-  pedido. La pasarela sigue abierta (C-192, DD-079).
+  pedido. La pasarela es Conekta mientras el cliente no firme el cambio (C-192, C-216, DD-079).
 - Los estados después de Confirmado y su seguimiento son de `estados-del-pedido` (H6).
 - Que la lavandería acepte o rechace el pedido es de `pedidos-de-la-lavanderia` (H5).
 - No hay flujo para cancelar un pedido: el resumen solo muestra la política (DD-016; BR-19, BR-22).
@@ -63,7 +63,7 @@ Ninguna.
 - **Base de datos:** nacen `estados_pedido`, `pedidos`, `pedido_servicios`, `pedido_direcciones` y `pedido_eventos`,
   con el trigger `impedir_cambio()` en `pedidos` y `pedido_eventos` (columnas en `design.md`, tomadas de
   `vault/arquitectura/modelo-de-datos.md`). `pago` y `estados-del-pedido` las usan después.
-- **Dependencias:** ninguna nueva. El proveedor de correo fuera de local es DD-071, y el remitente usa `{{DOMINIO}}`,
+- **Dependencias:** ninguna nueva. El proveedor de correo fuera de local es DD-071, y el remitente usa `lavandi.mx`,
   que espera DD-023.
 - **ADRs:** ADR-0002, ADR-0003, ADR-0004, ADR-0010 (punto 1: el pago se da por bueno solo con el webhook), ADR-0014 (en
   borrador) y ADR-0016 (modelo de datos).

@@ -4,8 +4,8 @@ M = 5 h.
 
 ## 0. Tablas y migración (servidor/)
 
-- [ ] 0.1 Migración de `comisiones` y `avisos_masivos`, con la llave compuesta con la plaza hacia `lavanderias`, el `CHECK` del porcentaje, `avisos_masivos.id_plazas` opcional (lista de "plaza opcional") y `created_at` y `updated_at` en `timestamptz`, y sus modelos de Eloquent `Comision` y `AvisoMasivo`, sobre `App\Models\Modelo`, que sostienen administracion-E11 a administracion-E16, administracion-E19, administracion-E23 y administracion-E24 — test: `servidor/tests/Feature/Administracion/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E16) — tamaño S
-- [ ] 0.2 Migración de `movimientos_pasarela` y su modelo de Eloquent, con la forma que fije DD-112, para administracion-E20 a administracion-E22 — test: `servidor/tests/Feature/Administracion/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E16) — tamaño S — bloqueada: DD-112, DD-079
+- [ ] 0.1 Migración de `comisiones` y `avisos_masivos`, con la llave compuesta con la plaza hacia `lavanderias`, el `CHECK` del porcentaje, `avisos_masivos.id_plazas` opcional (lista de "plaza opcional") y `created_at` y `updated_at` en `timestamptz`, y sus modelos de Eloquent `Comision` y `AvisoMasivo`, sobre `App\Models\Modelo`, que sostienen administracion-E11 a administracion-E16, administracion-E19, administracion-E23 y administracion-E24 — test: `servidor/tests/Feature/Administracion/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — tamaño S
+- [ ] 0.2 Migración de `movimientos_pasarela` y su modelo de Eloquent, con la forma que fije DD-112, para administracion-E20 a administracion-E22 — test: `servidor/tests/Feature/Administracion/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — tamaño S — bloqueada: DD-112
 
 ## 1. Gestión de usuarios (servidor/)
 
@@ -32,9 +32,9 @@ M = 5 h.
 - [ ] 4.1 administracion-E17: ingresos del periodo con los pagos que la pasarela confirmó por webhook, en la hora de la plaza — test: `servidor/tests/Feature/Administracion/ReportesFinancierosTest.php` — tamaño M
 - [ ] 4.2 administracion-E18: reembolsos y ajustes en los ingresos — test: `servidor/tests/Feature/Administracion/ReportesFinancierosTest.php` — tamaño S — bloqueada: DD-012, DD-016
 - [ ] 4.3 administracion-E19: comisiones del periodo por socio y en total — test: `servidor/tests/Feature/Administracion/ReportesFinancierosTest.php` — tamaño S — bloqueada: DD-020
-- [ ] 4.4 administracion-E20: lectura de los movimientos de la pasarela del periodo y marca de los conciliados (pasarela simulada) — test: `servidor/tests/Feature/Administracion/ConciliacionTest.php` — tamaño M — bloqueada: DD-112, DD-079; antes: ADR de la fuente de la conciliación (design.md, pregunta 2)
-- [ ] 4.5 administracion-E21: los tres tipos de diferencia en el reporte — test: `servidor/tests/Feature/Administracion/ConciliacionTest.php` — tamaño S — bloqueada: DD-112, DD-079
-- [ ] 4.6 administracion-E22: comisión que retiene la pasarela — test: `servidor/tests/Feature/Administracion/ConciliacionTest.php` — tamaño S — bloqueada: DD-013, DD-079
+- [ ] 4.4 administracion-E20: lectura de los movimientos de la pasarela del periodo y marca de los conciliados (pasarela simulada) — test: `servidor/tests/Feature/Administracion/ConciliacionTest.php` — tamaño M — bloqueada: DD-112; antes: ADR de la fuente de la conciliación (design.md, pregunta 2)
+- [ ] 4.5 administracion-E21: los tres tipos de diferencia en el reporte — test: `servidor/tests/Feature/Administracion/ConciliacionTest.php` — tamaño S — bloqueada: DD-112
+- [ ] 4.6 administracion-E22: comisión que retiene la pasarela — test: `servidor/tests/Feature/Administracion/ConciliacionTest.php` — tamaño S — bloqueada: DD-013
 
 ## 5. Avisos masivos (servidor/)
 

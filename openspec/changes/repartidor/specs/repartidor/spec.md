@@ -114,7 +114,7 @@ SIN RESPUESTA — bloquea: repartidor-E14 (DD-054)
 ### Requirement: Solo se ofrecen pedidos con pago acreditado
 La API DEBE (MUST) ofrecerle al repartidor solo pedidos con su pago acreditado: un pedido que todavía no se confirma por su pago no aparece en su lista, no se le entrega por su identificador y no se puede aceptar.
 
-Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (Módulo A #9, #10 y #11: resumen con precio estimado, pago y confirmación con folio, en ese orden) y `NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3` (Módulo C #2)
+Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (Módulo A #9, #10 y #11: resumen con precio estimado, pago y confirmación con folio, en ese orden; el orden apoya la regla, no la dice) y `NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3` (Módulo C #2) · C → C-188 (Arthur) y C-197 (Nadir), que son la regla
 
 Regla de Arthur: "no se va a recolectar si no ha sido pagado" (C-188, `vault/meta/actas/acta-2026-11-19-normativa-y-arranque.md`).
 

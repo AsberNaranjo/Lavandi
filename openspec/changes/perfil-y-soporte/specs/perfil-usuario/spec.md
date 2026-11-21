@@ -67,7 +67,8 @@ Criterio: SEG-4
 - **CUANDO** abre los métodos de pago de su perfil
 - **ENTONCES** ve, guarda o elimina la referencia de su tarjeta según fije la respuesta pendiente
 
-SIN RESPUESTA — bloquea: perfil-usuario-E07 (DD-055: si se guarda la tarjeta; DD-079: qué pasarela, y si su checkout redirigido permite reutilizarla; ADR-0010, punto 5: si no lo permite, la v1 cobra cada vez)
+SIN RESPUESTA — bloquea: perfil-usuario-E07 (DD-055: Nadir dijo que sí, se guarda solo la referencia, C-198; falta si el checkout de Conekta, o el de la
+elegida si se firma el cambio (DD-079), permite reutilizarla; ADR-0010, punto 5: si no lo permite, la v1 cobra cada vez)
 
 ### Requirement: Notificaciones en el perfil
 El perfil DEBE (MUST) mostrar si los avisos de la app están activos en el teléfono y, si no lo están, ofrecer activarlos.

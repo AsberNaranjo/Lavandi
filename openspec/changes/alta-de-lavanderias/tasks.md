@@ -4,7 +4,7 @@ M = 5 h, L = 12 h.
 
 ## 0. Base de datos en el servidor
 
-- [ ] 0.1 modelo-E01 a modelo-E16 sobre `lavanderias`: migración que la completa con `estado` (`CHECK` de `pendiente`, `activa`, `suspendida` y `baja`, obligatorio, por omisión `activa`) y `aprobada_en` (opcional), y llena `aprobada_en` en las filas que ya existen; el modelo `Lavanderia` (de `perfil-de-lavanderia`) recibe los dos campos, sin cambiar su `$table` ni su `$primaryKey` — test: `servidor/tests/Feature/AltaLavanderias/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` — tamaño S
+- [ ] 0.1 modelo-E01 a modelo-E17 sobre `lavanderias`: migración que la completa con `estado` (`CHECK` de `pendiente`, `activa`, `suspendida` y `baja`, obligatorio, por omisión `activa`) y `aprobada_en` (opcional), y llena `aprobada_en` en las filas que ya existen; el modelo `Lavanderia` (de `perfil-de-lavanderia`) recibe los dos campos, sin cambiar su `$table` ni su `$primaryKey` — test: `servidor/tests/Feature/AltaLavanderias/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` — tamaño S
 
 ## 1. Registro de la lavandería en el servidor
 

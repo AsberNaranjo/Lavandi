@@ -1,6 +1,6 @@
 ## 0. Servidor: la base de datos
 
-- [ ] 0.1 modelo-E01 a modelo-E16 sobre `dispositivos`: migración que la crea con `id_dispositivos`, `id_usuarios` (foránea con índice y `ON DELETE RESTRICT`), `token_fcm` único, `plataforma` con su `CHECK` (`ios`, `android`) y `ultimo_uso_en`; el modelo de Eloquent `Dispositivo` declara su `$table` y su `$primaryKey`, y su `belongsTo` hacia `Usuario` nombra `id_usuarios` — test: `servidor/tests/Feature/Avisos/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` — tamaño S
+- [ ] 0.1 modelo-E01 a modelo-E17 sobre `dispositivos`: migración que la crea con `id_dispositivos`, `id_usuarios` (foránea con índice y `ON DELETE RESTRICT`), `token_fcm` único, `plataforma` con su `CHECK` (`ios`, `android`) y `ultimo_uso_en`; el modelo de Eloquent `Dispositivo` declara su `$table` y su `$primaryKey`, y su `belongsTo` hacia `Usuario` nombra `id_usuarios` — test: `servidor/tests/Feature/Avisos/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` — tamaño S
 
 ## 1. Servidor: el canal de Firebase Cloud Messaging
 

@@ -3,7 +3,7 @@
 ### Requirement: Páginas públicas del aviso de privacidad y de los términos
 
 El sitio DEBE (MUST) publicar el aviso de privacidad y los términos y condiciones, cada uno en una dirección fija y
-pública de `{{DOMINIO}}` que se abre sin iniciar sesión, con el texto tal como EL CLIENTE lo entregue, sin redactarlo ni
+pública de `lavandi.mx` que se abre sin iniciar sesión, con el texto tal como EL CLIENTE lo entregue, sin redactarlo ni
 cambiarlo.
 
 Cita: A → `NSV-2026-001-v8.pdf:31:ANEXO B, Sección B.7`

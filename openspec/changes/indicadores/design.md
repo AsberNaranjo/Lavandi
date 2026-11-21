@@ -52,7 +52,7 @@ No hay decisión técnica nueva. Se aplican los ADR vigentes:
 ## Tablas y migración
 
 Una sola migración, hacia adelante (ADR-0016, regla 9), en la tarea 0.1. Pasa la prueba de esquema de
-`modelo-de-datos` (modelo-E01 a modelo-E16). No lleva el trigger `impedir_cambio()`, que es solo de `pedidos`,
+`modelo-de-datos` (modelo-E01 a modelo-E17). No lleva el trigger `impedir_cambio()`, que es solo de `pedidos`,
 `pedido_eventos`, `pagos` y `reembolsos`.
 
 **Crea `actividad_usuarios`** (E06 y E07):

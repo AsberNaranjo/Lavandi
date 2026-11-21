@@ -49,7 +49,7 @@ Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cam
 - **Sin `id_publico`:** la api no expone la fila; la app registra y borra por el token mismo.
 - **Sin borrado suave:** un token que ya no sirve se borra (avisos-E05, E06); no es historial. Registrar un token que ya existe lo pasa a la cuenta que inicia sesión y actualiza `ultimo_uso_en` (avisos-E21).
 - **Sin trigger:** `impedir_cambio()` es solo para `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`.
-- **Prueba de esquema:** la migración pasa la de `modelo-de-datos` (modelo-E01 a modelo-E16).
+- **Prueba de esquema:** la migración pasa la de `modelo-de-datos` (modelo-E01 a modelo-E17).
 
 **Tablas de otros cambios que este usa:**
 

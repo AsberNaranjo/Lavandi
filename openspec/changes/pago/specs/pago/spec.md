@@ -8,7 +8,8 @@ calcula, nunca con un monto que mande la app, y la app abre el checkout que esa 
 
 Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #10: "Conekta: tarjeta de crédito o débito y OXXO
 Pay") y `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` ("Permite que el usuario pague dentro de la aplicación") · D →
-ADR-0010 (el mecanismo; el proveedor queda abierto por C-192 y DD-079)
+ADR-0010 (el mecanismo y la pasarela vigente, Conekta; si el cliente firma el cambio, la elegida entra con su ADR,
+DD-079)
 
 #### Scenario: pago-E01 — Crear el checkout de un cobro pendiente
 
@@ -18,8 +19,8 @@ ADR-0010 (el mecanismo; el proveedor queda abierto por C-192 y DD-079)
 - **Y** devuelve la URL del checkout
 - **Y** si el cobro ya tenía un checkout vigente, devuelve ese mismo en lugar de crear otro
 
-Con la pasarela simulada, este escenario no depende del proveedor. La misma orden contra el sandbox de la pasarela
-elegida es la tarea 3.3, bloqueada por DD-079.
+Con la pasarela simulada, este escenario no depende del proveedor. La misma orden contra el sandbox de Conekta, la
+pasarela vigente, es la tarea 3.3.
 
 #### Scenario: pago-E02 — La app abre el checkout sin pedir la tarjeta
 
@@ -31,6 +32,10 @@ elegida es la tarea 3.3, bloqueada por DD-079.
 
 Criterio: SEG-4
 
+SIN RESPUESTA — bloquea: pago-E02 (DD-055, DD-079). La última viñeta choca con C-198, donde Nadir dice que la tarjeta
+se captura dentro de la app. Capturarla dentro de la app, contra el checkout redirigido de ADR-0010, se decide con el
+ADR de la pasarela.
+
 #### Scenario: pago-E03 — Pago con tarjeta aprobado
 
 - **DADO** un cobro pendiente con su checkout creado
@@ -38,8 +43,8 @@ Criterio: SEG-4
 - **ENTONCES** el cobro queda `pagado`, con su `pagado_en`
 - **Y** `servidor/` responde 200 al aviso
 
-Criterio: A43-2. A43-4 avanza a `implementado` solo con la tarea 3.3, contra el sandbox de la pasarela elegida
-(DD-079); en producción se acredita en `publicacion`.
+Criterio: A43-2. A43-4 avanza a `implementado` solo con la tarea 3.3, contra el sandbox de Conekta, la pasarela
+vigente; en producción se acredita en `publicacion`.
 
 #### Scenario: pago-E04 — Pago con tarjeta rechazado
 
@@ -74,9 +79,10 @@ Criterio: SEG-4
 - **ENTONCES** puede usar esa tarjeta como una referencia guardada en la pasarela
 - **Y** la plataforma sigue sin conocer su número
 
-SIN RESPUESTA — bloquea: pago-E06 (DD-055, DD-079). Si la tarjeta se guarda o se cobra cada vez, y si el checkout
-redirigido de la pasarela elegida permite reutilizarla. Si DD-055 dice que sí, nace `metodos_pago_guardados` en
-`perfil-y-soporte`.
+SIN RESPUESTA — bloquea: pago-E06 (DD-055, DD-079). DD-055 ya la respondió Nadir (C-198): se guarda solo la referencia
+de la pasarela, nunca el número. Falta: si el checkout de la pasarela vigente, Conekta, permite reutilizarla (ADR-0010,
+punto 5: se verifica en su sandbox y, si no, la v1 cobra cada vez), y si la tarjeta se captura dentro de la app, que es
+lo de pago-E02. Si se puede reutilizar, nace `metodos_pago_guardados` en `perfil-y-soporte`.
 
 ### Requirement: El pago se confirma solo en el servidor
 
@@ -107,9 +113,10 @@ Cuando un cobro queda `pagado`, `servidor/` DEBE (MUST) pasar su pedido a Confir
 operación de confirmar de `resumen-y-confirmacion`. Un pedido sin un cobro `pagado` NO DEBE (MUST NOT) confirmarse, y
 por eso no llega a la lavandería ni al repartidor y no se recolecta.
 
-Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (Módulo A #10 y #11: el pago y después la confirmación con
-folio; C-188) y `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3` ("elegir lavandería, agendar recolección, pagar y dar
-seguimiento") · D → ADR-0010 (punto 1)
+Cita: C → C-188 (Arthur: "no se va a recolectar si no ha sido pagado") y C-197 (Nadir: "se cobra al estimar"), que
+son la regla · A, como apoyo y sin que digan la regla → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (Módulo A
+#9 a #11: resumen, pago y confirmación con folio, en ese orden) y `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3`
+("elegir lavandería, agendar recolección, pagar y dar seguimiento") · D → ADR-0010 (punto 1)
 
 #### Scenario: pago-E18 — El pago acreditado confirma el pedido
 
@@ -147,8 +154,10 @@ B.4` ("verifica los pagos")
 - **ENTONCES** `servidor/` la rechaza sin responder 200
 - **Y** el cobro sigue pendiente
 
-SIN RESPUESTA — bloquea: pago-E09 (DD-079). Cómo prueba sus avisos la pasarela, con firma o con una consulta de la
-orden, depende del proveedor que se elija; lo fija el ADR que reemplace a ADR-0010, junto con lo que pide DD-102.
+Con la pasarela vigente, Conekta, la prueba de autenticidad es la que fija ADR-0010, punto 2: su firma, que está por
+confirmar en su sandbox. Si no firma sus avisos, la alternativa que anota DD-102, punto 2, es consultar la orden antes
+de darla por pagada. Se confirma en la tarea 3.1. Si el cliente firma el cambio de pasarela, la elegida trae la suya en
+su ADR (DD-079).
 
 #### Scenario: pago-E10 — El mismo evento llega dos veces
 
@@ -177,12 +186,10 @@ Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #6: "conci
 ### Requirement: Pago en efectivo
 
 El sistema DEBE (MUST) permitir que el usuario pague su pedido en efectivo a través de la pasarela: recibe una ficha o
-referencia para pagar en tienda, y el cobro queda pendiente hasta que la pasarela confirme el pago al servidor. El
-efectivo DEBE (MUST) vencer antes de la ventana de recolección del pedido.
+referencia para pagar en tienda, y el cobro queda pendiente hasta que la pasarela confirme el pago al servidor.
 
 Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #10), `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`
-("generar fichas de pago en tiendas OXXO") y `NSV-2026-001-v8.pdf:45:ANEXO D, Sección D.3` (OXXO Pay); A →
-`NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (#10 antes de #11; C-188)
+("generar fichas de pago en tiendas OXXO") y `NSV-2026-001-v8.pdf:45:ANEXO D, Sección D.3` (OXXO Pay)
 
 #### Scenario: pago-E12 — Ficha para pagar en efectivo
 
@@ -191,8 +198,8 @@ Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #10), `NSV
 - **ENTONCES** recibe en la app la ficha o referencia para pagar en tienda, guardada en `referencia_efectivo`
 - **Y** el cobro queda pendiente hasta que llegue el aviso auténtico de la pasarela que confirma el pago
 
-SIN RESPUESTA — bloquea: pago-E12 (DD-056, DD-079). Qué efectivo se ofrece lo decide EL CLIENTE por escrito, firmado
-por ambas partes; con qué pasarela, DD-079.
+SIN RESPUESTA — bloquea: pago-E12 (DD-056). Qué efectivo se ofrece lo decide EL CLIENTE por escrito, firmado por ambas
+partes. La pasarela es Conekta mientras no se firme el cambio; con la elegida, si se firma el cambio (DD-079).
 
 #### Scenario: pago-E13 — Ficha vencida sin pagar
 
@@ -201,18 +208,20 @@ por ambas partes; con qué pasarela, DD-079.
 - **ENTONCES** el cobro queda `vencido`, sin pagar
 - **Y** el pedido no se confirma ni se recolecta; lo demás que le pase lo fija el modelo de cobro
 
-SIN RESPUESTA — bloquea: pago-E13 (DD-056, DD-012, DD-079). Qué pasa con el pedido mientras la ficha espera el pago y
-cuando vence (BR-20, DD-123).
+SIN RESPUESTA — bloquea: pago-E13 (DD-056, DD-012). Qué pasa con el pedido mientras la ficha espera el pago y cuando
+vence (BR-20, DD-123).
 
-#### Scenario: pago-E20 — El efectivo vence antes de la ventana de recolección
+#### Scenario: pago-E20 — Cuándo vence la referencia de efectivo
 
 - **DADO** un pedido con su ventana de recolección y un cobro en efectivo pendiente
 - **CUANDO** se genera su ficha o referencia
-- **ENTONCES** su `vence_en` queda antes de `ventana_inicio`, con el plazo que fije el modelo de cobro
+- **ENTONCES** su `vence_en` queda como lo fijen DD-012 y DD-056
 - **Y** si llega `vence_en` sin pago, el cobro queda `vencido` y el pedido no se recolecta
 
-SIN RESPUESTA — bloquea: pago-E20 (DD-012, DD-056, DD-079). Cuánto antes de la ventana vence el efectivo, y si la
-pasarela elegida deja fijar el vencimiento de la ficha.
+SIN RESPUESTA — bloquea: pago-E20 (DD-012, DD-056). Que el efectivo venza antes de la ventana de recolección es una
+pregunta abierta (DD-012, DD-056), no una regla: no sale del contrato, de un acta ni de un ADR. Cuándo vence la
+referencia lo fijan DD-012 y DD-056; si la pasarela deja fijar ese vencimiento se verifica con el efectivo que elija
+DD-056.
 
 ### Requirement: Cuándo se cobra, por cuánto y cómo se ajusta
 
@@ -221,7 +230,8 @@ monto que fije el modelo de cobro de EL CLIENTE a partir del precio estimado, y 
 reembolsos que ese modelo indique.
 
 Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #9: "precio estimado"; #10) y
-`NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (#9 a #11, en ese orden; C-188) · D → ADR-0010 (punto 3)
+`NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3` (#9 a #11, en ese orden; el orden apoya la regla, no la dice) · C → C-188 (Arthur) y C-197 (Nadir), que son la
+regla · D → ADR-0010 (punto 3)
 
 #### Scenario: pago-E14 — Momento y monto del cobro
 
@@ -232,7 +242,7 @@ Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #9: "preci
 
 Criterio: A43-2
 
-SIN RESPUESTA — bloquea: pago-E14 (DD-012, DD-013). El momento ya lo fijó C-188: antes de recolectar. Falta el monto:
+SIN RESPUESTA — bloquea: pago-E14 (DD-012, DD-013). El momento ya lo fijaron C-188 y C-197: antes de recolectar. Falta el monto:
 cómo se estima el peso antes de recolectar, si el envío va en el mismo cobro y si el monto incluye la comisión de la
 pasarela o la absorbe alguien más.
 
@@ -243,8 +253,9 @@ pasarela o la absorbe alguien más.
 - **ENTONCES** `servidor/` cobra la diferencia, con otra fila de `pagos` de `tipo` `ajuste`, o reembolsa el excedente,
   con una fila de `reembolsos`, por la pasarela y según el modelo de cobro
 
-SIN RESPUESTA — bloquea: pago-E15 (DD-012, DD-079). ADR-0010, punto 3, prevé el cargo adicional o el reembolso parcial
-solo si DD-012 lo confirma; cómo se hace depende de la pasarela elegida.
+SIN RESPUESTA — bloquea: pago-E15 (DD-012). ADR-0010, punto 3, prevé el cargo adicional o el reembolso parcial con las
+operaciones de órdenes y reembolsos de Conekta, la pasarela vigente, solo si DD-012 lo confirma. Con la elegida, si se
+firma el cambio (DD-079).
 
 #### Scenario: pago-E16 — Reembolso al cancelar o al rechazar el pedido
 
@@ -253,8 +264,8 @@ solo si DD-012 lo confirma; cómo se hace depende de la pasarela elegida.
 - **ENTONCES** `servidor/` reembolsa por la pasarela lo que fijen la política de cancelación y el modelo de cobro, con
   una fila de `reembolsos` que no pasa de lo pagado
 
-SIN RESPUESTA — bloquea: pago-E16 (DD-012, DD-016, DD-079). Qué pasa con el pago si la lavandería rechaza el pedido es
-DD-103.
+SIN RESPUESTA — bloquea: pago-E16 (DD-012, DD-016). Qué pasa con el pago si la lavandería rechaza el pedido es DD-103.
+El reembolso va por Conekta, la pasarela vigente; con la elegida, si se firma el cambio (DD-079).
 
 ### Requirement: Llaves de la pasarela por entorno
 

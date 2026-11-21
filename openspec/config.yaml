@@ -13,7 +13,7 @@ context: |
   `vault/arquitectura/adr/ADR-000X.md`). Sin cita no hay requisito: se reporta como "fuera del contrato,
   posible Orden de Cambio" (`NSV-2026-001-v8.pdf:8:Cláusula IV`). Las exclusiones expresas están en la
   sección C de vault/contrato/obligaciones-ejecutivas.md. Lo que el contrato nombra (Conekta, mapas de Google
-  y Apple, avisos por FCM, Google Sign-In, GA4) no se sustituye sin Orden de Cambio firmada.
+  y Apple, avisos por el servicio gratuito de Google, Google Sign-In, GA4) no se sustituye sin Orden de Cambio firmada.
 
   Stack (ADRs vigentes): movil/ es React Native con Expo SDK 58 (ADR-0002); servidor/ es Laravel 13 con
   Filament 5 y Sanctum para la API, el panel y la landing (ADR-0003, ADR-0011); PostgreSQL con PostGIS
@@ -25,7 +25,8 @@ context: |
   el alcance).
 
   Idioma: todo en español. Se quedan en inglés solo las palabras clave que exige el validador de OpenSpec.
-  La marca y el dominio no existen todavía: se escriben {{MARCA}} y {{DOMINIO}}.
+  La marca es Lavandi y el dominio lavandi.mx (CLAUDE.md §1: C-49, C-54, C-65, C-66 y C-213). En notas y specs
+  se escriben así; en el código salen siempre de la configuración (CLAUDE.md §5 y §9.3).
 
 rules:
   proposal:

@@ -5,7 +5,7 @@ fábrica.
 
 ## 0. Tablas y migración (`servidor/`)
 
-- [ ] 0.1 Migración de `repartidores`, `pedido_asignaciones` y `evidencias`, con sus llaves compuestas con la plaza y sus `created_at` y `updated_at` en `timestamptz`; más las llaves foráneas compuestas `(id_repartidores, id_plazas)` → `repartidores(id_repartidores, id_plazas)` de `pedidos` y de `calificaciones`, con `ON DELETE RESTRICT` y su índice; y sus modelos de Eloquent `Repartidor`, `PedidoAsignacion` y `Evidencia`, sobre `App\Models\Modelo`, que sostienen repartidor-E01 a repartidor-E30 (depende de la pregunta abierta de `design.md` sobre la plaza de un registro pendiente) — test: `servidor/tests/Feature/Repartidor/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E16) — tamaño M
+- [ ] 0.1 Migración de `repartidores`, `pedido_asignaciones` y `evidencias`, con sus llaves compuestas con la plaza y sus `created_at` y `updated_at` en `timestamptz`; más las llaves foráneas compuestas `(id_repartidores, id_plazas)` → `repartidores(id_repartidores, id_plazas)` de `pedidos` y de `calificaciones`, con `ON DELETE RESTRICT` y su índice; y sus modelos de Eloquent `Repartidor`, `PedidoAsignacion` y `Evidencia`, sobre `App\Models\Modelo`, que sostienen repartidor-E01 a repartidor-E30 (depende de la pregunta abierta de `design.md` sobre la plaza de un registro pendiente) — test: `servidor/tests/Feature/Repartidor/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — tamaño M
 
 ## 1. Servidor (`servidor/`)
 

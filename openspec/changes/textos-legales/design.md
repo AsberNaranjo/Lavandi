@@ -58,7 +58,7 @@ No crea tablas ni migraciones, y no lee ni escribe ninguna tabla de `vault/arqui
 2. **En qué pantallas de la app aparecen los enlaces.** El consentimiento va en el registro (F-A02). Si además van en el
    perfil (F-A15) o en otra pantalla, no lo dice el contrato: **pregunta para Arthur.** No se diseña aquí.
 3. **Cómo los abre la app.** Recomendación: en el navegador del sistema, igual que el checkout redirigido de la
-   pasarela (ADR-0010; cuál pasarela, DD-079), sin dependencia nueva. Una vista dentro de la app también cumple la spec. Lo decide Arthur.
+   pasarela (ADR-0010: Conekta; otra, si el cliente firma el cambio, DD-079), sin dependencia nueva. Una vista dentro de la app también cumple la spec. Lo decide Arthur.
 4. **El formato en que llegan los documentos** (Word, PDF o texto) y si hay **un solo documento de términos o uno por
    tipo de usuario**: el B.7 dice que los términos regulan la relación "con usuarios, socios lavandería y repartidores".
    Se propone agregarlo a DD-080.

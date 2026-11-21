@@ -15,7 +15,7 @@ rehace al cerrar el sprint 02, con las horas reales (recalibración de S-006, [[
 
 1. **Doce hitos y 36 sprints.** El hito H0 es el arranque (sprint 00, del 19 al 22 de noviembre). Los hitos H1 a H11
    reparten las 76 funciones del inventario, en el orden del pedido: entrar, encontrar, pedir, pagar, atender, seguir.
-2. **Con la banda media de S-006 son 389 horas.** Con 11 horas comprometidas por semana, el último sprint, el 35,
+2. **Con la banda media de S-006 son 389 horas.** Con 11 horas por semana (un supuesto: C-157 fija el sprint de una semana, no las horas), el último sprint, el 35,
    termina el **25 de julio de 2027**.
 3. **No está listo.** El calendario del contrato termina el 27 de diciembre de 2026. Para entonces caben **61 horas**:
    el 16 % del alcance. **Faltan 328 horas**, unos 30 sprints. Lo que corresponde es el aviso de retraso (DD-064) y
@@ -27,20 +27,22 @@ rehace al cerrar el sprint 02, con las horas reales (recalibración de S-006, [[
    - el recorrido completo en local, con la lavandería atendiendo y el usuario siguiendo su pedido, al cerrar el
      sprint 17 (21 de marzo de 2027).
 5. **Lo que más pesa** es la administración con los indicadores: 101 horas, diez sprints (H9).
-6. **Al especificar, las horas salieron al doble.** Las 26 specs de OpenSpec (2026-11-19, C-186) suman 810 horas con la
-   misma banda media, contando las tareas bloqueadas, contra las 389 de este plan. El plan pesó cada función una vez;
+6. **Al especificar, las horas salieron al doble.** Las 26 specs de OpenSpec sumaron 810 horas el 2026-11-19 (C-186), y
+   las 27 re-propuestas el 2026-11-20 suman 878, con la misma banda media, contando las tareas bloqueadas, contra las 389 de este plan. El plan pesó cada función una vez;
    las specs la parten en tareas del servidor y de la app, de 2 horas como mínimo, y suman las pruebas en el teléfono
-   y en los navegadores. Con 11 horas por semana, 810 horas terminarían hacia abril de 2028. **No está listo:** el
+   y en los navegadores. Con 11 horas por semana, 878 horas terminarían hacia junio de 2028. La cuenta suma los tamaños de cada
+   `openspec/changes/*/tasks.md`. **No está listo:** el
    número que vale es el de las horas reales, que se mide en los sprints 00 a 02, y con él se rehace este plan el 6 de
-   diciembre. Detalle por fase: `notas-locales/lavandi-specs-por-fase.pdf`.
+   diciembre. Detalle por fase: `notas-locales/lavandi-specs-por-fase.pdf`, que no se versiona.
 7. **El orden no cambia el alcance.** Se construyen las 76 funciones del contrato. Lo que se mueve son las fechas, y
    eso solo vale con Orden de Cambio firmada (`NSV-2026-001-v8.pdf:8:Cláusula IV`).
 
 ## Reglas del plan
 
-- **El sprint** dura de lunes a domingo, con 11 horas de tareas, 2 de arranque y cierre y 1 de margen (C-157,
-  [[sprint-y-sesion-diaria]]). Cierra el domingo con el pull request semanal hacia Nadir (C-158).
-- **Las horas** son las de Arthur, con la banda media de S-006: S = 2, M = 5 y L = 12. Una L se parte antes de entrar
+- **El sprint** dura de lunes a domingo, con 11 horas de tareas, 2 de arranque y cierre y 1 de margen. C-157 fija la semana; las
+  horas no tienen acta y son un supuesto ([[sprint-y-sesion-diaria]]). Cierra el domingo con el pull request semanal hacia Nadir (C-158).
+- **Las horas** son las de Arthur, con la banda media de S-006, que se estimó con las horas de Nadir; aplicarla a las
+  de Arthur es un supuesto hasta medirlas: S = 2, M = 5 y L = 12. Una L se parte antes de entrar
   ([[definicion-de-listo-y-terminado]]).
 - **Cada cambio de OpenSpec** vive en `openspec/changes/<cambio>/` (acta del 2026-11-19, decisión 3), con sus
   funciones del inventario y su cita A. Un requisito sin cita no entra (`CLAUDE.md` §2-bis).
@@ -86,7 +88,7 @@ Cada hito termina con algo que se puede enseñar en el teléfono el domingo.
 | H1 · La persona entra | Registro, inicio de sesión con correo y con Google, recuperación de la contraseña y bienvenida | 01–03 | 23 nov–13 dic | 26 | SEG-2, A43-6 | 2 |
 | H2 · Encuentra su lavandería | Mapa con lavanderías cercanas, filtros y perfil de la lavandería | 03–07 | 7 dic–10 ene 2027 | 45 | A43-2, A43-6 | 2 |
 | H3 · Pide | Fecha y hora, dirección, resumen y confirmación con folio y correo | 07–09 | 4–24 ene | 27 | A43-2 | 2 |
-| H4 · Paga | Pago con tarjeta y en efectivo en el modo de prueba de la pasarela (Stripe o Mercado Pago, DD-079) | 09–10 | 18–31 ene | 12 | A43-2, A43-4 (en sandbox), SEG-4 | 2 |
+| H4 · Paga | Pago con tarjeta y en efectivo en el modo de prueba de la pasarela (Conekta, la del contrato; la elegida si el cliente firma el cambio, DD-079) | 09–10 | 18–31 ene | 12 | A43-2, A43-4 (en sandbox), SEG-4 | 2 |
 | H5 · La lavandería recibe | Alta de la lavandería, aprobación desde la administración, pedidos en tiempo real, aceptar o rechazar | 11–14 | 1–28 feb | 39 | SEG-3, A43-6 | 2 |
 | H6 · La persona sigue su pedido | Cambios de estado de la lavandería en 60 s o menos y avisos al teléfono: **el recorrido completo en local** | 14–17 | 22 feb–21 mar | 34 | A43-2, A43-3, A43-5 | 2 |
 | H7 · La persona vuelve | Historial, calificación, perfil y soporte: **Módulo A completo** | 17–18 | 15–28 mar | 14 | A43-6 | 2 |
@@ -186,8 +188,8 @@ hito ([[trazabilidad-criterio-test]]).
   - DD-012, cuándo se cobra. **Sin ella, el cobro no entra** ([[definicion-de-listo-y-terminado]], punto 2).
   - DD-079, contractual. Mientras no haya Orden de Cambio firmada, la pasarela es Conekta (`CLAUDE.md` §2-bis.3).
   - DD-056, el efectivo si Conekta ya no da OXXO; DD-055, la tarjeta guardada; DD-013, la liquidación.
-- **De Nadir y del cliente:** DD-012 y DD-079 antes del sprint 09 (18 de enero). Si no llegan, H4 se salta y entra
-  H5.
+- **De Nadir y del cliente:** DD-012 y DD-079 antes del sprint 09 (18 de enero): DD-079 por la pantalla de pago
+  (pago-E02, con DD-055); el servidor se integra con Conekta sin esperarla. Si no llegan, H4 se salta y entra H5.
 
 ### H5 · La lavandería recibe — sprints 11 a 14
 
@@ -349,9 +351,9 @@ todavía usa las horas de antes; se recalibra con Arthur.
 - **Llaves hacia tablas que nacen después:** `repartidor` le agrega la llave a `pedidos.id_repartidores` y a
   `calificaciones.id_repartidores`; `historial-y-calificacion`, a `calificaciones.id_pedidos`. No se mueve ningún
   sprint por eso.
-- **No está listo para H3 y H4 sin DD-079.** Con C-188, el folio solo aparece cuando la pasarela confirma el pago, y el
-  pago real necesita la pasarela elegida y firmada; el efectivo, además, DD-056. Lo que no depende del proveedor sí se
-  puede implementar.
+- **No está listo para H3 y H4 sin DD-079 y DD-055.** Con C-188, el folio solo aparece cuando la pasarela confirma el
+  pago. El servidor se integra con Conekta, la del contrato, sin esperar la firma; el pago desde el teléfono espera
+  pago-E02 (DD-055, DD-079), y el efectivo, además, DD-056.
 - **Escenarios que esperan a un cambio posterior**, ya bloqueados por su fila de la deuda: `pedidos-lavanderia` E15 y E16
   (`dispositivos`), `avisos` E20 y la parte del repartidor de `autorizacion` (tablas de `repartidor`),
   `administracion` E02 (`actividad_usuarios`) e `historial-lavanderia` E03 y E07 (`comisiones`).

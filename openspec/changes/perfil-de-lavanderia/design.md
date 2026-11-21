@@ -27,7 +27,7 @@ es de negocio: quién fija el precio y en qué unidad va el lavado en seco (DD-0
    configuración (ADR-0006). Las fotos de prueba son imágenes neutras, sin marca (`CLAUDE.md` §5), y solo se siembran en
    local y en prueba (ADR-0012).
 2. **Precio por lavandería y tipo de servicio, con monto y unidad como datos.** Es la forma más general: cubre que el
-   precio lo fije la lavandería o que lo fije {{MARCA}} y se cargue en cada una (DD-010), sin migración. Es una fila
+   precio lo fije la lavandería o que lo fije Lavandi, la plataforma, y se cargue en cada una (DD-010), sin migración. Es una fila
    de `lavanderia_servicios`: `precio` en pesos, `numeric(12,2)`, y la unidad como llave a `unidades_medida`
    (ADR-0016, reglas 2 y 7).
 3. **Los tres tipos de servicio son las filas del catálogo `tipos_servicio`** (ADR-0016, regla 2), sembradas con los
@@ -75,9 +75,10 @@ llevan `id_plazas`, no nula y con llave foránea a `plazas` (plazas-E09).
 - **Modelos de Eloquent:** `TipoServicio`, `UnidadMedida`, `Lavanderia`, `LavanderiaServicio`, `LavanderiaHorario`,
   `LavanderiaFoto` y `Calificacion`, sobre `App\Models\Modelo`, cada uno con su `$table` y su `$primaryKey`, y cada
   relación con sus llaves nombradas. `Lavanderia` usa `SoftDeletes` y el ULID público.
-- **La migración pasa la prueba de esquema de `modelo-de-datos`** (modelo-E01 a modelo-E16). Ninguna de estas tablas
+- **La migración pasa la prueba de esquema de `modelo-de-datos`** (modelo-E01 a modelo-E17). Ninguna de estas tablas
   lleva el trigger `impedir_cambio()`, que es solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`.
-- **Sin `created_at` ni `updated_at`:** el modelo no los lista, y la reseña necesita su fecha (ver Open Questions).
+- **`created_at` y `updated_at`:** las tablas de este cambio los llevan, en `timestamptz` (modelo-E17; ADR-0016, regla 7). La fecha de
+  cada reseña es `calificaciones.created_at` (perfil-lavanderia-E08).
 
 ## Risks / Trade-offs
 
@@ -108,10 +109,8 @@ llevan `id_plazas`, no nula y con llave foránea a `plazas` (plazas-E09).
 
 **Del modelo de datos, para Arthur (las necesita la tarea 1.1):**
 
-- **La fecha de la reseña.** perfil-lavanderia-E08 devuelve la fecha de cada reseña, pero `calificaciones` no tiene
-  columna de fecha en el modelo, y ninguna tabla lista `created_at` ni `updated_at`, que Eloquent escribe por omisión.
-  O el modelo agrega las marcas de Laravel en `timestamptz` (`timestampsTz()`), o `calificaciones` lleva una columna
-  propia que termine en `_en`. Sin una de las dos, perfil-lavanderia-E08 no se puede cumplir.
+- **La fecha de la reseña.** Resuelta: es `calificaciones.created_at`, en `timestamptz` (modelo-E17; ADR-0016,
+  regla 7).
 - **`codigo` único en los catálogos.** El modelo lo escribe para `roles`, no para `tipos_servicio` ni para
   `unidades_medida`. Este diseño lo pone igual en los dos, porque la semilla y el código buscan por `codigo`; falta que
   el modelo lo diga.

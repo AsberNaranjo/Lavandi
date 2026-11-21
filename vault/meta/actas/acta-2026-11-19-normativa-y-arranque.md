@@ -56,7 +56,8 @@ Continúa la numeración de [[acta-2026-11-18-pedidos-de-noche]], que llega hast
   por ambas partes" (`NSV-2026-001-v8.pdf:8:Cláusula IV`); "Toda modificación deberá constar por escrito y estar
   firmada por ambas partes", y el contrato deja sin efecto "cualquier […] acuerdo previo, verbal o escrito"
   (`NSV-2026-001-v8.pdf:12:Cláusula XIV`). El aviso sirve si el cliente lo firma: una Orden de Cambio de una hoja, sin
-  costo ni cambio de plazo. No consta qué pasarela reemplaza a Conekta.
+  costo ni cambio de plazo. No consta qué pasarela reemplaza a Conekta. **Nadir lo confirmó el 2026-11-20 (C-216):**
+  "Ya se le expresó, está pendiente la firma, pero tenemos un OK expreso."
 
 ## Decisiones tomadas en la sesión
 

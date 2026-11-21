@@ -1,6 +1,6 @@
 ## Context
 
-- La landing vive en el mismo Laravel que la API y el panel: vistas Blade con Tailwind, servidas en `{{DOMINIO}}`
+- La landing vive en el mismo Laravel que la API y el panel: vistas Blade con Tailwind, servidas en `lavandi.mx`
   (ADR-0011, sobre ADR-0003). Consume las variables CSS que genera el adaptador de tokens (ADR-0013), solo en modo
   claro (C-141).
 - Testimonios, logos de prensa y su interruptor de activo se editan desde Filament (ADR-0011).
@@ -64,7 +64,7 @@ Lo que esta spec guarda y el modelo todavía no tiene:
   interruptor de activo y su orden, así que necesitan dónde guardarse. El modelo los deja fuera a propósito: "los
   textos de la landing (ADR-0011): entran cuando se decidan" (sección "Lo que no tiene tabla todavía"). Esta spec no
   fija sus nombres ni sus columnas: primero tienen que entrar a `modelo-de-datos.md`, con su "Nace en", antes de las
-  tareas 4.1 y 4.2. Su migración pasará la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E16): o llevan
+  tareas 4.1 y 4.2. Su migración pasará la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17): o llevan
   `id_plazas`, o entran a la lista cerrada de tablas sin plaza de `servidor/config/modelo.php`, como decisión visible en
   el diff (modelo-E05). No llevan el trigger `impedir_cambio()`.
 - **Los formularios de interés y de contacto** (landing-E22). Si van por correo, como recomienda DD-119, no guardan

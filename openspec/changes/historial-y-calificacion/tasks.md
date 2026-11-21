@@ -4,7 +4,7 @@ M = 5 h, L = 12 h.
 
 ## 0. Base de datos (`servidor/`)
 
-- [ ] 0.1 historial-E13 y modelo-E01 a modelo-E16 sobre `calificaciones`: migración que la completa con la llave compuesta `(id_pedidos, id_plazas)` hacia `pedidos` (índice y `ON DELETE RESTRICT`), `id_lavanderias` opcional, el `CHECK` de exactamente uno de los dos y los únicos por pedido y calificado; el modelo de Eloquent `Calificacion` (de `perfil-de-lavanderia`) recibe su `belongsTo` hacia `Pedido` con `id_pedidos`. La llave hacia `repartidores` la agrega `repartidor` — test: `servidor/tests/Feature/Historial/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` — tamaño S
+- [ ] 0.1 historial-E13 y modelo-E01 a modelo-E17 sobre `calificaciones`: migración que la completa con la llave compuesta `(id_pedidos, id_plazas)` hacia `pedidos` (índice y `ON DELETE RESTRICT`), `id_lavanderias` opcional, el `CHECK` de exactamente uno de los dos y los únicos por pedido y calificado; el modelo de Eloquent `Calificacion` (de `perfil-de-lavanderia`) recibe su `belongsTo` hacia `Pedido` con `id_pedidos`. La llave hacia `repartidores` la agrega `repartidor` — test: `servidor/tests/Feature/Historial/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` — tamaño S
 
 ## 1. Servidor (`servidor/`)
 

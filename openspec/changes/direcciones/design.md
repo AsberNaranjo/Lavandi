@@ -43,7 +43,7 @@ No hay decisión técnica nueva: se aplica el ADR-0009 y las decisiones de `pres
 
 ## Tablas y migración
 
-**Crea** `direcciones`, con una migración que pasa la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E16).
+**Crea** `direcciones`, con una migración que pasa la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17).
 Las columnas son las de `vault/arquitectura/modelo-de-datos.md`:
 
 | Columna | Regla |
@@ -109,5 +109,4 @@ aquí con la validación de la API y la elección en la app; que la dirección q
   así que esta spec deja la columna vacía en ese caso; la foránea compuesta de `pedido_direcciones` impide usarla en un
   pedido. Si Arthur prefiere rechazarla al guardar, `id_plazas` pasa a `NOT NULL` y cambia el momento del rechazo de
   direcciones-E11. **Lo decide Arthur antes de la tarea 1.1.**
-- **`created_at` y `updated_at`.** El modelo no los lista en ninguna tabla. Esta migración no los agrega por su cuenta;
-  si se agregan, van como `timestamptz` (modelo-E08).
+- **`created_at` y `updated_at`:** las tablas de este cambio los llevan, en `timestamptz` (modelo-E17; ADR-0016, regla 7).

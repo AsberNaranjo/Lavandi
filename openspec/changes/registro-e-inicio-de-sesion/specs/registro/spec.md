@@ -193,7 +193,7 @@ SIN RESPUESTA — bloquea: registro-E18 (DD-091)
 En iPhone, la app DEBE (MUST) ofrecer iniciar sesión con Apple, con `expo-apple-authentication`, y el servidor DEBE
 (MUST) validar el token de identidad con `socialiteproviders/apple`. En Android no se ofrece.
 
-Cita: D → ADR-0005 (regla 4.8 de la App Store, grado E)
+Cita: D → ADR-0005, que se apoya en la regla 4.8 de la App Store (grado E, `SIN VERIFICAR`); BR-14
 
 #### Scenario: registro-E20 — En Android no se ofrece Apple
 
@@ -208,7 +208,8 @@ Cita: D → ADR-0005 (regla 4.8 de la App Store, grado E)
 - **CUANDO** la persona toca "Continuar con Apple" y Apple devuelve el token de identidad
 - **ENTONCES** el servidor lo valida, crea o encuentra la cuenta con el rol de usuario y emite la sesión
 
-SIN RESPUESTA — bloquea: registro-E21 (DD-069)
+SIN RESPUESTA — bloquea: registro-E21 (DD-069, BR-14). Además de la cuenta de Apple, que la App Store exija este
+inicio de sesión cuando la app ofrece Google es grado E sin verificar (ADR-0005); se confirma antes de publicar.
 
 ### Requirement: Recuperación de la contraseña por correo
 

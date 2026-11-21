@@ -1,11 +1,14 @@
 ---
-estado: borrador
+estado: superseded
 grado: mixto
 fuente: meta/convenciones.md, sección "Espejo Notion" (B); acta-2026-09-07-fundacion.md C-28 (C); búsqueda de enlaces a Notion en el vault, 2026-11-17 (B)
 fecha: 2026-11-17
 dueño: Arthur Naranjo
 ---
 # Espejo a Notion
+
+> **Superseded el 2026-11-20 (C-203):** Nadir retiró el espejo a Notion; el repo es la única copia del vault.
+> DD-075 queda cerrada.
 
 ## Lo que ya está decidido
 
