@@ -40,6 +40,12 @@ export const TEXTOS_DEL_PERFIL_DE_USUARIO = {
   reporteRecibido: 'Recibimos tu reporte. Gracias por avisarnos.',
   // Sin plaza para el reporte (decisión 27), se ofrece el WhatsApp.
   escribenosPorWhatsApp: 'Escríbenos por WhatsApp',
+  // Borrar la cuenta (perfil-usuario-E15), con la confirmación de la imagen a15-perfil-eliminar.
+  eliminarMiCuenta: 'Eliminar mi cuenta',
+  confirmarEliminar: '¿Eliminar tu cuenta?',
+  noSePuedeDeshacer: 'No se puede deshacer.',
+  cancelar: 'Cancelar',
+  eliminar: 'Eliminar',
 } as const;
 
 /** "Sobre tu pedido DGO-000123", o sin folio si la ruta no lo trae. */

@@ -1,7 +1,7 @@
 // El perfil y el soporte de la cuenta (openspec/changes/perfil-y-soporte): leer el perfil y cambiar el nombre
-// (perfil-usuario-E01 y E02), el número de WhatsApp de soporte (perfil-usuario-E09 y E10) y el reporte
-// (perfil-usuario-E11 y E12). Todo va con el token de la sesión y actúa sobre la cuenta de la sesión: ninguna ruta
-// recibe de quién. El contrato exacto con cada cuerpo y cada error está en design.md, sección "Contrato de la API", y en
+// (perfil-usuario-E01 y E02), el número de WhatsApp de soporte (perfil-usuario-E09 y E10), el reporte
+// (perfil-usuario-E11 y E12) y el borrado de la cuenta (perfil-usuario-E15). Todo va con el token de la sesión y actúa
+// sobre la cuenta de la sesión: ninguna ruta recibe de quién. El contrato exacto con cada cuerpo y cada error está en design.md, sección "Contrato de la API", y en
 // el comentario de cada controlador de servidor/app/Http/Controllers/Api/. Como las demás consultas, nunca lanza:
 // devuelve un Resultado.
 import { pedir, type Falla, type Resultado } from '../configuracion/api';
@@ -12,6 +12,7 @@ export const CONTRATO_DEL_PERFIL = {
   perfil: 'perfil',
   soporte: 'soporte',
   reportes: 'soporte/reportes',
+  cuenta: 'cuenta',
 } as const;
 
 /** El perfil de la cuenta, como lo devuelve el servidor. Nunca trae un número de tarjeta (perfil-usuario-E06). */
@@ -148,4 +149,12 @@ function leerReporte(fila: unknown): Reporte | null {
     return null;
   }
   return { descripcion: fila.descripcion, pedido: fila.pedido, estado: fila.estado, recibido_en: fila.recibido_en };
+}
+
+/**
+ * DELETE de la cuenta de la sesión (perfil-usuario-E15), sin cuerpo: la confirmación previa la pide la app antes de
+ * llamar. Con el 204, la cuenta queda borrada y todos sus tokens revocados, también los de sus otros teléfonos.
+ */
+export function borrarCuenta(token: string): Promise<Resultado<void>> {
+  return pedir<void>(CONTRATO_DEL_PERFIL.cuenta, { metodo: 'DELETE', token });
 }

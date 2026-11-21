@@ -21,7 +21,7 @@ S = 2 h, M = 5 h, L = 12 h.
 - [ ] 2.3 perfil-usuario-E08: estado del permiso de avisos y acceso a activarlo — test: `movil/__tests__/perfil-usuario/notificaciones.test.tsx` — tamaño S
 - [x] 2.4 perfil-usuario-E09 y perfil-usuario-E10: abrir el chat de WhatsApp con el número de la configuración, o mostrarlo como no disponible — test: `movil/__tests__/perfil-usuario/whatsapp.test.tsx` — tamaño S
 - [x] 2.5 perfil-usuario-E11 y perfil-usuario-E12: formulario de reporte con confirmación sin tiempo de respuesta — test: `movil/__tests__/perfil-usuario/reporte.test.tsx` — tamaño S
-- [ ] 2.6 perfil-usuario-E15: borrar la cuenta con confirmación previa y volver a la bienvenida — test: `movil/__tests__/perfil-usuario/borrar-cuenta.test.tsx` — tamaño S
+- [x] 2.6 perfil-usuario-E15: borrar la cuenta con confirmación previa y volver a la bienvenida — test: `movil/__tests__/perfil-usuario/borrar-cuenta.test.tsx` — tamaño S
 
 ## 3. Bloqueadas: no entran al sprint hasta cerrar su fila
 

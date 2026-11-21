@@ -6,6 +6,7 @@
 //   lo rechaza y el error va junto al campo; el nombre guardado no cambia (perfil-usuario-E02).
 // - El correo solo se ve: el numeral 15 no lo lista y no se cambia desde el perfil.
 // - Las direcciones guardadas son las favoritas de la cuenta (perfil-usuario-E05).
+// - "Eliminar mi cuenta", al final, borra la cuenta después de confirmarlo y vuelve a la bienvenida (perfil-usuario-E15).
 //
 // La composición sigue la imagen a15-perfil de la Propuesta 04 en lo que tiene escenario. Del mock no entran todavía: la
 // foto (tarea 2.2, que espera el disco privado del servidor), los métodos de pago (perfil-usuario-E07, bloqueado por
@@ -23,6 +24,7 @@ import type { Falla } from '../../src/configuracion/api';
 import { useFavoritas } from '../../src/direcciones/useFavoritas';
 import { useRegresar } from '../../src/navegacion/regresar';
 import { cambiarNombre, type PerfilDeUsuario } from '../../src/perfil-usuario/api';
+import { BorrarCuenta } from '../../src/perfil-usuario/BorrarCuenta';
 import { DireccionesGuardadas } from '../../src/perfil-usuario/DireccionesGuardadas';
 import { mensajeDelNombre, TEXTOS_DEL_PERFIL_DE_USUARIO as TEXTOS } from '../../src/perfil-usuario/textos';
 import { usePerfilDeUsuario } from '../../src/perfil-usuario/usePerfilDeUsuario';
@@ -54,6 +56,7 @@ export default function MiPerfil() {
           <DireccionesGuardadas favoritas={favoritas} />
         </>
       ) : null}
+      <BorrarCuenta />
     </Pantalla>
   );
 }
