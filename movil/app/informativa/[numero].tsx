@@ -1,9 +1,10 @@
 // Las tres pantallas informativas, en orden (bienvenida-E03), con su título, texto e ilustración del archivo de
-// contenido (bienvenida-E05). Al avanzar desde la tercera, la app ofrece registrarse o iniciar sesión
-// (bienvenida-E04). Una ruta por informativa, para que el regreso de Android vuelva a la anterior. Sin "Saltar": no
-// tiene cita (C-225).
+// contenido (bienvenida-E05). Al avanzar desde la tercera, la app recuerda que ya las vio (bienvenida-E02) y ofrece
+// registrarse o iniciar sesión (bienvenida-E04). Una ruta por informativa, para que el regreso de Android vuelva a la
+// anterior. Sin "Saltar": no tiene cita (C-225).
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
+import { marcarBienvenidaVista } from '../../src/bienvenida/vista';
 import { contenidoDeBienvenida } from '../../src/contenido/bienvenida';
 import { Boton } from '../../src/piezas/Boton';
 import { Ilustracion } from '../../src/piezas/Ilustracion';
@@ -23,11 +24,12 @@ export default function Informativa() {
     return <Redirect href="/" />;
   }
 
-  function avanzar() {
+  async function avanzar() {
     if (posicion < informativas.length) {
       router.push(`/informativa/${posicion + 1}`);
       return;
     }
+    await marcarBienvenidaVista();
     router.replace('/entrada');
   }
 

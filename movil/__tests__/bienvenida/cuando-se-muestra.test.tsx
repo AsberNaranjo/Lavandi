@@ -2,9 +2,10 @@
 // apertura) y bienvenida-E02 (las aperturas siguientes y con la sesión abierta; C-225). Navegación: ADR-0017.
 import path from 'node:path';
 import * as SecureStore from 'expo-secure-store';
-import { renderRouter, screen, waitFor } from 'expo-router/testing-library';
+import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 
 import { leerBienvenidaVista, marcarBienvenidaVista } from '../../src/bienvenida/vista';
+import { contenidoDeBienvenida } from '../../src/contenido/bienvenida';
 import { guardarToken } from '../../src/sesion/almacen';
 
 const APP = path.resolve(__dirname, '..', '..', 'app');
@@ -66,5 +67,34 @@ describe('bienvenida: a dónde llega la persona al abrir la app', () => {
     await marcarBienvenidaVista();
 
     await expect(leerBienvenidaVista()).resolves.toBe(true);
+  });
+
+  // La siguiente apertura no se vuelve a montar dentro del mismo test: el router de pruebas conserva la última ruta.
+  // A dónde lleva cada valor de la marca lo prueban los tests de arriba.
+  test('bienvenida-E02 — al terminar la tercera informativa, la app recuerda que ya la vio', async () => {
+    const { comenzar, siguiente } = contenidoDeBienvenida.botones;
+    await abrirLaApp('/bienvenida');
+
+    await fireEvent.press(screen.getByRole('button', { name: comenzar }));
+    await waitFor(() => expect(screen).toHavePathname('/informativa/1'));
+    await fireEvent.press(screen.getByRole('button', { name: siguiente }));
+    await waitFor(() => expect(screen).toHavePathname('/informativa/2'));
+    await fireEvent.press(screen.getByRole('button', { name: siguiente }));
+    await waitFor(() => expect(screen).toHavePathname('/informativa/3'));
+    await expect(leerBienvenidaVista()).resolves.toBe(false);
+
+    await fireEvent.press(screen.getByRole('button', { name: siguiente }));
+    await waitFor(() => expect(screen).toHavePathname('/entrada'));
+
+    await expect(leerBienvenidaVista()).resolves.toBe(true);
+  });
+
+  test('bienvenida-E02 — si deja las informativas a medias, no cuenta como vista y la siguiente vez empieza en la bienvenida', async () => {
+    await abrirLaApp('/bienvenida');
+
+    await fireEvent.press(screen.getByRole('button', { name: contenidoDeBienvenida.botones.comenzar }));
+    await waitFor(() => expect(screen).toHavePathname('/informativa/1'));
+
+    await expect(leerBienvenidaVista()).resolves.toBe(false);
   });
 });
