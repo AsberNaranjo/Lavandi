@@ -23,7 +23,7 @@ interface PropiedadDeGradle {
 // Lo que la prueba lee de la configuración resultante de Expo.
 interface ConfiguracionLeida {
   platforms?: string[];
-  ios?: { bundleIdentifier?: string };
+  ios?: { bundleIdentifier?: string; supportsTablet?: boolean };
   android?: { package?: string };
   _internal?: {
     modResults?: {
@@ -64,6 +64,11 @@ describe('base: configuración de la app', () => {
   describe('base-E05: una sola configuración para las dos plataformas', () => {
     test('base-E05 — la configuración declara iPhone y Android desde el mismo proyecto', () => {
       expect(configuracion.platforms).toEqual(['ios', 'android']);
+    });
+
+    // El contrato pide la app para iPhone y Android (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3), no para iPad.
+    test('base-E05 — en iPhone la app no se declara para iPad, que el contrato no pide', () => {
+      expect(configuracion.ios?.supportsTablet).toBe(false);
     });
 
     test('base-E05 — el identificador de la app en iPhone y en Android sale del entorno', () => {

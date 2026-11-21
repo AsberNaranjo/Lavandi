@@ -60,7 +60,9 @@ export default (): ExpoConfig => {
     icon: './assets/icon.png',
     ios: {
       bundleIdentifier: entorno.APP_IDENTIFIER,
-      supportsTablet: true,
+      // Sin iPad: el contrato pide la app para iPhone y Android (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3), y el
+      // true era un resto de la plantilla de Expo. Un iPad la puede abrir como app de iPhone.
+      supportsTablet: false,
     },
     android: {
       package: entorno.APP_IDENTIFIER,
