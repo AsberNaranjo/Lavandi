@@ -21,6 +21,10 @@ export default function Inicio() {
     } catch {
       // El teléfono no pudo borrar el token, pero la app ya quedó sin sesión y el servidor lo revoca: se sale igual.
     }
+    // Se vacía la pila: "atrás" ya no regresa a las pantallas de la sesión cerrada.
+    if (router.canDismiss()) {
+      router.dismissAll();
+    }
     router.replace('/entrada');
   }
 

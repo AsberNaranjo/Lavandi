@@ -1,11 +1,12 @@
 // Spec: openspec/changes/registro-e-inicio-de-sesion/specs/registro/spec.md, registro-E11 y registro-E13.
-// La sesión que se conserva al volver a abrir la app y que se borra al cerrarla (ADR-0018). Se abre la app real, con
-// las rutas de movil/app/ (ADR-0017); el almacenamiento cifrado es la simulación en memoria de
-// __mocks__/expo-secure-store.ts y el servidor va simulado.
+// La sesión que se conserva al volver a abrir la app y que se borra al cerrarla (ADR-0018), y las pantallas que se ven
+// con ella y sin ella. Se abre la app real, con las rutas de movil/app/ (ADR-0017); el almacenamiento cifrado es la
+// simulación en memoria de __mocks__/expo-secure-store.ts y el servidor va simulado.
 import path from 'node:path';
 
 import * as SecureStore from 'expo-secure-store';
-import { userEvent } from '@testing-library/react-native';
+import { act, userEvent } from '@testing-library/react-native';
+import { router } from 'expo-router';
 import { renderRouter, screen, waitFor } from 'expo-router/testing-library';
 
 import { marcarBienvenidaVista } from '../../src/bienvenida/vista';
@@ -254,5 +255,107 @@ describe('registro-E13: cerrar la sesión la borra del teléfono', () => {
     // El servidor revoca el token aunque el teléfono no lo haya podido borrar: si vuelve a abrir, el servidor ya no
     // lo reconoce (registro-E11).
     expect(peticiones()).toContain('DELETE /sesion Bearer token-guardado');
+  });
+});
+
+// Las pantallas se ven según la sesión: con sesión no se ven la entrada, el registro, el inicio de sesión ni la
+// recuperación; sin sesión no se ve el inicio; mientras se comprueba, no se ve ninguna. Sin esto, un enlace directo
+// abría el inicio sin sesión, y "atrás" después de entrar regresaba a la entrada con la sesión abierta: volver a entrar
+// sobrescribía el token sin revocar el anterior, que seguía vivo en el servidor.
+describe('registro-E11, registro-E09 y registro-E13: las pantallas según la sesión', () => {
+  const PANTALLAS_SIN_SESION = ['/entrada', '/registro', '/inicio-de-sesion', '/recuperar-contrasena'];
+
+  // La persona que ya abrió la app en esta instalación y vio la bienvenida, sin sesión (bienvenida-E02).
+  async function sinSesionYaVioLaBienvenida() {
+    await comprobarInstalacion();
+    await marcarBienvenidaVista();
+  }
+
+  async function abrirEn(ruta: string) {
+    await renderRouter(APP, { initialUrl: ruta });
+  }
+
+  async function iniciarSesionDesdeLaEntrada() {
+    const usuario = userEvent.setup();
+    await esperarLaEntrada();
+    await usuario.press(screen.getByRole('button', { name: 'Iniciar sesión' }));
+    await waitFor(() => expect(screen).toHavePathname('/inicio-de-sesion'));
+    await usuario.type(await screen.findByLabelText('Correo electrónico'), 'persona@ejemplo.com');
+    await usuario.type(screen.getByLabelText('Contraseña'), 'secreta123');
+    await usuario.press(screen.getByRole('button', { name: 'Iniciar sesión' }));
+    expect(await screen.findByRole('button', { name: 'Cerrar sesión' })).toBeOnTheScreen();
+    return usuario;
+  }
+
+  test('registro-E11 — sin sesión, abrir el inicio directo (con un enlace) lleva a la entrada', async () => {
+    await sinSesionYaVioLaBienvenida();
+    servidor({});
+
+    await abrirEn('/inicio');
+
+    await esperarLaEntrada();
+    expect(screen.queryByRole('button', { name: 'Cerrar sesión' })).not.toBeOnTheScreen();
+  });
+
+  test('registro-E11 — si el servidor ya no reconoce el token, abrir el inicio directo lleva a la entrada y lo borra', async () => {
+    await conSesionGuardada('token-revocado');
+    servidor({ 'GET /cuenta': respuesta(401, { message: 'Unauthenticated.' }) });
+
+    await abrirEn('/inicio');
+
+    await esperarLaEntrada();
+    expect(screen.queryByRole('button', { name: 'Cerrar sesión' })).not.toBeOnTheScreen();
+    await expect(leerToken()).resolves.toBeNull();
+  });
+
+  test('registro-E11 — mientras la app comprueba la sesión con el servidor, no muestra el inicio', async () => {
+    await conSesionGuardada('token-guardado');
+    servidor({ 'GET /cuenta': NO_CONTESTA });
+
+    await abrirEn('/inicio');
+    // renderRouter usa el reloj falso de Jest: se adelanta un momento, menos que el plazo de la petición.
+    await act(() => jest.advanceTimersByTimeAsync(100));
+
+    expect(screen.queryByRole('button', { name: 'Cerrar sesión' })).not.toBeOnTheScreen();
+    expect(screen.queryByRole('header', { name: 'Inicio' })).not.toBeOnTheScreen();
+  });
+
+  test.each(PANTALLAS_SIN_SESION)('registro-E11 — con la sesión abierta, abrir %s lleva al inicio', async (ruta) => {
+    await conSesionGuardada('token-guardado');
+    servidor({ 'GET /cuenta': respuesta(200, { usuario: USUARIO }) });
+
+    await abrirEn(ruta);
+
+    await waitFor(() => expect(screen).toHavePathname('/inicio'));
+    expect(await screen.findByRole('button', { name: 'Cerrar sesión' })).toBeOnTheScreen();
+  });
+
+  test('registro-E09 — después de entrar, "atrás" no regresa al inicio de sesión ni a la entrada', async () => {
+    await sinSesionYaVioLaBienvenida();
+    servidor({ 'POST /sesion': respuesta(200, { token: 'token-nuevo', usuario: USUARIO }) });
+    await abrirLaApp();
+
+    await iniciarSesionDesdeLaEntrada();
+
+    await waitFor(() => expect(router.canGoBack()).toBe(false));
+    expect(screen).toHavePathname('/inicio');
+    await expect(leerToken()).resolves.toBe('token-nuevo');
+  });
+
+  test('registro-E13 — después de entrar y cerrar la sesión, "atrás" no regresa al inicio', async () => {
+    await sinSesionYaVioLaBienvenida();
+    servidor({
+      'POST /sesion': respuesta(200, { token: 'token-nuevo', usuario: USUARIO }),
+      'DELETE /sesion': respuesta(204),
+    });
+    await abrirLaApp();
+    const usuario = await iniciarSesionDesdeLaEntrada();
+
+    await usuario.press(screen.getByRole('button', { name: 'Cerrar sesión' }));
+
+    await esperarLaEntrada();
+    await waitFor(() => expect(router.canGoBack()).toBe(false));
+    expect(screen).toHavePathname('/entrada');
+    await expect(leerToken()).resolves.toBeNull();
   });
 });
