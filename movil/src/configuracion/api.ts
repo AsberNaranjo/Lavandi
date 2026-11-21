@@ -6,12 +6,22 @@ import { direccionDeLaApi, plazoDeLaApi } from './entorno';
 /** Los errores de validación de Laravel: el campo y sus mensajes. */
 export type ErroresPorCampo = Record<string, string[]>;
 
+/**
+ * Lo que algunas rutas agregan al cuerpo de un error para que la app sepa qué pasó, además del mensaje: el motivo
+ * ("motivo", como direccion_no_encontrada) y el motivo de cada campo ("motivos", como fuera_de_la_zona_de_servicio).
+ * Solo vienen si el servidor los manda (direcciones-E03 y E11).
+ */
+export interface MotivosDelServidor {
+  motivoDelServidor?: string;
+  motivosPorCampo?: Record<string, string>;
+}
+
 /** Por qué no se pudo: lo que dijo el servidor, o que no se llegó a él. */
 export type Falla =
-  | { ok: false; motivo: 'invalido'; mensaje: string; errores: ErroresPorCampo }
+  | ({ ok: false; motivo: 'invalido'; mensaje: string; errores: ErroresPorCampo } & MotivosDelServidor)
   | { ok: false; motivo: 'sin-sesion'; mensaje?: string }
   | { ok: false; motivo: 'demasiados-intentos'; mensaje?: string }
-  | { ok: false; motivo: 'servidor'; mensaje?: string }
+  | ({ ok: false; motivo: 'servidor'; mensaje?: string } & MotivosDelServidor)
   | { ok: false; motivo: 'sin-conexion' };
 
 export type Resultado<T> = { ok: true; datos: T } | Falla;
@@ -77,13 +87,13 @@ export async function pedir<T>(ruta: string, { metodo, cuerpo, token }: Peticion
   const mensaje = mensajeDe(datos);
   switch (respuesta.status) {
     case 422:
-      return { ok: false, motivo: 'invalido', mensaje: mensaje ?? '', errores: erroresDe(datos) };
+      return { ok: false, motivo: 'invalido', mensaje: mensaje ?? '', errores: erroresDe(datos), ...motivosDe(datos) };
     case 401:
       return { ok: false, motivo: 'sin-sesion', mensaje };
     case 429:
       return { ok: false, motivo: 'demasiados-intentos', mensaje };
     default:
-      return { ok: false, motivo: 'servidor', mensaje };
+      return { ok: false, motivo: 'servidor', mensaje, ...motivosDe(datos) };
   }
 }
 
@@ -100,6 +110,24 @@ function mensajeDe(datos: unknown): string | undefined {
     return datos.message;
   }
   return undefined;
+}
+
+// Solo las claves que el servidor mandó: un error sin motivos queda igual que antes.
+function motivosDe(datos: unknown): MotivosDelServidor {
+  if (!datos || typeof datos !== 'object') {
+    return {};
+  }
+  const motivos: MotivosDelServidor = {};
+  if ('motivo' in datos && typeof datos.motivo === 'string') {
+    motivos.motivoDelServidor = datos.motivo;
+  }
+  if ('motivos' in datos && datos.motivos && typeof datos.motivos === 'object') {
+    const porCampo = Object.entries(datos.motivos).filter(
+      (entrada): entrada is [string, string] => typeof entrada[1] === 'string',
+    );
+    motivos.motivosPorCampo = Object.fromEntries(porCampo);
+  }
+  return motivos;
 }
 
 function erroresDe(datos: unknown): ErroresPorCampo {
