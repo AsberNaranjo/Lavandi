@@ -276,6 +276,21 @@ app(\App\Pedidos\ConfirmacionDePedido::class)->confirmar($pedido); // devuelve e
   del alfabeto de Crockford, que no revelan el volumen del negocio (BR-21, `modelo-multi-plaza.md`).
 - La regla de que exista un cobro pagado (pago-E19) la agrega `pago`.
 
+### El correo de confirmación (confirmacion-E10 y E11)
+
+- `App\Avisos\MandarCorreoDeConfirmacion` cuelga de `PedidoConfirmado` (registrado en `AppServiceProvider`) y pone en
+  cola `App\Avisos\CorreoDeConfirmacion` a la dirección de la cuenta. El cambio `avisos` agrega su oyente al mismo
+  evento para el aviso al teléfono.
+- Asunto: `<APP_NAME>: tu pedido <folio> está confirmado`. Cuerpo, en HTML y en texto: el folio, la lavandería, el
+  servicio, la fecha de recolección en la hora de la plaza ("jueves 3 de diciembre de 2026"), la ventana ("11:00 a
+  12:00") y la recogida y la entrega copiadas, en una línea cada una. El nombre del producto sale de `APP_NAME` y el
+  remitente de `MAIL_FROM_ADDRESS`; ninguno está en la plantilla (`resources/views/correo/confirmacion*.blade.php`).
+- Va en cola: 5 intentos, con esperas de 60 s, 5 min, 15 min y 1 h. Después del último queda en `failed_jobs`, de
+  donde se reintenta con `php artisan queue:retry`. Un error del proveedor nunca deshace la confirmación, porque el
+  evento se publica ya guardada.
+- En local se captura sin enviarse con `MAIL_MAILER=log` (`.env.example`) y en las pruebas con el transporte `array`
+  (ADR-0014). El proveedor fuera de local es DD-071, y el dominio del remitente, DD-023.
+
 ## Risks / Trade-offs
 
 - [EL CLIENTE no acepta la regla de C-188 (DD-012 sigue parcial)] → Cambian confirmacion-E05, E07 y E13 y quién llama a
