@@ -2,10 +2,16 @@
 // ubicación vive en permiso-de-ubicacion.json porque app.config.ts también lo lee para el diálogo de iPhone.
 import { MENSAJES } from '../acceso/mensajes';
 import type { Falla } from '../configuracion/api';
+import type { LavanderiaCercana } from './api';
 import permisoDeUbicacion from './permiso-de-ubicacion.json';
 
 export const TEXTOS = {
   titulo: 'Lavanderías cerca de ti',
+  // La lista que abre "Pedido nuevo" (cercanas-E15), con el título del tablero "Búsqueda" de la Propuesta 5 corregida.
+  tituloDeLaLista: 'Elige tu lavandería',
+  pedidoNuevo: 'Pedido nuevo',
+  // El estado vacío (cercanas-E14).
+  sinLavanderias: 'No hay lavanderías cerca de ti.',
   // Para qué se usa la ubicación, antes de pedirla (cercanas-E03).
   permiso: permisoDeUbicacion.texto,
   buscando: 'Buscando lavanderías cercanas…',
@@ -17,6 +23,36 @@ export const TEXTOS = {
   // Solo en una compilación de Android sin la llave de Google Maps (src/cercanas/mapa.ts); en iPhone no pasa.
   mapaNoDisponible: 'El mapa no está disponible en esta versión de la app.',
 } as const;
+
+const METROS_POR_KILOMETRO = 1000;
+
+/**
+ * La distancia y la calificación de la tarjeta (cercanas-E12), como en las imágenes de la Propuesta 04: "A 1.2 km ·
+ * Calificación 4.8". Menos de un kilómetro va en metros. Sin calificaciones no hay promedio que mostrar: lo dice, como
+ * el perfil (perfil-lavanderia-E10).
+ */
+export function detalleDeLavanderia({ distancia_m, calificacion }: LavanderiaCercana): string {
+  const metros = Math.round(distancia_m);
+  const distancia =
+    metros < METROS_POR_KILOMETRO ? `A ${metros} m` : `A ${(distancia_m / METROS_POR_KILOMETRO).toFixed(1)} km`;
+  const calificada = calificacion === null ? 'Aún sin calificaciones' : `Calificación ${calificacion.toFixed(1)}`;
+  return `${distancia} · ${calificada}`;
+}
+
+/**
+ * Cuántas lavanderías hay, bajo el mapa: sin ninguna, el estado vacío (cercanas-E14); con alguna, que se toque un pin
+ * para ver su tarjeta (cercanas-E12), si hay mapa.
+ */
+export function resumenDeLasCercanas(cuantas: number, conMapa: boolean): string {
+  if (cuantas === 0) {
+    return TEXTOS.sinLavanderias;
+  }
+  const hay = cuantas === 1 ? '1 lavandería cerca de ti.' : `${cuantas} lavanderías cerca de ti.`;
+  if (!conMapa) {
+    return hay;
+  }
+  return `${hay} ${cuantas === 1 ? 'Toca el pin.' : 'Toca un pin.'}`;
+}
 
 /** El mensaje de una consulta que no salió. Sin escenario propio: los mensajes generales de la app. */
 export function mensajeDeLaFalla(falla: Falla): string {

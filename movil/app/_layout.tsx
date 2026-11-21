@@ -2,7 +2,8 @@
 // cada pantalla lleva su título. Solo modo claro en la v1 (C-141).
 //
 // Las pantallas se ven según la sesión (ADR-0018): con sesión no se ven la entrada, el registro, el inicio de sesión ni
-// la recuperación, y llevan al inicio; sin sesión no se ve el inicio, que lleva al arranque, y el arranque decide entre
+// la recuperación, y llevan al inicio; sin sesión no se ven el inicio ni la lista y el perfil de las lavanderías
+// (lavanderias-cercanas), que llevan al arranque, y el arranque decide entre
 // la bienvenida y la entrada (bienvenida-E01 y E02). Mientras se lee la sesión no se muestra ninguna pantalla. La
 // bienvenida y las informativas no dependen de la sesión.
 import { Stack } from 'expo-router';
@@ -35,6 +36,8 @@ function Pantallas() {
     <Stack screenOptions={{ headerShown: false, contentStyle: estilos.fondo }}>
       <Stack.Protected guard={conSesion} redirectTo="/">
         <Stack.Screen name="inicio" />
+        <Stack.Screen name="lavanderias/index" />
+        <Stack.Screen name="lavanderias/[id]" />
       </Stack.Protected>
       <Stack.Protected guard={!conSesion} redirectTo="/inicio">
         <Stack.Screen name="entrada" />

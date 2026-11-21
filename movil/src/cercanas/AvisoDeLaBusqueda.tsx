@@ -1,7 +1,7 @@
-// Lo que se ve en lugar de las lavanderías mientras no hay un punto para consultar: que se está buscando, para qué se
-// usa la ubicación con "Continuar" para pedirla (cercanas-E03), que no hay permiso (cercanas-E05, bloqueado por DD-083)
-// o que el teléfono no dio su ubicación. Con un punto, no muestra nada: ya hay mapa o lista. Colores y medidas de
-// theme.ts (ADR-0013).
+// Lo que se ve en lugar de las lavanderías mientras no las hay: que se están buscando, para qué se usa la ubicación con
+// "Continuar" para pedirla (cercanas-E03), que no hay permiso (cercanas-E05, bloqueado por DD-083) o que el teléfono no
+// dio su ubicación. Con la respuesta del servidor, lista o falla, no muestra nada. Colores y medidas de theme.ts
+// (ADR-0013).
 import type { ReactNode } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
@@ -18,6 +18,7 @@ interface Propiedades {
 export function AvisoDeLaBusqueda({ estado, permitir }: Propiedades) {
   switch (estado.fase) {
     case 'cargando':
+    case 'consultando':
       return (
         <Aviso texto={TEXTOS.buscando}>
           <ActivityIndicator color={color.semantico.accion} />
