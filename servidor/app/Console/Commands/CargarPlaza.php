@@ -45,12 +45,17 @@ class CargarPlaza extends Command
             return self::FAILURE;
         }
 
+        // Las zonas que no están activas se cuentan aparte: entre ellas, las que ya no vinieron en el archivo
+        // (plazas-E14).
+        $noActivas = $plaza->zonas()->where('activa', false)->count();
+
         $this->components->info(sprintf(
-            '%s: plaza %s y %s, con %d zona(s).',
+            '%s: plaza %s y %s, con %d zona(s)%s.',
             $plaza->nombre,
             $plaza->wasRecentlyCreated ? 'nueva' : 'actualizada',
             $plaza->activa ? 'activa' : 'no activa',
             $plaza->zonas()->count(),
+            $noActivas > 0 ? sprintf(', %d de ellas no activa(s)', $noActivas) : '',
         ));
 
         return self::SUCCESS;

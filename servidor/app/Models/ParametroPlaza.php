@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * La tabla nace vacía. Cada clave la agrega y la valida el cambio que la usa (agenda-de-recoleccion,
  * resumen-y-confirmacion), cuando su fila de la deuda se responda (openspec/changes/plazas-y-zonas/design.md).
+ *
+ * La vigencia termina después de empezar, o no termina: lo revisa la base con su CHECK (plazas-E15). Que dos vigencias
+ * de la misma clave no se traslapen espera al primer cambio que agregue un parámetro.
  */
 class ParametroPlaza extends Modelo
 {
