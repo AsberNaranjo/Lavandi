@@ -1,4 +1,5 @@
-// Campo de texto de formulario, con su etiqueta y su error junto a él (registro-E04).
+// Campo de texto de formulario, con su etiqueta y su error junto a él (registro-E04). Con varias líneas, para las
+// referencias de una dirección (direcciones-E01), crece hacia abajo desde arriba.
 // Colores y medidas de theme.ts (ADR-0013); el alto mínimo es el área táctil del design system y el borde, el grosor de
 // control. Con el foco, el borde pasa al grosor y al color de foco: "foco visible siempre", contorno de 3 px
 // (vault/design-system/componentes.md, reglas transversales; DD-133, punto 5).
@@ -18,6 +19,8 @@ interface Propiedades {
   alCambiar: (texto: string) => void;
   error?: string;
   tipo?: TipoDeCampo;
+  /** Varias líneas de texto, como las referencias de una dirección. */
+  multilinea?: boolean;
 }
 
 // Lo que cada tipo le pide al teclado y al autocompletado del sistema.
@@ -46,7 +49,15 @@ const POR_TIPO: Record<TipoDeCampo, TextInputProps> = {
   },
 };
 
-export function CampoDeTexto({ nombre, etiqueta, valor, alCambiar, error, tipo = 'texto' }: Propiedades) {
+export function CampoDeTexto({
+  nombre,
+  etiqueta,
+  valor,
+  alCambiar,
+  error,
+  tipo = 'texto',
+  multilinea = false,
+}: Propiedades) {
   const [enfocado, setEnfocado] = useState(false);
 
   return (
@@ -59,8 +70,10 @@ export function CampoDeTexto({ nombre, etiqueta, valor, alCambiar, error, tipo =
         onChangeText={alCambiar}
         onFocus={() => setEnfocado(true)}
         onBlur={() => setEnfocado(false)}
+        multiline={multilinea}
         style={[
           estilos.entrada,
+          multilinea ? estilos.multilinea : null,
           letra('cuerpo', 'regular'),
           error ? estilos.entradaConError : null,
           enfocado ? estilos.entradaConFoco : null,
@@ -76,6 +89,9 @@ export function CampoDeTexto({ nombre, etiqueta, valor, alCambiar, error, tipo =
 }
 
 const { color, espaciado, radio, tipografia, accesibilidad, grosor } = tema;
+
+// Cuántas líneas se ven de un campo de varias líneas antes de escribir.
+const LINEAS_A_LA_VISTA = 3;
 
 // Lo que crece el borde con el foco. Crece hacia adentro, así que el relleno se achica lo mismo y lo que se escribe no
 // se mueve.
@@ -100,6 +116,10 @@ const estilos = StyleSheet.create({
     backgroundColor: color.semantico.superficie,
     color: color.semantico.texto,
     fontSize: tipografia.escala.cuerpo,
+  },
+  multilinea: {
+    minHeight: tipografia.escala.cuerpo * tipografia.interlineado.normal * LINEAS_A_LA_VISTA + espaciado[2] * 2,
+    textAlignVertical: 'top',
   },
   entradaConError: {
     borderColor: color.estado.error,
