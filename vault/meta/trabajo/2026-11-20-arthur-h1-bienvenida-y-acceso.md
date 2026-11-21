@@ -55,8 +55,21 @@ sesión (C-226), con cinco agentes y las tablas en el Docker (C-227).
 - La app quedó con 214 tests, y el servidor, con 159.
 - **La revisión adversarial del servidor:** 24 hallazgos, de los que 2 de 3 verificadores confirmaron 9, que son 6
   problemas.
-  - Cinco se corrigen en `fix/h1-revision-servidor`.
+  - Cinco se corrigieron en `fix/h1-revision-servidor`, ya unida: el servidor queda con 170 tests.
   - El sexto es [[DD-132]], el ligado de Google a una cuenta que otra persona registró antes.
+- **La revisión adversarial de la app:** 29 hallazgos, de los que 15 se confirmaron, y son 9 problemas. Se
+  corrigieron en `fix/h1-revision-app`, ya unida, y la app queda con 253 tests:
+  - las peticiones con plazo;
+  - "Cerrar sesión" borra primero del teléfono y también cierra la de Google;
+  - la app ya no se queda en blanco si falla el almacén cifrado;
+  - las pantallas se protegen según la sesión, con `Stack.Protected`, y entrar vacía la pila;
+  - el contraste del botón de texto presionado;
+  - el foco del campo de texto;
+  - el generador de tokens rechaza una cifra vacía;
+  - la app ya no se declara para iPad.
+- **Por confirmar con Arthur:**
+  - el plazo de las peticiones, que hoy es de 15000 ms en `EXPO_PUBLIC_API_PLAZO_MS`;
+  - un token de grosor para el foco en `tokens.json`, que hoy usa el borde de 1 del botón (`componentes.md` pide 3 px).
 
 **Pendiente.**
 - Probar en un teléfono con un development build: la app ya trae módulos nativos y la librería de Google no está
