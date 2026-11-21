@@ -20,7 +20,7 @@
 ## 4. App: el seguimiento del usuario
 
 - [x] 4.1 estados-E02 y estados-E24: pantalla de seguimiento con el componente 3 del design system: estado actual con su nombre, anteriores cumplidos y siguientes pendientes, solo con los cinco nombres — test: `movil/__tests__/estados/seguimiento.test.tsx` — tamaño M
-- [ ] 4.2 estados-E15 y estados-E16: consulta cada 30 segundos solo con la pantalla visible, y consulta inmediata al volver — test: `movil/__tests__/estados/consulta-periodica.test.tsx` — tamaño S
+- [x] 4.2 estados-E15 y estados-E16: consulta cada 30 segundos solo con la pantalla visible, y consulta inmediata al volver — test: `movil/__tests__/estados/consulta-periodica.test.tsx` — tamaño S
 - [ ] 4.3 estados-E17: flujo de Maestro en Android que cronometra el cambio de Confirmado a Recolectado en 60 segundos o menos — test: `movil/.maestro/estados/cambio-en-60-segundos.yaml` — tamaño S
 
 ## 5. App: los botones de la lavandería

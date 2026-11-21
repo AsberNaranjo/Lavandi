@@ -107,5 +107,9 @@ cómo ubica la app el paso actual.
 - **Cuándo está Confirmado.** C-188 lo respondió: cuando la pasarela confirma el pago (numerales 10 y 11), con `pedidos.confirmado_en`, y antes de que la lavandería lo acepte. Si la aceptación tuviera que ser condición, cambia estados-E01 (BR-22).
 - **Corregir un botón tocado por error.** El contrato no lo prevé y la api rechaza los regresos (estados-E05). Si la operación lo necesita, se decide como posible Orden de Cambio (fila propuesta en el reporte).
 - **La hora de cada estado en la pantalla: resuelta.** Sí, la de cada estado cumplido (DD-135, punto 4; decisión 25 del acta del 2026-11-20, por delegación C-236). Es estados-E24.
-- **Una biblioteca para la consulta periódica en `movil/`** (por ejemplo, TanStack Query) o un temporizador propio. Es una dependencia nueva y la decide Arthur.
+- **La consulta periódica en `movil/`: resuelta.** Un temporizador propio, sin dependencia nueva: `useFocusEffect` de
+  expo-router para consultar solo con la pantalla visible y `AppState` de React Native para pausar con la app al fondo;
+  al volver a la pantalla o al traer la app al frente consulta de inmediato (estados-E15 y E16). Vive en
+  `movil/src/estados/useSeguimiento.ts`. Se decidió por delegación de Arthur (C-236), con la tarea 4.2; TanStack Query
+  u otra biblioteca no entran mientras no hagan falta.
 - **Dónde viven los flujos de Maestro.** No hay convención escrita; las tareas usan `movil/.maestro/estados/`.
