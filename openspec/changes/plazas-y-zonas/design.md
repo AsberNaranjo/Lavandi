@@ -94,8 +94,8 @@ Este cambio crea tres tablas, tal como las fija `vault/arquitectura/modelo-de-da
   `SIN VERIFICAR`.
 - **Con qué reconoce la carga una plaza que ya existe.** plazas-E08 pide que volver a cargar el mismo archivo no
   duplique. Para eso la carga necesita una llave natural, por ejemplo `nombre` único en `plazas` y
-  `(id_plazas, nombre)` único en `zonas`, que el modelo de datos no trae. Lo decide Arthur en el modelo antes de la
-  tarea 1.1.
+  `(id_plazas, nombre)` único en `zonas`. **Resuelta:** el modelo de datos aprobado ya los trae (ADR-0016, C-193;
+  `vault/arquitectura/modelo-de-datos.md`, filas `plazas` y `zonas`).
 - **`zonas.activa`.** El modelo la trae, pero la spec resuelve un punto solo por plaza activa (plazas-E04 a E06). Si
   una zona que no está activa deja de dar servicio dentro de una plaza activa, falta su escenario; sin escenario, la
   resolución no la mira.
