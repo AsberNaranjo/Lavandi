@@ -3,6 +3,7 @@
 namespace App\Autorizacion;
 
 use App\Models\Direccion;
+use App\Models\Pedido;
 use App\Models\Rol;
 use App\Models\Usuario;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,8 +15,9 @@ use Illuminate\Database\Eloquent\Builder;
  * Toda ruta protegida de la API pasa por él con el middleware autorizar:<rol> (App\Http\Middleware\Autorizar), y el
  * panel de Filament le pregunta a través de Usuario::canAccessPanel(). Ninguna otra clase decide accesos.
  *
- * Conoce el rol (registro-E14 y registro-E15) y la tenencia de las direcciones (direcciones-E14). La plaza y la
- * tenencia de los demás datos llegan aquí mismo con autorizacion-por-rol (hito H5; ADR-0019, decisión 1).
+ * Conoce el rol (registro-E14 y registro-E15) y la tenencia de las direcciones (direcciones-E14) y de los pedidos del
+ * usuario (confirmacion-E12). La plaza y la tenencia de los demás datos llegan aquí mismo con autorizacion-por-rol
+ * (hito H5; ADR-0019, decisión 1).
  */
 final class Autorizacion
 {
@@ -45,5 +47,17 @@ final class Autorizacion
     public function direccionesVisibles(Usuario $usuario): Builder
     {
         return Direccion::query()->where('id_usuarios', $usuario->getKey());
+    }
+
+    /**
+     * Los pedidos que la cuenta ve: solo los que hizo (confirmacion-E12; NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3).
+     * Toda consulta de pedidos de la API para el usuario parte de aquí. Los de la lavandería y el repartidor, con su
+     * tenencia y su plaza, llegan con autorizacion-por-rol (H5).
+     *
+     * @return Builder<Pedido>
+     */
+    public function pedidosVisibles(Usuario $usuario): Builder
+    {
+        return Pedido::query()->where('id_usuarios', $usuario->getKey());
     }
 }

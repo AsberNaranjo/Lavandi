@@ -8,7 +8,7 @@ luego el código mínimo; luego la limpieza.
 - [x] 1.3 confirmacion-E06, confirmacion-E07, confirmacion-E13: la operación de confirmar pasa el pedido a Confirmado con folio único por plaza garantizado por la base, `confirmado_en` y su evento, llamada directo desde el test; el botón del resumen y las peticiones de la app no confirman — test: `servidor/tests/Feature/Confirmacion/ConfirmarPedidoTest.php` — tamaño S
 - [x] 1.4 confirmacion-E08: al aceptar el resumen se revalidan la ventana y las direcciones con las reglas de `agenda` y `direcciones`, sin crear el pedido si falla — test: `servidor/tests/Feature/Confirmacion/RevalidarAlConfirmarTest.php` — tamaño S
 - [ ] 1.5 confirmacion-E10, confirmacion-E11: correo de confirmación en cola, colgado del evento de pedido confirmado, con folio y resumen, capturado en local; su falla no deshace el pedido — test: `servidor/tests/Feature/Confirmacion/CorreoDeConfirmacionTest.php` — tamaño S
-- [ ] 1.6 confirmacion-E12: un usuario no ve el pedido de otro, ni por `id_publico` ni por folio — test: `servidor/tests/Feature/Confirmacion/AislamientoTest.php` — tamaño S
+- [x] 1.6 confirmacion-E12: un usuario no ve el pedido de otro, ni por `id_publico` ni por folio — test: `servidor/tests/Feature/Confirmacion/AislamientoTest.php` — tamaño S
 
 ## 2. App: resumen y confirmación
 

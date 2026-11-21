@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Autorizacion\Autorizacion;
 use App\Direcciones\RecogidaYEntrega;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CrearPedidoRequest;
@@ -10,6 +11,7 @@ use App\Models\Lavanderia;
 use App\Models\Usuario;
 use App\Pedidos\CreacionDePedido;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /**
@@ -136,9 +138,28 @@ use Illuminate\Support\Str;
  *
  *     Una dirección guardada sin plaza, o con la plaza de antes de un cambio de zonas, que hoy cae en una zona activa
  *     de la plaza de la lavandería, se acepta: el servidor le vuelve a resolver la plaza antes de copiarla.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
+ *     GET /api/pedidos/{id_publico}          Un pedido de la cuenta: su folio y su resumen (confirmacion-E09 y E12)
+ *
+ *     {id_publico}  el ULID del pedido, el que trae "pedido.id_publico" en la respuesta de POST /api/pedidos. Se
+ *                   acepta en mayúsculas o en minúsculas.
+ *
+ *     200  { "pedido": { ...el pedido... } }
+ *          La app consulta aquí si el pedido ya pasó a Confirmado: "folio" y "confirmado_en" llenos y "estado.codigo"
+ *          en "confirmado". Entonces muestra la confirmación con el folio y el resumen.
+ *     404  { "message": "No existe el pedido." }
+ *          No existe, es de otra cuenta, o el valor no es un ULID (un folio, por ejemplo): todos responden igual y sin
+ *          ningún dato. El folio no es un identificador de la API, ni para el pedido propio.
+ *
+ * No hay ninguna ruta que confirme un pedido: lo confirma el cobro cuando la pasarela confirma el pago
+ * (App\Pedidos\ConfirmacionDePedido; C-188).
  */
 class PedidosController extends Controller
 {
+    public function __construct(private readonly Autorizacion $autorizacion) {}
+
     public function crear(
         CrearPedidoRequest $peticion,
         RecogidaYEntrega $recogidaYEntrega,
@@ -173,5 +194,28 @@ class PedidosController extends Controller
         );
 
         return response()->json(['pedido' => PedidoResource::delPedido($pedido)], 201);
+    }
+
+    /**
+     * Un pedido de la cuenta por su identificador público. Quién ve qué lo dice el componente de autorización: uno de
+     * otra cuenta, uno que no existe y un valor que no es ULID, como un folio, responden igual (confirmacion-E12).
+     */
+    public function mostrar(Request $peticion, string $pedido): JsonResponse
+    {
+        /** @var Usuario $usuario */
+        $usuario = $peticion->user();
+
+        $encontrado = Str::isUlid($pedido)
+            ? $this->autorizacion->pedidosVisibles($usuario)
+                // HasUlids guarda el ULID en minúsculas.
+                ->where('id_publico', Str::lower($pedido))
+                ->first()
+            : null;
+
+        if ($encontrado === null) {
+            return response()->json(['message' => 'No existe el pedido.'], 404);
+        }
+
+        return response()->json(['pedido' => PedidoResource::delPedido($encontrado)]);
     }
 }

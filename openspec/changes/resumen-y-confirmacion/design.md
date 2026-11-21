@@ -246,6 +246,19 @@ pedido con su plaza anterior: cambiarla rompería ese historial, así que se rec
 `plaza_de_la_direccion_desactualizada` ("Esta dirección cambió de zona de servicio. Guárdala de nuevo para usarla."), y
 la app ofrece guardarla otra vez con `POST /api/direcciones`.
 
+### `GET /api/pedidos/{id_publico}` — un pedido de la cuenta, con su folio y su resumen (confirmacion-E09 y E12)
+
+`{id_publico}` es el ULID del pedido, el que trae `pedido.id_publico` en la respuesta de `POST /api/pedidos`, en
+mayúsculas o en minúsculas.
+
+| Respuesta | Cuándo |
+|---|---|
+| `200 { "pedido": { …el pedido… } }` | Es de la cuenta. La app consulta aquí si ya pasó a Confirmado: `folio` y `confirmado_en` llenos y `estado.codigo` en `confirmado`; entonces muestra la confirmación con el folio y el resumen (confirmacion-E09) |
+| `404 { "message": "No existe el pedido." }` | No existe, es de otra cuenta, o el valor no es un ULID, como un folio: todos responden igual y sin ningún dato. El folio no es un identificador de la API, ni para el pedido propio (confirmacion-E12) |
+
+Quién ve qué pedido lo dice el componente único de autorización (`Autorizacion::pedidosVisibles()`). La ruta no lleva
+`whereUlid` a propósito: así un folio responde el mismo 404 que un pedido ajeno, y no el 404 genérico del framework.
+
 ### La operación de confirmar, para el cambio `pago` (confirmacion-E06 y E13)
 
 No es una ruta. El componente `cobro` la llama cuando la pasarela confirma el pago:
