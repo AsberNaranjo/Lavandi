@@ -23,8 +23,9 @@ use Tests\TestCase;
  * la hora local de su plaza, por GET /api/lavanderias/{id_publico}/ventanas, con sesión y por el componente de
  * autorización (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #7; :17:Módulo B #1 y #6; ADR-0004; ADR-0019).
  *
- * El reloj se fija antes de la fecha que se pide, para que todas las ventanas sean futuras: lo que pasa con las que ya
- * empezaron es agenda-E11 (ValidarVentanaTest).
+ * El reloj se fija antes de la fecha que se pide, y cada plaza lleva su agenda configurada con anticipación de cero y
+ * siete días hacia adelante, para que todas las ventanas del horario se ofrezcan: lo que pasa con las que ya empezaron,
+ * la anticipación y el horizonte es agenda-E11 y agenda-E12 (ValidarVentanaTest).
  *
  * Escenarios: agenda-E01, agenda-E02, agenda-E03 y agenda-E04 · Spec:
  * openspec/changes/agenda-de-recoleccion/specs/agenda/spec.md
@@ -52,7 +53,7 @@ class VentanasTest extends TestCase
     #[TestDox('agenda-E01: con horario de 9:00 a 13:00 el jueves, el servidor responde 9:00–10:00, 10:00–11:00, 11:00–12:00 y 12:00–13:00')]
     public function test_agenda_e01_con_horario_de_9_a_13_el_jueves_responde_las_cuatro_ventanas(): void
     {
-        $lavanderia = $this->lavanderiaConHorario($this->plazaDePrueba(), [[self::JUEVES, '09:00', '13:00']]);
+        $lavanderia = $this->lavanderiaConHorario($this->plazaConAgenda(), [[self::JUEVES, '09:00', '13:00']]);
 
         $respuesta = $this->pedirVentanas($lavanderia, self::JUEVES_DE_PRUEBA)->assertOk();
 
@@ -68,7 +69,7 @@ class VentanasTest extends TestCase
     #[TestDox('agenda-E01: ninguna ventana dura más ni menos de una hora, tampoco con dos franjas el mismo día')]
     public function test_agenda_e01_ninguna_ventana_dura_mas_ni_menos_de_una_hora(): void
     {
-        $lavanderia = $this->lavanderiaConHorario($this->plazaDePrueba(), [
+        $lavanderia = $this->lavanderiaConHorario($this->plazaConAgenda(), [
             [self::JUEVES, '16:00', '18:00'],
             [self::JUEVES, '09:00', '11:00'],
         ]);
@@ -87,7 +88,7 @@ class VentanasTest extends TestCase
     #[TestDox('agenda-E02: en una plaza con zona horaria distinta de UTC, la ventana de 9:00 a 10:00 sale en la hora de la plaza, con su desfase')]
     public function test_agenda_e02_la_ventana_sale_en_la_hora_de_la_plaza_con_su_desfase(): void
     {
-        $plaza = $this->plazaDePrueba(zonaHoraria: 'America/Mexico_City');
+        $plaza = $this->plazaConAgenda(zonaHoraria: 'America/Mexico_City');
         $lavanderia = $this->lavanderiaConHorario($plaza, [[self::JUEVES, '09:00', '10:00']]);
 
         $respuesta = $this->pedirVentanas($lavanderia, self::JUEVES_DE_PRUEBA)->assertOk();
@@ -110,11 +111,11 @@ class VentanasTest extends TestCase
     public function test_agenda_e02_el_mismo_horario_en_otra_zona_horaria_es_otro_instante(): void
     {
         $centro = $this->lavanderiaConHorario(
-            $this->plazaDePrueba('Plaza de prueba centro', zonaHoraria: 'America/Mexico_City'),
+            $this->plazaConAgenda('Plaza de prueba centro', zonaHoraria: 'America/Mexico_City'),
             [[self::JUEVES, '09:00', '10:00']],
         );
         $sureste = $this->lavanderiaConHorario(
-            $this->plazaDePrueba('Plaza de prueba sureste', zonaHoraria: 'America/Cancun'),
+            $this->plazaConAgenda('Plaza de prueba sureste', zonaHoraria: 'America/Cancun'),
             [[self::JUEVES, '09:00', '10:00']],
         );
 
@@ -135,7 +136,7 @@ class VentanasTest extends TestCase
     #[TestDox('agenda-E02: la ventana que entrega la agenda se guarda en timestamptz como el instante absoluto de esa hora local')]
     public function test_agenda_e02_la_ventana_se_guarda_como_el_instante_absoluto(): void
     {
-        $plaza = $this->plazaDePrueba(zonaHoraria: 'America/Mexico_City');
+        $plaza = $this->plazaConAgenda(zonaHoraria: 'America/Mexico_City');
         $lavanderia = $this->lavanderiaConHorario($plaza, [[self::JUEVES, '09:00', '10:00']]);
 
         $ventana = app(Agenda::class)->dia($lavanderia, self::JUEVES_DE_PRUEBA)->ventanas->sole();
@@ -158,7 +159,7 @@ class VentanasTest extends TestCase
     #[TestDox('agenda-E03: con horario de 9:00 a 13:30, la última ventana es 12:00–13:00 y ninguna sale del horario')]
     public function test_agenda_e03_con_horario_de_9_a_13_30_la_ultima_ventana_es_de_12_a_13(): void
     {
-        $lavanderia = $this->lavanderiaConHorario($this->plazaDePrueba(), [[self::JUEVES, '09:00', '13:30']]);
+        $lavanderia = $this->lavanderiaConHorario($this->plazaConAgenda(), [[self::JUEVES, '09:00', '13:30']]);
 
         $respuesta = $this->pedirVentanas($lavanderia, self::JUEVES_DE_PRUEBA)->assertOk();
 
@@ -176,7 +177,7 @@ class VentanasTest extends TestCase
     #[TestDox('agenda-E03: cada periodo se parte en tramos de una hora desde su inicio')]
     public function test_agenda_e03_cada_periodo_se_parte_desde_su_inicio(): void
     {
-        $lavanderia = $this->lavanderiaConHorario($this->plazaDePrueba(), [
+        $lavanderia = $this->lavanderiaConHorario($this->plazaConAgenda(), [
             [self::JUEVES, '09:30', '12:00'],
             [self::JUEVES, '16:15', '17:15'],
             // Una franja de menos de una hora no da ninguna ventana.
@@ -191,7 +192,7 @@ class VentanasTest extends TestCase
     #[TestDox('agenda-E03: solo cuenta el horario de ese día de la semana y de esa lavandería')]
     public function test_agenda_e03_solo_cuenta_el_horario_de_ese_dia_y_de_esa_lavanderia(): void
     {
-        $plaza = $this->plazaDePrueba();
+        $plaza = $this->plazaConAgenda();
         $lavanderia = $this->lavanderiaConHorario($plaza, [
             [self::LUNES, '08:00', '09:00'],
             [self::JUEVES, '10:00', '11:00'],
@@ -207,7 +208,7 @@ class VentanasTest extends TestCase
     #[TestDox('agenda-E04: sin horario los domingos, el servidor no devuelve ninguna ventana y dice que ese día no da servicio')]
     public function test_agenda_e04_sin_horario_el_domingo_no_hay_ventanas_y_dice_que_no_da_servicio(): void
     {
-        $lavanderia = $this->lavanderiaConHorario($this->plazaDePrueba(), array_map(
+        $lavanderia = $this->lavanderiaConHorario($this->plazaConAgenda(), array_map(
             fn (int $dia): array => [$dia, '09:00', '13:00'],
             range(self::LUNES, self::SABADO),
         ));
@@ -252,7 +253,7 @@ class VentanasTest extends TestCase
     #[TestDox('agenda-E01: sin sesión responde que no hay sesión, y una cuenta sin el rol de usuario no ve la agenda')]
     public function test_agenda_e01_sin_sesion_o_sin_el_rol_de_usuario_no_se_ve_la_agenda(): void
     {
-        $lavanderia = $this->lavanderiaConHorario($this->plazaDePrueba(), [[self::JUEVES, '09:00', '13:00']]);
+        $lavanderia = $this->lavanderiaConHorario($this->plazaConAgenda(), [[self::JUEVES, '09:00', '13:00']]);
         $parametros = ['fecha' => self::JUEVES_DE_PRUEBA];
 
         $this->pedirSinSesion($this->direccionDeVentanas($lavanderia), $parametros)
@@ -269,7 +270,7 @@ class VentanasTest extends TestCase
     #[TestDox('agenda-E01: la agenda de una lavandería que el usuario no ve responde que no existe, sin ventanas')]
     public function test_agenda_e01_la_agenda_de_una_lavanderia_que_el_usuario_no_ve_responde_que_no_existe(): void
     {
-        $plaza = $this->plazaDePrueba();
+        $plaza = $this->plazaConAgenda();
         $franjas = [[self::JUEVES, '09:00', '13:00']];
         $suspendida = $this->lavanderiaConHorario($plaza, $franjas);
         $suspendida->update(['estado' => Lavanderia::SUSPENDIDA]);
@@ -277,7 +278,7 @@ class VentanasTest extends TestCase
         $deBaja->update(['estado' => Lavanderia::BAJA]);
         $borrada = $this->lavanderiaConHorario($plaza, $franjas);
         $borrada->delete();
-        $deOtraPlaza = $this->lavanderiaConHorario($this->plazaDePrueba('Plaza de prueba inactiva', activa: false), $franjas);
+        $deOtraPlaza = $this->lavanderiaConHorario($this->plazaConAgenda('Plaza de prueba inactiva', activa: false), $franjas);
 
         foreach ([$suspendida, $deBaja, $borrada, $deOtraPlaza] as $lavanderia) {
             $this->pedirVentanas($lavanderia, self::JUEVES_DE_PRUEBA)
@@ -300,7 +301,7 @@ class VentanasTest extends TestCase
     #[TestDox('agenda-E01: sin fecha, o con una fecha que no es AAAA-MM-DD, responde un error de validación que lo dice')]
     public function test_agenda_e01_sin_fecha_o_con_una_fecha_mal_escrita_responde_un_error_de_validacion(): void
     {
-        $lavanderia = $this->lavanderiaConHorario($this->plazaDePrueba(), [[self::JUEVES, '09:00', '13:00']]);
+        $lavanderia = $this->lavanderiaConHorario($this->plazaConAgenda(), [[self::JUEVES, '09:00', '13:00']]);
 
         $this->pedirComoUsuario($this->direccionDeVentanas($lavanderia))
             ->assertUnprocessable()

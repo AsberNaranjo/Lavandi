@@ -29,11 +29,19 @@ final readonly class Ventana
     }
 
     /**
-     * Si es la misma ventana: el mismo instante de inicio y de fin, se haya escrito con el desfase que sea.
+     * La fecha en que empieza, AAAA-MM-DD, en la hora de la plaza.
      */
-    public function es(self $otra): bool
+    public function fecha(): string
     {
-        return $this->inicio->eq($otra->inicio) && $this->fin->eq($otra->fin);
+        return $this->inicio->setTimezone($this->zonaHoraria)->toDateString();
+    }
+
+    /**
+     * Si empieza y termina en estos instantes, se hayan escrito con el desfase que sea.
+     */
+    public function va(CarbonImmutable $inicio, CarbonImmutable $fin): bool
+    {
+        return $this->inicio->eq($inicio) && $this->fin->eq($fin);
     }
 
     /**
