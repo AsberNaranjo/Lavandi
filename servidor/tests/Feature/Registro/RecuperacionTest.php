@@ -6,6 +6,7 @@ use App\Models\Rol;
 use App\Models\Usuario;
 use App\Notifications\EnlaceDeRecuperacion;
 use Database\Factories\UsuarioFactory;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\DB;
@@ -177,6 +178,38 @@ class RecuperacionTest extends TestCase
             $this->assertSame($primera->status(), $respuesta->status());
             $this->assertSame($primera->json(), $respuesta->json());
         }
+    }
+
+    #[TestDox('registro-E23: dos peticiones casi a la vez para una cuenta que existe dan la misma respuesta que sin cuenta, no un error')]
+    public function test_registro_e23_dos_peticiones_casi_a_la_vez_para_una_cuenta_que_existe_dan_la_misma_respuesta_que_sin_cuenta(): void
+    {
+        Notification::fake();
+        $this->cuenta();
+
+        $sinCuenta = $this->pedirEnlace(self::CORREO_SIN_CUENTA);
+
+        // La otra petición guarda su token justo después de que esta borra el anterior y antes de que guarde el suyo:
+        // el insert de esta choca con la llave de password_reset_tokens.
+        $chocado = false;
+        DB::listen(function (QueryExecuted $consulta) use (&$chocado): void {
+            if ($chocado || ! preg_match('~^delete from "password_reset_tokens"~', $consulta->sql)) {
+                return;
+            }
+
+            $chocado = true;
+            DB::table('password_reset_tokens')->insert([
+                'email' => self::CORREO,
+                'token' => Hash::make('token-de-la-otra-peticion'),
+                'created_at' => now(),
+            ]);
+        });
+
+        $conCuenta = $this->pedirEnlace(self::CORREO);
+
+        $this->assertTrue($chocado, 'La prueba debe provocar el choque.');
+        $conCuenta->assertOk();
+        $this->assertSame($sinCuenta->json(), $conCuenta->json());
+        Notification::assertNothingSent();
     }
 
     #[TestDox('registro-E23: una petición sin un correo válido se rechaza y no manda nada')]

@@ -7,6 +7,7 @@ use App\Notifications\EnlaceDeRecuperacion;
 use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Contracts\Auth\PasswordBrokerFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -27,17 +28,25 @@ final class RecuperacionDeContrasena
      *
      * No devuelve nada a propósito: quien llama responde lo mismo exista o no la cuenta, y lo mismo si el broker frenó
      * el envío (ADR-0018, decisión 5).
+     *
+     * Dos peticiones casi a la vez para la misma cuenta pueden guardar su token al mismo tiempo; la segunda choca con
+     * la llave de password_reset_tokens. Ese choque se ignora: la primera ya manda el enlace, y un error delataría que
+     * la cuenta existe (registro-E23).
      */
     public function mandarEnlace(string $correo): void
     {
-        $this->broker()->sendResetLink(
-            $this->credenciales($correo),
-            function (Usuario $usuario, #[\SensitiveParameter] string $token): void {
-                // Al correo de la cuenta, sin depender de que el modelo sea Notifiable.
-                Notification::route('mail', $usuario->correo)
-                    ->notify(new EnlaceDeRecuperacion($token, $usuario->correo));
-            },
-        );
+        try {
+            $this->broker()->sendResetLink(
+                $this->credenciales($correo),
+                function (Usuario $usuario, #[\SensitiveParameter] string $token): void {
+                    // Al correo de la cuenta, sin depender de que el modelo sea Notifiable.
+                    Notification::route('mail', $usuario->correo)
+                        ->notify(new EnlaceDeRecuperacion($token, $usuario->correo));
+                },
+            );
+        } catch (UniqueConstraintViolationException) {
+            // La otra petición guardó su token y manda su enlace.
+        }
     }
 
     /**
