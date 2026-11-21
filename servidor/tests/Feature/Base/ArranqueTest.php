@@ -37,6 +37,17 @@ class ArranqueTest extends TestCase
         $this->get('/up')->assertOk();
     }
 
+    #[TestDox('base-E01: la raíz no sirve la página de bienvenida de la plantilla de Laravel: responde 404 hasta que llegue la landing')]
+    public function test_base_e01_la_raiz_no_sirve_la_pagina_de_bienvenida_de_la_plantilla_de_laravel(): void
+    {
+        // Ninguna spec pide una página en la raíz todavía; la ocupará el cambio landing (ADR-0011).
+        $this->get('/')->assertNotFound();
+        $this->assertFalse(view()->exists('welcome'), 'La vista de bienvenida de la plantilla de Laravel no se usa.');
+
+        // La salud sigue en /up.
+        $this->get('/up')->assertOk();
+    }
+
     #[TestDox('base-E02: las migraciones corren desde cero y dejan PostGIS listo')]
     public function test_base_e02_las_migraciones_corren_desde_cero_y_dejan_postgis_listo(): void
     {
