@@ -96,7 +96,7 @@ Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #2) y `NSV
 El servidor DEBE (MUST) reconocer la sesión por su token de Sanctum hasta que la persona la cierre. La app DEBE (MUST)
 guardar la sesión de forma segura y conservarla al volver a abrirse, sin pedir otra vez el correo ni la contraseña.
 
-Cita: A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` (Control de acceso); D → ADR-0005
+Cita: A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` (Control de acceso); D → ADR-0005 y ADR-0018 (dónde se guarda)
 
 #### Scenario: registro-E10 — El token abre la consulta de la propia cuenta
 
@@ -156,7 +156,7 @@ Criterio: SEG-3 (en parte: el rol de usuario)
 La app DEBE (MUST) ofrecer iniciar sesión con Google, con `react-native-nitro-google-signin`. El servidor DEBE (MUST)
 validar el `idToken` contra Google y contra el cliente OAuth configurado antes de emitir la sesión.
 
-Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #2, "con opción de Google Sign-In"); D → ADR-0005
+Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #2, "con opción de Google Sign-In"); D → ADR-0005 · C → C-224 (registro-E18)
 
 #### Scenario: registro-E16 — Entra con Google
 
@@ -176,10 +176,10 @@ Criterio: A43-6 (en parte: F-A02)
 #### Scenario: registro-E18 — Google con un correo que ya tiene cuenta con contraseña
 
 - **DADO** una cuenta creada con correo y contraseña
-- **CUANDO** la persona entra con una cuenta de Google que tiene ese mismo correo
-- **ENTONCES** no está definido si se une a la cuenta existente o si se rechaza
-
-SIN RESPUESTA — bloquea: registro-E18 (DD-091)
+- **CUANDO** la persona entra con una cuenta de Google que tiene ese mismo correo y Google lo da por verificado
+- **ENTONCES** la cuenta de Google se liga a la cuenta existente y la respuesta trae un token de sesión de esa cuenta
+- **Y** no se crea otra cuenta
+- **Y** si Google no da el correo por verificado, el servidor rechaza la entrada y no liga nada
 
 #### Scenario: registro-E19 — El botón de Google en la app
 
@@ -217,7 +217,7 @@ La persona DEBE (MUST) poder pedir un enlace para crear una contraseña nueva. E
 correo a la cuenta, con un vencimiento configurable; con el enlace vigente, la contraseña nueva reemplaza a la
 anterior. En local, el correo se captura sin enviarse.
 
-Cita: A → `NSV-2026-001-v8.pdf:30:ANEXO B, Sección B.5` ("al recuperar una contraseña"); D → ADR-0005
+Cita: A → `NSV-2026-001-v8.pdf:30:ANEXO B, Sección B.5` ("al recuperar una contraseña"); D → ADR-0005 y ADR-0018
 
 #### Scenario: registro-E22 — Pide el enlace
 
@@ -233,6 +233,7 @@ Cita: A → `NSV-2026-001-v8.pdf:30:ANEXO B, Sección B.5` ("al recuperar una co
 - **DADO** que no hay ninguna cuenta con el correo Y
 - **CUANDO** alguien pide recuperar la contraseña con Y
 - **ENTONCES** el servidor no manda ningún correo
+- **Y** la respuesta es la misma que cuando la cuenta existe
 
 #### Scenario: registro-E24 — Crea su contraseña nueva
 
@@ -241,6 +242,7 @@ Cita: A → `NSV-2026-001-v8.pdf:30:ANEXO B, Sección B.5` ("al recuperar una co
 - **ENTONCES** la contraseña nueva queda guardada con hash
 - **Y** la anterior deja de servir para iniciar sesión
 - **Y** el enlace ya no sirve otra vez
+- **Y** las sesiones abiertas de la cuenta se cierran
 
 Criterio: SEG-2
 
@@ -265,6 +267,28 @@ Criterio: SEG-2
 - **ENTONCES** el correo llega al buzón de la persona por el proveedor elegido, desde el dominio del cliente
 
 SIN RESPUESTA — bloquea: registro-E27 (DD-071; además DD-070, el entorno de prueba, y DD-023, el dominio)
+
+### Requirement: Límite de intentos
+
+El servidor DEBE (MUST) limitar los intentos de inicio de sesión y las peticiones de recuperación de la contraseña,
+por correo y por dirección, con el límite en configuración.
+
+Cita: A → `NSV-2026-001-v8.pdf:10:Cláusula X` (medidas de seguridad técnicas razonables) · D → ADR-0018 · C → C-223
+
+#### Scenario: registro-E30 — Demasiados intentos de inicio de sesión
+
+- **DADO** el límite configurado de 5 intentos por minuto
+- **CUANDO** llega un intento más que el límite, con el mismo correo y desde la misma dirección, dentro del mismo
+  minuto
+- **ENTONCES** el servidor responde que hay demasiados intentos y no revisa la contraseña
+- **Y** pasado el minuto vuelve a aceptar intentos
+
+#### Scenario: registro-E31 — Demasiadas peticiones de recuperación
+
+- **DADO** el límite configurado de 5 peticiones por minuto
+- **CUANDO** llega una petición más que el límite, con el mismo correo y desde la misma dirección, dentro del mismo
+  minuto
+- **ENTONCES** el servidor responde que hay demasiados intentos y no manda otro correo
 
 ### Requirement: Enlaces a los documentos legales en el registro
 

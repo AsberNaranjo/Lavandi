@@ -34,6 +34,26 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
 - C-210. **C (Arthur).** "Sin que se pierdan datos."
 - C-221 (Arthur Naranjo). "Trae los commits sin que se pierda info de A ni de B." Sobre los 7 commits que Nadir subió
   a su PR #1 después de abrirse el PR #2 (C-211 a C-220 de Nadir). C-211 a C-220 los numeró Nadir; esta sigue después.
+- C-222 (Arthur Naranjo). A la pregunta de con qué se navega entre pantallas en la app: "expo-router (Recomendado)".
+  Ver [[ADR-0017-navegacion-de-la-app]].
+- C-223 (Arthur Naranjo). A la pregunta de si aprueba las reglas de sesión y recuperación: "Paquete recomendado
+  (Recomendado)". El paquete: token en el almacenamiento cifrado del teléfono; contraseña de 8 caracteres mínimo y 5
+  intentos por minuto, configurables; recuperación en una página web del servidor con un enlace de 60 minutos; la
+  misma respuesta exista o no la cuenta; la contraseña nueva cierra las sesiones abiertas. Ver
+  [[ADR-0018-sesion-y-recuperacion]].
+- C-224 (Arthur Naranjo). Sobre DD-091, alguien con cuenta de correo y contraseña que entra con Google con el mismo
+  correo: "Se unen si Google verificó el correo (Recomendado)". Si Google no lo da por verificado, se rechaza.
+- C-225 (Arthur Naranjo). Sobre las pantallas del registro y la bienvenida: "apegado al contrato". Lo dijo en lugar de
+  elegir una de las opciones; la más cercana era "Lo mínimo del contrato". **La lectura en detalle es de Claude y la
+  corrige Arthur:** el registro pide solo correo y contraseña (el nombre se pide en el perfil, Módulo A #15); al
+  entrar se llega a un inicio provisional con "Cerrar sesión" hasta que existan el mapa (H2) y el perfil (H7); la
+  bienvenida se muestra solo la primera vez y, con la sesión abierta, se entra directo (DD-092); la bienvenida es una
+  pantalla propia con la estructura del mock; "Saltar" y "Ya tengo cuenta" no entran, porque no tienen cita.
+- C-226 (Arthur Naranjo). "Ok /opsx:apply continúa con las fases, termina hasta la parte donde ya quede al menos
+  terminada la parte de inicio de sesión." Alcance de la sesión: `bienvenida` y `registro-e-inicio-de-sesion`.
+- C-227 (Arthur Naranjo). "Necesito que también generes bien con los agentes las bases de datos, el Docker está
+  corriendo; agiliza los procesos, porfa, usa 5 agentes." Cada agente del servidor prueba contra su propia base en el
+  contenedor `nsv-lavanderia-postgis`.
 
 ## Decisiones tomadas en la sesión
 
@@ -47,6 +67,10 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
 | 6 | Las dos líneas de trabajo del 2026-11-20 se integran en la rama `integracion/lavandi` y van a Nadir en un solo PR. Se conserva todo lo de las dos. Lo de Nadir se renumera a lo siguiente libre: sus C-132 a C-142 pasan a C-197 a C-207; su DD-067 es la misma pregunta que DD-079; sus DD-068 y DD-069 pasan a DD-124 y DD-125. Las reglas que chocaban se fusionan: el push, según quién trabaja, y las specs, con DD-126. Lo que hay que decidir entre los dos va como notas DD-126 y DD-127 | Abrir el PR de `arranque/lavandi` solo y dejarle los conflictos a Nadir | Arthur (C-208 a C-210) | `vault/meta/deuda/DD-126.md`, `vault/meta/deuda/DD-127.md` |
 | 7 | Se traen a `integracion/lavandi` los 7 commits nuevos del PR #1. Sus tres primeros, escritos antes del PR #2, pasan a la numeración que reservó Nadir: C-143 a C-145 de su rama quedan como C-211 a C-213, y sus DD-068 y DD-069 como DD-124 y DD-125. Los 6 conflictos se resuelven con los dos lados. El acta de paleta y logotipo queda intacta (C-219), y `validar.py` usa `/` en las rutas también en Windows | Unir solo el PR #1 y dejar el #2 con conflictos | Arthur (C-221) | PR #2 |
 | 8 | Corrige la decisión 3: La pasarela del contrato es Conekta mientras el cliente no firme el cambio (`CLAUDE.md` §2-bis, punto 3; ADR-0010 vigente); Stripe y Mercado Pago son candidatas (C-192), con el OK expreso del cliente (C-216) y la firma pendiente (DD-079). Conekta se integra detrás de la interfaz neutral; lo que no se construye es lo de Stripe o Mercado Pago. El esquema neutral se queda | Mantener la integración bloqueada hasta la firma, como decía la decisión 3 | Revisión de Nadir del PR #2 (C-216) y la normativa, §2-bis punto 3; la redacción es de Claude | `openspec/changes/pago/`, `openspec/changes/publicacion/`, DD-079 |
+| 9 | La app navega con expo-router; las pantallas viven en `movil/app/` | React Navigation a mano; cambiar de pantalla con estado propio | Arthur (C-222) | [[ADR-0017-navegacion-de-la-app]] |
+| 10 | Sesión y recuperación: el token en el almacenamiento cifrado del teléfono; contraseña de 8 caracteres mínimo; 5 intentos por minuto en el inicio de sesión y en la recuperación; la recuperación en una página web del servidor, con un enlace de 60 minutos y de un solo uso; la misma respuesta exista o no la cuenta; la contraseña nueva cierra las sesiones | Contraseña de 12 caracteres con letras y números; la recuperación dentro de la app | Arthur (C-223) | [[ADR-0018-sesion-y-recuperacion]]; registro-E30 y E31 |
+| 11 | DD-091: entrar con Google con un correo que ya tiene cuenta liga la cuenta de Google a la existente si Google verificó el correo; si no, se rechaza | Rechazar siempre | Arthur (C-224) | registro-E18; DD-091 cerrada |
+| 12 | Las pantallas de H1 se quedan en lo que dice el contrato: el registro sin nombre; un inicio provisional con "Cerrar sesión"; la bienvenida solo la primera vez y, con sesión, entrada directa; sin "Saltar" ni "Ya tengo cuenta" | Pedir el nombre al registrarse; la bienvenida en cada apertura sin sesión | Arthur (C-225), con la lectura de Claude | bienvenida-E02; DD-092 cerrada |
 
 **Lo que implica la decisión 3.** Mientras el cliente no firme, el contrato sigue diciendo Conekta (`CLAUDE.md` §2-bis,
 punto 3). Lo que se escribe ahora es neutral: el cobro por checkout redirigido y confirmado por webhook, sin el nombre
