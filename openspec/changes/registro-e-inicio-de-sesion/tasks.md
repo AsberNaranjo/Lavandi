@@ -57,7 +57,7 @@ nunca en las dos.
 - [ ] 3.7 registro-E18 (`servidor/`): al ligar Google a la cuenta que ya existía, se cierran sus sesiones y se anula
   su contraseña (DD-132, decisión 23 de `acta-2026-11-20-modelo-y-pasarela`) — test:
   `servidor/tests/Feature/Registro/GoogleTest.php` — tamaño S
-- [ ] 3.8 Pantallas de acceso con lo que respondió DD-133 y DD-131, punto 1 (`movil/`): el logotipo de Google en su
+- [x] 3.8 Pantallas de acceso con lo que respondió DD-133 y DD-131, punto 1 (`movil/`): el logotipo de Google en su
   botón, el alto de 52 del botón principal, el borde de los controles y el foco de 3 desde `tokens.json`, y las fuentes
   de la marca con `expo-font` (adenda de ADR-0013) — test: `movil/__tests__/registro/aspecto.test.tsx` y
   `movil/__tests__/tema/` — tamaño S
