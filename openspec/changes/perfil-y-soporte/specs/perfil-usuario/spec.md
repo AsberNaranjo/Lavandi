@@ -45,7 +45,6 @@ Cita: A → `NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3` (Módulo A #15, "dire
 - **DADO** un usuario con dos direcciones guardadas y otro usuario con una
 - **CUANDO** el primero abre su perfil
 - **ENTONCES** ve sus dos direcciones y no la del otro usuario
-- **Y** desde cada una abre su edición, que es la del cambio `direcciones`
 
 Criterio: SEG-3
 

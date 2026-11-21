@@ -238,9 +238,20 @@ describe('registro-E28: los enlaces legales salen de la configuración', () => {
     expect(archivos.length).toBeGreaterThan(0);
 
     const direcciones = /https?:\/\/|\bwww\./i;
-    expect(archivos.filter((archivo) => direcciones.test(readFileSync(archivo, 'utf8')))).toEqual([]);
+    expect(archivos.filter((archivo) => direcciones.test(textoSinElChatDeWhatsApp(archivo)))).toEqual([]);
   });
 });
+
+// La única dirección escrita en la app: la del chat de WhatsApp de soporte, https://wa.me/<número>, en
+// src/perfil-usuario/whatsapp.ts (perfil-usuario-E09; openspec/changes/perfil-y-soporte/design.md, "Contrato de la
+// API"). Es la dirección pública de WhatsApp para abrir un chat, no la de la API, la de la marca ni la de un documento
+// legal; el número sí sale de la configuración del servidor. Solo en ese archivo y solo esa dirección.
+const CHAT_DE_WHATSAPP = path.join('src', 'perfil-usuario', 'whatsapp.ts');
+
+function textoSinElChatDeWhatsApp(archivo: string): string {
+  const texto = readFileSync(archivo, 'utf8');
+  return archivo.endsWith(CHAT_DE_WHATSAPP) ? texto.replace(/https:\/\/wa\.me\//g, '') : texto;
+}
 
 function recorrer(carpeta: string): string[] {
   if (!existsSync(carpeta)) {
