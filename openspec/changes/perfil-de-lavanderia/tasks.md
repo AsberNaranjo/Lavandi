@@ -5,7 +5,7 @@ que a su vez lee las tablas de la tarea 1.1 (ver `design.md`, Open Questions).
 
 ## 1. Perfil en el servidor
 
-- [ ] 1.1 perfil-lavanderia-E14, perfil-lavanderia-E15, perfil-lavanderia-E16, perfil-lavanderia-E17 y la prueba de
+- [x] 1.1 perfil-lavanderia-E14, perfil-lavanderia-E15, perfil-lavanderia-E16, perfil-lavanderia-E17 y la prueba de
   esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) sobre las tablas nuevas (`servidor/`): migración de
   `tipos_servicio` y `unidades_medida` con su semilla, `lavanderias`, `lavanderia_servicios`, `lavanderia_horarios`,
   `lavanderia_fotos` y `calificaciones`, con las columnas, los únicos y los `CHECK` de `design.md` ("Tablas y

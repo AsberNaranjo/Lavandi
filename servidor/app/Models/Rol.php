@@ -15,6 +15,9 @@ class Rol extends Modelo
     /** El rol de quien pide el servicio desde la app (Módulo A). */
     public const USUARIO = 'usuario';
 
+    /** El rol del socio lavandería (Módulo B): la cuenta que administra una lavandería. */
+    public const LAVANDERIA = 'lavanderia';
+
     /** El rol de quien entra al panel de administración (Módulo D). */
     public const ADMINISTRACION = 'administracion';
 
