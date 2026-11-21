@@ -4,15 +4,15 @@ S = 2 h, M = 5 h, L = 12 h.
 
 ## 0. Tablas y migración (`servidor/`)
 
-- [ ] 0.1 Migración de `reportes_soporte`, con `created_at` y `updated_at` en `timestamptz`, y su modelo de Eloquent `ReporteSoporte`, sobre `App\Models\Modelo`, con su `$table` y su `$primaryKey` declarados, que sostiene perfil-usuario-E11 a perfil-usuario-E13 (depende de la pregunta abierta de `design.md` sobre la plaza de un reporte sin pedido) — test: `servidor/tests/Feature/PerfilUsuario/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — tamaño S
+- [x] 0.1 Migración de `reportes_soporte`, con `created_at` y `updated_at` en `timestamptz`, y su modelo de Eloquent `ReporteSoporte`, sobre `App\Models\Modelo`, con su `$table` y su `$primaryKey` declarados, que sostiene perfil-usuario-E11 a perfil-usuario-E13 (depende de la pregunta abierta de `design.md` sobre la plaza de un reporte sin pedido) — test: `servidor/tests/Feature/PerfilUsuario/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — tamaño S
 
 ## 1. Servidor (`servidor/`)
 
-- [ ] 1.1 perfil-usuario-E01, perfil-usuario-E02 y perfil-usuario-E06: API del perfil para leer y cambiar el nombre, sin guardar ni devolver números de tarjeta — test: `servidor/tests/Feature/PerfilUsuario/PerfilTest.php` — tamaño S
+- [x] 1.1 perfil-usuario-E01, perfil-usuario-E02 y perfil-usuario-E06: API del perfil para leer y cambiar el nombre, sin guardar ni devolver números de tarjeta — test: `servidor/tests/Feature/PerfilUsuario/PerfilTest.php` — tamaño S
 - [ ] 1.2 perfil-usuario-E03 y perfil-usuario-E04: subida de la foto al bucket privado, URL firmada y rechazo de archivos inválidos o más grandes que el máximo configurado — test: `servidor/tests/Feature/PerfilUsuario/FotoDePerfilTest.php` — tamaño S
-- [ ] 1.3 perfil-usuario-E09 y perfil-usuario-E10: el número de soporte como dato de configuración que lee la app, vacío si no existe (depende de la pregunta abierta de `design.md`) — test: `servidor/tests/Feature/PerfilUsuario/NumeroDeSoporteTest.php` — tamaño S
-- [ ] 1.4 perfil-usuario-E11, perfil-usuario-E12 y perfil-usuario-E13: guardar el reporte en `reportes_soporte` con descripción obligatoria y pedido propio opcional — test: `servidor/tests/Feature/PerfilUsuario/ReporteTest.php` — tamaño S
-- [ ] 1.5 perfil-usuario-E15: borrar la cuenta, revocar todos sus tokens y rechazar su inicio de sesión por correo, Google y Apple — test: `servidor/tests/Feature/PerfilUsuario/BorrarCuentaTest.php` — tamaño S
+- [x] 1.3 perfil-usuario-E09 y perfil-usuario-E10: el número de soporte como dato de configuración que lee la app, vacío si no existe (depende de la pregunta abierta de `design.md`) — test: `servidor/tests/Feature/PerfilUsuario/NumeroDeSoporteTest.php` — tamaño S
+- [x] 1.4 perfil-usuario-E11, perfil-usuario-E12 y perfil-usuario-E13: guardar el reporte en `reportes_soporte` con descripción obligatoria y pedido propio opcional — test: `servidor/tests/Feature/PerfilUsuario/ReporteTest.php` — tamaño S
+- [x] 1.5 perfil-usuario-E15: borrar la cuenta, revocar todos sus tokens y rechazar su inicio de sesión por correo, Google y Apple — test: `servidor/tests/Feature/PerfilUsuario/BorrarCuentaTest.php` — tamaño S
 
 ## 2. App (`movil/`)
 

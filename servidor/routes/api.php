@@ -1,14 +1,18 @@
 <?php
 
+use App\Http\Controllers\Api\BorradoDeCuentaController;
 use App\Http\Controllers\Api\CuentaController;
 use App\Http\Controllers\Api\DireccionesController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
 use App\Http\Controllers\Api\PedidosController;
+use App\Http\Controllers\Api\PerfilController;
 use App\Http\Controllers\Api\PerfilDeLavanderiaController;
 use App\Http\Controllers\Api\RecuperacionController;
 use App\Http\Controllers\Api\RegistroController;
+use App\Http\Controllers\Api\ReportesDeSoporteController;
 use App\Http\Controllers\Api\SesionConGoogleController;
 use App\Http\Controllers\Api\SesionController;
+use App\Http\Controllers\Api\SoporteController;
 use App\Http\Controllers\Api\VentanasDeLavanderiaController;
 use Illuminate\Support\Facades\Route;
 
@@ -64,4 +68,16 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     // Un pedido de la cuenta, por su ULID. Sin whereUlid a propósito: un valor que no es ULID, como un folio, responde
     // el mismo 404 que un pedido ajeno o que no existe (confirmacion-E12).
     Route::get('pedidos/{pedido}', [PedidosController::class, 'mostrar'])->name('pedidos.mostrar');
+
+    // El perfil de la cuenta de la sesión, y ninguna otra (perfil-y-soporte). El contrato está en el controlador.
+    Route::get('perfil', [PerfilController::class, 'mostrar'])->name('perfil.mostrar');
+    Route::patch('perfil', [PerfilController::class, 'cambiar'])->name('perfil.cambiar');
+
+    // Soporte: el número de WhatsApp de la configuración y el formulario de reporte (perfil-y-soporte). El contrato está
+    // en cada controlador.
+    Route::get('soporte', SoporteController::class)->name('soporte');
+    Route::post('soporte/reportes', ReportesDeSoporteController::class)->name('soporte.reportes');
+
+    // Borrar la cuenta de la sesión desde el perfil (perfil-y-soporte; ADR-0005). El contrato está en el controlador.
+    Route::delete('cuenta', BorradoDeCuentaController::class)->name('cuenta.borrar');
 });

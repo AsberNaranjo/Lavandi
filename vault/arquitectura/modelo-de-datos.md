@@ -73,8 +73,9 @@ nueva, nunca un cambio de lo existente:
   apunta: `pedidos.id_usuarios` apunta a `usuarios.id_usuarios`. `ON DELETE RESTRICT` por omisión: el historial no se
   borra en cascada.
 - **La plaza no puede diferir.** Toda tabla de operación lleva `id_plazas`, no nula (`modelo-multi-plaza.md`). Solo
-  cuatro la llevan opcional: `avisos_masivos` (vacía, el aviso es para todas las plazas), `reportes_soporte` (vacía
-  si el reporte no es de un pedido), `repartidores` (vacía solo mientras el repartidor está `pendiente`) y
+  cuatro la llevan opcional: `avisos_masivos` (vacía, el aviso es para todas las plazas), `reportes_soporte` (en la
+  lista, pero hoy no nula: sin pedido va a la plaza del último pedido o de la dirección más reciente, decisión 27 del
+  acta del 2026-11-20), `repartidores` (vacía solo mientras el repartidor está `pendiente`) y
   `direcciones` (vacía si el punto no cae en ninguna zona). Cuando la tabla
   es hija de otra que ya la lleva, la llave foránea es compuesta, `(id_lavanderias, id_plazas)` contra
   `lavanderias(id_lavanderias, id_plazas)`: así la base de datos impide un pedido de Durango con una lavandería de La Laguna.
@@ -209,7 +210,7 @@ deuda: no se crea hasta que se responda.
 
 | Tabla | Columnas | Reglas | Cita | Nace en |
 |---|---|---|---|---|
-| `reportes_soporte` | `id_reportes_soporte`, `id_usuarios`, `id_pedidos`, `id_plazas`, `mensaje`, `estado`, `atendido_en` | `id_plazas` sale del pedido; vacía si el reporte no es de un pedido. A quién llega: DD-108 | `:17:A.3 #16` | `perfil-y-soporte` |
+| `reportes_soporte` | `id_reportes_soporte`, `id_usuarios`, `id_pedidos`, `id_plazas`, `mensaje`, `estado`, `atendido_en` | `id_plazas` sale del pedido; sin pedido, del último pedido de la cuenta o de su dirección guardada más reciente, y es no nula (decisión 27 del acta del 2026-11-20). A quién llega: DD-108 | `:17:A.3 #16` | `perfil-y-soporte` |
 | `avisos_masivos` | `id_avisos_masivos`, `id_plazas`, `segmento` (`jsonb`), `titulo`, `mensaje`, `id_usuarios` (quien lo envió), `enviado_en`, `destinatarios` | `id_plazas` vacía: el aviso es para todas las plazas. `destinatarios` es el número de teléfonos a los que salió. Los segmentos: DD-113 | `:19:Módulo D #7` | `administracion` |
 
 **Los indicadores no tienen tablas propias.** Se calculan de `pedidos`, `pedido_eventos`, `pagos`, `calificaciones` y
