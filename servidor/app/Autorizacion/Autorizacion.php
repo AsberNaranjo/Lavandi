@@ -3,6 +3,7 @@
 namespace App\Autorizacion;
 
 use App\Models\Direccion;
+use App\Models\Dispositivo;
 use App\Models\Pedido;
 use App\Models\Rol;
 use App\Models\Usuario;
@@ -15,8 +16,8 @@ use Illuminate\Database\Eloquent\Builder;
  * Toda ruta protegida de la API pasa por él con el middleware autorizar:<rol> (App\Http\Middleware\Autorizar), y el
  * panel de Filament le pregunta a través de Usuario::canAccessPanel(). Ninguna otra clase decide accesos.
  *
- * Conoce el rol (registro-E14 y registro-E15) y la tenencia de las direcciones (direcciones-E14) y de los pedidos del
- * usuario (confirmacion-E12). La plaza y la tenencia de los demás datos llegan aquí mismo con autorizacion-por-rol
+ * Conoce el rol (registro-E14 y registro-E15), la tenencia de las direcciones (direcciones-E14) y de los pedidos del
+ * usuario (confirmacion-E12), y qué teléfonos reciben los avisos de un pedido (avisos-E04 y avisos-E12). La plaza y la tenencia de los demás datos llegan aquí mismo con autorizacion-por-rol
  * (hito H5; ADR-0019, decisión 1).
  */
 final class Autorizacion
@@ -59,5 +60,17 @@ final class Autorizacion
     public function pedidosVisibles(Usuario $usuario): Builder
     {
         return Pedido::query()->where('id_usuarios', $usuario->getKey());
+    }
+
+    /**
+     * Los teléfonos que reciben los avisos de un pedido: solo los de la cuenta que lo hizo (avisos-E04 y avisos-E12;
+     * NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3). Todo envío de un aviso del pedido parte de aquí, también al correr
+     * en la cola. Los avisos a la lavandería y al repartidor esperan DD-054 (avisos-E19 y avisos-E20).
+     *
+     * @return Builder<Dispositivo>
+     */
+    public function telefonosQueRecibenAvisosDe(Pedido $pedido): Builder
+    {
+        return Dispositivo::query()->where('id_usuarios', $pedido->id_usuarios);
     }
 }

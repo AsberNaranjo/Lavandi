@@ -21,6 +21,14 @@ final class MensajeDelPedido
     public const CAMBIO_DE_ESTADO = 'cambio_de_estado';
 
     /**
+     * Si el estado es uno de los momentos de aviso: está en la lista de config/avisos.php, la única (ADR-0008).
+     */
+    public static function esMomento(string $estado): bool
+    {
+        return is_array(config("avisos.momentos.{$estado}"));
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public static function armar(Pedido $pedido, string $estado): array
