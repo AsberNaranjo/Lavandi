@@ -231,6 +231,23 @@ La política de cancelación no viaja todavía: espera DD-016 (confirmacion-E04)
 
 En ningún error se crea el pedido.
 
+### La operación de confirmar, para el cambio `pago` (confirmacion-E06 y E13)
+
+No es una ruta. El componente `cobro` la llama cuando la pasarela confirma el pago:
+
+```php
+app(\App\Pedidos\ConfirmacionDePedido::class)->confirmar($pedido); // devuelve el Pedido ya Confirmado
+```
+
+- En una transacción, con el pedido bloqueado: pasa a `confirmado`, recibe folio y `confirmado_en`, y guarda su evento
+  en `pedido_eventos` sin cuenta (lo hace el sistema).
+- Ya guardada la transacción, publica `App\Pedidos\PedidoConfirmado`, del que cuelga el correo (confirmacion-E10).
+- Un aviso repetido no confirma dos veces: si el pedido ya tiene `confirmado_en`, se devuelve como está.
+- El folio lo propone `App\Pedidos\FolioDelPedido` y lo garantiza el único `(id_plazas, folio)`: si la base lo rechaza
+  por repetido, se propone otro, hasta cinco veces. **El formato es provisional hasta DD-101:** ocho caracteres al azar
+  del alfabeto de Crockford, que no revelan el volumen del negocio (BR-21, `modelo-multi-plaza.md`).
+- La regla de que exista un cobro pagado (pago-E19) la agrega `pago`.
+
 ## Risks / Trade-offs
 
 - [EL CLIENTE no acepta la regla de C-188 (DD-012 sigue parcial)] → Cambian confirmacion-E05, E07 y E13 y quién llama a
