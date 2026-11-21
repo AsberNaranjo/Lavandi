@@ -149,6 +149,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[lista-de-precios-recibida-2026-11-14]]: la libreta de precios del cliente, por grupo de servicio (C-172, C-173)
 - [[revision-de-mocks-contra-referencias]]: los dos juegos de mocks comparados contra el kit para sumar lavanderías, el design system y la identidad. **El precio y el envío no coinciden con lo que prometió el kit**
 - [[guia-de-arranque]] — **para quien llega**: cómo trabajamos, qué hace Claude solo y qué se le puede pedir
+- [[correr-la-app-en-local]] — **cómo correr la app**: la base en Docker, el servidor y la vista en Chrome con `herramientas/vista-web/preparar.ps1` (C-231)
 - [[colaboracion-en-el-vault]] — dos personas con Claude Code: ramas, pull requests, qué no edita un agente, cómo se evitan los choques y qué valida la CI
 - Trabajo en curso: `meta/trabajo/`, una nota por tarea; el hook de inicio de sesión la lista
 - Decisiones pendientes nuevas: `meta/deuda/`, una nota por decisión

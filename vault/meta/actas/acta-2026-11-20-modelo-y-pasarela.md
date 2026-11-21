@@ -54,6 +54,19 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
 - C-227 (Arthur Naranjo). "Necesito que también generes bien con los agentes las bases de datos, el Docker está
   corriendo; agiliza los procesos, porfa, usa 5 agentes." Cada agente del servidor prueba contra su propia base en el
   contenedor `nsv-lavanderia-postgis`.
+- C-228 (Arthur Naranjo, 2026-11-21). Sobre DD-128, la cuenta que se crea con Google cuando Google no verificó el
+  correo: "la solución, sobre de ella". La solución propuesta: rechazar siempre el `idToken` cuyo correo Google no
+  verificó, haya o no cuenta.
+- C-229 (Arthur Naranjo, 2026-11-21). Sobre la sesión que en iPhone sobrevive a reinstalar la app: "en teoría, si se
+  reinstala no debería sobrevivir la sesión", y luego "también la solución". La solución propuesta: al primer
+  arranque después de instalar, la app borra del almacén cifrado la sesión y la marca de "ya vio la bienvenida",
+  en iPhone y en Android.
+- C-230 (Arthur Naranjo, 2026-11-21). Sobre el aspecto de las pantallas: "hay que usar los mocks, pero no estamos en
+  la otra cuenta, así que por mientras corrige". El lienzo de Claude Design está en otra cuenta de claude.ai; mientras
+  tanto, las pantallas se corrigen con las imágenes de `mocks/Lavandi - Propuesta 04/Usuario/`. **La lectura es de
+  Claude y la corrige Arthur.**
+- C-231 (Arthur Naranjo, 2026-11-21). "Y genérame las instrucciones para correr la app en un PDF." Ver
+  [[correr-la-app-en-local]].
 
 ## Decisiones tomadas en la sesión
 
@@ -71,6 +84,9 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
 | 10 | Sesión y recuperación: el token en el almacenamiento cifrado del teléfono; contraseña de 8 caracteres mínimo; 5 intentos por minuto en el inicio de sesión y en la recuperación; la recuperación en una página web del servidor, con un enlace de 60 minutos y de un solo uso; la misma respuesta exista o no la cuenta; la contraseña nueva cierra las sesiones | Contraseña de 12 caracteres con letras y números; la recuperación dentro de la app | Arthur (C-223) | [[ADR-0018-sesion-y-recuperacion]]; registro-E30 y E31 |
 | 11 | DD-091: entrar con Google con un correo que ya tiene cuenta liga la cuenta de Google a la existente si Google verificó el correo; si no, se rechaza | Rechazar siempre | Arthur (C-224) | registro-E18; DD-091 cerrada |
 | 12 | Las pantallas de H1 se quedan en lo que dice el contrato: el registro sin nombre; un inicio provisional con "Cerrar sesión"; la bienvenida solo la primera vez y, con sesión, entrada directa; sin "Saltar" ni "Ya tengo cuenta" | Pedir el nombre al registrarse; la bienvenida en cada apertura sin sesión | Arthur (C-225), con la lectura de Claude | bienvenida-E02; DD-092 cerrada |
+| 13 | DD-128: el servidor rechaza siempre el `idToken` de Google cuyo correo Google no verificó | Dejarlo como estaba; crear la cuenta sin ligarla nunca | Arthur (C-228) | registro-E16 y E17; DD-128 cerrada |
+| 14 | Al reinstalar la app no sobrevive la sesión ni la marca de la bienvenida, en iPhone tampoco | Dejar que el llavero de iPhone las conserve | Arthur (C-229) | registro-E32; DD-131, punto 2 |
+| 15 | Las pantallas de H1 se corrigen con las imágenes de la Propuesta 04 del repositorio mientras no se tenga el lienzo de la otra cuenta. Sin lo que no tiene cita: el nombre en el registro (C-225), la casilla de aceptación (DD-080) y los atajos de la bienvenida | Esperar al lienzo | Arthur (C-230), con la lectura de Claude | `registro-e-inicio-de-sesion` tarea 2.3; `bienvenida` tarea 1.3 |
 
 **Lo que implica la decisión 3.** Mientras el cliente no firme, el contrato sigue diciendo Conekta (`CLAUDE.md` §2-bis,
 punto 3). Lo que se escribe ahora es neutral: el cobro por checkout redirigido y confirmado por webhook, sin el nombre
