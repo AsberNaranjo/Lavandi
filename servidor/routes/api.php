@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\CuentaController;
 use App\Http\Controllers\Api\DireccionesController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
 use App\Http\Controllers\Api\PedidosController;
+use App\Http\Controllers\Api\PerfilController;
 use App\Http\Controllers\Api\PerfilDeLavanderiaController;
 use App\Http\Controllers\Api\RecuperacionController;
 use App\Http\Controllers\Api\RegistroController;
@@ -64,4 +65,8 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     // Un pedido de la cuenta, por su ULID. Sin whereUlid a propósito: un valor que no es ULID, como un folio, responde
     // el mismo 404 que un pedido ajeno o que no existe (confirmacion-E12).
     Route::get('pedidos/{pedido}', [PedidosController::class, 'mostrar'])->name('pedidos.mostrar');
+
+    // El perfil de la cuenta de la sesión, y ninguna otra (perfil-y-soporte). El contrato está en el controlador.
+    Route::get('perfil', [PerfilController::class, 'mostrar'])->name('perfil.mostrar');
+    Route::patch('perfil', [PerfilController::class, 'cambiar'])->name('perfil.cambiar');
 });
