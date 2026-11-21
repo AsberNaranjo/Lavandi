@@ -1,6 +1,7 @@
 // Campo de texto de formulario, con su etiqueta y su error junto a él (registro-E04).
-// Colores y medidas de theme.ts (ADR-0013); el alto mínimo es el área táctil del design system. Con el foco, el borde
-// toma el color de foco: "foco visible siempre" (vault/design-system/componentes.md, reglas transversales).
+// Colores y medidas de theme.ts (ADR-0013); el alto mínimo es el área táctil del design system y el borde, el grosor de
+// control. Con el foco, el borde pasa al grosor y al color de foco: "foco visible siempre", contorno de 3 px
+// (vault/design-system/componentes.md, reglas transversales; DD-133, punto 5).
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
 
@@ -68,7 +69,11 @@ export function CampoDeTexto({ nombre, etiqueta, valor, alCambiar, error, tipo =
   );
 }
 
-const { color, espaciado, radio, tipografia, accesibilidad } = tema;
+const { color, espaciado, radio, tipografia, accesibilidad, grosor } = tema;
+
+// Lo que crece el borde con el foco. Crece hacia adentro, así que el relleno se achica lo mismo y lo que se escribe no
+// se mueve.
+const CRECE_CON_EL_FOCO = grosor.foco - grosor.control;
 
 const estilos = StyleSheet.create({
   contenedor: {
@@ -84,7 +89,7 @@ const estilos = StyleSheet.create({
     minHeight: accesibilidad.area_tactil_minima_dp,
     paddingHorizontal: espaciado[3],
     paddingVertical: espaciado[2],
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: grosor.control,
     borderColor: color.semantico.borde_fuerte,
     borderRadius: radio.medio,
     backgroundColor: color.semantico.superficie,
@@ -95,11 +100,12 @@ const estilos = StyleSheet.create({
     borderColor: color.estado.error,
   },
   // Mientras escribe, el foco se ve aunque el campo tenga error: el error sigue escrito debajo y su color vuelve al
-  // salir. El design system pide un contorno de 3 px, pero tokens.json no tiene grosores de borde: mientras no exista
-  // ese token, se usa el mayor grosor que ya usa la app, el 1 del borde de Boton.
+  // salir.
   entradaConFoco: {
-    borderWidth: 1,
+    borderWidth: grosor.foco,
     borderColor: color.semantico.foco,
+    paddingHorizontal: espaciado[3] - CRECE_CON_EL_FOCO,
+    paddingVertical: espaciado[2] - CRECE_CON_EL_FOCO,
   },
   error: {
     color: color.estado.error,

@@ -1,5 +1,5 @@
 // ARCHIVO GENERADO: no se edita a mano.
-// Sale de vault/design-system/tokens.json (versión 0.1.0, 2026-09-12) con
+// Sale de vault/design-system/tokens.json (versión 0.2.0, 2026-11-21) con
 // herramientas/tokens/generar.js (ADR-0013). Para cambiar un valor se cambia tokens.json y se corre
 // `npm run tokens` en movil/. Una prueba falla si este archivo no corresponde a tokens.json.
 // Solo modo claro (C-141). Los componentes usan color.semantico, nunca color.marca directo (design-system.md,
@@ -122,6 +122,17 @@ export const radio = {
   pildora: 999,
 } as const;
 
+// Grosores de borde: control, el de campos y botones; foco, el contorno de foco visible.
+export const grosor = {
+  control: 1,
+  foco: 3,
+} as const;
+
+// Altos fijos de controles. Los demás miden al menos accesibilidad.area_tactil_minima_dp.
+export const alto = {
+  boton_principal: 52,
+} as const;
+
 // Sombras con la sintaxis de CSS, que React Native acepta en la propiedad boxShadow.
 export const elevacion = {
   0: 'none',
@@ -161,6 +172,8 @@ export const tema = {
   tipografia,
   espaciado,
   radio,
+  grosor,
+  alto,
   elevacion,
   duracion,
   curva,

@@ -5,7 +5,7 @@
 // los colores y las medidas de theme.ts (ADR-0013). Lo que el mock trae sin cita no está (C-225, DD-080).
 import * as SecureStore from 'expo-secure-store';
 import { router, Stack } from 'expo-router';
-import { act, userEvent } from '@testing-library/react-native';
+import { act, fireEvent, userEvent } from '@testing-library/react-native';
 import { renderRouter, screen } from 'expo-router/testing-library';
 import { StyleSheet } from 'react-native';
 
@@ -418,5 +418,64 @@ describe('registro-E04 y registro-E09: ir y venir entre el inicio de sesión y e
 
     expect(screen).toHavePathname('/inicio-de-sesion');
     expect(router.canGoBack()).toBe(false);
+  });
+});
+
+// Tarea 3.8, con lo que respondió DD-133, punto 5 (decisión 24 del acta del 2026-11-20): el alto de 52 del botón
+// principal, el grosor del borde de los controles que dibuja la Propuesta 04 y el contorno de foco de 3
+// (componentes.md, reglas transversales) salen de tokens.json, por theme.ts (ADR-0013). Se compara contra el tema.
+describe('ADR-0013 (tarea 3.8): las medidas de tokens.json en las pantallas de acceso', () => {
+  test('ADR-0013 — el botón principal mide el alto de tokens.json, y el de Google, el área táctil mínima', async () => {
+    await abrir('/registro');
+
+    const crear = await screen.findByRole('button', { name: 'Crear cuenta' });
+    expect(estiloPlano(crear).minHeight).toBe(tema.alto.boton_principal);
+    expect(estiloPlano(screen.getByRole('button', { name: 'Continuar con Google' })).minHeight).toBe(
+      tema.accesibilidad.area_tactil_minima_dp,
+    );
+  });
+
+  test('ADR-0013 — en el inicio de sesión, "Iniciar sesión" también mide el alto del botón principal', async () => {
+    await abrir('/inicio-de-sesion');
+
+    expect(estiloPlano(await screen.findByRole('button', { name: 'Iniciar sesión' })).minHeight).toBe(
+      tema.alto.boton_principal,
+    );
+  });
+
+  test('ADR-0013 — los botones y los campos llevan el grosor de borde de control de tokens.json', async () => {
+    await abrir('/registro');
+
+    const crear = await screen.findByRole('button', { name: 'Crear cuenta' });
+    expect(estiloPlano(crear).borderWidth).toBe(tema.grosor.control);
+    expect(estiloPlano(screen.getByRole('button', { name: 'Continuar con Google' })).borderWidth).toBe(
+      tema.grosor.control,
+    );
+    expect(estiloPlano(screen.getByLabelText('Correo electrónico')).borderWidth).toBe(tema.grosor.control);
+    expect(estiloPlano(screen.getByLabelText('Contraseña')).borderWidth).toBe(tema.grosor.control);
+  });
+
+  test('ADR-0013 — con el foco, el campo lleva el contorno del grosor de foco, y lo que se escribe no se mueve', async () => {
+    await abrir('/registro');
+    const campo = await screen.findByLabelText('Correo electrónico');
+    const sinFoco = estiloPlano(campo);
+
+    await fireEvent(campo, 'focus');
+
+    const conFoco = estiloPlano(screen.getByLabelText('Correo electrónico'));
+    expect(conFoco).toMatchObject({ borderWidth: tema.grosor.foco, borderColor: color.semantico.foco });
+    // El borde crece hacia adentro: el relleno se achica lo mismo y el texto queda donde estaba.
+    const adentro = (estilo: Record<string, unknown>, lado: 'paddingHorizontal' | 'paddingVertical') =>
+      (estilo.borderWidth as number) + (estilo[lado] as number);
+    expect(adentro(conFoco, 'paddingHorizontal')).toBe(adentro(sinFoco, 'paddingHorizontal'));
+    expect(adentro(conFoco, 'paddingVertical')).toBe(adentro(sinFoco, 'paddingVertical'));
+
+    await fireEvent(screen.getByLabelText('Correo electrónico'), 'blur');
+
+    expect(estiloPlano(screen.getByLabelText('Correo electrónico'))).toMatchObject({
+      borderWidth: tema.grosor.control,
+      borderColor: color.semantico.borde_fuerte,
+      paddingHorizontal: sinFoco.paddingHorizontal,
+    });
   });
 });

@@ -1,11 +1,11 @@
 // Botón armado con los tokens, como el .btn de los mocks (mocks/comun/estilos.css, "6. Controles"). No es uno de los
 // seis componentes del design system: las pantallas de acceso se arman con los tokens (bienvenida, design.md).
-// Área táctil mínima de 48 (accesibilidad de tokens.json). Como en las imágenes de la Propuesta 04 (C-230), va a todo
-// lo ancho y el principal lleva la letra fuerte. El mock lo dibuja de 52 de alto, medida que tokens.json no tiene:
-// aquí queda en el área táctil mínima.
+// Como en las imágenes de la Propuesta 04 (C-230), va a todo lo ancho y el principal lleva la letra fuerte. Las medidas
+// salen de tokens.json (DD-133, punto 5): el principal mide el alto de botón principal; el secundario, el área táctil
+// mínima; los dos llevan el grosor de borde de control.
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
-import { accesibilidad, color, espaciado, radio, tipografia } from '../tema/theme';
+import { accesibilidad, alto, color, espaciado, grosor, radio, tipografia } from '../tema/theme';
 
 type Variante = 'primario' | 'secundario';
 
@@ -37,8 +37,8 @@ export function Boton({ children, onPress, variante = 'primario', ocupado = fals
 const estilos = StyleSheet.create({
   boton: {
     alignSelf: 'stretch',
-    minHeight: accesibilidad.area_tactil_minima_dp,
     paddingHorizontal: espaciado[4],
+    borderWidth: grosor.control,
     borderRadius: radio.medio,
     flexDirection: 'row',
     gap: espaciado[2],
@@ -46,7 +46,7 @@ const estilos = StyleSheet.create({
     justifyContent: 'center',
   },
   primario: {
-    borderWidth: 1,
+    minHeight: alto.boton_principal,
     backgroundColor: color.semantico.accion,
     borderColor: color.semantico.accion,
   },
@@ -55,7 +55,7 @@ const estilos = StyleSheet.create({
     borderColor: color.semantico.accion_hover,
   },
   secundario: {
-    borderWidth: 1,
+    minHeight: accesibilidad.area_tactil_minima_dp,
     backgroundColor: color.semantico.superficie,
     borderColor: color.semantico.borde_fuerte,
   },

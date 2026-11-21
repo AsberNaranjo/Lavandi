@@ -108,6 +108,15 @@
     "chico": 4,
     "pildora": 999
   },
+  "grosor": {
+    "$comentario": "Comentario de prueba",
+    "control": 2,
+    "foco": 5
+  },
+  "alto": {
+    "$comentario": "Comentario de prueba",
+    "boton_principal": 60
+  },
   "elevacion": {
     "$comentario": "Comentario de prueba",
     "0": "none",

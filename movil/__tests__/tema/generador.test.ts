@@ -143,6 +143,13 @@ describe('ADR-0013: el script de tokens genera theme.ts', () => {
       expect(tipografia.espaciado_letra).toEqual({ normal: 0, titular: -0.01 });
     });
 
+    // DD-133, punto 5 (decisión 24 del acta del 2026-11-20): el grosor del borde de los controles, el del foco y el alto
+    // del botón principal, que las piezas leían como cifras o como el borde más fino.
+    test('ADR-0013 — los grosores de borde y los altos de control pasan tal cual, sin su comentario', () => {
+      expect(exportado.grosor).toEqual({ control: 2, foco: 5 });
+      expect(exportado.alto).toEqual({ boton_principal: 60 });
+    });
+
     test('ADR-0013 — las curvas pasan de cubic-bezier a los cuatro números de Easing.bezier', () => {
       expect(exportado.curva).toEqual({ estandar: [0.2, 0, 0, 1] });
     });
@@ -166,6 +173,8 @@ describe('ADR-0013: el script de tokens genera theme.ts', () => {
         tipografia: exportado.tipografia,
         espaciado: exportado.espaciado,
         radio: exportado.radio,
+        grosor: exportado.grosor,
+        alto: exportado.alto,
         elevacion: exportado.elevacion,
         duracion: exportado.duracion,
         curva: exportado.curva,
@@ -198,6 +207,10 @@ describe('ADR-0013: el script de tokens genera theme.ts', () => {
       ['a una curva le falta una cifra', ['curva', 'estandar'], 'cubic-bezier(.2,,0,1)', 'curva.estandar'],
       ['una cifra de la curva es solo espacio', ['curva', 'estandar'], 'cubic-bezier(.2, ,0,1)', 'curva.estandar'],
       ['falta un grupo entero', ['radio'], undefined, 'radio'],
+      ['faltan los grosores de borde', ['grosor'], undefined, 'grosor'],
+      ['un grosor no es número', ['grosor', 'foco'], '3px', 'grosor.foco'],
+      ['faltan los altos de control', ['alto'], undefined, 'alto'],
+      ['un alto no es número', ['alto', 'boton_principal'], '52px', 'alto.boton_principal'],
     ])('ADR-0013 — %s', (_caso, ruta, valor, clave) => {
       const corrida = generar(cambiar(tokensDePrueba(), ruta, valor));
 
