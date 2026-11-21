@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\Autorizar;
+use App\Http\Middleware\ResponderEnJson;
 use App\Http\Middleware\UsarDireccionConfigurada;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -14,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(UsarDireccionConfigurada::class);
+        $middleware->api(prepend: [ResponderEnJson::class]);
+        // La puerta de las rutas protegidas hacia el componente único de autorización (registro-E14).
+        $middleware->alias(['autorizar' => Autorizar::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
