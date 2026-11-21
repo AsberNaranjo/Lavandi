@@ -96,6 +96,9 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[matriz-de-criterios-stack]] — cuatro puertas eliminatorias y los criterios ponderados. **`vigente` desde el 2026-11-12: pesos fijados (C-142)**, con la familiaridad según el perfil de Arthur (C-135)
 - [[ADR-0016-modelo-de-datos]] — **el modelo de datos**: relacional normalizado, multi-plaza y extensible por filas, sin salir del contrato (C-187, C-189). Vigente desde que se aprobó el modelo (C-193)
 - [[modelo-de-datos]] — las tablas, sus columnas, su cita al contrato y el cambio de OpenSpec que crea cada una
+- [[ADR-0017-navegacion-de-la-app]] — la app navega con expo-router (C-222). Vigente
+- [[ADR-0018-sesion-y-recuperacion]] — el token en el almacenamiento cifrado, la regla de la contraseña, el límite de
+  intentos y la recuperación en una página web (C-223). Vigente
 - [[ADR-0015-construir-adaptar-o-comprar]] — **construir sobre piezas probadas**, sin plantilla ni base ajena; Shita descartado (C-139, cierra DD-063)
 - [[ADR-0002-framework-movil]] — **React Native con Expo**, compilando sin Mac con EAS (C-144); 76 puntos contra 74 de Capacitor
 - [[ADR-0003-backend-y-lenguaje]] — **Laravel con Filament** para la API y el panel web (C-145); el hosting queda en DD-070

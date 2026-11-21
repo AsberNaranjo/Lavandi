@@ -47,6 +47,9 @@ No hay decisión técnica nueva en este cambio. Lo sostienen:
   un solo componente", grado D, sin ADR propio) y lo manda `CLAUDE.md` §9.5. Aquí nace solo con el rol. La tenencia y
   la plaza llegan con `autorizacion-por-rol` (hito H5), junto con la prueba contra fugas.
 - **ADR-0016:** las tablas y sus nombres (sección siguiente).
+- **ADR-0017:** la app navega con expo-router; las pantallas viven en `movil/app/` (C-222).
+- **ADR-0018:** el token en el almacenamiento cifrado del teléfono, la regla de la contraseña, el límite de intentos
+  y la recuperación en una página web del servidor (C-223).
 
 ## Tablas y migración
 
@@ -98,6 +101,16 @@ Este cambio crea las cuatro primeras tablas del negocio, tal como las fija `vaul
   otra fila, no un rediseño (ADR-0016). Se revisa cuando DD-053 se cierre.
 
 ## Open Questions
+
+**Resueltas el 2026-11-20:**
+
+- 1, 2, 4, 5 y 6: ADR-0018 (C-223). La 5 agrega registro-E30 y E31.
+- 3: se liga si Google verificó el correo; si no, se rechaza (C-224, DD-091 cerrada). Es registro-E18.
+- 7, 8 y 9 (C-225): el registro no pide el nombre, que va en el perfil; al entrar, la persona llega a un inicio
+  provisional que tiene "Cerrar sesión", hasta que existan el mapa (H2) y el perfil (H7).
+- 10: el script de tokens de ADR-0013 lo hace la app antes de la tarea 2.1.
+
+Las preguntas, como se plantearon:
 
 **Necesitan ADR.** Caben en uno solo, corto, de sesión y recuperación, o como adenda de ADR-0005. ADR-0005 decide el
 mecanismo, no estos detalles:
