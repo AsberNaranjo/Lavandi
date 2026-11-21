@@ -6,6 +6,7 @@ import { StyleSheet, Text } from 'react-native';
 
 import { Encabezado } from '../../src/piezas/Encabezado';
 import { Enlace } from '../../src/piezas/Enlace';
+import { Logotipo } from '../../src/piezas/Logotipo';
 import { Pantalla } from '../../src/piezas/Pantalla';
 import { Presentacion } from '../../src/piezas/Presentacion';
 import { Separador } from '../../src/piezas/Separador';
@@ -119,6 +120,39 @@ describe('registro-E04 y registro-E09 (tarea 2.3): el encabezado con regreso y t
       '#contenido-de-prueba',
     ]);
     expect(screen.getByTestId('contenido')).toHaveStyle({ paddingHorizontal: espaciado[4], gap: espaciado[4] });
+  });
+});
+
+// El logotipo en un archivo de nombre neutro (decisión 20 del acta del 2026-11-20, C-237): la marca no se escribe en el
+// código (CLAUDE.md §5). En el repositorio, el archivo es el marcador neutro de la plantilla.
+describe('registro-E09 (C-237): el logotipo', () => {
+  const nombreOriginal = process.env.EXPO_PUBLIC_NOMBRE_APP;
+
+  beforeEach(() => {
+    process.env.EXPO_PUBLIC_NOMBRE_APP = 'Nombre de prueba logotipo';
+  });
+
+  afterEach(() => {
+    if (nombreOriginal === undefined) {
+      delete process.env.EXPO_PUBLIC_NOMBRE_APP;
+    } else {
+      process.env.EXPO_PUBLIC_NOMBRE_APP = nombreOriginal;
+    }
+  });
+
+  test('registro-E09 — es la imagen de assets/marca/logotipo.png y su texto alternativo es el nombre de la configuración', async () => {
+    await render(<Logotipo />);
+
+    const logotipo = screen.getByRole('image', { name: 'Nombre de prueba logotipo' });
+    expect(logotipo.props.source).toEqual(require('../../assets/marca/logotipo.png'));
+  });
+
+  test('registro-E09 — va al centro, del tamaño del mock, sin deformarse', async () => {
+    await render(<Logotipo />);
+
+    const logotipo = screen.getByTestId('logotipo');
+    expect(logotipo).toHaveStyle({ alignSelf: 'center', width: espaciado[8], height: espaciado[8] });
+    expect(logotipo.props.resizeMode).toBe('contain');
   });
 });
 

@@ -4,9 +4,11 @@
 //
 // PROVISIONAL. Los textos y las imágenes son de EL CLIENTE (NSV-2026-001-v8.pdf:6:Cláusula III, inciso B) y no han
 // llegado (DD-081). Mientras tanto van los textos de relleno de mocks/usuario/a01-bienvenida.html y
-// a01-informativas.html, y la imagen neutra de la plantilla (assets/splash-icon.png). Con este contenido F-A01 no se
-// acredita (bienvenida-E06).
+// a01-informativas.html; en la bienvenida, el logotipo de nombre neutro (./logotipo.ts, C-237), y en las informativas,
+// la imagen neutra de la plantilla (assets/splash-icon.png). Con este contenido F-A01 no se acredita (bienvenida-E06).
 import type { ImageSourcePropType } from 'react-native';
+
+import { LOGOTIPO } from './logotipo';
 
 export interface Informativa {
   titulo: string;
@@ -26,7 +28,7 @@ const ILUSTRACION_PROVISIONAL: ImageSourcePropType = require('../../assets/splas
 export const contenidoDeBienvenida: ContenidoDeBienvenida = {
   bienvenida: {
     lema: 'Aquí va el lema del servicio.',
-    ilustracion: ILUSTRACION_PROVISIONAL,
+    ilustracion: LOGOTIPO,
   },
   informativas: [
     {

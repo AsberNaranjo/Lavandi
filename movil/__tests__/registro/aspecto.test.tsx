@@ -230,6 +230,7 @@ describe('registro-E09 (tarea 2.3): el inicio de sesión con el aspecto de la Pr
     const marcas = [
       '#encabezado',
       'Iniciar sesión',
+      '#logotipo',
       'Hola de nuevo',
       'Entra a Nombre de prueba aspecto.',
       'Correo electrónico',
@@ -245,6 +246,14 @@ describe('registro-E09 (tarea 2.3): el inicio de sesión con el aspecto de la Pr
     expect(enOrden(marcas)).toEqual(marcas);
     expect(screen.getByRole('header', { name: 'Iniciar sesión' })).toBeOnTheScreen();
     expect(screen.getByRole('header', { name: 'Hola de nuevo' })).toBeOnTheScreen();
+  });
+
+  test('registro-E09 (C-237) — el logotipo va arriba, al centro, con el nombre de la configuración como texto alternativo', async () => {
+    await abrir('/inicio-de-sesion');
+
+    const logotipo = await screen.findByRole('image', { name: 'Nombre de prueba aspecto' });
+    expect(logotipo.props.source).toEqual(require('../../assets/marca/logotipo.png'));
+    expect(estiloPlano(logotipo).alignSelf).toBe('center');
   });
 
   test('registro-E09 — el saludo va centrado, con la escala de título, y el nombre sale de la configuración', async () => {

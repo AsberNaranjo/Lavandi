@@ -160,6 +160,12 @@ describe('bienvenida-E05: el contenido provisional vive en su propio archivo', (
     expect(provisional.bienvenida.ilustracion).toBeTruthy();
   });
 
+  // Decisión 20 del acta del 2026-11-20 (C-237): la ilustración provisional de la bienvenida es el logotipo, en su
+  // archivo de nombre neutro; la compilación local lo reemplaza por el de EL CLIENTE.
+  test('bienvenida-E05 — la ilustración provisional de la bienvenida es el logotipo', () => {
+    expect(provisional.bienvenida.ilustracion).toEqual(require('../../assets/marca/logotipo.png'));
+  });
+
   test('bienvenida-E05 — trae tres informativas, cada una con título, texto e ilustración (C-225)', () => {
     expect(provisional.informativas).toHaveLength(3);
     for (const informativa of provisional.informativas) {

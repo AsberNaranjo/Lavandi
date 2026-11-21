@@ -8,9 +8,9 @@
 // ella.
 //
 // El aspecto es el de la imagen a02-inicio-sesion de la Propuesta 04 de los mocks (tarea 2.3, C-230): encabezado
-// con regreso, el saludo con el nombre de la configuración, los campos, "¿Olvidaste tu contraseña?" a la derecha, el
-// botón, "o" y Google abajo. Del mock no entran el logotipo (la marca no está decidida: DD-023 y DD-030) ni el botón
-// para ver la contraseña, que no tiene escenario.
+// con regreso, el logotipo arriba y al centro (su archivo es de nombre neutro: C-237), el saludo con el nombre de la
+// configuración, los campos, "¿Olvidaste tu contraseña?" a la derecha, el botón, "o" y Google abajo. Del mock no entra
+// el botón para ver la contraseña, que no tiene escenario.
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
@@ -22,6 +22,7 @@ import { useRegresarSiHayAnterior } from '../src/navegacion/regresar';
 import { Boton } from '../src/piezas/Boton';
 import { CampoDeTexto } from '../src/piezas/CampoDeTexto';
 import { Enlace } from '../src/piezas/Enlace';
+import { Logotipo } from '../src/piezas/Logotipo';
 import { MensajeDeError } from '../src/piezas/MensajeDeError';
 import { Pantalla } from '../src/piezas/Pantalla';
 import { Presentacion } from '../src/piezas/Presentacion';
@@ -36,6 +37,7 @@ export default function InicioDeSesion() {
 
   return (
     <Pantalla desplazable encabezado={{ titulo: 'Iniciar sesión', alRegresar: regresar }}>
+      <Logotipo />
       <Presentacion titulo="Hola de nuevo" texto={`Entra a ${nombreDeLaApp()}.`} />
       <CampoDeTexto
         nombre="correo"
