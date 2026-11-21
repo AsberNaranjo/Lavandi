@@ -1,11 +1,12 @@
 // El recorrido de la búsqueda de lavanderías cercanas: el permiso de ubicación, la ubicación del teléfono y la consulta
 // con la sesión (cercanas-E03 y E04). Con un punto dado, como el que la pantalla principal le pasa a la lista de
-// "Pedido nuevo" (cercanas-E15), consulta con él sin volver a leer la ubicación.
+// "Pedido nuevo" (cercanas-E15), consulta con él sin volver a leer la ubicación. Con filtros (cercanas-E21), la consulta
+// los lleva, y al cambiarlos se vuelve a consultar.
 import { useCallback, useEffect, useState } from 'react';
 
 import type { Falla } from '../configuracion/api';
 import { useSesion } from '../sesion/ProveedorDeSesion';
-import { consultarCercanas, type LavanderiaCercana, type Punto } from './api';
+import { consultarCercanas, type FiltrosDeCercanas, type LavanderiaCercana, type Punto } from './api';
 import { leerPermiso, pedirPermiso, ubicacionActual } from './ubicacion';
 
 /**
@@ -28,13 +29,18 @@ export interface BusquedaDeCercanas {
   permitir: () => void;
 }
 
-export function useLavanderiasCercanas(puntoDado: Punto | null = null): BusquedaDeCercanas {
+export function useLavanderiasCercanas(
+  puntoDado: Punto | null = null,
+  filtros: FiltrosDeCercanas = {},
+): BusquedaDeCercanas {
   const { token } = useSesion();
   const [estado, setEstado] = useState<EstadoDeCercanas>({ fase: 'cargando' });
   const [pedirElPermiso, setPedirElPermiso] = useState(false);
   // Por sus números y no por el objeto, que cambia en cada render.
   const latitudDada = puntoDado?.latitud;
   const longitudDada = puntoDado?.longitud;
+  const distanciaMaximaMetros = filtros.distanciaMaximaMetros ?? null;
+  const calificacionMinima = filtros.calificacionMinima ?? null;
 
   useEffect(() => {
     // Las pantallas que lo usan solo se ven con sesión (app/_layout.tsx); mientras se lee, se espera.
@@ -62,7 +68,7 @@ export function useLavanderiasCercanas(puntoDado: Punto | null = null): Busqueda
         punto = await ubicacionActual();
       }
       poner({ fase: 'consultando', punto });
-      const resultado = await consultarCercanas(conToken, punto);
+      const resultado = await consultarCercanas(conToken, punto, { distanciaMaximaMetros, calificacionMinima });
       poner(
         resultado.ok ? { fase: 'lista', punto, lavanderias: resultado.datos } : { fase: 'error', punto, falla: resultado },
       );
@@ -73,7 +79,7 @@ export function useLavanderiasCercanas(puntoDado: Punto | null = null): Busqueda
     return () => {
       vigente = false;
     };
-  }, [token, pedirElPermiso, latitudDada, longitudDada]);
+  }, [token, pedirElPermiso, latitudDada, longitudDada, distanciaMaximaMetros, calificacionMinima]);
 
   const permitir = useCallback(() => setPedirElPermiso(true), []);
 

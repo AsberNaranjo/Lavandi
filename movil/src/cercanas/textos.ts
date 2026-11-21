@@ -22,6 +22,11 @@ export const TEXTOS = {
   sinUbicacion: 'No pudimos obtener tu ubicación. Revisa que esté activada.',
   // Solo en una compilación de Android sin la llave de Google Maps (src/cercanas/mapa.ts); en iPhone no pasa.
   mapaNoDisponible: 'El mapa no está disponible en esta versión de la app.',
+  // Los filtros de la búsqueda (cercanas-E21), con los textos del mock A04.
+  filtroDeDistancia: 'Distancia',
+  filtroDeCalificacion: 'Calificación',
+  sinCoincidencias: 'Ninguna lavandería coincide con estos filtros.',
+  quitarFiltros: 'Quitar filtros',
 } as const;
 
 const METROS_POR_KILOMETRO = 1000;
@@ -47,6 +52,16 @@ function distanciaEnTexto(distanciaMetros: number): string {
  */
 export function calificacionEnTexto(promedio: number | null): string {
   return promedio === null ? 'Aún sin calificaciones' : `Calificación ${promedio.toFixed(1)}`;
+}
+
+/** Un corte de distancia de los filtros (cercanas-E21): "Hasta 500 m", "Hasta 3 km". */
+export function corteDeDistancia(metros: number): string {
+  return metros < METROS_POR_KILOMETRO ? `Hasta ${metros} m` : `Hasta ${metros / METROS_POR_KILOMETRO} km`;
+}
+
+/** Un corte de calificación de los filtros (cercanas-E21): "4.5 o más". */
+export function corteDeCalificacion(estrellas: number): string {
+  return `${estrellas} o más`;
 }
 
 /**

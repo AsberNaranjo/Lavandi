@@ -5,13 +5,16 @@ import { pedir, type Resultado } from '../configuracion/api';
 import { esObjeto, numero, numeroOVacio } from '../configuracion/lectura';
 
 /**
- * El contrato de la consulta con el servidor (tarea 1.1 de lavanderias-cercanas), en un solo lugar para ajustarlo:
- * GET <ruta>?<latitud>=..&<longitud>=.., con la sesión, que contesta { "<lista>": [ LavanderiaCercana, … ] }.
+ * El contrato de la consulta con el servidor (tareas 1.1 y 1.3 de lavanderias-cercanas), en un solo lugar para
+ * ajustarlo: GET <ruta>?<latitud>=..&<longitud>=.., y los filtros que se pidan (<distanciaMaxima>=.. y
+ * <calificacionMinima>=..), con la sesión, que contesta { "<lista>": [ LavanderiaCercana, … ] }.
  */
 export const CONTRATO_DE_CERCANAS = {
   ruta: 'lavanderias/cercanas',
   latitud: 'latitud',
   longitud: 'longitud',
+  distanciaMaxima: 'distancia_maxima_metros',
+  calificacionMinima: 'calificacion_minima',
   lista: 'lavanderias',
 } as const;
 
@@ -38,11 +41,33 @@ export interface LavanderiaCercana {
   numero_de_calificaciones: number;
 }
 
-/** GET de las lavanderías cercanas a un punto, con la sesión (cercanas-E04). */
-export async function consultarCercanas(token: string, punto: Punto): Promise<Resultado<LavanderiaCercana[]>> {
-  const { ruta, latitud, longitud } = CONTRATO_DE_CERCANAS;
-  const consulta = `${latitud}=${encodeURIComponent(punto.latitud)}&${longitud}=${encodeURIComponent(punto.longitud)}`;
-  const resultado = await pedir<unknown>(`${ruta}?${consulta}`, { metodo: 'GET', token });
+/**
+ * Los filtros de la búsqueda (cercanas-E16 a E18 y E21): la distancia máxima en línea recta, en metros, y la
+ * calificación promedio mínima, de 1 a 5. Sin uno, o en null, la consulta no lo lleva. Se combinan.
+ */
+export interface FiltrosDeCercanas {
+  distanciaMaximaMetros?: number | null;
+  calificacionMinima?: number | null;
+}
+
+/** GET de las lavanderías cercanas a un punto, con la sesión y los filtros que se pidan (cercanas-E04 y E21). */
+export async function consultarCercanas(
+  token: string,
+  punto: Punto,
+  { distanciaMaximaMetros = null, calificacionMinima = null }: FiltrosDeCercanas = {},
+): Promise<Resultado<LavanderiaCercana[]>> {
+  const contrato = CONTRATO_DE_CERCANAS;
+  const parametros: [string, number | null][] = [
+    [contrato.latitud, punto.latitud],
+    [contrato.longitud, punto.longitud],
+    [contrato.distanciaMaxima, distanciaMaximaMetros],
+    [contrato.calificacionMinima, calificacionMinima],
+  ];
+  const consulta = parametros
+    .filter((parametro): parametro is [string, number] => parametro[1] !== null)
+    .map(([nombre, valor]) => `${nombre}=${encodeURIComponent(valor)}`)
+    .join('&');
+  const resultado = await pedir<unknown>(`${contrato.ruta}?${consulta}`, { metodo: 'GET', token });
   if (!resultado.ok) {
     return resultado;
   }

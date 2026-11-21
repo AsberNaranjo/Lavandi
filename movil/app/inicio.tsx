@@ -7,7 +7,7 @@
 // La composición es la del tablero "Inicio" de la Propuesta 5 corregida y la imagen a03-principal-mapa de la Propuesta
 // 04 (C-230 y C-233): el título, el mapa en una tarjeta con cuántas hay, la tarjeta de la elegida y "Pedido nuevo"
 // abajo, a todo lo ancho. Del mock no entran: la barra inferior (Pedidos, Ayuda y Perfil aún no existen), "Filtrar"
-// (tarea 4.1), el pedido activo (DD-135), la campana y la búsqueda por nombre (DD-136), "Recoger en" (direcciones) y el
+// (los filtros de la tarea 4.1, cercanas-E21, viven en la lista que abre "Pedido nuevo"), el pedido activo (DD-135), la campana y la búsqueda por nombre (DD-136), "Recoger en" (direcciones) y el
 // estado de disponibilidad de la tarjeta (cercanas-E13, DD-083 y DD-078).
 //
 // "Cerrar sesión" (registro-E13) queda abajo, provisional, hasta que exista el perfil (H7): borra el token del teléfono,
