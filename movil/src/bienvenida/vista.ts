@@ -1,14 +1,17 @@
-// Si la persona ya vio la bienvenida y las tres informativas (bienvenida-E02, C-225). Se guarda en el mismo
-// almacenamiento del teléfono que la sesión, expo-secure-store, para no sumar otra dependencia de almacenamiento.
-import * as SecureStore from 'expo-secure-store';
+// Si la persona ya vio la bienvenida y las tres informativas (bienvenida-E02, C-225). La marca vive en el almacenamiento
+// cifrado del teléfono (./almacen.ts).
+import { comprobarInstalacion } from '../instalacion/marca';
+import { guardarMarcaDeBienvenida, leerMarcaDeBienvenida } from './almacen';
 
-const CLAVE = 'bienvenida.vista';
-const VISTA = 'si';
-
+/**
+ * Si ya vio la bienvenida. Antes espera la comprobación de la instalación (registro-E32): app/index.tsx la lee al
+ * arrancar a la vez que se carga la sesión, y la marca que sobrevivió a reinstalar en iPhone no debe contar.
+ */
 export async function leerBienvenidaVista(): Promise<boolean> {
-  return (await SecureStore.getItemAsync(CLAVE)) === VISTA;
+  await comprobarInstalacion();
+  return leerMarcaDeBienvenida();
 }
 
 export async function marcarBienvenidaVista(): Promise<void> {
-  await SecureStore.setItemAsync(CLAVE, VISTA);
+  await guardarMarcaDeBienvenida();
 }

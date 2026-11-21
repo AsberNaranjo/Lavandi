@@ -4,6 +4,7 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
 import type { ReactNode } from 'react';
 
+import { comprobarInstalacion } from '../../src/instalacion/marca';
 import { guardarToken, leerToken } from '../../src/sesion/almacen';
 import { ProveedorDeSesion, useSesion } from '../../src/sesion/ProveedorDeSesion';
 
@@ -21,8 +22,10 @@ async function montar() {
 }
 
 describe('ADR-0018: la sesión de la app sale del almacenamiento cifrado', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     almacen.__vaciar();
+    // La app ya arrancó antes en esta instalación: la marca de instalación existe (registro-E32).
+    await comprobarInstalacion();
   });
 
   afterEach(() => {

@@ -1,15 +1,19 @@
-// El estado de la sesión para toda la app (ADR-0018). Al montarse lee el token del almacén cifrado y lo comprueba con
-// el servidor (registro-E11): si el servidor ya no lo reconoce (401), lo borra y la app queda sin sesión; si no se
-// puede llegar al servidor, la sesión se conserva, porque solo el servidor dice que ya no sirve. Cerrar la sesión pide
-// al servidor revocar el token y lo borra del teléfono aunque el servidor no responda (registro-E13).
+// El estado de la sesión para toda la app (ADR-0018). Al montarse, primero comprueba la marca de instalación: si la app
+// se acaba de reinstalar, el token que sobrevivió en el almacén cifrado de iPhone se borra (registro-E32). Luego lee el
+// token del almacén cifrado y lo comprueba con el servidor (registro-E11): si el servidor ya no lo reconoce (401), lo
+// borra y la app queda sin sesión; si no se puede llegar al servidor, la sesión se conserva, porque solo el servidor
+// dice que ya no sirve. Cerrar la sesión pide al servidor revocar el token y lo borra del teléfono aunque el servidor no
+// responda (registro-E13).
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { cerrarSesionEnServidor, consultarCuenta } from '../acceso/api';
+import { comprobarInstalacion } from '../instalacion/marca';
 import { borrarToken, guardarToken, leerToken } from './almacen';
 
 // El token guardado, si el servidor lo sigue reconociendo. Si ya no, lo borra del teléfono, salvo que mientras tanto
 // la persona haya iniciado otra sesión (puedeBorrar).
 async function leerTokenVigente(puedeBorrar: () => boolean): Promise<string | null> {
+  await comprobarInstalacion();
   const guardado = await leerToken();
   if (!guardado) {
     return null;

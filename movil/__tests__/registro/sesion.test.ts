@@ -9,6 +9,7 @@ import { userEvent } from '@testing-library/react-native';
 import { renderRouter, screen, waitFor } from 'expo-router/testing-library';
 
 import { marcarBienvenidaVista } from '../../src/bienvenida/vista';
+import { comprobarInstalacion } from '../../src/instalacion/marca';
 import { guardarToken, leerToken } from '../../src/sesion/almacen';
 
 // La primera pantalla tarda más mientras Jest prepara el entorno.
@@ -62,8 +63,10 @@ function peticiones(): string[] {
   });
 }
 
-// La persona que ya inició sesión antes: vio la bienvenida y tiene su token en el teléfono.
+// La persona que ya inició sesión antes, en esta misma instalación (registro-E32): vio la bienvenida y tiene su token
+// en el teléfono.
 async function conSesionGuardada(token: string) {
+  await comprobarInstalacion();
   await marcarBienvenidaVista();
   await guardarToken(token);
 }
