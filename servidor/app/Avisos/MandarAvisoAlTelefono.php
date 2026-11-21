@@ -4,12 +4,14 @@ namespace App\Avisos;
 
 use App\Autorizacion\Autorizacion;
 use App\Avisos\Fcm\CanalDeFcm;
+use App\Avisos\Fcm\FcmNoDisponible;
 use App\Models\Pedido;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 /**
  * El envío de un mensaje del pedido a un teléfono, en cola: el botón de la lavandería no espera a Google
@@ -18,6 +20,11 @@ use Illuminate\Queue\SerializesModels;
  * Al correr, vuelve a preguntar a App\Autorizacion\Autorizacion si el teléfono todavía recibe los avisos de ese pedido:
  * si se cerró la sesión, se borró el token o el teléfono pasó a otra cuenta mientras el envío esperaba en la cola, no
  * se manda nada (avisos-E05 y avisos-E21).
+ *
+ * Un fallo de FCM nunca sale de aquí (avisos-E02; ADR-0008): queda como advertencia en la bitácora, con el pedido, el
+ * estado y el motivo, y sin el token del teléfono. Si puede pasar solo, el envío vuelve a la cola con la espera de
+ * avisos.esperas; después del último intento queda en failed_jobs. Así el cambio de estado nunca se detiene, corra la
+ * cola en un proceso aparte o en la misma petición (QUEUE_CONNECTION=sync).
  */
 final class MandarAvisoAlTelefono implements ShouldQueue
 {
@@ -36,6 +43,14 @@ final class MandarAvisoAlTelefono implements ShouldQueue
         public readonly int $telefono,
     ) {}
 
+    /**
+     * Los intentos antes de dejar el envío en failed_jobs: el primero y uno por cada espera.
+     */
+    public function tries(): int
+    {
+        return count($this->esperas()) + 1;
+    }
+
     public function handle(Autorizacion $autorizacion, CanalDeFcm $canal): void
     {
         $telefono = $autorizacion->telefonosQueRecibenAvisosDe($this->pedido)->find($this->telefono);
@@ -44,6 +59,44 @@ final class MandarAvisoAlTelefono implements ShouldQueue
             return;
         }
 
-        $canal->mandar($telefono->token_fcm, MensajeDelPedido::armar($this->pedido, $this->estado));
+        try {
+            $canal->mandar($telefono->token_fcm, MensajeDelPedido::armar($this->pedido, $this->estado));
+        } catch (FcmNoDisponible $falla) {
+            Log::warning('El aviso del pedido no salió por Firebase Cloud Messaging.', [
+                'pedido' => $this->pedido->id_publico,
+                'estado' => $this->estado,
+                'telefono' => $telefono->getKey(),
+                'intento' => $this->attempts(),
+                'reintentable' => $falla->reintentable,
+                'motivo' => $falla->getMessage(),
+            ]);
+
+            if ($falla->reintentable) {
+                $this->release($this->espera());
+            }
+        }
+    }
+
+    /** La espera, en segundos, si avisos.esperas viene vacía. */
+    private const ESPERA_POR_OMISION = 60;
+
+    /**
+     * La espera, en segundos, antes del siguiente intento: la de este intento en avisos.esperas, o la última.
+     */
+    private function espera(): int
+    {
+        $esperas = $this->esperas();
+
+        return $esperas === []
+            ? self::ESPERA_POR_OMISION
+            : $esperas[min(max($this->attempts(), 1), count($esperas)) - 1];
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function esperas(): array
+    {
+        return array_values(array_map('intval', (array) config('avisos.esperas', [])));
     }
 }

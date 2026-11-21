@@ -4,16 +4,20 @@ namespace Tests\Feature\Avisos;
 
 use App\Avisos\Fcm\CanalDeFcm;
 use App\Avisos\Fcm\FcmNoDisponible;
+use App\Avisos\MandarAvisoAlTelefono;
 use App\Avisos\MensajeDelPedido;
 use App\Models\EstadoPedido;
 use App\Models\Pedido;
 use App\Models\Usuario;
+use App\Pedidos\ConfirmacionDePedido;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
+use Tests\Feature\Avisos\Soporte\CambiosDeEstadoDePrueba;
 use Tests\Feature\Avisos\Soporte\FcmSimulado;
 use Tests\Feature\Confirmacion\Soporte\PedidosDePrueba;
 use Tests\Feature\Estados\Soporte\EstadosDePrueba;
@@ -33,6 +37,7 @@ use Tests\TestCase;
 class CanalDeAvisosTest extends TestCase
 {
     use AgendaDePrueba;
+    use CambiosDeEstadoDePrueba;
     use EstadosDePrueba;
     use FcmSimulado;
     use LavanderiasDePrueba;
@@ -136,6 +141,94 @@ class CanalDeAvisosTest extends TestCase
         Http::assertNothingSent();
     }
 
+    #[TestDox('avisos-E02: con FCM sin responder, la lavandería marca Recolectado, el cambio se guarda igual y el fallo queda en la bitácora')]
+    public function test_avisos_e02_con_fcm_sin_responder_el_cambio_se_guarda_y_el_fallo_queda_en_la_bitacora(): void
+    {
+        $this->simularFcmSinResponder();
+        $this->telefonoDe($this->cuenta);
+        Log::spy();
+
+        $evento = $this->cambiarComoLaLavanderia($this->pedido, EstadoPedido::RECOLECTADO);
+
+        $this->assertSame(EstadoPedido::RECOLECTADO, $this->pedido->fresh()->estado->codigo);
+        $this->assertTrue($evento->exists);
+        $this->assertSame(
+            [EstadoPedido::POR_PAGAR, EstadoPedido::CONFIRMADO, EstadoPedido::RECOLECTADO],
+            $this->pedido->eventos()->with('estado')->orderBy('id_pedido_eventos')->get()->pluck('estado.codigo')->all(),
+        );
+        $this->assertFalloEnLaBitacora(EstadoPedido::RECOLECTADO, 'no se pudo llegar a FCM');
+    }
+
+    #[TestDox('avisos-E02: si FCM responde con un error del servicio, el cambio se guarda igual y el fallo queda en la bitácora')]
+    public function test_avisos_e02_si_fcm_responde_con_un_error_el_cambio_se_guarda(): void
+    {
+        $this->simularFcm(Http::response(['error' => ['code' => 503, 'status' => 'UNAVAILABLE']], 503));
+        $this->telefonoDe($this->cuenta);
+        Log::spy();
+
+        $this->cambiarComoLaLavanderia($this->pedido, EstadoPedido::RECOLECTADO);
+
+        $this->assertSame(EstadoPedido::RECOLECTADO, $this->pedido->fresh()->estado->codigo);
+        $this->assertFalloEnLaBitacora(EstadoPedido::RECOLECTADO, 'FCM respondió 503 UNAVAILABLE');
+    }
+
+    #[TestDox('avisos-E02: sin la cuenta de servicio de Firebase (DD-072), el cambio se guarda, nada sale a la red y el fallo queda en la bitácora')]
+    public function test_avisos_e02_sin_la_cuenta_de_servicio_el_cambio_se_guarda(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake();
+        config(['avisos.fcm.credenciales' => null]);
+        $this->telefonoDe($this->cuenta);
+        Log::spy();
+
+        $this->cambiarComoLaLavanderia($this->pedido, EstadoPedido::RECOLECTADO);
+
+        $this->assertSame(EstadoPedido::RECOLECTADO, $this->pedido->fresh()->estado->codigo);
+        $this->assertFalloEnLaBitacora(EstadoPedido::RECOLECTADO, 'no hay cuenta de servicio configurada');
+        Http::assertNothingSent();
+    }
+
+    #[TestDox('avisos-E02: con FCM sin responder, la confirmación por el pago se guarda igual y el fallo queda en la bitácora')]
+    public function test_avisos_e02_con_fcm_sin_responder_la_confirmacion_se_guarda(): void
+    {
+        $this->simularFcmSinResponder();
+        $otraCuenta = $this->cuentaDeUsuario();
+        $this->telefonoDe($otraCuenta);
+        $id = $this->aceptarResumen($otraCuenta, $this->resumen($this->direccionDe($otraCuenta)))->json('pedido.id_publico');
+        Log::spy();
+
+        $pedido = app(ConfirmacionDePedido::class)->confirmar(Pedido::query()->where('id_publico', $id)->sole())->fresh();
+
+        $this->assertSame(EstadoPedido::CONFIRMADO, $pedido->estado->codigo);
+        $this->assertNotNull($pedido->folio);
+        $this->assertFalloEnLaBitacora(EstadoPedido::CONFIRMADO, 'no se pudo llegar a FCM');
+    }
+
+    #[TestDox('avisos-E02: un envío que falló porque FCM no respondió vuelve a la cola con su espera; uno sin remedio, no')]
+    public function test_avisos_e02_el_envio_que_fallo_vuelve_a_la_cola_con_su_espera(): void
+    {
+        $telefono = $this->telefonoDe($this->cuenta);
+        $esperas = config('avisos.esperas');
+
+        $this->simularFcmSinResponder();
+        $envio = (new MandarAvisoAlTelefono($this->pedido, EstadoPedido::RECOLECTADO, $telefono->getKey()))
+            ->withFakeQueueInteractions();
+        $envio->job->attempts = 2;
+        app()->call([$envio, 'handle']);
+        $envio->assertReleased(delay: $esperas[1]);
+        $envio->assertNotFailed();
+
+        // Cinco intentos en total: los que da la lista de esperas, más el primero.
+        $this->assertSame(count($esperas) + 1, $envio->tries());
+
+        config(['avisos.fcm.credenciales' => null]);
+        $sinRemedio = (new MandarAvisoAlTelefono($this->pedido, EstadoPedido::RECOLECTADO, $telefono->getKey()))
+            ->withFakeQueueInteractions();
+        app()->call([$sinRemedio, 'handle']);
+        $sinRemedio->assertNotReleased();
+        $sinRemedio->assertNotFailed();
+    }
+
     #[TestDox('avisos-E16: el aviso de cada uno de los cuatro momentos trae la parte de Android y la de iPhone, cada una con su título y su texto')]
     public function test_avisos_e16_el_aviso_de_cada_momento_trae_la_parte_de_android_y_la_de_iphone(): void
     {
@@ -185,5 +278,20 @@ class CanalDeAvisosTest extends TestCase
             'pedido' => $this->pedido->id_publico,
             'estado' => EstadoPedido::RECOLECTADO,
         ], $mensaje['data']);
+    }
+
+    /**
+     * La bitácora del servidor recibió una advertencia del aviso que no salió, con el pedido, el estado y el motivo, y
+     * sin el token del teléfono.
+     */
+    private function assertFalloEnLaBitacora(string $estado, string $motivo): void
+    {
+        Log::shouldHaveReceived('warning')
+            ->withArgs(fn (string $mensaje, array $contexto): bool => str_contains($mensaje, 'aviso')
+                && ($contexto['estado'] ?? null) === $estado
+                && is_string($contexto['pedido'] ?? null)
+                && str_contains((string) ($contexto['motivo'] ?? ''), $motivo)
+                && ! str_contains(json_encode($contexto, JSON_THROW_ON_ERROR), 'token-fcm-'))
+            ->once();
     }
 }
