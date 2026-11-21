@@ -3,7 +3,7 @@ nombre; luego el código mínimo que lo pone en verde; luego la limpieza.
 
 ## 1. App: bienvenida e informativas (sprint 03)
 
-- [ ] 1.1 bienvenida-E01, bienvenida-E03, bienvenida-E04 y bienvenida-E05: la pantalla de bienvenida y las tres
+- [x] 1.1 bienvenida-E01, bienvenida-E03, bienvenida-E04 y bienvenida-E05: la pantalla de bienvenida y las tres
   informativas, con su contenido en un archivo aparte, que al terminar llevan a registrarse o iniciar sesión — test:
   `movil/__tests__/bienvenida/bienvenida.test.tsx` — tamaño S
 - [ ] 1.2 bienvenida-E02: la bienvenida solo la primera vez; con la sesión abierta, entrada directa (C-225; era la 2.1,
