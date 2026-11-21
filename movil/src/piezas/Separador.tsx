@@ -3,6 +3,7 @@
 // el mock, el lector de pantalla no lo anuncia: los botones y los campos ya dicen qué opciones hay.
 import { StyleSheet, Text, View } from 'react-native';
 
+import { letra } from '../tema/letra';
 import { color, espaciado, tipografia } from '../tema/theme';
 
 export function Separador({ texto }: { texto: string }) {
@@ -14,7 +15,7 @@ export function Separador({ texto }: { texto: string }) {
       importantForAccessibility="no-hide-descendants"
     >
       <View style={estilos.linea} testID="separador-linea" />
-      <Text style={estilos.texto}>{texto}</Text>
+      <Text style={[estilos.texto, letra('cuerpo', 'regular')]}>{texto}</Text>
       <View style={estilos.linea} testID="separador-linea" />
     </View>
   );

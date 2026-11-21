@@ -6,6 +6,7 @@
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
+import { letra } from '../tema/letra';
 import { accesibilidad, alto, color, espaciado, grosor, radio, tipografia } from '../tema/theme';
 
 type Variante = 'primario' | 'secundario';
@@ -32,7 +33,7 @@ export function Boton({ children, onPress, variante = 'primario', ocupado = fals
       style={({ pressed }) => [estilos.boton, aspecto.boton, pressed && aspecto.presionado]}
     >
       {ocupado ? <ActivityIndicator color={aspecto.indicador} /> : delante}
-      <Text style={[estilos.texto, aspecto.texto]}>{children}</Text>
+      <Text style={[estilos.texto, aspecto.texto, letra('cuerpo', aspecto.peso)]}>{children}</Text>
     </Pressable>
   );
 }
@@ -67,29 +68,30 @@ const estilos = StyleSheet.create({
   },
   texto: {
     fontSize: tipografia.escala.cuerpo,
-    fontWeight: tipografia.peso.semifuerte,
   },
   textoPrimario: {
     color: color.semantico.accion_texto,
-    fontWeight: tipografia.peso.fuerte,
   },
   textoSecundario: {
     color: color.semantico.texto,
   },
 });
 
-// Lo que cambia de una variante a otra: el fondo y el borde, el estado presionado, el texto y el indicador de ocupado.
+// Lo que cambia de una variante a otra: el fondo y el borde, el estado presionado, el texto, su peso y el indicador de
+// ocupado.
 const ASPECTO = {
   primario: {
     boton: estilos.primario,
     presionado: estilos.primarioPresionado,
     texto: estilos.textoPrimario,
+    peso: 'fuerte',
     indicador: color.semantico.accion_texto,
   },
   secundario: {
     boton: estilos.secundario,
     presionado: estilos.secundarioPresionado,
     texto: estilos.textoSecundario,
+    peso: 'semifuerte',
     indicador: color.semantico.texto,
   },
 } as const satisfies Record<Variante, unknown>;

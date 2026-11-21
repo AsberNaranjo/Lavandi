@@ -2,6 +2,7 @@
 // CampoDeTexto. Colores y tamaños de theme.ts (ADR-0013).
 import { StyleSheet, Text } from 'react-native';
 
+import { letra } from '../tema/letra';
 import { color, tipografia } from '../tema/theme';
 
 /** Sin texto, no ocupa lugar. */
@@ -10,7 +11,7 @@ export function MensajeDeError({ texto }: { texto?: string }) {
     return null;
   }
   return (
-    <Text role="alert" accessibilityLiveRegion="polite" style={estilos.error}>
+    <Text role="alert" accessibilityLiveRegion="polite" style={[estilos.error, letra('cuerpo', 'regular')]}>
       {texto}
     </Text>
   );

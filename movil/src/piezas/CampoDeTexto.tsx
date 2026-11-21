@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
 
+import { letra } from '../tema/letra';
 import { tema } from '../tema/theme';
 
 export type TipoDeCampo = 'texto' | 'correo' | 'contrasena' | 'contrasena-nueva';
@@ -50,7 +51,7 @@ export function CampoDeTexto({ nombre, etiqueta, valor, alCambiar, error, tipo =
 
   return (
     <View style={estilos.contenedor} testID={`campo-${nombre}`}>
-      <Text style={estilos.etiqueta}>{etiqueta}</Text>
+      <Text style={[estilos.etiqueta, letra('cuerpo', 'semifuerte')]}>{etiqueta}</Text>
       <TextInput
         {...POR_TIPO[tipo]}
         accessibilityLabel={etiqueta}
@@ -58,10 +59,15 @@ export function CampoDeTexto({ nombre, etiqueta, valor, alCambiar, error, tipo =
         onChangeText={alCambiar}
         onFocus={() => setEnfocado(true)}
         onBlur={() => setEnfocado(false)}
-        style={[estilos.entrada, error ? estilos.entradaConError : null, enfocado ? estilos.entradaConFoco : null]}
+        style={[
+          estilos.entrada,
+          letra('cuerpo', 'regular'),
+          error ? estilos.entradaConError : null,
+          enfocado ? estilos.entradaConFoco : null,
+        ]}
       />
       {error ? (
-        <Text role="alert" accessibilityLiveRegion="polite" style={estilos.error}>
+        <Text role="alert" accessibilityLiveRegion="polite" style={[estilos.error, letra('cuerpo', 'regular')]}>
           {error}
         </Text>
       ) : null}
@@ -82,7 +88,6 @@ const estilos = StyleSheet.create({
   etiqueta: {
     color: color.semantico.texto,
     fontSize: tipografia.escala.menor,
-    fontWeight: tipografia.peso.semifuerte,
   },
   // Como el .entrada de los mocks (Propuesta 04, C-230).
   entrada: {
