@@ -195,6 +195,8 @@ describe('ADR-0013: el script de tokens genera theme.ts', () => {
       ['una medida no es número', ['espaciado', '1'], '4px', 'espaciado.1'],
       ['un espaciado de letra no está en em', ['tipografia', 'espaciado_letra', 'titular'], '1px', 'tipografia.espaciado_letra.titular'],
       ['una curva no es cubic-bezier', ['curva', 'estandar'], 'ease-in', 'curva.estandar'],
+      ['a una curva le falta una cifra', ['curva', 'estandar'], 'cubic-bezier(.2,,0,1)', 'curva.estandar'],
+      ['una cifra de la curva es solo espacio', ['curva', 'estandar'], 'cubic-bezier(.2, ,0,1)', 'curva.estandar'],
       ['falta un grupo entero', ['radio'], undefined, 'radio'],
     ])('ADR-0013 — %s', (_caso, ruta, valor, clave) => {
       const corrida = generar(cambiar(tokensDePrueba(), ruta, valor));

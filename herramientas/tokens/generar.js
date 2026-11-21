@@ -92,10 +92,14 @@ function enEm(valor, ruta) {
   return Number(encontrado[1]);
 }
 
-/** "cubic-bezier(.2,0,0,1)" pasa a [0.2, 0, 0, 1], los cuatro números de Easing.bezier. */
+/**
+ * "cubic-bezier(.2,0,0,1)" pasa a [0.2, 0, 0, 1], los cuatro números de Easing.bezier. Una cifra vacía falla: Number('')
+ * vale 0, y "cubic-bezier(.2,,0,1)" pasaría como una curva distinta sin avisar.
+ */
 function bezier(valor, ruta) {
   const encontrado = /^\s*cubic-bezier\(([^)]*)\)\s*$/.exec(texto(valor, ruta));
-  const numeros = encontrado ? encontrado[1].split(',').map((parte) => Number(parte.trim())) : [];
+  const partes = encontrado ? encontrado[1].split(',').map((parte) => parte.trim()) : [];
+  const numeros = partes.map((parte) => (parte === '' ? NaN : Number(parte)));
   if (numeros.length !== 4 || numeros.some((n) => !Number.isFinite(n))) {
     fallar(ruta, `no es una curva cubic-bezier de cuatro números: ${JSON.stringify(valor)}`);
   }
