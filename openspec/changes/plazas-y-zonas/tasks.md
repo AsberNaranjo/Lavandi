@@ -33,7 +33,7 @@ tarea sin test en verde no se marca. Tamaños de S-006: S = 2 h, M = 5 h, L = 12
 - [ ] 5.1 plazas-E12 (`servidor/`): la carga rechaza una zona que comparte área con otra, de cualquier plaza o del
   mismo archivo, y acepta las que solo se tocan en el borde — test: `servidor/tests/Feature/Plazas/ZonasEncimadasTest.php`
   — tamaño S
-- [ ] 5.2 plazas-E13, plazas-E14 (`servidor/`): la resolución ignora las zonas que no están activas; al recargar, la
+- [x] 5.2 plazas-E13, plazas-E14 (`servidor/`): la resolución ignora las zonas que no están activas; al recargar, la
   zona que ya no viene se desactiva y vuelve a activarse si regresa — test:
   `servidor/tests/Feature/Plazas/ZonaInactivaTest.php` — tamaño S
 - [x] 5.3 plazas-E15 (`servidor/`): migración nueva con el `CHECK` de `vigente_hasta > vigente_desde` en

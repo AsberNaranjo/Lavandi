@@ -33,7 +33,9 @@ use JsonException;
  * la columna lo guardaría sin quejarse y la resolución de un punto dejaría de ser confiable.
  *
  * Volver a cargar el mismo archivo actualiza; no duplica: la plaza se reconoce por su nombre y la zona por su plaza y
- * su nombre, los únicos de la base (design.md, decisión 3). Una zona que ya no viene en el archivo se queda como está.
+ * su nombre, los únicos de la base (design.md, decisión 3). Una zona de la plaza que ya no viene en el archivo queda
+ * guardada, pero no activa: no se borra, porque las filas de operación que vengan pueden apuntar a ella. Si una carga
+ * posterior la vuelve a traer, es la misma fila, con el estado que diga el archivo (plazas-E14; DD-134, punto 3).
  * La carga es todo o nada: si algo falla, no queda ni la plaza ni ninguna de sus zonas.
  */
 final class AperturaDePlaza
@@ -88,6 +90,12 @@ final class AperturaDePlaza
                     ],
                 );
             }
+
+            // La que ya no viene deja de dar servicio, sin borrarse (plazas-E14).
+            $plaza->zonas()
+                ->where('activa', true)
+                ->whereNotIn('nombre', array_column(array_column($datos['features'], 'properties'), 'nombre'))
+                ->update(['activa' => false]);
 
             return $plaza;
         });

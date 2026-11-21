@@ -28,17 +28,46 @@ trait PlazasDePrueba
     }
 
     /**
-     * Una zona activa de la plaza, con el polígono GeoJSON que se pasa.
+     * Una zona de la plaza, activa por omisión, con el polígono GeoJSON que se pasa.
      *
      * @param  array<string, mixed>  $poligono
      */
-    protected function zonaDePrueba(Plaza $plaza, string $nombre, array $poligono): Zona
+    protected function zonaDePrueba(Plaza $plaza, string $nombre, array $poligono, bool $activa = true): Zona
     {
         return $plaza->zonas()->create([
             'nombre' => $nombre,
             'poligono' => $poligono,
-            'activa' => true,
+            'activa' => $activa,
         ]);
+    }
+
+    /**
+     * El archivo GeoJSON de una plaza de prueba activa, con sus zonas activas, como lo lee el comando plazas:cargar.
+     * Se borra al terminar la prueba.
+     *
+     * @param  array<string, array<string, mixed>>  $zonas  El polígono GeoJSON de cada zona, por su nombre.
+     */
+    protected function archivoDePlaza(string $plaza, array $zonas): string
+    {
+        $datos = [
+            'type' => 'FeatureCollection',
+            'plaza' => ['nombre' => $plaza, 'zona_horaria' => 'America/Mexico_City', 'activa' => true],
+            'features' => array_map(
+                fn (string $nombre, array $poligono): array => [
+                    'type' => 'Feature',
+                    'properties' => ['nombre' => $nombre, 'activa' => true],
+                    'geometry' => $poligono,
+                ],
+                array_keys($zonas),
+                $zonas,
+            ),
+        ];
+
+        $archivo = (string) tempnam(sys_get_temp_dir(), 'plaza');
+        file_put_contents($archivo, json_encode($datos, JSON_THROW_ON_ERROR));
+        $this->beforeApplicationDestroyed(fn () => @unlink($archivo));
+
+        return $archivo;
     }
 
     /**
