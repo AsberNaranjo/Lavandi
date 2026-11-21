@@ -6,6 +6,8 @@ use App\Autorizacion\Autorizacion;
 use App\Direcciones\RecogidaYEntrega;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CrearPedidoRequest;
+use App\Http\Requests\ListaDePedidosRequest;
+use App\Http\Resources\PedidoDeLaListaResource;
 use App\Http\Resources\PedidoResource;
 use App\Models\Lavanderia;
 use App\Models\Usuario;
@@ -163,6 +165,36 @@ use Illuminate\Support\Str;
  *          No existe, es de otra cuenta, o el valor no es un ULID (un folio, por ejemplo): todos responden igual y sin
  *          ningún dato. El folio no es un identificador de la API, ni para el pedido propio.
  *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
+ *     GET /api/pedidos?desde=2026-12-01&hasta=2026-12-31     El historial de la cuenta: sus pedidos, con el filtro por
+ *                                                            fecha (historial-E01 a E04; Módulo A #13)
+ *
+ *     desde, hasta  opcionales, AAAA-MM-DD. Los dos días entran en el rango; con uno solo, queda abierto del otro lado.
+ *                   Se comparan contra la fecha de la recolección del pedido en la hora de su plaza: la de
+ *                   "ventana.fecha" del pedido, la que muestra su resumen.
+ *
+ *     200  {
+ *            "pedidos": [
+ *              {
+ *                "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",   el de GET /api/pedidos/{id_publico}
+ *                "folio": "X4TCWWR5",                          siempre lleno: solo vienen pedidos confirmados
+ *                "fecha": "2026-12-03",                        la de la recolección, en la hora de la plaza
+ *                "lavanderia": { "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1u", "nombre": "Lavandería de prueba 1" },
+ *                "estado": { "codigo": "entregado", "nombre": "Entregado", "visible_usuario": true }
+ *              }
+ *            ]
+ *          }
+ *          Solo los pedidos de la cuenta (historial-E02) y solo los confirmados, con "confirmado_en" lleno: uno que
+ *          espera su pago no entró al flujo y no tiene folio ni estado que nombrar (C-188; ADR-0021). Del más reciente
+ *          al más antiguo por la recolección, y con la misma recolección, del más nuevo al más viejo. Sin paginación:
+ *          todos los del rango. Sin pedidos, o sin pedidos en el rango, "pedidos" llega vacía (historial-E04).
+ *     422  { "message": "...", "errors": { "desde": ["La fecha desde va como AAAA-MM-DD."] } }
+ *          Cada error va en su campo, y "message" es el primero:
+ *            desde  "La fecha desde va como AAAA-MM-DD."
+ *            hasta  "La fecha hasta va como AAAA-MM-DD."
+ *            hasta  "La fecha hasta no puede ser anterior a la fecha desde."
+ *
  * No hay ninguna ruta que confirme un pedido: lo confirma el cobro cuando la pasarela confirma el pago
  * (App\Pedidos\ConfirmacionDePedido; C-188).
  */
@@ -227,5 +259,24 @@ class PedidosController extends Controller
         }
 
         return response()->json(['pedido' => PedidoResource::delPedido($encontrado)]);
+    }
+
+    /**
+     * El historial de la cuenta: sus pedidos confirmados, con el filtro por fecha. De quién son lo dice el componente
+     * de autorización (historial-E02); cuáles entran y en qué orden, el modelo del pedido.
+     */
+    public function lista(ListaDePedidosRequest $peticion): JsonResponse
+    {
+        /** @var Usuario $usuario */
+        $usuario = $peticion->user();
+
+        $pedidos = $this->autorizacion->pedidosVisibles($usuario)
+            ->confirmados()
+            ->recolectadosEntre($peticion->validated('desde'), $peticion->validated('hasta'))
+            ->delMasRecienteAlMasAntiguo()
+            ->with(['plaza', 'lavanderia', 'estado'])
+            ->get();
+
+        return response()->json(['pedidos' => PedidoDeLaListaResource::collection($pedidos)]);
     }
 }

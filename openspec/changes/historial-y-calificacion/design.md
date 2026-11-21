@@ -36,6 +36,16 @@ Tres lecturas del contrato que fijan los escenarios. No son decisiones técnicas
 3. **E06 a E09 parten de un pedido Entregado.** Es el caso que vale con cualquier respuesta a BR-25; los demás estados
    quedan en E10.
 
+Dos decisiones de implementación de la lista (tareas 1.1 y 1.2). Las tomó Claude por delegación de Arthur (C-236):
+
+4. **En la lista entran solo los pedidos confirmados, con `confirmado_en` lleno.** Un pedido en `por_pagar` nació al
+   aceptar el resumen, pero no entró al flujo hasta que la pasarela acredita su pago (C-188; ADR-0021): no tiene folio y
+   su estado no se le nombra al usuario (`visible_usuario` falso). Si saliera en la lista, el usuario vería un pedido
+   sin folio y sin estado. Alternativa descartada: mostrarlo con un estado "por pagar", que el contrato no nombra entre
+   los del Módulo A #12. Lo que pase con un pedido que nunca se pagó es del cambio `pago`.
+5. **La lista no se pagina por ahora.** Entrega todos los pedidos de la cuenta, o todos los del rango. Ni el contrato ni
+   la spec piden páginas, y un usuario tiene pocos pedidos al principio de la operación. El riesgo queda en Risks.
+
 ## Tablas y migración
 
 Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cambio **no crea tablas: completa
@@ -66,14 +76,69 @@ Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cam
 
 | Tabla | Qué hace aquí | Nace en |
 |---|---|---|
-| `pedidos` | La lista del usuario (`id_usuarios`), con `folio`, `ventana_inicio` (la fecha del filtro), `id_lavanderias` e `id_estados_pedido` | `resumen-y-confirmacion` |
+| `pedidos` | La lista del usuario (`id_usuarios`), con `folio`, `ventana_inicio` (la fecha del filtro), `confirmado_en` (solo entran los confirmados, decisión 4), `id_lavanderias` e `id_estados_pedido` | `resumen-y-confirmacion` |
 | `estados_pedido` | El `nombre_usuario` del estado de cada pedido | `resumen-y-confirmacion` |
 | `lavanderias` | El nombre en la lista y la lavandería calificada | `perfil-de-lavanderia`; `alta-de-lavanderias` |
 | `plazas` | La `zona_horaria` con que se cuentan los días del filtro (decisión 1) | `plazas-y-zonas` |
 | `pedido_servicios`, `pedido_direcciones` | Solo para repetir un pedido, cuando responda BR-25 (historial-E05) | `resumen-y-confirmacion` |
 | `repartidores` | Ninguna todavía: la llave de `id_repartidores` la agrega `repartidor`, que va después en el plan | `repartidor` |
 
+## Contrato de la API: la lista y el filtro
+
+Lo implementan las tareas 1.1 y 1.2. La forma exacta vive también en
+`servidor/app/Http/Controllers/Api/PedidosController.php`. La app (tareas 2.1 y 2.2) se construye contra él.
+
+```
+GET /api/pedidos?desde=2026-12-01&hasta=2026-12-31
+Authorization: Bearer <token de la sesión>        (auth:sanctum y autorizar:usuario)
+```
+
+- **Parámetros** (los dos opcionales):
+  - `desde` y `hasta` van en `AAAA-MM-DD`, y los dos días entran en el rango;
+  - con uno solo, el rango queda abierto del otro lado;
+  - cada uno se compara contra la fecha de la recolección del pedido en la hora de su plaza: la fecha de
+    `ventana_inicio` convertida a `plazas.zona_horaria`. Es la fecha que muestra su resumen (decisión 1) y la misma
+    que `ventana.fecha` de `GET /api/pedidos/{id_publico}`. Con pedidos de plazas con husos distintos, cada pedido se
+    cuenta en la hora de la suya.
+- **Respuesta**, `200`:
+
+  ```json
+  {
+    "pedidos": [
+      {
+        "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",
+        "folio": "X4TCWWR5",
+        "fecha": "2026-12-03",
+        "lavanderia": { "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1u", "nombre": "Lavandería de prueba 1" },
+        "estado": { "codigo": "entregado", "nombre": "Entregado", "visible_usuario": true }
+      }
+    ]
+  }
+  ```
+
+- **Qué pedidos entran:**
+  - solo los de la cuenta de la sesión (historial-E02), por `App\Autorizacion\Autorizacion::pedidosVisibles()`
+    (ADR-0019);
+  - solo los confirmados (decisión 4): por eso `folio` siempre viene lleno;
+  - sin paginación (decisión 5).
+- **Orden:** del más reciente al más antiguo por `ventana_inicio`; con la misma recolección, del más nuevo al más viejo
+  por `id_pedidos`.
+- **Sin pedidos,** o sin pedidos en el rango, `pedidos` llega vacía (historial-E04). El mensaje de lista vacía lo pone
+  la app (tarea 2.2).
+- **Errores:**
+  - `401` sin sesión;
+  - `403` `{ "message": "Esta cuenta no tiene acceso." }` si la cuenta no tiene el rol de usuario, como la de una
+    lavandería;
+  - `422` con el error en su campo y `message` con el primero: `errors.desde` "La fecha desde va como AAAA-MM-DD.";
+    `errors.hasta` "La fecha hasta va como AAAA-MM-DD." o "La fecha hasta no puede ser anterior a la fecha desde.".
+    Con `desde` mal escrita, `hasta` no se compara contra ella: el error es solo de `desde`.
+
 ## Risks / Trade-offs
+
+- [La lista no se pagina (decisión 5)] → Con un usuario de muchos pedidos, la respuesta crece sin tope y la app los
+  pinta todos. Mitigación: la consulta parte de los pedidos de la cuenta, con su índice en `id_usuarios`. Si hace
+  falta paginar, entra como un cambio con `MODIFIED` sobre esta spec, con un parámetro nuevo, sin romper a la app que
+  no lo mande.
 
 - [DD-052 cierra con dos calificaciones después de implementar E06 a E09] → la tabla ya lo admite: el repartidor es
   otra fila con `id_repartidores`, y lo ya guardado queda como calificación de la lavandería. Cambia la pantalla, no la

@@ -274,7 +274,11 @@ class ConfirmarPedidoTest extends TestCase
             ->all();
 
         $this->assertContains('POST api/pedidos', $rutas);
-        $this->assertSame([], array_values(array_diff($rutas, ['POST api/pedidos', 'GET api/pedidos/{pedido}'])));
+        // Las de consultar son el pedido y el historial de la cuenta (historial-y-calificacion, historial-E01).
+        $this->assertSame([], array_values(array_diff(
+            $rutas,
+            ['POST api/pedidos', 'GET api/pedidos', 'GET api/pedidos/{pedido}'],
+        )));
 
         // Y una petición que intente confirmar no encuentra ruta.
         $pedido = $this->pedidoPorPagar();
@@ -292,6 +296,12 @@ class ConfirmarPedidoTest extends TestCase
 
             $this->assertContains($respuesta->status(), [404, 405], "{$metodo} {$direccion}");
         }
+
+        // El historial solo consulta: aunque la petición lleve los datos de un pago, no confirma nada.
+        $this->app['auth']->forgetGuards();
+        $this->withToken($token)
+            ->getJson('/api/pedidos?'.http_build_query(['estado' => EstadoPedido::CONFIRMADO, 'pagado' => true]))
+            ->assertOk();
 
         $this->assertNull($pedido->fresh()->folio);
         $this->assertSame(EstadoPedido::POR_PAGAR, $pedido->fresh()->estado->codigo);
