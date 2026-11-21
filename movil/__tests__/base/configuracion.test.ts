@@ -143,12 +143,12 @@ describe('base-E07: la app toma la dirección de la API de su entorno', () => {
   });
 });
 
-// El código de la app: el punto de entrada, el componente raíz, la configuración de Expo y src/.
+// El código de la app: la configuración de Expo, las pantallas de app/ (expo-router, ADR-0017) y src/.
 function archivosDeCodigo(): string[] {
   const raiz = ['index.ts', 'App.tsx', 'app.config.ts']
     .map((archivo) => path.join(RAIZ, archivo))
     .filter((archivo) => existsSync(archivo));
-  return [...raiz, ...recorrer(path.join(RAIZ, 'src'))];
+  return [...raiz, ...recorrer(path.join(RAIZ, 'app')), ...recorrer(path.join(RAIZ, 'src'))];
 }
 
 function recorrer(carpeta: string): string[] {

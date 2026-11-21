@@ -47,6 +47,9 @@ export default (): ExpoConfig => {
   return {
     name: entorno.EXPO_PUBLIC_NOMBRE_APP,
     slug: 'movil',
+    // El esquema de los enlaces de la app (expo-router, ADR-0017): sin él, expo-linking falla en una compilación de
+    // producción. Es el mismo identificador de la app, que sale del entorno.
+    scheme: entorno.APP_IDENTIFIER,
     version: '1.0.0',
     orientation: 'portrait',
     // Solo modo claro en la versión 1 (design system).
@@ -70,6 +73,11 @@ export default (): ExpoConfig => {
       predictiveBackGestureEnabled: false,
     },
     plugins: [
+      // La navegación entre pantallas (ADR-0017).
+      'expo-router',
+      // El token de la sesión en el almacenamiento cifrado (ADR-0018). La app no usa Face ID, así que no pide el
+      // permiso; el complemento además saca ese almacenamiento del respaldo automático de Android.
+      ['expo-secure-store', { faceIDPermission: false }],
       [
         'expo-build-properties',
         {
