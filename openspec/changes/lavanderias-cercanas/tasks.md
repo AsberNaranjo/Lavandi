@@ -9,7 +9,7 @@ después (ver `design.md`, Open Questions). Este cambio no crea tablas.
   `lavanderias`, con plaza, `ubicacion` y `estado`; consulta por punto con distancia en línea recta sobre
   `lavanderias.ubicacion`, que identifica cada lavandería por su `id_publico`, detrás de la sesión y del componente de
   autorización — test: `servidor/tests/Feature/Cercanas/ConsultaDeCercanasTest.php` — tamaño M
-- [ ] 1.2 cercanas-E22 (`servidor/`): el sembrado de prueba del hito no corre en producción — test:
+- [x] 1.2 cercanas-E22 (`servidor/`): el sembrado de prueba del hito no corre en producción — test:
   `servidor/tests/Feature/Cercanas/DatosDePruebaTest.php` — tamaño S
 - [ ] 1.3 cercanas-E16, cercanas-E17, cercanas-E18 (`servidor/`): calificaciones de prueba de lavandería sembradas en
   `calificaciones`; filtros por distancia máxima y calificación mínima, combinables, con el promedio de las filas que

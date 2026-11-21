@@ -23,7 +23,8 @@ use Illuminate\Support\Facades\DB;
  *
  * El lavado en seco no se siembra: su unidad espera DD-010 (perfil-lavanderia-E06).
  *
- * Sembrar dos veces no las duplica: la lavandería se reconoce por su plaza y su nombre, y la cuenta por su correo.
+ * Solo se siembran en local y en prueba, nunca en producción (ADR-0012; cercanas-E22). Sembrar dos veces no las
+ * duplica: la lavandería se reconoce por su plaza y su nombre, y la cuenta por su correo.
  */
 class LavanderiasDePruebaSeeder extends Seeder
 {
@@ -74,6 +75,13 @@ class LavanderiasDePruebaSeeder extends Seeder
 
     public function run(ResolucionDePunto $resolucion): void
     {
+        // Aunque alguien fuerce el sembrado, y aunque ya haya plazas que cubran los puntos (cercanas-E22).
+        if (app()->isProduction()) {
+            $this->command?->warn('Las lavanderías de prueba no se siembran en producción (ADR-0012).');
+
+            return;
+        }
+
         DB::transaction(function () use ($resolucion): void {
             foreach (self::LAVANDERIAS as $numero => $datos) {
                 $punto = $resolucion->resolver($datos['latitud'], $datos['longitud']);
