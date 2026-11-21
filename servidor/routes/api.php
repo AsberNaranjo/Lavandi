@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CuentaController;
+use App\Http\Controllers\Api\DireccionesController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
 use App\Http\Controllers\Api\PerfilDeLavanderiaController;
 use App\Http\Controllers\Api\RecuperacionController;
@@ -39,4 +40,7 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     Route::get('lavanderias/{lavanderia}', PerfilDeLavanderiaController::class)
         ->whereUlid('lavanderia')
         ->name('lavanderias.perfil');
+
+    // Las direcciones de recogida y de entrega de la cuenta (direcciones). El contrato está en el controlador.
+    Route::post('direcciones', [DireccionesController::class, 'guardar'])->name('direcciones.guardar');
 });

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\TieneIdPublico;
 use Illuminate\Contracts\Database\Query\Expression;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  * plaza_opcional).
  *
  * La ubicación se asigna con su latitud y su longitud, y la base la guarda como geography(Point, 4326). Leída de la
- * base es el EWKB que devuelve PostgreSQL, así que no sale en JSON; las consultas usan las funciones de PostGIS.
+ * base es el EWKB que devuelve PostgreSQL, así que no sale en JSON; las coordenadas se leen con conCoordenadas().
  *
  *     Direccion::create([..., 'colonia' => 'Centro', 'ubicacion' => ['latitud' => 24.0277, 'longitud' => -104.6532]]);
  */
@@ -85,6 +86,19 @@ class Direccion extends Modelo
     public function plaza(): BelongsTo
     {
         return $this->belongsTo(Plaza::class, 'id_plazas');
+    }
+
+    /**
+     * Agrega a cada dirección su latitud y su longitud, leídas de la ubicación con PostGIS, para la API.
+     *
+     * @param  Builder<Direccion>  $consulta
+     */
+    public function scopeConCoordenadas(Builder $consulta): void
+    {
+        $consulta
+            ->select($consulta->qualifyColumn('*'))
+            ->selectRaw("ST_Y({$consulta->qualifyColumn('ubicacion')}::geometry) as latitud")
+            ->selectRaw("ST_X({$consulta->qualifyColumn('ubicacion')}::geometry) as longitud");
     }
 
     /**
