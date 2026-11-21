@@ -2,9 +2,12 @@
 
 namespace Tests\Feature\Cercanas;
 
+use App\Agenda\ParametrosDeAgenda;
 use App\Models\Calificacion;
 use App\Models\Lavanderia;
+use App\Models\LavanderiaHorario;
 use App\Models\LavanderiaServicio;
+use App\Models\ParametroPlaza;
 use App\Models\Plaza;
 use App\Models\Usuario;
 use App\Models\Zona;
@@ -15,8 +18,9 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 
 /**
- * El sembrado de plazas, lavanderías y calificaciones de prueba del hito corre solo en local y en prueba, nunca en
- * producción (ADR-0012).
+ * El sembrado de plazas, lavanderías, horarios y calificaciones de prueba del hito corre solo en local y en prueba, nunca
+ * en producción (ADR-0012). Los horarios de prueba y la agenda de prueba de cada plaza son de agenda-de-recoleccion
+ * (tareas 1.1 y 1.2).
  *
  * Escenario: cercanas-E22 · Spec: openspec/changes/lavanderias-cercanas/specs/cercanas/spec.md
  */
@@ -37,8 +41,10 @@ class DatosDePruebaTest extends TestCase
 
         $this->assertSame(0, Plaza::count());
         $this->assertSame(0, Zona::count());
+        $this->assertSame(0, ParametroPlaza::count());
         $this->assertSame(0, Lavanderia::withTrashed()->count());
         $this->assertSame(0, LavanderiaServicio::count());
+        $this->assertSame(0, LavanderiaHorario::count());
         $this->assertSame(0, Calificacion::count());
         $this->assertSame(0, Usuario::withTrashed()->count());
     }
@@ -60,6 +66,7 @@ class DatosDePruebaTest extends TestCase
         $this->assertSame($plazas, Plaza::count());
         $this->assertSame(0, Lavanderia::withTrashed()->count());
         $this->assertSame(0, LavanderiaServicio::count());
+        $this->assertSame(0, LavanderiaHorario::count());
         $this->assertSame(0, Calificacion::count());
         $this->assertSame(0, Usuario::withTrashed()->count());
     }
@@ -88,11 +95,22 @@ class DatosDePruebaTest extends TestCase
             'Lavandería de prueba suspendida',
         ], array_keys($lavanderias));
 
-        // Cada una con su cuenta de prueba, en el dominio reservado para pruebas.
-        foreach (Lavanderia::with('administrador.roles')->get() as $lavanderia) {
+        // Cada una con su cuenta de prueba, en el dominio reservado para pruebas, y con su horario de prueba: de lunes a
+        // sábado, sin el domingo (agenda-E04).
+        foreach (Lavanderia::with(['administrador.roles', 'horarios'])->get() as $lavanderia) {
             $this->assertStringEndsWith('@prueba.test', $lavanderia->administrador->correo);
             $this->assertSame(['lavanderia'], $lavanderia->administrador->roles->pluck('codigo')->all());
             $this->assertNull($lavanderia->administrador->password);
+            $this->assertSame([1, 2, 3, 4, 5, 6], $lavanderia->horarios->pluck('dia_semana')->unique()->sort()->values()->all());
+        }
+
+        // Cada plaza de prueba, con las dos claves de su agenda de prueba (agenda-E12).
+        foreach (Plaza::with('parametros')->get() as $plaza) {
+            $this->assertEqualsCanonicalizing(
+                [ParametrosDeAgenda::ANTICIPACION_MINIMA, ParametrosDeAgenda::DIAS_HACIA_ADELANTE],
+                $plaza->parametros->pluck('clave')->all(),
+                $plaza->nombre,
+            );
         }
     }
 
@@ -103,8 +121,10 @@ class DatosDePruebaTest extends TestCase
     {
         return [
             'plazas' => Plaza::count(),
+            'parametros' => ParametroPlaza::count(),
             'lavanderias' => Lavanderia::withTrashed()->count(),
             'servicios' => LavanderiaServicio::count(),
+            'horarios' => LavanderiaHorario::count(),
             'calificaciones' => Calificacion::count(),
             'usuarios' => Usuario::withTrashed()->count(),
         ];
