@@ -13,6 +13,10 @@
 // a07-fecha-hora de la Propuesta 04. Del mock no entran la ventana de entrega (DD-099; no-objetivo del cambio), las
 // ventanas sin cupo (agenda-E05, DD-099) ni una primera ventana propuesta (agenda-E10, DD-078).
 //
+// Si el servidor ya no acepta la ventana al aceptar el resumen (resumen-y-confirmacion, confirmacion-E08), la app
+// regresa aquí: el paso se abre de nuevo, sin la ventana rechazada elegida, con el motivo del servidor y con las ventanas
+// del día pedidas otra vez. Lo demás del pedido en curso queda como estaba.
+//
 // Si las ventanas no llegan, sin escenario propio: los mensajes generales de la app, como la búsqueda de cercanas y
 // el perfil, y no deja continuar. Sin pedido en curso, por ejemplo con un enlace directo, lleva a la pantalla
 // principal; sin tipo de servicio, a la selección de servicio.
@@ -37,11 +41,20 @@ import { letra } from '../../src/tema/letra';
 import { color, espaciado, tipografia } from '../../src/tema/theme';
 
 export default function FechaYHora() {
+  const pedido = usePedidoEnCurso();
+  // Cada rechazo de la ventana al aceptar el resumen abre el paso de nuevo, aunque siga en la pila (confirmacion-E08).
+  return <PasoDeFechaYHora key={pedido?.ventanaRechazada?.vez ?? 0} />;
+}
+
+function PasoDeFechaYHora() {
   const router = useRouter();
   const regresar = useRegresar(RUTA_DEL_SERVICIO);
   const pedido = usePedidoEnCurso();
+  // La ventana del pedido en curso, mientras el servidor no la haya rechazado (confirmacion-E08).
+  const rechazada = pedido?.ventanaRechazada;
+  const vigente = pedido?.ventana && pedido.ventana.inicio !== rechazada?.ventana.inicio ? pedido.ventana : null;
   // Si el pedido en curso ya tenía una ventana (se volvió a este paso), se abre en su día y aparece elegida.
-  const [elegida, setElegida] = useState<Ventana | null>(pedido?.ventana ?? null);
+  const [elegida, setElegida] = useState<Ventana | null>(vigente);
   const agenda = useAgenda(pedido?.lavanderia.id_publico, pedido?.ventana?.fecha ?? null);
 
   if (!pedido) {
@@ -80,6 +93,8 @@ export default function FechaYHora() {
       }
     >
       <Presentacion titulo={TEXTOS_DE_LA_AGENDA.titulo} texto={TEXTOS_DE_LA_AGENDA.subtitulo} alineacion="inicio" />
+      {/* El motivo del servidor, hasta que se elige otra ventana. */}
+      {rechazada && !vigente && elegida === null ? <MensajeDeError texto={rechazada.mensaje} /> : null}
       {dias.length > 0 ? (
         <SelectorDeFechaYHora
           dias={dias}

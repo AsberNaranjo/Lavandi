@@ -10,6 +10,10 @@
 // - "Continuar" manda la recogida y la entrega al servidor, que las acepta solo dentro de la zona de servicio de la
 //   plaza de la lavandería. Si acepta, quedan en el pedido en curso y la app pasa al resumen. Si rechaza una, el aviso
 //   va bajo esa lista, con su motivo, y se va al elegir otra (direcciones-E11).
+// - Si el servidor rechaza la recogida o la entrega al aceptar el resumen (resumen-y-confirmacion, confirmacion-E08), la
+//   app regresa aquí con el aviso bajo la que rechazó, que sigue elegida, igual que el de "Continuar". Si la dirección
+//   quedó con la plaza de antes de un cambio de zonas, el aviso pide guardarla de nuevo, y "Agregar otra dirección" lo
+//   hace (confirmacion-E15).
 //
 // La composición es la del tablero "Dirección (3 de 4)" de la Propuesta 5 corregida (C-233) y la imagen a08-direccion
 // de la Propuesta 04. Del mock no entran la estrella de las favoritas (van bajo su título) ni el radio de servicio de la
@@ -32,6 +36,7 @@ import {
   elegirDirecciones,
   usePedidoEnCurso,
   type DireccionAgregada,
+  type DireccionRechazada,
   type ParaQueEsLaDireccion,
   type PedidoEnCurso,
 } from '../../src/pedido/pedidoEnCurso';
@@ -58,12 +63,6 @@ interface Eleccion {
 }
 
 type Elecciones = Record<ParaQueEsLaDireccion, Eleccion>;
-
-/** Una dirección que el servidor rechazó para el pedido, con su motivo. */
-interface DireccionRechazada {
-  id: string;
-  rechazo: Rechazo;
-}
 
 export default function PasoDeLaDireccion() {
   const router = useRouter();
@@ -92,11 +91,11 @@ export default function PasoDeLaDireccion() {
     recogida: elegidaPara('recogida', elecciones, agregadas),
     entrega: elegidaPara('entrega', elecciones, agregadas),
   };
-  // El aviso de una rechazada solo sigue mientras siga elegida (direcciones-E11).
-  const rechazoPara = (para: ParaQueEsLaDireccion) => {
-    const rechazada = rechazadas[para];
-    return rechazada && rechazada.id === elegidas[para] ? rechazada.rechazo : undefined;
-  };
+  // El aviso de una rechazada solo sigue mientras siga elegida (direcciones-E11), la haya rechazado "Continuar" o el
+  // resumen (confirmacion-E08).
+  const rechazoPara = (para: ParaQueEsLaDireccion) =>
+    [rechazadas[para], pedido.direccionesRechazadas?.[para]].find((rechazada) => rechazada?.id === elegidas[para])
+      ?.rechazo;
 
   function elegir(para: ParaQueEsLaDireccion, id: string) {
     setElecciones((anteriores) => ({ ...anteriores, [para]: { id, vistas: agregadas.length } }));

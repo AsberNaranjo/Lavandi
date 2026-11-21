@@ -2,8 +2,9 @@
 // paso de la dirección del pedido ("Pedido nuevo · 3 de 4"): las favoritas de la cuenta como opciones, "Agregar otra
 // dirección" con su opción de guardarla como favorita con un nombre, la recogida y la entrega, que puede ser la misma o
 // otra, y el aviso cuando el servidor rechaza una por estar fuera de la zona de servicio. La recogida y la entrega que
-// acepta el servidor quedan en el pedido en curso y la app pasa al resumen, que todavía es provisional
-// (resumen-y-confirmacion): la prueba comprueba que llega a él con las dos direcciones.
+// acepta el servidor quedan en el pedido en curso y la app pasa al resumen (resumen-y-confirmacion): la prueba comprueba
+// que llega a él con las dos direcciones. El resumen pide el pedido completo, así que el de la prueba lleva la ventana
+// que deja el paso de fecha y hora.
 //
 // Elegir una favorita no geocodifica: el servidor usa el punto guardado (direcciones-E07, tarea 1.3). Que la dirección
 // quede copiada en el pedido se prueba en resumen-y-confirmacion (design.md, "Lo que no escribe"). Se abre la app real,
@@ -16,7 +17,13 @@ import { Platform } from 'react-native';
 
 import { marcarBienvenidaVista } from '../../src/bienvenida/vista';
 import { comprobarInstalacion } from '../../src/instalacion/marca';
-import { elegirServicio, empezarPedido, leerPedidoEnCurso, vaciarPedidoEnCurso } from '../../src/pedido/pedidoEnCurso';
+import {
+  elegirServicio,
+  elegirVentana,
+  empezarPedido,
+  leerPedidoEnCurso,
+  vaciarPedidoEnCurso,
+} from '../../src/pedido/pedidoEnCurso';
 import { guardarToken } from '../../src/sesion/almacen';
 
 // La primera pantalla tarda más mientras Jest prepara el entorno.
@@ -35,6 +42,15 @@ const LAVANDERIA = {
   servicios: [
     { codigo: 'estandar' as const, nombre: 'Lavado estándar', precio: '45.00', unidad: { codigo: 'kg', nombre: 'kilo' } },
   ],
+};
+
+// La ventana que dejó el paso de fecha y hora (agenda-E08).
+const VENTANA = {
+  inicio: '2026-12-03T11:00:00-06:00',
+  fin: '2026-12-03T12:00:00-06:00',
+  fecha: '2026-12-03',
+  hora_inicio: '11:00',
+  hora_fin: '12:00',
 };
 
 // Dos favoritas de la cuenta, como las devuelve el servidor, con su punto guardado.
@@ -150,11 +166,12 @@ async function conSesion(plataforma: Plataforma) {
   await guardarToken(TOKEN);
 }
 
-// La persona con sesión y un pedido en curso, con lavandería y servicio, llega al paso de la dirección.
+// La persona con sesión y un pedido en curso, con lavandería, servicio y ventana, llega al paso de la dirección.
 async function abrirLaDireccion(plataforma: Plataforma) {
   await conSesion(plataforma);
   empezarPedido(LAVANDERIA);
   elegirServicio('estandar');
+  elegirVentana(VENTANA);
   const pantalla = await renderRouter(APP, { initialUrl: '/pedido/direccion' });
   await screen.findByRole('header', { name: '¿Dónde recogemos?' });
   // Hasta que llegan las favoritas.

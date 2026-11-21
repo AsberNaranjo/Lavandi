@@ -56,7 +56,24 @@ export async function consultarApi(ruta: string, opciones: Omit<RequestInit, 'si
 }
 
 /** Hace una petición a la API y lee su respuesta en un Resultado. Nunca lanza. */
-export async function pedir<T>(ruta: string, { metodo, cuerpo, token }: Peticion): Promise<Resultado<T>> {
+export async function pedir<T>(ruta: string, peticion: Peticion): Promise<Resultado<T>> {
+  return (await pedirConEstado<T>(ruta, peticion)).resultado;
+}
+
+/** El Resultado de una petición y el código HTTP de su respuesta; null si no se llegó al servidor. */
+export interface ResultadoConEstado<T> {
+  resultado: Resultado<T>;
+  estado: number | null;
+}
+
+/**
+ * Como pedir(), con el código HTTP de la respuesta, para las rutas cuyo contrato distingue un 404 o un 503 de los demás
+ * errores del servidor (el pedido: servidor/app/Http/Controllers/Api/PedidosController.php). Nunca lanza.
+ */
+export async function pedirConEstado<T>(
+  ruta: string,
+  { metodo, cuerpo, token }: Peticion,
+): Promise<ResultadoConEstado<T>> {
   // Accept: application/json hace que Laravel conteste los errores en JSON y no con una redirección.
   const headers: Record<string, string> = { Accept: 'application/json' };
   if (cuerpo !== undefined) {
@@ -75,9 +92,14 @@ export async function pedir<T>(ruta: string, { metodo, cuerpo, token }: Peticion
     });
   } catch {
     // Un error de red o el plazo vencido (consultarApi cancela la petición): para la persona, no hubo conexión.
-    return { ok: false, motivo: 'sin-conexion' };
+    return { resultado: { ok: false, motivo: 'sin-conexion' }, estado: null };
   }
 
+  return { resultado: await leerResultado<T>(respuesta), estado: respuesta.status };
+}
+
+// La respuesta del servidor en un Resultado: los datos, o la falla según su código.
+async function leerResultado<T>(respuesta: Response): Promise<Resultado<T>> {
   const datos = respuesta.status === 204 ? undefined : await leerJson(respuesta);
 
   if (respuesta.ok) {

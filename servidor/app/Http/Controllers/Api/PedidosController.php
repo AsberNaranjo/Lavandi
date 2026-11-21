@@ -29,7 +29,7 @@ use Illuminate\Support\Str;
  *
  *     {
  *       "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",   el ULID del pedido; la API nunca lo identifica de otra forma
- *       "folio": null | "…",                          vacío hasta Confirmado; su formato es DD-101
+ *       "folio": null | "…",                          vacío hasta Confirmado; su formato, ADR-0020
  *       "confirmado_en": null | "2026-12-03T15:30:00Z",  el instante en que pasó a Confirmado, en UTC
  *       "estado": {
  *         "codigo": "confirmado",                     el código del estado actual en estados_pedido
