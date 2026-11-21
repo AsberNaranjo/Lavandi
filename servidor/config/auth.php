@@ -97,8 +97,12 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
-            'throttle' => 60,
+            // El enlace de recuperación vence a los 60 minutos y sirve una sola vez (ADR-0018, decisión 4).
+            'expire' => (int) env('RECUPERACION_VENCE_MINUTOS', 60),
+            // Sin el freno propio del broker: con él, una segunda petición en el minuto no mandaba correo aunque
+            // estuviera dentro del límite (registro-E22 y registro-E31). El único freno es el limitador recuperacion,
+            // con acceso.intentos_por_minuto.
+            'throttle' => 0,
         ],
     ],
 

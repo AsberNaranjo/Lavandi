@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CuentaController;
+use App\Http\Controllers\Api\RecuperacionController;
 use App\Http\Controllers\Api\RegistroController;
 use App\Http\Controllers\Api\SesionConGoogleController;
 use App\Http\Controllers\Api\SesionController;
@@ -17,6 +18,11 @@ Route::post('sesion', [SesionController::class, 'iniciar'])
     ->middleware('throttle:inicio-de-sesion')
     ->name('sesion.iniciar');
 Route::post('sesion/google', SesionConGoogleController::class)->name('sesion.google');
+
+// Pública: la petición del enlace de recuperación, con su límite por correo y por dirección (registro-E31).
+Route::post('contrasena/olvido', RecuperacionController::class)
+    ->middleware('throttle:recuperacion')
+    ->name('contrasena.olvido');
 
 // Con sesión, y por el componente único de autorización (registro-E14). Una ruta nueva sin las dos no pasa la prueba
 // tests/Feature/Registro/AutorizacionTest.php.
