@@ -2,12 +2,15 @@
 
 namespace Tests\Feature\Registro;
 
+use App\Http\Controllers\Api\SesionController;
 use App\Models\CuentaExterna;
 use App\Models\Rol;
 use App\Models\Usuario;
+use App\Notifications\EnlaceDeRecuperacion;
 use Database\Factories\UsuarioFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\PersonalAccessToken;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -22,6 +25,10 @@ use Tests\TestCase;
  * Un idToken cuyo correo Google no da por verificado se rechaza siempre, haya o no cuenta con ese correo, con el mismo
  * mensaje que cualquier otro idToken no válido: no dice si existe una cuenta (C-228, DD-128 cerrada).
  *
+ * Al ligar Google a una cuenta que ya existía, se cierran las sesiones que tenía abiertas y su contraseña queda
+ * anulada: quien registró el correo antes ya no entra, y el dueño del correo puede crear otra con la recuperación
+ * (DD-132, decisión 23 de acta-2026-11-20-modelo-y-pasarela).
+ *
  * Las pruebas no salen a la red: la Google de prueba firma con sus propias llaves (Soporte/ImitaAGoogle). Cada
  * petición olvida la cuenta de la anterior, como dos peticiones reales al servidor.
  *
@@ -35,7 +42,13 @@ class GoogleTest extends TestCase
 
     private const CORREO = 'persona@ejemplo.com';
 
+    private const OTRO_CORREO = 'otra@ejemplo.com';
+
+    private const CONTRASENA_NUEVA = 'contrasena-nueva-de-prueba';
+
     private const NO_VALIDO = 'No se pudo entrar con tu cuenta de Google.';
+
+    private const CREDENCIALES_NO_VALIDAS = 'Las credenciales no son válidas.';
 
     protected function setUp(): void
     {
@@ -207,8 +220,8 @@ class GoogleTest extends TestCase
     #[TestDox('registro-E18: con un correo que ya tiene cuenta con contraseña y que Google da por verificado, se liga a esa cuenta')]
     public function test_registro_e18_con_un_correo_que_ya_tiene_cuenta_con_contrasena_y_que_google_da_por_verificado_se_liga_a_esa_cuenta(): void
     {
-        $existente = Usuario::factory()->conRol(Rol::USUARIO)->create(['correo' => self::CORREO]);
-        $hash = $existente->password;
+        $existente = $this->cuentaConContrasena();
+        $this->assertTrue(Hash::check(UsuarioFactory::CONTRASENA, $existente->password));
 
         // Google puede escribir el correo con otras mayúsculas: es el mismo correo.
         $respuesta = $this->entrarConGoogle($this->idTokenDeGoogle(['email' => 'Persona@Ejemplo.com']));
@@ -223,18 +236,91 @@ class GoogleTest extends TestCase
         $this->assertSame('google', $cuentaDeGoogle->proveedor);
         $this->assertSame(self::SUJETO_DE_PRUEBA, $cuentaDeGoogle->sujeto);
 
-        // La contraseña sigue igual, y sigue sirviendo.
-        $this->assertSame($hash, $existente->fresh()->password);
-        $this->assertTrue(Hash::check(UsuarioFactory::CONTRASENA, $existente->fresh()->password));
+        // La contraseña queda anulada (DD-132): la cuenta se queda sin contraseña, como la que nace con Google, y la
+        // anterior ya no sirve. El token de la respuesta sí abre la sesión de esa cuenta.
+        $this->assertNull($existente->fresh()->password, 'La contraseña anterior queda anulada.');
         $this->consultarCuenta($respuesta->json('token'))
             ->assertOk()
             ->assertJsonPath('usuario.id_publico', $existente->id_publico);
     }
 
+    #[TestDox('registro-E18: al ligar, las sesiones que la cuenta tenía abiertas se cierran, y solo las de esa cuenta; la respuesta trae un token nuevo que sí sirve')]
+    public function test_registro_e18_al_ligar_las_sesiones_que_la_cuenta_tenia_abiertas_se_cierran_y_la_respuesta_trae_un_token_nuevo(): void
+    {
+        $existente = $this->cuentaConContrasena();
+        // Quien registró el correo antes tiene dos sesiones abiertas, y otra cuenta tiene la suya.
+        $telefono = $this->iniciarSesion(UsuarioFactory::CONTRASENA)->assertOk()->json('token');
+        $tableta = $this->iniciarSesion(UsuarioFactory::CONTRASENA)->assertOk()->json('token');
+        $otraCuenta = Usuario::factory()->conRol(Rol::USUARIO)->create(['correo' => self::OTRO_CORREO]);
+        $deLaOtraCuenta = $otraCuenta->createToken(SesionController::NOMBRE_DEL_TOKEN)->plainTextToken;
+
+        $respuesta = $this->entrarConGoogle($this->idTokenDeGoogle());
+
+        $respuesta->assertOk();
+        $respuesta->assertJsonPath('usuario.id_publico', $existente->id_publico);
+
+        // Con un token revocado, el servidor responde que no hay sesión (registro-E10).
+        $this->consultarCuenta($telefono)->assertUnauthorized();
+        $this->consultarCuenta($tableta)->assertUnauthorized();
+        $this->assertSame(1, $existente->tokens()->count(), 'Solo queda el token de la respuesta.');
+        $this->consultarCuenta($respuesta->json('token'))
+            ->assertOk()
+            ->assertJsonPath('usuario.id_publico', $existente->id_publico);
+
+        $this->consultarCuenta($deLaOtraCuenta)
+            ->assertOk()
+            ->assertJsonPath('usuario.id_publico', $otraCuenta->id_publico);
+    }
+
+    #[TestDox('registro-E18: con la contraseña anulada, la anterior ya no entra: la respuesta es la misma que con una contraseña equivocada (registro-E08)')]
+    public function test_registro_e18_con_la_contrasena_anulada_la_anterior_ya_no_entra_y_la_respuesta_es_la_de_una_contrasena_equivocada(): void
+    {
+        $this->cuentaConContrasena();
+        Usuario::factory()->conRol(Rol::USUARIO)->create(['correo' => self::OTRO_CORREO]);
+        $this->entrarConGoogle($this->idTokenDeGoogle())->assertOk();
+        $tokens = PersonalAccessToken::count();
+
+        $conLaAnterior = $this->iniciarSesion(UsuarioFactory::CONTRASENA);
+        // La contraseña equivocada de una cuenta que sí tiene contraseña (registro-E08).
+        $conUnaEquivocada = $this->iniciarSesion('otra-contrasena', self::OTRO_CORREO);
+
+        $conLaAnterior->assertUnprocessable();
+        $conLaAnterior->assertJsonValidationErrors(['correo' => self::CREDENCIALES_NO_VALIDAS]);
+        $conLaAnterior->assertJsonMissingPath('token');
+        $this->assertSame($conUnaEquivocada->status(), $conLaAnterior->status());
+        $this->assertSame($conUnaEquivocada->json(), $conLaAnterior->json());
+        $this->assertSame($tokens, PersonalAccessToken::count(), 'La contraseña anterior no emite token.');
+    }
+
+    #[TestDox('registro-E18: con la contraseña anulada, el dueño del correo crea otra con la recuperación y entra con ella; volver a entrar con Google ya no la anula (registro-E22 a E24)')]
+    public function test_registro_e18_con_la_contrasena_anulada_el_dueno_del_correo_crea_otra_con_la_recuperacion_y_entra_con_ella(): void
+    {
+        $existente = $this->cuentaConContrasena();
+        $this->entrarConGoogle($this->idTokenDeGoogle())->assertOk();
+
+        $this->guardarContrasena($this->tokenDeRecuperacion(), self::CONTRASENA_NUEVA)
+            ->assertOk()
+            ->assertSee('Tu contraseña nueva quedó guardada');
+
+        $conLaNueva = $this->iniciarSesion(self::CONTRASENA_NUEVA);
+        $conLaNueva->assertOk();
+        $conLaNueva->assertJsonPath('usuario.id_publico', $existente->id_publico);
+        $this->iniciarSesion(UsuarioFactory::CONTRASENA)->assertUnprocessable();
+
+        // Ya ligada, la cuenta de Google vuelve a entrar sin ligar otra vez: no cierra la sesión que abrió la
+        // contraseña nueva ni la anula (registro-E16).
+        $this->entrarConGoogle($this->idTokenDeGoogle())
+            ->assertOk()
+            ->assertJsonPath('usuario.id_publico', $existente->id_publico);
+        $this->consultarCuenta($conLaNueva->json('token'))->assertOk();
+        $this->assertTrue(Hash::check(self::CONTRASENA_NUEVA, $existente->fresh()->password));
+        $this->assertSame(1, CuentaExterna::count());
+    }
+
     #[TestDox('registro-E18: ya ligada, la cuenta de Google vuelve a entrar a la cuenta existente')]
     public function test_registro_e18_ya_ligada_la_cuenta_de_google_vuelve_a_entrar_a_la_cuenta_existente(): void
     {
-        $existente = Usuario::factory()->conRol(Rol::USUARIO)->create(['correo' => self::CORREO]);
+        $existente = $this->cuentaConContrasena();
 
         $this->entrarConGoogle($this->idTokenDeGoogle())->assertOk();
         $this->entrarConGoogle($this->idTokenDeGoogle())
@@ -248,7 +334,8 @@ class GoogleTest extends TestCase
     #[TestDox('registro-E18: si Google no da el correo por verificado, el servidor rechaza la entrada y no liga nada, con el mensaje que no dice si hay cuenta')]
     public function test_registro_e18_si_google_no_da_el_correo_por_verificado_el_servidor_rechaza_la_entrada_y_no_liga_nada(): void
     {
-        $existente = Usuario::factory()->conRol(Rol::USUARIO)->create(['correo' => self::CORREO]);
+        $existente = $this->cuentaConContrasena();
+        $abierta = $existente->createToken(SesionController::NOMBRE_DEL_TOKEN)->plainTextToken;
 
         $sinVerificar = $this->entrarConGoogle($this->idTokenDeGoogle(['email_verified' => false]));
         $sinReclamo = $this->entrarConGoogle($this->idTokenDeGoogle(['email_verified' => null]));
@@ -258,8 +345,11 @@ class GoogleTest extends TestCase
         $this->assertRechazado($sinReclamo, self::NO_VALIDO);
         $this->assertSame(0, CuentaExterna::count());
         $this->assertSame(1, Usuario::count());
-        $this->assertSame(0, PersonalAccessToken::count());
-        $this->assertSame(0, $existente->tokens()->count());
+        $this->assertSame(1, PersonalAccessToken::count(), 'El rechazo no emite sesión.');
+
+        // Sin ligar, tampoco se cierran las sesiones ni se anula la contraseña.
+        $this->consultarCuenta($abierta)->assertOk();
+        $this->assertTrue(Hash::check(UsuarioFactory::CONTRASENA, $existente->fresh()->password));
     }
 
     /**
@@ -277,6 +367,59 @@ class GoogleTest extends TestCase
         $this->olvidarSesion();
 
         return $this->withToken($token)->getJson('/api/cuenta');
+    }
+
+    /**
+     * La cuenta que alguien registró antes con el correo de la prueba y la contraseña de la fábrica.
+     */
+    private function cuentaConContrasena(): Usuario
+    {
+        return Usuario::factory()->conRol(Rol::USUARIO)->create(['correo' => self::CORREO]);
+    }
+
+    private function iniciarSesion(string $password, string $correo = self::CORREO): TestResponse
+    {
+        $this->olvidarSesion();
+
+        return $this->postJson(route('sesion.iniciar'), ['correo' => $correo, 'password' => $password]);
+    }
+
+    /**
+     * Pide el enlace de recuperación por la API, como la app, y devuelve el token que llegó en el correo.
+     */
+    private function tokenDeRecuperacion(): string
+    {
+        Notification::fake();
+        $this->olvidarSesion();
+        $this->postJson(route('contrasena.olvido'), ['correo' => self::CORREO])->assertOk();
+
+        $token = null;
+        Notification::assertSentOnDemand(
+            EnlaceDeRecuperacion::class,
+            function (EnlaceDeRecuperacion $aviso) use (&$token): bool {
+                $token = $aviso->token;
+
+                return $aviso->correo === self::CORREO;
+            },
+        );
+
+        return (string) $token;
+    }
+
+    /**
+     * Guarda la contraseña nueva en la página web del enlace (registro-E24).
+     */
+    private function guardarContrasena(string $token, string $password): TestResponse
+    {
+        $this->olvidarSesion();
+
+        return $this->from(route('contrasena.formulario', ['token' => $token, 'correo' => self::CORREO]))
+            ->post(route('contrasena.restablecer'), [
+                'token' => $token,
+                'correo' => self::CORREO,
+                'password' => $password,
+                'password_confirmation' => $password,
+            ]);
     }
 
     /**

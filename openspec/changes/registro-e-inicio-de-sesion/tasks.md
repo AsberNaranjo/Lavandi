@@ -54,7 +54,7 @@ nunca en las dos.
 - [x] 3.6 registro-E16 y registro-E17: el servidor rechaza el `idToken` cuyo correo Google no verificó (C-228,
   DD-128 cerrada) — test: `servidor/tests/Feature/Registro/GoogleTest.php` — tamaño S
 
-- [ ] 3.7 registro-E18 (`servidor/`): al ligar Google a la cuenta que ya existía, se cierran sus sesiones y se anula
+- [x] 3.7 registro-E18 (`servidor/`): al ligar Google a la cuenta que ya existía, se cierran sus sesiones y se anula
   su contraseña (DD-132, decisión 23 de `acta-2026-11-20-modelo-y-pasarela`) — test:
   `servidor/tests/Feature/Registro/GoogleTest.php` — tamaño S
 - [ ] 3.8 Pantallas de acceso con lo que respondió DD-133 y DD-131, punto 1 (`movil/`): el logotipo de Google en su
