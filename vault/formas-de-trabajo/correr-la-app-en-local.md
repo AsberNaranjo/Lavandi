@@ -119,20 +119,58 @@ vence a los 60 minutos y sirve una vez.
 
 **Cuentas de prueba:** usa correos `@ejemplo.com`. Quedan en `nsv_lavanderia`.
 
-## 5. En el teléfono: todavía no
+## 5. En un teléfono Android o en el emulador: el APK local
 
-- **Expo Go** no trae la librería nativa de Google que usa la app. Lo más probable es que la app no abra ahí. No está
-  probado.
-- **Un development build** es la forma prevista: una app de desarrollo con los módulos nativos del proyecto, que se
-  compila con EAS. Falta:
-  - `movil/eas.json`;
-  - la cuenta de Expo;
-  - las variables de la app cargadas en EAS: el nombre, el identificador y la dirección de la API;
-  - para Google, el cliente OAuth de prueba (DD-072).
-- **Compilar en la computadora** pide un Android SDK con la API 37, las build-tools 37 y el NDK 27.1, más el JDK 17.
-  El SDK que hay en `AppData\Local\ittob-android` tiene la API 34 y no trae NDK.
-- **El teléfono necesita llegar al servidor:** con `cloudflared tunnel --url http://localhost:8000`, que da una
-  dirección `https`, y esa dirección va en `EXPO_PUBLIC_API_URL`.
+El APK se compila en la computadora, sin la nube, con `herramientas\apk-local\compilar.ps1` (C-236). Se instala a
+mano; no va a ninguna tienda.
+
+**Lo que ya quedó instalado en esta computadora:**
+- **El SDK de Android de Lavandi:** `%LOCALAPPDATA%\lavandi-android\sdk`, aparte del de ittob, con:
+  - la API 37.0, las build-tools 37 y el NDK 27.1;
+  - CMake 3.22;
+  - el emulador con la imagen de Android 15.
+- **El JDK 17:** se usa el de `%LOCALAPPDATA%\ittob-android\jdk17`.
+- **El emulador:** un dispositivo virtual llamado `lavandi`, un Pixel 7.
+
+**Compilar** (desde la raíz del repositorio; la primera vez tarda, después unos minutos):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File herramientas\apk-local\compilar.ps1
+```
+
+Deja el APK en `notas-locales\lavandi-usb.apk`. Con `-Modo wifi -Ip <la IP de la computadora>` sale
+`lavandi-wifi.apk`.
+
+**Por USB, sin tocar el firewall** (el modo de siempre):
+1. El servidor, como en la sección 3: `php artisan serve` en `127.0.0.1:8000`.
+2. En el teléfono: Ajustes › Acerca del teléfono, siete toques en "Número de compilación"; luego, en Opciones de
+   desarrollador, activa la depuración por USB. Conéctalo y acepta el aviso de la computadora.
+3. Instala el APK y conecta el puerto. `adb` está en `%LOCALAPPDATA%\lavandi-android\sdk\platform-tools`:
+
+   ```powershell
+   $adb = "$env:LOCALAPPDATA\lavandi-android\sdk\platform-tools\adb.exe"
+   & $adb install -r notas-locales\lavandi-usb.apk
+   & $adb reverse tcp:8000 tcp:8000
+   ```
+
+   `adb reverse` se repite cada vez que desconectas el teléfono.
+
+**Por Wi-Fi:** el servidor tiene que escuchar en la red (`php artisan serve --host 0.0.0.0 --port 8000`). Windows
+tiene que dejar pasar el puerto 8000; con la red marcada como pública, eso pide permiso de administrador. El teléfono va
+en la misma red y el APK es el de `-Modo wifi`.
+
+**En el emulador:**
+
+```powershell
+& "$env:LOCALAPPDATA\lavandi-android\sdk\emulator\emulator.exe" -avd lavandi
+```
+
+Cuando arranque, instala el APK y conecta el puerto con los dos comandos de `adb` de arriba.
+
+**Lo que no funciona todavía en el APK:**
+- Google, porque falta el cliente OAuth de prueba (DD-072): el botón no aparece.
+- Apple solo existirá en iPhone (DD-069).
+- El correo de recuperación no sale: el enlace queda en `servidor\storage\logs\laravel.log`, como en la sección 4.
 
 ## 6. Problemas comunes
 

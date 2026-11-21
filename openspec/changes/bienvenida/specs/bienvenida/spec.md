@@ -22,7 +22,7 @@ Criterio: A43-6 (en parte: F-A01)
 - **DADO** que la persona ya vio la bienvenida y las tres informativas
 - **CUANDO** vuelve a abrir la app sin sesión
 - **ENTONCES** llega directo a registrarse o iniciar sesión, sin la bienvenida
-- **Y** si tiene la sesión abierta, entra directo, sin la bienvenida ni la entrada
+- **Y** si tiene la sesión abierta, entra directo, sin la bienvenida ni el inicio de sesión
 
 ### Requirement: Tres pantallas informativas sobre el servicio
 
