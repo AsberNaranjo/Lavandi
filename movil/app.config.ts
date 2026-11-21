@@ -3,6 +3,10 @@
 // de las variables de EAS. Ni la marca, ni el dominio, ni el identificador se escriben aquí (CLAUDE.md §5).
 import type { ExpoConfig } from 'expo/config';
 
+// El texto de para qué se usa la ubicación (cercanas-E03): el mismo en el diálogo de iPhone y en la pantalla. Es JSON
+// porque la configuración no puede importar TypeScript de src/.
+import permisoDeUbicacion from './src/cercanas/permiso-de-ubicacion.json';
+
 // Versiones mínimas (ADR-0009): iOS 18 y Android 11, que es la API 30. El SDK 58 pide menos, así que mandan estas.
 const IOS_MINIMO = '18.0';
 const ANDROID_API_MINIMA = 30;
@@ -83,6 +87,9 @@ export default (): ExpoConfig => {
         monochromeImage: './assets/android-icon-monochrome.png',
       },
       predictiveBackGestureEnabled: false,
+      // La ubicación en segundo plano no se declara (cercanas-E03): se quita del manifiesto final aunque una librería
+      // la traiga.
+      blockedPermissions: ['android.permission.ACCESS_BACKGROUND_LOCATION'],
     },
     plugins: [
       // La navegación entre pantallas (ADR-0017).
@@ -101,6 +108,23 @@ export default (): ExpoConfig => {
       // El mapa (ADR-0009): react-native-maps sin proveedor, Apple en iPhone y Google en Android. Solo Android lleva
       // la llave de Google; sin iosGoogleMapsApiKey, iPhone no instala Google Maps.
       ['react-native-maps', llaveDeMapas ? { androidGoogleMapsApiKey: llaveDeMapas } : {}],
+      // La ubicación solo mientras se usa la app (cercanas-E03). Sin esta entrada, Expo aplica expo-location con sus
+      // valores por omisión: textos en inglés y las llaves de "siempre" en iPhone. Aquí: el texto propio para el uso
+      // mientras la app está abierta; sin "siempre", sin segundo plano ni servicio en primer plano en las dos
+      // plataformas; sin el sensor de movimiento ni la precisión temporal, que la app no usa.
+      [
+        'expo-location',
+        {
+          locationWhenInUsePermission: permisoDeUbicacion.texto,
+          locationAlwaysAndWhenInUsePermission: false,
+          locationAlwaysPermission: false,
+          isIosBackgroundLocationEnabled: false,
+          isAndroidBackgroundLocationEnabled: false,
+          isAndroidForegroundServiceEnabled: false,
+          motionUsagePermission: false,
+          locationFullAccuracyPermission: false,
+        },
+      ],
     ],
     extra: {
       mapaDeGoogleEnAndroid: llaveDeMapas !== undefined,
