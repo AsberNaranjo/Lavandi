@@ -44,14 +44,13 @@ class PanelTest extends TestCase
         $this->assertGuest();
     }
 
-    #[TestDox('base-E03: el panel apunta a la cuenta futura sin cargarla')]
-    public function test_base_e03_el_panel_apunta_a_la_cuenta_futura_sin_cargarla(): void
+    #[TestDox('base-E03: el panel usa la cuenta Usuario y, sin sesión, sigue pidiendo iniciar sesión')]
+    public function test_base_e03_el_panel_usa_la_cuenta_usuario_y_sin_sesion_sigue_pidiendo_iniciar_sesion(): void
     {
-        // La cuenta del sistema será App\Models\Usuario y llega con registro-e-inicio-de-sesion (ADR-0016).
+        // La cuenta del sistema es App\Models\Usuario, que nace con registro-e-inicio-de-sesion (ADR-0016).
         $this->assertSame('App\\Models\\Usuario', config('auth.providers.users.model'));
-        $this->assertFalse(class_exists('App\\Models\\Usuario'));
+        $this->assertTrue(class_exists('App\\Models\\Usuario'));
 
-        // Instanciar una clase que no existe es un error fatal: si algo la usara, estas pantallas fallarían.
         $this->get('/admin')->assertRedirect(route('filament.admin.auth.login'));
         $this->get(route('filament.admin.auth.login'))->assertOk();
     }
