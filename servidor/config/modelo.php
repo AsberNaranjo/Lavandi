@@ -64,7 +64,7 @@ return [
      */
     'plaza_opcional' => [
         'avisos_masivos',   // Vacía: el aviso es para todas las plazas.
-        'reportes_soporte', // Vacía si el reporte no es de un pedido.
+        'reportes_soporte', // La lista la admite (plazas-E09), pero nace no nula: decisión 27 de acta-2026-11-20.
         'repartidores',     // Vacía solo si estado es pendiente, con su CHECK.
         'direcciones',      // Vacía si el punto no cae en ninguna zona.
     ],
