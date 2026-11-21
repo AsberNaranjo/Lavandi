@@ -2,6 +2,11 @@
 // contenido (bienvenida-E05). Al avanzar desde la tercera, la app recuerda que ya las vio (bienvenida-E02) y ofrece
 // registrarse o iniciar sesión (bienvenida-E04). Una ruta por informativa, para que el regreso de Android vuelva a la
 // anterior. Sin "Saltar": no tiene cita (C-225).
+//
+// El aspecto es el de las imágenes a01-informativas de la Propuesta 04 de los mocks (tarea 1.3, C-230): la ilustración,
+// el título y el texto al centro, y abajo los puntos de avance y "Siguiente", a todo lo ancho. Del mock no entran el
+// encabezado con "Saltar", la marca "Texto provisional" ni, en la tercera, "Crear cuenta" y "Ya tengo cuenta": aquí la
+// tercera sigue a la entrada, como dice bienvenida-E04.
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { marcarBienvenidaVista } from '../../src/bienvenida/vista';
@@ -9,8 +14,8 @@ import { contenidoDeBienvenida } from '../../src/contenido/bienvenida';
 import { Boton } from '../../src/piezas/Boton';
 import { Ilustracion } from '../../src/piezas/Ilustracion';
 import { Pantalla } from '../../src/piezas/Pantalla';
-import { Parrafo } from '../../src/piezas/Parrafo';
-import { Titulo } from '../../src/piezas/Titulo';
+import { Presentacion } from '../../src/piezas/Presentacion';
+import { PuntosDeAvance } from '../../src/piezas/PuntosDeAvance';
 
 export default function Informativa() {
   const router = useRouter();
@@ -34,11 +39,18 @@ export default function Informativa() {
   }
 
   return (
-    <Pantalla testID={`informativa-${posicion}`}>
+    <Pantalla
+      testID={`informativa-${posicion}`}
+      justificar="center"
+      acciones={
+        <>
+          <PuntosDeAvance total={informativas.length} actual={posicion} />
+          <Boton onPress={avanzar}>{botones.siguiente}</Boton>
+        </>
+      }
+    >
       <Ilustracion fuente={informativa.ilustracion} />
-      <Titulo>{informativa.titulo}</Titulo>
-      <Parrafo>{informativa.texto}</Parrafo>
-      <Boton onPress={avanzar}>{botones.siguiente}</Boton>
+      <Presentacion titulo={informativa.titulo} texto={informativa.texto} />
     </Pantalla>
   );
 }

@@ -4,6 +4,7 @@
 import { render, screen, userEvent, within } from '@testing-library/react-native';
 import { StyleSheet, Text } from 'react-native';
 
+import { Boton } from '../../src/piezas/Boton';
 import { Encabezado } from '../../src/piezas/Encabezado';
 import { Enlace } from '../../src/piezas/Enlace';
 import { Pantalla } from '../../src/piezas/Pantalla';
@@ -168,6 +169,32 @@ describe('registro-E04, registro-E09 y bienvenida-E03 (tareas 2.3 y 1.3): el tí
       fontSize: tipografia.escala.cuerpo,
       lineHeight: tipografia.escala.cuerpo * tipografia.interlineado.normal,
       textAlign: 'left',
+    });
+  });
+});
+
+describe('bienvenida-E04 (tarea 1.3): el botón de texto de la entrada', () => {
+  test('bienvenida-E04 — sin fondo ni borde, con el texto en el color de acción, a todo lo ancho y con el área táctil mínima', async () => {
+    const alTocar = jest.fn();
+    const usuario = userEvent.setup();
+    await render(
+      <Boton variante="texto" onPress={alTocar}>
+        Iniciar sesión
+      </Boton>,
+    );
+
+    const boton = screen.getByRole('button', { name: 'Iniciar sesión' });
+    await usuario.press(boton);
+
+    expect(alTocar).toHaveBeenCalledTimes(1);
+    const estilo = estiloPlano(boton);
+    expect(estilo.backgroundColor).toBeUndefined();
+    expect(estilo.borderWidth ?? 0).toBe(0);
+    expect(estilo.alignSelf).toBe('stretch');
+    expect(estilo.minHeight).toBeGreaterThanOrEqual(accesibilidad.area_tactil_minima_dp);
+    expect(screen.getByText('Iniciar sesión')).toHaveStyle({
+      color: color.semantico.accion,
+      fontWeight: tipografia.peso.semifuerte,
     });
   });
 });

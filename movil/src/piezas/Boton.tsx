@@ -7,33 +7,32 @@ import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
 import { accesibilidad, color, espaciado, radio, tipografia } from '../tema/theme';
 
+type Variante = 'primario' | 'secundario' | 'texto';
+
 interface Props {
   children: string;
   onPress: () => void;
-  /** primario: la acción principal de la pantalla; secundario: las demás. */
-  variante?: 'primario' | 'secundario';
+  /**
+   * primario: la acción principal de la pantalla; secundario: las demás, con borde; texto: la acción de apoyo bajo la
+   * principal, sin fondo ni borde, como el .btn-texto del mock.
+   */
+  variante?: Variante;
   /** Mientras se envía un formulario: muestra que trabaja y no deja volver a tocar (registro-E04). */
   ocupado?: boolean;
 }
 
 export function Boton({ children, onPress, variante = 'primario', ocupado = false }: Props) {
-  const primario = variante === 'primario';
+  const aspecto = ASPECTO[variante];
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ busy: ocupado, disabled: ocupado }}
       disabled={ocupado}
       onPress={onPress}
-      style={({ pressed }) => [
-        estilos.boton,
-        primario ? estilos.primario : estilos.secundario,
-        pressed && (primario ? estilos.primarioPresionado : estilos.secundarioPresionado),
-      ]}
+      style={({ pressed }) => [estilos.boton, aspecto.boton, pressed && aspecto.presionado]}
     >
-      {ocupado ? (
-        <ActivityIndicator color={primario ? color.semantico.accion_texto : color.semantico.texto} />
-      ) : null}
-      <Text style={[estilos.texto, primario ? estilos.textoPrimario : estilos.textoSecundario]}>{children}</Text>
+      {ocupado ? <ActivityIndicator color={aspecto.indicador} /> : null}
+      <Text style={[estilos.texto, aspecto.texto]}>{children}</Text>
     </Pressable>
   );
 }
@@ -44,13 +43,13 @@ const estilos = StyleSheet.create({
     minHeight: accesibilidad.area_tactil_minima_dp,
     paddingHorizontal: espaciado[4],
     borderRadius: radio.medio,
-    borderWidth: 1,
     flexDirection: 'row',
     gap: espaciado[2],
     alignItems: 'center',
     justifyContent: 'center',
   },
   primario: {
+    borderWidth: 1,
     backgroundColor: color.semantico.accion,
     borderColor: color.semantico.accion,
   },
@@ -59,11 +58,17 @@ const estilos = StyleSheet.create({
     borderColor: color.semantico.accion_hover,
   },
   secundario: {
+    borderWidth: 1,
     backgroundColor: color.semantico.superficie,
     borderColor: color.semantico.borde_fuerte,
   },
   secundarioPresionado: {
     backgroundColor: color.semantico.fondo,
+  },
+  // Sin fondo ni borde: solo al presionarlo se marca, con la superficie hundida.
+  deTexto: {},
+  deTextoPresionado: {
+    backgroundColor: color.semantico.superficie_hundida,
   },
   texto: {
     fontSize: tipografia.escala.cuerpo,
@@ -76,4 +81,29 @@ const estilos = StyleSheet.create({
   textoSecundario: {
     color: color.semantico.texto,
   },
+  textoDeTexto: {
+    color: color.semantico.accion,
+  },
 });
+
+// Lo que cambia de una variante a otra: el fondo y el borde, el estado presionado, el texto y el indicador de ocupado.
+const ASPECTO = {
+  primario: {
+    boton: estilos.primario,
+    presionado: estilos.primarioPresionado,
+    texto: estilos.textoPrimario,
+    indicador: color.semantico.accion_texto,
+  },
+  secundario: {
+    boton: estilos.secundario,
+    presionado: estilos.secundarioPresionado,
+    texto: estilos.textoSecundario,
+    indicador: color.semantico.texto,
+  },
+  texto: {
+    boton: estilos.deTexto,
+    presionado: estilos.deTextoPresionado,
+    texto: estilos.textoDeTexto,
+    indicador: color.semantico.accion,
+  },
+} as const satisfies Record<Variante, unknown>;
