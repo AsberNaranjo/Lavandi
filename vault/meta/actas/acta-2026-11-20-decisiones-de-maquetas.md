@@ -34,6 +34,12 @@ Continúa la numeración de [[acta-2026-11-20-modelo-y-pasarela]], que llega has
 - C-207. "Haz el 1 y el 2, esto debe de formar parte de claude.md para que el vault se mantenga actualizado y
   no dependa de un humano para ejecutar el skill." El 1 es una guía de arranque para la otra persona; el 2,
   el instrumental de Claude (skills, subagente revisor, hook de cierre y permisos).
+- C-211 (Nadir Hadad Navarrete). A la pregunta de cómo se llama la otra persona del equipo: "Arthur
+  Naranjo." A si lo que él decide en sesión cuenta como grado C: "Sí, cuenta como grado C."
+- C-212 (Nadir Hadad Navarrete). Pidió las nomenclaturas del proyecto "para no errar", qué es una decisión
+  grado C y qué es una DD; ante la propuesta de guardarlas como glosario en el vault: "sí hazlo".
+- C-213 (Nadir Hadad Navarrete). Ante el aviso de que `CLAUDE.md` seguía mandando escribir `{{MARCA}}`:
+  "sí, corrige lo de la marca."
 - C-206. Sobre el estado «enviada» que no está en las convenciones: "De acuerdo." Se lee como acuerdo con
   normalizarlo: la nota queda `vigente` y el envío va en su campo `enviada`.
 
@@ -52,6 +58,9 @@ Continúa la numeración de [[acta-2026-11-20-modelo-y-pasarela]], que llega has
 | 9 | Vale la transcripción de C-54 a C-62 de `acta-2026-09-12-marca-visual`; la otra queda tachada (C-205) | Nadir | `acta-2026-09-12-paleta-y-logotipo` |
 | 10 | «Enviada» no es estado: campo `enviada` (C-206) | Nadir | `meta/convenciones.md` |
 | 11 | Guía de arranque y primer instrumental de la Fase 8: skills `cerrar-sesion`, `nueva-decision` y `nueva-spec`, subagente `revisor-de-evidencia`, hook de cierre que devuelve el turno si el vault quedó sin guardar o con errores, y prohibición de editar `legal/`. Todo en `CLAUDE.md` §0-bis para que no dependa de un humano (C-207) | Nadir | `formas-de-trabajo/guia-de-arranque.md`, `.claude/` |
+| 12 | Lo que Arthur Naranjo declare en sesión es grado C, igual que lo de Nadir (C-211). Una sola serie `C-NN`; cada renglón dice quién. Quedan reservados a Nadir los envíos al cliente, dominio e IMPI y lo que firma como EL PRESTADOR, por `CLAUDE.md` §5 y el contrato | Nadir | `CLAUDE.md` §3, `meta/convenciones.md`, plantilla de acta |
+| 13 | Glosario de nomenclaturas en `meta/glosario.md`, enlazado desde el índice, la guía de arranque y `CLAUDE.md` §8 (C-212) | Nadir | `meta/glosario.md` |
+| 14 | `CLAUDE.md` §1 y §5 dicen Lavandi y `lavandi.mx`, con su respaldo: C-49, C-54, C-65 y C-66, y el retiro de los marcadores en `meta/convenciones.md`. Se conserva la regla de no dejar la marca literal en código, porque el IMPI sigue pendiente (DD-030, R-017). Se quitaron dos `{{MARCA}}` sobrantes de `arquitectura/cruce-enatega-inventario.md` (C-213) | Nadir | `CLAUDE.md` §1 y §5 |
 
 ## Lo que estas declaraciones no resuelven
 
@@ -63,6 +72,11 @@ Continúa la numeración de [[acta-2026-11-20-modelo-y-pasarela]], que llega has
 | 4 | Proveedores de pago en efectivo vigentes (C-199) | F-A10 efectivo | DD-056, sigue abierta |
 | 5 | ~~Resuelta por C-205 y C-206.~~ Al crear el validador aparecieron dos errores que ya existían: las actas `acta-2026-09-12-marca-visual` y `acta-2026-09-12-paleta-y-logotipo` transcriben C-54 a C-62 dos veces con redacción distinta, y una comunicación al cliente usa el estado «enviada». ¿Cuál acta es la fuente? | Citas a C-54 a C-62 | Anotado en `herramientas/validar-vault/excepciones.txt` |
 | 6 | Reparto de áreas entre las dos personas | Guía de arranque, sección "Quién lleva qué" | — |
+
+## Nota sobre el método
+
+`prompt-maestro-01-fundacion-v5` define el grado C como lo que Nadir declara y no se edita. C-211 lo amplía a
+Arthur Naranjo; la regla operativa vive en `CLAUDE.md` §3. Si el método se reescribe, la v6 lo incorpora.
 
 ## Nota sobre ADR-0001
 

@@ -51,7 +51,7 @@ def main():
     definiciones = defaultdict(list)
 
     for p in lista:
-        rel = p.relative_to(RAIZ)
+        rel = p.relative_to(RAIZ).as_posix()  # con / también en Windows, como excepciones.txt
         texto = p.read_text(encoding="utf-8")
         if p.name not in EXENTAS and "plantillas" not in p.parts:
             fm = frontmatter(texto)
@@ -69,7 +69,7 @@ def main():
             if pathlib.PurePosixPath(destino).stem not in nombres:
                 errores.append(f"{rel}: enlace roto [[{destino}]]")
         for n, linea in enumerate(texto.splitlines(), 1):
-            m = re.match(r"^- (C-\d+)\.", linea)
+            m = re.match(r"^- (C-\d+)(?:\.| \()", linea)
             if m and "actas" in p.parts:
                 definiciones[m.group(1)].append(f"{rel}:{n}")
             m = re.match(r"^\|\s*(DD-\d+)\s*\|", linea)
