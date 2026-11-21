@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\Route;
 Route::post('registro', RegistroController::class)->name('registro');
 Route::post('sesion', [SesionController::class, 'iniciar'])->name('sesion.iniciar');
 
-// Con sesión.
-Route::middleware('auth:sanctum')->group(function () {
+// Con sesión, y por el componente único de autorización (registro-E14). Una ruta nueva sin las dos no pasa la prueba
+// tests/Feature/Registro/AutorizacionTest.php.
+Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     Route::get('cuenta', CuentaController::class)->name('cuenta');
     Route::delete('sesion', [SesionController::class, 'cerrar'])->name('sesion.cerrar');
 });
