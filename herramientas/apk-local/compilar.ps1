@@ -101,6 +101,13 @@ if ($texto -notmatch 'usesCleartextTraffic') {
     $texto = $texto -replace '<application ', '<application android:usesCleartextTraffic="true" '
     [System.IO.File]::WriteAllText($manifiesto, $texto)
 }
+# Sin minificar: con R8, el release se cierra al arrancar porque desaparece la base interna de WorkManager, que llega
+# con las dependencias de la ubicación. Para la prueba local basta apagarlo; la compilación de las tiendas necesita
+# sus reglas de conservación (pendiente de publicacion).
+$propiedadesGradle = Join-Path $android 'gradle.properties'
+$textoGradle = [System.IO.File]::ReadAllText($propiedadesGradle)
+$textoGradle = $textoGradle -replace 'android\.enableMinifyInReleaseBuilds=true', 'android.enableMinifyInReleaseBuilds=false'
+[System.IO.File]::WriteAllText($propiedadesGradle, $textoGradle)
 # Con barras normales: en un .properties la barra invertida es un escape y la ruta quedaría rota.
 $propiedades = @("sdk.dir=" + ($Sdk -replace '\\', '/'))
 if (Test-Path $Cmake) { $propiedades += "cmake.dir=" + ($Cmake -replace '\\', '/') }
