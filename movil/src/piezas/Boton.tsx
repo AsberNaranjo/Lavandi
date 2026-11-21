@@ -31,8 +31,12 @@ export function Boton({ children, onPress, variante = 'primario', ocupado = fals
       onPress={onPress}
       style={({ pressed }) => [estilos.boton, aspecto.boton, pressed && aspecto.presionado]}
     >
-      {ocupado ? <ActivityIndicator color={aspecto.indicador} /> : null}
-      <Text style={[estilos.texto, aspecto.texto]}>{children}</Text>
+      {({ pressed }) => (
+        <>
+          {ocupado ? <ActivityIndicator color={aspecto.indicador} /> : null}
+          <Text style={[estilos.texto, aspecto.texto, pressed && aspecto.textoPresionado]}>{children}</Text>
+        </>
+      )}
     </Pressable>
   );
 }
@@ -84,26 +88,35 @@ const estilos = StyleSheet.create({
   textoDeTexto: {
     color: color.semantico.accion,
   },
+  // Sobre la superficie hundida, el color de acción queda en 4.09:1, debajo del 4.5:1 del texto normal: al presionar,
+  // el texto pasa al de acción presionado, que llega a 6.27:1 (__tests__/tema/tema.test.ts).
+  textoDeTextoPresionado: {
+    color: color.semantico.accion_hover,
+  },
 });
 
-// Lo que cambia de una variante a otra: el fondo y el borde, el estado presionado, el texto y el indicador de ocupado.
+// Lo que cambia de una variante a otra: el fondo y el borde, el estado presionado del botón y de su texto, el texto y
+// el indicador de ocupado.
 const ASPECTO = {
   primario: {
     boton: estilos.primario,
     presionado: estilos.primarioPresionado,
     texto: estilos.textoPrimario,
+    textoPresionado: null,
     indicador: color.semantico.accion_texto,
   },
   secundario: {
     boton: estilos.secundario,
     presionado: estilos.secundarioPresionado,
     texto: estilos.textoSecundario,
+    textoPresionado: null,
     indicador: color.semantico.texto,
   },
   texto: {
     boton: estilos.deTexto,
     presionado: estilos.deTextoPresionado,
     texto: estilos.textoDeTexto,
+    textoPresionado: estilos.textoDeTextoPresionado,
     indicador: color.semantico.accion,
   },
 } as const satisfies Record<Variante, unknown>;

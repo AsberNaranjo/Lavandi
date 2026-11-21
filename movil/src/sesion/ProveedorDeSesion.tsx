@@ -2,11 +2,12 @@
 // se acaba de reinstalar, el token que sobrevivió en el almacén cifrado de iPhone se borra (registro-E32). Luego lee el
 // token del almacén cifrado y lo comprueba con el servidor (registro-E11): si el servidor ya no lo reconoce (401), lo
 // borra y la app queda sin sesión; si no se puede llegar al servidor, la sesión se conserva, porque solo el servidor
-// dice que ya no sirve. Cerrar la sesión pide al servidor revocar el token y lo borra del teléfono aunque el servidor no
-// responda (registro-E13).
+// dice que ya no sirve. Cerrar la sesión borra el token del teléfono y después pide al servidor revocarlo, sin esperar
+// su respuesta: sale aunque el servidor no responda (registro-E13).
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { cerrarSesionEnServidor, consultarCuenta } from '../acceso/api';
+import { cerrarSesionDeGoogle } from '../acceso/google';
 import { comprobarInstalacion } from '../instalacion/marca';
 import { borrarToken, guardarToken, leerToken } from './almacen';
 
@@ -35,7 +36,11 @@ export interface Sesion {
   token: string | null;
   /** Guarda el token de una sesión nueva y la abre. */
   iniciar(token: string): Promise<void>;
-  /** Pide al servidor revocar el token, lo borra del teléfono y deja la app sin sesión. */
+  /**
+   * Borra el token del teléfono, deja la app sin sesión y pide al servidor revocarlo, y a Google cerrar su sesión, sin
+   * esperar a ninguno de los dos. Si el almacén cifrado no lo puede borrar, la app queda sin sesión de todos modos y la
+   * promesa falla con ese error.
+   */
   cerrar(): Promise<void>;
 }
 
@@ -49,14 +54,18 @@ export function ProveedorDeSesion({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let montado = true;
-    leerTokenVigente(() => !cambiada.current).then((guardado) => {
-      if (montado && !cambiada.current) {
-        setToken(guardado);
-      }
-      if (montado) {
-        setCargando(false);
-      }
-    });
+    leerTokenVigente(() => !cambiada.current)
+      // Si el almacén cifrado no deja leer ni borrar, la carga termina sin sesión: la persona vuelve a entrar, en vez
+      // de quedarse con la app en blanco.
+      .catch(() => null)
+      .then((guardado) => {
+        if (montado && !cambiada.current) {
+          setToken(guardado);
+        }
+        if (montado) {
+          setCargando(false);
+        }
+      });
     return () => {
       montado = false;
     };
@@ -70,12 +79,20 @@ export function ProveedorDeSesion({ children }: { children: ReactNode }) {
 
   const cerrar = useCallback(async () => {
     cambiada.current = true;
-    if (token) {
-      // Lo que conteste el servidor no detiene el cierre: el token se borra del teléfono de todos modos.
-      await cerrarSesionEnServidor(token);
+    const guardado = token;
+    try {
+      // Primero el teléfono: el cierre no espera al servidor (registro-E13).
+      await borrarToken();
+    } finally {
+      // Aunque el almacén cifrado falle, la app queda sin sesión. Después se pide al servidor revocar el token, sin
+      // esperarlo: si no contesta, la petición se corta sola al vencer su plazo. También se cierra la sesión de
+      // Google, para que la siguiente entrada con Google deje elegir la cuenta; tampoco se espera y nunca falla.
+      setToken(null);
+      if (guardado) {
+        void cerrarSesionEnServidor(guardado);
+      }
+      void cerrarSesionDeGoogle();
     }
-    await borrarToken();
-    setToken(null);
   }, [token]);
 
   const sesion = useMemo<Sesion>(

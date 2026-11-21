@@ -1,7 +1,7 @@
 // Las piezas con las que se arman las pantallas de H1 con el aspecto de las imágenes de la Propuesta 04 de los mocks,
 // módulo del usuario (C-230): tareas 2.3 de registro-e-inicio-de-sesion y 1.3 de bienvenida. Cada color y cada medida
 // sale de theme.ts (ADR-0013): las pruebas comparan contra el tema, no contra números.
-import { render, screen, userEvent, within } from '@testing-library/react-native';
+import { fireEvent, render, screen, userEvent, within } from '@testing-library/react-native';
 import { StyleSheet, Text } from 'react-native';
 
 import { Boton } from '../../src/piezas/Boton';
@@ -196,5 +196,49 @@ describe('bienvenida-E04 (tarea 1.3): el botón de texto de la entrada', () => {
       color: color.semantico.accion,
       fontWeight: tipografia.peso.semifuerte,
     });
+  });
+
+  // El toque que empieza, con la misma forma que arma userEvent de RNTL: deja el botón presionado para revisar su
+  // aspecto, sin soltarlo.
+  function empezarAToque() {
+    return {
+      preventDefault: () => {},
+      isDefaultPrevented: () => false,
+      stopPropagation: () => {},
+      isPropagationStopped: () => false,
+      persist: () => {},
+      isPersistent: () => false,
+      timeStamp: 0,
+      target: {},
+      currentTarget: { measure: () => {} },
+      nativeEvent: {
+        changedTouches: [],
+        identifier: 0,
+        locationX: 0,
+        locationY: 0,
+        pageX: 0,
+        pageY: 0,
+        target: 0,
+        timestamp: Date.now(),
+        touches: [],
+      },
+      dispatchConfig: { registrationName: 'onResponderGrant' },
+    };
+  }
+
+  // El color de acción sobre la superficie hundida da 4.09:1, debajo del 4.5:1 del texto normal (design-system.md,
+  // umbrales; ADR-0013). Al presionarlo, el texto pasa al color de acción presionado, que sí cumple.
+  test('bienvenida-E04 — presionado, el texto toma el color de acción presionado sobre la superficie hundida', async () => {
+    await render(
+      <Boton variante="texto" onPress={() => {}}>
+        Iniciar sesión
+      </Boton>,
+    );
+    const boton = screen.getByRole('button', { name: 'Iniciar sesión' });
+
+    await fireEvent(boton, 'responderGrant', empezarAToque());
+
+    expect(estiloPlano(boton).backgroundColor).toBe(color.semantico.superficie_hundida);
+    expect(screen.getByText('Iniciar sesión')).toHaveStyle({ color: color.semantico.accion_hover });
   });
 });

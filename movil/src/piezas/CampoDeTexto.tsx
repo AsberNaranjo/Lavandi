@@ -1,5 +1,7 @@
 // Campo de texto de formulario, con su etiqueta y su error junto a él (registro-E04).
-// Colores y medidas de theme.ts (ADR-0013); el alto mínimo es el área táctil del design system.
+// Colores y medidas de theme.ts (ADR-0013); el alto mínimo es el área táctil del design system. Con el foco, el borde
+// toma el color de foco: "foco visible siempre" (vault/design-system/componentes.md, reglas transversales).
+import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
 
 import { tema } from '../tema/theme';
@@ -43,6 +45,8 @@ const POR_TIPO: Record<TipoDeCampo, TextInputProps> = {
 };
 
 export function CampoDeTexto({ nombre, etiqueta, valor, alCambiar, error, tipo = 'texto' }: Propiedades) {
+  const [enfocado, setEnfocado] = useState(false);
+
   return (
     <View style={estilos.contenedor} testID={`campo-${nombre}`}>
       <Text style={estilos.etiqueta}>{etiqueta}</Text>
@@ -51,7 +55,9 @@ export function CampoDeTexto({ nombre, etiqueta, valor, alCambiar, error, tipo =
         accessibilityLabel={etiqueta}
         value={valor}
         onChangeText={alCambiar}
-        style={[estilos.entrada, error ? estilos.entradaConError : null]}
+        onFocus={() => setEnfocado(true)}
+        onBlur={() => setEnfocado(false)}
+        style={[estilos.entrada, error ? estilos.entradaConError : null, enfocado ? estilos.entradaConFoco : null]}
       />
       {error ? (
         <Text role="alert" accessibilityLiveRegion="polite" style={estilos.error}>
@@ -87,6 +93,13 @@ const estilos = StyleSheet.create({
   },
   entradaConError: {
     borderColor: color.estado.error,
+  },
+  // Mientras escribe, el foco se ve aunque el campo tenga error: el error sigue escrito debajo y su color vuelve al
+  // salir. El design system pide un contorno de 3 px, pero tokens.json no tiene grosores de borde: mientras no exista
+  // ese token, se usa el mayor grosor que ya usa la app, el 1 del borde de Boton.
+  entradaConFoco: {
+    borderWidth: 1,
+    borderColor: color.semantico.foco,
   },
   error: {
     color: color.estado.error,

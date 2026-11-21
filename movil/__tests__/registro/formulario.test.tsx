@@ -2,7 +2,7 @@
 // Las piezas de formulario de las pantallas de entrada, en src/piezas/ junto a las de la entrada: el campo con su
 // error, el botón (el de src/piezas, con su estado ocupado) y el enlace. Sus colores y medidas salen de theme.ts
 // (ADR-0013); el área táctil mínima, de los tokens de accesibilidad.
-import { render, screen, userEvent, within } from '@testing-library/react-native';
+import { fireEvent, render, screen, userEvent, within } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
 import { Boton } from '../../src/piezas/Boton';
@@ -63,6 +63,37 @@ describe('registro-E04: el campo muestra su error junto a él', () => {
       <CampoDeTexto nombre="correo" etiqueta="Correo electrónico" valor="" alCambiar={() => {}} error="Inválido." />,
     );
 
+    expect(estiloPlano(screen.getByLabelText('Correo electrónico')).borderColor).toBe(tema.color.estado.error);
+  });
+
+  // "Foco visible siempre", con el token foco (vault/design-system/componentes.md, reglas transversales).
+  test('registro-E04 — con el foco, el borde toma el color de foco y es más grueso; al salir, vuelve al de control', async () => {
+    await render(<CampoDeTexto nombre="correo" etiqueta="Correo electrónico" valor="" alCambiar={() => {}} />);
+    const sinFoco = estiloPlano(screen.getByLabelText('Correo electrónico'));
+
+    await fireEvent(screen.getByLabelText('Correo electrónico'), 'focus');
+
+    const conFoco = estiloPlano(screen.getByLabelText('Correo electrónico'));
+    expect(conFoco.borderColor).toBe(tema.color.semantico.foco);
+    expect(conFoco.borderWidth).toBeGreaterThan(sinFoco.borderWidth as number);
+
+    await fireEvent(screen.getByLabelText('Correo electrónico'), 'blur');
+
+    expect(estiloPlano(screen.getByLabelText('Correo electrónico'))).toMatchObject({
+      borderColor: tema.color.semantico.borde_fuerte,
+      borderWidth: sinFoco.borderWidth,
+    });
+  });
+
+  test('registro-E04 — con error, mientras tiene el foco se ve el foco, y al salir vuelve el color de error', async () => {
+    await render(
+      <CampoDeTexto nombre="correo" etiqueta="Correo electrónico" valor="" alCambiar={() => {}} error="Inválido." />,
+    );
+
+    await fireEvent(screen.getByLabelText('Correo electrónico'), 'focus');
+    expect(estiloPlano(screen.getByLabelText('Correo electrónico')).borderColor).toBe(tema.color.semantico.foco);
+
+    await fireEvent(screen.getByLabelText('Correo electrónico'), 'blur');
     expect(estiloPlano(screen.getByLabelText('Correo electrónico')).borderColor).toBe(tema.color.estado.error);
   });
 

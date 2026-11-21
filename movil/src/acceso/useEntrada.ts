@@ -30,6 +30,10 @@ export function useEntrada() {
     const resultado = await pedir();
     if (resultado.ok) {
       await iniciar(resultado.datos.token);
+      // Se vacía la pila: "atrás" ya no regresa a la entrada ni al formulario con la sesión abierta.
+      if (router.canDismiss()) {
+        router.dismissAll();
+      }
       router.replace('/inicio');
       return;
     }

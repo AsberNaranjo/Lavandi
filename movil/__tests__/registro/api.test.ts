@@ -9,6 +9,7 @@ import {
   pedirRecuperacion,
   registrar,
 } from '../../src/acceso/api';
+import { plazoDeLaApi } from '../../src/configuracion/entorno';
 
 // Una dirección de prueba que no puede estar escrita en el código: si la consulta va ahí, salió del entorno.
 const BASE = 'http://api.prueba.invalid/registro/api';
@@ -219,6 +220,91 @@ describe('registro: cliente de la API de acceso', () => {
       expect(cuerpo).toEqual({ id_token: 'id-token-de-google' });
       expect(resultado).toEqual({ ok: true, datos: { token: 'token-5', usuario: USUARIO } });
     });
+  });
+
+  // Si el servidor acepta la conexión y no contesta, en Android la petición no tiene límite: la app esperaría para
+  // siempre al abrir con sesión (registro-E11) o al cerrar la sesión (registro-E13). La app la cancela al vencer el plazo.
+  describe('registro-E11 y registro-E13: ninguna petición espera para siempre', () => {
+    const plazoOriginal = process.env.EXPO_PUBLIC_API_PLAZO_MS;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      delete process.env.EXPO_PUBLIC_API_PLAZO_MS;
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+      if (plazoOriginal === undefined) {
+        delete process.env.EXPO_PUBLIC_API_PLAZO_MS;
+      } else {
+        process.env.EXPO_PUBLIC_API_PLAZO_MS = plazoOriginal;
+      }
+    });
+
+    // El servidor acepta y no contesta: la petición solo termina si la app la cancela con su señal.
+    function servidorQueNoContesta() {
+      fetchFalso.mockImplementation(
+        (_url: string, opciones: RequestInit = {}) =>
+          new Promise((_resolver, rechazar) => {
+            opciones.signal?.addEventListener('abort', () =>
+              rechazar(Object.assign(new Error('Aborted'), { name: 'AbortError' })),
+            );
+          }),
+      );
+    }
+
+    // Deja correr la petición y devuelve una función que dice cómo va: undefined mientras espera.
+    function seguir<T>(peticion: Promise<T>): () => T | undefined {
+      let resultado: T | undefined;
+      peticion.then((valor) => (resultado = valor));
+      return () => resultado;
+    }
+
+    test('registro-E11 — si el servidor no contesta GET /cuenta, a los 15 s la app deja de esperar y lo trata como sin conexión', async () => {
+      servidorQueNoContesta();
+
+      const resultado = seguir(consultarCuenta('token-3'));
+      await jest.advanceTimersByTimeAsync(14_999);
+      expect(resultado()).toBeUndefined();
+      await jest.advanceTimersByTimeAsync(1);
+
+      expect(resultado()).toEqual({ ok: false, motivo: 'sin-conexion' });
+    });
+
+    test('registro-E13 — el plazo sale de la configuración: con EXPO_PUBLIC_API_PLAZO_MS=5000, DELETE /sesion espera 5 s', async () => {
+      process.env.EXPO_PUBLIC_API_PLAZO_MS = '5000';
+      servidorQueNoContesta();
+
+      const resultado = seguir(cerrarSesionEnServidor('token-4'));
+      await jest.advanceTimersByTimeAsync(4_999);
+      expect(resultado()).toBeUndefined();
+      await jest.advanceTimersByTimeAsync(1);
+
+      expect(resultado()).toEqual({ ok: false, motivo: 'sin-conexion' });
+    });
+
+    test('registro-E11 — si el servidor contesta a tiempo, la respuesta llega y no queda ningún plazo corriendo', async () => {
+      fetchFalso.mockResolvedValue(respuesta(200, { usuario: USUARIO }));
+
+      const resultado = await consultarCuenta('token-3');
+
+      expect(resultado).toEqual({ ok: true, datos: { usuario: USUARIO } });
+      expect(llamada().opciones.signal).toBeDefined();
+      expect(jest.getTimerCount()).toBe(0);
+    });
+
+    test('registro-E11 — sin EXPO_PUBLIC_API_PLAZO_MS, el plazo es de 15000 ms', () => {
+      expect(plazoDeLaApi()).toBe(15_000);
+    });
+
+    test.each(['0', '-5', 'quince', '1.5', '15s'])(
+      'registro-E11 — un plazo "%s" no es válido: la configuración no inventa uno y nombra la variable',
+      (valor) => {
+        process.env.EXPO_PUBLIC_API_PLAZO_MS = valor;
+
+        expect(() => plazoDeLaApi()).toThrow('EXPO_PUBLIC_API_PLAZO_MS');
+      },
+    );
   });
 
   describe('registro-E26: la petición del enlace de recuperación va al servidor', () => {

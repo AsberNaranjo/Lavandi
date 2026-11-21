@@ -58,3 +58,16 @@ export async function pedirIdTokenDeGoogle(): Promise<ResultadoDeGoogle> {
     return { tipo: 'error' };
   }
 }
+
+/**
+ * Cierra la sesión de Google en el teléfono al cerrar la de la app (registro-E13). Sin esto, en iPhone signIn() vuelve
+ * a la misma cuenta sin preguntar, y la siguiente entrada con Google no deja elegir otra (registro-E19). Nunca falla: si
+ * la librería falla, el cierre de la sesión de la app sigue igual.
+ */
+export async function cerrarSesionDeGoogle(): Promise<void> {
+  try {
+    await GoogleOneTapSignIn.signOut();
+  } catch {
+    // Google no pudo cerrar su sesión: la de la app ya quedó cerrada.
+  }
+}

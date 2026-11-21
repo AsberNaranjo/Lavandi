@@ -31,7 +31,8 @@ describe('ADR-0013: theme.ts corresponde a tokens.json', () => {
 });
 
 // Los pares de vault/design-system/design-system.md ("Resultados completos", modo claro), más Agua Profundo sobre
-// Hueso (accion / fondo), el de 4.51:1 que cita el ADR-0013. El umbral sale de los tokens de accesibilidad.
+// Hueso (accion / fondo), el de 4.51:1 que cita el ADR-0013, y el texto del botón de texto presionado
+// (src/piezas/Boton.tsx: accion_hover sobre superficie_hundida). El umbral sale de los tokens de accesibilidad.
 type Umbral = 'contraste_minimo_texto_normal' | 'contraste_minimo_componente';
 const { semantico, estado, pedido } = tema.color;
 const PARES: [string, string, string, Umbral][] = [
@@ -44,6 +45,7 @@ const PARES: [string, string, string, Umbral][] = [
   ['accion_texto', semantico.accion_texto, 'accion', 'contraste_minimo_texto_normal'],
   ['accion', semantico.accion, 'superficie', 'contraste_minimo_texto_normal'],
   ['accion', semantico.accion, 'fondo', 'contraste_minimo_texto_normal'],
+  ['accion_hover', semantico.accion_hover, 'superficie_hundida', 'contraste_minimo_texto_normal'],
   ['borde_fuerte', semantico.borde_fuerte, 'superficie', 'contraste_minimo_componente'],
   ['foco', semantico.foco, 'superficie', 'contraste_minimo_componente'],
   ['estado exito', estado.exito, 'superficie', 'contraste_minimo_texto_normal'],
