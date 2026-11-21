@@ -30,5 +30,26 @@ sesión (C-226), con cinco agentes y las tablas en el Docker (C-227).
   - `feat/registro-pantallas`.
 - Cada agente del servidor prueba contra su propia base en el contenedor `nsv-lavanderia-postgis`.
 
-**Al terminar.** Las cinco ramas se unen en `feat/h1-acceso`, las migraciones corren en `nsv_lavanderia` y el PR va
-cuando entre el PR #2. `situacion: terminada`, con el enlace al PR.
+**Hecho.**
+- **Las cinco ramas,** unidas en `feat/h1-acceso`.
+- **El servidor:**
+  - las tareas 1.1 a 1.4 y 3.1, 3.3 y 3.5 de `registro-e-inicio-de-sesion`;
+  - 157 tests en verde;
+  - las tablas `roles`, `usuarios`, `rol_usuario` y `cuentas_externas`, migradas en `nsv_lavanderia`.
+- **La app:**
+  - las tareas 2.1, 3.2 y 3.4 del registro y la 1.1 y la 1.2 de `bienvenida`;
+  - el script de tokens de ADR-0013;
+  - expo-router y la sesión cifrada;
+  - 161 tests en verde.
+- **Siguen bloqueadas:** registro 4.2 a 4.6 (DD-069, DD-071, DD-070, DD-023 y DD-080) y bienvenida 2.2 (DD-081).
+- **Lo que dejaron sin decidir los agentes:** [[DD-128]] (Google sin correo verificado), [[DD-129]] (el componente de
+  autorización y el 403 o 404), [[DD-130]] (la librería del `idToken`) y [[DD-131]] (fuentes, reinstalación en iPhone y
+  regreso).
+
+**Pendiente.**
+- Probar en un teléfono con un development build: la app ya trae módulos nativos y la librería de Google no está
+  probada con React Native 0.88.
+- El cliente OAuth de Google de prueba (DD-072).
+- El push y el PR, cuando entre el PR #2.
+
+**Al terminar.** `situacion: terminada`, con el enlace al PR.
