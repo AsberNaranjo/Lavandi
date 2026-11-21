@@ -24,7 +24,7 @@ nunca en las dos.
 
 ## 2. App: registro, inicio de sesión y sesión (sprint 01)
 
-- [ ] 2.1 registro-E04, registro-E09, registro-E11, registro-E13 y registro-E28: pantallas de registro y de inicio de
+- [x] 2.1 registro-E04, registro-E09, registro-E11, registro-E13 y registro-E28: pantallas de registro y de inicio de
   sesión contra la API, con los errores a la vista y los enlaces legales desde la configuración; la sesión que se
   conserva al volver a abrir la app y se borra al cerrarla; el inicio provisional con "Cerrar sesión" (C-225). Incluye
   las piezas de formulario con los tokens (ADR-0013), con expo-router (ADR-0017) y el token en el almacenamiento

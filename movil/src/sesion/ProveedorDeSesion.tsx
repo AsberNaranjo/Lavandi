@@ -1,8 +1,28 @@
-// El estado de la sesión para toda la app (ADR-0018). Al montarse lee el token del almacén cifrado; no llama al
-// servidor. Comprobar el token contra el servidor (registro-E11) lo agrega la tarea 2.1 de registro-e-inicio-de-sesion.
+// El estado de la sesión para toda la app (ADR-0018). Al montarse lee el token del almacén cifrado y lo comprueba con
+// el servidor (registro-E11): si el servidor ya no lo reconoce (401), lo borra y la app queda sin sesión; si no se
+// puede llegar al servidor, la sesión se conserva, porque solo el servidor dice que ya no sirve. Cerrar la sesión pide
+// al servidor revocar el token y lo borra del teléfono aunque el servidor no responda (registro-E13).
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
+import { cerrarSesionEnServidor, consultarCuenta } from '../acceso/api';
 import { borrarToken, guardarToken, leerToken } from './almacen';
+
+// El token guardado, si el servidor lo sigue reconociendo. Si ya no, lo borra del teléfono, salvo que mientras tanto
+// la persona haya iniciado otra sesión (puedeBorrar).
+async function leerTokenVigente(puedeBorrar: () => boolean): Promise<string | null> {
+  const guardado = await leerToken();
+  if (!guardado) {
+    return null;
+  }
+  const cuenta = await consultarCuenta(guardado);
+  if (!cuenta.ok && cuenta.motivo === 'sin-sesion') {
+    if (puedeBorrar()) {
+      await borrarToken();
+    }
+    return null;
+  }
+  return guardado;
+}
 
 export type EstadoDeSesion = 'cargando' | 'sin-sesion' | 'con-sesion';
 
@@ -11,7 +31,7 @@ export interface Sesion {
   token: string | null;
   /** Guarda el token de una sesión nueva y la abre. */
   iniciar(token: string): Promise<void>;
-  /** Borra el token del teléfono y deja la app sin sesión. */
+  /** Pide al servidor revocar el token, lo borra del teléfono y deja la app sin sesión. */
   cerrar(): Promise<void>;
 }
 
@@ -25,7 +45,7 @@ export function ProveedorDeSesion({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let montado = true;
-    leerToken().then((guardado) => {
+    leerTokenVigente(() => !cambiada.current).then((guardado) => {
       if (montado && !cambiada.current) {
         setToken(guardado);
       }
@@ -46,9 +66,13 @@ export function ProveedorDeSesion({ children }: { children: ReactNode }) {
 
   const cerrar = useCallback(async () => {
     cambiada.current = true;
+    if (token) {
+      // Lo que conteste el servidor no detiene el cierre: el token se borra del teléfono de todos modos.
+      await cerrarSesionEnServidor(token);
+    }
     await borrarToken();
     setToken(null);
-  }, []);
+  }, [token]);
 
   const sesion = useMemo<Sesion>(
     () => ({
