@@ -22,8 +22,27 @@ function leerEntorno(): Record<Variable, string> {
   return Object.fromEntries(valores) as Record<Variable, string>;
 }
 
+// Google en la app (ADR-0005): el complemento de react-native-nitro-google-signin registra en iPhone el esquema
+// invertido del cliente OAuth de iPhone, sin archivos de Firebase. Android no lo necesita: el cliente web va en
+// configure(). Es opcional mientras no exista el cliente de iPhone (DD-069): sin él, la configuración no inventa un
+// esquema y Google no funciona en iPhone. El ID sale del entorno (ADR-0012).
+const SUFIJO_DE_CLIENTE_DE_GOOGLE = '.apps.googleusercontent.com';
+const PREFIJO_DE_ESQUEMA_DE_GOOGLE = 'com.googleusercontent.apps.';
+
+function complementoDeGoogle(): [string, { iosUrlScheme: string }] | null {
+  const clienteIos = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID?.trim();
+  if (!clienteIos) {
+    return null;
+  }
+  const sinSufijo = clienteIos.endsWith(SUFIJO_DE_CLIENTE_DE_GOOGLE)
+    ? clienteIos.slice(0, -SUFIJO_DE_CLIENTE_DE_GOOGLE.length)
+    : clienteIos;
+  return ['react-native-nitro-google-signin', { iosUrlScheme: `${PREFIJO_DE_ESQUEMA_DE_GOOGLE}${sinSufijo}` }];
+}
+
 export default (): ExpoConfig => {
   const entorno = leerEntorno();
+  const google = complementoDeGoogle();
 
   return {
     name: entorno.EXPO_PUBLIC_NOMBRE_APP,
@@ -58,6 +77,7 @@ export default (): ExpoConfig => {
           android: { minSdkVersion: ANDROID_API_MINIMA },
         },
       ],
+      ...(google ? [google] : []),
     ],
   };
 };
