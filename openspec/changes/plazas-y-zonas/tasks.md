@@ -14,7 +14,7 @@ tarea sin test en verde no se marca. Tamaños de S-006: S = 2 h, M = 5 h, L = 12
 
 ## 2. Zonas y resolución de un punto
 
-- [ ] 2.1 plazas-E04, plazas-E05, plazas-E06, plazas-E07 (`servidor/`): resolución de un punto a zona y plaza activa,
+- [x] 2.1 plazas-E04, plazas-E05, plazas-E06, plazas-E07 (`servidor/`): resolución de un punto a zona y plaza activa,
   con las funciones de PostGIS sobre `zonas.poligono`; el usuario sin plaza — test:
   `servidor/tests/Feature/Plazas/ResolucionDePuntoTest.php` — tamaño M
 
