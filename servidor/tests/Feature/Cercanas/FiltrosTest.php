@@ -164,7 +164,12 @@ class FiltrosTest extends TestCase
         $respuesta = $this->pedirComoUsuario(self::DIRECCION, [...self::PUNTO, 'calificacion_minima' => 4])->assertOk();
 
         $this->assertEqualsCanonicalizing(
-            [['Lavandería de prueba 1', 4.8], ['Lavandería de prueba 2', 4.2]],
+            [
+                ['Lavandería de prueba 1', 4.8], ['Lavandería de prueba 2', 4.2],
+                // Las de Durango también llegan, sin límite de cercanía (DD-083): 4.75 pasa; 3.67 y la que no tiene
+                // calificaciones, no.
+                ['Lavandería de prueba Durango Centro', 4.75],
+            ],
             array_map(
                 fn (array $fila): array => [$fila['nombre'], $fila['calificacion_promedio']],
                 $respuesta->json('lavanderias'),

@@ -82,6 +82,9 @@ class DatosDePruebaTest extends TestCase
             'Lavandería de prueba 2',
             'Lavandería de prueba 3',
             'Lavandería de prueba 4',
+            'Lavandería de prueba Durango Centro',
+            'Lavandería de prueba Durango Norte',
+            'Lavandería de prueba Durango Sur',
             'Lavandería de prueba suspendida',
         ], array_keys($lavanderias));
 

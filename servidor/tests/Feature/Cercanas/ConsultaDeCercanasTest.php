@@ -184,14 +184,22 @@ class ConsultaDeCercanasTest extends TestCase
             ['nombre' => 'Lavandería de prueba 2', 'plaza' => 'Plaza de prueba 1'],
             ['nombre' => 'Lavandería de prueba 3', 'plaza' => 'Plaza de prueba 1'],
             ['nombre' => 'Lavandería de prueba 4', 'plaza' => 'Plaza de prueba 2'],
+            ['nombre' => 'Lavandería de prueba Durango Centro', 'plaza' => 'Plaza de prueba Durango'],
+            ['nombre' => 'Lavandería de prueba Durango Norte', 'plaza' => 'Plaza de prueba Durango'],
+            ['nombre' => 'Lavandería de prueba Durango Sur', 'plaza' => 'Plaza de prueba Durango'],
             ['nombre' => 'Lavandería de prueba suspendida', 'plaza' => 'Plaza de prueba 1'],
         ], array_map(fn (object $fila): array => (array) $fila, $plazas));
 
         $respuesta = $this->pedirComoUsuario(self::DIRECCION, self::PUNTO)->assertOk();
 
-        // Las activas, sin la suspendida.
+        // Las activas, sin la suspendida. Sin el límite de cercanía de cercanas-E08 (DD-083), también llegan las de
+        // Durango, con su distancia.
         $this->assertEqualsCanonicalizing(
-            ['Lavandería de prueba 1', 'Lavandería de prueba 2', 'Lavandería de prueba 3', 'Lavandería de prueba 4'],
+            [
+                'Lavandería de prueba 1', 'Lavandería de prueba 2', 'Lavandería de prueba 3', 'Lavandería de prueba 4',
+                'Lavandería de prueba Durango Centro', 'Lavandería de prueba Durango Norte',
+                'Lavandería de prueba Durango Sur',
+            ],
             array_column($respuesta->json('lavanderias'), 'nombre'),
         );
     }

@@ -76,6 +76,33 @@ class LavanderiasDePruebaSeeder extends Seeder
             'servicios' => [TipoServicio::ESTANDAR => '10.00'],
             'estrellas' => [],
         ],
+        // Tres más en la zona de la plaza de prueba de Durango (plazas-E16), para probar la app desde un teléfono o
+        // el emulador con la ubicación en la ciudad. Son tan ficticias como las del océano y no son el territorio
+        // inicial (DD-093, DD-094).
+        [
+            'nombre' => 'Lavandería de prueba Durango Centro',
+            'latitud' => 24.0277,
+            'longitud' => -104.6532,
+            'estado' => Lavanderia::ACTIVA,
+            'servicios' => [TipoServicio::ESTANDAR => '10.00', TipoServicio::PLANCHADO => '15.00'],
+            'estrellas' => [5, 5, 5, 4],
+        ],
+        [
+            'nombre' => 'Lavandería de prueba Durango Norte',
+            'latitud' => 24.0450,
+            'longitud' => -104.6600,
+            'estado' => Lavanderia::ACTIVA,
+            'servicios' => [TipoServicio::ESTANDAR => '11.00'],
+            'estrellas' => [4, 4, 3],
+        ],
+        [
+            'nombre' => 'Lavandería de prueba Durango Sur',
+            'latitud' => 24.0100,
+            'longitud' => -104.6400,
+            'estado' => Lavanderia::ACTIVA,
+            'servicios' => [TipoServicio::ESTANDAR => '12.00', TipoServicio::PLANCHADO => '16.00'],
+            'estrellas' => [],
+        ],
     ];
 
     /** El dominio reservado para pruebas (RFC 2606): ningún correo de estas cuentas llega a nadie. */
