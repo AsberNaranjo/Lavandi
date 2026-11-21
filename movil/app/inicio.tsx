@@ -10,7 +10,7 @@
 // (los filtros de la tarea 4.1, cercanas-E21, viven en la lista que abre "Pedido nuevo"), el pedido activo (DD-135), la campana y la búsqueda por nombre (DD-136), "Recoger en" (direcciones) y el
 // estado de disponibilidad de la tarjeta (cercanas-E13, DD-083 y DD-078).
 //
-// Mientras no exista la barra inferior, "Mi perfil" (perfil-y-soporte) va bajo el título, como un enlace.
+// Mientras no exista la barra inferior, "Mi perfil" y "Ayuda" (perfil-y-soporte) van bajo el título, como enlaces.
 //
 // "Cerrar sesión" (registro-E13) queda abajo, provisional, hasta que exista el perfil (H7): borra el token del teléfono,
 // pide al servidor revocarlo y lleva al inicio de sesión como primera pantalla (C-237; DD-131, punto 3).
@@ -25,7 +25,7 @@ import { rutaDeLaLista, rutaDelPerfil } from '../src/cercanas/rutas';
 import { detalleDeLavanderia, mensajeDeLaFalla, resumenDeLasCercanas, TEXTOS } from '../src/cercanas/textos';
 import { useLavanderiasCercanas } from '../src/cercanas/useLavanderiasCercanas';
 import { useAbrirComoPrimera } from '../src/navegacion/regresar';
-import { RUTA_DEL_PERFIL_DE_USUARIO } from '../src/perfil-usuario/rutas';
+import { RUTA_DE_AYUDA, RUTA_DEL_PERFIL_DE_USUARIO } from '../src/perfil-usuario/rutas';
 import { TEXTOS_DEL_PERFIL_DE_USUARIO } from '../src/perfil-usuario/textos';
 import { Boton } from '../src/piezas/Boton';
 import { Enlace } from '../src/piezas/Enlace';
@@ -61,6 +61,7 @@ export default function Inicio() {
           texto={TEXTOS_DEL_PERFIL_DE_USUARIO.miPerfil}
           alTocar={() => router.push(RUTA_DEL_PERFIL_DE_USUARIO)}
         />
+        <Enlace texto={TEXTOS_DEL_PERFIL_DE_USUARIO.ayuda} alTocar={() => router.push(RUTA_DE_AYUDA)} />
       </View>
       <View style={estilos.tarjetaDelMapa}>
         {punto ? (

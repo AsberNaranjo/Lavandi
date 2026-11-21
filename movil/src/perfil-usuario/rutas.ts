@@ -3,3 +3,4 @@
 import type { Href } from 'expo-router';
 
 export const RUTA_DEL_PERFIL_DE_USUARIO: Href = '/perfil';
+export const RUTA_DE_AYUDA: Href = '/ayuda';

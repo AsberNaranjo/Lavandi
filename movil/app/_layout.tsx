@@ -53,6 +53,7 @@ function Pantallas({ letraLista }: { letraLista: boolean }) {
         <Stack.Screen name="pedido/direccion-nueva" />
         <Stack.Screen name="pedido/resumen" />
         <Stack.Screen name="perfil/index" />
+        <Stack.Screen name="ayuda" />
       </Stack.Protected>
       <Stack.Protected guard={!conSesion} redirectTo="/inicio">
         <Stack.Screen name="registro" />

@@ -18,6 +18,17 @@ export const TEXTOS_DEL_PERFIL_DE_USUARIO = {
   direccionesGuardadas: 'Direcciones guardadas',
   cargandoDirecciones: 'Cargando tus direcciones…',
   sinDirecciones: 'Todavía no tienes direcciones guardadas.',
+  // Soporte (perfil-usuario-E09 y E10), con la imagen a16-soporte.
+  ayuda: 'Ayuda',
+  tituloDeWhatsApp: 'Escríbenos por WhatsApp',
+  textoDeWhatsApp: 'Te atendemos por WhatsApp Business.',
+  buscandoElNumero: 'Buscando el número de soporte…',
+  abrirWhatsApp: 'Abrir WhatsApp',
+  // Sin número configurado (DD-082): la opción aparece como no disponible.
+  whatsAppNoDisponible: 'WhatsApp no disponible',
+  sinNumero: 'Por ahora no tenemos un número de WhatsApp de soporte.',
+  // Sin escenario propio: el teléfono no pudo abrir el enlace.
+  noSeAbrioWhatsApp: 'No se pudo abrir WhatsApp. Intenta de nuevo.',
 } as const;
 
 /**
