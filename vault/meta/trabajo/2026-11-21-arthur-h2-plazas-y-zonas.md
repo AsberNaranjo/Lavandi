@@ -6,7 +6,7 @@ fecha: 2026-11-21
 dueño: Arthur Naranjo
 rama: feat/h2-lavanderias
 situacion: en-curso
-toca: servidor/, movil/, openspec/changes/plazas-y-zonas/, openspec/changes/perfil-de-lavanderia/, openspec/changes/lavanderias-cercanas/, openspec/changes/registro-e-inicio-de-sesion/, openspec/changes/bienvenida/, herramientas/apk-local/, vault/
+toca: servidor/, movil/, openspec/changes/plazas-y-zonas/, openspec/changes/resumen-y-confirmacion/, openspec/changes/estados-del-pedido/, openspec/changes/perfil-y-soporte/, openspec/changes/perfil-de-lavanderia/, openspec/changes/lavanderias-cercanas/, openspec/changes/registro-e-inicio-de-sesion/, openspec/changes/bienvenida/, herramientas/apk-local/, vault/
 ---
 # H2: plazas, lavanderías cercanas y el APK local
 
@@ -59,12 +59,32 @@ Cada rama la hizo un agente en su propio worktree, con su base de pruebas en el 
 - **El mapa en Android:** sin `GOOGLE_MAPS_ANDROID_API_KEY` no se monta; la pantalla muestra un aviso y la lista
   sigue. La llave es DD-072.
 
-**En curso.** Tres agentes trabajan en sus ramas:
-- direcciones del servidor, de la 1.1 a la 1.5;
-- agenda del servidor, la 1.1 y la 1.2;
-- en la app, el perfil, la selección de servicio y los filtros (perfil 3.1 y 4.1, cercanas 4.1).
+**Por la tarde (H3, el pedido del usuario), unido a `feat/h2-lavanderias`, cada rama con sus tests:**
+- **Antes del pedido:** el servidor de direcciones y de agenda, y en la app el perfil, la selección de servicio, los
+  filtros, la fecha y hora y la dirección. Fuera de producción, el geocodificador de prueba ubica en Durango las
+  direcciones escritas (direcciones-E15).
+- **El pedido:** `feat/confirmacion-servidor` y `feat/confirmacion-movil`. El resumen crea el pedido en `por_pagar`
+  (ADR-0021) y la confirmación muestra el folio (ADR-0020).
+  - Precio, envío y política van "Por confirmar" (DD-012, DD-019, DD-016).
+  - El pago es provisional hasta DD-079.
+- **El seguimiento:** `feat/estados-servidor` y `feat/seguimiento-movil`. Muestra los cinco estados con la hora de cada
+  uno (estados-E24, nuevo), y consulta cada 30 s.
+- **Perfil y soporte:** `feat/perfil-servidor` y `feat/perfil-usuario-movil`.
+  - Mi perfil, con el nombre y las direcciones guardadas.
+  - Ayuda, con el WhatsApp de la configuración (DD-082) y el reporte.
+  - Eliminar la cuenta.
+- **Decisiones por delegación (C-236), 26 a 28 del acta del 2026-11-20:**
+  - el folio y la máquina de estados, que cierran DD-101 y DD-123;
+  - la plaza del reporte sin pedido;
+  - E05 sin la edición de direcciones.
+- **Probado en el emulador:** de la lista de lavanderías a "Confirmar y pagar". Se creó un pedido real, se confirmó a
+  mano como lo hará el pago y la confirmación mostró su folio.
 
-**Sigue.** Las pantallas de dirección y de agenda en la app, el resumen y el pago (H3), con la referencia visual de la
-Propuesta 4 y la 5 corregida (C-233).
+- **El historial:** `feat/historial-servidor` y `feat/historial-movil`. "Mis pedidos" muestra los confirmados de la
+  cuenta, con su filtro por fecha, y cada uno abre su seguimiento.
+
+**Sigue.** La calificación (2.3 y 1.3; cuándo se califica es DD-107 y a quién, DD-052) y los avisos (llaves de
+Firebase, DD-072). Lo demás del Módulo A espera respuestas del cliente: el pago (DD-079), los precios (DD-012) y la
+foto del perfil (el disco privado).
 
 **Al terminar.** `situacion: terminada`, con el enlace al PR, que va después del del H1.
