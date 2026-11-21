@@ -11,8 +11,8 @@ use Tests\TestCase;
 
 /**
  * El verificador del idToken de Google, aislado de las cuentas: valida la firma contra las llaves públicas de Google,
- * guardadas en caché, y comprueba el emisor, el cliente (aud), el vencimiento y el correo (ADR-0005; ADR-0012, los
- * clientes OAuth en configuración).
+ * guardadas en caché, y comprueba el emisor, el cliente (aud), el vencimiento y el correo, que Google debe dar por
+ * verificado (ADR-0005; ADR-0012, los clientes OAuth en configuración; C-228, DD-128 cerrada).
  *
  * Las pruebas no salen a la red: la Google de prueba firma con sus propias llaves RSA (Soporte/ImitaAGoogle).
  *
@@ -29,14 +29,18 @@ class VerificadorDeGoogleTest extends TestCase
         $this->imitarAGoogle();
     }
 
-    #[TestDox('registro-E16: un idToken válido del cliente configurado da el sujeto, el correo y si está verificado')]
-    public function test_registro_e16_un_id_token_valido_del_cliente_configurado_da_el_sujeto_el_correo_y_si_esta_verificado(): void
+    #[TestDox('registro-E16: un idToken válido del cliente configurado, con el correo verificado, da el sujeto y el correo')]
+    public function test_registro_e16_un_id_token_valido_del_cliente_configurado_con_el_correo_verificado_da_el_sujeto_y_el_correo(): void
     {
-        $identidad = $this->verificador()->verificar($this->idTokenDeGoogle());
+        $identidad = $this->verificador()->verificar($this->idTokenDeGoogle(['email_verified' => true]));
 
         $this->assertSame(self::SUJETO_DE_PRUEBA, $identidad->sujeto);
         $this->assertSame('persona@ejemplo.com', $identidad->correo);
-        $this->assertTrue($identidad->correoVerificado);
+
+        // En otras respuestas de Google el reclamo llega como texto; también vale.
+        $comoTexto = $this->verificador()->verificar($this->idTokenDeGoogle(['email_verified' => 'true']));
+
+        $this->assertSame(self::SUJETO_DE_PRUEBA, $comoTexto->sujeto);
     }
 
     #[TestDox('registro-E16: acepta cualquiera de los clientes configurados y el emisor con o sin https')]
@@ -50,14 +54,12 @@ class VerificadorDeGoogleTest extends TestCase
         $this->assertSame(self::SUJETO_DE_PRUEBA, $identidad->sujeto);
     }
 
-    #[TestDox('registro-E16: el correo que Google no da por verificado se informa, sin rechazar el token')]
-    public function test_registro_e16_el_correo_que_google_no_da_por_verificado_se_informa_sin_rechazar_el_token(): void
+    #[TestDox('registro-E17: un idToken con un correo que Google no da por verificado se rechaza')]
+    public function test_registro_e17_un_id_token_con_un_correo_que_google_no_da_por_verificado_se_rechaza(): void
     {
-        $sinVerificar = $this->verificador()->verificar($this->idTokenDeGoogle(['email_verified' => false]));
-        $sinReclamo = $this->verificador()->verificar($this->idTokenDeGoogle(['email_verified' => null]));
-
-        $this->assertFalse($sinVerificar->correoVerificado);
-        $this->assertFalse($sinReclamo->correoVerificado);
+        $this->assertRechazado($this->idTokenDeGoogle(['email_verified' => false]), 'no da el correo por verificado');
+        $this->assertRechazado($this->idTokenDeGoogle(['email_verified' => null]), 'no da el correo por verificado');
+        $this->assertRechazado($this->idTokenDeGoogle(['email_verified' => 'false']), 'no da el correo por verificado');
     }
 
     #[TestDox('registro-E16: las llaves de Google se piden una vez y se guardan en caché el plazo que dice Google')]

@@ -10,18 +10,11 @@ use RuntimeException;
 final class EntradaConGoogleRechazada extends RuntimeException
 {
     /**
-     * El idToken no pasó la verificación (registro-E17), o su cuenta está borrada. No se dice cuál de las dos.
+     * El idToken no pasó la verificación (registro-E17), su correo no está verificado por Google, o su cuenta está
+     * borrada. No se dice cuál, ni si el correo ya tiene una cuenta (C-228).
      */
     public static function noValida(): self
     {
         return new self('No se pudo entrar con tu cuenta de Google.');
-    }
-
-    /**
-     * El correo ya tiene cuenta y Google no lo da por verificado: no se liga nada (registro-E18; C-224).
-     */
-    public static function correoSinVerificar(): self
-    {
-        return new self('Ese correo ya tiene una cuenta y Google no lo da por verificado.');
     }
 }

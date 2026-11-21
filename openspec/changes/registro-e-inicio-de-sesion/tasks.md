@@ -51,7 +51,7 @@ nunca en las dos.
   `movil/__tests__/registro/recuperacion.test.tsx` — tamaño S
 - [x] 3.5 registro-E18: Google con un correo que ya tiene cuenta con contraseña se liga si Google verificó el correo
   (C-224; era la 4.1, bloqueada por DD-091) — test: `servidor/tests/Feature/Registro/GoogleTest.php` — tamaño S
-- [ ] 3.6 registro-E16 y registro-E17: el servidor rechaza el `idToken` cuyo correo Google no verificó (C-228,
+- [x] 3.6 registro-E16 y registro-E17: el servidor rechaza el `idToken` cuyo correo Google no verificó (C-228,
   DD-128 cerrada) — test: `servidor/tests/Feature/Registro/GoogleTest.php` — tamaño S
 
 ## 4. Bloqueadas: no entran a un sprint hasta que se responda su fila

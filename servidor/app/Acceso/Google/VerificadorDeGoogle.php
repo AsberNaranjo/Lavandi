@@ -18,10 +18,9 @@ use Throwable;
  * - lo firmó Google con RS256, con una de las llaves públicas que publica en services.google.llaves;
  * - lo emitió accounts.google.com;
  * - su destinatario (aud) es uno de los clientes OAuth configurados en services.google.clientes (ADR-0012);
- * - no ha vencido, y trae el sujeto y el correo.
- *
- * Si Google no da el correo por verificado, el token se acepta y la identidad lo dice: quien decide qué hacer con un
- * correo sin verificar es el inicio de sesión (registro-E18).
+ * - no ha vencido, y trae el sujeto y el correo;
+ * - Google da el correo por verificado. Si no, se rechaza siempre, haya o no cuenta con ese correo (registro-E17;
+ *   C-228, DD-128 cerrada): así nadie abre ni liga una cuenta con un correo que no es suyo.
  *
  * Las llaves de Google se guardan en la caché el plazo que dice Google en Cache-Control. Una llave que no está en la
  * caché obliga a pedirlas otra vez, porque Google las cambia; a lo más una vez por minuto, para que nadie use esta
@@ -80,12 +79,12 @@ final class VerificadorDeGoogle
             throw IdTokenDeGoogleNoValido::porque('no trae el sujeto o el correo');
         }
 
-        return new IdentidadDeGoogle(
-            sujeto: $reclamos->sub,
-            correo: $reclamos->email,
-            // En el idToken es booleano; en otras respuestas de Google llega como texto.
-            correoVerificado: in_array($reclamos->email_verified ?? false, [true, 'true'], true),
-        );
+        // En el idToken es booleano; en otras respuestas de Google llega como texto.
+        if (! in_array($reclamos->email_verified ?? false, [true, 'true'], true)) {
+            throw IdTokenDeGoogleNoValido::porque('Google no da el correo por verificado');
+        }
+
+        return new IdentidadDeGoogle(sujeto: $reclamos->sub, correo: $reclamos->email);
     }
 
     /**
