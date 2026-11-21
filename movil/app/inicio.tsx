@@ -1,15 +1,80 @@
-// El inicio provisional (C-225): a donde llega la persona al entrar, hasta que existan el mapa (H2) y el perfil (H7).
-// Solo tiene "Cerrar sesión" (registro-E13): la sesión borra el token del teléfono y pide al servidor revocarlo, y la
-// pantalla lleva al inicio de sesión (C-237).
+// La pantalla principal del Módulo A (openspec/changes/lavanderias-cercanas): a donde llega la persona al entrar.
+// Reemplaza al inicio provisional (C-225). Pide la ubicación solo mientras se usa, con su texto (cercanas-E03); con
+// ella consulta las lavanderías cercanas y centra el mapa (cercanas-E04); pinta un pin por lavandería, y al tocar uno
+// muestra su tarjeta, que abre el perfil (cercanas-E12); sin lavanderías lo dice (cercanas-E14); y "Pedido nuevo" abre
+// la lista para elegir lavandería (cercanas-E15).
+//
+// La composición es la del tablero "Inicio" de la Propuesta 5 corregida y la imagen a03-principal-mapa de la Propuesta
+// 04 (C-230 y C-233): el título, el mapa en una tarjeta con cuántas hay, la tarjeta de la elegida y "Pedido nuevo"
+// abajo, a todo lo ancho. Del mock no entran: la barra inferior (Pedidos, Ayuda y Perfil aún no existen), "Filtrar"
+// (tarea 4.1), el pedido activo (DD-135), la campana y la búsqueda por nombre (DD-136), "Recoger en" (direcciones) y el
+// estado de disponibilidad de la tarjeta (cercanas-E13, DD-083 y DD-078).
+//
+// "Cerrar sesión" (registro-E13) queda abajo, provisional, hasta que exista el perfil (H7): borra el token del teléfono,
+// pide al servidor revocarlo y lleva al inicio de sesión como primera pantalla (C-237; DD-131, punto 3).
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
+import { AvisoDeLaBusqueda } from '../src/cercanas/AvisoDeLaBusqueda';
+import { hayMapaNativo } from '../src/cercanas/mapa';
+import { MapaDeLavanderias } from '../src/cercanas/MapaDeLavanderias';
+import { rutaDeLaLista, rutaDelPerfil } from '../src/cercanas/rutas';
+import { detalleDeLavanderia, mensajeDeLaFalla, resumenDeLasCercanas, TEXTOS } from '../src/cercanas/textos';
+import { useLavanderiasCercanas } from '../src/cercanas/useLavanderiasCercanas';
 import { useAbrirComoPrimera } from '../src/navegacion/regresar';
 import { Boton } from '../src/piezas/Boton';
+import { MensajeDeError } from '../src/piezas/MensajeDeError';
 import { Pantalla } from '../src/piezas/Pantalla';
+import { TarjetaDeLavanderia } from '../src/piezas/TarjetaDeLavanderia';
 import { Titulo } from '../src/piezas/Titulo';
 import { useSesion } from '../src/sesion/ProveedorDeSesion';
+import { color, espaciado, radio, tipografia } from '../src/tema/theme';
 
 export default function Inicio() {
+  const router = useRouter();
+  const { estado, permitir } = useLavanderiasCercanas();
+  // La lavandería del pin que se tocó, por su id_publico.
+  const [elegida, setElegida] = useState<string | null>(null);
+
+  const lavanderias = estado.fase === 'lista' ? estado.lavanderias : [];
+  const lavanderiaElegida = lavanderias.find((lavanderia) => lavanderia.id_publico === elegida);
+  const punto = 'punto' in estado ? estado.punto : null;
+
+  return (
+    <Pantalla
+      acciones={
+        <>
+          <Boton onPress={() => router.push(rutaDeLaLista(punto))}>{TEXTOS.pedidoNuevo}</Boton>
+          <CerrarSesion />
+        </>
+      }
+    >
+      <Titulo alineacion="inicio">{TEXTOS.titulo}</Titulo>
+      <View style={estilos.tarjetaDelMapa}>
+        {punto ? (
+          <MapaDeLavanderias centro={punto} lavanderias={lavanderias} alElegir={setElegida} />
+        ) : (
+          <AvisoDeLaBusqueda estado={estado} permitir={permitir} />
+        )}
+        {estado.fase === 'lista' ? (
+          <Text style={estilos.resumen}>{resumenDeLasCercanas(lavanderias.length, hayMapaNativo())}</Text>
+        ) : null}
+      </View>
+      {estado.fase === 'error' ? <MensajeDeError texto={mensajeDeLaFalla(estado.falla)} /> : null}
+      {lavanderiaElegida ? (
+        <TarjetaDeLavanderia
+          testID={`tarjeta-${lavanderiaElegida.id_publico}`}
+          nombre={lavanderiaElegida.nombre}
+          detalle={detalleDeLavanderia(lavanderiaElegida)}
+          alTocar={() => router.push(rutaDelPerfil(lavanderiaElegida.id_publico))}
+        />
+      ) : null}
+    </Pantalla>
+  );
+}
+
+function CerrarSesion() {
   const abrirComoPrimera = useAbrirComoPrimera();
   const { cerrar } = useSesion();
   const [cerrando, setCerrando] = useState(false);
@@ -27,11 +92,28 @@ export default function Inicio() {
   }
 
   return (
-    <Pantalla justificar="center">
-      <Titulo>Inicio</Titulo>
-      <Boton variante="secundario" ocupado={cerrando} onPress={cerrarSesion}>
-        Cerrar sesión
-      </Boton>
-    </Pantalla>
+    <Boton variante="secundario" ocupado={cerrando} onPress={cerrarSesion}>
+      Cerrar sesión
+    </Boton>
   );
 }
+
+const estilos = StyleSheet.create({
+  // El mapa, o el aviso en su lugar, en una tarjeta que ocupa el alto que queda.
+  tarjetaDelMapa: {
+    flex: 1,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: color.semantico.borde,
+    borderRadius: radio.grande,
+    backgroundColor: color.semantico.superficie,
+  },
+  resumen: {
+    paddingHorizontal: espaciado[4],
+    paddingVertical: espaciado[3],
+    borderTopWidth: 1,
+    borderTopColor: color.semantico.borde,
+    color: color.semantico.texto_suave,
+    fontSize: tipografia.escala.cuerpo,
+  },
+});

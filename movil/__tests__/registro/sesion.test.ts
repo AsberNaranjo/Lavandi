@@ -317,7 +317,7 @@ describe('registro-E11, registro-E09 y registro-E13: las pantallas según la ses
     await act(() => jest.advanceTimersByTimeAsync(100));
 
     expect(screen.queryByRole('button', { name: 'Cerrar sesión' })).not.toBeOnTheScreen();
-    expect(screen.queryByRole('header', { name: 'Inicio' })).not.toBeOnTheScreen();
+    expect(screen.queryByRole('header', { name: 'Lavanderías cerca de ti' })).not.toBeOnTheScreen();
     // Lo único que se ve es el fondo de la app, como en las pantallas: sin el blanco de la vista nativa (ADR-0013).
     expect(screen.getByTestId('leyendo-la-sesion')).toHaveStyle({ flex: 1, backgroundColor: color.semantico.fondo });
   });

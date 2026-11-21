@@ -70,13 +70,14 @@ describe('bienvenida-E04: el inicio de sesión ofrece registrarse o iniciar sesi
     expect(await screen.findByRole('button', { name: 'Iniciar sesión' })).toBeOnTheScreen();
   });
 
-  test('registro-E11 (en parte) — con la sesión abierta, el inicio provisional muestra su título', async () => {
+  test('registro-E11 (en parte) — con la sesión abierta, el inicio muestra su título', async () => {
     // La sesión es de esta misma instalación: la marca de instalación ya existe (registro-E32).
     await comprobarInstalacion();
     await guardarToken('token-guardado');
 
     await renderRouter(APP, { initialUrl: '/inicio' });
 
-    expect(await screen.findByRole('header', { name: 'Inicio' })).toBeOnTheScreen();
+    // El inicio es la pantalla principal de lavanderias-cercanas, que reemplazó al provisional.
+    expect(await screen.findByRole('header', { name: 'Lavanderías cerca de ti' })).toBeOnTheScreen();
   });
 });
