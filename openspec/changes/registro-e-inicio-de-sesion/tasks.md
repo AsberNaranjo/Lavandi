@@ -11,7 +11,7 @@ nunca en las dos.
   `App\Models\Modelo`, con su `$table`, su `$primaryKey` y las llaves de cada relación; el proveedor de
   `config/auth.php` apunta a `Usuario`. Necesita `modelo-de-datos` y la pregunta abierta 11 de `design.md` — test:
   `servidor/tests/Feature/Registro/MigracionTest.php` y `servidor/tests/Feature/Modelo/` — tamaño S
-- [ ] 1.2 registro-E01, registro-E02, registro-E03, registro-E05, registro-E06, registro-E07, registro-E08,
+- [x] 1.2 registro-E01, registro-E02, registro-E03, registro-E05, registro-E06, registro-E07, registro-E08,
   registro-E10 y registro-E12: registro con correo y contraseña para el rol de usuario, con hash; correo repetido y
   datos inválidos rechazados; inicio de sesión con token de Sanctum, consulta de la propia cuenta y cierre de sesión.
   Incluye la fábrica de cuentas para los tests — test: `servidor/tests/Feature/Registro/RegistroConCorreoTest.php` y
