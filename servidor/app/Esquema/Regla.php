@@ -26,6 +26,9 @@ enum Regla: string
     /** id_plazas es no nula, salvo en la lista de plaza opcional (modelo-E05). */
     case PlazaNoNula = 'plaza-no-nula';
 
+    /** id_plazas tiene su propia llave foránea a plazas, también en la lista de plaza opcional (plazas-E09). */
+    case PlazaForanea = 'plaza-foranea';
+
     /** La llave foránea hacia una tabla que lleva plaza es compuesta con la plaza (modelo-E06). */
     case PlazaCompuesta = 'plaza-compuesta';
 

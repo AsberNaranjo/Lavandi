@@ -24,6 +24,9 @@ final class RevisorDeEsquema
     /** La columna de la plaza (modelo-multi-plaza.md). */
     private const PLAZA = 'id_plazas';
 
+    /** La tabla de las plazas, a la que apunta la columna de la plaza (plazas-E09). */
+    private const TABLA_DE_PLAZAS = 'plazas';
+
     /** Las columnas de alta y de cambio de Laravel, que revisa su propia regla (modelo-E17). */
     private const FECHAS_DE_ALTA_Y_CAMBIO = ['created_at', 'updated_at'];
 
@@ -167,8 +170,19 @@ final class RevisorDeEsquema
         if (! in_array($tabla, $this->sinPlaza, true)) {
             if (! isset($columnas[self::PLAZA])) {
                 $violaciones[] = new Violacion($tabla, null, Regla::Plaza, self::PLAZA);
-            } elseif ($columnas[self::PLAZA]['admite_vacio'] && ! in_array($tabla, $this->plazaOpcional, true)) {
-                $violaciones[] = new Violacion($tabla, self::PLAZA, Regla::PlazaNoNula, self::PLAZA.' not null');
+            } else {
+                if ($columnas[self::PLAZA]['admite_vacio'] && ! in_array($tabla, $this->plazaOpcional, true)) {
+                    $violaciones[] = new Violacion($tabla, self::PLAZA, Regla::PlazaNoNula, self::PLAZA.' not null');
+                }
+
+                if (! $this->tieneForaneaAPlazas($datos['foraneas'])) {
+                    $violaciones[] = new Violacion(
+                        $tabla,
+                        self::PLAZA,
+                        Regla::PlazaForanea,
+                        'llave foránea a '.self::TABLA_DE_PLAZAS.' ('.self::PLAZA.')',
+                    );
+                }
             }
         }
 
@@ -322,6 +336,28 @@ final class RevisorDeEsquema
     }
 
     /**
+     * Si la tabla tiene una llave foránea de id_plazas a plazas(id_plazas). La llave compuesta hacia una tabla padre
+     * que lleva la plaza, como (id_lavanderias, id_plazas), no la sustituye: apunta a la tabla padre, no a plazas.
+     *
+     * La tabla padre se reconoce por su nombre, plazas, en cualquier esquema: las tablas de prueba de un esquema propio
+     * pueden apuntar a la de public.
+     *
+     * @param  list<array{columnas: list<string>, columnas_padre: list<string>, tabla_padre: string}>  $foraneas
+     */
+    private function tieneForaneaAPlazas(array $foraneas): bool
+    {
+        foreach ($foraneas as $foranea) {
+            if ($foranea['tabla_padre'] === self::TABLA_DE_PLAZAS
+                && $foranea['columnas'] === [self::PLAZA]
+                && $foranea['columnas_padre'] === [self::PLAZA]) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Si algún índice empieza con las columnas de la llave, en cualquier orden entre ellas.
      *
      * @param  list<string>  $columnas
@@ -380,7 +416,7 @@ final class RevisorDeEsquema
      * @return array<string, array{
      *     columnas: array<string, array{tipo: string, tipo_base: string, admite_vacio: bool}>,
      *     llave_primaria: list<string>,
-     *     foraneas: list<array{llave: string, al_borrar: string, columnas: list<string>, columnas_padre: list<string>, padre_con_plaza: bool}>,
+     *     foraneas: list<array{llave: string, al_borrar: string, tabla_padre: string, columnas: list<string>, columnas_padre: list<string>, padre_con_plaza: bool}>,
      *     indices: list<list<string|null>>
      * }>
      */
@@ -458,6 +494,7 @@ final class RevisorDeEsquema
 
         $foraneas = $this->conexion->select(
             "select con.conname as llave, c.relname as tabla, con.confdeltype as al_borrar,
+                    padre.relname as tabla_padre,
                     {$this->nombresDeColumnas('con.conrelid', 'con.conkey')} as columnas,
                     {$this->nombresDeColumnas('con.confrelid', 'con.confkey')} as columnas_padre,
                     exists (
@@ -466,6 +503,7 @@ final class RevisorDeEsquema
                     ) as padre_con_plaza
                from pg_catalog.pg_constraint con
                join pg_catalog.pg_class c on c.oid = con.conrelid
+               join pg_catalog.pg_class padre on padre.oid = con.confrelid
                join pg_catalog.pg_namespace n on n.oid = c.relnamespace
               where n.nspname = ? and con.contype = 'f'
               order by c.relname, con.conname",
@@ -477,6 +515,7 @@ final class RevisorDeEsquema
                 $catalogo[$fila->tabla]['foraneas'][] = [
                     'llave' => $fila->llave,
                     'al_borrar' => $fila->al_borrar,
+                    'tabla_padre' => $fila->tabla_padre,
                     'columnas' => json_decode($fila->columnas, true),
                     'columnas_padre' => json_decode($fila->columnas_padre, true),
                     'padre_con_plaza' => (bool) $fila->padre_con_plaza,
