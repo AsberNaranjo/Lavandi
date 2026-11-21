@@ -26,6 +26,9 @@ class AbrirPlazaConDatosTest extends TestCase
 
     private const ARCHIVO = __DIR__.'/Datos/plaza-de-prueba-nueva.geojson';
 
+    /** Las plazas que deja el sembrado de prueba, por nombre. */
+    private const PLAZAS_DE_PRUEBA = ['Plaza de prueba 1', 'Plaza de prueba 2', 'Plaza de prueba Durango'];
+
     /** @var list<string> */
     private array $temporales = [];
 
@@ -158,8 +161,9 @@ class AbrirPlazaConDatosTest extends TestCase
         $this->seed(PlazasDePruebaSeeder::class);
         $this->seed(PlazasDePruebaSeeder::class);
 
-        $this->assertSame(['Plaza de prueba 1', 'Plaza de prueba 2'], Plaza::orderBy('nombre')->pluck('nombre')->all());
-        $this->assertSame(2, Plaza::where('activa', true)->count());
+        // Las dos del océano y la de Durango, en tierra (plazas-E16).
+        $this->assertSame(self::PLAZAS_DE_PRUEBA, Plaza::orderBy('nombre')->pluck('nombre')->all());
+        $this->assertSame(3, Plaza::where('activa', true)->count());
         $this->assertGreaterThan(0, Zona::count());
 
         foreach (Zona::with('plaza')->get() as $zona) {
@@ -179,7 +183,7 @@ class AbrirPlazaConDatosTest extends TestCase
     {
         $this->seed();
 
-        $this->assertSame(['Plaza de prueba 1', 'Plaza de prueba 2'], Plaza::orderBy('nombre')->pluck('nombre')->all());
+        $this->assertSame(self::PLAZAS_DE_PRUEBA, Plaza::orderBy('nombre')->pluck('nombre')->all());
     }
 
     #[TestDox('plazas-E08: en producción no se siembra ninguna plaza de prueba')]

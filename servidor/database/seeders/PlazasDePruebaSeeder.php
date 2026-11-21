@@ -10,8 +10,10 @@ use Illuminate\Database\Seeder;
  * App\Plazas\AperturaDePlaza, la carga del comando plazas:cargar (openspec/changes/plazas-y-zonas/design.md,
  * decisión 6). Sus archivos están en database/datos/plazas-de-prueba/.
  *
- * Sus zonas son cuadrados en el océano Pacífico, lejos de cualquier domicilio: no son el territorio inicial, que espera
- * DD-093 y DD-094.
+ * Las de número tienen sus zonas en cuadrados del océano Pacífico, lejos de cualquier domicilio. La Plaza de prueba
+ * Durango está en tierra, con una zona de unos 6 por 6 km sobre el centro de la ciudad de Durango, para probar la app
+ * desde un teléfono (plazas-E16; DD-134, punto 7). Ninguna es el territorio inicial, que espera DD-093 y DD-094, ni
+ * cuenta para plazas-E10.
  *
  * Solo se siembran en local y en prueba, nunca en producción (ADR-0012), aunque alguien fuerce el sembrado. Sembrar
  * dos veces no las duplica.
