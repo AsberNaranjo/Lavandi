@@ -1,12 +1,16 @@
-// La lista de "Mis pedidos" para su pantalla (historial-E01): la pide al servidor con la sesión al abrirse y cada vez
-// que la pantalla vuelve a verse, por ejemplo al regresar del seguimiento de un pedido, para que el estado de cada uno
-// esté al día (useFocusEffect de expo-router). Mientras llega la nueva, se queda la que había.
+// La lista de "Mis pedidos" para su pantalla (historial-E01, E03 y E04): la pide al servidor con la sesión, con el rango
+// del filtro si lo hay, al abrirse, al cambiar el filtro y cada vez que la pantalla vuelve a verse, por ejemplo al
+// regresar del seguimiento de un pedido, para que el estado de cada uno esté al día (useFocusEffect de expo-router).
+//
+// La respuesta se guarda con el rango que la pidió: al volver a la pantalla con el mismo rango, se queda la lista que
+// había mientras llega la nueva; con un rango nuevo, o sin él, la pantalla espera la suya y no muestra la de otro filtro.
+// Si llegara la respuesta de un filtro que ya cambió, no se pinta.
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 
-import type { Falla } from '../configuracion/api';
+import type { Falla, Resultado } from '../configuracion/api';
 import { useSesion } from '../sesion/ProveedorDeSesion';
-import { consultarHistorial, type PedidoDelHistorial } from './api';
+import { consultarHistorial, type PedidoDelHistorial, type RangoDeFechas } from './api';
 
 /** cargando: se pide al servidor; lista: llegaron los pedidos; error: no llegaron. */
 export type EstadoDelHistorial =
@@ -14,9 +18,15 @@ export type EstadoDelHistorial =
   | { fase: 'lista'; pedidos: PedidoDelHistorial[] }
   | { fase: 'error'; falla: Falla };
 
-export function useHistorial(): EstadoDelHistorial {
+interface Respuesta {
+  /** El rango con que se pidió: el mismo objeto que dio la pantalla, o null sin filtro. */
+  rango: RangoDeFechas | null;
+  resultado: Resultado<PedidoDelHistorial[]>;
+}
+
+export function useHistorial(rango: RangoDeFechas | null): EstadoDelHistorial {
   const { token } = useSesion();
-  const [estado, setEstado] = useState<EstadoDelHistorial>({ fase: 'cargando' });
+  const [respuesta, setRespuesta] = useState<Respuesta | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -25,16 +35,20 @@ export function useHistorial(): EstadoDelHistorial {
         return;
       }
       let vigente = true;
-      consultarHistorial(token).then((resultado) => {
+      consultarHistorial(token, rango).then((resultado) => {
         if (vigente) {
-          setEstado(resultado.ok ? { fase: 'lista', pedidos: resultado.datos } : { fase: 'error', falla: resultado });
+          setRespuesta({ rango, resultado });
         }
       });
       return () => {
         vigente = false;
       };
-    }, [token]),
+    }, [token, rango]),
   );
 
-  return estado;
+  if (respuesta === null || respuesta.rango !== rango) {
+    return { fase: 'cargando' };
+  }
+  const { resultado } = respuesta;
+  return resultado.ok ? { fase: 'lista', pedidos: resultado.datos } : { fase: 'error', falla: resultado };
 }

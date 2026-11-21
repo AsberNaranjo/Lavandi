@@ -11,6 +11,17 @@ export const TEXTOS_DEL_HISTORIAL = {
   cargando: 'Cargando tus pedidos…',
   // La lista vacía, sin filtro: un mensaje neutro.
   sinPedidos: 'Todavía no tienes pedidos.',
+  // El filtro por fecha (historial-E03), con los textos del mock A13.
+  elegirFechas: 'Elegir fechas',
+  desde: 'Desde',
+  hasta: 'Hasta',
+  aplicar: 'Aplicar',
+  quitarFiltro: 'Quitar filtro',
+  // Un rango sin pedidos (historial-E04), con el texto del mock A13.
+  sinPedidosEnLasFechas: 'No hay pedidos en esas fechas.',
+  // Junto al campo, antes de mandar el filtro: la fecha a medias o que no existe, y "Hasta" antes de "Desde".
+  fechaInvalida: 'Escribe la fecha como DD/MM/AAAA.',
+  rangoAlReves: 'No puede ser anterior a la fecha de inicio.',
 } as const;
 
 /**

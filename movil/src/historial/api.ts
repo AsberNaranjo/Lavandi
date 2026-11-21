@@ -1,19 +1,30 @@
-// La consulta de "Mis pedidos" (openspec/changes/historial-y-calificacion, historial-E01): la lista de los pedidos del
-// usuario, con el token de la sesión. El servidor solo entrega los del usuario (historial-E02) y solo los confirmados, así
-// que el folio siempre viene. Cada pedido trae lo que pinta la lista: el folio, la fecha, la lavandería y el estado. Como
-// las demás consultas, nunca lanza: devuelve un Resultado.
+// La consulta de "Mis pedidos" (openspec/changes/historial-y-calificacion, historial-E01, E03 y E04): la lista de los
+// pedidos del usuario, con el token de la sesión, y, si hay filtro, solo los de un rango de días. El servidor solo
+// entrega los del usuario (historial-E02) y solo los confirmados, así que el folio siempre viene. Cada pedido trae lo que
+// pinta la lista: el folio, la fecha, la lavandería y el estado. Como las demás consultas, nunca lanza: devuelve un
+// Resultado.
 import { pedir, type Resultado } from '../configuracion/api';
 import { esObjeto } from '../configuracion/lectura';
 import { leerEstado, type EstadoDelPedido } from '../estados/api';
 
 /**
- * El contrato de la consulta con el servidor, en un solo lugar para ajustarlo: GET <ruta>, con la sesión, que contesta
- * { "<clave>": PedidoDelHistorial[] }, del más reciente al más antiguo.
+ * El contrato de la consulta con el servidor, en un solo lugar para ajustarlo: GET <ruta>?<desde>=AAAA-MM-DD&<hasta>=
+ * AAAA-MM-DD, con la sesión, que contesta { "<clave>": PedidoDelHistorial[] }, del más reciente al más antiguo. Las dos
+ * fechas son opcionales y los dos días entran; una fecha que el servidor no acepta responde 422 con errors.<desde> o
+ * errors.<hasta>.
  */
 export const CONTRATO_DEL_HISTORIAL = {
   ruta: 'pedidos',
   clave: 'pedidos',
+  desde: 'desde',
+  hasta: 'hasta',
 } as const;
+
+/** Un rango de días de la plaza, AAAA-MM-DD, los dos incluidos (historial-E03). */
+export interface RangoDeFechas {
+  desde: string;
+  hasta: string;
+}
 
 /** Un pedido de la lista, con los nombres de campo del servidor. */
 export interface PedidoDelHistorial {
@@ -28,10 +39,16 @@ export interface PedidoDelHistorial {
 
 const FECHA = /^\d{4}-\d{2}-\d{2}$/;
 
-/** GET de la lista de pedidos del usuario, con la sesión (historial-E01). */
-export async function consultarHistorial(token: string): Promise<Resultado<PedidoDelHistorial[]>> {
-  const { ruta, clave } = CONTRATO_DEL_HISTORIAL;
-  const resultado = await pedir<unknown>(ruta, { metodo: 'GET', token });
+/** GET de la lista de pedidos del usuario, con la sesión (historial-E01); con un rango, solo los de esos días (E03). */
+export async function consultarHistorial(
+  token: string,
+  rango: RangoDeFechas | null = null,
+): Promise<Resultado<PedidoDelHistorial[]>> {
+  const { ruta, clave, desde, hasta } = CONTRATO_DEL_HISTORIAL;
+  const consulta = rango
+    ? `?${desde}=${encodeURIComponent(rango.desde)}&${hasta}=${encodeURIComponent(rango.hasta)}`
+    : '';
+  const resultado = await pedir<unknown>(`${ruta}${consulta}`, { metodo: 'GET', token });
   if (!resultado.ok) {
     return resultado;
   }
