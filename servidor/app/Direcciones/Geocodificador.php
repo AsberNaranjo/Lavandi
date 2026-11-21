@@ -12,9 +12,11 @@ use Illuminate\Container\Attributes\Bind;
  * favorita o una dirección marcada en el mapa no lo consultan. Las pruebas lo sustituyen por uno simulado, así que
  * ninguna gasta consultas ni necesita llave.
  *
- * El servicio real es Google Geocoding (App\Direcciones\GeocodificadorDeGoogle).
+ * El servicio real es Google Geocoding (App\Direcciones\GeocodificadorDeGoogle). Fuera de producción y sin su llave,
+ * va el de prueba (App\Direcciones\GeocodificadorDePrueba, direcciones-E15); quién decide es
+ * App\Direcciones\GeocodificadorSegunEntorno.
  */
-#[Bind(GeocodificadorDeGoogle::class)]
+#[Bind(GeocodificadorSegunEntorno::class)]
 interface Geocodificador
 {
     /**

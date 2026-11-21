@@ -41,10 +41,17 @@ class GeocodificadorDeGoogleTest extends TestCase
         Http::preventStrayRequests();
     }
 
-    #[TestDox('direcciones-E01: sin otra indicación, el servidor geocodifica con Google')]
+    #[TestDox('direcciones-E01: con la llave, el servidor geocodifica con Google')]
     public function test_direcciones_e01_sin_otra_indicacion_el_servidor_geocodifica_con_google(): void
     {
-        $this->assertInstanceOf(GeocodificadorDeGoogle::class, app(Geocodificador::class));
+        Http::fake([self::DIRECCION_DE_GOOGLE.'*' => Http::response([
+            'status' => 'OK',
+            'results' => [['geometry' => ['location' => ['lat' => 10.25, 'lng' => -119.75]]]],
+        ])]);
+
+        app(Geocodificador::class)->geocodificar(self::TEXTO);
+
+        Http::assertSent(fn (Request $peticion): bool => str_starts_with($peticion->url(), self::DIRECCION_DE_GOOGLE));
     }
 
     #[TestDox('direcciones-E01: una dirección que Google encuentra da el punto de su primer resultado, con una sola consulta')]

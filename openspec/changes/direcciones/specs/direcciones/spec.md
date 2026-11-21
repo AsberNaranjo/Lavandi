@@ -31,6 +31,19 @@ Criterio: A43-6
 - **ENTONCES** el servidor no le inventa un punto y responde que no la encontró
 - **Y** la app le ofrece marcarla en el mapa
 
+#### Scenario: direcciones-E15 — Fuera de producción y sin llave, la geocodificación es de prueba
+
+- **DADO** un entorno que no es producción y que no tiene la llave del servicio de geocodificación
+- **CUANDO** el usuario guarda una dirección escrita en el municipio de Durango
+- **ENTONCES** el servidor la ubica dentro de la zona de la plaza de prueba de Durango (plazas-E16), siempre en el
+  mismo punto para el mismo texto
+- **Y** una dirección de otro municipio no se encuentra, como en direcciones-E03
+- **Y** en producción sin llave, el servidor sigue respondiendo que no pudo buscar la dirección
+- **Y** con la llave, en cualquier entorno, se usa el servicio real
+
+Decisión: Claude, por delegación de Arthur (C-236), para probar el pedido completo desde un teléfono o el emulador
+mientras no existan las llaves de prueba de Google (DD-072). No es el territorio inicial ni un punto real.
+
 ### Requirement: Ingreso desde el mapa
 
 La app DEBE (MUST) dejar marcar la dirección moviendo el mapa bajo un pin, con el mapa de Apple en iPhone y el de
