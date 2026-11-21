@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Autorizacion\Autorizacion;
 use App\Direcciones\AltaDeDireccion;
 use App\Direcciones\DireccionNoEncontrada;
 use App\Direcciones\GeocodificacionNoDisponible;
@@ -10,6 +11,7 @@ use App\Http\Requests\GuardarDireccionRequest;
 use App\Http\Resources\DireccionResource;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * Las direcciones de recogida y de entrega de la cuenta (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #8;
@@ -41,8 +43,9 @@ use Illuminate\Http\JsonResponse;
  *
  * ---------------------------------------------------------------------------------------------------------------------
  *
- *     POST /api/direcciones                                     Guarda una dirección escrita (direcciones-E01 a E03)
+ *     POST /api/direcciones             Guarda una dirección escrita o marcada en el mapa (direcciones-E01 a E04 y E06)
  *
+ *     Escrita (direcciones-E01):
  *     {
  *       "origen": "escrita",                obligatorio
  *       "calle": "Calle Ejemplo",           obligatorio, texto de hasta 255
@@ -51,12 +54,27 @@ use Illuminate\Http\JsonResponse;
  *       "colonia": "Centro",                obligatorio
  *       "codigo_postal": "34000",           opcional
  *       "municipio": "Durango, Dgo.",       obligatorio
- *       "referencias": "Portón gris"        opcional, texto de hasta 1000
+ *       "referencias": "Portón gris",       opcional, texto de hasta 1000
+ *       "es_favorita": true,                opcional, false si no viene
+ *       "alias": "Casa"                     obligatorio si es_favorita es true; texto de hasta 255
  *     }
+ *     No lleva latitud ni longitud: el punto sale de una sola consulta de geocodificación, que nunca se repite.
+ *
+ *     Marcada en el mapa (direcciones-E04):
+ *     {
+ *       "origen": "mapa",                   obligatorio
+ *       "latitud": 24.0277,                 obligatorio, número de -90 a 90: el punto del pin
+ *       "longitud": -104.6532,              obligatorio, número de -180 a 180
+ *       "colonia": "Centro",                obligatorio
+ *       "calle", "numero_exterior", "numero_interior", "codigo_postal", "municipio", "referencias":  opcionales
+ *       "es_favorita", "alias":             como en la escrita
+ *     }
+ *     Se guarda con el punto del pin, sin consultar la geocodificación.
+ *
+ *     La plaza de la dirección es la de la zona de servicio activa que contiene el punto. Una dirección fuera de toda
+ *     zona se guarda igual, pero no se acepta como recogida ni como entrega (direcciones-E11).
  *
  *     201  { "direccion": { ...la dirección... } }
- *          El servidor consultó una sola vez la geocodificación y guardó el punto que devolvió. Nunca la vuelve a
- *          consultar para esta dirección.
  *
  *     422  { "message": "...", "errors": { "colonia": ["Falta la colonia."], ... } }
  *          Falta un campo o no es válido. No se consultó la geocodificación (direcciones-E02).
@@ -65,16 +83,29 @@ use Illuminate\Http\JsonResponse;
  *     503  { "message": "No pudimos buscar la dirección. Márcala en el mapa o inténtalo más tarde.",
  *            "motivo": "geocodificacion_no_disponible" }
  *          El servicio de geocodificación no respondió. No se guardó nada.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
+ *     GET /api/direcciones/favoritas                             La lista de favoritas de la cuenta (direcciones-E06)
+ *
+ *     200  { "direcciones": [ { ...la dirección... } ] }
+ *          Solo las favoritas de la cuenta, en el orden en que se guardaron; vacía si no tiene. Cada una trae su punto
+ *          guardado: elegirla no consulta la geocodificación (direcciones-E07). Las que no son favoritas no salen
+ *          (direcciones-E08).
  */
 class DireccionesController extends Controller
 {
+    public function __construct(private readonly Autorizacion $autorizacion) {}
+
     public function guardar(GuardarDireccionRequest $peticion, AltaDeDireccion $alta): JsonResponse
     {
         /** @var Usuario $usuario */
         $usuario = $peticion->user();
 
         try {
-            $direccion = $alta->guardarEscrita($usuario, $peticion->validated());
+            $direccion = $peticion->esDelMapa()
+                ? $alta->guardarDelMapa($usuario, $peticion->validated(), $peticion->pin())
+                : $alta->guardarEscrita($usuario, $peticion->validated());
         } catch (DireccionNoEncontrada) {
             return response()->json([
                 'message' => 'No encontramos la dirección. Márcala en el mapa.',
@@ -90,5 +121,19 @@ class DireccionesController extends Controller
         }
 
         return response()->json(['direccion' => new DireccionResource($direccion)], 201);
+    }
+
+    public function favoritas(Request $peticion): JsonResponse
+    {
+        /** @var Usuario $usuario */
+        $usuario = $peticion->user();
+
+        $favoritas = $this->autorizacion->direccionesVisibles($usuario)
+            ->where('es_favorita', true)
+            ->conCoordenadas()
+            ->orderBy('id_direcciones')
+            ->get();
+
+        return response()->json(['direcciones' => DireccionResource::collection($favoritas)]);
     }
 }

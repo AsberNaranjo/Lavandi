@@ -12,13 +12,16 @@ use App\Plazas\ResolucionDePunto;
  *
  * - Una dirección escrita se geocodifica una sola vez, aquí, al guardarla (direcciones-E01). Si el servicio no la
  *   encuentra, no se guarda ni se le inventa un punto (direcciones-E03).
+ * - Una dirección marcada en el mapa se guarda con el punto del pin, sin consultar el servicio (direcciones-E04).
  * - La plaza es la de la zona activa que contiene el punto, según App\Plazas\ResolucionDePunto; vacía si el punto no
  *   cae en ninguna. Una dirección así existe, pero no se acepta para un pedido (direcciones-E11).
+ * - Una favorita lleva su nombre (direcciones-E06); una que no lo es no entra a la lista de favoritas (direcciones-E08).
  */
 final class AltaDeDireccion
 {
-    /** Las señas que se guardan tal como las escribió la persona. */
-    private const SENAS = [
+    /** Lo que se guarda tal como lo escribió la persona: las señas, el nombre y si es favorita. */
+    private const CAMPOS = [
+        'alias',
         'calle',
         'numero_exterior',
         'numero_interior',
@@ -26,6 +29,7 @@ final class AltaDeDireccion
         'codigo_postal',
         'municipio',
         'referencias',
+        'es_favorita',
     ];
 
     public function __construct(
@@ -48,6 +52,14 @@ final class AltaDeDireccion
         }
 
         return $this->guardar($usuario, $datos, $punto);
+    }
+
+    /**
+     * @param  array<string, mixed>  $datos  Las señas validadas.
+     */
+    public function guardarDelMapa(Usuario $usuario, array $datos, Punto $pin): Direccion
+    {
+        return $this->guardar($usuario, $datos, $pin);
     }
 
     /**
@@ -75,7 +87,7 @@ final class AltaDeDireccion
         $enPlaza = $this->resolucion->resolver($punto->latitud, $punto->longitud);
 
         $direccion = Direccion::create([
-            ...array_intersect_key($datos, array_flip(self::SENAS)),
+            ...array_intersect_key($datos, array_flip(self::CAMPOS)),
             'id_usuarios' => $usuario->getKey(),
             'id_plazas' => $enPlaza?->plaza->getKey(),
             'ubicacion' => ['latitud' => $punto->latitud, 'longitud' => $punto->longitud],
