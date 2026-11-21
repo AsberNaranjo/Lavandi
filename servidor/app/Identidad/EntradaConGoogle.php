@@ -11,13 +11,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Encuentra, crea o liga la cuenta de quien entra con Google (ADR-0005), después de verificar su idToken:
+ * Encuentra, crea o liga la cuenta de quien entra con Google (ADR-0005), después de verificar su idToken. El
+ * verificador ya rechazó el idToken cuyo correo Google no da por verificado, haya o no cuenta con ese correo, con el
+ * mismo mensaje que cualquier otro idToken no válido (registro-E17; C-228, DD-128 cerrada). Con el correo verificado:
  *
  * - la cuenta de Google ya ligada vuelve a su misma cuenta, por su (proveedor, sujeto), aunque en Google haya cambiado
  *   el correo (registro-E16);
  * - un correo sin cuenta crea la cuenta con el rol de usuario, sin contraseña, y la liga (registro-E16);
- * - un correo que ya tiene cuenta se liga a ella si Google lo da por verificado; si no, se rechaza y no se liga nada
- *   (registro-E18; C-224, DD-091 cerrada);
+ * - un correo que ya tiene cuenta se liga a ella (registro-E18; C-224, DD-091 cerrada);
  * - una cuenta borrada no vuelve a entrar, y tampoco se crea otra con su correo, que sigue ocupado.
  */
 final class EntradaConGoogle
@@ -67,8 +68,6 @@ final class EntradaConGoogle
             $usuario = $this->alta->deUsuario($identidad->correo, null);
         } elseif ($usuario->trashed()) {
             throw EntradaConGoogleRechazada::noValida();
-        } elseif (! $identidad->correoVerificado) {
-            throw EntradaConGoogleRechazada::correoSinVerificar();
         }
 
         $usuario->cuentasExternas()->create([

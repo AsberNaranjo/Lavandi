@@ -19,6 +19,9 @@ use Tests\TestCase;
  * contra Google y contra los clientes configurados, y crea, encuentra o liga la cuenta antes de abrir la sesión
  * (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #2, "con opción de Google Sign-In"; ADR-0005; C-224).
  *
+ * Un idToken cuyo correo Google no da por verificado se rechaza siempre, haya o no cuenta con ese correo, con el mismo
+ * mensaje que cualquier otro idToken no válido: no dice si existe una cuenta (C-228, DD-128 cerrada).
+ *
  * Las pruebas no salen a la red: la Google de prueba firma con sus propias llaves (Soporte/ImitaAGoogle). Cada
  * petición olvida la cuenta de la anterior, como dos peticiones reales al servidor.
  *
@@ -34,8 +37,6 @@ class GoogleTest extends TestCase
 
     private const NO_VALIDO = 'No se pudo entrar con tu cuenta de Google.';
 
-    private const CORREO_SIN_VERIFICAR = 'Ese correo ya tiene una cuenta y Google no lo da por verificado.';
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -43,10 +44,10 @@ class GoogleTest extends TestCase
         $this->imitarAGoogle();
     }
 
-    #[TestDox('registro-E16: con un correo sin cuenta, se crea la cuenta con el rol de usuario y la respuesta trae un token de sesión')]
-    public function test_registro_e16_con_un_correo_sin_cuenta_se_crea_la_cuenta_con_el_rol_de_usuario_y_la_respuesta_trae_un_token(): void
+    #[TestDox('registro-E16: con un correo que Google da por verificado y sin cuenta, se crea la cuenta con el rol de usuario y la respuesta trae un token de sesión')]
+    public function test_registro_e16_con_un_correo_verificado_sin_cuenta_se_crea_la_cuenta_con_el_rol_de_usuario_y_la_respuesta_trae_un_token(): void
     {
-        $respuesta = $this->entrarConGoogle($this->idTokenDeGoogle());
+        $respuesta = $this->entrarConGoogle($this->idTokenDeGoogle(['email_verified' => true]));
 
         $respuesta->assertOk();
         $respuesta->assertJsonStructure(['token', 'usuario' => ['id_publico', 'correo', 'rol']]);
@@ -149,6 +150,32 @@ class GoogleTest extends TestCase
         $this->assertRechazadoSinCuenta($this->entrarConGoogle($deOtroCliente));
     }
 
+    #[TestDox('registro-E17: un idToken con un correo que Google no da por verificado y sin cuenta se rechaza, sin crear la cuenta ni emitir sesión')]
+    public function test_registro_e17_un_id_token_con_un_correo_que_google_no_da_por_verificado_y_sin_cuenta_se_rechaza_sin_crear_la_cuenta(): void
+    {
+        // El reclamo en falso, el reclamo ausente y el reclamo en texto: ninguno es un correo verificado.
+        foreach ([false, null, 'false'] as $verificado) {
+            $sinVerificar = $this->idTokenDeGoogle(['email_verified' => $verificado]);
+
+            $this->assertRechazadoSinCuenta($this->entrarConGoogle($sinVerificar));
+        }
+    }
+
+    #[TestDox('registro-E17: una cuenta de Google ya ligada no entra si su idToken llega con el correo sin verificar')]
+    public function test_registro_e17_una_cuenta_de_google_ya_ligada_no_entra_si_su_id_token_llega_con_el_correo_sin_verificar(): void
+    {
+        $this->entrarConGoogle($this->idTokenDeGoogle())->assertOk();
+        $usuario = Usuario::sole();
+        $usuario->tokens()->delete();
+
+        $sinVerificar = $this->idTokenDeGoogle(['email_verified' => false]);
+
+        $this->assertRechazado($this->entrarConGoogle($sinVerificar), self::NO_VALIDO);
+        $this->assertSame(0, PersonalAccessToken::count());
+        $this->assertSame(1, Usuario::count());
+        $this->assertSame(1, CuentaExterna::count());
+    }
+
     #[TestDox('registro-E17: un idToken falso con el sujeto de una cuenta que ya existe no abre su sesión')]
     public function test_registro_e17_un_id_token_falso_con_el_sujeto_de_una_cuenta_que_ya_existe_no_abre_su_sesion(): void
     {
@@ -218,7 +245,7 @@ class GoogleTest extends TestCase
         $this->assertSame(1, CuentaExterna::count());
     }
 
-    #[TestDox('registro-E18: si Google no da el correo por verificado, el servidor rechaza la entrada y no liga nada')]
+    #[TestDox('registro-E18: si Google no da el correo por verificado, el servidor rechaza la entrada y no liga nada, con el mensaje que no dice si hay cuenta')]
     public function test_registro_e18_si_google_no_da_el_correo_por_verificado_el_servidor_rechaza_la_entrada_y_no_liga_nada(): void
     {
         $existente = Usuario::factory()->conRol(Rol::USUARIO)->create(['correo' => self::CORREO]);
@@ -226,10 +253,12 @@ class GoogleTest extends TestCase
         $sinVerificar = $this->entrarConGoogle($this->idTokenDeGoogle(['email_verified' => false]));
         $sinReclamo = $this->entrarConGoogle($this->idTokenDeGoogle(['email_verified' => null]));
 
-        $this->assertRechazado($sinVerificar, self::CORREO_SIN_VERIFICAR);
-        $this->assertRechazado($sinReclamo, self::CORREO_SIN_VERIFICAR);
+        // El mismo mensaje que sin cuenta (registro-E17): la respuesta no dice que el correo ya tiene una.
+        $this->assertRechazado($sinVerificar, self::NO_VALIDO);
+        $this->assertRechazado($sinReclamo, self::NO_VALIDO);
         $this->assertSame(0, CuentaExterna::count());
         $this->assertSame(1, Usuario::count());
+        $this->assertSame(0, PersonalAccessToken::count());
         $this->assertSame(0, $existente->tokens()->count());
     }
 
