@@ -40,9 +40,19 @@ function complementoDeGoogle(): [string, { iosUrlScheme: string }] | null {
   return ['react-native-nitro-google-signin', { iosUrlScheme: `${PREFIJO_DE_ESQUEMA_DE_GOOGLE}${sinSufijo}` }];
 }
 
+// La llave de Google Maps para Android (ADR-0009 y ADR-0012, cercanas-E02): de prueba en el .env local y de los
+// secretos de EAS al compilar; nunca se escribe aquí. No es EXPO_PUBLIC_: va al manifiesto de Android y no al código
+// de la app. Es opcional: sin ella, el complemento de react-native-maps no deja llave en el manifiesto, y como el SDK de
+// Google Maps cierra la app al crear un mapa sin llave, extra.mapaDeGoogleEnAndroid le dice a la app que no lo monte
+// (src/cercanas/mapa.ts). iPhone no lleva llave: usa el mapa de Apple.
+function llaveDeGoogleMapsParaAndroid(): string | undefined {
+  return process.env.GOOGLE_MAPS_ANDROID_API_KEY?.trim() || undefined;
+}
+
 export default (): ExpoConfig => {
   const entorno = leerEntorno();
   const google = complementoDeGoogle();
+  const llaveDeMapas = llaveDeGoogleMapsParaAndroid();
 
   return {
     name: entorno.EXPO_PUBLIC_NOMBRE_APP,
@@ -88,6 +98,12 @@ export default (): ExpoConfig => {
         },
       ],
       ...(google ? [google] : []),
+      // El mapa (ADR-0009): react-native-maps sin proveedor, Apple en iPhone y Google en Android. Solo Android lleva
+      // la llave de Google; sin iosGoogleMapsApiKey, iPhone no instala Google Maps.
+      ['react-native-maps', llaveDeMapas ? { androidGoogleMapsApiKey: llaveDeMapas } : {}],
     ],
+    extra: {
+      mapaDeGoogleEnAndroid: llaveDeMapas !== undefined,
+    },
   };
 };
