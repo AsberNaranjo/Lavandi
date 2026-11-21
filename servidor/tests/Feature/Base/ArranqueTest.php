@@ -14,10 +14,11 @@ use Tests\TestCase;
 class ArranqueTest extends TestCase
 {
     /**
-     * Las únicas tablas que deja este cambio: las del framework, la de Sanctum y la de PostGIS
-     * (design.md, "Tablas y migración"). Ninguna del negocio, y no la tabla users.
+     * Las tablas que deja este cambio: las del framework, la de Sanctum y la de PostGIS (design.md, "Tablas y
+     * migración"). Las del negocio llegan con sus cambios, desde registro-e-inicio-de-sesion, y las revisa la prueba
+     * de esquema de modelo-de-datos. La tabla users no se crea nunca.
      */
-    private const TABLAS_DEL_CAMBIO = [
+    private const TABLAS_DEL_FRAMEWORK = [
         'cache',
         'cache_locks',
         'failed_jobs',
@@ -52,8 +53,8 @@ class ArranqueTest extends TestCase
         );
     }
 
-    #[TestDox('base-E02: las migraciones solo crean las tablas del framework')]
-    public function test_base_e02_las_migraciones_solo_crean_las_tablas_del_framework(): void
+    #[TestDox('base-E02: las migraciones crean las tablas del framework y no la tabla users')]
+    public function test_base_e02_las_migraciones_crean_las_tablas_del_framework_y_no_la_tabla_users(): void
     {
         $this->dejarLaBaseVacia();
 
@@ -68,7 +69,8 @@ class ArranqueTest extends TestCase
             ->pluck('table_name')
             ->all();
 
-        $this->assertSame(self::TABLAS_DEL_CAMBIO, $tablas);
+        $this->assertSame([], array_values(array_diff(self::TABLAS_DEL_FRAMEWORK, $tablas)));
+        $this->assertNotContains('users', $tablas);
     }
 
     #[TestDox('base-E02: no existen el modelo User ni su fábrica')]

@@ -64,8 +64,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            // La cuenta del sistema es usuarios (ADR-0016). Su clase llega con registro-e-inicio-de-sesion;
-            // en este cambio nada la instancia.
+            // La cuenta del sistema es usuarios (ADR-0016), con su clase de registro-e-inicio-de-sesion.
             'model' => env('AUTH_MODEL', Usuario::class),
         ],
 
