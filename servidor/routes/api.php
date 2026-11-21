@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\CuentaController;
 use App\Http\Controllers\Api\RegistroController;
+use App\Http\Controllers\Api\SesionConGoogleController;
 use App\Http\Controllers\Api\SesionController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 // Públicas: las que abren una sesión (registro-e-inicio-de-sesion).
 Route::post('registro', RegistroController::class)->name('registro');
 Route::post('sesion', [SesionController::class, 'iniciar'])->name('sesion.iniciar');
+Route::post('sesion/google', SesionConGoogleController::class)->name('sesion.google');
 
 // Con sesión.
 Route::middleware('auth:sanctum')->group(function () {

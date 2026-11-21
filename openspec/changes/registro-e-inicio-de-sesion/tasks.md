@@ -33,7 +33,7 @@ nunca en las dos.
 
 ## 3. Google y recuperación de la contraseña (sprint 02)
 
-- [ ] 3.1 registro-E16 y registro-E17: el servidor valida el `idToken` de Google contra el cliente configurado y crea
+- [x] 3.1 registro-E16 y registro-E17: el servidor valida el `idToken` de Google contra el cliente configurado y crea
   o encuentra la cuenta — test: `servidor/tests/Feature/Registro/GoogleTest.php` — tamaño S
 - [ ] 3.2 registro-E19 y registro-E20: el botón de Google en las pantallas de entrada, con
   `react-native-nitro-google-signin`; en Android no se ofrece Apple — test: `movil/__tests__/registro/google.test.tsx`
@@ -44,7 +44,7 @@ nunca en las dos.
   `servidor/tests/Feature/Registro/RecuperacionTest.php` — tamaño M
 - [ ] 3.4 registro-E26: la pantalla "¿Olvidaste tu contraseña?" — test:
   `movil/__tests__/registro/recuperacion.test.tsx` — tamaño S
-- [ ] 3.5 registro-E18: Google con un correo que ya tiene cuenta con contraseña se liga si Google verificó el correo
+- [x] 3.5 registro-E18: Google con un correo que ya tiene cuenta con contraseña se liga si Google verificó el correo
   (C-224; era la 4.1, bloqueada por DD-091) — test: `servidor/tests/Feature/Registro/GoogleTest.php` — tamaño S
 
 ## 4. Bloqueadas: no entran a un sprint hasta que se responda su fila
