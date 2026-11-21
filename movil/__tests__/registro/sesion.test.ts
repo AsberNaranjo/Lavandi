@@ -204,4 +204,55 @@ describe('registro-E13: cerrar la sesión la borra del teléfono', () => {
     await esperarLaEntrada();
     await expect(leerToken()).resolves.toBeNull();
   });
+
+  test('registro-E13 — borra el token del teléfono antes de pedir al servidor que lo revoque', async () => {
+    await conSesionGuardada('token-guardado');
+    servidor({ 'GET /cuenta': respuesta(200, { usuario: USUARIO }), 'DELETE /sesion': respuesta(204) });
+    const programado = fetchFalso.getMockImplementation()!;
+    let tokenEnElTelefonoAlRevocar: string | null | undefined;
+    fetchFalso.mockImplementation(async (url: string, opciones: RequestInit = {}) => {
+      if (opciones.method === 'DELETE') {
+        tokenEnElTelefonoAlRevocar = await leerToken();
+      }
+      return programado(url, opciones);
+    });
+    const usuario = userEvent.setup();
+    await abrirLaApp();
+
+    await usuario.press(await screen.findByRole('button', { name: 'Cerrar sesión' }));
+
+    await esperarLaEntrada();
+    expect(peticiones()).toContain('DELETE /sesion Bearer token-guardado');
+    expect(tokenEnElTelefonoAlRevocar).toBeNull();
+  });
+
+  test('registro-E13 — si el servidor acepta y no contesta, no lo espera: la borra del teléfono y lleva a la entrada', async () => {
+    // El plazo es el de 15 s por omisión: la app no debe esperarlo para salir.
+    await conSesionGuardada('token-guardado');
+    servidor({ 'GET /cuenta': respuesta(200, { usuario: USUARIO }), 'DELETE /sesion': NO_CONTESTA });
+    const usuario = userEvent.setup();
+    await abrirLaApp();
+
+    await usuario.press(await screen.findByRole('button', { name: 'Cerrar sesión' }));
+
+    await esperarLaEntrada();
+    await expect(leerToken()).resolves.toBeNull();
+    expect(peticiones()).toContain('DELETE /sesion Bearer token-guardado');
+  });
+
+  test('registro-E13 — si el teléfono no puede borrar el token, igual cierra la sesión en la app y lleva a la entrada', async () => {
+    await conSesionGuardada('token-guardado');
+    servidor({ 'GET /cuenta': respuesta(200, { usuario: USUARIO }), 'DELETE /sesion': respuesta(204) });
+    const usuario = userEvent.setup();
+    await abrirLaApp();
+    const cerrar = await screen.findByRole('button', { name: 'Cerrar sesión' });
+    jest.mocked(SecureStore.deleteItemAsync).mockRejectedValueOnce(new Error('El almacén cifrado no respondió'));
+
+    await usuario.press(cerrar);
+
+    await esperarLaEntrada();
+    // El servidor revoca el token aunque el teléfono no lo haya podido borrar: si vuelve a abrir, el servidor ya no
+    // lo reconoce (registro-E11).
+    expect(peticiones()).toContain('DELETE /sesion Bearer token-guardado');
+  });
 });

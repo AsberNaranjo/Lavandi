@@ -22,6 +22,8 @@ async function montar() {
 }
 
 describe('ADR-0018: la sesión de la app sale del almacenamiento cifrado', () => {
+  const fetchOriginal = global.fetch;
+
   beforeEach(async () => {
     almacen.__vaciar();
     // La app ya arrancó antes en esta instalación: la marca de instalación existe (registro-E32).
@@ -29,6 +31,7 @@ describe('ADR-0018: la sesión de la app sale del almacenamiento cifrado', () =>
   });
 
   afterEach(() => {
+    global.fetch = fetchOriginal;
     jest.restoreAllMocks();
   });
 
@@ -81,6 +84,22 @@ describe('ADR-0018: la sesión de la app sale del almacenamiento cifrado', () =>
     expect(result.current.estado).toBe('sin-sesion');
     expect(result.current.token).toBeNull();
     await expect(leerToken()).resolves.toBeNull();
+  });
+
+  test('registro-E13 (en parte) — si el teléfono no puede borrar el token, cerrar deja igual la app sin sesión', async () => {
+    // Sin conexión al abrir: la sesión guardada se conserva (registro-E11).
+    global.fetch = jest.fn(async () => {
+      throw new TypeError('Network request failed');
+    }) as unknown as typeof fetch;
+    await guardarToken('token-guardado');
+    const { result } = await montar();
+    expect(result.current.estado).toBe('con-sesion');
+    jest.mocked(SecureStore.deleteItemAsync).mockRejectedValueOnce(new Error('El almacén cifrado no respondió'));
+
+    await act(() => result.current.cerrar().catch(() => {}));
+
+    expect(result.current.estado).toBe('sin-sesion');
+    expect(result.current.token).toBeNull();
   });
 
   test('ADR-0018 — useSesion fuera del proveedor avisa del error de programación', async () => {

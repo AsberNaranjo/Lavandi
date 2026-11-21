@@ -1,5 +1,5 @@
 // El inicio provisional (C-225): a donde llega la persona al entrar, hasta que existan el mapa (H2) y el perfil (H7).
-// Solo tiene "Cerrar sesión" (registro-E13): la sesión pide al servidor revocar el token y lo borra del teléfono, y la
+// Solo tiene "Cerrar sesión" (registro-E13): la sesión borra el token del teléfono y pide al servidor revocarlo, y la
 // pantalla lleva a la entrada.
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -16,7 +16,11 @@ export default function Inicio() {
 
   async function cerrarSesion() {
     setCerrando(true);
-    await cerrar();
+    try {
+      await cerrar();
+    } catch {
+      // El teléfono no pudo borrar el token, pero la app ya quedó sin sesión y el servidor lo revoca: se sale igual.
+    }
     router.replace('/entrada');
   }
 
