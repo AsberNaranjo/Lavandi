@@ -16,8 +16,8 @@ use Illuminate\Database\Eloquent\Builder;
  * La consulta usa las funciones de PostGIS sobre zonas.poligono, sin paquete de tipos espaciales. ST_Covers sobre
  * geography usa el índice GiST del polígono y cuenta el borde como dentro de la zona.
  *
- * Pendiente sin escenario (design.md, Open Questions): si dos zonas se enciman gana la de menor id_zonas, solo para
- * que la respuesta sea estable.
+ * Dos zonas no se enciman: la carga lo rechaza (plazas-E12). Solo un punto justo en el borde que comparten dos zonas
+ * cae en las dos; gana la de menor id_zonas, para que la respuesta sea estable.
  */
 final class ResolucionDePunto
 {
