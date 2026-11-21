@@ -13,8 +13,8 @@ luego el código mínimo; luego la limpieza.
 
 ## 2. App: resumen y confirmación
 
-- [ ] 2.1 confirmacion-E01, confirmacion-E07: pantalla de resumen con el componente 6 (servicio, fecha con ventana, recogida y entrega; renglones de precio, envío y política reservados sin cifra) y el botón que lleva al pago — test: `movil/__tests__/confirmacion/resumen.test.tsx` — tamaño M
-- [ ] 2.2 confirmacion-E09: pantalla de confirmación con el folio y el resumen, cuando la API dice que el pedido ya está Confirmado (API simulada) — test: `movil/__tests__/confirmacion/confirmacion.test.tsx` — tamaño S
+- [x] 2.1 confirmacion-E01, confirmacion-E07: pantalla de resumen con el componente 6 (servicio, fecha con ventana, recogida y entrega; renglones de precio, envío y política reservados sin cifra) y el botón que lleva al pago — test: `movil/__tests__/confirmacion/resumen.test.tsx` — tamaño M
+- [x] 2.2 confirmacion-E09: pantalla de confirmación con el folio y el resumen, cuando la API dice que el pedido ya está Confirmado (API simulada) — test: `movil/__tests__/confirmacion/confirmacion.test.tsx` — tamaño S
 
 ## 3. Bloqueadas: no entran al sprint mientras su fila siga abierta
 

@@ -138,10 +138,14 @@ export async function consultarFavoritas(token: string): Promise<Resultado<Direc
 
 /**
  * Los motivos con los que el servidor rechaza una recogida o una entrega: fuera de toda zona de servicio
- * (direcciones-E11) o en una zona de otra plaza que la de la lavandería (direcciones-E12). Otro motivo que llegue se
- * conserva tal cual.
+ * (direcciones-E11), en una zona de otra plaza que la de la lavandería (direcciones-E12) o, al crear el pedido, con la
+ * plaza de antes de un cambio de zonas (confirmacion-E15). Otro motivo que llegue se conserva tal cual.
  */
-export type MotivoDeRechazo = 'fuera_de_la_zona_de_servicio' | 'fuera_de_la_plaza_de_la_lavanderia' | (string & {});
+export type MotivoDeRechazo =
+  | 'fuera_de_la_zona_de_servicio'
+  | 'fuera_de_la_plaza_de_la_lavanderia'
+  | 'plaza_de_la_direccion_desactualizada'
+  | (string & {});
 
 /** La recogida y la entrega que el servidor aceptó para un pedido con esa lavandería. */
 export interface RecogidaYEntrega {
@@ -184,8 +188,11 @@ export async function validarRecogidaYEntrega(
   return recogida && entrega ? { ok: true, datos: { recogida, entrega } } : { ok: false, motivo: 'servidor' };
 }
 
-// Los motivos de la recogida y de la entrega, con su mensaje, si el servidor dio alguno.
-function rechazosDe(
+/**
+ * Los motivos de la recogida y de la entrega, con su mensaje, si el servidor dio alguno; null si no dio ninguno. Los
+ * da POST /api/direcciones/recogida-y-entrega y, con la misma forma, POST /api/pedidos (confirmacion-E08 y E15).
+ */
+export function rechazosDe(
   motivos: Record<string, string> | undefined,
   errores: Record<string, string[]>,
 ): Partial<Record<ParaQueEsLaDireccion, Rechazo>> | null {

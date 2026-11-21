@@ -83,8 +83,11 @@ export function avisoDeRechazo({ motivo, mensaje }: Rechazo): string {
   return AVISOS_DE_RECHAZO[motivo] ?? mensaje ?? MENSAJES.servidor;
 }
 
+/** Las señas de una dirección guardada o de la copia que guardó un pedido (resumen-y-confirmacion). */
+type Senas = Pick<Direccion, 'calle' | 'numero_exterior' | 'numero_interior' | 'colonia'>;
+
 /** La calle con sus números: "Calle Ejemplo 123, int. 4". Sin calle ni número, null. */
-function calleConNumeros({ calle, numero_exterior, numero_interior }: Direccion): string | null {
+function calleConNumeros({ calle, numero_exterior, numero_interior }: Senas): string | null {
   const calleYNumero = [calle, numero_exterior].filter(Boolean).join(' ');
   if (!calleYNumero) {
     return null;
@@ -93,11 +96,11 @@ function calleConNumeros({ calle, numero_exterior, numero_interior }: Direccion)
 }
 
 /** Las señas: "Calle Ejemplo 123, int. 4, Centro". La colonia siempre está (direcciones-E02). */
-export function senasEnTexto(direccion: Direccion): string {
+export function senasEnTexto(direccion: Senas): string {
   return [calleConNumeros(direccion), direccion.colonia].filter(Boolean).join(', ');
 }
 
 /** El municipio y las referencias, si los tiene: "Durango, Dgo. · Portón gris". */
-export function complementoEnTexto({ municipio, referencias }: Direccion): string {
+export function complementoEnTexto({ municipio, referencias }: Pick<Direccion, 'municipio' | 'referencias'>): string {
   return [municipio, referencias].filter(Boolean).join(' · ');
 }

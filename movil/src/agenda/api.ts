@@ -93,7 +93,8 @@ function leerDia(datos: unknown): DiaDeAgenda | null {
   };
 }
 
-function leerVentana(fila: unknown): Ventana | null {
+/** Una ventana leída campo por campo, como la da la agenda; null si no es del contrato. También la usa el pedido. */
+export function leerVentana(fila: unknown): Ventana | null {
   if (
     !esObjeto(fila) ||
     !esInstante(fila.inicio) ||
