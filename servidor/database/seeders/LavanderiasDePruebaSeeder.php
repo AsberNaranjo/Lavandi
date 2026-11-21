@@ -14,14 +14,17 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Las lavanderías de prueba del hito H2: ficticias, con nombres que lo dicen, cada una con su plaza, su ubicación, su
- * estado, una cuenta de prueba que la administra y sus servicios con precios de prueba
- * (openspec/changes/perfil-de-lavanderia/design.md, "Tablas y migración"; lavanderias-cercanas, tarea 1.1). "Aún no hay
- * precios" (C-131): ninguno de estos es un precio real.
+ * estado, una cuenta de prueba que la administra, sus servicios con precios de prueba y sus calificaciones de prueba
+ * (openspec/changes/perfil-de-lavanderia/design.md, "Tablas y migración"; lavanderias-cercanas, tareas 1.1 y 1.3). "Aún
+ * no hay precios" (C-131): ninguno de estos es un precio real.
  *
  * Cada punto cae dentro de una zona de las plazas de prueba, en el océano Pacífico, y la plaza sale de resolver ese
  * punto, como saldrá la de una lavandería real. Si las plazas de prueba no están sembradas, la lavandería no se crea.
  *
- * El lavado en seco no se siembra: su unidad espera DD-010 (perfil-lavanderia-E06).
+ * El lavado en seco no se siembra: su unidad espera DD-010 (perfil-lavanderia-E06). Las calificaciones son todas de la
+ * lavandería, sin pedido, cada una de una cuenta de prueba de usuario: dejan los promedios 4.8, 4.2 y 3.5 para probar el
+ * filtro de calificación (cercanas-E17), y la lavandería de prueba 4 sin ninguna. Solo se siembran si la lavandería
+ * todavía no tiene calificaciones.
  *
  * Solo se siembran en local y en prueba, nunca en producción (ADR-0012; cercanas-E22). Sembrar dos veces no las
  * duplica: la lavandería se reconoce por su plaza y su nombre, y la cuenta por su correo.
@@ -39,6 +42,7 @@ class LavanderiasDePruebaSeeder extends Seeder
             'longitud' => -119.5,
             'estado' => Lavanderia::ACTIVA,
             'servicios' => [TipoServicio::ESTANDAR => '10.00', TipoServicio::PLANCHADO => '15.00'],
+            'estrellas' => [5, 5, 5, 5, 4],
         ],
         [
             'nombre' => 'Lavandería de prueba 2',
@@ -46,6 +50,7 @@ class LavanderiasDePruebaSeeder extends Seeder
             'longitud' => -119.48,
             'estado' => Lavanderia::ACTIVA,
             'servicios' => [TipoServicio::ESTANDAR => '11.00'],
+            'estrellas' => [5, 4, 4, 4, 4],
         ],
         [
             'nombre' => 'Lavandería de prueba 3',
@@ -53,6 +58,7 @@ class LavanderiasDePruebaSeeder extends Seeder
             'longitud' => -119.45,
             'estado' => Lavanderia::ACTIVA,
             'servicios' => [TipoServicio::ESTANDAR => '12.00', TipoServicio::PLANCHADO => '17.00'],
+            'estrellas' => [4, 3],
         ],
         [
             'nombre' => 'Lavandería de prueba suspendida',
@@ -60,6 +66,7 @@ class LavanderiasDePruebaSeeder extends Seeder
             'longitud' => -119.5,
             'estado' => Lavanderia::SUSPENDIDA,
             'servicios' => [TipoServicio::ESTANDAR => '10.00'],
+            'estrellas' => [5],
         ],
         [
             'nombre' => 'Lavandería de prueba 4',
@@ -67,6 +74,7 @@ class LavanderiasDePruebaSeeder extends Seeder
             'longitud' => -115.5,
             'estado' => Lavanderia::ACTIVA,
             'servicios' => [TipoServicio::ESTANDAR => '10.00'],
+            'estrellas' => [],
         ],
     ];
 
@@ -112,6 +120,7 @@ class LavanderiasDePruebaSeeder extends Seeder
                 }
 
                 $this->sembrarServicios($lavanderia, $datos['servicios']);
+                $this->sembrarCalificaciones($lavanderia, $datos['estrellas']);
             }
         });
     }
@@ -131,6 +140,23 @@ class LavanderiasDePruebaSeeder extends Seeder
                 ],
                 ['id_unidades_medida' => $kilo->getKey(), 'precio' => $precio, 'activo' => true],
             );
+        }
+    }
+
+    /**
+     * @param  list<int>  $estrellas  Una calificación por número, cada una de una cuenta de prueba distinta.
+     */
+    private function sembrarCalificaciones(Lavanderia $lavanderia, array $estrellas): void
+    {
+        if ($lavanderia->calificaciones()->exists()) {
+            return;
+        }
+
+        foreach ($estrellas as $numero => $cantidad) {
+            $lavanderia->calificaciones()->create([
+                'id_usuarios' => $this->cuenta('calificador-de-prueba-'.($numero + 1), Rol::USUARIO)->getKey(),
+                'estrellas' => $cantidad,
+            ]);
         }
     }
 
