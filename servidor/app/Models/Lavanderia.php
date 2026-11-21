@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\TieneIdPublico;
 use Database\Factories\LavanderiaFactory;
 use Illuminate\Contracts\Database\Query\Expression;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -123,6 +124,23 @@ class Lavanderia extends Modelo
     public function calificaciones(): HasMany
     {
         return $this->hasMany(Calificacion::class, 'id_lavanderias');
+    }
+
+    /**
+     * Las lavanderías que ve el usuario de la app: "activas" en lo mínimo que ya dice el contrato, no suspendidas ni
+     * dadas de baja (NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #1), sin borrado suave y de una plaza
+     * activa (openspec/changes/lavanderias-cercanas/design.md, decisión 3). La usan el perfil y las cercanas, para
+     * que las dos digan lo mismo.
+     *
+     * El resto de la definición, incluido si una pendiente de aprobación aparece, lo fija DD-083 (cercanas-E09).
+     *
+     * @param  Builder<Lavanderia>  $consulta
+     */
+    public function scopeVisiblesParaElUsuario(Builder $consulta): void
+    {
+        $consulta
+            ->whereNotIn($consulta->qualifyColumn('estado'), [self::SUSPENDIDA, self::BAJA])
+            ->whereHas('plaza', fn (Builder $plaza) => $plaza->where('activa', true));
     }
 
     /**

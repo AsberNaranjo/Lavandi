@@ -12,7 +12,7 @@ que a su vez lee las tablas de la tarea 1.1 (ver `design.md`, Open Questions).
   migración"); modelos de Eloquent sobre `App\Models\Modelo`, con su `$table`, su `$primaryKey` y las llaves de cada
   relación. Necesita las preguntas abiertas de la fecha de la reseña y de `codigo` único de `design.md` — test:
   `servidor/tests/Feature/PerfilLavanderia/MigracionTest.php` y `servidor/tests/Feature/Modelo/` — tamaño M
-- [ ] 1.2 perfil-lavanderia-E01, perfil-lavanderia-E02, perfil-lavanderia-E05, perfil-lavanderia-E07,
+- [x] 1.2 perfil-lavanderia-E01, perfil-lavanderia-E02, perfil-lavanderia-E05, perfil-lavanderia-E07,
   perfil-lavanderia-E08 (`servidor/`): servicios de prueba sembrados en `lavanderia_servicios`; consulta del perfil por
   `id_publico`, con descripción, servicios activos con su precio y su unidad, promedio, número de calificaciones y
   reseñas sin datos de quien califica; suspendida o dada de baja, sin perfil — test:

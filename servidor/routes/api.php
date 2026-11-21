@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CuentaController;
+use App\Http\Controllers\Api\PerfilDeLavanderiaController;
 use App\Http\Controllers\Api\RecuperacionController;
 use App\Http\Controllers\Api\RegistroController;
 use App\Http\Controllers\Api\SesionConGoogleController;
@@ -29,4 +30,9 @@ Route::post('contrasena/olvido', RecuperacionController::class)
 Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     Route::get('cuenta', CuentaController::class)->name('cuenta');
     Route::delete('sesion', [SesionController::class, 'cerrar'])->name('sesion.cerrar');
+
+    // El perfil de una lavandería, por su ULID (perfil-de-lavanderia). Un valor que no es ULID responde 404.
+    Route::get('lavanderias/{lavanderia}', PerfilDeLavanderiaController::class)
+        ->whereUlid('lavanderia')
+        ->name('lavanderias.perfil');
 });
