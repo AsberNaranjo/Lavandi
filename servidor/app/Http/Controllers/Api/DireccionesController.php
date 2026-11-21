@@ -33,7 +33,7 @@ use Illuminate\Support\Str;
  * La dirección, como sale en todas las respuestas:
  *
  *     {
- *       "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1u",   el ULID de la dirección; la API nunca usa otro identificador
+ *       "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",   el ULID de la dirección; la API nunca usa otro identificador
  *       "alias": "Casa" | null,
  *       "es_favorita": false,
  *       "calle": "Calle Ejemplo" | null,
@@ -101,10 +101,21 @@ use Illuminate\Support\Str;
  *
  * ---------------------------------------------------------------------------------------------------------------------
  *
+ *     GET /api/direcciones/{id_publico}                          Una dirección de la cuenta (direcciones-E14)
+ *
+ *     {id_publico}  el ULID de la dirección, el que trae cada dirección de las otras rutas.
+ *
+ *     200  { "direccion": { ...la dirección... } }
+ *     404  { "message": "No existe la dirección." }
+ *          No existe, está borrada o es de otra cuenta: las tres responden igual y sin ningún dato. Un valor que no es
+ *          ULID también responde 404.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
  *     POST /api/direcciones/recogida-y-entrega      Valida la recogida y la entrega de un pedido (direcciones-E09 a E12)
  *
  *     {
- *       "lavanderia": "01jd8x6m3v2c9q4w5e7r8t0y1u",   obligatorio: el id_publico de la lavandería elegida
+ *       "lavanderia": "01jd8x6m3v2c9q4w5e7r8t0y1z",   obligatorio: el id_publico de la lavandería elegida
  *       "recogida": "01jd8x6m3v2c9q4w5e7r8t0y1v",     obligatorio: el id_publico de una dirección de la cuenta
  *       "entrega": "01jd8x6m3v2c9q4w5e7r8t0y1w"       opcional: sin entrega, o null, se entrega en la misma
  *     }                                               dirección de la recogida (direcciones-E09)
@@ -181,6 +192,14 @@ class DireccionesController extends Controller
             ->get();
 
         return response()->json(['direcciones' => DireccionResource::collection($favoritas)]);
+    }
+
+    public function mostrar(Request $peticion, string $direccion): JsonResponse
+    {
+        /** @var Usuario $usuario */
+        $usuario = $peticion->user();
+
+        return response()->json(['direccion' => new DireccionResource($this->direccionDe($usuario, $direccion))]);
     }
 
     public function recogidaYEntrega(RecogidaYEntregaRequest $peticion, ZonaDeServicio $zona): JsonResponse

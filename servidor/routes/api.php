@@ -46,4 +46,8 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     Route::get('direcciones/favoritas', [DireccionesController::class, 'favoritas'])->name('direcciones.favoritas');
     Route::post('direcciones/recogida-y-entrega', [DireccionesController::class, 'recogidaYEntrega'])
         ->name('direcciones.recogida-y-entrega');
+    // Una dirección de la cuenta, por su ULID. La de otra cuenta responde igual que una que no existe (direcciones-E14).
+    Route::get('direcciones/{direccion}', [DireccionesController::class, 'mostrar'])
+        ->whereUlid('direccion')
+        ->name('direcciones.mostrar');
 });

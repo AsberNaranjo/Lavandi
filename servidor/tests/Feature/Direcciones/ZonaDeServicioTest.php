@@ -175,7 +175,7 @@ class ZonaDeServicioTest extends TestCase
         $casa = $this->guardarDelMapa(10.5, -119.5);
         $suspendida = Lavanderia::factory()->en($this->plazaA)->suspendida()->create();
 
-        foreach ([$suspendida->id_publico, '01jd8x6m3v2c9q4w5e7r8t0y1u', 'no-es-un-ulid'] as $lavanderia) {
+        foreach ([$suspendida->id_publico, '01jd8x6m3v2c9q4w5e7r8t0y1z', 'no-es-un-ulid'] as $lavanderia) {
             $this->comoCuenta($this->cuenta)
                 ->postJson(self::RECOGIDA_Y_ENTREGA, ['lavanderia' => $lavanderia, 'recogida' => $casa['id_publico']])
                 ->assertNotFound()
