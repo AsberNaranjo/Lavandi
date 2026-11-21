@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ResponderEnJson;
 use App\Http\Middleware\UsarDireccionConfigurada;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -14,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(UsarDireccionConfigurada::class);
+        $middleware->api(prepend: [ResponderEnJson::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
