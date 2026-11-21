@@ -27,9 +27,10 @@ class CrearPedidoRequest extends FormRequest
         return [
             'lavanderia' => ['required', 'string'],
             'servicio' => ['required', 'string'],
+            // Su forma y si se ofrece los revisa la agenda, con el error en "ventana" (agenda-E09; confirmacion-E08).
             'ventana' => ['required', 'array'],
-            'ventana.inicio' => ['required', 'string', 'date'],
-            'ventana.fin' => ['required', 'string', 'date'],
+            'ventana.inicio' => ['required'],
+            'ventana.fin' => ['required'],
             'recogida' => ['required', 'string'],
             'entrega' => ['nullable', 'string'],
         ];
@@ -46,8 +47,6 @@ class CrearPedidoRequest extends FormRequest
             'ventana.required' => 'Falta la ventana de recolección.',
             'ventana.array' => 'La ventana va con su inicio y su fin, como los da la agenda.',
             'ventana.*.required' => 'La ventana va con su inicio y su fin, como los da la agenda.',
-            'ventana.*.string' => 'La ventana va con su inicio y su fin, como los da la agenda.',
-            'ventana.*.date' => 'La ventana va con su inicio y su fin, como los da la agenda.',
             'recogida.required' => 'Falta la dirección de recogida.',
             '*.string' => 'Este campo va en texto.',
         ];

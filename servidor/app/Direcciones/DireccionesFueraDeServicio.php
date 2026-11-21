@@ -18,6 +18,7 @@ final class DireccionesFueraDeServicio extends RuntimeException
     public const MENSAJES = [
         ZonaDeServicio::FUERA_DE_LA_ZONA => 'La dirección está fuera de la zona de servicio.',
         ZonaDeServicio::OTRA_PLAZA => 'Esta lavandería no da servicio en esa dirección.',
+        RecogidaYEntrega::PLAZA_DESACTUALIZADA => 'Esta dirección cambió de zona de servicio. Guárdala de nuevo para usarla.',
     ];
 
     /**

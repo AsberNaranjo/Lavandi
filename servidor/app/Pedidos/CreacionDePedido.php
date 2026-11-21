@@ -2,7 +2,11 @@
 
 namespace App\Pedidos;
 
+use App\Agenda\Agenda;
+use App\Agenda\AgendaSinConfigurar;
 use App\Direcciones\DireccionesDelPedido;
+use App\Direcciones\DireccionesFueraDeServicio;
+use App\Direcciones\RecogidaYEntrega;
 use App\Models\Direccion;
 use App\Models\EstadoPedido;
 use App\Models\Lavanderia;
@@ -25,7 +29,8 @@ use Illuminate\Validation\ValidationException;
  * dirección guardada (confirmacion-E14).
  *
  * No sabe quién la llama: recibe la lavandería y las direcciones ya leídas como las ve la cuenta. El precio estimado,
- * el envío y la política de cancelación no entran: esperan DD-012, DD-010, DD-019, DD-025 y DD-016.
+ * el envío y la política de cancelación no entran: esperan DD-012, DD-010, DD-019, DD-025 y DD-016. El cupo por
+ * ventana tampoco: espera DD-099 (agenda-E05).
  */
 final class CreacionDePedido
 {
@@ -41,11 +46,22 @@ final class CreacionDePedido
         'referencias',
     ];
 
+    public function __construct(
+        private readonly Agenda $agenda,
+        private readonly RecogidaYEntrega $recogidaYEntrega,
+    ) {}
+
     /**
+     * Antes de crear nada revalida, con las mismas reglas con que se ofrecieron, la ventana (App\Agenda\Agenda) y las
+     * direcciones (App\Direcciones\RecogidaYEntrega). Si alguna dejó de valer, lo rechaza con su motivo y no crea el
+     * pedido (confirmacion-E08).
+     *
      * @param  string  $servicio  El código del tipo de servicio, como lo da el perfil de la lavandería.
      * @param  array{inicio: mixed, fin: mixed}  $ventana  La ventana como la dio la agenda.
      *
      * @throws ValidationException
+     * @throws AgendaSinConfigurar
+     * @throws DireccionesFueraDeServicio
      * @throws EstadoPrevioAlPagoSinDefinir
      */
     public function crear(
@@ -56,18 +72,22 @@ final class CreacionDePedido
         DireccionesDelPedido $direcciones,
     ): Pedido {
         $ofrecido = $this->servicioOfrecido($lavanderia, $servicio);
-        $inicio = CarbonImmutable::parse($ventana['inicio'])->utc();
-        $fin = CarbonImmutable::parse($ventana['fin'])->utc();
+        // En UTC: es lo que se guarda en ventana_inicio y ventana_fin.
+        $ventanaValida = $this->agenda->validar($lavanderia, $ventana['inicio'] ?? null, $ventana['fin'] ?? null);
+        $this->recogidaYEntrega->validar($direcciones, $lavanderia);
         $previo = $this->estadoPrevioAlPago();
 
-        return DB::transaction(function () use ($usuario, $lavanderia, $ofrecido, $inicio, $fin, $direcciones, $previo): Pedido {
+        return DB::transaction(function () use ($usuario, $lavanderia, $ofrecido, $ventanaValida, $direcciones, $previo): Pedido {
+            // La plaza guardada de la dirección puede ser vieja: se vuelve a resolver antes de copiarla.
+            $this->recogidaYEntrega->alinearPlaza($direcciones, $lavanderia);
+
             $pedido = Pedido::create([
                 'id_plazas' => $lavanderia->id_plazas,
                 'id_usuarios' => $usuario->getKey(),
                 'id_lavanderias' => $lavanderia->getKey(),
                 'id_estados_pedido' => $previo->getKey(),
-                'ventana_inicio' => $inicio,
-                'ventana_fin' => $fin,
+                'ventana_inicio' => $ventanaValida->inicio,
+                'ventana_fin' => $ventanaValida->fin,
             ]);
 
             $pedido->servicios()->create([

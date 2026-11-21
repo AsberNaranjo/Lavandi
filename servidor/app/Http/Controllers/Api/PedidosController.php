@@ -92,6 +92,33 @@ use Illuminate\Support\Str;
  *          El pedido nace en el estado previo al pago: "folio" y "confirmado_en" vacíos y "estado.visible_usuario"
  *          false. Pasa a Confirmado solo cuando la pasarela confirma el pago (C-188); la app sigue al pago.
  *
+ *     Antes de crear nada, el servidor vuelve a validar la ventana y las direcciones con las mismas reglas con que se
+ *     ofrecieron (confirmacion-E08). Cada error va en su campo, para que la app lleve a elegir solo eso de nuevo, con
+ *     los demás datos del pedido intactos.
+ *
+ *     422  { "message": "La ventana ya empezó.", "errors": { "ventana": ["La ventana ya empezó."] } }
+ *          La ventana ya no se ofrece (App\Agenda\Agenda::validar(), agenda-E09). Los motivos:
+ *            "La ventana va con su inicio y su fin en ISO 8601, con su desfase, como los da la agenda."
+ *            "La ventana debe durar exactamente una hora."
+ *            "La ventana ya terminó."
+ *            "La ventana ya empezó."
+ *            "La ventana empieza antes de la anticipación mínima de la plaza."
+ *            "La ventana está después de los días que se pueden agendar."
+ *            "La lavandería no ofrece esa ventana en su horario."
+ *     422  {
+ *            "message": "La dirección está fuera de la zona de servicio.",
+ *            "errors":  { "recogida": ["La dirección está fuera de la zona de servicio."] },
+ *            "motivos": { "recogida": "fuera_de_la_zona_de_servicio" }
+ *          }
+ *          La recogida, la entrega o las dos ya no sirven; solo vienen las rechazadas, cada una con su motivo, con la
+ *          misma forma que POST /api/direcciones/recogida-y-entrega. Los motivos:
+ *            fuera_de_la_zona_de_servicio          el punto no cae en ninguna zona de servicio activa
+ *            fuera_de_la_plaza_de_la_lavanderia    cae en una zona de otra plaza que la de la lavandería
+ *            plaza_de_la_direccion_desactualizada  cae en la zona de la lavandería, pero la dirección quedó con la
+ *                                                  plaza de antes de un cambio de zonas y ya la usó un pedido de esa
+ *                                                  plaza: "Esta dirección cambió de zona de servicio. Guárdala de
+ *                                                  nuevo para usarla." La app ofrece guardarla otra vez
+ *                                                  (POST /api/direcciones) y usa la nueva
  *     422  { "message": "...", "errors": { "servicio": ["La lavandería no ofrece ese servicio."] } }
  *          El servicio no lo ofrece la lavandería, o no está activo.
  *     422  { "message": "...", "errors": { "recogida": ["Falta la dirección de recogida."] } }
@@ -100,10 +127,15 @@ use Illuminate\Support\Str;
  *          No existe, o el usuario no la ve (Lavanderia::visiblesParaElUsuario()).
  *     404  { "message": "No existe la dirección." }
  *          La recogida o la entrega no existe, está borrada o es de otra cuenta: las tres responden igual.
+ *     503  { "message": "La agenda de la plaza no está configurada." }
+ *          A la plaza le falta una de las dos claves de su agenda (App\Agenda\ParametrosDeAgenda).
  *     503  { "message": "Todavía no se pueden crear pedidos." }
- *          Falta el estado previo al pago (config/pedidos.php; DD-123). No se creó nada.
+ *          Falta el estado previo al pago (config/pedidos.php; DD-123).
  *
  *     En ningún error se crea el pedido.
+ *
+ *     Una dirección guardada sin plaza, o con la plaza de antes de un cambio de zonas, que hoy cae en una zona activa
+ *     de la plaza de la lavandería, se acepta: el servidor le vuelve a resolver la plaza antes de copiarla.
  */
 class PedidosController extends Controller
 {

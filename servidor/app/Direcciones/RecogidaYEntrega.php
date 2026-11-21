@@ -5,6 +5,7 @@ namespace App\Direcciones;
 use App\Autorizacion\Autorizacion;
 use App\Models\Direccion;
 use App\Models\Lavanderia;
+use App\Models\PedidoDireccion;
 use App\Models\Usuario;
 use Illuminate\Support\Str;
 
@@ -22,6 +23,12 @@ use Illuminate\Support\Str;
  */
 final class RecogidaYEntrega
 {
+    /**
+     * La dirección cae hoy en la zona de la lavandería, pero su plaza guardada es otra y ya la usó un pedido de esa
+     * plaza: no se puede cambiar sin romper ese historial (alinearPlaza()).
+     */
+    public const PLAZA_DESACTUALIZADA = 'plaza_de_la_direccion_desactualizada';
+
     public function __construct(
         private readonly Autorizacion $autorizacion,
         private readonly ZonaDeServicio $zona,
@@ -58,6 +65,51 @@ final class RecogidaYEntrega
                 ? null
                 : $this->zona->motivoDeRechazo($direcciones->entrega, $lavanderia),
         ]);
+
+        if ($motivos !== []) {
+            throw new DireccionesFueraDeServicio($motivos);
+        }
+    }
+
+    /**
+     * Deja la plaza guardada de cada dirección en la de la lavandería, antes de copiarlas a un pedido. Se llama después
+     * de validar(), dentro de la transacción que crea el pedido.
+     *
+     * La llave compuesta de pedido_direcciones exige que la plaza guardada de la dirección sea la del pedido. Esa plaza
+     * se resolvió al guardar la dirección y queda vieja si las zonas cambian después: una zona nueva cubre una dirección
+     * que quedó sin plaza, o el punto pasa a la zona de otra plaza. validar() ya comprobó que el punto cae hoy en una
+     * zona activa de la plaza de la lavandería, así que esa es su plaza: se vuelve a resolver y se guarda.
+     *
+     * Si la dirección ya se copió a un pedido con su plaza anterior, cambiarla rompería ese historial: se rechaza con
+     * PLAZA_DESACTUALIZADA, y la persona la guarda de nuevo.
+     *
+     * @throws DireccionesFueraDeServicio
+     */
+    public function alinearPlaza(DireccionesDelPedido $direcciones, Lavanderia $lavanderia): void
+    {
+        $elegidas = $direcciones->entregaEnLaRecogida
+            ? ['recogida' => $direcciones->recogida]
+            : ['recogida' => $direcciones->recogida, 'entrega' => $direcciones->entrega];
+        $motivos = [];
+
+        foreach ($elegidas as $campo => $direccion) {
+            if ($direccion->id_plazas === $lavanderia->id_plazas) {
+                continue;
+            }
+
+            $usadaEnSuPlaza = $direccion->id_plazas !== null && PedidoDireccion::query()
+                ->where('id_direcciones', $direccion->getKey())
+                ->where('id_plazas', $direccion->id_plazas)
+                ->exists();
+
+            if ($usadaEnSuPlaza) {
+                $motivos[$campo] = self::PLAZA_DESACTUALIZADA;
+
+                continue;
+            }
+
+            $direccion->forceFill(['id_plazas' => $lavanderia->id_plazas])->save();
+        }
 
         if ($motivos !== []) {
             throw new DireccionesFueraDeServicio($motivos);

@@ -201,7 +201,7 @@ pago, con la operación de confirmar (`App\Pedidos\ConfirmacionDePedido`), que n
 
 La política de cancelación no viaja todavía: espera DD-016 (confirmacion-E04).
 
-### `POST /api/pedidos` — acepta el resumen y crea el pedido antes del pago (confirmacion-E05, E07 y E14)
+### `POST /api/pedidos` — acepta el resumen y crea el pedido antes del pago (confirmacion-E05, E07, E08 y E14)
 
 ```json
 {
@@ -220,16 +220,31 @@ La política de cancelación no viaja todavía: espera DD-016 (confirmacion-E04)
 - `entrega`: opcional; sin ella, o con `null`, se entrega en la recogida.
 - Cualquier otro campo se ignora: ni un folio, ni un estado, ni que ya pagó confirman el pedido (confirmacion-E07).
 
+Antes de crear nada, el servidor vuelve a validar la ventana, con `App\Agenda\Agenda::validar()`, y las direcciones, con
+`App\Direcciones\RecogidaYEntrega`, la lógica de `POST /api/direcciones/recogida-y-entrega` (confirmacion-E08). Cada
+error va en su campo, para que la app lleve a elegir solo eso de nuevo, con los demás datos del pedido intactos.
+
 | Respuesta | Cuándo |
 |---|---|
 | `201 { "pedido": { …el pedido… } }` | El pedido nació en el estado previo al pago: `folio` y `confirmado_en` vacíos y `estado.visible_usuario` en `false`. La app sigue al pago |
+| `422 { "message": "La ventana ya empezó.", "errors": { "ventana": ["La ventana ya empezó."] } }` | La ventana ya no se ofrece. El motivo es el de la agenda (agenda-E09): no va en ISO 8601 con su desfase, no dura una hora, ya terminó, ya empezó, empieza antes de la anticipación mínima, está después de los días que se pueden agendar, o la lavandería no la ofrece en su horario |
+| `422 { "message", "errors": { "recogida": ["…"], "entrega": ["…"] }, "motivos": { "recogida": "…", "entrega": "…" } }` | La recogida, la entrega o las dos ya no sirven; solo vienen las rechazadas. La misma forma que `POST /api/direcciones/recogida-y-entrega`. Motivos: `fuera_de_la_zona_de_servicio`, `fuera_de_la_plaza_de_la_lavanderia` y `plaza_de_la_direccion_desactualizada` (ver abajo) |
 | `422 { "message", "errors": { "servicio": ["La lavandería no ofrece ese servicio."] } }` | El servicio no lo ofrece la lavandería, o no está activo |
 | `422 { "message", "errors": { "<campo>": ["…"] } }` | Falta un campo o no es válido |
 | `404 { "message": "No existe la lavandería." }` | No existe, o el usuario no la ve |
 | `404 { "message": "No existe la dirección." }` | La recogida o la entrega no existe, está borrada o es de otra cuenta: las tres responden igual |
+| `503 { "message": "La agenda de la plaza no está configurada." }` | A la plaza le falta una de las dos claves de su agenda |
 | `503 { "message": "Todavía no se pueden crear pedidos." }` | Falta el estado previo al pago (`config/pedidos.php`, DD-123) |
 
 En ningún error se crea el pedido.
+
+**La plaza guardada de la dirección puede ser vieja.** `direcciones.id_plazas` se resuelve al guardar la dirección y no
+se actualiza si las zonas cambian, y la llave compuesta de `pedido_direcciones` exige que sea la del pedido. Al copiar
+la dirección, el servidor la vuelve a resolver: si la validación ya dijo que el punto cae hoy en una zona activa de la
+plaza de la lavandería, guarda esa plaza en la dirección y la copia. La única excepción es una dirección que ya usó un
+pedido con su plaza anterior: cambiarla rompería ese historial, así que se rechaza con
+`plaza_de_la_direccion_desactualizada` ("Esta dirección cambió de zona de servicio. Guárdala de nuevo para usarla."), y
+la app ofrece guardarla otra vez con `POST /api/direcciones`.
 
 ### La operación de confirmar, para el cambio `pago` (confirmacion-E06 y E13)
 

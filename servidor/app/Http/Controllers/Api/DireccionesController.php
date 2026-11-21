@@ -120,8 +120,9 @@ use Illuminate\Support\Str;
  *
  *     200  { "recogida": { ...la dirección... }, "entrega": { ...la dirección... } }
  *          Las dos sirven para un pedido con esa lavandería. Con la entrega en la misma dirección, las dos son la misma.
- *          El servidor no guarda nada: la app las lleva hasta el resumen del pedido, que las copia al confirmarlo
- *          (resumen-y-confirmacion). No se consulta la geocodificación: se usa el punto guardado (direcciones-E07).
+ *          El servidor no guarda nada: la app las lleva hasta el resumen del pedido, y POST /api/pedidos las vuelve a
+ *          validar y las copia al crear el pedido (resumen-y-confirmacion). No se consulta la geocodificación: se usa
+ *          el punto guardado (direcciones-E07).
  *
  *     422  {
  *            "message": "La dirección está fuera de la zona de servicio.",
