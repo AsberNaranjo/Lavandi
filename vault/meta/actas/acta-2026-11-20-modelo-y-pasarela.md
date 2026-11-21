@@ -67,6 +67,13 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
   Claude y la corrige Arthur.**
 - C-231 (Arthur Naranjo, 2026-11-21). "Y genérame las instrucciones para correr la app en un PDF." Ver
   [[correr-la-app-en-local]].
+- C-232 (Arthur Naranjo, 2026-11-21). "Listo, ya tenemos la sesión que sí tiene los artifacts, así que usa los de
+  https://claude.ai/artifact/PDFYFzpi5iXKw5zzAHx3rY, la propuesta 1 y 2. Igual, primero alimenta el 2 para que quede
+  bien con lo del contrato y lo que ya había en el proyecto, porfa, y así continuar." La liga es el lienzo "Lavandi".
+- C-233 (Arthur Naranjo, 2026-11-21). A la pregunta de cuáles son la propuesta 1 y la 2, porque el lienzo ya no tiene
+  las originales: "1 = P4, 2 = P5 (Recomendado)". La 1 es la Propuesta 4 del lienzo, las imágenes de iPhone y Android;
+  la 2 es la Propuesta 5, la convergida y navegable que hizo la sesión de Nadir. A si la 2 se corrige en el mismo
+  lugar o en una copia al lado: "En el mismo lugar (Recomendado)".
 
 ## Decisiones tomadas en la sesión
 
@@ -87,6 +94,7 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
 | 13 | DD-128: el servidor rechaza siempre el `idToken` de Google cuyo correo Google no verificó | Dejarlo como estaba; crear la cuenta sin ligarla nunca | Arthur (C-228) | registro-E16 y E17; DD-128 cerrada |
 | 14 | Al reinstalar la app no sobrevive la sesión ni la marca de la bienvenida, en iPhone tampoco | Dejar que el llavero de iPhone las conserve | Arthur (C-229) | registro-E32; DD-131, punto 2 |
 | 15 | Las pantallas de H1 se corrigen con las imágenes de la Propuesta 04 del repositorio mientras no se tenga el lienzo de la otra cuenta. Sin lo que no tiene cita: el nombre en el registro (C-225), la casilla de aceptación (DD-080) y los atajos de la bienvenida | Esperar al lienzo | Arthur (C-230), con la lectura de Claude | `registro-e-inicio-de-sesion` tarea 2.3; `bienvenida` tarea 1.3 |
+| 16 | La Propuesta 5 del lienzo "Lavandi" se corrige en su lugar contra el contrato, los ADR vigentes, las specs y lo construido en el H1. Lo que no tiene cita sale, lo pendiente va en ámbar con su DD, y la numeración es la del repositorio. Se agrega el tablero "Entrada" (bienvenida-E04). El pedido queda en cuatro pasos y "Prendas" sale del flujo. La referencia visual de la app pasa a ser la Propuesta 4 y la 5 corregida | Una copia corregida al lado; dejarla como la hizo la sesión de Nadir | Arthur (C-232, C-233) | Lienzo "Lavandi", versión 21; [[DD-135]] y [[DD-136]] |
 
 **Lo que implica la decisión 3.** Mientras el cliente no firme, el contrato sigue diciendo Conekta (`CLAUDE.md` §2-bis,
 punto 3). Lo que se escribe ahora es neutral: el cobro por checkout redirigido y confirmado por webhook, sin el nombre
@@ -97,3 +105,5 @@ de un proveedor. La integración con Stripe o con Mercado Pago es una tarea bloq
 | # | Pregunta | Bloquea | Fila en `deuda-de-decision.md` |
 |---|---|---|---|
 | 1 | ¿Stripe o Mercado Pago? Se elige con matriz y ADR, que reemplaza al ADR-0010, y el aviso firmado la nombra | La integración del pago y el aviso al cliente | DD-079 |
+| 2 | Las decisiones de pantalla que dejó la corrección de la Propuesta 5: pedido activo en el inicio, la tarjeta de lavandería, las reseñas, la hora por estado, el permiso de avisos, los campos de la dirección, el número de WhatsApp y el paso de prendas | Cerrar la Propuesta 5 como referencia | [[DD-135]] |
+| 3 | Lo que la Propuesta 5 traía fuera del contrato: ¿se le propone a EL CLIENTE como Orden de Cambio? | Nada del contrato | [[DD-136]] |
