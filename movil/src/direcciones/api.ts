@@ -1,5 +1,6 @@
 // Las direcciones de la cuenta (openspec/changes/direcciones): guardar una nueva, escrita o marcada en el mapa
-// (direcciones-E01 a E04 y E06). Todo va con el token de la sesión y la API identifica cada dirección por su
+// (direcciones-E01 a E04 y E06), la lista de favoritas (direcciones-E06 a E08) y la recogida y la entrega de un pedido,
+// que el servidor acepta solo dentro de la zona de servicio de la plaza de la lavandería (direcciones-E09 a E11). Todo va con el token de la sesión y la API identifica cada dirección por su
 // id_publico. El contrato exacto con cada cuerpo y cada error está en el comentario de
 // servidor/app/Http/Controllers/Api/DireccionesController.php. Como las demás consultas, nunca lanza: devuelve un
 // Resultado.
@@ -7,13 +8,17 @@
 // La geocodificación vive en el servidor (ADR-0009, decisión 4): la app manda la dirección escrita sin punto, y el
 // servidor la convierte una sola vez, al guardarla. La del mapa viaja con el punto del pin y no se geocodifica. La app
 // nunca consulta la geocodificación, ni de ida ni de vuelta.
-import { pedir, type Falla } from '../configuracion/api';
+import { pedir, type Falla, type Resultado } from '../configuracion/api';
 import { esObjeto, numero } from '../configuracion/lectura';
+import type { ParaQueEsLaDireccion } from '../pedido/pedidoEnCurso';
 
 /** Las rutas de las direcciones, en un solo lugar para ajustarlas. */
 export const CONTRATO_DE_DIRECCIONES = {
   ruta: 'direcciones',
   clave: 'direccion',
+  favoritas: 'direcciones/favoritas',
+  lista: 'direcciones',
+  recogidaYEntrega: 'direcciones/recogida-y-entrega',
 } as const;
 
 /** Los motivos con los que el servidor rechaza guardar una dirección escrita (direcciones-E03). */
@@ -114,6 +119,84 @@ function fallaDelAlta(falla: Falla): FallaDelAlta {
     return { ok: false, motivo: 'sin-geocodificacion' };
   }
   return falla;
+}
+
+/** GET de las favoritas de la cuenta, en el orden en que se guardaron, con su punto guardado (direcciones-E06). */
+export async function consultarFavoritas(token: string): Promise<Resultado<Direccion[]>> {
+  const { favoritas, lista } = CONTRATO_DE_DIRECCIONES;
+  const resultado = await pedir<unknown>(favoritas, { metodo: 'GET', token });
+  if (!resultado.ok) {
+    return resultado;
+  }
+  const filas = esObjeto(resultado.datos) ? resultado.datos[lista] : undefined;
+  const direcciones = Array.isArray(filas) ? filas.map(leerDireccion) : null;
+  // Una respuesta fuera del contrato no se pinta a medias: cuenta como falla del servidor.
+  return direcciones && direcciones.every((direccion) => direccion !== null)
+    ? { ok: true, datos: direcciones as Direccion[] }
+    : { ok: false, motivo: 'servidor' };
+}
+
+/**
+ * Los motivos con los que el servidor rechaza una recogida o una entrega: fuera de toda zona de servicio
+ * (direcciones-E11) o en una zona de otra plaza que la de la lavandería (direcciones-E12). Otro motivo que llegue se
+ * conserva tal cual.
+ */
+export type MotivoDeRechazo = 'fuera_de_la_zona_de_servicio' | 'fuera_de_la_plaza_de_la_lavanderia' | (string & {});
+
+/** La recogida y la entrega que el servidor aceptó para un pedido con esa lavandería. */
+export interface RecogidaYEntrega {
+  recogida: Direccion;
+  entrega: Direccion;
+}
+
+/** Por qué el servidor rechazó una dirección: su motivo y el mensaje que dio para la persona. */
+export interface Rechazo {
+  motivo: MotivoDeRechazo;
+  mensaje?: string;
+}
+
+/** El servidor rechazó la recogida, la entrega o las dos, cada una con su motivo (direcciones-E11). */
+export type FallaDeLaEleccion =
+  | Falla
+  | { ok: false; motivo: 'rechazadas'; rechazos: Partial<Record<ParaQueEsLaDireccion, Rechazo>> };
+
+/**
+ * POST de la recogida y la entrega elegidas para un pedido con esa lavandería, por sus id_publico. Sin entrega (null),
+ * se entrega en la misma dirección de la recogida (direcciones-E09). El servidor no guarda nada y no geocodifica: usa el
+ * punto guardado (direcciones-E07).
+ */
+export async function validarRecogidaYEntrega(
+  token: string,
+  eleccion: { lavanderia: string; recogida: string; entrega: string | null },
+): Promise<{ ok: true; datos: RecogidaYEntrega } | FallaDeLaEleccion> {
+  const resultado = await pedir<unknown>(CONTRATO_DE_DIRECCIONES.recogidaYEntrega, {
+    metodo: 'POST',
+    token,
+    cuerpo: eleccion,
+  });
+  if (!resultado.ok) {
+    const rechazos = resultado.motivo === 'invalido' ? rechazosDe(resultado.motivosPorCampo, resultado.errores) : null;
+    return rechazos ? { ok: false, motivo: 'rechazadas', rechazos } : resultado;
+  }
+  const datos = esObjeto(resultado.datos) ? resultado.datos : {};
+  const recogida = leerDireccion(datos.recogida);
+  const entrega = leerDireccion(datos.entrega);
+  return recogida && entrega ? { ok: true, datos: { recogida, entrega } } : { ok: false, motivo: 'servidor' };
+}
+
+// Los motivos de la recogida y de la entrega, con su mensaje, si el servidor dio alguno.
+function rechazosDe(
+  motivos: Record<string, string> | undefined,
+  errores: Record<string, string[]>,
+): Partial<Record<ParaQueEsLaDireccion, Rechazo>> | null {
+  const rechazos: Partial<Record<ParaQueEsLaDireccion, Rechazo>> = {};
+  for (const para of ['recogida', 'entrega'] as const) {
+    const motivo = motivos?.[para];
+    if (motivo) {
+      rechazos[para] = { motivo, mensaje: errores[para]?.[0] };
+    }
+  }
+  return Object.keys(rechazos).length > 0 ? rechazos : null;
 }
 
 /** Una dirección leída campo por campo; null si no es del contrato. */

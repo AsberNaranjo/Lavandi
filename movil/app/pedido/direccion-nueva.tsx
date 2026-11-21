@@ -10,6 +10,8 @@
 //   persona lo mueve bajo el pin y escribe la colonia, obligatoria, y las demás señas, opcionales. Se guarda con el
 //   punto del pin, sin geocodificar. Sin ubicación, o en un Android sin la llave de Google Maps, no hay mapa: lo dice y
 //   deja escribir la dirección.
+// - En las dos, "Guardar como favorita" pide su nombre, y la favorita aparece después en la lista de favoritas
+//   (direcciones-E06). Sin marcarla, la dirección sirve para este pedido y no entra a la lista (direcciones-E08).
 // - Al guardarla, la dirección que devolvió el servidor, con su punto, queda en el pedido en curso para la recogida o
 //   para la entrega, y la app vuelve al paso de la dirección.
 //
@@ -38,6 +40,7 @@ import { agregarDireccion, usePedidoEnCurso, type ParaQueEsLaDireccion } from '.
 import { RUTA_DE_LA_DIRECCION } from '../../src/pedido/rutas';
 import { Boton } from '../../src/piezas/Boton';
 import { CampoDeTexto } from '../../src/piezas/CampoDeTexto';
+import { Interruptor } from '../../src/piezas/Interruptor';
 import { MensajeDeError } from '../../src/piezas/MensajeDeError';
 import { Pantalla } from '../../src/piezas/Pantalla';
 import { Pestanas } from '../../src/piezas/Pestanas';
@@ -60,8 +63,9 @@ const SIN_SENAS: SenasDeLaDireccion = {
   referencias: '',
 };
 
-// Los campos que la pantalla muestra: el error de cualquiera de ellos va junto a él, no arriba del botón.
-const CAMPOS_VISIBLES = Object.keys(SIN_SENAS);
+// Los campos que la pantalla muestra, con el nombre de la favorita: el error de cualquiera de ellos va junto a él, no
+// arriba del botón.
+const CAMPOS_VISIBLES = [...Object.keys(SIN_SENAS), 'alias'];
 
 // La etiqueta de cada seña en cada forma: en el mapa, solo la colonia es obligatoria (direcciones-E04).
 const ETIQUETAS: Record<Forma, Record<keyof SenasDeLaDireccion, string>> = {
@@ -92,6 +96,8 @@ export default function PantallaDeDireccionNueva() {
 
   const [forma, setForma] = useState<Forma>('escrita');
   const [senas, setSenas] = useState<SenasDeLaDireccion>(SIN_SENAS);
+  const [esFavorita, setEsFavorita] = useState(false);
+  const [alias, setAlias] = useState('');
   const [falla, setFalla] = useState<FallaDelAlta | null>(null);
   const [guardando, setGuardando] = useState(false);
   // La ubicación se lee la primera vez que se abre el mapa, no antes.
@@ -131,7 +137,7 @@ export default function PantallaDeDireccionNueva() {
   }
 
   function nuevaDireccion(): DireccionNueva | null {
-    const favorita = { es_favorita: false, alias: '' };
+    const favorita = { es_favorita: esFavorita, alias };
     if (forma === 'escrita') {
       return { origen: 'escrita', ...senas, ...favorita };
     }
@@ -176,6 +182,20 @@ export default function PantallaDeDireccionNueva() {
         {campo('colonia')}
         {campo('municipio')}
         {campo('referencias', true)}
+        <Interruptor
+          etiqueta={TEXTOS_DE_DIRECCIONES.guardarComoFavorita}
+          valor={esFavorita}
+          alCambiar={setEsFavorita}
+        />
+        {esFavorita ? (
+          <CampoDeTexto
+            nombre="alias"
+            etiqueta={TEXTOS_DE_DIRECCIONES.nombreDeLaFavorita}
+            valor={alias}
+            alCambiar={setAlias}
+            error={errores.alias?.[0]}
+          />
+        ) : null}
       </View>
       {falla ? <MensajeDeError texto={mensajeDelAlta(falla, CAMPOS_VISIBLES)} /> : null}
       {falla && forma === 'escrita' && ofreceElMapa(falla) ? (

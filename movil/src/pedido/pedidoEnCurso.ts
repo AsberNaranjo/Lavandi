@@ -5,7 +5,9 @@
 //
 // También lleva las direcciones que la persona agrega durante el pedido (openspec/changes/direcciones, direcciones-E01
 // y E04): la dirección nueva las deja aquí y el paso de la dirección las muestra para elegirlas. Una que no es favorita
-// solo vive en este pedido (direcciones-E08).
+// solo vive en este pedido (direcciones-E08). Y la recogida y la entrega que el servidor aceptó para la lavandería, que
+// viajan hasta el resumen (direcciones-E09 y E10); el servidor las copia al pedido al confirmarlo
+// (resumen-y-confirmacion).
 import { useSyncExternalStore } from 'react';
 
 import type { Direccion } from '../direcciones/api';
@@ -20,6 +22,10 @@ export interface PedidoEnCurso {
   servicio: CodigoDeServicio | null;
   /** Las direcciones que la persona agregó en este pedido, de la más antigua a la más reciente. Sin ninguna, no está. */
   agregadas?: DireccionAgregada[];
+  /** La dirección de recogida que aceptó el servidor (direcciones-E09 a E11). Sin elegir, no está. */
+  recogida?: Direccion;
+  /** La de entrega: la misma de la recogida o la otra que eligió (direcciones-E09 y E10). Sin elegir, no está. */
+  entrega?: Direccion;
 }
 
 /** Para qué se agrega una dirección en el paso de la dirección: la recogida o la entrega. */
@@ -63,6 +69,14 @@ export function agregarDireccion(direccion: Direccion, para: ParaQueEsLaDireccio
     return;
   }
   poner({ ...actual, agregadas: [...(actual.agregadas ?? []), { direccion, para }] });
+}
+
+/** Guarda la recogida y la entrega que aceptó el servidor; con la entrega en la misma dirección, las dos son la misma. */
+export function elegirDirecciones({ recogida, entrega }: { recogida: Direccion; entrega: Direccion }): void {
+  if (!actual) {
+    return;
+  }
+  poner({ ...actual, recogida, entrega });
 }
 
 /** Deja la app sin pedido en curso. */

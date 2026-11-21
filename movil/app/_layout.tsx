@@ -49,7 +49,9 @@ function Pantallas({ letraLista }: { letraLista: boolean }) {
         <Stack.Screen name="lavanderias/[id]" />
         <Stack.Screen name="pedido/servicio" />
         <Stack.Screen name="pedido/fecha-y-hora" />
+        <Stack.Screen name="pedido/direccion" />
         <Stack.Screen name="pedido/direccion-nueva" />
+        <Stack.Screen name="pedido/resumen" />
       </Stack.Protected>
       <Stack.Protected guard={!conSesion} redirectTo="/inicio">
         <Stack.Screen name="registro" />
