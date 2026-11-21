@@ -7,8 +7,9 @@
 - ADR-0008: un proyecto de Firebase por entorno; en iPhone los avisos necesitan la clave de la cuenta de Apple.
 - ADR-0009: la llave de Google Maps de Android va restringida a la app y es una por entorno.
 - ADR-0010: el pago se da por bueno solo con el webhook de la pasarela; la firma se valida en su modo de prueba antes de
-  producción. ADR-0010 nombra a Conekta y se reemplaza al elegir la pasarela: por mientras queda abierta entre Stripe y
-  Mercado Pago, y la integración con cualquiera espera la firma del cliente (C-192, DD-079).
+  producción. ADR-0010 sigue vigente y nombra a Conekta, que es la pasarela en producción mientras el cliente no firme
+  el cambio (`CLAUDE.md` §2-bis, punto 3). Stripe y Mercado Pago son candidatas (C-192); el cliente dio un OK expreso y
+  la firma sigue pendiente (C-216, DD-079). Si se firma, el ADR de la elegida reemplaza a ADR-0010.
 - Los trámites del B.10 no han empezado (DD-084) y no se sabe si las cuentas de las tiendas serán de persona física o de
   sociedad (DD-017). Grado E: una cuenta personal nueva de Google Play pide una prueba cerrada de 14 días con 12
   personas antes de publicar (R-029, `vault/arquitectura/verificaciones-fase-6.md`, fila 1).
@@ -21,7 +22,7 @@
 - Prueba y producción existen y no se mezclan.
 - Todo viaja cifrado (SEG-1).
 - Compilaciones firmadas, enviadas y liberadas a la vez en las dos tiendas (A43-1).
-- La pasarela cobra en producción (A43-4), cuando DD-079 se cierre.
+- La pasarela cobra en producción (A43-4): Conekta, o la elegida si se firma el cambio (DD-079).
 - El hito alterno del pago 2 tiene dónde acreditarse (`NSV-2026-001-v8.pdf:7:Cláusula IV`).
 
 **Non-Goals:**
@@ -41,7 +42,7 @@ repetirlos.
 
 No crea tablas: ninguna tabla de `vault/arquitectura/modelo-de-datos.md` nace aquí (ADR-0016). En prueba y en producción
 corren las migraciones de los demás cambios, las mismas que la integración continua ya revisó con la prueba de esquema
-de `modelo-de-datos` (modelo-E01 a modelo-E16) después de `migrate:fresh`; este cambio no agrega ninguna. Los triggers
+de `modelo-de-datos` (modelo-E01 a modelo-E17) después de `migrate:fresh`; este cambio no agrega ninguna. Los triggers
 `impedir_cambio()` de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos` llegan con esas migraciones.
 
 Usa, sin cambiar su forma:
@@ -53,7 +54,8 @@ Usa, sin cambiar su forma:
 | `pedidos`, `pedido_eventos` | las del recorrido | publicacion-E15 y publicacion-E16: el pedido real y su seguimiento | `resumen-y-confirmacion` |
 | `dispositivos` | `token_fcm`, `plataforma` | publicacion-E01: el aviso con el Firebase de cada entorno | `avisos` |
 
-Los valores que admite la columna `pasarela` salen de DD-079. La transacción real de publicacion-E15 queda en `pedidos`
+El valor de la columna `pasarela` en producción es `conekta`, la del contrato, o el de la elegida si se firma el cambio
+(DD-079). La transacción real de publicacion-E15 queda en `pedidos`
 y `pagos` como cualquier otra, y la base no deja borrarla (trigger `impedir_cambio()`). Si se devuelve, es una fila de
 `reembolsos` (`pago`); cuándo se reembolsa sigue en DD-012, DD-016 y DD-103.
 

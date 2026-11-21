@@ -62,6 +62,7 @@ Arthur respondió a los cuatro pasos para preparar el sprint 1:
   de Claude Design (`diseno/lavandi-identidad/`). Arthur: ponerlo como "PROPUESTA 3 (Nadir)"; "no es una propuesta,
   pero es ya ver los mocks que en teoría ya fueron aprobados". Se agregó al diseño la lámina 5 del kit (la app de la
   lavandería) y las seis láminas de identidad. La identidad usa Quicksand y Figtree, no las tipografías vigentes.
+  **Grado C por confirmar:** lo transmitió Arthur y Nadir no lo ha asentado en su sesión (revisión de Nadir del PR #2).
 
 ## Decisiones tomadas en la sesión
 

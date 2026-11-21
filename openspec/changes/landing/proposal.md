@@ -21,7 +21,7 @@ acepta con "Las 12 secciones descritas en A.2 presentes y correctamente renderiz
 - Formulario de contacto, correo y WhatsApp Business de la configuración, y pie legal con los enlaces al aviso de
   privacidad, a los términos y el aviso de derechos de autor.
 - Todo texto del cliente entra como contenido configurable, nunca escrito en la vista. La marca y el dominio son
-  `{{MARCA}}` y `{{DOMINIO}}`.
+  Lavandi y `lavandi.mx`.
 
 **Qué NO cambia**
 

@@ -60,7 +60,7 @@ Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cam
   código, porque la llave compuesta solo asegura la plaza.
 - **Sin trigger:** `impedir_cambio()` es solo para `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`. Si una
   calificación se puede cambiar es BR-25 (historial-E10).
-- **Prueba de esquema:** la migración pasa la de `modelo-de-datos` (modelo-E01 a modelo-E16).
+- **Prueba de esquema:** la migración pasa la de `modelo-de-datos` (modelo-E01 a modelo-E17).
 
 **Tablas de otros cambios que este usa:**
 

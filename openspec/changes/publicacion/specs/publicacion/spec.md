@@ -158,8 +158,9 @@ SIN RESPUESTA — bloquea: publicacion-E13 (DD-080, DD-121)
 ### Requirement: La pasarela en modo producción
 
 En producción, el cobro DEBE (MUST) usar la cuenta de la pasarela de EL CLIENTE en modo producción, con sus llaves leídas
-del entorno y su webhook registrado en una dirección https, y DEBE (MUST) procesar con éxito una transacción real. El
-contrato nombra a Conekta en este criterio; cuál pasarela se integra lo fija DD-079 (C-192).
+del entorno y su webhook registrado en una dirección https, y DEBE (MUST) procesar con éxito una transacción real. La
+pasarela es la que nombra el contrato en este criterio mientras el cliente no firme el cambio, o la elegida si se firma
+(DD-079).
 
 Cita: A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3` y `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3`; D → ADR-0010
 
@@ -172,7 +173,8 @@ Cita: A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3` y `NSV-2026-001-v8.
 
 Criterio: A43-4
 
-SIN RESPUESTA — bloquea: publicacion-E14 (DD-079)
+La pasarela es Conekta, la del contrato (ADR-0010); con la elegida, si se firma el cambio (DD-079). Cómo se valida su
+firma lo confirma `pago` en el sandbox de Conekta (tarea 3.1).
 
 #### Scenario: publicacion-E15 — Una transacción real
 
@@ -183,7 +185,8 @@ SIN RESPUESTA — bloquea: publicacion-E14 (DD-079)
 
 Criterio: A43-4
 
-SIN RESPUESTA — bloquea: publicacion-E15 (DD-084, DD-079, DD-012, DD-056)
+SIN RESPUESTA — bloquea: publicacion-E15 (DD-084, DD-012, DD-056). La transacción es con Conekta, la pasarela vigente;
+con la elegida, si se firma el cambio (DD-079). Pagar desde la app depende además de pago-E02, en `pago`.
 
 ### Requirement: Validación en el ambiente de prueba
 
@@ -202,4 +205,6 @@ Cita: A → `NSV-2026-001-v8.pdf:7:Cláusula IV`; D → ADR-0012
 
 Criterio: A43-1, y los demás del A.4.3 en el ambiente de prueba
 
-SIN RESPUESTA — bloquea: publicacion-E16 (DD-070 y DD-079; en iPhone, DD-069 y DD-084)
+SIN RESPUESTA — bloquea: publicacion-E16 (DD-070; en iPhone, DD-069 y DD-084). El pago en el modo de prueba es con
+Conekta, la pasarela vigente; con la elegida, si se firma el cambio (DD-079). Pagar desde la app depende además de
+pago-E02, en `pago`.

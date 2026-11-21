@@ -4,7 +4,7 @@ S = 2 h, M = 5 h, L = 12 h.
 
 ## 0. Tablas y migración (`servidor/`)
 
-- [ ] 0.1 Migración de `reportes_soporte`, con `created_at` y `updated_at` en `timestamptz`, y su modelo de Eloquent `ReporteSoporte`, sobre `App\Models\Modelo`, con su `$table` y su `$primaryKey` declarados, que sostiene perfil-usuario-E11 a perfil-usuario-E13 (depende de la pregunta abierta de `design.md` sobre la plaza de un reporte sin pedido) — test: `servidor/tests/Feature/PerfilUsuario/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E16) — tamaño S
+- [ ] 0.1 Migración de `reportes_soporte`, con `created_at` y `updated_at` en `timestamptz`, y su modelo de Eloquent `ReporteSoporte`, sobre `App\Models\Modelo`, con su `$table` y su `$primaryKey` declarados, que sostiene perfil-usuario-E11 a perfil-usuario-E13 (depende de la pregunta abierta de `design.md` sobre la plaza de un reporte sin pedido) — test: `servidor/tests/Feature/PerfilUsuario/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — tamaño S
 
 ## 1. Servidor (`servidor/`)
 
@@ -25,7 +25,7 @@ S = 2 h, M = 5 h, L = 12 h.
 
 ## 3. Bloqueadas: no entran al sprint hasta cerrar su fila
 
-- [ ] 3.0 perfil-usuario-E07 (bloqueada: DD-055; los valores de `pasarela`, DD-079): migración de `metodos_pago_guardados` con las columnas de C-192 (`pasarela`, `id_pasarela_cliente`, `id_pasarela_fuente`) y su modelo de Eloquent, solo si DD-055 dice que sí — test: `servidor/tests/Feature/PerfilUsuario/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E16) — tamaño S
+- [ ] 3.0 perfil-usuario-E07 (bloqueada: DD-055 y DD-079, como pago-E06: C-198 dijo que sí; falta si el checkout permite reutilizar la tarjeta): migración de `metodos_pago_guardados` con las columnas de C-192 (`pasarela`, `id_pasarela_cliente`, `id_pasarela_fuente`) y su modelo de Eloquent — test: `servidor/tests/Feature/PerfilUsuario/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — tamaño S
 - [ ] 3.1 perfil-usuario-E07 (bloqueada: DD-055 y DD-079): guardar y eliminar la referencia de la tarjeta que da la pasarela — test: `servidor/tests/Feature/PerfilUsuario/TarjetaGuardadaTest.php` — tamaño S
 - [ ] 3.2 perfil-usuario-E07 (bloqueada: DD-055): métodos de pago en el perfil — test: `movil/__tests__/perfil-usuario/metodos-de-pago.test.tsx` — tamaño S
 - [ ] 3.3 perfil-usuario-E14 (bloqueada: BR-25, DD-108): entregar el reporte a quien lo reciba y responder a la persona — test: `servidor/tests/Feature/PerfilUsuario/DestinoDelReporteTest.php` — tamaño S

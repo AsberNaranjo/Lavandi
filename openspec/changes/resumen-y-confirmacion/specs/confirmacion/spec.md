@@ -53,7 +53,7 @@ si después cambian el precio de la lavandería o la dirección guardada. Cada c
 quedar también en su historial, en la misma transacción.
 
 Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3, Módulo A #9, #10 y #11` (resumen, pago y confirmación, en
-ese orden; C-188); A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` ("historial completo"); A →
+ese orden; el orden apoya la regla, no la dice) · C → C-188 (Arthur) y C-197 (Nadir), que son la regla; A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` ("historial completo"); A →
 `NSV-2026-001-v8.pdf:4:Cláusula I`; D → ADR-0016
 
 #### Scenario: confirmacion-E05 — El pedido nace antes del pago, con su plaza y su copia
@@ -83,7 +83,7 @@ solo cuando el componente de cobro le avisa que la pasarela confirmó su pago. E
 la app NO DEBEN (MUST NOT) confirmar un pedido.
 
 Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3, Módulo A #10, #11 y #12` (el pago y después la confirmación
-con folio; C-188); A → `NSV-2026-001-v8.pdf:4:Cláusula I`; D → ADR-0010 (punto 1: el pago se da por bueno solo con el
+con folio; el orden apoya la regla, no la dice) · C → C-188 (Arthur) y C-197 (Nadir), que son la regla; A → `NSV-2026-001-v8.pdf:4:Cláusula I`; D → ADR-0010 (punto 1: el pago se da por bueno solo con el
 webhook) y ADR-0016
 
 #### Scenario: confirmacion-E06 — Dos pedidos de la misma plaza nunca comparten folio

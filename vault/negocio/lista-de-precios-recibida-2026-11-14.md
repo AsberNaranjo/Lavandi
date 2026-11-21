@@ -1,7 +1,7 @@
 ---
 estado: borrador
-grado: C
-fuente: libreta de precios de EL CLIENTE, seis fotos entregadas por WhatsApp el 2026-11-14 y transmitidas por Arthur Naranjo (cliente/recibido/2026-11-14/; acta-2026-11-18-entorno-y-mocks, C-172 y C-173); lectura de Claude, por confirmar
+grado: B
+fuente: libreta de precios de EL CLIENTE, seis fotos entregadas por WhatsApp el 2026-11-14 y transmitidas por Arthur Naranjo (cliente/recibido/2026-11-14/; acta-2026-11-18-entorno-y-mocks, C-172 y C-173); lectura de Claude, por confirmar. Grado B porque las fotos están en el repo; la lectura de la libreta manuscrita no es una declaración, y no sube a C hasta que Nadir o Arthur la confirmen en un acta (revisión de Nadir del PR #2)
 fecha: 2026-11-18
 dueño: Arthur Naranjo
 ---

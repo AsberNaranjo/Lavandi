@@ -25,7 +25,7 @@ son DD-123, DD-012, DD-010, DD-016, DD-019, DD-025, DD-098, DD-101, DD-071 y DD-
 **Non-Goals:**
 
 - Calcular el precio estimado, el envío o mostrar la política de cancelación con contenido (E02, E03 y E04).
-- El cobro y la integración con la pasarela (`pago`, DD-079).
+- El cobro y la integración con la pasarela (`pago`: Conekta mientras no se firme el cambio, DD-079).
 - Qué pasa con un pedido que nunca se paga (DD-123, DD-012).
 - El aviso al teléfono, los estados siguientes y la cancelación.
 
@@ -59,7 +59,7 @@ son DD-123, DD-012, DD-010, DD-016, DD-019, DD-025, DD-098, DD-101, DD-071 y DD-
 
 ## Tablas y migración
 
-**Crea** cinco tablas, en una migración que pasa la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E16).
+**Crea** cinco tablas, en una migración que pasa la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17).
 Las columnas son las de `vault/arquitectura/modelo-de-datos.md`. Toda foránea lleva su índice y `ON DELETE RESTRICT`.
 
 **`estados_pedido`** (catálogo, sin plaza):
@@ -138,9 +138,9 @@ Las columnas son las de `vault/arquitectura/modelo-de-datos.md`. Toda foránea l
 
 - [EL CLIENTE no acepta la regla de C-188 (DD-012 sigue parcial)] → Cambian confirmacion-E05, E07 y E13 y quién llama a
   la confirmación; las tablas no cambian.
-- [La confirmación con folio de H3 depende del pago, y el pago real de DD-079] → **No está listo** para enseñar el folio
-  en el teléfono con un pago real antes de que el cliente firme el cambio de pasarela. H3 se enseña hasta el pedido
-  creado; el folio se prueba con los tests.
+- [La confirmación con folio de H3 depende del pago, y el pago desde el teléfono, de pago-E02 (DD-055, DD-079)] →
+  **No está listo** para enseñar el folio en el teléfono con un pago real mientras pago-E02 siga bloqueado. H3 se
+  enseña hasta el pedido creado; el folio se prueba con los tests, contra el sandbox de Conekta.
 - [Un pedido se queda en el estado previo al pago y nunca se paga] → No recibe folio, no lo ve la lavandería y no se
   recolecta (C-188). Si vence o se cancela lo fijan DD-123 y DD-012; este cambio no lo inventa.
 - [Confirmado antes de que la lavandería acepte] → Si la lavandería rechaza después (`:17:A.3`, Módulo B #2), el pedido
@@ -148,7 +148,7 @@ Las columnas son las de `vault/arquitectura/modelo-de-datos.md`. Toda foránea l
 - [Resend corta en 100 correos al día] (ADR-0014) → Con la cola, un rechazo del proveedor se reintenta y no se pierde
   el pedido.
 - [El correo depende del dominio del cliente] (DD-023) → En local no hace falta; fuera de local, el remitente es
-  `{{DOMINIO}}` desde la configuración.
+  `lavandi.mx` desde la configuración.
 
 ## Open Questions
 
@@ -161,8 +161,8 @@ Las columnas son las de `vault/arquitectura/modelo-de-datos.md`. Toda foránea l
 - **El único del folio.** La spec anterior pedía un folio que no se repite en ningún lado; el modelo lo hace único por
   plaza. Si el formato de DD-101 no incluye la plaza, dos plazas pueden repetir el número. **Necesita ADR** de Arthur
   (DD-101) antes de fusionar.
-- **`created_at` y `updated_at`.** El modelo no los lista; esta migración no los agrega por su cuenta. La hora de
-  creación del pedido es el `ocurrido_en` de su primer evento.
+- **`created_at` y `updated_at`:** las tablas de este cambio los llevan, en `timestamptz` (modelo-E17; ADR-0016, regla 7). La hora en que el
+  usuario confirma sigue siendo el `ocurrido_en` del primer evento.
 - **DD-012 y DD-010:** cómo se estima el precio (confirmacion-E02) y que EL CLIENTE acepte C-188.
 - **DD-019 y DD-025:** el envío (confirmacion-E03).
 - **DD-016:** la política de cancelación (confirmacion-E04).

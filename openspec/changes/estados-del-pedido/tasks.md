@@ -32,8 +32,8 @@
 - [ ] 6.3 estados-E18: el mismo flujo de 60 segundos en iPhone (DD-069) — test: `movil/.maestro/estados/cambio-en-60-segundos.yaml` — tamaño S
 - [ ] 6.4 estados-E19: el pedido rechazado por la lavandería (BR-22, BR-26, DD-103) — test: `servidor/tests/Feature/Estados/RechazoYCancelacionTest.php` — tamaño S
 - [ ] 6.5 estados-E20: el pedido cancelado (DD-016) — test: `servidor/tests/Feature/Estados/RechazoYCancelacionTest.php` — tamaño S
-- [ ] 6.6 estados-E21: el ciclo completo del pedido en el servidor, hasta Entregado (DD-012, DD-079, DD-014, DD-022) — test: `servidor/tests/Feature/Estados/RecorridoCompletoTest.php` — tamaño M
-- [ ] 6.7 estados-E22: el recorrido completo en el teléfono, en Android y en iPhone (DD-012, DD-079, DD-014, DD-022, DD-069) — test: `movil/.maestro/estados/recorrido-completo.yaml` — tamaño M
+- [ ] 6.6 estados-E21: el ciclo completo del pedido en el servidor, hasta Entregado (DD-012, DD-014, DD-022) — test: `servidor/tests/Feature/Estados/RecorridoCompletoTest.php` — tamaño M
+- [ ] 6.7 estados-E22: el recorrido completo en el teléfono, en Android y en iPhone (DD-012; DD-055 y DD-079, por pago-E02; DD-014, DD-022, DD-069) — test: `movil/.maestro/estados/recorrido-completo.yaml` — tamaño M
 
 Cada tarea va en rojo, verde y refactor: primero el test que falla, con el identificador del escenario en su nombre; luego el código mínimo; luego la limpieza. Tamaños de S-006: S = 2 h, M = 5 h, L = 12 h.
 

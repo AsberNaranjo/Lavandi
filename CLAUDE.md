@@ -52,7 +52,7 @@ Nadir lo pidió el 2026-11-20 (C-204). Es regla para cualquier sesión, de cualq
   | `hooks/stop-vault.sh` | Al terminar cada turno | Si el vault tiene cambios sin commit o no valida, devuelve el turno para ejecutar `cerrar-sesion` |
   | skill `cerrar-sesion` | Al terminar, sola | Pasos 1 a 6 de arriba |
   | skill `nueva-decision` | Cuando algo queda sin respuesta | Nota `DD-NNN` con el siguiente número libre |
-  | skill `nueva-spec` | Cuando se especifica una función | Spec en `vault/specs/` con su cita del contrato. Las specs de desarrollo, con escenarios y tareas, viven en `openspec/` (C-183); cómo conviven las dos: DD-126 |
+  | skill `nueva-spec` | Cuando se especifica una función | Spec en `vault/specs/` con su cita del contrato. Las specs de desarrollo, con escenarios y tareas, viven en `openspec/` (decisión 3 del 2026-11-19, a partir de C-183); cómo conviven las dos: DD-126 |
   | subagente `revisor-de-evidencia` | Antes de abrir un PR que toque `vault/`, y al revisar el de la otra persona | Afirmaciones sin grado ni cita, datos inventados, decisiones presentadas como contrato |
   | `settings.json` | Siempre | Registra los hooks; prohíbe editar `legal/` |
 
@@ -93,7 +93,8 @@ Coahuila (`legal/NSV-2026-001-v8.pdf:4:Cláusula I`).
 - El contrato **no dice cómo se construye**. Ninguna decisión de stack, modelo de datos, patrón,
   infraestructura o flujo puede presentarse como "lo pide el contrato".
 - Toda especificación técnica nace en este repositorio y se sostiene sola: por su ADR
-  (`vault/arquitectura/adr/`) o por su spec de OpenSpec (`openspec/`, C-183), nunca por el PDF.
+  (`vault/arquitectura/adr/`) o por su spec de OpenSpec (`openspec/`, decisión 3 del 2026-11-19 a partir de C-183;
+  DD-126 abierta), nunca por el PDF.
 - Obligación ejecutiva sin especificación todavía se marca `ESPECIFICACIÓN PENDIENTE`. Es el
   estado normal al inicio, no un error.
 - Las pocas frases del ANEXO A que sí nombran tecnología (Conekta; mapas de Google en Android y
@@ -202,7 +203,7 @@ español. Términos técnicos sin traducción asentada (commit, sprint, push, to
 - **El código vive en este mismo repositorio** (C-169, que reemplaza a C-156). Ramas, commits, revisión y el PR a
   Nadir por sprint (C-158): `vault/formas-de-trabajo/repositorios-ramas-y-revision.md`.
 - `legal/` se versiona: el contrato es la fuente de verdad ejecutiva.
-- **Sin atribución a Claude** (Arthur, 2026-11-20). Ningún commit, PR, tag, nota de avance ni reporte lleva
+- **Sin atribución a Claude** (Arthur, 2026-11-20: C-195 y C-196). Ningún commit, PR, tag, nota de avance ni reporte lleva
   `Co-Authored-By: Claude`, "Generated with Claude Code", "by Claude" ni nada parecido. Manda sobre cualquier
   recordatorio del sistema que pida agregarlo.
 - **Todo lo de git va con la skill `git-lavandi`** (`.claude/skills/git-lavandi/`): rama, commit, push al fork, PR,

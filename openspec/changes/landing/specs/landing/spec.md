@@ -52,7 +52,7 @@ Cita: A → `NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2`
 - **CUANDO** alguien abre la portada
 - **ENTONCES** el encabezado muestra el logo, el tagline, la imagen y un botón principal de descarga
 - **Y** el botón lleva a la sección "Descarga la app"
-- **Y** el nombre del producto y el logo salen de la configuración, nunca escritos en la vista (`{{MARCA}}`)
+- **Y** el nombre del producto y el logo salen de la configuración, nunca escritos en la vista (Lavandi, leído de la configuración)
 
 Contenido configurable: lo entrega EL CLIENTE (DD-117). El mockup necesita pantallas terminadas de la app.
 

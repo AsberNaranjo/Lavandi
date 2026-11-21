@@ -72,7 +72,7 @@ necesita el alta real.
   - Dar de baja (E17) pone `baja` y no borra la fila, ni en suave: `deleted_at` queda vacío, para que el panel la siga
     listando con su estado y sus pedidos la sigan encontrando. Es la lectura de este diseño (pregunta abierta 10).
 - **Sin trigger:** `impedir_cambio()` es solo para `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`.
-- **Prueba de esquema:** la migración pasa la de `modelo-de-datos` (modelo-E01 a modelo-E16).
+- **Prueba de esquema:** la migración pasa la de `modelo-de-datos` (modelo-E01 a modelo-E17).
 
 **Tablas de otros cambios que este usa:**
 

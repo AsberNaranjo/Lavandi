@@ -8,7 +8,7 @@ inventario funcional, hito H10.
 
 ## What Changes
 
-- Dos páginas públicas en `{{DOMINIO}}`, cada una en una dirección fija que se abre sin iniciar sesión: el aviso de
+- Dos páginas públicas en `lavandi.mx`, cada una en una dirección fija que se abre sin iniciar sesión: el aviso de
   privacidad y los términos y condiciones, con el texto tal como lo entregue EL CLIENTE.
 - En producción nunca se publica un texto de ejemplo como si fuera el aviso o los términos.
 - Cada documento se reemplaza por su versión nueva sin modificar ni volver a desplegar el código, y su dirección no

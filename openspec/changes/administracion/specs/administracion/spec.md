@@ -200,7 +200,8 @@ El panel DEBE (MUST) conciliar, para el periodo que elija la administración, lo
 
 Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #6: "Ingresos por periodo, comisiones y conciliación con Conekta"); D → ADR-0010
 
-La pasarela queda abierta hasta que el cliente firme el cambio (DD-079, C-192); mientras tanto, el contrato dice Conekta.
+La pasarela es Conekta mientras el cliente no firme el cambio (DD-079, C-192, C-216); si lo firma, se concilia con la
+elegida.
 
 #### Scenario: administracion-E20 — Periodo sin diferencias
 
@@ -210,7 +211,7 @@ La pasarela queda abierta hasta que el cliente firme el cambio (DD-079, C-192); 
 
 Criterio: A43-6
 
-SIN RESPUESTA — bloquea: administracion-E20 (DD-112: de dónde salen los movimientos y la forma de `movimientos_pasarela`; DD-079: la pasarela)
+SIN RESPUESTA — bloquea: administracion-E20 (DD-112: de dónde salen los movimientos y la forma de `movimientos_pasarela`)
 
 #### Scenario: administracion-E21 — Periodo con diferencias
 
@@ -218,7 +219,7 @@ SIN RESPUESTA — bloquea: administracion-E20 (DD-112: de dónde salen los movim
 - **CUANDO** la administración concilia el periodo
 - **ENTONCES** el reporte señala cada uno con su tipo de diferencia
 
-SIN RESPUESTA — bloquea: administracion-E21 (DD-112 y DD-079)
+SIN RESPUESTA — bloquea: administracion-E21 (DD-112)
 
 #### Scenario: administracion-E22 — La comisión que retiene la pasarela
 
@@ -226,7 +227,7 @@ SIN RESPUESTA — bloquea: administracion-E21 (DD-112 y DD-079)
 - **CUANDO** la administración concilia el periodo
 - **ENTONCES** la comisión de la pasarela se muestra y se descuenta según quién la absorba
 
-SIN RESPUESTA — bloquea: administracion-E22 (DD-013: quién absorbe la comisión de la pasarela; DD-079: la pasarela)
+SIN RESPUESTA — bloquea: administracion-E22 (DD-013: quién absorbe la comisión de la pasarela)
 
 ### Requirement: Avisos masivos
 

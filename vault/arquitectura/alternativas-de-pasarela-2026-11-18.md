@@ -7,6 +7,10 @@ dueño: Arthur Naranjo
 ---
 # Alternativas a Conekta para cobrar con tarjeta y en efectivo
 
+> **Ojo (revisión de Nadir del PR #2):** las cifras de Openpay y Mercado Pago no coinciden con las de
+> [[pasarelas-candidatas]], otra búsqueda del mismo periodo. Las dos son grado E sin verificar; se reconcilian con la
+> cotización escrita de cada pasarela (DD-079).
+
 Arthur pidió "las opciones para meterle los pagos con tarjeta a la app; se descarta Conekta" (C-180), y aclaró que la
 app debe cobrar con tarjeta y en efectivo. **Conekta es grado A**: cambiarla exige Orden de Cambio (DD-079). Esta nota
 es el insumo para esa negociación, no una decisión. Todo es **grado E**, consultado el 2026-11-18.
@@ -30,7 +34,7 @@ obligatoria, no opcional.
 | Depósitos | Cada 3 días hábiles; OXXO a T+4 | Según el plazo; puede retener fondos semanas | Al día hábil siguiente | Sin confirmar |
 | Alta | Persona física con actividad empresarial o moral, RFC y CLABE | Persona física o moral, Constancia de Situación Fiscal | **Exige cuenta BBVA** | Desde su app |
 
-**Comisión por un pago con tarjeta de $300**, con IVA: Stripe ≈ $16.01; Mercado Pago ≈ $16.79; Clip ≈ $12.53;
+**Comisión por un pago con tarjeta de $300**, con IVA (ejemplo que calculó Claude con las comisiones de esta tabla, no un cobro real): Stripe ≈ $16.01; Mercado Pago ≈ $16.79; Clip ≈ $12.53;
 Openpay ≈ $11.08.
 
 ## Descartados
@@ -61,7 +65,7 @@ paga en la caja de una tienda y la pasarela avisa al servidor por webhook horas 
 | Monto por pago | $10 a $10,000 | Sin confirmar | Hasta $5,000 en Farmacias del Ahorro, $15,000 en 7-Eleven, $29,999 en Walmart | Sin confirmar |
 | Reembolso | **No se puede**; tampoco hay contracargos | Sin confirmar | Sin confirmar | Sin confirmar |
 
-**Comisión por un pago en efectivo de $300**, con IVA y sin el cargo en caja: Stripe ≈ $17.40; Mercado Pago ≈ $17.19;
+**Comisión por un pago en efectivo de $300**, con IVA y sin el cargo en caja (el mismo tipo de ejemplo): Stripe ≈ $17.40; Mercado Pago ≈ $17.19;
 Openpay ≈ $2.90 o ≈ $12.99, según cuál de sus dos tablas valga.
 
 **Complementos que solo cobran en OXXO:** Digital@FEMSA (ver Descartados) y NetPay, que tiene una API para generar la

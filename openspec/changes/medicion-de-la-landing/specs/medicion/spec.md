@@ -85,7 +85,7 @@ Contenido configurable: los textos los aprueba EL CLIENTE (DD-117).
 ### Requirement: Mapa del sitio
 
 La landing DEBE (MUST) publicar un mapa del sitio con todas sus páginas públicas, con su dirección completa en
-`{{DOMINIO}}` tomada de la configuración, declarado en el archivo de robots para que la consola de búsqueda de Google lo
+`lavandi.mx` tomada de la configuración, declarado en el archivo de robots para que la consola de búsqueda de Google lo
 lea.
 
 Cita: A → `NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2`; D → ADR-0011
@@ -99,7 +99,7 @@ Cita: A → `NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2`; D → ADR-0011
 
 #### Scenario: medicion-E09 — Search Console lee el mapa del sitio
 
-- **DADO** la propiedad de `{{DOMINIO}}` verificada por DNS en la cuenta de Search Console de EL CLIENTE
+- **DADO** la propiedad de `lavandi.mx` verificada por DNS en la cuenta de Search Console de EL CLIENTE
 - **CUANDO** se envía el mapa del sitio
 - **ENTONCES** la consola lo lee sin errores
 - **Y** la captura, con fecha, queda en `vault/evidencias/medicion/`
@@ -119,7 +119,7 @@ Cita: A → `NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2` y `NSV-2026-001-v8.pd
 - **DADO** las plazas activas del territorio inicial cargadas en el sistema
 - **CUANDO** un buscador lee la portada
 - **ENTONCES** encuentra un bloque de información estructurada válido con el tipo de servicio, el nombre de la
-  configuración (`{{MARCA}}`), la dirección del sitio y, como zona de servicio, las áreas de las plazas activas
+  configuración (Lavandi, leído de la configuración), la dirección del sitio y, como zona de servicio, las áreas de las plazas activas
 - **Y** el bloque no incluye ningún dato que no esté configurado, como un teléfono o un domicilio
 
 ### Requirement: Velocidad en teléfonos
@@ -140,7 +140,7 @@ Criterio: A42-4
 
 #### Scenario: medicion-E12 — PageSpeed Insights sobre la dirección publicada
 
-- **DADO** la landing publicada en `{{DOMINIO}}` con el contenedor de la cuenta de EL CLIENTE
+- **DADO** la landing publicada en `lavandi.mx` con el contenedor de la cuenta de EL CLIENTE
 - **CUANDO** se mide con PageSpeed Insights en teléfono
 - **ENTONCES** obtiene 70 puntos o más
 - **Y** la captura, con fecha, queda en `vault/evidencias/medicion/`
@@ -151,7 +151,7 @@ SIN RESPUESTA — bloquea: medicion-E12 (DD-023, DD-070)
 
 ### Requirement: Dirección acordada con candado
 
-La landing DEBE (MUST) publicarse en la dirección web acordada, `{{DOMINIO}}`, con el candado de seguridad activo: toda
+La landing DEBE (MUST) publicarse en la dirección web acordada, `lavandi.mx`, con el candado de seguridad activo: toda
 petición por http DEBE (MUST) redirigirse a https.
 
 Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.2`, `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.2` y
@@ -168,7 +168,7 @@ Criterio: A42-3
 #### Scenario: medicion-E14 — El candado en la dirección acordada
 
 - **DADO** el dominio a nombre de EL CLIENTE y el alojamiento contratado
-- **CUANDO** se abre `https://{{DOMINIO}}` en Chrome, Safari y Firefox
+- **CUANDO** se abre `https://lavandi.mx` en Chrome, Safari y Firefox
 - **ENTONCES** cada navegador muestra el candado, con un certificado válido para ese dominio
 - **Y** las capturas, con fecha, quedan en `vault/evidencias/medicion/`
 

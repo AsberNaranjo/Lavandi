@@ -20,8 +20,9 @@ Si la publicación se atrasa por causas ajenas, el pago 2 se acredita con la app
 - Envío a App Store Connect y a Google Play Console del cliente, liberación simultánea en las dos tiendas y la dirección
   del aviso de privacidad declarada en cada ficha (A43-1).
 - La pasarela con las llaves de producción del cliente y su webhook registrado en https, y una transacción real (A43-4).
-  El contrato dice Conekta hasta que el cliente firme el cambio; por mientras queda abierta entre Stripe y Mercado Pago
-  y no se integra ninguna (C-192, DD-079).
+  La pasarela en producción es Conekta mientras el cliente no firme el cambio (`CLAUDE.md` §2-bis, punto 3; ADR-0010),
+  o la elegida si se firma. Stripe y Mercado Pago son candidatas (C-192); el cliente dio un OK expreso y la firma sigue
+  pendiente (C-216, DD-079).
 - La validación del A.4.3 en el ambiente de prueba, para el hito alterno del pago 2.
 
 **Qué NO cambia**
@@ -42,8 +43,9 @@ Si la publicación se atrasa por causas ajenas, el pago 2 se acredita con la app
 
 **Fuera del contrato** (posibles Órdenes de Cambio, `NSV-2026-001-v8.pdf:8:Cláusula IV`)
 
-- Otra pasarela en lugar de Conekta (C-180): el contrato la nombra en el criterio de aceptación. Por mientras queda
-  abierta entre Stripe y Mercado Pago (C-192), y no se integra ninguna hasta que el cliente firme el cambio. DD-079.
+- Otra pasarela en lugar de Conekta (C-180): el contrato la nombra en el criterio de aceptación. Las candidatas son
+  Stripe y Mercado Pago (C-192); el cliente dio un OK expreso y la firma sigue pendiente (C-216). Por las Cláusulas IV y
+  XIV, el OK no sustituye la firma: hasta que se firme, no se construye nada de ninguna de las dos. DD-079.
 - Efectivo sin OXXO, si la pasarela no genera fichas de OXXO: cambia lo que dice el contrato y queda por escrito.
   DD-056.
 
@@ -67,7 +69,7 @@ Si la publicación se atrasa por causas ajenas, el pago 2 se acredita con la app
 - Base de datos: ninguna tabla nueva. Las migraciones de los demás cambios corren en prueba y en producción sobre
   PostgreSQL con PostGIS (ADR-0004); las tablas que usa están en `design.md`, "Tablas y migración".
 - Dependencias: EAS Build y EAS Submit (ADR-0002); el hosting de DD-070; servicios en cuentas del cliente.
-- ADRs: ADR-0002, ADR-0004, ADR-0008, ADR-0009, ADR-0010 (se reemplaza al elegir la pasarela, DD-079), ADR-0012 y
-  ADR-0016.
+- ADRs: ADR-0002, ADR-0004, ADR-0008, ADR-0009, ADR-0010 (vigente, Conekta; si se firma el cambio, lo reemplaza el ADR
+  de la elegida, DD-079), ADR-0012 y ADR-0016.
 - Depende de `base-tecnica`, `pago`, `avisos` y `textos-legales`, y de que estén terminados los cambios del recorrido
   del A.4.3.

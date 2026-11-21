@@ -131,7 +131,7 @@ SIN RESPUESTA — bloquea: pedidos-lavanderia-E14 (DD-016, DD-012; BR-22 y BR-26
 ### Requirement: Sin pago acreditado, el pedido no llega a la lavandería
 El servidor DEBE (MUST) entregarle a la lavandería solo pedidos cuyo pago ya confirmó la pasarela. Un pedido que se creó al aceptar el resumen y todavía no tiene su pago acreditado, o cuyo pago venció o falló, NO DEBE (MUST NOT) aparecer en su lista ni poder aceptarse o rechazarse, porque sin pago no hay recolección.
 
-Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3, Módulo A #9, #10 y #11` (resumen, pago y confirmación con folio, en ese orden; C-188); D → `ADR-0016` (`pedidos.confirmado_en` se llena cuando la pasarela confirma el pago)
+Cita: A → `NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3, Módulo A #9, #10 y #11` (resumen, pago y confirmación con folio, en ese orden; el orden apoya la regla, no la dice) · C → C-188 (Arthur) y C-197 (Nadir), que son la regla; D → `ADR-0016` (`pedidos.confirmado_en` se llena cuando la pasarela confirma el pago)
 
 #### Scenario: pedidos-lavanderia-E17 — Un pedido sin pago acreditado no aparece en la lista
 - **DADO** una lavandería con un pedido confirmado, con su pago acreditado, y otro creado al aceptar el resumen cuyo

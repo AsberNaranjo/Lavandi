@@ -78,9 +78,9 @@ Este cambio crea las cuatro primeras tablas del negocio, tal como las fija `vaul
   los traits de autenticación de Laravel (los que arma `Illuminate\Foundation\Auth\User`), `HasApiTokens` de Sanctum y
   `SoftDeletes`; `getEmailForPasswordReset()` devuelve `correo`, y el proveedor de `config/auth.php` apunta a
   `Usuario`. La tabla `users` de Laravel no existe (`base-tecnica`, "Tablas y migración").
-- **La migración pasa la prueba de esquema de `modelo-de-datos`** (modelo-E01 a modelo-E16). Ninguna de estas tablas
+- **La migración pasa la prueba de esquema de `modelo-de-datos`** (modelo-E01 a modelo-E17). Ninguna de estas tablas
   lleva el trigger `impedir_cambio()`, que es solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`.
-- **Sin `created_at` ni `updated_at`:** el modelo no los lista. Ver Open Questions, pregunta 11.
+- **`created_at` y `updated_at`:** las tablas de este cambio los llevan, en `timestamptz` (modelo-E17; ADR-0016, regla 7).
 
 ## Risks / Trade-offs
 
@@ -127,7 +127,5 @@ mecanismo, no estos detalles:
 
 **Del modelo de datos, para Arthur:**
 
-11. **Las marcas `created_at` y `updated_at`.** Ninguna tabla de `vault/arquitectura/modelo-de-datos.md` las lista, y
-    Eloquent las escribe por omisión. O el modelo las agrega a las tablas que las necesiten, en `timestamptz`
-    (`timestampsTz()`), o cada modelo declara `$timestamps = false`, quizá desde `App\Models\Modelo`. La tarea 1.1 lo
-    necesita.
+11. **Las marcas `created_at` y `updated_at`.** Resuelta: van en toda tabla del negocio, en `timestamptz` (modelo-E17; ADR-0016,
+    regla 7). `rol_usuario` no las lleva, por ser tabla de enlace.

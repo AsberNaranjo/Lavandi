@@ -5,7 +5,7 @@ nunca en las dos.
 ## 1. Servidor: cuenta, contraseña y sesión (sprint 01)
 
 - [ ] 1.1 La parte de la base de registro-E02 (el correo único) y de registro-E16 (una cuenta de Google, una sola
-  cuenta), y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E16) sobre las tablas nuevas: migración de
+  cuenta), y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) sobre las tablas nuevas: migración de
   `roles` con su semilla, `usuarios`, `rol_usuario` y `cuentas_externas`, con las columnas, los únicos y los `CHECK` de
   `design.md` ("Tablas y migración"); modelos de Eloquent `Rol`, `Usuario` y `CuentaExterna` sobre
   `App\Models\Modelo`, con su `$table`, su `$primaryKey` y las llaves de cada relación; el proveedor de

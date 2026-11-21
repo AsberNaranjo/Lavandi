@@ -63,9 +63,9 @@ Este cambio crea tres tablas, tal como las fija `vault/arquitectura/modelo-de-da
 - **Modelos de Eloquent:** `Plaza`, `Zona` y `ParametroPlaza`, sobre `App\Models\Modelo`, cada uno con su `$table` y su
   `$primaryKey`, y las relaciones con `id_plazas` nombrada. El polígono se lee y se consulta con las funciones de
   PostGIS, sin paquete de tipos espaciales (ver Open Questions).
-- **La migración pasa la prueba de esquema de `modelo-de-datos`** (modelo-E01 a modelo-E16). Ninguna de estas tablas
+- **La migración pasa la prueba de esquema de `modelo-de-datos`** (modelo-E01 a modelo-E17). Ninguna de estas tablas
   lleva el trigger `impedir_cambio()`, que es solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`.
-- **Sin `created_at` ni `updated_at`:** el modelo no los lista (ver Open Questions).
+- **`created_at` y `updated_at`:** las tablas de este cambio los llevan, en `timestamptz` (modelo-E17; ADR-0016, regla 7).
 
 ## Risks / Trade-offs
 
@@ -99,5 +99,4 @@ Este cambio crea tres tablas, tal como las fija `vault/arquitectura/modelo-de-da
 - **`zonas.activa`.** El modelo la trae, pero la spec resuelve un punto solo por plaza activa (plazas-E04 a E06). Si
   una zona que no está activa deja de dar servicio dentro de una plaza activa, falta su escenario; sin escenario, la
   resolución no la mira.
-- **Las marcas `created_at` y `updated_at`.** Ninguna tabla del modelo las lista, y Eloquent las escribe por omisión.
-  O el modelo las agrega, en `timestamptz`, o cada modelo declara `$timestamps = false`. La tarea 1.1 lo necesita.
+- **Las marcas `created_at` y `updated_at`.** Resuelta: van en toda tabla del negocio, en `timestamptz` (modelo-E17; ADR-0016, regla 7).

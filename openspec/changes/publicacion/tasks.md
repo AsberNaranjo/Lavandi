@@ -2,14 +2,17 @@ Cada tarea sigue rojo, verde y refactor: primero el test con el identificador de
 luego el código mínimo que lo pone en verde; luego la limpieza.
 
 Horas con las bandas de S-006 (S = 2, M = 5): **36 h**, contra **21 h** del plan para H11 (lo que falta de F-T04 y de
-F-T12, más F-T08). De las 36 h, 22 h están bloqueadas (tareas 1.2, 1.3, 3.4, 4.1, 4.3, 5.1, 5.2 y 6.1).
+F-T12, más F-T08). De las 36 h, 20 h están bloqueadas (tareas 1.2, 1.3, 3.4, 4.1, 4.3, 5.2 y 6.1) y 16 h están listas.
 
 Con el modelo de datos (ADR-0016) el total no cambia: este cambio no crea tablas, así que no lleva tarea de migración.
-Lo que cambia es la pasarela (C-192): la tarea 5.1 pasa a bloqueada por DD-079, y las bloqueadas suben de 20 h a 22 h.
+La pasarela en producción es Conekta mientras el cliente no firme el cambio (`CLAUDE.md` §2-bis, punto 3; ADR-0010); el
+OK expreso del cliente no sustituye la firma (C-216). Por eso DD-079 ya no bloquea ninguna tarea: la 5.1 vuelve a lista,
+las bloqueadas bajan de 22 h a 20 h (−2 h) y las listas suben de 14 h a 16 h (+2 h). Las tareas 5.2 y 6.1 siguen
+bloqueadas por sus otras filas.
 
 ## 1. Entornos
 
-- [ ] 1.1 publicacion-E01: configuración por entorno de la pasarela, Firebase, llaves de Google y correo, leída de las variables del entorno y nunca del código, sin integrar ningún proveedor de pagos (DD-079) — test: `servidor/tests/Feature/Publicacion/ConfiguracionPorEntornoTest.php` — tamaño S
+- [ ] 1.1 publicacion-E01: configuración por entorno de la pasarela, Firebase, llaves de Google y correo, leída de las variables del entorno y nunca del código; la pasarela es Conekta, o la elegida si se firma el cambio (DD-079) — test: `servidor/tests/Feature/Publicacion/ConfiguracionPorEntornoTest.php` — tamaño S
 - [ ] 1.2 publicacion-E02: despliegue al entorno de prueba, con migraciones sobre PostgreSQL con PostGIS (bloqueada: DD-070) — test: `servidor/tests/Feature/Publicacion/SaludDelEntornoTest.php` contra la dirección de prueba — tamaño M
 - [ ] 1.3 publicacion-E03: despliegue a producción en las cuentas de EL CLIENTE, con el mapa de cuentas en `vault/evidencias/publicacion/` (bloqueada: DD-070, DD-084) — test: `servidor/tests/Feature/Publicacion/SaludDelEntornoTest.php` contra producción — tamaño S
 
@@ -33,9 +36,9 @@ Lo que cambia es la pasarela (C-192): la tarea 5.1 pasa a bloqueada por DD-079, 
 
 ## 5. La pasarela en producción
 
-- [ ] 5.1 publicacion-E14: llaves de producción de la pasarela desde el entorno y webhook de producción en https con la firma validada (bloqueada: DD-079) — test: `servidor/tests/Feature/Publicacion/PasarelaEnProduccionTest.php` — tamaño S
-- [ ] 5.2 publicacion-E15: una transacción real con la cuenta de EL CLIENTE, con su comprobante (bloqueada: DD-084, DD-079, DD-012, DD-056) — test: `servidor/tests/Feature/Publicacion/PasarelaEnProduccionTest.php` con la configuración de producción — tamaño S
+- [ ] 5.1 publicacion-E14: llaves de producción de Conekta desde el entorno y webhook de producción en https con la firma validada, como la confirme `pago` (tarea 3.1); con la elegida, si se firma el cambio (DD-079) — test: `servidor/tests/Feature/Publicacion/PasarelaEnProduccionTest.php` — tamaño S
+- [ ] 5.2 publicacion-E15: una transacción real con la cuenta de Conekta de EL CLIENTE, con su comprobante (bloqueada: DD-084, DD-012, DD-056); con la elegida, si se firma el cambio (DD-079) — test: `servidor/tests/Feature/Publicacion/PasarelaEnProduccionTest.php` con la configuración de producción — tamaño S
 
 ## 6. Hito alterno del pago 2
 
-- [ ] 6.1 publicacion-E16: validación del A.4.3 en el entorno de prueba con las compilaciones `preview`, con el acta en `vault/evidencias/publicacion/` (bloqueada: DD-070 y DD-079; en iPhone, DD-069 y DD-084) — test: los flujos de Maestro del recorrido completo (A43-2), corridos en `movil/` contra el entorno de prueba — tamaño S
+- [ ] 6.1 publicacion-E16: validación del A.4.3 en el entorno de prueba con las compilaciones `preview`, con el acta en `vault/evidencias/publicacion/` (bloqueada: DD-070; en iPhone, DD-069 y DD-084); el pago de prueba, con Conekta, o con la elegida si se firma el cambio (DD-079) — test: los flujos de Maestro del recorrido completo (A43-2), corridos en `movil/` contra el entorno de prueba — tamaño S
