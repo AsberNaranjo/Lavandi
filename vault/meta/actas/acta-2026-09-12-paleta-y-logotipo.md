@@ -12,19 +12,15 @@ Fase: 3 (marca), cierre visual.
 
 ## Declaraciones de Nadir (grado C)
 
-> **Superadas el 2026-11-20 (C-205).** C-54 a C-62 quedaron transcritas dos veces el mismo día. Vale la
-> transcripción más reciente, la de [[acta-2026-09-12-marca-visual]]. Las de abajo se conservan tachadas
-> como antecedente: no se citan.
-
-- ~~C-54~~. **Dominio confirmado:** `lavandi.mx` está disponible. Cierra la última casilla de la ficha de decisión de marca.
-- ~~C-55~~. **EL CLIENTE eligió la paleta** "El tiempo de vuelta", Dirección 1: Agua `#2E86AB`, Cielo `#A8D5E2`, Hueso `#F7F4EF`, Limón `#E8C547`. Idea de la dirección: "No vendemos lavado de ropa. Vendemos el sábado que te devolvemos." Personalidad: cercana, cotidiana, ligera, doméstica.
-- ~~C-56~~. Hubo otras direcciones. Ésta fue la más fuerte y es la que se quiere **expandir o replantear un poco**, no sustituir.
-- ~~C-57~~. La paleta **ya se le empezó a mostrar al cliente**. Le agrada, pero necesita verla más madurada.
-- ~~C-58~~. **Hay que extender la paleta con dos propuestas.** Es prioridad.
-- ~~C-59~~. **El logotipo no convence.** Nadir: "La L se siente con un color monótono y no representativo de nada". Hay un boceto a mano (L con círculo, más "con seguridad, rapidez y comodidad", con comodidad circulada) y una propuesta digital hecha en Design.
-- ~~C-60~~. Al cliente **le gustaría que el tagline dijera** "Con seguridad y rapidez, de tu cel a tu closet".
-- ~~C-61~~. **"Hay que hacer el diseño desde la parte de lo que representamos. Esto también es una conversación."**
-- ~~C-62~~. **El trabajo visual sigue en una sesión nueva**, que no será ni la de fundación ni "Lanvadi proyecto técnico".
+- C-54. **Dominio confirmado:** `lavandi.mx` está disponible. Cierra la última casilla de la ficha de decisión de marca.
+- C-55. **EL CLIENTE eligió la paleta** "El tiempo de vuelta", Dirección 1: Agua `#2E86AB`, Cielo `#A8D5E2`, Hueso `#F7F4EF`, Limón `#E8C547`. Idea de la dirección: "No vendemos lavado de ropa. Vendemos el sábado que te devolvemos." Personalidad: cercana, cotidiana, ligera, doméstica.
+- C-56. Hubo otras direcciones. Ésta fue la más fuerte y es la que se quiere **expandir o replantear un poco**, no sustituir.
+- C-57. La paleta **ya se le empezó a mostrar al cliente**. Le agrada, pero necesita verla más madurada.
+- C-58. **Hay que extender la paleta con dos propuestas.** Es prioridad.
+- C-59. **El logotipo no convence.** Nadir: "La L se siente con un color monótono y no representativo de nada". Hay un boceto a mano (L con círculo, más "con seguridad, rapidez y comodidad", con comodidad circulada) y una propuesta digital hecha en Design.
+- C-60. Al cliente **le gustaría que el tagline dijera** "Con seguridad y rapidez, de tu cel a tu closet".
+- C-61. **"Hay que hacer el diseño desde la parte de lo que representamos. Esto también es una conversación."**
+- C-62. **El trabajo visual sigue en una sesión nueva**, que no será ni la de fundación ni "Lanvadi proyecto técnico".
 
 ## Hallazgo de esta sesión (grado B, medido)
 

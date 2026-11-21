@@ -22,6 +22,8 @@ trabajo del 2026-11-20 en un solo PR (C-208 a C-210); y el arranque del código 
 - PR [nhadadn/Lavandi#2](https://github.com/nhadadn/Lavandi/pull/2): la línea de Arthur del 12 al 20 de noviembre,
   con el PR #1 de Nadir integrado y renumerado (C-197 a C-207, DD-124 y DD-125). Lo que queda por decidir entre
   los dos: [[DD-126]] y [[DD-127]].
+- Segunda integración: los 7 commits que Nadir subió a su PR #1 después del #2 (C-211 a C-220), con los dos
+  lados completos (C-221). Falta corregir lo que pidió su revisión de evidencia en el PR #2.
 - La ampliación del efectivo en [[alternativas-de-pasarela-2026-11-18]] (grado E, `SIN VERIFICAR`), para DD-056
   y C-199.
 

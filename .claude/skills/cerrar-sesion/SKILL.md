@@ -12,22 +12,24 @@ Este procedimiento la ejecuta. No espera a que un humano lo pida.
 
 1. **Qué cambió.** `git status` y `git diff --stat`. Repasa la conversación: ¿hubo una decisión, una
    respuesta de Nadir o del cliente, un dato nuevo, un hallazgo, un artefacto publicado?
-2. **Archivar lo que falte.**
-   - Declaración de Nadir → acta del día en `vault/meta/actas/` (`plantilla-acta-de-sesion`), con el
-     siguiente `C-NN` libre. Literal, no interpretada.
+2. **Quién habló.** Si la sesión no sabe con certeza quién está escribiendo (CLAUDE.md §0-bis, paso 0;
+   C-220), no asienta declaraciones grado C: las deja como pregunta para la siguiente sesión.
+3. **Archivar lo que falte.**
+   - Declaración de Nadir o de Arthur (las dos son grado C, C-211) → acta del día en `vault/meta/actas/` (`plantilla-acta-de-sesion`), con el
+     siguiente `C-NN` libre y el nombre de quien habló: `- C-NN (Nombre). …`. Literal, no interpretada.
    - Pregunta que quedó sin respuesta → nota `DD-NNN` con la skill `nueva-decision`.
    - Decisión técnica → ADR en `vault/arquitectura/adr/`.
    - Artefacto publicado (lienzo, página) → nota del vault que lo enlaza y dice qué es.
    - Dato externo → grado E con fuente, fecha y `SIN VERIFICAR`.
-3. **Deuda respondida.** Si la sesión contestó una `DD-`, actualiza su estado con el `C-NN` o el ADR.
-4. **Índice y enlaces.** Cada nota nueva queda enlazada desde `vault/meta/indice.md` o desde su nota madre.
-5. **Tarea.** Actualiza la nota de la sesión en `vault/meta/trabajo/`: qué se hizo y, si terminó,
+4. **Deuda respondida.** Si la sesión contestó una `DD-`, actualiza su estado con el `C-NN` o el ADR.
+5. **Índice y enlaces.** Cada nota nueva queda enlazada desde `vault/meta/indice.md` o desde su nota madre.
+6. **Tarea.** Actualiza la nota de la sesión en `vault/meta/trabajo/`: qué se hizo y, si terminó,
    `situacion: terminada` con el enlace al pull request.
-6. **Validar.** `python herramientas/validar-vault/validar.py`. Con errores nuevos no se sigue: se corrigen.
-7. **Commit y push.** En la rama de la sesión, nunca en `main`. Mensaje `wip(fase-N): <qué>` durante el
+7. **Validar.** `python herramientas/validar-vault/validar.py`. Con errores nuevos no se sigue: se corrigen.
+8. **Commit y push.** En la rama de la sesión, nunca en `main`. Mensaje `wip(fase-N): <qué>` durante el
    cimiento, en español. Si el push falla, se dice con el error exacto y no se reporta como hecho.
-8. **Pull request.** Si la rama no tiene PR, se propone al usuario abrirlo. No se abre sin que lo pida.
-9. **Reporte.** En el mensaje final: qué notas cambiaron, qué quedó pendiente y para quién.
+9. **Pull request.** Si la rama no tiene PR, se propone al usuario abrirlo. No se abre sin que lo pida.
+10. **Reporte.** En el mensaje final: qué notas cambiaron, qué quedó pendiente y para quién.
 
 ## Lo que esta skill no hace
 

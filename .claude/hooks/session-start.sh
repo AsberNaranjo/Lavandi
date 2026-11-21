@@ -14,6 +14,7 @@ fuente="$(cat 2>/dev/null | "$PY" -c 'import json,sys; print(json.load(sys.stdin
 case "$fuente" in clear|compact) exit 0 ;; esac
 
 echo "== Inicio de sesión: sincronizar el vault =="
+echo "ANTES DE TRABAJAR: pregunta quién está en esta sesión (Nadir Hadad Navarrete o Arthur Naranjo) y anótalo en su tarea. Sin respuesta no se asienta nada grado C (CLAUDE.md §0-bis, C-220)."
 
 if git fetch --quiet origin 2>/dev/null; then
   rama="$(git rev-parse --abbrev-ref HEAD)"
