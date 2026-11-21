@@ -37,13 +37,20 @@ function respuesta(status: number, cuerpo: unknown): RespuestaFalsa {
   return { ok: status >= 200 && status < 300, status, json: async () => cuerpo };
 }
 
-const VARIABLES = ['EXPO_PUBLIC_API_URL', 'EXPO_PUBLIC_AVISO_DE_PRIVACIDAD_URL', 'EXPO_PUBLIC_TERMINOS_URL'] as const;
+// El nombre de la app es obligatorio en la configuración: el inicio de sesión lo muestra (tarea 2.3, C-230).
+const VARIABLES = [
+  'EXPO_PUBLIC_API_URL',
+  'EXPO_PUBLIC_NOMBRE_APP',
+  'EXPO_PUBLIC_AVISO_DE_PRIVACIDAD_URL',
+  'EXPO_PUBLIC_TERMINOS_URL',
+] as const;
 const originales = Object.fromEntries(VARIABLES.map((nombre) => [nombre, process.env[nombre]]));
 const fetchOriginal = global.fetch;
 let fetchFalso: jest.Mock;
 
 beforeEach(() => {
   process.env.EXPO_PUBLIC_API_URL = BASE;
+  process.env.EXPO_PUBLIC_NOMBRE_APP = 'Nombre de prueba registro';
   process.env.EXPO_PUBLIC_AVISO_DE_PRIVACIDAD_URL = AVISO;
   process.env.EXPO_PUBLIC_TERMINOS_URL = TERMINOS;
   fetchFalso = jest.fn();

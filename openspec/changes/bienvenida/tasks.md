@@ -8,7 +8,7 @@ nombre; luego el código mínimo que lo pone en verde; luego la limpieza.
   `movil/__tests__/bienvenida/bienvenida.test.tsx` — tamaño S
 - [x] 1.2 bienvenida-E02: la bienvenida solo la primera vez; con la sesión abierta, entrada directa (C-225; era la 2.1,
   bloqueada por DD-092) — test: `movil/__tests__/bienvenida/cuando-se-muestra.test.tsx` — tamaño S
-- [ ] 1.3 Ajuste visual de la bienvenida, las tres informativas y la entrada a las imágenes de
+- [x] 1.3 Ajuste visual de la bienvenida, las tres informativas y la entrada a las imágenes de
   `mocks/Lavandi - Propuesta 04/Usuario/` (C-230), sin "Saltar" ni "Ya tengo cuenta" (C-225) — test: los de las
   tareas 1.1 y 1.2, en verde — tamaño S
 

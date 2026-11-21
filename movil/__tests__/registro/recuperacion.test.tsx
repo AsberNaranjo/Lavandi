@@ -28,22 +28,30 @@ function respuesta(status: number, cuerpo: unknown): RespuestaFalsa {
 }
 
 const direccionOriginal = process.env.EXPO_PUBLIC_API_URL;
+// El nombre de la app es obligatorio en la configuración: el inicio de sesión lo muestra (tarea 2.3, C-230).
+const nombreOriginal = process.env.EXPO_PUBLIC_NOMBRE_APP;
 const fetchOriginal = global.fetch;
 let fetchFalso: jest.Mock;
+
+function restaurar(nombre: string, valor: string | undefined) {
+  if (valor === undefined) {
+    delete process.env[nombre];
+  } else {
+    process.env[nombre] = valor;
+  }
+}
 
 beforeEach(() => {
   almacen.__vaciar();
   process.env.EXPO_PUBLIC_API_URL = BASE;
+  process.env.EXPO_PUBLIC_NOMBRE_APP = 'Nombre de prueba registro-E26';
   fetchFalso = jest.fn();
   global.fetch = fetchFalso as unknown as typeof fetch;
 });
 
 afterEach(() => {
-  if (direccionOriginal === undefined) {
-    delete process.env.EXPO_PUBLIC_API_URL;
-  } else {
-    process.env.EXPO_PUBLIC_API_URL = direccionOriginal;
-  }
+  restaurar('EXPO_PUBLIC_API_URL', direccionOriginal);
+  restaurar('EXPO_PUBLIC_NOMBRE_APP', nombreOriginal);
   global.fetch = fetchOriginal;
 });
 
@@ -106,6 +114,7 @@ describe('registro-E26: la pantalla de recuperación en la app', () => {
     expect(screen.queryByText('Revisa tu correo')).not.toBeOnTheScreen();
   });
 
+  // Con el aspecto de la Propuesta 04 (tarea 2.3, C-230), "Volver a iniciar sesión" es el botón principal y no un enlace.
   test('registro-E26 — después de enviarlo, "Volver a iniciar sesión" regresa al inicio de sesión', async () => {
     fetchFalso.mockResolvedValue(respuesta(200, { message: 'Respuesta igual exista o no la cuenta.' }));
     const usuario = userEvent.setup();
@@ -113,7 +122,7 @@ describe('registro-E26: la pantalla de recuperación en la app', () => {
 
     await usuario.type(await screen.findByLabelText('Correo electrónico'), 'persona@ejemplo.com');
     await usuario.press(screen.getByRole('button', { name: 'Enviar enlace' }));
-    await usuario.press(await screen.findByRole('link', { name: 'Volver a iniciar sesión' }));
+    await usuario.press(await screen.findByRole('button', { name: 'Volver a iniciar sesión' }));
 
     expect(screen).toHavePathname('/inicio-de-sesion');
   });

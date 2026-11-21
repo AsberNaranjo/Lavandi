@@ -73,9 +73,11 @@ const estilos = StyleSheet.create({
     fontSize: tipografia.escala.menor,
     fontWeight: tipografia.peso.semifuerte,
   },
+  // Como el .entrada de los mocks (Propuesta 04, C-230).
   entrada: {
     minHeight: accesibilidad.area_tactil_minima_dp,
     paddingHorizontal: espaciado[3],
+    paddingVertical: espaciado[2],
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: color.semantico.borde_fuerte,
     borderRadius: radio.medio,

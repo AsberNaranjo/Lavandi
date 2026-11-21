@@ -1,18 +1,47 @@
 // Enlace de texto: lleva a otra pantalla o abre un documento (registro-E09 y registro-E28). Va subrayado para que el
 // color no sea la única señal (design system, reglas transversales). Colores y medidas de theme.ts (ADR-0013).
-import { Pressable, StyleSheet, Text } from 'react-native';
+// Con las variantes de las imágenes de la Propuesta 04 (C-230): a la derecha ("¿Olvidaste tu contraseña?"), al centro,
+// y con una pregunta antes en el color del texto ("¿Ya tienes cuenta? Inicia sesión"), que se toca y se anuncia como
+// un solo enlace.
+import { Pressable, StyleSheet, Text, type ViewStyle } from 'react-native';
 
 import { tema } from '../tema/theme';
 
 interface Propiedades {
   texto: string;
   alTocar: () => void;
+  /** La pregunta antes del enlace, en el color del texto y en el tamaño menor. */
+  pregunta?: string;
+  /** inicio: a la izquierda; centro; fin: a la derecha. */
+  alinear?: 'inicio' | 'centro' | 'fin';
+  /** El tamaño menor, el de los enlaces legales del registro. */
+  menor?: boolean;
 }
 
-export function Enlace({ texto, alTocar }: Propiedades) {
+const ALINEACION: Record<NonNullable<Propiedades['alinear']>, ViewStyle['alignSelf']> = {
+  inicio: undefined,
+  centro: 'center',
+  fin: 'flex-end',
+};
+
+export function Enlace({ texto, alTocar, pregunta, alinear = 'inicio', menor = false }: Propiedades) {
+  const estiloDelEnlace = [estilos.texto, pregunta || menor ? estilos.menor : null];
   return (
-    <Pressable role="link" onPress={alTocar} style={estilos.enlace}>
-      <Text style={estilos.texto}>{texto}</Text>
+    <Pressable
+      role="link"
+      accessibilityLabel={pregunta ? `${pregunta} ${texto}` : undefined}
+      onPress={alTocar}
+      style={[estilos.enlace, { alignSelf: ALINEACION[alinear] }]}
+    >
+      {pregunta ? (
+        <Text style={[estilos.pregunta, estilos.menor]}>
+          {pregunta}
+          {' '}
+          <Text style={estiloDelEnlace}>{texto}</Text>
+        </Text>
+      ) : (
+        <Text style={estiloDelEnlace}>{texto}</Text>
+      )}
     </Pressable>
   );
 }
@@ -29,5 +58,11 @@ const estilos = StyleSheet.create({
     fontSize: tipografia.escala.cuerpo,
     fontWeight: tipografia.peso.semifuerte,
     textDecorationLine: 'underline',
+  },
+  pregunta: {
+    color: color.semantico.texto,
+  },
+  menor: {
+    fontSize: tipografia.escala.menor,
   },
 });

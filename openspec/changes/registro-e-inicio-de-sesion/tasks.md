@@ -32,7 +32,7 @@ nunca en las dos.
   `movil/__tests__/registro/sesion.test.ts` — tamaño M
 - [x] 2.2 registro-E32: al primer arranque después de instalar, la app borra del almacén cifrado la sesión y la marca
   de la bienvenida (C-229) — test: `movil/__tests__/registro/reinstalacion.test.ts` — tamaño S
-- [ ] 2.3 Ajuste visual de las pantallas de registro, inicio de sesión y recuperación a las imágenes de
+- [x] 2.3 Ajuste visual de las pantallas de registro, inicio de sesión y recuperación a las imágenes de
   `mocks/Lavandi - Propuesta 04/Usuario/` (C-230), sin lo que no tiene cita y sin cambiar ningún escenario — test:
   los de las tareas 2.1, 3.2 y 3.4, en verde — tamaño S
 
