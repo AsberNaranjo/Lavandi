@@ -6,7 +6,6 @@
 // regreso, título grande, subtítulo, Google arriba, "o con tu correo", los campos y el botón a todo lo ancho. Del mock
 // no entran el campo "Nombre" (C-225: va en el perfil), la casilla "Acepto…" (registro-E29, bloqueado por DD-080), el
 // botón para ver la contraseña ni el texto de ayuda bajo ella: no tienen escenario.
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 
@@ -25,7 +24,8 @@ import { Separador } from '../src/piezas/Separador';
 import { espaciado } from '../src/tema/theme';
 
 export default function Registro() {
-  const router = useRouter();
+  // "Regresar" y "¿Ya tienes cuenta? Inicia sesión" hacen lo mismo (C-236): vuelven al inicio de sesión que abrió el
+  // registro y, si se abrió sin pantalla anterior, lo ponen en su lugar. Así la pila no crece al ir y venir.
   const regresar = useRegresar('/inicio-de-sesion');
   const { enviando, errorGeneral, errorDe, entrarCon, entrarConGoogle } = useEntrada();
   const [correo, setCorreo] = useState('');
@@ -80,7 +80,7 @@ export default function Registro() {
         pregunta="¿Ya tienes cuenta?"
         texto="Inicia sesión"
         alinear="centro"
-        alTocar={() => router.replace('/inicio-de-sesion')}
+        alTocar={regresar}
       />
     </Pantalla>
   );

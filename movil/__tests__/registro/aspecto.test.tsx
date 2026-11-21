@@ -379,3 +379,44 @@ describe('registro-E04 y registro-E09 (tarea 2.3): "Regresar" en el encabezado',
     expect(screen).toHavePathname('/inicio-de-sesion');
   });
 });
+
+// Entre el inicio de sesión y el registro, por delegación (C-236): "Regístrate" abre el registro encima, para que el
+// regreso de Android y el gesto de iPhone vuelvan al inicio de sesión; "¿Ya tienes cuenta? Inicia sesión" regresa a él
+// si está debajo y, si no, lo pone en lugar del registro. La pila no crece al ir y venir.
+describe('registro-E04 y registro-E09: ir y venir entre el inicio de sesión y el registro', () => {
+  test('registro-E09 — "Regístrate" abre el registro encima del inicio de sesión: "atrás" vuelve a él', async () => {
+    const usuario = userEvent.setup();
+    await abrir('/inicio-de-sesion');
+
+    await usuario.press(await screen.findByRole('link', { name: '¿No tienes cuenta? Regístrate' }));
+    expect(screen).toHavePathname('/registro');
+    expect(router.canGoBack()).toBe(true);
+    await act(() => router.back());
+
+    expect(screen).toHavePathname('/inicio-de-sesion');
+    expect(router.canGoBack()).toBe(false);
+  });
+
+  test('registro-E04 — abierto desde el inicio de sesión, "¿Ya tienes cuenta? Inicia sesión" regresa a él sin apilarlo otra vez', async () => {
+    const usuario = userEvent.setup();
+    await abrir('/inicio-de-sesion');
+    await usuario.press(await screen.findByRole('link', { name: '¿No tienes cuenta? Regístrate' }));
+    expect(screen).toHavePathname('/registro');
+
+    await usuario.press(await screen.findByRole('link', { name: '¿Ya tienes cuenta? Inicia sesión' }));
+
+    expect(screen).toHavePathname('/inicio-de-sesion');
+    expect(router.canGoBack()).toBe(false);
+    expect(screen.queryByRole('button', { name: 'Regresar' })).not.toBeOnTheScreen();
+  });
+
+  test('registro-E04 — abierto el registro sin pantalla anterior, "¿Ya tienes cuenta? Inicia sesión" lo reemplaza con el inicio de sesión', async () => {
+    const usuario = userEvent.setup();
+    await abrir('/registro');
+
+    await usuario.press(await screen.findByRole('link', { name: '¿Ya tienes cuenta? Inicia sesión' }));
+
+    expect(screen).toHavePathname('/inicio-de-sesion');
+    expect(router.canGoBack()).toBe(false);
+  });
+});

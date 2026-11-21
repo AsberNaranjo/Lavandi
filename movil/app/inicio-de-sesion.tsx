@@ -5,7 +5,7 @@
 // Es también la oferta de registrarse o iniciar sesión, con "¿No tienes cuenta? Regístrate" (bienvenida-E04, C-237):
 // sin sesión, la app llega aquí al terminar las informativas, al abrirse con la bienvenida ya vista y al cerrar la
 // sesión. Abierto como primera pantalla es la raíz sin sesión y no tiene "Regresar"; si se llegó desde otra, vuelve a
-// ella.
+// ella. "Regístrate" abre el registro encima, para que el regreso de Android y el gesto de iPhone vuelvan aquí (C-236).
 //
 // El aspecto es el de la imagen a02-inicio-sesion de la Propuesta 04 de los mocks (tarea 2.3, C-230): encabezado
 // con regreso, el logotipo arriba y al centro (su archivo es de nombre neutro: C-237), el saludo con el nombre de la
@@ -72,7 +72,7 @@ export default function InicioDeSesion() {
         pregunta="¿No tienes cuenta?"
         texto="Regístrate"
         alinear="centro"
-        alTocar={() => router.replace('/registro')}
+        alTocar={() => router.push('/registro')}
       />
     </Pantalla>
   );
