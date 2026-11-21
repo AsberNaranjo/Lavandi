@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\BorradoDeCuentaController;
 use App\Http\Controllers\Api\CuentaController;
 use App\Http\Controllers\Api\DireccionesController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
@@ -76,4 +77,7 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     // en cada controlador.
     Route::get('soporte', SoporteController::class)->name('soporte');
     Route::post('soporte/reportes', ReportesDeSoporteController::class)->name('soporte.reportes');
+
+    // Borrar la cuenta de la sesión desde el perfil (perfil-y-soporte; ADR-0005). El contrato está en el controlador.
+    Route::delete('cuenta', BorradoDeCuentaController::class)->name('cuenta.borrar');
 });
