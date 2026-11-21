@@ -19,6 +19,9 @@ use Illuminate\Support\Facades\DB;
  * Vive fuera de public para no chocar con las tablas reales que crearán los cambios siguientes, como zonas o pedidos.
  * Dentro de la transacción, el search_path pone primero prueba_modelo: las sentencias de las pruebas escriben los
  * nombres sin esquema, como en una migración.
+ *
+ * Una tabla de prueba que cumple las reglas lleva id_plazas con su llave a plazas y su índice (plazas-E09). Si la
+ * prueba no crea su propia tabla plazas en prueba_modelo, references plazas apunta a la de public, que ya migró.
  */
 trait EsquemaDePrueba
 {

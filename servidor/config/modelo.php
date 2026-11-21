@@ -10,7 +10,7 @@
 |
 | Agregar una tabla a cualquiera de estas listas es una decisión visible en el diff: se revisa contra
 | vault/arquitectura/modelo-de-datos.md antes de fusionar. Una tabla nueva que no esté en ninguna lista cumple
-| todas las reglas, incluida la plaza no nula.
+| todas las reglas, incluida la plaza no nula con su llave foránea a plazas (plazas-E09).
 |
 */
 
