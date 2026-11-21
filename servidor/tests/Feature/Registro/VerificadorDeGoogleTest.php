@@ -165,6 +165,24 @@ class VerificadorDeGoogleTest extends TestCase
         Http::assertSentCount(2);
     }
 
+    #[TestDox('registro-E16: si pedir las llaves por una llave desconocida falla, las llaves que había siguen sirviendo')]
+    public function test_registro_e16_si_pedir_las_llaves_por_una_llave_desconocida_falla_las_llaves_que_habia_siguen_sirviendo(): void
+    {
+        $this->verificador()->verificar($this->idTokenDeGoogle());
+        Http::assertSentCount(1);
+
+        // Llega una llave desconocida justo cuando Google no responde: se piden las llaves y la petición falla.
+        $this->googleNoEntregaSusLlaves();
+        $this->assertRechazado($this->idTokenDeGoogle(cabecera: ['kid' => 'llave-desconocida']), 'no es válido');
+        Http::assertSentCount(2);
+
+        // Un idToken válido, firmado con la llave que ya estaba en la caché, sigue entrando sin pedir nada a Google.
+        $identidad = $this->verificador()->verificar($this->idTokenDeGoogle(['sub' => 'otro-sujeto']));
+
+        $this->assertSame('otro-sujeto', $identidad->sujeto);
+        Http::assertSentCount(2);
+    }
+
     #[TestDox('registro-E17: si no se pueden obtener las llaves de Google, el idToken se rechaza')]
     public function test_registro_e17_si_no_se_pueden_obtener_las_llaves_de_google_el_id_token_se_rechaza(): void
     {

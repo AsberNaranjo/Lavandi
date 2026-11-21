@@ -24,7 +24,7 @@ use Throwable;
  *
  * Las llaves de Google se guardan en la caché el plazo que dice Google en Cache-Control. Una llave que no está en la
  * caché obliga a pedirlas otra vez, porque Google las cambia; a lo más una vez por minuto, para que nadie use esta
- * ruta para saturar a Google.
+ * ruta para saturar a Google. Si esa petición falla, se quedan las llaves que había en la caché.
  */
 final class VerificadorDeGoogle
 {
@@ -98,8 +98,7 @@ final class VerificadorDeGoogle
         $llaves = $this->llaves();
 
         if (! isset($llaves[$identificador]) && Cache::add(self::LLAVE_DE_CACHE_DEL_REFRESCO, true, self::SEGUNDOS_ENTRE_REFRESCOS)) {
-            Cache::forget(self::LLAVE_DE_CACHE);
-            $llaves = $this->llaves();
+            $llaves = $this->refrescarLlaves($llaves);
         }
 
         $tolerancia = JWT::$leeway;
@@ -159,6 +158,28 @@ final class VerificadorDeGoogle
 
             throw IdTokenDeGoogleNoValido::porque('las llaves de Google no se pudieron leer', $error);
         }
+    }
+
+    /**
+     * Pide las llaves otra vez porque llegó una que no está en la caché. Las nuevas reemplazan a las de la caché solo
+     * si llegan y se pueden leer; si no, se quedan las que había, para que sigan entrando los idTokens firmados con
+     * ellas (registro-E16).
+     *
+     * @param  array<string, Key>  $vigentes
+     * @return array<string, Key>
+     */
+    private function refrescarLlaves(array $vigentes): array
+    {
+        try {
+            [$conjunto, $segundos] = $this->pedirLlaves();
+            $llaves = JWK::parseKeySet($conjunto, self::ALGORITMO);
+        } catch (Throwable) {
+            return $vigentes;
+        }
+
+        Cache::put(self::LLAVE_DE_CACHE, $conjunto, $segundos);
+
+        return $llaves;
     }
 
     /**

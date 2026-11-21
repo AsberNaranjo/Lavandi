@@ -162,6 +162,10 @@ class RegistroConCorreoTest extends TestCase
                 ['password' => self::CONTRASENA],
                 ['correo' => 'Escribe tu correo.'],
             ],
+            'correo que no es texto' => [
+                ['correo' => ['persona@ejemplo.com'], 'password' => self::CONTRASENA],
+                ['correo' => 'El correo no es válido.'],
+            ],
             'contraseña vacía' => [
                 ['correo' => 'persona@ejemplo.com', 'password' => ''],
                 ['password' => 'Escribe una contraseña.'],
@@ -234,6 +238,42 @@ class RegistroConCorreoTest extends TestCase
         $this->assertStringNotContainsString(self::CONTRASENA, $guardada);
         $this->assertTrue(Hash::isHashed($guardada));
         $this->assertTrue(Hash::check(self::CONTRASENA, $guardada));
+    }
+
+    /**
+     * Un costo igual al de las pruebas y uno mayor que el de cualquier entorno: el cast hashed guardaba tal cual el
+     * primero y rechazaba con error el segundo.
+     *
+     * @return array<string, array{0: int}>
+     */
+    public static function costosDeUnHash(): array
+    {
+        return [
+            'hash de costo 4' => [4],
+            'hash de costo 13' => [13],
+        ];
+    }
+
+    #[DataProvider('costosDeUnHash')]
+    #[TestDox('registro-E05: una contraseña con forma de hash se guarda con su propio hash, no tal cual ($_dataName)')]
+    public function test_registro_e05_una_contrasena_con_forma_de_hash_se_guarda_con_su_propio_hash_no_tal_cual(int $costo): void
+    {
+        // P parece un hash de bcrypt de la contraseña "x", que no cumple la regla (registro-E03).
+        $contrasena = Hash::make('x', ['rounds' => $costo]);
+
+        $this->postJson('/api/registro', ['correo' => 'persona@ejemplo.com', 'password' => $contrasena])
+            ->assertCreated();
+
+        $guardada = (string) DB::table('usuarios')->value('password');
+
+        $this->assertNotSame($contrasena, $guardada);
+        $this->assertTrue(Hash::check($contrasena, $guardada));
+
+        // Entra con P, no con la contraseña de la que P es hash.
+        $this->app['auth']->forgetGuards();
+        $this->postJson('/api/sesion', ['correo' => 'persona@ejemplo.com', 'password' => 'x'])->assertUnprocessable();
+        $this->app['auth']->forgetGuards();
+        $this->postJson('/api/sesion', ['correo' => 'persona@ejemplo.com', 'password' => $contrasena])->assertOk();
     }
 
     #[TestDox('registro-E06: la respuesta del registro no incluye la contraseña ni su hash')]

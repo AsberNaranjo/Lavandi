@@ -6,12 +6,14 @@ use App\Models\Rol;
 use App\Models\Usuario;
 use App\Notifications\EnlaceDeRecuperacion;
 use Database\Factories\UsuarioFactory;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Testing\TestResponse;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 
@@ -178,6 +180,38 @@ class RecuperacionTest extends TestCase
         }
     }
 
+    #[TestDox('registro-E23: dos peticiones casi a la vez para una cuenta que existe dan la misma respuesta que sin cuenta, no un error')]
+    public function test_registro_e23_dos_peticiones_casi_a_la_vez_para_una_cuenta_que_existe_dan_la_misma_respuesta_que_sin_cuenta(): void
+    {
+        Notification::fake();
+        $this->cuenta();
+
+        $sinCuenta = $this->pedirEnlace(self::CORREO_SIN_CUENTA);
+
+        // La otra petición guarda su token justo después de que esta borra el anterior y antes de que guarde el suyo:
+        // el insert de esta choca con la llave de password_reset_tokens.
+        $chocado = false;
+        DB::listen(function (QueryExecuted $consulta) use (&$chocado): void {
+            if ($chocado || ! preg_match('~^delete from "password_reset_tokens"~', $consulta->sql)) {
+                return;
+            }
+
+            $chocado = true;
+            DB::table('password_reset_tokens')->insert([
+                'email' => self::CORREO,
+                'token' => Hash::make('token-de-la-otra-peticion'),
+                'created_at' => now(),
+            ]);
+        });
+
+        $conCuenta = $this->pedirEnlace(self::CORREO);
+
+        $this->assertTrue($chocado, 'La prueba debe provocar el choque.');
+        $conCuenta->assertOk();
+        $this->assertSame($sinCuenta->json(), $conCuenta->json());
+        Notification::assertNothingSent();
+    }
+
     #[TestDox('registro-E23: una petición sin un correo válido se rechaza y no manda nada')]
     public function test_registro_e23_una_peticion_sin_un_correo_valido_se_rechaza_y_no_manda_nada(): void
     {
@@ -236,6 +270,41 @@ class RecuperacionTest extends TestCase
 
         $this->iniciarSesion(UsuarioFactory::CONTRASENA)->assertUnprocessable();
         $this->iniciarSesion(self::CONTRASENA_NUEVA)->assertOk();
+    }
+
+    /**
+     * Un costo igual al de las pruebas y uno mayor que el de cualquier entorno: el cast hashed guardaba tal cual el
+     * primero y rechazaba con error el segundo.
+     *
+     * @return array<string, array{0: int}>
+     */
+    public static function costosDeUnHash(): array
+    {
+        return [
+            'hash de costo 4' => [4],
+            'hash de costo 13' => [13],
+        ];
+    }
+
+    #[DataProvider('costosDeUnHash')]
+    #[TestDox('registro-E24: una contraseña nueva con forma de hash se guarda con su propio hash, no tal cual ($_dataName)')]
+    public function test_registro_e24_una_contrasena_nueva_con_forma_de_hash_se_guarda_con_su_propio_hash_no_tal_cual(int $costo): void
+    {
+        $usuario = $this->cuenta();
+        $token = $this->tokenDelCorreo();
+
+        // P parece un hash de bcrypt de la contraseña "x", que no cumple la regla (ADR-0018, decisión 2).
+        $contrasena = Hash::make('x', ['rounds' => $costo]);
+
+        $this->guardarContrasena($token, self::CORREO, $contrasena)->assertOk();
+
+        $guardada = (string) DB::table('usuarios')->where('id_usuarios', $usuario->id_usuarios)->value('password');
+        $this->assertNotSame($contrasena, $guardada);
+        $this->assertTrue(Hash::check($contrasena, $guardada));
+
+        // Entra con P, no con la contraseña de la que P es hash.
+        $this->iniciarSesion('x')->assertUnprocessable();
+        $this->iniciarSesion($contrasena)->assertOk();
     }
 
     #[TestDox('registro-E24 y E25: el enlace ya usado no sirve otra vez y la contraseña no cambia')]
@@ -386,6 +455,32 @@ class RecuperacionTest extends TestCase
         $this->pedirEnlace('Persona@Ejemplo.COM')->assertTooManyRequests();
 
         Notification::assertSentOnDemandTimes(EnlaceDeRecuperacion::class, 7);
+    }
+
+    #[TestDox('registro-E22 y E31: un correo que no es texto no rompe el límite: responde con el error del correo y no manda nada')]
+    public function test_registro_e22_y_e31_un_correo_que_no_es_texto_no_rompe_el_limite_y_responde_con_el_error_del_correo(): void
+    {
+        Notification::fake();
+        $this->cuenta();
+
+        $datos = ['correo' => [self::CORREO]];
+
+        // En JSON y como formulario (correo[]=…): las dos llegan al limitador como un arreglo.
+        foreach ([$this->postJson(route('contrasena.olvido'), $datos), $this->post(route('contrasena.olvido'), $datos)] as $respuesta) {
+            $respuesta->assertUnprocessable();
+            $respuesta->assertJsonValidationErrors(['correo' => 'El correo no es válido.']);
+        }
+
+        Notification::assertNothingSent();
+    }
+
+    #[TestDox('registro-E24: el formulario con un correo que no es texto se muestra sin correo, sin error del servidor')]
+    public function test_registro_e24_el_formulario_con_un_correo_que_no_es_texto_se_muestra_sin_correo(): void
+    {
+        $respuesta = $this->get(route('contrasena.formulario', ['token' => self::TOKEN_DE_PRUEBA]).'?correo[]='.self::CORREO);
+
+        $respuesta->assertOk();
+        $this->assertMatchesRegularExpression('~name="correo"[^>]*value=""~', (string) $respuesta->getContent());
     }
 
     #[TestDox('registro-E31: el límite sale de la configuración de acceso, el mismo valor del inicio de sesión')]

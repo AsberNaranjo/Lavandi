@@ -88,6 +88,21 @@ class LimiteDeIntentosTest extends TestCase
         $this->intentar('Persona@Ejemplo.COM', UsuarioFactory::CONTRASENA)->assertTooManyRequests();
     }
 
+    #[TestDox('registro-E08 y E30: un correo que no es texto no rompe el límite: responde con el error del correo y no abre sesión')]
+    public function test_registro_e08_y_e30_un_correo_que_no_es_texto_no_rompe_el_limite_y_responde_con_el_error_del_correo(): void
+    {
+        $datos = ['correo' => [self::CORREO], 'password' => UsuarioFactory::CONTRASENA];
+
+        // En JSON y como formulario (correo[]=…): las dos llegan al limitador como un arreglo.
+        foreach ([$this->postJson('/api/sesion', $datos), $this->post('/api/sesion', $datos)] as $respuesta) {
+            $respuesta->assertUnprocessable();
+            $respuesta->assertJsonValidationErrors(['correo' => 'El correo no es válido.']);
+            $respuesta->assertJsonMissingPath('token');
+        }
+
+        $this->assertSame(0, PersonalAccessToken::count());
+    }
+
     #[TestDox('registro-E30: el límite sale de la configuración')]
     public function test_registro_e30_el_limite_sale_de_la_configuracion(): void
     {

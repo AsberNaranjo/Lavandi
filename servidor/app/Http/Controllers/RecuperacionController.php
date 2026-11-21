@@ -17,13 +17,16 @@ use Illuminate\Http\Response;
 class RecuperacionController extends Controller
 {
     /**
-     * GET /contrasena/restablecer/{token}?correo=…: el formulario de la contraseña nueva (registro-E24).
+     * GET /contrasena/restablecer/{token}?correo=…: el formulario de la contraseña nueva (registro-E24). Un correo
+     * que no es texto se deja vacío; al enviarlo, la validación dice que el enlace no está completo.
      */
     public function mostrarFormulario(Request $request, string $token): View
     {
+        $correo = $request->query('correo');
+
         return view('recuperacion.formulario', [
             'token' => $token,
-            'correo' => (string) $request->query('correo', ''),
+            'correo' => is_string($correo) ? $correo : '',
         ]);
     }
 
