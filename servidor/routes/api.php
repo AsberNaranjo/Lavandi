@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\RecuperacionController;
 use App\Http\Controllers\Api\RegistroController;
 use App\Http\Controllers\Api\SesionConGoogleController;
 use App\Http\Controllers\Api\SesionController;
+use App\Http\Controllers\Api\VentanasDeLavanderiaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,4 +40,9 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     Route::get('lavanderias/{lavanderia}', PerfilDeLavanderiaController::class)
         ->whereUlid('lavanderia')
         ->name('lavanderias.perfil');
+
+    // Las ventanas de una hora de una lavandería para una fecha (agenda-de-recoleccion).
+    Route::get('lavanderias/{lavanderia}/ventanas', VentanasDeLavanderiaController::class)
+        ->whereUlid('lavanderia')
+        ->name('lavanderias.ventanas');
 });

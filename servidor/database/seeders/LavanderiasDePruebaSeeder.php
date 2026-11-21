@@ -21,6 +21,9 @@ use Illuminate\Support\Facades\DB;
  * Cada punto cae dentro de una zona de las plazas de prueba, en el océano Pacífico, y la plaza sale de resolver ese
  * punto, como saldrá la de una lavandería real. Si las plazas de prueba no están sembradas, la lavandería no se crea.
  *
+ * Todas llevan el mismo horario de prueba (HORARIO), para la agenda (agenda-de-recoleccion, tarea 1.1). Se siembra solo
+ * si la lavandería todavía no tiene horario.
+ *
  * El lavado en seco no se siembra: su unidad espera DD-010 (perfil-lavanderia-E06). Las calificaciones son todas de la
  * lavandería, sin pedido, cada una de una cuenta de prueba de usuario: dejan los promedios 4.8, 4.2 y 3.5 para probar el
  * filtro de calificación (cercanas-E17), y la lavandería de prueba 4 sin ninguna. Solo se siembran si la lavandería
@@ -105,6 +108,23 @@ class LavanderiasDePruebaSeeder extends Seeder
         ],
     ];
 
+    /**
+     * El horario de prueba, ficticio, en la hora de la plaza: de lunes a viernes de 9:00 a 14:00 y de 16:00 a 19:30, el
+     * sábado de 9:00 a 13:30 y el domingo sin servicio. Deja ver en la app las ventanas de una hora, la última ventana
+     * completa de una franja que no cierra en punto (agenda-E03) y el día sin servicio (agenda-E04). No es el horario de
+     * ninguna lavandería real: ese lo edita cada una en F-B06 (alta-de-lavanderias).
+     *
+     * @var list<array{int, string, string}> Día (1, el lunes, a 7, ISO 8601), hora de inicio y hora de fin.
+     */
+    private const HORARIO = [
+        [1, '09:00', '14:00'], [1, '16:00', '19:30'],
+        [2, '09:00', '14:00'], [2, '16:00', '19:30'],
+        [3, '09:00', '14:00'], [3, '16:00', '19:30'],
+        [4, '09:00', '14:00'], [4, '16:00', '19:30'],
+        [5, '09:00', '14:00'], [5, '16:00', '19:30'],
+        [6, '09:00', '13:30'],
+    ];
+
     /** El dominio reservado para pruebas (RFC 2606): ningún correo de estas cuentas llega a nadie. */
     private const DOMINIO_DE_PRUEBA = 'prueba.test';
 
@@ -147,6 +167,7 @@ class LavanderiasDePruebaSeeder extends Seeder
                 }
 
                 $this->sembrarServicios($lavanderia, $datos['servicios']);
+                $this->sembrarHorario($lavanderia);
                 $this->sembrarCalificaciones($lavanderia, $datos['estrellas']);
             }
         });
@@ -167,6 +188,17 @@ class LavanderiasDePruebaSeeder extends Seeder
                 ],
                 ['id_unidades_medida' => $kilo->getKey(), 'precio' => $precio, 'activo' => true],
             );
+        }
+    }
+
+    private function sembrarHorario(Lavanderia $lavanderia): void
+    {
+        if ($lavanderia->horarios()->exists()) {
+            return;
+        }
+
+        foreach (self::HORARIO as [$dia, $inicio, $fin]) {
+            $lavanderia->horarios()->create(['dia_semana' => $dia, 'hora_inicio' => $inicio, 'hora_fin' => $fin]);
         }
     }
 
