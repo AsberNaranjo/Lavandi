@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\PerfilController;
 use App\Http\Controllers\Api\PerfilDeLavanderiaController;
 use App\Http\Controllers\Api\RecuperacionController;
 use App\Http\Controllers\Api\RegistroController;
+use App\Http\Controllers\Api\ReportesDeSoporteController;
 use App\Http\Controllers\Api\SesionConGoogleController;
 use App\Http\Controllers\Api\SesionController;
 use App\Http\Controllers\Api\SoporteController;
@@ -71,6 +72,8 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     Route::get('perfil', [PerfilController::class, 'mostrar'])->name('perfil.mostrar');
     Route::patch('perfil', [PerfilController::class, 'cambiar'])->name('perfil.cambiar');
 
-    // Soporte: el número de WhatsApp de la configuración (perfil-y-soporte). El contrato está en el controlador.
+    // Soporte: el número de WhatsApp de la configuración y el formulario de reporte (perfil-y-soporte). El contrato está
+    // en cada controlador.
     Route::get('soporte', SoporteController::class)->name('soporte');
+    Route::post('soporte/reportes', ReportesDeSoporteController::class)->name('soporte.reportes');
 });
