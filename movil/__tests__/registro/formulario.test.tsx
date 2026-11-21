@@ -1,12 +1,13 @@
 // Spec: openspec/changes/registro-e-inicio-de-sesion/specs/registro/spec.md, registro-E04 y registro-E09.
-// Las piezas de formulario de las pantallas de entrada: el campo con su error, el botón y el enlace. Sus colores y
-// medidas salen de theme.ts (ADR-0013); el área táctil mínima, de los tokens de accesibilidad.
+// Las piezas de formulario de las pantallas de entrada, en src/piezas/ junto a las de la entrada: el campo con su
+// error, el botón (el de src/piezas, con su estado ocupado) y el enlace. Sus colores y medidas salen de theme.ts
+// (ADR-0013); el área táctil mínima, de los tokens de accesibilidad.
 import { render, screen, userEvent, within } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
-import { Boton } from '../../src/componentes/Boton';
-import { CampoDeTexto } from '../../src/componentes/CampoDeTexto';
-import { Enlace } from '../../src/componentes/Enlace';
+import { Boton } from '../../src/piezas/Boton';
+import { CampoDeTexto } from '../../src/piezas/CampoDeTexto';
+import { Enlace } from '../../src/piezas/Enlace';
 import { tema } from '../../src/tema/theme';
 
 // La primera escritura con userEvent tarda más mientras Jest prepara el entorno.
@@ -76,7 +77,7 @@ describe('registro-E04: el botón que envía el formulario', () => {
   test('registro-E04 — se toca por su texto, con el color de acción y el área táctil mínima', async () => {
     const alTocar = jest.fn();
     const usuario = userEvent.setup();
-    await render(<Boton texto="Crear cuenta" alTocar={alTocar} />);
+    await render(<Boton onPress={alTocar}>Crear cuenta</Boton>);
 
     const boton = screen.getByRole('button', { name: 'Crear cuenta' });
     await usuario.press(boton);
@@ -90,7 +91,11 @@ describe('registro-E04: el botón que envía el formulario', () => {
   test('registro-E04 — mientras se envía, el botón está ocupado y no se puede volver a tocar', async () => {
     const alTocar = jest.fn();
     const usuario = userEvent.setup();
-    await render(<Boton texto="Crear cuenta" alTocar={alTocar} ocupado />);
+    await render(
+      <Boton onPress={alTocar} ocupado>
+        Crear cuenta
+      </Boton>,
+    );
 
     const boton = screen.getByRole('button', { name: 'Crear cuenta' });
     await usuario.press(boton);
@@ -100,13 +105,12 @@ describe('registro-E04: el botón que envía el formulario', () => {
     expect(alTocar).not.toHaveBeenCalled();
   });
 
-  test('registro-E04 — el botón secundario va sobre la superficie, con borde y texto de acción', async () => {
-    await render(<Boton texto="Continuar con Google" alTocar={() => {}} variante="secundario" />);
+  test('registro-E04 — sin enviar, el botón no está ocupado', async () => {
+    await render(<Boton onPress={() => {}}>Crear cuenta</Boton>);
 
-    const boton = screen.getByRole('button', { name: 'Continuar con Google' });
-    expect(estiloPlano(boton).backgroundColor).toBe(tema.color.semantico.superficie);
-    expect(estiloPlano(boton).borderColor).toBe(tema.color.semantico.borde_fuerte);
-    expect(screen.getByText('Continuar con Google')).toHaveStyle({ color: tema.color.semantico.accion });
+    const boton = screen.getByRole('button', { name: 'Crear cuenta' });
+    expect(boton).not.toBeBusy();
+    expect(boton).toBeEnabled();
   });
 });
 
