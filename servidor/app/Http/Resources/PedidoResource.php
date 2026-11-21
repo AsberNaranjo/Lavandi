@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\EstadoPedido;
 use App\Models\Pedido;
 use App\Models\PedidoDireccion;
 use App\Models\PedidoServicio;
@@ -9,8 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * El pedido como lo ve la cuenta que lo hizo: el resumen, y el folio cuando ya está Confirmado
- * (openspec/changes/resumen-y-confirmacion/specs/confirmacion/spec.md). La forma exacta está en
+ * El pedido como lo ve la cuenta que lo hizo: el resumen, el folio cuando ya está Confirmado
+ * (openspec/changes/resumen-y-confirmacion/specs/confirmacion/spec.md), y su estado con los cinco del seguimiento
+ * (openspec/changes/estados-del-pedido/specs/estados/spec.md). La forma exacta está en
  * App\Http\Controllers\Api\PedidosController.
  *
  * Lleva la copia del pedido, nunca la dirección guardada ni el precio actual de la lavandería (confirmacion-E14). No
@@ -53,6 +55,11 @@ class PedidoResource extends JsonResource
                 'nombre' => $this->estado->nombre_usuario,
                 'visible_usuario' => $this->estado->visible_usuario,
             ],
+            // Los cinco estados que ve el usuario, en el orden del contrato, para pintar el seguimiento (estados-E01).
+            'seguimiento' => EstadoPedido::query()->delSeguimiento()->get()->map(fn (EstadoPedido $paso): array => [
+                'codigo' => $paso->codigo,
+                'nombre' => $paso->nombre_usuario,
+            ])->all(),
             'lavanderia' => [
                 'id_publico' => $this->lavanderia->id_publico,
                 'nombre' => $this->lavanderia->nombre,

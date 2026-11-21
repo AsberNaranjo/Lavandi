@@ -194,6 +194,7 @@ pago, con la operación de confirmar (`App\Pedidos\ConfirmacionDePedido`), que n
 | `folio` | `null` hasta Confirmado; texto después. Su formato es DD-101 |
 | `confirmado_en` | `null` hasta Confirmado; el instante en UTC (`2026-12-03T15:30:00Z`) |
 | `estado` | El estado actual: su código en `estados_pedido`, su nombre para el usuario y si el usuario lo ve. En el estado previo al pago `visible_usuario` es `false` y la app no lo nombra (DD-123) |
+| `seguimiento` | Los cinco estados que ve el usuario, en su orden: `[{ "codigo", "nombre" }]`. Lo agregó `estados-del-pedido` (estados-E01); la app ubica el paso actual por `estado.codigo` |
 | `servicios` | Uno por ahora (DD-098). `precio_unitario` es el copiado al crear el pedido, en texto con dos decimales. `cantidad_estimada` y `monto_estimado` quedan `null` hasta DD-012 |
 | `ventana` | Como la da la agenda: instantes con el desfase de la plaza, y la fecha y las horas en la hora de la plaza |
 | `recogida`, `entrega` | La copia que guardó el pedido, no la dirección guardada (confirmacion-E14). Con la entrega en la recogida, las dos son la misma copia. Las señas que no son la colonia pueden ser `null` |

@@ -36,6 +36,13 @@ use Illuminate\Support\Str;
  *         "nombre": "Confirmado",                     el nombre para el usuario
  *         "visible_usuario": true                     false en el estado previo al pago (DD-123): la app no lo nombra
  *       },
+ *       "seguimiento": [                              los cinco estados que ve el usuario, en el orden del contrato
+ *         { "codigo": "confirmado", "nombre": "Confirmado" },     (estados-E01). Siempre los cinco, también antes
+ *         { "codigo": "recolectado", "nombre": "Recolectado" },   del pago. La app ubica el estado actual por
+ *         { "codigo": "en_proceso", "nombre": "En proceso" },     estado.codigo: los anteriores están cumplidos y
+ *         { "codigo": "listo", "nombre": "Listo" },               los siguientes, pendientes (estados-E02). Con
+ *         { "codigo": "entregado", "nombre": "Entregado" }        visible_usuario en false no hay estado actual
+ *       ],
  *       "lavanderia": { "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1u", "nombre": "Lavandería de prueba 1" },
  *       "servicios": [
  *         {
@@ -141,14 +148,17 @@ use Illuminate\Support\Str;
  *
  * ---------------------------------------------------------------------------------------------------------------------
  *
- *     GET /api/pedidos/{id_publico}          Un pedido de la cuenta: su folio y su resumen (confirmacion-E09 y E12)
+ *     GET /api/pedidos/{id_publico}          Un pedido de la cuenta: su folio, su resumen y su estado (confirmacion-E09
+ *                                            y E12; estados-E01 y E11)
  *
  *     {id_publico}  el ULID del pedido, el que trae "pedido.id_publico" en la respuesta de POST /api/pedidos. Se
  *                   acepta en mayúsculas o en minúsculas.
  *
  *     200  { "pedido": { ...el pedido... } }
  *          La app consulta aquí si el pedido ya pasó a Confirmado: "folio" y "confirmado_en" llenos y "estado.codigo"
- *          en "confirmado". Entonces muestra la confirmación con el folio y el resumen.
+ *          en "confirmado". Entonces muestra la confirmación con el folio y el resumen. El seguimiento consulta aquí
+ *          el estado actual: "estado" trae el nombre que ve el usuario, el mismo que marcó la lavandería en
+ *          Recolectado, En proceso y Listo (estados-E11), y "seguimiento", los cinco en su orden.
  *     404  { "message": "No existe el pedido." }
  *          No existe, es de otra cuenta, o el valor no es un ULID (un folio, por ejemplo): todos responden igual y sin
  *          ningún dato. El folio no es un identificador de la API, ni para el pedido propio.
