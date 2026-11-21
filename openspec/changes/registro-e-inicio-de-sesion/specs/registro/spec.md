@@ -191,6 +191,8 @@ Criterio: A43-6 (en parte: F-A02)
 - **CUANDO** la persona entra con una cuenta de Google que tiene ese mismo correo y Google lo da por verificado
 - **ENTONCES** la cuenta de Google se liga a la cuenta existente y la respuesta trae un token de sesión de esa cuenta
 - **Y** no se crea otra cuenta
+- **Y** las sesiones que la cuenta tenía abiertas se cierran y su contraseña queda anulada: quien la había registrado
+  ya no entra con ella, y el dueño del correo puede crear otra con la recuperación (DD-132, decisión 23)
 - **Y** si Google no da el correo por verificado, el servidor rechaza la entrada y no liga nada
 
 #### Scenario: registro-E19 — El botón de Google en la app
