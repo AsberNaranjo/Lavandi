@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Avisos\TelefonosRegistrados;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CierreDeSesionRequest;
 use App\Http\Requests\InicioDeSesionRequest;
 use App\Http\Resources\UsuarioResource;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Timebox;
 use Illuminate\Validation\ValidationException;
@@ -18,6 +20,19 @@ use Illuminate\Validation\ValidationException;
  *
  * - POST /api/sesion abre una sesión nueva: un token nuevo por cada inicio (registro-E07 y registro-E08);
  * - DELETE /api/sesion la cierra: revoca el token con el que llegó la petición, y solo ese (registro-E12).
+ *
+ * Al cerrar la sesión, la app manda también el token de Firebase del teléfono, para que la API lo borre y los avisos de
+ * la cuenta dejen de llegarle (avisos-E05):
+ *
+ *     DELETE /api/sesion
+ *
+ *     { "token_fcm": "<token que da Firebase al teléfono>" }      opcional
+ *
+ *     204  (sin cuerpo)
+ *          La sesión queda cerrada. Si el token es de un teléfono de la cuenta, se borra; si es de otra cuenta o no está
+ *          registrado, no se toca nada y la respuesta es la misma. Sin el token, solo se cierra la sesión.
+ *     422  { "message": "...", "errors": { "token_fcm": ["El token del teléfono va en texto."] } }
+ *          El token no es texto o pasa de 4096 caracteres. La sesión sigue abierta.
  */
 class SesionController extends Controller
 {
@@ -52,9 +67,19 @@ class SesionController extends Controller
         ]);
     }
 
-    public function cerrar(Request $request): Response
+    public function cerrar(CierreDeSesionRequest $request, TelefonosRegistrados $telefonos): Response
     {
-        $request->user()->currentAccessToken()->delete();
+        /** @var Usuario $usuario */
+        $usuario = $request->user();
+        $token = $request->validated('token_fcm');
+
+        DB::transaction(function () use ($usuario, $token, $telefonos): void {
+            if (is_string($token) && $token !== '') {
+                $telefonos->olvidar($usuario, $token);
+            }
+
+            $usuario->currentAccessToken()->delete();
+        });
 
         return response()->noContent();
     }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\BorradoDeCuentaController;
 use App\Http\Controllers\Api\CuentaController;
 use App\Http\Controllers\Api\DireccionesController;
+use App\Http\Controllers\Api\DispositivosController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
 use App\Http\Controllers\Api\PedidosController;
 use App\Http\Controllers\Api\PerfilController;
@@ -82,4 +83,8 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
 
     // Borrar la cuenta de la sesión desde el perfil (perfil-y-soporte; ADR-0005). El contrato está en el controlador.
     Route::delete('cuenta', BorradoDeCuentaController::class)->name('cuenta.borrar');
+
+    // El token de Firebase del teléfono que recibe los avisos de la cuenta (avisos). El contrato está en el
+    // controlador; se borra al cerrar la sesión, con DELETE sesion.
+    Route::post('dispositivos', [DispositivosController::class, 'registrar'])->name('dispositivos.registrar');
 });

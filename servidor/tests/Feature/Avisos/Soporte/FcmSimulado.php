@@ -4,6 +4,7 @@ namespace Tests\Feature\Avisos\Soporte;
 
 use App\Models\Dispositivo;
 use App\Models\Usuario;
+use Closure;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -34,12 +35,26 @@ trait FcmSimulado
 
     private static ?string $llavePublicaDePrueba = null;
 
+    /** Lo que FCM responde a cada envío; null, que lo acepta. */
+    private mixed $respuestaAlEnvioDeFcm = null;
+
+    private bool $fcmSimulado = false;
+
     /**
      * La cuenta de servicio de prueba en un archivo temporal y FCM simulado. Sin respuesta, FCM acepta todo envío;
-     * con una, responde eso a cada envío (una respuesta de Http::response(), Http::failedConnection() o un closure).
+     * con una, responde eso a cada envío (una respuesta de Http::response(), Http::failedConnection() o un closure que
+     * recibe la petición). Llamarla otra vez en la misma prueba cambia la respuesta: Http::fake() acumula sus
+     * simulacros y gana el primero, así que se registra una sola vez.
      */
     protected function simularFcm(mixed $respuestaAlEnvio = null): void
     {
+        $this->respuestaAlEnvioDeFcm = $respuestaAlEnvio;
+
+        if ($this->fcmSimulado) {
+            return;
+        }
+
+        $this->fcmSimulado = true;
         $this->configurarCuentaDeServicio();
 
         Http::preventStrayRequests();
@@ -49,9 +64,19 @@ trait FcmSimulado
                 'expires_in' => 3599,
                 'token_type' => 'Bearer',
             ]),
-            self::DIRECCION_DE_ENVIO => $respuestaAlEnvio
-                ?? Http::response(['name' => 'projects/'.self::PROYECTO_DE_PRUEBA.'/messages/0:1']),
+            self::DIRECCION_DE_ENVIO => fn (Request $peticion) => $this->respuestaDeFcmA($peticion),
         ]);
+    }
+
+    private function respuestaDeFcmA(Request $peticion): mixed
+    {
+        $respuesta = $this->respuestaAlEnvioDeFcm;
+
+        if ($respuesta instanceof Closure) {
+            return $respuesta($peticion);
+        }
+
+        return $respuesta ?? Http::response(['name' => 'projects/'.self::PROYECTO_DE_PRUEBA.'/messages/0:1']);
     }
 
     /**

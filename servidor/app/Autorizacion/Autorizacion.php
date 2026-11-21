@@ -73,4 +73,15 @@ final class Autorizacion
     {
         return Dispositivo::query()->where('id_usuarios', $pedido->id_usuarios);
     }
+
+    /**
+     * Los teléfonos que la cuenta puede borrar: solo los suyos (avisos-E05). Al cerrar la sesión, el token de otra
+     * cuenta no se toca aunque la app lo mande.
+     *
+     * @return Builder<Dispositivo>
+     */
+    public function telefonosDeLaCuenta(Usuario $usuario): Builder
+    {
+        return Dispositivo::query()->where('id_usuarios', $usuario->getKey());
+    }
 }

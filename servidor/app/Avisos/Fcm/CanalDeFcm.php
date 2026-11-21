@@ -16,6 +16,7 @@ use Throwable;
  * - Se autentica con la cuenta de servicio del entorno (CuentaDeServicio): firma con su llave un JWT para el alcance de
  *   FCM y lo cambia por un token de acceso de OAuth en el punto de tokens de Google. El token de acceso se guarda en
  *   la caché hasta cinco minutos antes de que venza; si FCM lo rechaza, se olvida.
+ * - Un token que FCM dice que ya no sirve sale como TokenRechazado, para que quien manda el aviso lo borre (avisos-E06).
  * - Una falla de la red o de Google sale como FcmNoDisponible, nunca como otra excepción: quien manda el aviso decide
  *   qué hacer con ella, y el pedido no depende de él (avisos-E02).
  *
@@ -40,6 +41,7 @@ final class CanalDeFcm
      *
      * @param  array<string, mixed>  $mensaje  El objeto message de la API HTTP v1, sin el token.
      *
+     * @throws TokenRechazado si FCM dice que el token ya no sirve
      * @throws FcmNoDisponible
      */
     public function mandar(string $token, array $mensaje): void
@@ -62,11 +64,32 @@ final class CanalDeFcm
             return;
         }
 
+        if ($this->rechazaElToken($respuesta)) {
+            throw new TokenRechazado($this->codigoDeError($respuesta));
+        }
+
         if ($respuesta->status() === 401) {
             Cache::forget($this->llaveDeCache($cuenta));
         }
 
         throw $this->falla($respuesta);
+    }
+
+    /**
+     * Si FCM dice que el token ya no sirve (avisos-E06), con los códigos de la API HTTP v1:
+     *
+     * - UNREGISTERED (404): la app se desinstaló o el token venció;
+     * - SENDER_ID_MISMATCH (403): el token es de otro proyecto de Firebase;
+     * - INVALID_ARGUMENT (400) cuando el mensaje de Google dice que es el token el que no es válido. Un INVALID_ARGUMENT
+     *   por otra cosa, como un mensaje mal armado, no borra el token.
+     */
+    private function rechazaElToken(Response $respuesta): bool
+    {
+        return match ($this->codigoDeError($respuesta)) {
+            'UNREGISTERED', 'SENDER_ID_MISMATCH' => true,
+            'INVALID_ARGUMENT' => str_contains(strtolower((string) $respuesta->json('error.message')), 'registration token'),
+            default => false,
+        };
     }
 
     /**

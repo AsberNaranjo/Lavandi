@@ -5,6 +5,7 @@ namespace App\Avisos;
 use App\Autorizacion\Autorizacion;
 use App\Avisos\Fcm\CanalDeFcm;
 use App\Avisos\Fcm\FcmNoDisponible;
+use App\Avisos\Fcm\TokenRechazado;
 use App\Models\Pedido;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,6 +21,8 @@ use Illuminate\Support\Facades\Log;
  * Al correr, vuelve a preguntar a App\Autorizacion\Autorizacion si el teléfono todavía recibe los avisos de ese pedido:
  * si se cerró la sesión, se borró el token o el teléfono pasó a otra cuenta mientras el envío esperaba en la cola, no
  * se manda nada (avisos-E05 y avisos-E21).
+ *
+ * Si FCM dice que el token ya no sirve, el teléfono se borra y no se reintenta (avisos-E06).
  *
  * Un fallo de FCM nunca sale de aquí (avisos-E02; ADR-0008): queda como advertencia en la bitácora, con el pedido, el
  * estado y el motivo, y sin el token del teléfono. Si puede pasar solo, el envío vuelve a la cola con la espera de
@@ -61,6 +64,16 @@ final class MandarAvisoAlTelefono implements ShouldQueue
 
         try {
             $canal->mandar($telefono->token_fcm, MensajeDelPedido::armar($this->pedido, $this->estado));
+        } catch (TokenRechazado $rechazo) {
+            // El teléfono ya no recibe avisos con ese token: se borra y no se reintenta (avisos-E06).
+            $telefono->delete();
+
+            Log::info('Se borró un teléfono porque FCM rechazó su token.', [
+                'pedido' => $this->pedido->id_publico,
+                'estado' => $this->estado,
+                'telefono' => $telefono->getKey(),
+                'codigo' => $rechazo->codigo,
+            ]);
         } catch (FcmNoDisponible $falla) {
             Log::warning('El aviso del pedido no salió por Firebase Cloud Messaging.', [
                 'pedido' => $this->pedido->id_publico,
