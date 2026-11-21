@@ -4,8 +4,9 @@
 // hora; sin tipo no se continúa. Un solo tipo por pedido mientras DD-098 siga abierta (design.md, Open Questions). Se
 // abre la app real, con las rutas de movil/app/ (ADR-0017), en iPhone y en Android, con el servidor simulado.
 //
-// El paso de fecha y hora es de agenda-de-recoleccion y todavía no existe: su ruta es provisional, solo con el
-// encabezado. La prueba comprueba que la app llega a ella con el pedido en curso guardado.
+// El paso de fecha y hora es de agenda-de-recoleccion y se prueba en __tests__/agenda/selector.test.tsx (agenda-E04 y
+// E08). Aquí solo se comprueba que la app llega a él con el pedido en curso guardado; el servidor falso le contesta un
+// día sin ventanas.
 import path from 'node:path';
 
 import { fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
@@ -66,6 +67,18 @@ function servidor() {
     }
     if (ruta === `/lavanderias/${ID}`) {
       return respuesta(200, { lavanderia: PERFIL });
+    }
+    // Las ventanas que pide el paso de fecha y hora (agenda-de-recoleccion): el día pedido, sin ventanas.
+    if (ruta.startsWith(`/lavanderias/${ID}/ventanas?fecha=`)) {
+      const fecha = ruta.split('fecha=')[1];
+      return respuesta(200, {
+        fecha,
+        zona_horaria: 'America/Mexico_City',
+        primer_dia: fecha,
+        ultimo_dia: fecha,
+        dia_sin_servicio: false,
+        ventanas: [],
+      });
     }
     throw new Error(`El servidor falso no esperaba ${ruta}`);
   });
@@ -157,12 +170,13 @@ describe('perfil-lavanderia-E12: la elección queda en el pedido en curso', () =
       expect(leerPedidoEnCurso()).toEqual({
         lavanderia: { id_publico: ID, nombre: PERFIL.nombre, servicios: PERFIL.servicios },
         servicio: 'estandar',
+        ventana: null,
       });
       expect(await screen.findByText('Pedido nuevo · 2 de 4')).toBeOnTheScreen();
     },
   );
 
-  test('perfil-lavanderia-E12 — el pedido en curso no viaja al servidor: no hay ninguna petición al continuar', async () => {
+  test('perfil-lavanderia-E12 — el pedido en curso no viaja al servidor: al continuar solo se piden las ventanas de la lavandería, sin el pedido', async () => {
     await abrirLaSeleccion('ios');
     const antes = fetchFalso.mock.calls.length;
 
@@ -171,7 +185,13 @@ describe('perfil-lavanderia-E12: la elección queda en el pedido en curso', () =
 
     await waitFor(() => expect(screen).toHavePathname('/pedido/fecha-y-hora'));
     expect(leerPedidoEnCurso()?.servicio).toBe('planchado');
-    expect(fetchFalso.mock.calls).toHaveLength(antes);
+    // Lo único que sale es la consulta de las ventanas del paso de fecha y hora (agenda-de-recoleccion): un GET sin cuerpo.
+    const despues = fetchFalso.mock.calls.slice(antes) as [string, RequestInit][];
+    for (const [url, opciones] of despues) {
+      expect(url.startsWith(`${BASE}/lavanderias/${ID}/ventanas?fecha=`)).toBe(true);
+      expect(opciones.method).toBe('GET');
+      expect(opciones.body).toBeUndefined();
+    }
   });
 
   test('perfil-lavanderia-E12 — al regresar de fecha y hora, el tipo elegido sigue marcado', async () => {

@@ -8,7 +8,7 @@ luego el código mínimo; luego la limpieza. Horas: listas 12 (M + S + M); bloqu
 
 ## 2. App: selector de fecha y hora
 
-- [ ] 2.1 agenda-E04, agenda-E08: pantalla de fecha y hora con el componente 2 (disponible, seleccionada con señal además del color, día sin servicio) que lleva la elección al resumen — test: `movil/__tests__/agenda/selector.test.tsx` — tamaño M
+- [x] 2.1 agenda-E04, agenda-E08: pantalla de fecha y hora con el componente 2 (disponible, seleccionada con señal además del color, día sin servicio) que lleva la elección al resumen — test: `movil/__tests__/agenda/selector.test.tsx` — tamaño M
 
 ## 3. Bloqueadas: no entran al sprint mientras su fila siga abierta
 

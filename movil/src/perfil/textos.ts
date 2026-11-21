@@ -40,7 +40,8 @@ export function estrellasParaLeer(estrellas: number): string {
   return `${estrellas} de ${ESTRELLAS_MAXIMAS} estrellas`;
 }
 
-const MESES = [
+/** Los meses en español, de enero a diciembre, para las fechas que se leen (las reseñas y la agenda). */
+export const MESES = [
   'enero',
   'febrero',
   'marzo',
