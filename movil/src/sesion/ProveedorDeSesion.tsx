@@ -7,6 +7,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { cerrarSesionEnServidor, consultarCuenta } from '../acceso/api';
+import { cerrarSesionDeGoogle } from '../acceso/google';
 import { comprobarInstalacion } from '../instalacion/marca';
 import { borrarToken, guardarToken, leerToken } from './almacen';
 
@@ -36,8 +37,9 @@ export interface Sesion {
   /** Guarda el token de una sesión nueva y la abre. */
   iniciar(token: string): Promise<void>;
   /**
-   * Borra el token del teléfono, deja la app sin sesión y pide al servidor revocarlo sin esperar su respuesta. Si el
-   * almacén cifrado no lo puede borrar, la app queda sin sesión de todos modos y la promesa falla con ese error.
+   * Borra el token del teléfono, deja la app sin sesión y pide al servidor revocarlo, y a Google cerrar su sesión, sin
+   * esperar a ninguno de los dos. Si el almacén cifrado no lo puede borrar, la app queda sin sesión de todos modos y la
+   * promesa falla con ese error.
    */
   cerrar(): Promise<void>;
 }
@@ -83,11 +85,13 @@ export function ProveedorDeSesion({ children }: { children: ReactNode }) {
       await borrarToken();
     } finally {
       // Aunque el almacén cifrado falle, la app queda sin sesión. Después se pide al servidor revocar el token, sin
-      // esperarlo: si no contesta, la petición se corta sola al vencer su plazo.
+      // esperarlo: si no contesta, la petición se corta sola al vencer su plazo. También se cierra la sesión de
+      // Google, para que la siguiente entrada con Google deje elegir la cuenta; tampoco se espera y nunca falla.
       setToken(null);
       if (guardado) {
         void cerrarSesionEnServidor(guardado);
       }
+      void cerrarSesionDeGoogle();
     }
   }, [token]);
 

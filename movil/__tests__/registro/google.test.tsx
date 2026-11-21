@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 
 import * as SecureStore from 'expo-secure-store';
-import { userEvent } from '@testing-library/react-native';
+import { act, renderHook, userEvent, waitFor } from '@testing-library/react-native';
 import { renderRouter, screen } from 'expo-router/testing-library';
 import { Platform } from 'react-native';
 import { NitroModules } from 'react-native-nitro-modules';
@@ -13,9 +13,10 @@ import { NitroModules } from 'react-native-nitro-modules';
 import Inicio from '../../app/inicio';
 import InicioDeSesion from '../../app/inicio-de-sesion';
 import Registro from '../../app/registro';
-import { pedirIdTokenDeGoogle } from '../../src/acceso/google';
-import { leerToken } from '../../src/sesion/almacen';
-import { ProveedorDeSesion } from '../../src/sesion/ProveedorDeSesion';
+import { cerrarSesionDeGoogle, pedirIdTokenDeGoogle } from '../../src/acceso/google';
+import { comprobarInstalacion } from '../../src/instalacion/marca';
+import { guardarToken, leerToken } from '../../src/sesion/almacen';
+import { ProveedorDeSesion, useSesion } from '../../src/sesion/ProveedorDeSesion';
 
 // La simulación de __mocks__/expo-secure-store.ts, la misma instancia que importa la app: el token queda en
 // memoria y se lee con leerToken.
@@ -230,6 +231,75 @@ describe('registro-E19 y registro-E20: el botón de Google en las pantallas de e
     await abrir(ruta);
 
     expect(await screen.findByRole('button', { name: 'Continuar con Google' })).toBeOnTheScreen();
+  });
+});
+
+// En iPhone, signIn() de la librería recupera sin preguntar la cuenta de Google que quedó abierta. Si cerrar la sesión de
+// la app no cierra también la de Google, la siguiente entrada con Google vuelve a la misma cuenta sin dejar elegir otra.
+describe('registro-E13 y registro-E19: cerrar la sesión de la app cierra también la de Google', () => {
+  const fetchOriginal = global.fetch;
+
+  beforeEach(async () => {
+    almacen.__vaciar();
+    // La sesión es de esta misma instalación: la marca de instalación ya existe (registro-E32).
+    await comprobarInstalacion();
+    // Sin conexión al abrir: la sesión guardada se conserva (registro-E11) y el cierre no espera al servidor.
+    global.fetch = jest.fn(async () => {
+      throw new TypeError('Network request failed');
+    }) as unknown as typeof fetch;
+  });
+
+  afterEach(() => {
+    global.fetch = fetchOriginal;
+  });
+
+  async function conSesionAbierta() {
+    await guardarToken('token-google');
+    const sesion = await renderHook(() => useSesion(), { wrapper: ProveedorDeSesion });
+    await waitFor(() => expect(sesion.result.current.estado).toBe('con-sesion'));
+    return sesion;
+  }
+
+  test('registro-E13 — cerrarSesionDeGoogle pide a la librería cerrar la sesión de Google del teléfono', async () => {
+    google.signOut.mockResolvedValue(undefined);
+
+    await cerrarSesionDeGoogle();
+
+    expect(google.signOut).toHaveBeenCalledTimes(1);
+  });
+
+  test('registro-E13 — si la librería falla al cerrar la sesión de Google, cerrarSesionDeGoogle no falla', async () => {
+    google.signOut.mockRejectedValue(new Error('[SIGN_OUT_FAILED] No se pudo cerrar la sesión'));
+
+    await expect(cerrarSesionDeGoogle()).resolves.toBeUndefined();
+  });
+
+  test('registro-E13 — si la librería lanza en vez de rechazar, cerrarSesionDeGoogle tampoco falla', async () => {
+    google.signOut.mockImplementation(() => {
+      throw new Error('Google no está disponible');
+    });
+
+    await expect(cerrarSesionDeGoogle()).resolves.toBeUndefined();
+  });
+
+  test('registro-E13 y registro-E19 — al cerrar la sesión de la app se llama a signOut de Google', async () => {
+    google.signOut.mockResolvedValue(undefined);
+    const { result } = await conSesionAbierta();
+
+    await act(() => result.current.cerrar());
+
+    expect(google.signOut).toHaveBeenCalledTimes(1);
+    expect(result.current.estado).toBe('sin-sesion');
+  });
+
+  test('registro-E13 — si Google falla al cerrar, la sesión de la app se cierra igual y el token se borra', async () => {
+    google.signOut.mockRejectedValue(new Error('[SIGN_OUT_FAILED] No se pudo cerrar la sesión'));
+    const { result } = await conSesionAbierta();
+
+    await act(() => result.current.cerrar());
+
+    expect(result.current.estado).toBe('sin-sesion');
+    await expect(leerToken()).resolves.toBeNull();
   });
 });
 
