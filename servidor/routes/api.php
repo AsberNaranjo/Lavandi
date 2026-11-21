@@ -65,6 +65,8 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     // Los pedidos de la cuenta (resumen-y-confirmacion). El contrato está en el controlador. Ninguna ruta confirma un
     // pedido: lo confirma el cobro cuando la pasarela confirma el pago (C-188; confirmacion-E07).
     Route::post('pedidos', [PedidosController::class, 'crear'])->name('pedidos.crear');
+    // El historial de la cuenta, con el filtro por fecha (historial-y-calificacion): solo sus pedidos confirmados.
+    Route::get('pedidos', [PedidosController::class, 'lista'])->name('pedidos.lista');
     // Un pedido de la cuenta, por su ULID. Sin whereUlid a propósito: un valor que no es ULID, como un folio, responde
     // el mismo 404 que un pedido ajeno o que no existe (confirmacion-E12).
     Route::get('pedidos/{pedido}', [PedidosController::class, 'mostrar'])->name('pedidos.mostrar');

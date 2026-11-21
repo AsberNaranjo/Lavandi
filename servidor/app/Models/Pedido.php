@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\TieneIdPublico;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -51,6 +52,53 @@ class Pedido extends Modelo
             'confirmado_en' => 'immutable_datetime',
             'cancelado_en' => 'immutable_datetime',
         ];
+    }
+
+    /**
+     * Los pedidos que ya entraron al flujo: el pago quedó acreditado y tienen folio (C-188; ADR-0021). Uno que espera su
+     * pago no tiene estado que nombrar al usuario.
+     *
+     * @param  Builder<Pedido>  $consulta
+     */
+    public function scopeConfirmados(Builder $consulta): void
+    {
+        $consulta->whereNotNull($consulta->qualifyColumn('confirmado_en'));
+    }
+
+    /**
+     * Los pedidos con la recolección entre esos dos días, los dos incluidos, contados en la hora de la plaza de cada
+     * pedido: la fecha que muestra su resumen (historial-E03; openspec/changes/historial-y-calificacion/design.md,
+     * decisión 1). Sin uno de los dos, el rango queda abierto de ese lado.
+     *
+     * @param  Builder<Pedido>  $consulta
+     */
+    public function scopeRecolectadosEntre(Builder $consulta, ?string $desde, ?string $hasta): void
+    {
+        $fecha = sprintf(
+            '(%s at time zone (select plazas.zona_horaria from plazas where plazas.id_plazas = %s))::date',
+            $consulta->qualifyColumn('ventana_inicio'),
+            $consulta->qualifyColumn('id_plazas'),
+        );
+
+        if ($desde !== null) {
+            $consulta->whereRaw("{$fecha} >= cast(? as date)", [$desde]);
+        }
+
+        if ($hasta !== null) {
+            $consulta->whereRaw("{$fecha} <= cast(? as date)", [$hasta]);
+        }
+    }
+
+    /**
+     * Del pedido con la recolección más reciente al de la más antigua; con la misma recolección, del más nuevo al más
+     * viejo.
+     *
+     * @param  Builder<Pedido>  $consulta
+     */
+    public function scopeDelMasRecienteAlMasAntiguo(Builder $consulta): void
+    {
+        $consulta->orderByDesc($consulta->qualifyColumn('ventana_inicio'))
+            ->orderByDesc($consulta->qualifyColumn('id_pedidos'));
     }
 
     /**
