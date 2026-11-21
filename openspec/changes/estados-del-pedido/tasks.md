@@ -6,6 +6,8 @@
 
 - [x] 1.1 estados-E01 y estados-E11: la api entrega el pedido recién confirmado en Confirmado, con los cinco estados en orden, y la consulta del usuario devuelve el mismo nombre que marcó la lavandería en Recolectado, En proceso y Listo — test: `servidor/tests/Feature/Estados/EstadoVisibleTest.php` — tamaño S
 
+- [x] 1.2 estados-E24: cada uno de los cinco del seguimiento trae `ocurrido_en`, la hora en que el pedido llegó a él en la hora de la plaza, o `null` si no ha llegado (decisión 25 del acta del 2026-11-20, DD-135 punto 4) — test: `servidor/tests/Feature/Estados/HoraDelSeguimientoTest.php` — tamaño S
+
 ## 2. Servidor: los botones de la lavandería y el historial
 
 - [ ] 2.1 estados-E03, estados-E04, estados-E05 y estados-E14: transiciones de la lavandería en el orden del contrato, rechazo de saltos y regresos, y un evento en `pedido_eventos` por cambio, con su hora y quién lo hizo, junto con `pedidos.id_estados_pedido` en la misma transacción — test: `servidor/tests/Feature/Estados/BotonesDeLaLavanderiaTest.php` — tamaño M
@@ -17,7 +19,7 @@
 
 ## 4. App: el seguimiento del usuario
 
-- [ ] 4.1 estados-E02: pantalla de seguimiento con el componente 3 del design system: estado actual con su nombre, anteriores cumplidos y siguientes pendientes, solo con los cinco nombres — test: `movil/__tests__/estados/seguimiento.test.tsx` — tamaño M
+- [ ] 4.1 estados-E02 y estados-E24: pantalla de seguimiento con el componente 3 del design system: estado actual con su nombre, anteriores cumplidos y siguientes pendientes, solo con los cinco nombres — test: `movil/__tests__/estados/seguimiento.test.tsx` — tamaño M
 - [ ] 4.2 estados-E15 y estados-E16: consulta cada 30 segundos solo con la pantalla visible, y consulta inmediata al volver — test: `movil/__tests__/estados/consulta-periodica.test.tsx` — tamaño S
 - [ ] 4.3 estados-E17: flujo de Maestro en Android que cronometra el cambio de Confirmado a Recolectado en 60 segundos o menos — test: `movil/.maestro/estados/cambio-en-60-segundos.yaml` — tamaño S
 

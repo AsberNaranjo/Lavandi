@@ -69,11 +69,11 @@ una sola llave, `seguimiento`:
   "confirmado_en": "2026-12-03T15:30:00Z",
   "estado": { "codigo": "recolectado", "nombre": "Recolectado", "visible_usuario": true },
   "seguimiento": [
-    { "codigo": "confirmado", "nombre": "Confirmado" },
-    { "codigo": "recolectado", "nombre": "Recolectado" },
-    { "codigo": "en_proceso", "nombre": "En proceso" },
-    { "codigo": "listo", "nombre": "Listo" },
-    { "codigo": "entregado", "nombre": "Entregado" }
+    { "codigo": "confirmado", "nombre": "Confirmado", "ocurrido_en": "2026-12-03T09:30:00-06:00" },
+    { "codigo": "recolectado", "nombre": "Recolectado", "ocurrido_en": "2026-12-03T10:05:00-06:00" },
+    { "codigo": "en_proceso", "nombre": "En proceso", "ocurrido_en": null },
+    { "codigo": "listo", "nombre": "Listo", "ocurrido_en": null },
+    { "codigo": "entregado", "nombre": "Entregado", "ocurrido_en": null }
   ],
   "…": "el resto del pedido, igual que en resumen-y-confirmacion"
 }
@@ -82,7 +82,7 @@ una sola llave, `seguimiento`:
 | Campo | Qué es |
 |---|---|
 | `estado` | Sin cambio. El estado actual: su código en `estados_pedido`, el nombre que ve el usuario (`nombre_usuario`) y si lo ve (`visible_usuario`). En Recolectado, En proceso y Listo, el nombre es el mismo del botón que marcó la lavandería (estados-E11) |
-| `seguimiento` | Nueva. Los estados de `estados_pedido` con `visible_usuario` verdadero, en su `orden`: los cinco del contrato, de Confirmado a Entregado (Módulo A #12; estados-E01). Cada uno con su `codigo` y su `nombre` para el usuario. Es la misma lista para todo pedido, también en `por_pagar` |
+| `seguimiento` | Nueva. Los estados de `estados_pedido` con `visible_usuario` verdadero, en su `orden`: los cinco del contrato, de Confirmado a Entregado (Módulo A #12; estados-E01). Cada uno con su `codigo`, su `nombre` para el usuario y `ocurrido_en`: la hora en que el pedido llegó a él, en ISO 8601 con el desfase de la hora de la plaza, de su evento más reciente en ese estado, o `null` si no ha llegado (estados-E24). Es la misma lista para todo pedido, también en `por_pagar`, donde ninguno trae hora |
 
 **Cómo pinta la app el seguimiento (estados-E02).** Ubica el estado actual en `seguimiento` por `estado.codigo`: los
 anteriores son los cumplidos y los siguientes, los pendientes. Con `estado.visible_usuario` en `false` (`por_pagar`), el
@@ -106,6 +106,6 @@ cómo ubica la app el paso actual.
 - **La máquina de estados: necesita ADR. Es DD-123** (Arthur, límite 2027-01-04). La propuesta es guardar el estado operativo (los botones de cada socio) y derivar el que ve el usuario con `estados_pedido` (`nombre_usuario` y `visible_usuario`). No está en ningún ADR y el C3 la dejó pendiente a propósito. Con DD-123 se fijan también el estado interno en que el pedido espera su pago y los de "aceptado" y "rechazado" de `pedidos-de-la-lavanderia`.
 - **Cuándo está Confirmado.** C-188 lo respondió: cuando la pasarela confirma el pago (numerales 10 y 11), con `pedidos.confirmado_en`, y antes de que la lavandería lo acepte. Si la aceptación tuviera que ser condición, cambia estados-E01 (BR-22).
 - **Corregir un botón tocado por error.** El contrato no lo prevé y la api rechaza los regresos (estados-E05). Si la operación lo necesita, se decide como posible Orden de Cambio (fila propuesta en el reporte).
-- **La hora de cada estado en la pantalla.** El mock A12 muestra una línea de tiempo con horas; el contrato no la nombra. Es una decisión de pantalla de Arthur.
+- **La hora de cada estado en la pantalla: resuelta.** Sí, la de cada estado cumplido (DD-135, punto 4; decisión 25 del acta del 2026-11-20, por delegación C-236). Es estados-E24.
 - **Una biblioteca para la consulta periódica en `movil/`** (por ejemplo, TanStack Query) o un temporizador propio. Es una dependencia nueva y la decide Arthur.
 - **Dónde viven los flujos de Maestro.** No hay convención escrita; las tareas usan `movil/.maestro/estados/`.

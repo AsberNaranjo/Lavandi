@@ -85,13 +85,14 @@ class CrearPedidoTest extends TestCase
             'folio' => null,
             'confirmado_en' => null,
             'estado' => ['codigo' => EstadoPedido::POR_PAGAR, 'nombre' => 'Por pagar', 'visible_usuario' => false],
-            // Los cinco del seguimiento, también mientras espera su pago (estados-E01).
+            // Los cinco del seguimiento, también mientras espera su pago, sin hora: no ha llegado a ninguno (estados-E01
+            // y E24).
             'seguimiento' => [
-                ['codigo' => 'confirmado', 'nombre' => 'Confirmado'],
-                ['codigo' => 'recolectado', 'nombre' => 'Recolectado'],
-                ['codigo' => 'en_proceso', 'nombre' => 'En proceso'],
-                ['codigo' => 'listo', 'nombre' => 'Listo'],
-                ['codigo' => 'entregado', 'nombre' => 'Entregado'],
+                ['codigo' => 'confirmado', 'nombre' => 'Confirmado', 'ocurrido_en' => null],
+                ['codigo' => 'recolectado', 'nombre' => 'Recolectado', 'ocurrido_en' => null],
+                ['codigo' => 'en_proceso', 'nombre' => 'En proceso', 'ocurrido_en' => null],
+                ['codigo' => 'listo', 'nombre' => 'Listo', 'ocurrido_en' => null],
+                ['codigo' => 'entregado', 'nombre' => 'Entregado', 'ocurrido_en' => null],
             ],
             'lavanderia' => ['id_publico' => $this->lavanderia->id_publico, 'nombre' => $this->lavanderia->nombre],
             'servicios' => [[

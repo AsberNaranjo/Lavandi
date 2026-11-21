@@ -72,7 +72,7 @@ class EstadoVisibleTest extends TestCase
             'nombre' => 'Confirmado',
             'visible_usuario' => true,
         ]);
-        $respuesta->assertJsonPath('pedido.seguimiento', self::LOS_CINCO);
+        $this->assertLosCinco($respuesta);
 
         // El estado actual es el primero de los cinco.
         $this->assertSame(0, $this->pasoActual($respuesta));
@@ -89,7 +89,7 @@ class EstadoVisibleTest extends TestCase
 
         $respuesta->assertJsonPath('pedido.estado.codigo', EstadoPedido::POR_PAGAR);
         $respuesta->assertJsonPath('pedido.estado.visible_usuario', false);
-        $respuesta->assertJsonPath('pedido.seguimiento', self::LOS_CINCO);
+        $this->assertLosCinco($respuesta);
         $this->assertNull($this->pasoActual($respuesta));
     }
 
@@ -114,7 +114,7 @@ class EstadoVisibleTest extends TestCase
                 'visible_usuario' => true,
             ]);
             // La lista no cambia, y el paso que la app pinta como actual lleva el nombre del botón.
-            $respuesta->assertJsonPath('pedido.seguimiento', self::LOS_CINCO);
+            $this->assertLosCinco($respuesta);
             $this->assertSame($paso, $this->pasoActual($respuesta), $boton);
             $respuesta->assertJsonPath("pedido.seguimiento.{$paso}.nombre", $boton);
         }
@@ -155,5 +155,20 @@ class EstadoVisibleTest extends TestCase
         );
 
         return $paso === false ? null : $paso;
+    }
+
+    /**
+     * El seguimiento trae los cinco estados en el orden del contrato, con su código y su nombre. La hora de cada uno es
+     * de estados-E24 (HoraDelSeguimientoTest).
+     */
+    private function assertLosCinco(TestResponse $respuesta): void
+    {
+        $this->assertSame(
+            self::LOS_CINCO,
+            array_map(
+                fn (array $paso): array => ['codigo' => $paso['codigo'], 'nombre' => $paso['nombre']],
+                $respuesta->json('pedido.seguimiento') ?? [],
+            ),
+        );
     }
 }

@@ -31,6 +31,7 @@ class PedidoResource extends JsonResource
             'plaza',
             'lavanderia',
             'estado',
+            'eventos',
             'servicios' => fn ($servicios) => $servicios->with(['tipo', 'unidad'])->orderBy('id_pedido_servicios'),
             'direcciones' => fn ($direcciones) => $direcciones->conCoordenadas(),
         ]));
@@ -55,10 +56,13 @@ class PedidoResource extends JsonResource
                 'nombre' => $this->estado->nombre_usuario,
                 'visible_usuario' => $this->estado->visible_usuario,
             ],
-            // Los cinco estados que ve el usuario, en el orden del contrato, para pintar el seguimiento (estados-E01).
+            // Los cinco estados que ve el usuario, en el orden del contrato, para pintar el seguimiento (estados-E01),
+            // cada uno con la hora en que el pedido llegó a él, en la hora de la plaza, o null si no ha llegado
+            // (estados-E24).
             'seguimiento' => EstadoPedido::query()->delSeguimiento()->get()->map(fn (EstadoPedido $paso): array => [
                 'codigo' => $paso->codigo,
                 'nombre' => $paso->nombre_usuario,
+                'ocurrido_en' => $this->horaDelEstado($paso, $zona),
             ])->all(),
             'lavanderia' => [
                 'id_publico' => $this->lavanderia->id_publico,
@@ -92,6 +96,21 @@ class PedidoResource extends JsonResource
             'monto_estimado' => $this->monto_estimado,
             'envio' => $this->envio,
         ];
+    }
+
+    /**
+     * La hora en que el pedido llegó a ese estado, en la hora de la plaza: la de su evento más reciente en ese estado
+     * (estados-E24). Sin evento, el pedido todavía no llega a él.
+     */
+    private function horaDelEstado(EstadoPedido $paso, string $zona): ?string
+    {
+        return $this->eventos
+            ->where('id_estados_pedido', $paso->getKey())
+            ->sortBy([['ocurrido_en', 'asc'], ['id_pedido_eventos', 'asc']])
+            ->last()
+            ?->ocurrido_en
+            ->setTimezone($zona)
+            ->toIso8601String();
     }
 
     /**
