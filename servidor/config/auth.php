@@ -98,8 +98,12 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
+            // El enlace de recuperación vence a los 60 minutos y sirve una sola vez (ADR-0018, decisión 4).
+            'expire' => (int) env('RECUPERACION_VENCE_MINUTOS', 60),
             'throttle' => 60,
+            // Peticiones del enlace por minuto, por correo y por dirección (ADR-0018, decisión 3). Lo aplica el
+            // limitador recuperacion de App\Providers\RecuperacionServiceProvider; Laravel no lee esta llave.
+            'limite_por_minuto' => (int) env('RECUPERACION_POR_MINUTO', 5),
         ],
     ],
 
