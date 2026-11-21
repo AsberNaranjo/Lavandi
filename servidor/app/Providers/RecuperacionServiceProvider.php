@@ -2,34 +2,28 @@
 
 namespace App\Providers;
 
+use App\Models\Usuario;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 
 /**
  * El límite de las peticiones del enlace de recuperación de la contraseña (ADR-0018, decisión 3; registro-E31).
  *
- * Son dos límites a la vez, cada uno con el valor de la configuración: uno por correo y otro por dirección. El del
- * correo impide llenar de enlaces el buzón de una persona desde muchas direcciones; el de la dirección impide que
- * una sola dirección mande enlaces a muchos correos y agote el cupo diario del proveedor de correo (ADR-0014). La
- * petición que pasa cualquiera de los dos recibe 429 y no llega al envío.
+ * Cuenta por correo y por dirección, con el mismo valor y la misma clave que el límite del inicio de sesión
+ * (acceso.intentos_por_minuto; registro-E30), pero con su propio contador: los intentos de entrar no gastan las
+ * peticiones del enlace. La petición que pasa el límite recibe 429 y no llega al envío del correo.
  */
 class RecuperacionServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        RateLimiter::for('recuperacion', function (Request $request): array {
-            $porMinuto = (int) config('auth.passwords.'.config('auth.defaults.passwords').'.limite_por_minuto', 5);
-            $correo = Str::lower(trim((string) $request->input('correo')));
-
-            return [
-                Limit::perMinute($porMinuto)->by('correo:'.$correo)->response($this->demasiadosIntentos(...)),
-                Limit::perMinute($porMinuto)->by('direccion:'.$request->ip())->response($this->demasiadosIntentos(...)),
-            ];
-        });
+        RateLimiter::for('recuperacion', fn (Request $request): Limit => Limit::perMinute(
+            (int) config('acceso.intentos_por_minuto'),
+        )->by(Usuario::normalizarCorreo((string) $request->input('correo')).'|'.$request->ip())
+            ->response($this->demasiadosIntentos(...)));
     }
 
     /**

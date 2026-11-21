@@ -343,7 +343,7 @@ class RecuperacionTest extends TestCase
     #[TestDox('registro-E31: la sexta petición del mismo correo y la misma dirección en el minuto recibe 429 y no manda otro correo')]
     public function test_registro_e31_la_sexta_peticion_del_mismo_correo_y_la_misma_direccion_en_el_minuto_recibe_429_y_no_manda_otro_correo(): void
     {
-        config(['auth.passwords.users.limite_por_minuto' => 5]);
+        config(['acceso.intentos_por_minuto' => 5]);
         Notification::fake();
         $this->cuenta();
 
@@ -356,7 +356,8 @@ class RecuperacionTest extends TestCase
 
         $this->pedirEnlace(self::CORREO)
             ->assertTooManyRequests()
-            ->assertJsonPath('message', self::DEMASIADOS_INTENTOS);
+            ->assertJsonPath('message', self::DEMASIADOS_INTENTOS)
+            ->assertHeader('Retry-After');
 
         Notification::assertSentOnDemandTimes(EnlaceDeRecuperacion::class, 5);
 
@@ -366,34 +367,40 @@ class RecuperacionTest extends TestCase
         Notification::assertSentOnDemandTimes(EnlaceDeRecuperacion::class, 6);
     }
 
-    #[TestDox('registro-E31: el límite cuenta por correo y por dirección: otra dirección u otro correo también se frenan')]
-    public function test_registro_e31_el_limite_cuenta_por_correo_y_por_direccion_otra_direccion_u_otro_correo_tambien_se_frenan(): void
+    #[TestDox('registro-E31: el límite es por correo y por dirección, como el del inicio de sesión: otro correo, u otra dirección, sigue pidiendo')]
+    public function test_registro_e31_el_limite_es_por_correo_y_por_direccion_como_el_del_inicio_de_sesion(): void
     {
-        config(['auth.passwords.users.limite_por_minuto' => 5]);
+        config(['acceso.intentos_por_minuto' => 5]);
         Notification::fake();
         $this->cuenta();
+        Usuario::factory()->conRol(Rol::USUARIO)->create(['correo' => 'otra@ejemplo.com']);
 
         for ($peticion = 1; $peticion <= 5; $peticion++) {
             $this->pedirEnlace(self::CORREO)->assertOk();
         }
 
-        // El mismo correo desde otra dirección: lo frena el límite del correo.
-        $this->pedirEnlace(self::CORREO, '203.0.113.9')->assertTooManyRequests();
+        $this->pedirEnlace('otra@ejemplo.com')->assertOk();
+        $this->pedirEnlace(self::CORREO, '203.0.113.9')->assertOk();
 
-        // Otro correo desde la misma dirección: lo frena el límite de la dirección.
-        $this->pedirEnlace(self::CORREO_SIN_CUENTA)->assertTooManyRequests();
+        // El mismo correo con otras mayúsculas es el mismo correo.
+        $this->pedirEnlace('Persona@Ejemplo.COM')->assertTooManyRequests();
 
-        Notification::assertSentOnDemandTimes(EnlaceDeRecuperacion::class, 5);
+        Notification::assertSentOnDemandTimes(EnlaceDeRecuperacion::class, 7);
     }
 
-    #[TestDox('registro-E31: el límite es de 5 peticiones por minuto, o las que diga el entorno')]
-    public function test_registro_e31_el_limite_es_de_5_peticiones_por_minuto_o_las_que_diga_el_entorno(): void
+    #[TestDox('registro-E31: el límite sale de la configuración de acceso, el mismo valor del inicio de sesión')]
+    public function test_registro_e31_el_limite_sale_de_la_configuracion_de_acceso_el_mismo_valor_del_inicio_de_sesion(): void
     {
-        $this->assertSame(5, $this->configuracionDeAuthConEntorno([])['passwords']['users']['limite_por_minuto']);
-        $this->assertSame(
-            3,
-            $this->configuracionDeAuthConEntorno(['RECUPERACION_POR_MINUTO' => '3'])['passwords']['users']['limite_por_minuto'],
-        );
+        // ADR-0018, decisión 3: un solo valor para el inicio de sesión y la petición del enlace.
+        config(['acceso.intentos_por_minuto' => 2]);
+        Notification::fake();
+        $this->cuenta();
+
+        $this->pedirEnlace(self::CORREO)->assertOk();
+        $this->pedirEnlace(self::CORREO)->assertOk();
+        $this->pedirEnlace(self::CORREO)->assertTooManyRequests();
+
+        Notification::assertSentOnDemandTimes(EnlaceDeRecuperacion::class, 2);
     }
 
     private function cuenta(): Usuario
@@ -481,7 +488,7 @@ class RecuperacionTest extends TestCase
      */
     private function configuracionDeAuthConEntorno(array $variables): array
     {
-        $nombres = ['RECUPERACION_VENCE_MINUTOS', 'RECUPERACION_POR_MINUTO'];
+        $nombres = ['RECUPERACION_VENCE_MINUTOS'];
         $antes = [];
 
         foreach ($nombres as $nombre) {
