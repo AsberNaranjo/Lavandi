@@ -14,7 +14,8 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Las plazas ficticias; el propio sembrador no hace nada en producción.
+        // Las plazas ficticias y después sus lavanderías; cada sembrador no hace nada en producción.
         $this->call(PlazasDePruebaSeeder::class);
+        $this->call(LavanderiasDePruebaSeeder::class);
     }
 }

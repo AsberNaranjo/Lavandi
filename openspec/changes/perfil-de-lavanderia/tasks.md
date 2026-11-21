@@ -5,14 +5,14 @@ que a su vez lee las tablas de la tarea 1.1 (ver `design.md`, Open Questions).
 
 ## 1. Perfil en el servidor
 
-- [ ] 1.1 perfil-lavanderia-E14, perfil-lavanderia-E15, perfil-lavanderia-E16, perfil-lavanderia-E17 y la prueba de
+- [x] 1.1 perfil-lavanderia-E14, perfil-lavanderia-E15, perfil-lavanderia-E16, perfil-lavanderia-E17 y la prueba de
   esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) sobre las tablas nuevas (`servidor/`): migración de
   `tipos_servicio` y `unidades_medida` con su semilla, `lavanderias`, `lavanderia_servicios`, `lavanderia_horarios`,
   `lavanderia_fotos` y `calificaciones`, con las columnas, los únicos y los `CHECK` de `design.md` ("Tablas y
   migración"); modelos de Eloquent sobre `App\Models\Modelo`, con su `$table`, su `$primaryKey` y las llaves de cada
   relación. Necesita las preguntas abiertas de la fecha de la reseña y de `codigo` único de `design.md` — test:
   `servidor/tests/Feature/PerfilLavanderia/MigracionTest.php` y `servidor/tests/Feature/Modelo/` — tamaño M
-- [ ] 1.2 perfil-lavanderia-E01, perfil-lavanderia-E02, perfil-lavanderia-E05, perfil-lavanderia-E07,
+- [x] 1.2 perfil-lavanderia-E01, perfil-lavanderia-E02, perfil-lavanderia-E05, perfil-lavanderia-E07,
   perfil-lavanderia-E08 (`servidor/`): servicios de prueba sembrados en `lavanderia_servicios`; consulta del perfil por
   `id_publico`, con descripción, servicios activos con su precio y su unidad, promedio, número de calificaciones y
   reseñas sin datos de quien califica; suspendida o dada de baja, sin perfil — test:
