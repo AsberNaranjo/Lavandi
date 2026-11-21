@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Contracts\Auth\PasswordBrokerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 
 /**
@@ -54,9 +55,12 @@ final class RecuperacionDeContrasena
         $estado = $this->broker()->reset(
             [...$this->credenciales($correo), 'token' => $token, 'password' => $password],
             function (Usuario $usuario, #[\SensitiveParameter] string $password): void {
-                DB::transaction(function () use ($usuario, $password): void {
-                    // El modelo guarda la contraseña con hash (cast hashed; registro-E05).
-                    $usuario->forceFill(['password' => $password])->save();
+                // Se cifra aquí y no en el cast hashed del modelo, que guarda tal cual un texto con forma de hash
+                // (registro-E05).
+                $hash = Hash::make($password);
+
+                DB::transaction(function () use ($usuario, $hash): void {
+                    $usuario->forceFill(['password' => $hash])->save();
                     $usuario->tokens()->delete();
                 });
             },
