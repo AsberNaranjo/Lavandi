@@ -102,6 +102,17 @@ un servicio externo, ni decide una fila abierta.
 - **Las respuestas se revisan sin el detalle de depuración** (`app.debug` apagado en la prueba), como salen en
   producción: un 403 trae solo `{"message": "Esta cuenta no tiene acceso."}`.
 
+### El panel solo para la administración (tarea 1.3)
+
+- **Se extiende `PanelSoloAdministracionTest`,** que nació con `alta-de-lavanderias` y ya probaba la contraseña, la
+  sesión web en `/admin` y `/admin/lavanderias` y las lavanderías del componente. Se agrega el recorrido de cada ruta
+  del panel desde la tabla de rutas: un recurso o una página nueva entra sola.
+- **La ficha de cada recurso abre un registro que la administración ve en él,** tomado de la consulta del propio
+  recurso, y la administración tiene que recibir 200 en cada página. Las otras cuentas, 403 sin el nombre de la
+  lavandería.
+- **Una cuenta por rol en todo el recorrido:** la puerta del panel guarda en la sesión la cuenta que entró
+  (`AuthenticateSession`), y cambiar de cuenta en cada petición la cerraba.
+
 ## Risks / Trade-offs
 
 - [Una ruta nueva sin regla expone datos] → autorizacion-E01 y autorizacion-E14 corren en cada pull request.
