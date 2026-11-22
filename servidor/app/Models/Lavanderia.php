@@ -60,6 +60,7 @@ class Lavanderia extends Modelo
         'ubicacion',
         'estado',
         'aprobada_en',
+        'id_municipios',
     ];
 
     protected $hidden = ['ubicacion'];
@@ -90,6 +91,17 @@ class Lavanderia extends Modelo
     public function administrador(): BelongsTo
     {
         return $this->belongsTo(Usuario::class, 'id_usuarios');
+    }
+
+    /**
+     * El municipio del catálogo de su dirección, con el que se geocodificó (alta-de-lavanderias). Las lavanderías de
+     * prueba no lo tienen.
+     *
+     * @return BelongsTo<Municipio, $this>
+     */
+    public function municipio(): BelongsTo
+    {
+        return $this->belongsTo(Municipio::class, 'id_municipios');
     }
 
     /**

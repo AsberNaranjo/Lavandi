@@ -61,7 +61,16 @@ necesita el alta real.
     valor por omisión). El estado con que nace un registro de la app no lo da la omisión: depende de DD-053
     (alta-lavanderias-E11 y E12; pregunta abierta 9).
   - `aprobada_en` (`timestamptz`, opcional): la hora del alta en el panel. En las filas que ya existen, la migración la
-    llena con la hora en que corre, porque esas lavanderías ya estaban activas.
+    llena con la hora en que corre, porque esas lavanderías ya estaban activas. **Al implementarse** (tarea 0.1),
+    `perfil-de-lavanderia` ya traía `estado` con su `CHECK` y `aprobada_en`: la migración
+    (`servidor/database/migrations/2026_11_22_100000_completar_lavanderias_para_el_alta.php`) no los repite; solo pone
+    el valor por omisión y llena `aprobada_en` en las que no están `pendiente`, porque una pendiente nunca tuvo alta y
+    E15 la regresa a `pendiente`.
+  - **`id_municipios`** (opcional, llave a `municipios` con su índice y `ON DELETE RESTRICT`), decidido por delegación
+    de Arthur (C-236) al implementar: la geocodificación (`App\Direcciones\Geocodificador`) necesita el municipio del
+    catálogo para no confundir, por ejemplo, Matamoros, Coahuila, con Matamoros, Tamaulipas, y la edición lo necesita
+    para volver a geocodificar. Es la misma solución de `direcciones` (C-238). Las lavanderías de prueba no lo tienen;
+    la API lo exige en el registro. `vault/arquitectura/modelo-de-datos.md` ya lo lista.
 - **Lo que ya trae de `perfil-de-lavanderia`:** la llave `id_lavanderias`; `id_publico` (ULID, único); las foráneas
   `id_plazas` → `plazas.id_plazas` e `id_usuarios` → `usuarios.id_usuarios`, con índice y `ON DELETE RESTRICT`; el único
   `(id_lavanderias, id_plazas)` para las llaves compuestas de sus hijas; el índice GiST de `ubicacion`, y `deleted_at`.
