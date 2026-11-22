@@ -22,6 +22,7 @@
         <form class="formulario" method="post" action="{{ route('portada.interes') }}" data-formulario="interes" novalidate>
             @csrf
             <h3 class="formulario__titulo">Formulario de interés</h3>
+            <x-portada.envio-sin-destino formulario="interes" />
 
             <x-portada.campo formulario="interes" nombre="nombre" etiqueta="Tu nombre" autocompletar="name" />
             <x-portada.campo formulario="interes" nombre="lavanderia" etiqueta="Nombre de la lavandería" autocompletar="organization" />

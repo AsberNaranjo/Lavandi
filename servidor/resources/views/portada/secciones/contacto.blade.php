@@ -42,6 +42,7 @@
             <form class="formulario" method="post" action="{{ route('portada.contacto') }}" data-formulario="contacto" novalidate>
                 @csrf
                 <h3 class="formulario__titulo">Formulario de contacto</h3>
+                <x-portada.envio-sin-destino formulario="contacto" />
 
                 <x-portada.campo formulario="contacto" nombre="nombre" etiqueta="Tu nombre" autocompletar="name" />
                 <x-portada.campo formulario="contacto" nombre="correo" etiqueta="Correo electrónico" tipo="email" autocompletar="email" />
