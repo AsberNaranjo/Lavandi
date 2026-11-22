@@ -73,7 +73,12 @@ class GeneracionEnSegundoPlanoTest extends TestCase
         $this->assertFalse(Storage::disk($exportacion->file_disk)->exists($exportacion->getFileDirectory()));
         $this->assertSame(0, $administracion->notifications()->count());
 
-        $this->artisan('queue:work', ['--stop-when-empty' => true])->assertSuccessful();
+        // El proceso de colas, en este mismo proceso. Su tope de memoria va por encima de lo que ya usa la suite: con el
+        // de omisión (128 MB), el trabajador se detiene antes de empezar cuando la prueba corre con todas las demás.
+        $this->artisan('queue:work', [
+            '--stop-when-empty' => true,
+            '--memory' => (int) ceil(memory_get_usage(true) / 1048576) + 256,
+        ])->assertSuccessful();
 
         $exportacion->refresh();
         $this->assertNotNull($exportacion->completed_at);
