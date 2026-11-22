@@ -98,6 +98,44 @@ cambios, sin escribirlas; si una consulta resulta lenta, se agrega una vista mat
   capture `direcciones`.
 - [El plugin de mapas de Filament está en beta] → componente propio (ADR-0009).
 
+## Implementación en el servidor
+
+Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión técnica nueva:
+
+- **La página** es un segundo tablero de Filament, `App\Filament\Pages\Indicadores`, en `/admin/indicadores`; el
+  tablero de inicio no cambia. Sus widgets viven en `app/Filament/Widgets/Indicadores/`: Filament los registra como
+  componentes de Livewire, pero no los pone en el tablero de inicio. Se dibujan al abrir la página, sin carga diferida.
+- **La autorización** es `Autorizacion::puedeVerLosIndicadores()`, en el componente único (ADR-0019): la página y cada
+  widget le preguntan, y un widget montado por otra cuenta responde 403.
+- **Una consulta por indicador** en `app/Indicadores/`, que la gráfica, la tabla y después `exportacion` leen.
+- **El rango se ajusta a periodos completos:** por semana, del lunes de la semana del primer día al domingo de la del
+  último; por mes, del día 1 al último día. Así cada periodo se compara entero con el anterior. Sin filtros, es el mes
+  en curso hasta hoy, por día.
+- **"Hoy"** (el rango sin filtros) se lee en la zona horaria de la aplicación, porque la cuenta no tiene plaza; es la
+  misma pregunta 8.
+- **La dona** cuenta los pedidos confirmados en el rango por su estado actual: activos son `confirmado`, `aceptado`,
+  `recolectado`, `en_proceso`, `listo` y `en_entrega` (ADR-0021 y su adenda); completados, `entregado`. Un pedido
+  `rechazado` no es activo ni completado, y la dona no lo muestra mientras E05 espera DD-016.
+- **Los usuarios activos** cuentan todas las filas de `actividad_usuarios`, sin filtrar por rol: quien escriba la tabla
+  (E07, DD-111) decide quién cuenta, como dice "Tablas y migración". Hasta entonces nada la escribe, y en producción la
+  línea da 0.
+- **La retención** pone una fila por cada mes del rango, aunque ese mes nadie se haya registrado. El mes de registro se
+  lee en la zona horaria de la aplicación (pregunta 8). Cuentan también las cuentas borradas después, porque su
+  registro y sus pedidos son historial. El porcentaje lleva un decimal.
+- **El ranking** promedia todas las calificaciones de cada lavandería, sin el rango de la página, con un decimal, como
+  su perfil. Entran todas las lavanderías no borradas, de todas las plazas; con el mismo promedio, van por nombre.
+- **El semáforo** lee sus dos cortes de `config/indicadores.php` (`INDICADORES_SEMAFORO_CORTE_ALTO` y `_BAJO`): verde
+  desde el corte alto, amarillo desde el bajo y por debajo del alto, rojo por debajo del bajo. Un promedio igual a un
+  corte alcanza el color de ese corte, y el color se toma del promedio con un decimal, el que se ve. Cada color va en
+  una insignia con su texto (Verde, Amarillo, Rojo). Mientras DD-114 no dé los valores, los cortes van vacíos y la
+  columna dice "Sin cortes configurados"; unos cortes fuera de 1 a 5, o con el bajo arriba del alto, cuentan como
+  vacíos.
+- **El refresco** es el sondeo de Livewire de cada widget (`wire:poll`), la consulta periódica de ADR-0007: la gráfica
+  llama a `updateChartData` y la tabla se vuelve a dibujar, sin recargar la página. El intervalo es
+  `INDICADORES_REFRESCO` en `config/indicadores.php`, como "30s" o "1500ms". Mientras DD-116 no tenga su ADR va
+  vacío: ningún widget sondea (también se quitan los 5 s que trae la gráfica de Filament) y la página dice que las
+  cifras se actualizan al abrir o recargar. Con intervalo, la página dice cada cuánto.
+
 ## Open Questions
 
 1. **Cuánto es "en tiempo real" para los indicadores.** El ADR-0007 fija 30 s para los pedidos activos, no para los
@@ -115,7 +153,7 @@ cambios, sin escribirlas; si una consulta resulta lenta, se agrega una vista mat
 8. **El día de `actividad_usuarios`.** La persona no tiene plaza, así que su `fecha` no tiene zona horaria propia. Si
    las plazas del territorio inicial comparten zona horaria (`SIN VERIFICAR`; sale de las filas semilla de DD-093), hoy
    no cambia nada; con plazas en zonas distintas, hay que decidir cuál vale.
-9. **`actividad_usuarios` y las fechas de creación.** La regla deja fuera de `created_at` y `updated_at` a las "tablas
-   de enlace sin llave propia". `actividad_usuarios` no tiene llave propia, pero tampoco enlaza dos entidades. La
-   propuesta es que no las lleve, porque su `fecha` ya dice el día y la fila no se edita. Lo confirma quien escriba la
-   regla en `modelo-de-datos`.
+9. **`actividad_usuarios` y las fechas de creación: resuelta.** No las lleva: `modelo-de-datos.md` dice "No los llevan
+   `rol_usuario` ni `actividad_usuarios`, que no tienen llave propia y no se editan" (`vault/arquitectura/
+   modelo-de-datos.md:90`), y `config/modelo.php` la pone en la lista de tablas de enlace. La migración de la tarea 0.1
+   lo sigue.
