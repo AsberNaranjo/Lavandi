@@ -268,3 +268,135 @@ el sistema ni toca otro cambio.
     compara con `hash_equals`. Un token de sesión no sirve en el webhook. La autenticidad de los avisos de Conekta es
     pago-E09, en la tarea 3.1. Las rutas del cobro para la app son solo pedir el checkout y consultar el cobro: ninguna
     lo da por pagado.
+14. **Herramientas de desarrollo, solo en local y en las pruebas.** No son rutas ni pantallas del producto ni cumplen un
+    escenario propio: sirven para probar a mano pago-E01, E03, E04 y E18, desde el teléfono o sin él.
+    - **La página de checkout de desarrollo**, `GET` y `POST /desarrollo/pasarela/checkout/{orden}`
+      (`App\Http\Controllers\Desarrollo\CheckoutDeDesarrolloController`): la URL del checkout de la pasarela simulada
+      lleva ahí. Muestra el cobro y dos botones, Aprobar y Rechazar. Cada uno manda el aviso simulado por el mismo camino
+      del webhook (`CobroSimulado::avisar()`, que lo entrega firmado a `RecepcionDeAvisos`) y regresa a la app por la
+      dirección de regreso (`App\Cobro\DireccionDeRegreso`, con `PASARELA_REGRESO`). Sus rutas se registran en
+      `routes/web.php` solo en `local` y `testing`, y solo ahí las declara `Autorizacion::rutasSinSesion()`; en cualquier
+      otro entorno no existen (404). La llave de la página es la orden simulada, que el servidor solo le da al dueño del
+      pedido en su checkout.
+    - **`php artisan pago:cobro-de-prueba {pedido} {monto}`**: le crea al pedido el cobro pendiente que pago-E14 todavía
+      no crea, por un monto ficticio. Sin él, la app no puede pedir el checkout de un pedido que acaba de crear.
+    - **`php artisan pago:simular-aviso {pedido} {aprobado|rechazado}`**: manda el aviso simulado del cobro del pedido
+      por el mismo camino del webhook, para probar sin el teléfono; si el cobro no tiene checkout, lo abre antes.
+    - Los dos comandos se niegan a correr fuera de `local` y `testing`, y todo esto necesita la pasarela simulada, que
+      tampoco existe en otro entorno (punto 3).
+
+## Contrato de la API
+
+El contrato con que se harán las tareas 4.1 (pago-E02) y 4.2 (pago-E08) de la app. Todo va bajo `/api`, en JSON. Los
+instantes van en UTC (`…Z`) y los montos en pesos, como texto con dos decimales (`"180.00"`).
+
+**Sesión y acceso.** Las dos rutas de la app llevan `Authorization: Bearer <token>` y pasan por el componente de
+autorización con el rol de usuario (`auth:sanctum` y `autorizar:usuario`). Las respuestas de error comunes:
+
+| Código | Cuerpo | Cuándo |
+|---|---|---|
+| 401 | `{ "message": "Unauthenticated." }` | Sin sesión, o con un token revocado |
+| 403 | `{ "message": "Esta cuenta no tiene acceso." }` | La cuenta no tiene el rol de usuario: lavandería, repartidor o administración |
+
+### El pago
+
+Como sale en las dos rutas:
+
+```json
+{
+  "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",
+  "pedido": "01jd8x6m3v2c9q4w5e7r8t0y1a",
+  "tipo": "cobro",
+  "metodo": "tarjeta",
+  "estado": "pendiente",
+  "monto": "180.00",
+  "pagado_en": null
+}
+```
+
+- `id_publico`: el del cobro, el que consulta "Procesando pago".
+- `pedido`: el `id_publico` del pedido que cobra.
+- `estado`, lo que la app hace con cada uno:
+  - `pendiente`: el pago no se ha confirmado; "Procesando pago" sigue consultando.
+  - `pagado`: la pasarela confirmó el pago con su aviso; el pedido ya está Confirmado, con su folio. La app muestra la
+    confirmación con `GET /api/pedidos/{pedido}` (Módulo A #11, `resumen-y-confirmacion`).
+  - `fallido`: el último intento se rechazó (pago-E04). La app lo dice y ofrece volver a intentar con el mismo cobro:
+    otra vez `POST /api/pagos/checkout`.
+  - `vencido` y `cancelado`: ya no se paga. Hoy no los pone nada: esperan DD-056, DD-012 y DD-016.
+- `pagado_en`: la hora en que servidor/ recibió la confirmación; `null` mientras no está pagado.
+- No lleva la llave interna, la plaza, la pasarela, la referencia de la orden ni ningún dato de tarjeta.
+
+### `POST /api/pagos/checkout` (pago-E01 y pago-E02)
+
+```json
+{ "pedido": "01jd8x6m3v2c9q4w5e7r8t0y1a", "metodo": "tarjeta" }
+```
+
+Solo el pedido y el método. Cualquier otro campo, como un monto, un estado o que ya pagó, se ignora: el monto es el del
+cobro que guarda servidor/.
+
+- **200** `{ "checkout": { "url": "https://…", "regreso": "<esquema de la app>://pago" }, "pago": { …el pago… } }`.
+  - La app abre `checkout.url` con `openAuthSessionAsync(checkout.url, checkout.regreso)` de `expo-web-browser`; en
+    iPhone, con `preferEphemeralSession` (adenda del 2026-11-22 de ADR-0010). Ninguna pantalla de la app pide la tarjeta.
+  - `checkout.regreso` sale de `PASARELA_REGRESO` en el `.env` del servidor y debe ser el esquema de la app
+    (`APP_IDENTIFIER` de `movil/`) seguido de `://pago`. `null` si el servidor no lo tiene configurado.
+  - Pedirlo otra vez devuelve el mismo checkout mientras siga vigente; si ya no lo está, uno nuevo para el mismo cobro.
+  - Con el cobro `fallido`, lo reabre: `pago.estado` vuelve a `pendiente`.
+- **404** `{ "message": "No existe el pedido." }`: el pedido no existe, no es un ULID o es de otra cuenta; los tres
+  igual y sin datos (ADR-0019, decisión 3). Se busca antes de revisar el método: el pedido ajeno responde 404 aunque el
+  método venga mal.
+- **409** `{ "message": "…" }`, sin tocar el cobro, con uno de:
+  - "El cobro de este pedido todavía no está listo.": el pedido no tiene cobro. Lo crea pago-E14, bloqueado por DD-012;
+    en local se crea con `pago:cobro-de-prueba` (ver "Cómo se prueba en local").
+  - "Este pedido ya está pagado.";
+  - "Este cobro ya no se puede pagar.": vencido o cancelado.
+- **422** `{ "message": "…", "errors": { "<campo>": ["…"] } }`: "Falta el pedido." (en `pedido`, antes de buscarlo);
+  y, ya encontrado el pedido, en `metodo`: "Elige cómo pagar.", "El pago en efectivo todavía no está disponible."
+  (DD-056) y "El método de pago no es válido.".
+- **503** `{ "message": "El pago no está disponible por ahora." }`: el servidor no tiene pasarela en su entorno.
+
+### El regreso desde el checkout
+
+Al terminar, el checkout regresa a la app por su dirección de regreso, con el resultado y el cobro:
+
+    <regreso>?resultado=exito&pago=<id_publico del cobro>
+    <regreso>?resultado=error&pago=<id_publico del cobro>
+
+`openAuthSessionAsync` lo entrega a la app con la URL de regreso; si la persona cierra la vista, sin ella (cómo lo nombra
+`expo-web-browser` en cada sistema es grado E, `SIN VERIFICAR`, y lo ve la tarea 4.1). **Ningún regreso confirma el
+pago** (pago-E07): con cualquiera de ellos, la app pasa a "Procesando pago" y consulta el cobro. `resultado` solo sirve
+para el texto mientras llega la confirmación.
+
+### `GET /api/pagos/{id_publico}` (pago-E04 y pago-E08)
+
+Lo que consulta "Procesando pago": cada 5 s, hasta 3 minutos (decisión 32; adenda del 2026-11-22 de ADR-0010).
+
+- **200** `{ "pago": { …el pago… } }`. Con `pagado`, `fallido`, `vencido` o `cancelado`, la app deja de consultar y
+  muestra el resultado. A los 3 minutos en `pendiente`, deja de esperar, dice que el pago sigue en revisión y ofrece
+  volver a consultar.
+- **404** `{ "message": "No existe el pago." }`: no existe, no es un ULID o es de un pedido de otra cuenta.
+- La consulta solo lee: aunque lleve que ya pagó en sus parámetros, no cambia nada (pago-E07).
+
+### El webhook, que no es de la app
+
+`POST /api/pasarela/avisos` lo manda la pasarela, sin sesión. Es el único camino por el que un cobro queda pagado o
+fallido. La app no lo llama.
+
+### Cómo se prueba en local
+
+Con `PASARELA=simulada`, `PASARELA_SIMULADA_LLAVE` (cualquier texto) y `PASARELA_REGRESO` (el esquema de la app seguido
+de `://pago`) en `servidor/.env`:
+
+1. La app crea el pedido al aceptar el resumen (`POST /api/pedidos`).
+2. Se le crea su cobro, que todavía no crea nada en el flujo real (pago-E14):
+   `php artisan pago:cobro-de-prueba <id_publico del pedido> <monto>`.
+3. La app pide el checkout. Su URL abre la página de checkout de desarrollo del propio servidor,
+   `/desarrollo/pasarela/checkout/{orden}`, con dos botones:
+   - **Aprobar**: manda el aviso simulado de aprobado por el camino del webhook; el cobro queda pagado y el pedido
+     Confirmado, con su folio. Regresa a la app con `resultado=exito`.
+   - **Rechazar**: manda el aviso simulado de rechazo; el cobro queda `fallido`. Regresa con `resultado=error`.
+4. Sin el teléfono, el aviso se manda con `php artisan pago:simular-aviso <id_publico del pedido> aprobado|rechazado`.
+
+La página y los dos comandos solo existen en local y en las pruebas; en el entorno de prueba en internet y en
+producción, la página no está registrada y los comandos se niegan a correr. La URL del checkout usa `APP_URL`, que debe
+ser una dirección a la que llegue el teléfono, como la del túnel de ADR-0012.

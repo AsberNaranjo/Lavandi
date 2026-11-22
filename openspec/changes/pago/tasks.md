@@ -21,6 +21,11 @@ sección 3 llama solo a Conekta.
 - [x] 2.5 pago-E04: el rechazo deja el cobro sin pagar, el pedido sin folio, y permite volver a intentar — test: `servidor/tests/Feature/Pago/PagoRechazadoTest.php` — tamaño S
 - [x] 2.6 pago-E07: ninguna petición de la app marca un cobro como pagado — test: `servidor/tests/Feature/Pago/SoloElWebhookConfirmaTest.php` — tamaño S
 
+Herramientas de desarrollo (no son tareas del contrato ni pantallas del producto; solo en local y en las pruebas): la
+página de checkout de la pasarela simulada, con Aprobar y Rechazar, y los comandos `pago:cobro-de-prueba` y
+`pago:simular-aviso` (`design.md`, "Decisiones de la implementación", punto 14) — tests:
+`servidor/tests/Feature/Pago/CheckoutDeDesarrolloTest.php` y `servidor/tests/Feature/Pago/ComandosDeDesarrolloTest.php`.
+
 ## 3. Servidor: integración con la pasarela vigente (Conekta)
 
 Conekta es la pasarela del contrato mientras el cliente no firme el cambio (`CLAUDE.md` §2-bis, punto 3; ADR-0010,

@@ -28,9 +28,6 @@ final class PasarelaSimulada implements Pasarela
     /** El valor de pagos.pasarela y de eventos_pasarela.pasarela. */
     public const CODIGO = Pago::PASARELA_SIMULADA;
 
-    /** La dirección de la página de checkout de desarrollo, con la referencia de la orden al final. */
-    public const RUTA_DEL_CHECKOUT = '/desarrollo/pasarela/checkout/';
-
     /** La cabecera con la firma de cada aviso simulado. */
     public const CABECERA_DE_FIRMA = 'X-Firma-Simulada';
 
@@ -197,6 +194,6 @@ final class PasarelaSimulada implements Pasarela
 
     private function urlDelCheckout(string $orden): string
     {
-        return url(self::RUTA_DEL_CHECKOUT.$orden);
+        return route('desarrollo.pasarela.checkout', $orden);
     }
 }

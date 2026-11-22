@@ -61,7 +61,7 @@ final class Autorizacion
         $firmada = 'Solo con una URL firmada que vence, que el servidor arma después de autorizar.';
         $deLivewire = 'Un archivo de Livewire, sin datos.';
 
-        return [
+        return [...$this->rutasSinSesionDeDesarrollo(),
             // Las de la app que abren una sesión o recuperan la contraseña (registro-E14; ADR-0005 y ADR-0018).
             'POST api/registro' => 'Crea la cuenta de usuario y abre su sesión (registro-e-inicio-de-sesion).',
             'POST api/sesion' => 'Abre la sesión con correo y contraseña (registro-e-inicio-de-sesion).',
@@ -108,6 +108,26 @@ final class Autorizacion
             "GET {$livewire}/js/{component}.js" => $deLivewire,
             "GET {$livewire}/css/{component}.css" => $deLivewire,
             "GET {$livewire}/css/{component}.global.css" => $deLivewire,
+        ];
+    }
+
+    /**
+     * Las rutas de las herramientas de desarrollo que no piden sesión: solo existen en local y en las pruebas, así que solo
+     * se declaran ahí (routes/web.php).
+     *
+     * @return array<string, string>
+     */
+    private function rutasSinSesionDeDesarrollo(): array
+    {
+        if (! app()->environment(['local', 'testing'])) {
+            return [];
+        }
+
+        $simulada = 'La página de checkout de la pasarela simulada, solo en local y en las pruebas: la llave es la orden de la pasarela simulada, que el servidor da al dueño del pedido (openspec/changes/pago/design.md).';
+
+        return [
+            'GET desarrollo/pasarela/checkout/{orden}' => $simulada,
+            'POST desarrollo/pasarela/checkout/{orden}' => $simulada,
         ];
     }
 

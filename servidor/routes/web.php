@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Desarrollo\CheckoutDeDesarrolloController;
 use App\Http\Controllers\FormularioDeLaPortadaController;
 use App\Http\Controllers\PortadaController;
 use App\Http\Controllers\RecuperacionController;
@@ -40,3 +41,15 @@ Route::get('/aviso-de-privacidad', TextosLegalesController::class)
 Route::get('/terminos', TextosLegalesController::class)
     ->defaults('documento', 'terminos')
     ->name('textos-legales.terminos');
+
+/*
+ * Herramienta de desarrollo: la página de checkout de la pasarela simulada, para probar el cobro desde la app sin ninguna
+ * pasarela real (openspec/changes/pago/design.md, "Decisiones de la implementación"). No es una pantalla del producto:
+ * solo se registra en local y en las pruebas; en el entorno de prueba en internet y en producción no existe.
+ */
+if (app()->environment(['local', 'testing'])) {
+    Route::get('/desarrollo/pasarela/checkout/{orden}', [CheckoutDeDesarrolloController::class, 'mostrar'])
+        ->name('desarrollo.pasarela.checkout');
+    Route::post('/desarrollo/pasarela/checkout/{orden}', [CheckoutDeDesarrolloController::class, 'resultado'])
+        ->name('desarrollo.pasarela.resultado');
+}
