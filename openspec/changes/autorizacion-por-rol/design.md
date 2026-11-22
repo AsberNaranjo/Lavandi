@@ -63,6 +63,33 @@ Como `repartidores` y `pedido_asignaciones` nacen en H8, la parte del repartidor
 y autorizacion-E14, y todo autorizacion-E11, no se pueden probar en H5: se escriben con la lavandería en H5 y se
 completan con el repartidor en H8.
 
+## Implementación en el servidor
+
+Lo que se decidió al implementar las tareas 1.1, 1.2, 1.3, 2.1, 2.2, 2.5, 3.2 y 4.1, por delegación de Arthur (C-236),
+con lo mínimo que cumple cada escenario. El mecanismo lo fija ADR-0019: la clase `App\Autorizacion\Autorizacion` con el
+middleware `autorizar:<rol>`, 403 al rol que no corresponde y 404 al dato ajeno. Ninguna decisión agrega una librería ni
+un servicio externo, ni decide una fila abierta.
+
+### La cobertura de reglas (tarea 1.1)
+
+- **La prueba lee la tabla del enrutador,** no una lista escrita a mano (`servidor/tests/Feature/Autorizacion/Soporte/
+  TablaDeRutas.php`). Cada ruta, como "MÉTODO uri" y sin HEAD, tiene una de tres reglas:
+  - **componente:** en `api/`, la sesión de Sanctum y `autorizar:<rol>`;
+  - **panel:** fuera de `api/`, la puerta del panel de Filament (`Filament\Http\Middleware\Authenticate`), que pregunta
+    a `Autorizacion::puedeEntrarAlPanel()` por `Usuario::canAccessPanel()`;
+  - **sin sesión:** declarada en `Autorizacion::rutasSinSesion()`, con su razón.
+
+  Una ruta sin ninguna de las tres hace fallar `CoberturaDeReglasTest`, que la nombra. Recorre todas las rutas
+  registradas: la API, la web de `routes/web.php`, el panel y las de Laravel, Sanctum, Livewire y Filament.
+- **Las rutas sin sesión se declaran en el componente,** no en la prueba, porque la spec dice que "lo declaran
+  expresamente" en él. Antes vivían en `tests/Feature/Registro/AutorizacionTest.php` (registro-E14), que ahora lee la
+  misma declaración. **Una ruta nueva sin sesión, como el aviso de la pasarela de `pago`, se agrega ahí** con su razón;
+  hasta entonces la prueba la nombra. Las de Livewire llevan un prefijo que sale de la llave de la aplicación, así que se
+  arman con `Livewire::getUriPrefix()`.
+- **Todo recurso, toda página y todo widget del panel** le niega la entrada a una cuenta de otro rol aunque pasara la
+  puerta, con su propio `canAccess()` o `canView()` hacia el componente. Los tres de Filament que no muestran datos de la
+  operación (la página de inicio, el widget de la cuenta y el de la versión) se declaran en `Autorizacion::panelSinDatos()`.
+
 ## Risks / Trade-offs
 
 - [Una ruta nueva sin regla expone datos] → autorizacion-E01 y autorizacion-E14 corren en cada pull request.

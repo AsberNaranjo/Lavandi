@@ -5,7 +5,7 @@ fijado.
 
 ## 1. El componente y los roles
 
-- [ ] 1.1 autorizacion-E01: prueba de cobertura que recorre las rutas y falla si alguna no declara su regla — test: `servidor/tests/Feature/Autorizacion/CoberturaDeReglasTest.php` — tamaño M
+- [x] 1.1 autorizacion-E01: prueba de cobertura que recorre las rutas y falla si alguna no declara su regla — test: `servidor/tests/Feature/Autorizacion/CoberturaDeReglasTest.php` — tamaño M. Recorre todas las rutas registradas desde la tabla del enrutador (tests/Feature/Autorizacion/Soporte/TablaDeRutas.php): la API, la web, el panel y las de Laravel, Sanctum, Livewire y Filament. Las que no piden sesión se declaran en Autorizacion::rutasSinSesion(), con su razón, y registro-E14 lee la misma lista; todo recurso, página y widget del panel niega la entrada a otro rol, o se declara en Autorizacion::panelSinDatos(). El rojo fue el componente sin la declaración, y se comprobó también quitando la de GET up: la prueba nombró la ruta
 - [ ] 1.2 autorizacion-E02: matriz de rol por módulo sobre las rutas de cada módulo — test: `servidor/tests/Feature/Autorizacion/RolPorModuloTest.php` — tamaño S
 - [ ] 1.3 autorizacion-E03: el panel de Filament solo admite el rol de administración — test: `servidor/tests/Feature/Autorizacion/PanelSoloAdministracionTest.php` — tamaño S
 
