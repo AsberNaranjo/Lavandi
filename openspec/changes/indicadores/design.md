@@ -153,7 +153,7 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
 8. **El día de `actividad_usuarios`.** La persona no tiene plaza, así que su `fecha` no tiene zona horaria propia. Si
    las plazas del territorio inicial comparten zona horaria (`SIN VERIFICAR`; sale de las filas semilla de DD-093), hoy
    no cambia nada; con plazas en zonas distintas, hay que decidir cuál vale.
-9. **`actividad_usuarios` y las fechas de creación.** La regla deja fuera de `created_at` y `updated_at` a las "tablas
-   de enlace sin llave propia". `actividad_usuarios` no tiene llave propia, pero tampoco enlaza dos entidades. La
-   propuesta es que no las lleve, porque su `fecha` ya dice el día y la fila no se edita. Lo confirma quien escriba la
-   regla en `modelo-de-datos`.
+9. **`actividad_usuarios` y las fechas de creación: resuelta.** No las lleva: `modelo-de-datos.md` dice "No los llevan
+   `rol_usuario` ni `actividad_usuarios`, que no tienen llave propia y no se editan" (`vault/arquitectura/
+   modelo-de-datos.md:90`), y `config/modelo.php` la pone en la lista de tablas de enlace. La migración de la tarea 0.1
+   lo sigue.
