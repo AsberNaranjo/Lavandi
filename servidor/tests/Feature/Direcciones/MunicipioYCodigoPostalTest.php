@@ -201,7 +201,8 @@ class MunicipioYCodigoPostalTest extends TestCase
         $cuenta = $this->cuentaDeUsuario();
         $delMapa = ['origen' => 'mapa', 'latitud' => 10.5, 'longitud' => -119.5, 'colonia' => 'Colonia de prueba'];
 
-        foreach (['3400', '340000', 'ABCDE', '34-00', ['34000']] as $codigoPostal) {
+        // También un número en lugar de texto: el código postal viaja como texto, para no perder un cero a la izquierda.
+        foreach (['3400', '340000', 'ABCDE', '34-00', ['34000'], 34000] as $codigoPostal) {
             foreach ([$this->direccionEscrita(), $delMapa] as $datos) {
                 $this->comoCuenta($cuenta)->postJson(self::DIRECCIONES, [...$datos, 'codigo_postal' => $codigoPostal])
                     ->assertUnprocessable()

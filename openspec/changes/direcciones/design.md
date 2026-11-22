@@ -369,6 +369,10 @@ Los errores nuevos. Los dos se validan antes de geocodificar, así que no gastan
        "errors": { "codigo_postal": ["El código postal son cinco números."] } }
 ```
 
+**Precisión del implementador (tarea 4.4), sin cambiar la forma:** `municipio` y `codigo_postal` viajan como texto,
+para no perder el cero de "05035" o de un código postal que empiece con cero. Un número JSON, o cualquier valor que no
+sea texto, recibe el mismo error de su campo: "Elige un municipio de la lista." o "El código postal son cinco números.".
+
 La colonia y el código postal no se comparan con el catálogo (direcciones-E20). La dirección, en todas las respuestas,
 cambia así:
 

@@ -52,8 +52,8 @@ class GuardarDireccionRequest extends FormRequest
             'numero_exterior' => ['required_if:origen,'.self::ESCRITA, 'nullable', 'string', 'max:255'],
             'numero_interior' => ['nullable', 'string', 'max:255'],
             'colonia' => ['required', 'string', 'max:255'],
-            // Si viene, cinco números; no se compara con el catálogo (direcciones-E20).
-            'codigo_postal' => ['nullable', 'regex:'.self::CODIGO_POSTAL],
+            // Si viene, cinco números como texto; no se compara con el catálogo (direcciones-E20).
+            'codigo_postal' => ['bail', 'nullable', 'string', 'regex:'.self::CODIGO_POSTAL],
             // El código de un municipio del catálogo del territorio (direcciones-E17 y E18).
             'municipio' => [
                 'bail',
@@ -107,6 +107,7 @@ class GuardarDireccionRequest extends FormRequest
             'calle.required_if' => 'Falta la calle.',
             'numero_exterior.required_if' => 'Falta el número.',
             'colonia.required' => 'Falta la colonia.',
+            'codigo_postal.string' => 'El código postal son cinco números.',
             'codigo_postal.regex' => 'El código postal son cinco números.',
             'municipio.required_if' => 'Falta el municipio.',
             'municipio.string' => 'Elige un municipio de la lista.',
