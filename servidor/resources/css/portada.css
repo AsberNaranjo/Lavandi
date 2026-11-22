@@ -471,6 +471,10 @@
         width: 100%;
         height: auto;
         max-height: calc(var(--ds-espaciado-8) * 8);
+    }
+
+    /* Acercado, el mapa se mueve arrastrándolo; con el territorio completo, el dedo desplaza la página. */
+    .mapa--acercado .mapa__lienzo {
         touch-action: none;
         cursor: grab;
     }
@@ -488,7 +492,7 @@
 
     .mapa__zona:hover,
     .mapa__zona:focus,
-    .mapa__zona[aria-pressed='true'] {
+    .mapa__zona--elegida {
         fill-opacity: 0.7;
         stroke-width: var(--ds-grosor-foco);
         outline: none;
