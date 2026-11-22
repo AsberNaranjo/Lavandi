@@ -4,7 +4,7 @@ M = 5 h.
 
 ## 0. Tablas y migración (servidor/)
 
-- [ ] 0.1 Migración de `actividad_usuarios`, con su llave primaria compuesta `(id_usuarios, fecha)`, y su acceso desde Eloquent como lo resuelva `registro-e-inicio-de-sesion` para `rol_usuario`, que sostiene indicadores-E06 e indicadores-E07 — test: `servidor/tests/Feature/Indicadores/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — tamaño S
+- [x] 0.1 Migración de `actividad_usuarios`, con su llave primaria compuesta `(id_usuarios, fecha)`, y su acceso desde Eloquent como lo resuelva `registro-e-inicio-de-sesion` para `rol_usuario`, que sostiene indicadores-E06 e indicadores-E07 — test: `servidor/tests/Feature/Indicadores/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — tamaño S
 
 ## 1. Operaciones (servidor/)
 
