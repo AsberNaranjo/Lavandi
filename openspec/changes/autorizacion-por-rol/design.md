@@ -130,6 +130,18 @@ un servicio externo, ni decide una fila abierta.
 - **E07 reusa** confirmacion-E12 y direcciones-E14, que prueban el detalle de cada ruta, y recorre todas. **El cobro**
   se agrega cuando `pago` cree `pagos` y sus rutas.
 
+### El sembrado de dos plazas (tareas 3.2 y 4.1)
+
+- **Vive en las pruebas** (`Soporte/DosPlazasDePrueba.php`), no en `database/seeders/`: es un dato de prueba, no de
+  desarrollo. En cada plaza hay dos **cadenas**: un usuario con su dirección guardada, una lavandería con su cuenta de
+  socio y un repartidor activo, con dos pedidos del usuario a esa lavandería, uno en curso (aceptado por la lavandería y
+  por el repartidor) y uno entregado. Las cuatro cadenas no se cruzan, así que lo de una no le corresponde a nadie de
+  las otras, y hay una cuenta de administración.
+- **Cada dato que identifica a alguien lleva la marca de su cadena** (`BarridoUsuarioUnoA`, `BarridoCalleDosB`,
+  `barrido.repartidor.unob@ejemplo.com`), para buscarlo en las respuestas.
+- **E13 junta las dos plazas** en el componente (`*DelPanel()`), en las listas del panel, en el monitoreo y en la ficha
+  del usuario; el detalle de cada pantalla lo prueban `alta-de-lavanderias`, `repartidor` y `administracion`.
+
 ## Risks / Trade-offs
 
 - [Una ruta nueva sin regla expone datos] → autorizacion-E01 y autorizacion-E14 corren en cada pull request.
