@@ -184,8 +184,9 @@ El recurso de lavanderías de Filament (ADR-0003, ADR-0011) vive en `servidor/ap
 
 ### Cómo se entra al panel en local
 
-1. Con la base de desarrollo migrada, sembrar: `php artisan db:seed` (o `php artisan migrate --seed`). En local, el
-   sembrado agrega `Database\Seeders\CuentasDeDesarrolloSeeder`, que solo corre con `APP_ENV=local`.
+1. Migrar la base de desarrollo, que recibe `2026_11_22_100000_completar_lavanderias_para_el_alta`, y sembrar:
+   `php artisan migrate --seed` (o `php artisan db:seed` si ya está migrada). En local, el sembrado agrega
+   `Database\Seeders\CuentasDeDesarrolloSeeder`, que solo corre con `APP_ENV=local`.
 2. `php artisan serve` y abrir `http://localhost:8000/admin` (o el `APP_URL` del `.env` más `/admin`).
 3. Entrar con las cuentas de prueba, con la contraseña de las cuentas de prueba, `contrasena-de-prueba`
    (`UsuarioFactory::CONTRASENA`), guardada con hash:
@@ -197,6 +198,12 @@ El recurso de lavanderías de Filament (ADR-0003, ADR-0011) vive en `servidor/ap
 
 Las fotos de local quedan en `servidor/storage/app/private/fotos/` y se ven en `/archivos/fotos/…` solo con la URL
 firmada. Ninguna de estas cuentas se siembra en el entorno de prueba ni en producción.
+
+Sin la llave de Google, la geocodificación de local es la de prueba (`App\Direcciones\GeocodificadorDePrueba`,
+direcciones-E15): solo ubica direcciones del municipio de Durango (`10005`), dentro de la zona de la Plaza de prueba
+Durango; cualquier otro municipio responde `direccion_no_encontrada`. Para registrar una lavandería desde la app en
+local, la dirección va en Durango, con el catálogo del territorio ya cargado (`php artisan direcciones:cargar-catalogo`,
+con los archivos de Correos de México que no se versionan, DD-138): sin él, ningún municipio pasa la validación.
 
 ## El contrato de la API
 
