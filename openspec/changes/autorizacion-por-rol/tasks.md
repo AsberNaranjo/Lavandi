@@ -13,7 +13,7 @@ fijado.
 
 - [ ] 2.1 autorizacion-E07: un usuario no ve pedidos, direcciones ni cobros de otro; si `registro-e-inicio-de-sesion` ya lo prueba, se reutiliza su test — test: `servidor/tests/Feature/Autorizacion/UsuarioAisladoTest.php` — tamaño S
 - [ ] 2.2 autorizacion-E08: el usuario ve sus pedidos de todas las plazas — test: `servidor/tests/Feature/Autorizacion/UsuarioTodasLasPlazasTest.php` — tamaño S
-- [ ] 2.3 autorizacion-E09: una lavandería no ve los datos de otra, con la primera ruta del Módulo B — test: `servidor/tests/Feature/Autorizacion/LavanderiaAisladaTest.php` — tamaño S
+- [x] 2.3 autorizacion-E09: una lavandería no ve los datos de otra, con la primera ruta del Módulo B — test: `servidor/tests/Feature/Autorizacion/LavanderiaAisladaTest.php` — tamaño S. Con las rutas del Módulo B de pedidos-de-la-lavanderia y estados-del-pedido, recorridas desde la tabla de rutas (tests/Feature/Autorizacion/Soporte/RutasDelModuloB.php): una ruta nueva bajo api/lavanderia entra sola. El historial y las estadísticas de la segunda se agregan cuando historial-de-la-lavanderia cree sus rutas (F-B04, F-B05); su perfil público es del Módulo A y le responde 403. La regla nació con pedidos-de-la-lavanderia, tarea 1.2: la prueba pasó desde su primera corrida, y su rojo se comprobó quitando la tenencia y, para el perfil, el rol
 - [ ] 2.4 autorizacion-E10: la lavandería solo ve a los usuarios que le pidieron, dentro de sus pedidos — test: `servidor/tests/Feature/Autorizacion/LavanderiaYSusClientesTest.php` — tamaño M
 - [ ] 2.5 autorizacion-E11: el repartidor solo ve lo asignado; se escribe cuando `repartidor` cree `repartidores` y `pedido_asignaciones` (H8) — test: `servidor/tests/Feature/Autorizacion/RepartidorAsignadoTest.php` — tamaño S
 
