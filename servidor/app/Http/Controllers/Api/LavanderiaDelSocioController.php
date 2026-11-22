@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Direcciones\GeocodificacionNoDisponible;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegistroDeLavanderiaRequest;
 use App\Http\Resources\LavanderiaDelSocioResource;
@@ -73,7 +74,14 @@ use Illuminate\Support\Arr;
  *     409  { "message": "Esta cuenta ya tiene una lavandería registrada." }
  *     422  { "message": "...", "errors": { "nombre": ["Falta el nombre de la lavandería."], "foto": [...], ... } }
  *          Falta un dato o no es válido, cada uno en su campo: nombre, direccion.calle, foto, servicios.0.precio,
- *          ventanas.1.hora_fin... No se consultó la geocodificación ni se subió la foto (alta-lavanderias-E02).
+ *          ventanas.1... No se consultó la geocodificación ni se subió la foto (alta-lavanderias-E02).
+ *     422  { "message": "La dirección está fuera de las zonas de servicio.",
+ *            "errors": { "direccion": ["La dirección está fuera de las zonas de servicio."] },
+ *            "motivo": "fuera_de_la_zona_de_servicio" | "direccion_no_encontrada" }
+ *          La geocodificación no ubicó la dirección, o su punto no cae en ninguna zona de servicio activa. No se guardó
+ *          nada (alta-lavanderias-E10).
+ *     503  { "message": "No pudimos ubicar la dirección. Inténtalo más tarde.", "motivo": "geocodificacion_no_disponible" }
+ *          El servicio de geocodificación no respondió. No se guardó nada.
  */
 class LavanderiaDelSocioController extends Controller
 {
@@ -82,10 +90,28 @@ class LavanderiaDelSocioController extends Controller
         /** @var Usuario $cuenta */
         $cuenta = $peticion->user();
 
-        $lavanderia = $registro->registrar($cuenta, Arr::except($peticion->validated(), ['foto']), $peticion->foto());
+        try {
+            $lavanderia = $registro->registrar($cuenta, Arr::except($peticion->validated(), ['foto']), $peticion->foto());
+        } catch (GeocodificacionNoDisponible $error) {
+            return $this->geocodificacionNoDisponible($error);
+        }
 
         return response()->json([
             'lavanderia' => new LavanderiaDelSocioResource(LavanderiaDelSocioResource::cargar($lavanderia)),
         ], 201);
+    }
+
+    /**
+     * El servicio de geocodificación no respondió: no se sabe si la dirección existe, así que no se guardó nada y la
+     * app puede volver a intentar. Queda en el registro, como en las direcciones del usuario.
+     */
+    private function geocodificacionNoDisponible(GeocodificacionNoDisponible $error): JsonResponse
+    {
+        report($error);
+
+        return response()->json([
+            'message' => 'No pudimos ubicar la dirección. Inténtalo más tarde.',
+            'motivo' => 'geocodificacion_no_disponible',
+        ], 503);
     }
 }

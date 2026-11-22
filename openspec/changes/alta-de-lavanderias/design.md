@@ -191,6 +191,11 @@ la foto:
 - **422** `{ "message": "…", "errors": { "<campo>": ["…"] } }`, cada error en su campo (`nombre`,
   `direccion.calle`, `foto`, `servicios.0.precio`, `ventanas.1`…). No se consultó la geocodificación ni se subió la
   foto.
+- **422** `{ "message": "…", "errors": { "direccion": ["…"] }, "motivo": "fuera_de_la_zona_de_servicio" }`, o con
+  `"motivo": "direccion_no_encontrada"`: la dirección queda fuera de las zonas de servicio activas, o la geocodificación
+  no la ubica (E10). No se guardó nada.
+- **503** `{ "message": "No pudimos ubicar la dirección. Inténtalo más tarde.", "motivo": "geocodificacion_no_disponible" }`:
+  el servicio de geocodificación no respondió. No se guardó nada.
 
 ## Risks / Trade-offs
 

@@ -3,6 +3,7 @@
 namespace App\Lavanderias;
 
 use App\Direcciones\AltaDeDireccion;
+use App\Direcciones\GeocodificacionNoDisponible;
 use App\Direcciones\Geocodificador;
 use App\Models\Municipio;
 use App\Plazas\ResolucionDePunto;
@@ -22,8 +23,14 @@ final class UbicacionDeLaLavanderia
     ) {}
 
     /**
+     * Una dirección que la geocodificación no ubica, o cuyo punto no cae en ninguna zona activa de una plaza activa, se
+     * rechaza: la lavandería no se registra fuera del territorio (alta-lavanderias-E10). No se le inventa un punto.
+     *
      * @param  array{calle: string, numero: string, colonia: string, codigo_postal: string}  $direccion  Ya validada.
      * @param  Municipio  $municipio  El municipio del catálogo de la dirección, con su estado.
+     *
+     * @throws DireccionNoUbicable
+     * @throws GeocodificacionNoDisponible Si el servicio no se pudo consultar: no se sabe si la dirección existe.
      */
     public function ubicar(array $direccion, Municipio $municipio): DireccionUbicada
     {
@@ -34,8 +41,11 @@ final class UbicacionDeLaLavanderia
             'codigo_postal' => $direccion['codigo_postal'],
         ], $municipio);
 
-        $punto = $this->geocodificador->geocodificar($texto, $municipio);
-        $enPlaza = $this->resolucion->resolver($punto->latitud, $punto->longitud);
+        $punto = $this->geocodificador->geocodificar($texto, $municipio)
+            ?? throw new DireccionNoUbicable(DireccionNoUbicable::NO_ENCONTRADA);
+
+        $enPlaza = $this->resolucion->resolver($punto->latitud, $punto->longitud)
+            ?? throw new DireccionNoUbicable(DireccionNoUbicable::FUERA_DE_LA_ZONA);
 
         return new DireccionUbicada($punto, $enPlaza->plaza, $municipio);
     }
