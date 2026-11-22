@@ -261,3 +261,9 @@ el sistema ni toca otro cambio.
     checkout. Va bajo `/api/pagos` por la misma razón que el checkout (punto 4), y solo lee. La tenencia la decide
     `Autorizacion::pagosVisibles()`, que parte de `pedidosVisibles()`: el cobro de un pedido de otra cuenta responde el
     mismo 404 que uno que no existe.
+13. **Solo un aviso auténtico cambia algo** (tarea 2.6). `RecepcionDeAvisos` le pregunta a la pasarela configurada si el
+    aviso es suyo (`Pasarela::esAutentico()`) antes de traducirlo o guardarlo; si no, responde 401 y no guarda nada. La
+    simulada firma cada aviso con HMAC-SHA256 del cuerpo exacto y su llave, en la cabecera `X-Firma-Simulada`, y lo
+    compara con `hash_equals`. Un token de sesión no sirve en el webhook. La autenticidad de los avisos de Conekta es
+    pago-E09, en la tarea 3.1. Las rutas del cobro para la app son solo pedir el checkout y consultar el cobro: ninguna
+    lo da por pagado.

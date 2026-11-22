@@ -14,6 +14,8 @@ use Illuminate\Support\Str;
  *
  * Se comporta como una pasarela de verdad en lo que el servidor necesita:
  * - cada petición va autenticada con la llave de la configuración, y sin llave no hay petición (pago-E17);
+ * - cada aviso va firmado con esa llave, HMAC-SHA256 de su cuerpo en la cabecera X-Firma-Simulada, y uno sin esa firma
+ *   no es auténtico (pago-E07);
  * - la orden lleva el monto del cobro y una referencia nueva, y su checkout es la página de checkout de desarrollo del
  *   propio servidor, /desarrollo/pasarela/checkout/{orden}, con los botones de aprobar y rechazar.
  *
@@ -79,6 +81,17 @@ final class PasarelaSimulada implements Pasarela
         ];
 
         return isset($this->vencidas[$idOrden]) ? null : $this->urlDelCheckout($idOrden);
+    }
+
+    /**
+     * Un aviso simulado es auténtico si trae en su cabecera la firma de su cuerpo exacto con la llave de la
+     * configuración. Se compara en tiempo constante.
+     */
+    public function esAutentico(string $cuerpo, array $cabeceras): bool
+    {
+        $firma = $cabeceras[strtolower(self::CABECERA_DE_FIRMA)] ?? '';
+
+        return $firma !== '' && hash_equals($this->firma($cuerpo), $firma);
     }
 
     /**

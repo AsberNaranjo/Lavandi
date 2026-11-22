@@ -19,7 +19,7 @@ sección 3 llama solo a Conekta.
 - [x] 2.3 pago-E18, pago-E19: el cobro pagado confirma su pedido en la misma transacción, con la operación de `resumen-y-confirmacion`, y esa operación rechaza un pedido sin cobro pagado — test: `servidor/tests/Feature/Pago/PagoConfirmaElPedidoTest.php` — tamaño S
 - [x] 2.4 pago-E11: guardar `pasarela`, `id_pasarela_orden`, monto, método, `pagado_en`, pedido y plaza del pago — test: `servidor/tests/Feature/Pago/RegistroParaConciliacionTest.php` — tamaño S
 - [x] 2.5 pago-E04: el rechazo deja el cobro sin pagar, el pedido sin folio, y permite volver a intentar — test: `servidor/tests/Feature/Pago/PagoRechazadoTest.php` — tamaño S
-- [ ] 2.6 pago-E07: ninguna petición de la app marca un cobro como pagado — test: `servidor/tests/Feature/Pago/SoloElWebhookConfirmaTest.php` — tamaño S
+- [x] 2.6 pago-E07: ninguna petición de la app marca un cobro como pagado — test: `servidor/tests/Feature/Pago/SoloElWebhookConfirmaTest.php` — tamaño S
 
 ## 3. Servidor: integración con la pasarela vigente (Conekta)
 

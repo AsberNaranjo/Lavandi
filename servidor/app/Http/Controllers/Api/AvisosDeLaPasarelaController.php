@@ -17,7 +17,8 @@ use Illuminate\Http\Request;
  *     llega, sin decodificarlo antes.
  *
  *     200  { "recibido": true }: el aviso quedó guardado y procesado, o ya lo estaba (pago-E10)
- *     400  { "message": "El aviso no se reconoce." }: no es un aviso de esa pasarela; no se guarda
+ *     401  { "message": "El aviso no viene de la pasarela." }: sin su prueba de autenticidad; no se guarda (pago-E07)
+ *     400  { "message": "El aviso no se reconoce." }: auténtico, pero no es un aviso que se entienda; no se guarda
  *     500  el procesamiento falló: el aviso queda guardado con su error y la pasarela lo reintenta
  *     503  { "message": "El pago no está disponible por ahora." }: sin pasarela en el entorno
  *

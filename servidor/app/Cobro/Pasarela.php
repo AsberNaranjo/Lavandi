@@ -40,6 +40,17 @@ interface Pasarela
     public function checkoutVigente(string $idOrden): ?string;
 
     /**
+     * Si el aviso (webhook) viene de verdad de la pasarela: su prueba de autenticidad, como una firma, sobre el cuerpo
+     * exacto que llegó (pago-E07; ADR-0010, decisión 2). Solo un aviso auténtico se guarda y cambia algo. La de Conekta
+     * se confirma en su sandbox (pago-E09, tarea 3.1).
+     *
+     * @param  array<string, string>  $cabeceras  por nombre en minúsculas
+     *
+     * @throws PasarelaNoDisponible si falta la llave con que se comprueba
+     */
+    public function esAutentico(string $cuerpo, array $cabeceras): bool;
+
+    /**
      * Traduce el cuerpo de un aviso (webhook) de la pasarela a un evento sin proveedor: aprobado, rechazado, vencido u
      * otro, con la orden a la que se refiere (openspec/changes/pago/design.md, decisión 2).
      *
