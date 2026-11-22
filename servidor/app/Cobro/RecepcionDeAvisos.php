@@ -16,12 +16,16 @@ use Throwable;
  * 1. La pasarela traduce el aviso a un evento sin proveedor.
  * 2. Se guarda en eventos_pasarela, sin datos de tarjeta. Si ya estaba, por el único (pasarela, id_pasarela_evento), no
  *    se guarda otra vez (pago-E10).
- * 3. Si todavía no se procesó, se procesa una vez, en una transacción. Si falla, el aviso queda con su error y sin
- *    procesar, y el error sube: la respuesta no es 200 y la pasarela lo reintenta.
+ * 3. Si todavía no se procesó, se procesa una vez, en una transacción: App\Cobro\EfectoDelAviso le aplica al cobro de su
+ *    orden lo que dice el aviso. Si falla, el aviso queda con su error y sin procesar, y el error sube: la respuesta no
+ *    es 200 y la pasarela lo reintenta.
  */
 final class RecepcionDeAvisos
 {
-    public function __construct(private readonly Pasarelas $pasarelas) {}
+    public function __construct(
+        private readonly Pasarelas $pasarelas,
+        private readonly EfectoDelAviso $efecto,
+    ) {}
 
     /**
      * @param  array<string, string>  $cabeceras  por nombre en minúsculas
@@ -36,7 +40,7 @@ final class RecepcionDeAvisos
         $evento = $this->registrar($pasarela, $aviso);
 
         if ($evento->procesado_en === null) {
-            $this->procesar($evento);
+            $this->procesar($evento, $pasarela, $aviso);
         }
 
         return $evento->refresh();
@@ -63,17 +67,19 @@ final class RecepcionDeAvisos
      *
      * @throws Throwable lo que haya fallado, después de guardar el error en el aviso
      */
-    private function procesar(EventoPasarela $evento): void
+    private function procesar(EventoPasarela $evento, Pasarela $pasarela, AvisoDePasarela $aviso): void
     {
         try {
-            DB::transaction(function () use ($evento): void {
+            DB::transaction(function () use ($evento, $pasarela, $aviso): void {
                 $bloqueado = EventoPasarela::query()->whereKey($evento->getKey())->lockForUpdate()->sole();
 
                 if ($bloqueado->procesado_en !== null) {
                     return;
                 }
 
-                $bloqueado->forceFill(['procesado_en' => $this->ahora(), 'error' => null])->save();
+                $nota = $this->efecto->aplicar($pasarela, $aviso);
+
+                $bloqueado->forceFill(['procesado_en' => $this->ahora(), 'error' => $nota])->save();
             });
         } catch (Throwable $error) {
             $evento->forceFill(['error' => Str::limit($error->getMessage(), 1000)])->save();

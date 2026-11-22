@@ -230,3 +230,8 @@ el sistema ni toca otro cambio.
    reintenta y el reintento sí lo procesa. Un aviso que la pasarela no reconoce responde 400 y no se guarda. Antes de
    guardar el contenido, `App\Cobro\SinDatosDeTarjeta` quita a cualquier profundidad las llaves del número, el
    vencimiento y el código de seguridad, y deja la marca y los últimos cuatro dígitos (pago-E05).
+7. **El aviso de aprobado paga el cobro de su orden** (tarea 2.2). `App\Cobro\EfectoDelAviso` busca el cobro por
+   `(pasarela, id_pasarela_orden)` y lo bloquea. Si está pendiente, queda `pagado` con `pagado_en`; si ya estaba pagado,
+   no cambia. Un aviso de una orden que no es de ningún cobro (por ejemplo, de otro entorno que comparte el sandbox) o
+   de un cobro vencido o cancelado responde 200, queda procesado y no cambia nada; la razón queda como nota en
+   `eventos_pasarela.error`, para conciliarlo (DD-016). `pagado_en` es la hora en que servidor/ recibe la confirmación.
