@@ -83,6 +83,31 @@ cumple cada escenario; se pueden rehacer sin tocar los requisitos.
   dirección del sitio, y `areaServed` con cada plaza activa como `Place` y sus zonas activas en `containsPlace`. Sin
   logo, teléfono, domicilio, correo ni coordenadas: no están configurados o no los pide la spec. Los nombres van con los
   signos de HTML escapados, para que ninguno cierre el script.
+- **Velocidad en teléfono (tarea 3.1, 2026-11-22):**
+  - *GTM en diferido:* el cargador pone en la capa de datos el `gtm.js` y, si toca, el evento del formulario al leer la
+    página, pero pide el `gtm.js` de Google hasta el evento `load`, o enseguida si la página ya cargó. Lo que pasó antes
+    espera en la capa de datos y el contenedor lo procesa al llegar; la visita sale igual (medicion-E03). No se usó la
+    carga al primer toque o desplazamiento, porque perdería la visita de quien no toca nada.
+  - *Imágenes:* el logo por omisión es ahora `marca/logotipo-192.png`, el mismo símbolo reducido a 192 píxeles, el
+    triple de lo más que se muestra (64), con paleta: 4 KB contra los 17.5 KB del original de 1024, que sigue en
+    `marca/logotipo.png`. Lighthouse dejó de marcar "imágenes de tamaño adecuado". Las dos imágenes de EL CLIENTE se
+    piden como conviene en teléfono: la del encabezado con `fetchpriority="high"`, porque es la más grande al abrir; la
+    de descarga con `loading="lazy"`; las dos con `decoding="async"`. Su peso y su tamaño son de su contenido (DD-117):
+    conviene recibirlas al tamaño en que se muestran.
+  - *Lighthouse CI (pregunta 4):* `servidor/lighthouserc.json`, en el trabajo `landing-velocidad` de
+    `.github/workflows/ci.yml`. Sirve la portada como las pruebas de navegador, con los estilos compilados y el
+    contenido de `PortadaDePrueba`, y la mide tres veces en perfil de teléfono; falla si la mediana baja de 0.70 en
+    rendimiento. Los informes quedan en el disco de la máquina (`upload.target: filesystem`), sin subirlos a ningún
+    servicio. Versión: `@lhci/cli@0.15.1`, con Lighthouse 12.6.1 (E, npm, consultado el 2026-11-22: la 0.15.1 salió el
+    2025-06-25; la 0.16.x tiene menos de tres semanas), por `npx` con la versión fija, sin entrar a `package.json`.
+    Medido en la máquina de Arthur el 2026-11-22, sin contenedor: 0.99 en las tres corridas; con la red frenada a
+    1500 ms y 150 kbps, 0.55, y la verificación falla.
+  - *El contenedor de prueba:* la variable del repositorio `MEDICION_GTM_PRUEBA` pone el contenedor en la medición de
+    Lighthouse. Ese contenedor, con etiquetas de GA4 y Meta Pixel de prueba, va en una cuenta de EL PRESTADOR mientras
+    tanto (ADR-0012) y lo crea Arthur; sin la variable, Lighthouse mide la portada sin medición, y medicion-E11 solo se
+    cumple a medias. Lo que acredita es medicion-E12, con el contenedor del cliente.
+  - *Lo que depende del alojamiento (DD-070):* Lighthouse marca la falta de compresión del texto y la respuesta lenta
+    del documento, que son del servidor de desarrollo de PHP; en prueba y en producción las da el servidor web.
 
 ## Tablas y migración
 
@@ -118,5 +143,6 @@ ningún evento de medición se guarda en la base.
    `Disallow: /` en el archivo de robots, para que no compita con producción en los buscadores. No se implementó: pide
    la adenda de ADR-0012, y el entorno de prueba no existe mientras siga abierta DD-070.
 4. **Dónde corre Lighthouse CI:** un trabajo más en `.github/workflows/ci.yml`, con la portada levantada en la máquina
-   de la integración continua. Versiones por confirmar (E).
+   de la integración continua. Versiones por confirmar (E). *Resuelta el 2026-11-22, por delegación de Arthur (C-236):*
+   el trabajo `landing-velocidad`, con `@lhci/cli@0.15.1` (ver "Cómo quedó implementado").
 5. **Consentimiento para la medición** (DD-118).

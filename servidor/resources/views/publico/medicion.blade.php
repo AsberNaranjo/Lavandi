@@ -11,8 +11,8 @@
     - formulario_enviado, con el formulario: el envío completo de uno, que pone esta vista en la portada de vuelta
       (medicion-E05). Solo lleva el nombre del formulario, nunca lo que la persona escribió.
 
-    Escenarios: medicion-E01 a medicion-E05 · Spec: openspec/changes/medicion-de-la-landing/specs/medicion/spec.md ·
-    Tareas 1.1 y 1.2
+    Escenarios: medicion-E01 a medicion-E05 y medicion-E11 · Spec: openspec/changes/medicion-de-la-landing/specs/medicion/
+    spec.md · Tareas 1.1, 1.2 y 3.1
 --}}
 @php
     $contenedor = app(\App\Medicion\ContenedorDeEtiquetas::class)->identificador();
@@ -27,10 +27,20 @@
                 ventana.dataLayer.push(@json(['event' => 'formulario_enviado', 'formulario' => $formulario]));
             @endif
 
-            var script = documento.createElement('script');
-            script.async = true;
-            script.src = 'https://www.googletagmanager.com/gtm.js?id=' + encodeURIComponent(contenedor);
-            documento.head.appendChild(script);
+            // En diferido: el contenedor se pide cuando la página ya terminó de cargar, para que la medición no retrase lo
+            // que la persona ve en el teléfono (medicion-E11; ADR-0011). Los eventos de antes esperan en la capa de datos.
+            function cargar() {
+                var script = documento.createElement('script');
+                script.async = true;
+                script.src = 'https://www.googletagmanager.com/gtm.js?id=' + encodeURIComponent(contenedor);
+                documento.head.appendChild(script);
+            }
+
+            if (documento.readyState === 'complete') {
+                cargar();
+            } else {
+                ventana.addEventListener('load', cargar, { once: true });
+            }
         })(window, document, @js($contenedor));
     </script>
 @endif

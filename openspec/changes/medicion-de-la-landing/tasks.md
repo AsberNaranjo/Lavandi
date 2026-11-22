@@ -17,6 +17,6 @@ De las 25 h, 6 h son de acreditación y están bloqueadas (tareas 1.3, 2.2 y 3.3
 
 ## 3. Velocidad y candado
 
-- [ ] 3.1 medicion-E11: imágenes optimizadas para teléfono, GTM en diferido y Lighthouse CI con umbral de 0.70 en rendimiento — test: `servidor/lighthouserc.json`, corrido por la integración continua — tamaño M
+- [x] 3.1 medicion-E11: imágenes optimizadas para teléfono, GTM en diferido y Lighthouse CI con umbral de 0.70 en rendimiento — test: `servidor/lighthouserc.json`, corrido por la integración continua en el trabajo `landing-velocidad`, más `servidor/tests/Feature/Medicion/VelocidadTest.php` y `servidor/tests/Browser/Medicion/Velocidad.spec.js` — tamaño M
 - [ ] 3.2 medicion-E13: redirección permanente de http a https en la portada, con el dominio de la configuración — test: `servidor/tests/Feature/Medicion/CandadoTest.php` — tamaño S
 - [ ] 3.3 medicion-E12, medicion-E14: PageSpeed Insights y candado sobre `lavandi.mx` publicado, con capturas (bloqueada: DD-023, DD-070) — test: Lighthouse con `servidor/lighthouserc.json` contra la dirección publicada, más las capturas — tamaño S

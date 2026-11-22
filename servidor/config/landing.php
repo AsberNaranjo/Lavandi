@@ -21,9 +21,10 @@ return [
 
     /*
      * El logo, como ruta dentro de public/. Por omisión, el símbolo aprobado por EL CLIENTE (C-63), en un archivo de
-     * nombre neutro, como en la app (C-237).
+     * nombre neutro, como en la app (C-237): su versión de 192 píxeles, el triple de lo más que se muestra (64), que es
+     * lo que pide la pantalla de un teléfono (medicion-E11). El original, de 1024, sigue en marca/logotipo.png.
      */
-    'logo' => env('LANDING_LOGO', 'marca/logotipo.png'),
+    'logo' => env('LANDING_LOGO', 'marca/logotipo-192.png'),
 
     /*
      * Sección 1, "Hero / Encabezado": el tagline y la imagen con el mockup de la app, como ruta dentro de public/, con

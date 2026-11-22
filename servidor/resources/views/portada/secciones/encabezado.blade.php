@@ -31,7 +31,8 @@
         </div>
 
         @if (filled($imagen))
-            <img class="encabezado__imagen" src="{{ asset($imagen) }}" alt="{{ config('landing.encabezado.imagen_texto') }}" data-imagen-encabezado>
+            {{-- La imagen más grande al abrir la portada en un teléfono: se pide primero (medicion-E11). --}}
+            <img class="encabezado__imagen" src="{{ asset($imagen) }}" alt="{{ config('landing.encabezado.imagen_texto') }}" fetchpriority="high" decoding="async" data-imagen-encabezado>
         @else
             <x-portada.de-prueba como="div" class="imagen-de-prueba">imagen con el mockup de la app.</x-portada.de-prueba>
         @endif
