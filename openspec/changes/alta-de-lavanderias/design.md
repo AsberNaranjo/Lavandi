@@ -102,6 +102,89 @@ disponibilidad (Módulo B #6) en `lavanderia_horarios`: `id_lavanderia_horarios`
 una ventana de una hora, y el horario del día como la suma de sus ventanas. La regla de "exactamente una hora" (E22) la
 valida el código: el modelo no la pone como `CHECK`. Los choques que deja esa lectura están en la pregunta abierta 11.
 
+## Implementación en el servidor
+
+Lo que se decidió al implementar, por delegación de Arthur (C-236), con lo mínimo que cumple cada escenario. Ninguna
+decisión agrega una librería ni un servicio externo.
+
+- **El código vive en `servidor/app/Lavanderias/`:** `ReglasDeLaLavanderia` (las validaciones, escritas una vez),
+  `RegistroDeLavanderia`, `UbicacionDeLaLavanderia` (una geocodificación y la plaza de la zona), `ServiciosYVentanas`
+  y `FotosDeLaLavanderia`. El controlador de la app es `App\Http\Controllers\Api\LavanderiaDelSocioController`.
+- **Las rutas del socio van bajo `/api/socio/`,** con `auth:sanctum` y `autorizar:lavanderia`, aparte de las del
+  usuario (`autorizar:usuario`). La tenencia la decide `Autorizacion::lavanderiasDeLaCuenta()`: el socio solo ve y
+  toca su lavandería (ADR-0019).
+- **El estado con que nace un registro:** `pendiente`, sin `aprobada_en` (`RegistroDeLavanderia::ESTADO_AL_REGISTRARSE`),
+  la lectura de la pregunta abierta 9 mientras DD-053 siga abierta. Hoy una pendiente todavía aparece al usuario, porque
+  `Lavanderia::visiblesParaElUsuario()` solo excluye las suspendidas y las de baja (DD-083, cercanas-E09); E12 la quita
+  cuando cierre DD-053.
+- **Una cuenta, una lavandería.** El modelo dice `usuarios ||--o| lavanderias`: el registro de una cuenta que ya tiene
+  la suya responde 409 y no guarda nada. La base no lo exige con un único; si DD-053 lo confirma, entra como índice.
+- **La foto.** Va al disco privado de fotos del entorno, que elige `config/fotos.php` (`FOTOS_DISCO`): `fotos_s3` en
+  producción, el bucket S3 privado de las variables de entorno (ADR-0006, ADR-0012), y `fotos_local` en los demás, un
+  disco local privado (`storage/app/private/fotos`) que sirve cada foto en `/archivos/fotos/…` solo con una URL firmada
+  que vence. Esto responde, para local, la pregunta abierta "El almacenamiento en local" de `perfil-de-lavanderia`:
+  falta anotarlo en ADR-0006. El servidor revisa el tipo (`FOTOS_TIPOS`, `jpg,jpeg,png,webp`) y el peso
+  (`FOTOS_PESO_MAXIMO_KB`, 5120 por omisión, **provisional**: lo fija Arthur, pregunta abierta 1); la URL dura
+  `FOTOS_VIGENCIA_MINUTOS` (60). La ruta del archivo nunca sale como campo de la API. La foto del registro es la
+  principal (`orden` 1); cambiarla reemplaza esa fila y borra el archivo anterior.
+- **Para producción falta una dependencia:** el driver S3 de Laravel necesita `league/flysystem-aws-s3-v3`. No se
+  instaló, porque hoy solo existe el entorno local (C-154); se propone instalarla cuando se decida el hosting (DD-070).
+
+## El contrato de la API
+
+Para la app (tareas 4.1 y 4.2). El mismo texto, con su detalle, está en
+`servidor/app/Http/Controllers/Api/LavanderiaDelSocioController.php`.
+
+Todas las rutas llevan `Authorization: Bearer <token>` de una cuenta con el rol de socio lavandería. Sin sesión
+responden 401; con otro rol, 403 (`{ "message": "Esta cuenta no tiene acceso." }`).
+
+**La lavandería, como sale en todas las respuestas:**
+
+```json
+{
+  "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",
+  "nombre": "Lavandería Ejemplo",
+  "direccion": {
+    "calle": "Calle Ejemplo",
+    "numero": "123",
+    "colonia": "Centro",
+    "codigo_postal": "34000",
+    "municipio": { "codigo": "10005", "nombre": "Durango", "estado": "Durango" }
+  },
+  "foto": { "url": "https://…/archivos/fotos/…?expires=…&signature=…", "vence_en": "2026-11-22T18:00:00Z" },
+  "servicios": [
+    { "tipo": "estandar", "nombre": "Lavado estándar", "precio": "18.50", "unidad": { "codigo": "kg", "nombre": "kilo" } }
+  ],
+  "ventanas": [
+    { "dia_semana": 4, "hora_inicio": "10:00", "hora_fin": "11:00" }
+  ]
+}
+```
+
+- `municipio` es `null` en una lavandería de prueba sin municipio; `foto` es `null` si no tiene.
+- `precio` es texto en pesos con dos decimales. `dia_semana` va del 1, el lunes, al 7, el domingo; las horas, en la
+  hora local de la plaza.
+- No sale el estado de la lavandería: lo que ve suspendida o de baja es DD-104 (E16).
+
+**`POST /api/socio/lavanderias`**: el registro (E01, E02, E05, E06, E09, E10). En `multipart/form-data`, porque lleva
+la foto:
+
+| Campo | Regla |
+|---|---|
+| `nombre` | Obligatorio, texto de hasta 255 |
+| `direccion[calle]`, `direccion[numero]`, `direccion[colonia]` | Obligatorios, texto de hasta 255 |
+| `direccion[codigo_postal]` | Obligatorio, cinco números |
+| `direccion[municipio]` | Obligatorio: el `codigo` de un municipio de `GET /api/catalogos/municipios` |
+| `foto` | Obligatoria: imagen de `FOTOS_TIPOS` y de hasta `FOTOS_PESO_MAXIMO_KB` |
+| `servicios[N][tipo]`, `servicios[N][precio]` | Al menos uno. Tipo `estandar` o `planchado`; precio en pesos por kilo, sin signo y con hasta dos decimales |
+| `ventanas[N][dia_semana]`, `ventanas[N][hora_inicio]`, `ventanas[N][hora_fin]` | Al menos una. Día del 1 al 7; horas `HH:MM`, el fin exactamente una hora después del inicio |
+
+- **201** `{ "lavanderia": { … } }`.
+- **409** `{ "message": "Esta cuenta ya tiene una lavandería registrada." }`.
+- **422** `{ "message": "…", "errors": { "<campo>": ["…"] } }`, cada error en su campo (`nombre`,
+  `direccion.calle`, `foto`, `servicios.0.precio`, `ventanas.1`…). No se consultó la geocodificación ni se subió la
+  foto.
+
 ## Risks / Trade-offs
 
 - [DD-053 sigue abierta y define la entrada al registro y el alta] → Se construye sin esperarla lo que no depende de
