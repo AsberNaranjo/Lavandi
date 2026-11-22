@@ -2,6 +2,7 @@
 
 namespace App\Cobro;
 
+use App\Models\EventoPasarela;
 use App\Models\Pago;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Str;
@@ -27,6 +28,9 @@ final class PasarelaSimulada implements Pasarela
 
     /** La dirección de la página de checkout de desarrollo, con la referencia de la orden al final. */
     public const RUTA_DEL_CHECKOUT = '/desarrollo/pasarela/checkout/';
+
+    /** La cabecera con la firma de cada aviso simulado. */
+    public const CABECERA_DE_FIRMA = 'X-Firma-Simulada';
 
     /**
      * Las peticiones que recibió, en orden.
@@ -78,6 +82,53 @@ final class PasarelaSimulada implements Pasarela
     }
 
     /**
+     * El aviso simulado es JSON, { "id": …, "tipo": "pago.aprobado", "orden": …, "creado_en": … }: pago.aprobado,
+     * pago.rechazado y pago.vencido se traducen a su evento; cualquier otro tipo es otro.
+     */
+    public function traducir(string $cuerpo): AvisoDePasarela
+    {
+        $contenido = json_decode($cuerpo, true);
+
+        if (! is_array($contenido) || ! is_string($contenido['id'] ?? null) || $contenido['id'] === '') {
+            throw new AvisoNoReconocido('El aviso simulado no es JSON o no trae su identificador.');
+        }
+
+        $tipo = match ($contenido['tipo'] ?? null) {
+            'pago.aprobado' => EventoPasarela::APROBADO,
+            'pago.rechazado' => EventoPasarela::RECHAZADO,
+            'pago.vencido' => EventoPasarela::VENCIDO,
+            default => EventoPasarela::OTRO,
+        };
+
+        $orden = $contenido['orden'] ?? null;
+
+        return new AvisoDePasarela($contenido['id'], $tipo, is_string($orden) ? $orden : null, $contenido);
+    }
+
+    /**
+     * El aviso que mandaría la pasarela simulada para la orden, con su cuerpo y su cabecera de firma, para las pruebas y
+     * las herramientas de desarrollo. Sin identificador, el aviso es nuevo.
+     *
+     * @param  string  $tipo  aprobado, rechazado, vencido o cualquier otro, que se traduce a otro
+     * @param  array<string, mixed>  $datos  lo que se agrega al cuerpo, como lo que mandaría una pasarela real
+     * @return array{cuerpo: string, cabeceras: array<string, string>}
+     *
+     * @throws PasarelaNoDisponible sin llave para firmarlo
+     */
+    public function avisoSimulado(string $idOrden, string $tipo, ?string $idEvento = null, array $datos = []): array
+    {
+        $cuerpo = (string) json_encode([
+            'id' => $idEvento ?? 'evento-simulado-'.Str::lower((string) Str::ulid()),
+            'tipo' => 'pago.'.$tipo,
+            'orden' => $idOrden,
+            'creado_en' => now()->utc()->toIso8601ZuluString(),
+            ...$datos,
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        return ['cuerpo' => $cuerpo, 'cabeceras' => [self::CABECERA_DE_FIRMA => $this->firma($cuerpo)]];
+    }
+
+    /**
      * Vence el checkout de la orden, como cuando una pasarela real lo da por caducado. Solo para las pruebas.
      */
     public function vencer(string $idOrden): void
@@ -103,13 +154,32 @@ final class PasarelaSimulada implements Pasarela
      */
     private function autorizacion(): string
     {
+        return 'Bearer '.$this->llave();
+    }
+
+    /**
+     * @throws PasarelaNoDisponible sin llave
+     */
+    private function llave(): string
+    {
         $llave = (string) config('pasarela.simulada.llave');
 
         if ($llave === '') {
             throw new PasarelaNoDisponible('Falta la llave de la pasarela simulada (PASARELA_SIMULADA_LLAVE).');
         }
 
-        return 'Bearer '.$llave;
+        return $llave;
+    }
+
+    /**
+     * La firma del aviso: HMAC-SHA256 del cuerpo con la llave de la configuración, como firman sus avisos las pasarelas
+     * reales.
+     *
+     * @throws PasarelaNoDisponible sin llave
+     */
+    private function firma(string $cuerpo): string
+    {
+        return hash_hmac('sha256', $cuerpo, $this->llave());
     }
 
     private function urlDelCheckout(string $orden): string

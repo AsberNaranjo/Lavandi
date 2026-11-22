@@ -30,6 +30,11 @@ use Illuminate\Database\Eloquent\Builder;
  * abre sesión o bloquea (administracion-E03), y quién edita los testimonios de la portada (landing-E19). Del repartidor
  * (hito H8; ADR-0019, decisión 1), conoce su rol en la app, qué repartidor opera (repartidor-E03 y E06) y, con su tarea,
  * sus pedidos, de su plaza y con el pago acreditado.
+ *
+ * Del cobro (openspec/changes/pago/), conoce qué pedidos paga la cuenta: solo los suyos, con pedidosVisibles(). La ruta
+ * del aviso de la pasarela, POST api/pasarela/avisos, es pública con verificación de la pasarela: no hay cuenta detrás,
+ * y solo un aviso que la pasarela configurada reconoce como suyo cambia algo (App\Cobro\RecepcionDeAvisos;
+ * openspec/changes/pago/design.md, decisión 5).
  */
 final class Autorizacion
 {

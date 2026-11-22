@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AvisosDeLaPasarelaController;
 use App\Http\Controllers\Api\BorradoDeCuentaController;
 use App\Http\Controllers\Api\CatalogoDelTerritorioController;
 use App\Http\Controllers\Api\CuentaController;
@@ -44,6 +45,10 @@ Route::post('repartidor/registro', [RepartidorController::class, 'registrar'])->
 Route::post('contrasena/olvido', RecuperacionController::class)
     ->middleware('throttle:recuperacion')
     ->name('contrasena.olvido');
+
+// Pública: el aviso (webhook) de la pasarela de pago, que no lleva sesión porque lo manda la pasarela (pago). El contrato
+// está en el controlador; todo aviso pasa por App\Cobro\RecepcionDeAvisos.
+Route::post('pasarela/avisos', AvisosDeLaPasarelaController::class)->name('pasarela.avisos');
 
 // Con sesión, y por el componente único de autorización (registro-E14). Una ruta nueva sin las dos no pasa la prueba
 // tests/Feature/Registro/AutorizacionTest.php.

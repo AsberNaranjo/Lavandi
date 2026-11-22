@@ -2,9 +2,11 @@
 
 namespace Tests\Feature\Pago\Soporte;
 
+use App\Cobro\CheckoutDelCobro;
 use App\Cobro\PasarelaSimulada;
 use App\Models\Pago;
 use App\Models\Pedido;
+use Illuminate\Testing\TestResponse;
 
 /**
  * Lo que comparten las pruebas del cobro: un pedido en el estado previo al pago, creado como lo crea la app al aceptar
@@ -59,5 +61,45 @@ trait CobrosDePrueba
     protected function pasarelaSimulada(): PasarelaSimulada
     {
         return app(PasarelaSimulada::class);
+    }
+
+    /**
+     * El cobro con su checkout creado en la pasarela simulada, por el camino real (App\Cobro\CheckoutDelCobro).
+     */
+    protected function conCheckout(Pago $cobro): Pago
+    {
+        app(CheckoutDelCobro::class)->abrir($cobro->pedido);
+
+        return $cobro->fresh();
+    }
+
+    /**
+     * La pasarela simulada manda al webhook su aviso de ese tipo para la orden del cobro, firmado con su llave, como lo
+     * mandaría una pasarela real. Sin identificador, el aviso es nuevo.
+     *
+     * @param  string  $tipo  aprobado, rechazado, vencido o cualquier otro que la pasarela mande
+     */
+    protected function avisar(Pago $cobro, string $tipo, ?string $idEvento = null): TestResponse
+    {
+        $aviso = $this->pasarelaSimulada()->avisoSimulado($cobro->id_pasarela_orden, $tipo, $idEvento);
+
+        return $this->avisoCrudo($aviso['cuerpo'], $aviso['cabeceras']);
+    }
+
+    /**
+     * Llega al webhook una petición con ese cuerpo, tal cual, y esas cabeceras, sin sesión.
+     *
+     * @param  array<string, string>  $cabeceras
+     */
+    protected function avisoCrudo(string $cuerpo, array $cabeceras = []): TestResponse
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withoutToken()->call(
+            'POST',
+            '/api/pasarela/avisos',
+            server: $this->transformHeadersToServerVars(['Content-Type' => 'application/json', ...$cabeceras]),
+            content: $cuerpo,
+        );
     }
 }

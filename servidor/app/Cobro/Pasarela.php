@@ -38,4 +38,12 @@ interface Pasarela
      * @throws PasarelaNoDisponible si falta la llave o la pasarela no responde
      */
     public function checkoutVigente(string $idOrden): ?string;
+
+    /**
+     * Traduce el cuerpo de un aviso (webhook) de la pasarela a un evento sin proveedor: aprobado, rechazado, vencido u
+     * otro, con la orden a la que se refiere (openspec/changes/pago/design.md, decisión 2).
+     *
+     * @throws AvisoNoReconocido si el cuerpo no es un aviso de esta pasarela
+     */
+    public function traducir(string $cuerpo): AvisoDePasarela;
 }

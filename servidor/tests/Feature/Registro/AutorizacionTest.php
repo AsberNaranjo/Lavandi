@@ -36,6 +36,9 @@ class AutorizacionTest extends TestCase
      * Algunas llegan con otras tareas (Google, 3.1; recuperación, 3.3) y ya están permitidas. El registro del
      * repartidor también abre una sesión, con su cuenta pendiente de alta (repartidor-E01).
      *
+     * El aviso (webhook) de la pasarela de pago tampoco lleva sesión: lo manda la pasarela, no una cuenta, y solo un aviso
+     * auténtico cambia algo (openspec/changes/pago/design.md, decisión 5; pago-E07).
+     *
      * Fuera de /api también son públicas la de salud (up) y la página web para crear la contraseña nueva
      * (contrasena/restablecer, ADR-0018). Esta prueba recorre la API.
      */
@@ -45,6 +48,7 @@ class AutorizacionTest extends TestCase
         'POST api/sesion/google',
         'POST api/contrasena/olvido',
         'POST api/repartidor/registro',
+        'POST api/pasarela/avisos',
     ];
 
     /** Las rutas protegidas que ya existen: la prueba no pasa en vacío. */

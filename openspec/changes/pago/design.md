@@ -201,7 +201,7 @@ el sistema ni toca otro cambio.
    de pasarela (DD-079), la elegida entra con una migración hacia adelante.
 2. **Integridad del cobro en la base** (tarea 1.1), además de lo que pide el diseño:
    - un solo cobro por pedido, con el índice único parcial `pagos_un_cobro_por_pedido` (`tipo = 'cobro'`); el ajuste de
-     DD-012 va aparte. Un intento rechazado se reintenta con el mismo cobro (punto 6);
+     DD-012 va aparte. Un intento rechazado se reintenta con el mismo cobro (pago-E04, tarea 2.5);
    - un pago `pagado` lleva su `pagado_en` (`pagos_pagado_en_check`);
    - `eventos_pasarela.tipo` es el evento ya traducido, sin proveedor: `aprobado`, `rechazado`, `vencido` u `otro`;
    - `reembolsos.estado`, con los tres valores del modelo de datos; `reembolsos.motivo` es opcional hasta que DD-016 y
@@ -222,3 +222,11 @@ el sistema ni toca otro cambio.
    tiene y la pasarela la da. La app recibe además `checkout.regreso`, la dirección de regreso de
    `PASARELA_REGRESO`, para abrir el checkout con ella (adenda de ADR-0010). Un pedido sin cobro responde 409: el cobro lo
    crea pago-E14, bloqueado por DD-012. Solo se acepta `tarjeta`; el efectivo responde 422 hasta DD-056.
+6. **El webhook es `POST /api/pasarela/avisos`** (tarea 2.1), público y sin sesión, en la lista de rutas públicas de
+   `tests/Feature/Registro/AutorizacionTest.php`. Lo atiende `App\Cobro\RecepcionDeAvisos`, el único camino por el que un
+   aviso cambia algo: la pasarela configurada lo traduce (`Pasarela::traducir()`), se guarda con `createOrFirst` sobre el
+   único `(pasarela, id_pasarela_evento)`, y se procesa una vez, con el aviso bloqueado. Si el procesamiento falla, la
+   transacción se deshace, el aviso queda con su `error` y sin `procesado_en`, y la respuesta es 500: la pasarela lo
+   reintenta y el reintento sí lo procesa. Un aviso que la pasarela no reconoce responde 400 y no se guarda. Antes de
+   guardar el contenido, `App\Cobro\SinDatosDeTarjeta` quita a cualquier profundidad las llaves del número, el
+   vencimiento y el código de seguridad, y deja la marca y los últimos cuatro dígitos (pago-E05).
