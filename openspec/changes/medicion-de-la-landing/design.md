@@ -32,6 +32,17 @@ No hay decisión técnica nueva: el cambio aplica ADR-0011 y ADR-0012, sin repet
 usa el mismo mecanismo que `publicacion` (publicacion-E04); lo implementa la primera tarea que llegue y la otra solo lo
 prueba en sus rutas.
 
+**Cómo quedó implementado.** Las lecturas de abajo las tomó Claude por delegación de Arthur (C-236), con la mínima que
+cumple cada escenario; se pueden rehacer sin tocar los requisitos.
+
+- **El contenedor (tarea 1.1, 2026-11-22):** `MEDICION_GTM` en el `.env` de cada entorno, leído por
+  `config/medicion.php` y validado por `App\Medicion\ContenedorDeEtiquetas`: solo vale "GTM-" con letras mayúsculas y
+  números, porque va dentro de un script; cualquier otra cosa cuenta como ninguno y la página no mide (medicion-E02). El
+  cargador es `resources/views/publico/medicion.blade.php`, que el diseño base de las páginas públicas pone una vez en
+  la cabecera, así que lo llevan la portada, el aviso de privacidad, los términos y cualquier página pública que llegue.
+  Sin el marco `<noscript>` de la instalación de GTM: GA4 y Meta Pixel necesitan JavaScript, así que sin él no mide
+  ninguno de los eventos de la spec.
+
 ## Tablas y migración
 
 No crea tablas ni migraciones: ninguna tabla de `vault/arquitectura/modelo-de-datos.md` nace aquí (ADR-0016). Para la

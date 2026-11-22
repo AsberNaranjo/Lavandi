@@ -12,6 +12,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('titulo', config('app.name'))</title>
+    @include('publico.medicion')
     @vite(['resources/css/portada.css', 'resources/js/portada.js'])
 </head>
 <body class="publico">
