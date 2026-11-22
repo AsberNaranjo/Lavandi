@@ -45,7 +45,7 @@ M = 5 h.
 
 - [x] 6.1 indicadores-E21: refresco automático con intervalo de configuración — test: `servidor/tests/Feature/Indicadores/PanelEnTiempoRealTest.php` — tamaño S
 - [ ] 6.2 indicadores-E22: el valor del intervalo — test: `servidor/tests/Feature/Indicadores/PanelEnTiempoRealTest.php` — tamaño S — bloqueada: BR-33, DD-116, necesita ADR
-- [ ] 6.3 indicadores-E23: cada indicador con las cifras de la base, sin cifras de ejemplo en el código — test: `servidor/tests/Feature/Indicadores/DatosRealesTest.php` — tamaño S
+- [x] 6.3 indicadores-E23: cada indicador con las cifras de la base, sin cifras de ejemplo en el código — test: `servidor/tests/Feature/Indicadores/DatosRealesTest.php` — tamaño S
 
 ## Horas
 
