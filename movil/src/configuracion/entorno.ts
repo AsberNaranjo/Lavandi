@@ -1,6 +1,17 @@
 // La configuración de la app que llega del entorno (.env en local, variables de EAS al compilar).
 // Expo incrusta las variables EXPO_PUBLIC_* al armar la app y solo las reconoce con acceso directo,
 // como process.env.EXPO_PUBLIC_API_URL; un acceso dinámico como process.env[nombre] no las encuentra.
+import Constants, { ExecutionEnvironment } from 'expo-constants';
+
+/**
+ * Si la app corre en Expo Go, para probarla en un iPhone sin cuenta de Apple (base-E11, C-240). Expo Go no trae todos
+ * los módulos nativos de la app, como el de la entrada con Google: lo que dependa de ellos se oculta ahí y no se carga.
+ * Solo Expo Go dice "storeClient": en el development build y en la app de las tiendas, expo-constants dice "bare"
+ * (EXConstantsService.m y ConstantsService.kt) y expo-dev-client no lo cambia. Es el único lugar que lo pregunta.
+ */
+export function enExpoGo(): boolean {
+  return Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+}
 
 function requerida(nombre: string, valor: string | undefined): string {
   const limpio = valor?.trim();

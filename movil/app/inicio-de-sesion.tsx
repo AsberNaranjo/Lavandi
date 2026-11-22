@@ -1,6 +1,6 @@
 // Pantalla de inicio de sesión (registro-E09, E19, E20 y E26): correo y contraseña, "Continuar con Google" si el
-// entorno trae el cliente de Google, y "¿Olvidaste tu contraseña?". En iPhone, "Continuar con Apple" es la tarea 4.3,
-// bloqueada por DD-069; en Android no se ofrece (ADR-0005).
+// entorno trae el cliente de Google y la app no corre en Expo Go (base-E11), y "¿Olvidaste tu contraseña?". En iPhone,
+// "Continuar con Apple" es la tarea 4.3, bloqueada por DD-069; en Android no se ofrece (ADR-0005).
 //
 // Es también la oferta de registrarse o iniciar sesión, con "¿No tienes cuenta? Regístrate" (bienvenida-E04, C-237):
 // sin sesión, la app llega aquí al terminar las informativas, al abrirse con la bienvenida ya vista y al cerrar la
