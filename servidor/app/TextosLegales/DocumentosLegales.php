@@ -13,6 +13,21 @@ use Illuminate\Support\Facades\Storage;
  */
 final class DocumentosLegales
 {
+    /**
+     * Las llaves de los documentos, como las recibe el comando de carga: aviso-de-privacidad y terminos.
+     *
+     * @return list<string>
+     */
+    public function documentos(): array
+    {
+        return array_keys((array) config('textos_legales.documentos'));
+    }
+
+    public function existe(string $documento): bool
+    {
+        return in_array($documento, $this->documentos(), true);
+    }
+
     public function titulo(string $documento): string
     {
         return (string) config("textos_legales.documentos.{$documento}.titulo");
@@ -27,6 +42,23 @@ final class DocumentosLegales
         $texto = $this->disco()->get($this->archivo($documento));
 
         return is_string($texto) && trim($texto) !== '' ? $texto : null;
+    }
+
+    /**
+     * Deja el texto como la versión vigente del documento, en lugar de la anterior: desde ese momento su dirección lo
+     * muestra (textos-legales-E04). No lo cambia. Falso si el almacenamiento no lo guardó: la versión anterior se queda.
+     */
+    public function cargar(string $documento, string $texto): bool
+    {
+        return $this->disco()->put($this->archivo($documento), $texto);
+    }
+
+    /**
+     * La dirección pública del documento, la de su ruta. No cambia con una versión nueva.
+     */
+    public function direccion(string $documento): string
+    {
+        return route("textos-legales.{$documento}");
     }
 
     private function archivo(string $documento): string

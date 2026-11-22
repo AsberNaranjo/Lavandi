@@ -59,6 +59,36 @@ dependencias.
 5. **El diseño:** el de la portada (`publico.layout`, los tokens de ADR-0013), con un encabezado mínimo que lleva el
    nombre y el logo de la configuración de vuelta a la portada. El pie legal lo pone `landing` (tarea 6.1).
 
+### Una versión nueva (tarea 1.2, 2026-11-22)
+
+6. **Se carga con un comando, sin pantalla:** `php artisan textos-legales:cargar <documento> <archivo>`, con
+   `aviso-de-privacidad` o `terminos` y el archivo de texto UTF-8 de la versión nueva
+   (`servidor/app/Console/Commands/CargarTextoLegal.php`). Deja el archivo tal cual en el almacenamiento del entorno, en
+   lugar del anterior, y la misma dirección lo muestra desde ese momento (textos-legales-E04). Un documento que no
+   existe, un archivo que no se lee, vacío o que no está en UTF-8 no se carga, y la versión publicada se queda. Es la
+   misma forma de cargar datos sin programar que `plazas:cargar`; el Módulo D no enumera una pantalla para esto
+   (`NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`). Por decisión de Claude, por delegación de Arthur (C-236).
+   - No guarda las versiones anteriores: el sitio publica solo la vigente, y llevar el historial de los avisos es de EL
+     CLIENTE como responsable de los datos (`NSV-2026-001-v8.pdf:10:Cláusula X`). Si el bucket del entorno tiene
+     versiones activadas, ahí quedan.
+   - Para cargar en producción (textos-legales-E03, bloqueada por DD-080) se corre en el servidor de producción, con su
+     `.env`.
+
+### Las direcciones, para la app y las tiendas
+
+- **Aviso de privacidad:** `GET /aviso-de-privacidad`, ruta `textos-legales.aviso-de-privacidad`.
+- **Términos y condiciones:** `GET /terminos`, ruta `textos-legales.terminos`.
+- Las dos cuelgan de `APP_URL` del entorno: en producción, `https://lavandi.mx/aviso-de-privacidad` y
+  `https://lavandi.mx/terminos` cuando el dominio esté activo; en local, `http://localhost:8000/aviso-de-privacidad` y
+  `http://localhost:8000/terminos` con `php artisan serve`. Se abren sin sesión, responden 200 y no cambian con una
+  versión nueva: son las que se declaran en las fichas de las tiendas (`publicacion`) y las que enlaza el pie de la
+  landing.
+- **La app las toma de su configuración, no del código** (textos-legales-E05, tarea 2.1):
+  `EXPO_PUBLIC_AVISO_DE_PRIVACIDAD_URL` y `EXPO_PUBLIC_TERMINOS_URL`, de `movil/.env.example`, que ya lee
+  `movil/src/configuracion/entorno.ts` (`direccionDelAvisoDePrivacidad()` y `direccionDeLosTerminos()`) y que usa el
+  registro. En cada entorno valen la dirección completa de arriba con el `APP_URL` del
+  servidor de ese entorno. El servidor no da una ruta de la API para ellas: no hace falta.
+
 ## Tablas y migración
 
 No crea tablas ni migraciones, y no lee ni escribe ninguna tabla de `vault/arquitectura/modelo-de-datos.md` (ADR-0016).
