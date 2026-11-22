@@ -13,6 +13,16 @@
 return [
 
     /*
+     * Cada cuánto se refrescan solos los indicadores con la página abierta, en el formato del sondeo de Livewire: "30s"
+     * o "1500ms" (NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.4; indicadores-E21).
+     *
+     * Cuánto es "en tiempo real" para los indicadores es DD-116 y necesita ADR (indicadores-E22): ADR-0007 fija 30 s
+     * para los pedidos activos, no para los indicadores. Mientras no se decida va vacío, y los widgets no sondean: las
+     * cifras se actualizan al abrir o recargar la página.
+     */
+    'refresco' => env('INDICADORES_REFRESCO'),
+
+    /*
      * Los dos cortes del semáforo del ranking de lavanderías, en estrellas de 1 a 5 (NSV-2026-001-v8.pdf:22:ANEXO A,
      * Sección A.5, "Ranking con semáforo"; indicadores-E13). Verde desde el corte alto; amarillo desde el bajo y por
      * debajo del alto; rojo por debajo del bajo.

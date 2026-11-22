@@ -31,6 +31,7 @@ class PedidosTotalesTabla extends TableWidget
                 TextColumn::make('periodo_anterior')->label('Periodo anterior'),
                 TextColumn::make('pedidos_anterior')->label('Pedidos del periodo anterior')->numeric(),
             ])
-            ->paginated(false);
+            ->paginated(false)
+            ->poll(fn (): ?string => $this->getPollingInterval());
     }
 }

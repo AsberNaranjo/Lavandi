@@ -33,7 +33,8 @@ class RetencionTabla extends TableWidget
                     ->formatStateUsing(fn (?float $state): ?string => $state === null ? null : self::porcentaje($state))
                     ->placeholder('—'),
             ])
-            ->paginated(false);
+            ->paginated(false)
+            ->poll(fn (): ?string => $this->getPollingInterval());
     }
 
     /**

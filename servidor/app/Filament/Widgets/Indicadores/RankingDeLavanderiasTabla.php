@@ -40,6 +40,7 @@ class RankingDeLavanderiasTabla extends TableWidget
                     ->badge()
                     ->placeholder(fn (): string => CortesDelSemaforo::deLaConfiguracion() === null ? 'Sin cortes configurados' : '—'),
             ])
-            ->paginated(false);
+            ->paginated(false)
+            ->poll(fn (): ?string => $this->getPollingInterval());
     }
 }

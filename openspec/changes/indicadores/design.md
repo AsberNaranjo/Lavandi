@@ -130,6 +130,11 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
   una insignia con su texto (Verde, Amarillo, Rojo). Mientras DD-114 no dé los valores, los cortes van vacíos y la
   columna dice "Sin cortes configurados"; unos cortes fuera de 1 a 5, o con el bajo arriba del alto, cuentan como
   vacíos.
+- **El refresco** es el sondeo de Livewire de cada widget (`wire:poll`), la consulta periódica de ADR-0007: la gráfica
+  llama a `updateChartData` y la tabla se vuelve a dibujar, sin recargar la página. El intervalo es
+  `INDICADORES_REFRESCO` en `config/indicadores.php`, como "30s" o "1500ms". Mientras DD-116 no tenga su ADR va
+  vacío: ningún widget sondea (también se quitan los 5 s que trae la gráfica de Filament) y la página dice que las
+  cifras se actualizan al abrir o recargar. Con intervalo, la página dice cada cuánto.
 
 ## Open Questions
 

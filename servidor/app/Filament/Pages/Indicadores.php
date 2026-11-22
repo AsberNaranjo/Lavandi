@@ -11,6 +11,7 @@ use App\Filament\Widgets\Indicadores\RetencionTabla;
 use App\Filament\Widgets\Indicadores\UsuariosActivosGrafica;
 use App\Indicadores\Granularidad;
 use App\Indicadores\Rango;
+use App\Indicadores\Refresco;
 use App\Models\Usuario;
 use BackedEnum;
 use Filament\Facades\Filament;
@@ -54,6 +55,14 @@ class Indicadores extends Dashboard
         $cuenta = Filament::auth()->user();
 
         return $cuenta instanceof Usuario && app(Autorizacion::class)->puedeVerLosIndicadores($cuenta);
+    }
+
+    /**
+     * Cada cuánto se refrescan solas las cifras, o que se actualizan al recargar (indicadores-E21; DD-116).
+     */
+    public function getSubheading(): string
+    {
+        return Refresco::descripcion();
     }
 
     public function filtersForm(Schema $schema): Schema
