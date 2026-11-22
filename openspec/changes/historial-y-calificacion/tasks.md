@@ -4,13 +4,13 @@ M = 5 h, L = 12 h.
 
 ## 0. Base de datos (`servidor/`)
 
-- [ ] 0.1 historial-E13 y modelo-E01 a modelo-E17 sobre `calificaciones`: migración que la completa con la llave compuesta `(id_pedidos, id_plazas)` hacia `pedidos` (índice y `ON DELETE RESTRICT`), `id_lavanderias` opcional, el `CHECK` de exactamente uno de los dos y los únicos por pedido y calificado; el modelo de Eloquent `Calificacion` (de `perfil-de-lavanderia`) recibe su `belongsTo` hacia `Pedido` con `id_pedidos`. La llave hacia `repartidores` la agrega `repartidor` — test: `servidor/tests/Feature/Historial/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` — tamaño S
+- [x] 0.1 historial-E13 y modelo-E01 a modelo-E17 sobre `calificaciones`: migración que la completa con la llave compuesta `(id_pedidos, id_plazas)` hacia `pedidos` (índice y `ON DELETE RESTRICT`), `id_lavanderias` opcional, el `CHECK` de exactamente uno de los dos y los únicos por pedido y calificado; el modelo de Eloquent `Calificacion` (de `perfil-de-lavanderia`) recibe su `belongsTo` hacia `Pedido` con `id_pedidos`. La llave hacia `repartidores` la agrega `repartidor` — test: `servidor/tests/Feature/Historial/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` — tamaño S
 
 ## 1. Servidor (`servidor/`)
 
 - [x] 1.1 historial-E01 y historial-E02: API de la lista de pedidos del usuario, con folio, fecha, lavandería y estado, solo los suyos — test: `servidor/tests/Feature/Historial/ListaDePedidosTest.php` — tamaño S
 - [x] 1.2 historial-E03 y historial-E04: filtro por rango sobre la fecha del resumen, con los días en la zona horaria de la plaza — test: `servidor/tests/Feature/Historial/FiltroPorFechaTest.php` — tamaño S
-- [ ] 1.3 historial-E06, historial-E07, historial-E08, historial-E09 e historial-E12: guardar la calificación del servicio de 1 a 5 con comentario opcional, solo sobre pedidos propios, ligada a la lavandería del pedido — test: `servidor/tests/Feature/Historial/CalificacionTest.php` — tamaño S
+- [x] 1.3 historial-E06, historial-E07, historial-E08, historial-E09 e historial-E12: guardar la calificación del servicio de 1 a 5 con comentario opcional, solo sobre pedidos propios, ligada a la lavandería del pedido — test: `servidor/tests/Feature/Historial/CalificacionTest.php` — tamaño S
 
 ## 2. App (`movil/`)
 

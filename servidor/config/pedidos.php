@@ -28,4 +28,11 @@ return [
      */
     'motivo_de_rechazo_maximo' => 500,
 
+    /*
+     * El largo máximo, en caracteres, del comentario opcional de la calificación del servicio. El contrato pide el
+     * comentario y no le pone largo (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo A #14): es un límite técnico,
+     * configurable, para proteger la tabla (openspec/changes/historial-y-calificacion/design.md, "La calificación").
+     */
+    'comentario_de_calificacion_maximo' => 1000,
+
 ];

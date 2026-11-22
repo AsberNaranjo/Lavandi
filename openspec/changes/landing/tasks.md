@@ -43,7 +43,7 @@ Las pruebas de navegador son de Playwright desde Node (`design.md`, pregunta abi
 
 ## 6. Pie legal
 
-- [ ] 6.1 landing-E24, landing-E25: pie en cada página pública con los enlaces al aviso y a los términos y el aviso de derechos de autor de la configuración — test: `servidor/tests/Feature/Landing/PieLegalTest.php` — tamaño S
+- [x] 6.1 landing-E24, landing-E25: pie en cada página pública con los enlaces al aviso y a los términos y el aviso de derechos de autor de la configuración — test: `servidor/tests/Feature/Landing/PieLegalTest.php` — tamaño S
 
 ## 7. Acreditación
 

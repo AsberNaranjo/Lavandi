@@ -6,6 +6,7 @@ use App\Models\Concerns\TieneIdPublico;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Un pedido: siempre de la plaza de su lavandería, de una cuenta, con su ventana de recolección, su estado actual y sus
@@ -299,5 +300,28 @@ class Pedido extends Modelo
     public function eventos(): HasMany
     {
         return $this->hasMany(PedidoEvento::class, 'id_pedidos');
+    }
+
+    /**
+     * Las calificaciones del pedido, una por calificado: la de su lavandería y, si DD-052 lo pide, la de su repartidor
+     * (historial-E13).
+     *
+     * @return HasMany<Calificacion, $this>
+     */
+    public function calificaciones(): HasMany
+    {
+        return $this->hasMany(Calificacion::class, 'id_pedidos');
+    }
+
+    /**
+     * La calificación del servicio que hizo el usuario: la de la lavandería del pedido (historial-E12;
+     * App\Calificaciones\CalificacionDelServicio). Vacía mientras no lo califique. La del repartidor, si DD-052 la
+     * pide, no lleva lavandería y no entra.
+     *
+     * @return HasOne<Calificacion, $this>
+     */
+    public function calificacionDelServicio(): HasOne
+    {
+        return $this->hasOne(Calificacion::class, 'id_pedidos')->whereNotNull('id_lavanderias');
     }
 }
