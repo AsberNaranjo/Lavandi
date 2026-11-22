@@ -6,6 +6,7 @@ import { MENSAJES } from '../acceso/mensajes';
 import type { Ventana } from '../agenda/api';
 import { eleccionEnTexto } from '../agenda/textos';
 import { mensajeDeLaFalla } from '../cercanas/textos';
+import { TEXTOS_DEL_HISTORIAL_DE_LA_LAVANDERIA } from '../historial-lavanderia/textos';
 import { TEXTOS_DEL_RESUMEN } from '../pedido/textos';
 import { TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA } from '../pedidos-lavanderia/textos';
 import type { FallaDelRepartidor, LavanderiaDelPedido, PedidoDelRepartidor } from './api';
@@ -77,6 +78,13 @@ export const TEXTOS_DEL_REPARTIDOR = {
   historialDeEntregas: 'Historial de entregas',
   cargandoElHistorial: 'Cargando tu historial…',
   sinEntregas: 'Todavía no tienes entregas completadas.',
+  // Las estadísticas (repartidor-E28), con los títulos de la imagen c05-estadisticas. "Del día" y "de la semana" se
+  // cuentan en la hora de la plaza, de lunes a domingo (design.md, lectura 5).
+  misEstadisticas: 'Mis estadísticas',
+  cargandoLasEstadisticas: 'Cargando tus estadísticas…',
+  entregasDeHoy: 'Entregas de hoy',
+  entregasDeLaSemana: 'Entregas de esta semana',
+  laSemana: TEXTOS_DEL_HISTORIAL_DE_LA_LAVANDERIA.laSemana,
   // El 409 sin mensaje del servidor: el pedido ya cambió. El servidor manda el suyo: "La oferta ya fue respondida.",
   // "Primero acepta el pedido." o "Ese no es el paso siguiente del pedido.".
   yaCambio: 'El pedido ya cambió. Revisa cómo está.',

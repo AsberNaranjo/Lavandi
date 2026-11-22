@@ -16,6 +16,9 @@ export const RUTA_DE_LOS_PEDIDOS_DEL_REPARTIDOR: Href = '/repartidor/pedidos';
 /** Su historial de entregas, que se abre desde sus pedidos (repartidor-E25). */
 export const RUTA_DEL_HISTORIAL_DEL_REPARTIDOR: Href = '/repartidor/historial';
 
+/** Sus estadísticas, que se abren desde sus pedidos (repartidor-E28). */
+export const RUTA_DE_LAS_ESTADISTICAS_DEL_REPARTIDOR: Href = '/repartidor/estadisticas';
+
 /** La entrega de un pedido, con su foto de evidencia (repartidor-E23). */
 export function rutaDeLaEntrega(idPublico: string): Href {
   return { pathname: '/repartidor/pedidos/entrega/[id]', params: { id: idPublico } };

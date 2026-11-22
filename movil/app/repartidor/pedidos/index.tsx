@@ -29,6 +29,7 @@ import { TarjetaDePedidoDeRepartidor } from '../../../src/piezas/TarjetaDePedido
 import { Titulo } from '../../../src/piezas/Titulo';
 import { ESTADO_ENTREGADO } from '../../../src/repartidor/api';
 import {
+  RUTA_DE_LAS_ESTADISTICAS_DEL_REPARTIDOR,
   RUTA_DEL_HISTORIAL_DEL_REPARTIDOR,
   rutaDeLaEntrega,
   rutaDelRechazoDelRepartidor,
@@ -55,6 +56,10 @@ export default function PedidosDelRepartidor() {
         <Enlace
           texto={TEXTOS.historialDeEntregas}
           alTocar={() => router.push(RUTA_DEL_HISTORIAL_DEL_REPARTIDOR)}
+        />
+        <Enlace
+          texto={TEXTOS.misEstadisticas}
+          alTocar={() => router.push(RUTA_DE_LAS_ESTADISTICAS_DEL_REPARTIDOR)}
         />
       </View>
       <MensajeDeError texto={acciones.aviso ?? undefined} />

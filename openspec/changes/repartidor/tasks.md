@@ -26,7 +26,7 @@ fábrica.
 - [x] 2.4 repartidor-E19 y repartidor-E20: botones Recolectado, En tránsito y Entregado, en orden — test: `movil/__tests__/repartidor/estados.test.tsx` — tamaño S
 - [x] 2.5 repartidor-E23: foto de evidencia al marcar Entregado — test: `movil/__tests__/repartidor/evidencia.test.tsx` — tamaño S
 - [x] 2.6 repartidor-E25: pantalla del historial de entregas — test: `movil/__tests__/repartidor/historial.test.tsx` — tamaño S
-- [ ] 2.7 repartidor-E28: pantalla de estadísticas — test: `movil/__tests__/repartidor/estadisticas.test.tsx` — tamaño S
+- [x] 2.7 repartidor-E28: pantalla de estadísticas — test: `movil/__tests__/repartidor/estadisticas.test.tsx` — tamaño S
 
 ## 3. Bloqueadas: no entran al sprint hasta cerrar su fila
 

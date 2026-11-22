@@ -35,6 +35,8 @@ export const CONTRATO_DEL_REPARTIDOR = {
   foto: 'foto',
   /** GET: { "<lista>": PedidoEntregado[] }, sus entregas completadas, de la más reciente a la más antigua (E25). */
   historial: 'repartidor/historial',
+  /** GET: { "entregas_del_dia": n, "entregas_de_la_semana": n } (E28). */
+  estadisticas: 'repartidor/estadisticas',
   /** La foto en el formulario: JPEG, porque así la deja la compresión (src/alta-lavanderias/foto.ts). */
   nombreDeLaFoto: 'foto.jpg',
   tipoDeLaFoto: 'image/jpeg',
@@ -308,6 +310,38 @@ export async function consultarHistorialDelRepartidor(token: string): Promise<Re
     return { ok: false, motivo: 'servidor' };
   }
   return { ok: true, datos: entregas as PedidoEntregado[] };
+}
+
+/** Sus entregas completadas del día y de la semana, de lunes a domingo, en la zona horaria de su plaza. */
+export interface EstadisticasDelRepartidor {
+  entregas_del_dia: number;
+  entregas_de_la_semana: number;
+}
+
+/**
+ * GET de sus estadísticas, con la sesión (repartidor-E28): las mismas entregas del historial, contadas por el servidor
+ * en la hora de su plaza. Sin ingreso total acumulado: espera DD-019 y DD-013 (repartidor-E29).
+ */
+export async function consultarEstadisticasDelRepartidor(
+  token: string,
+): Promise<ResultadoDelRepartidor<EstadisticasDelRepartidor>> {
+  const resultado = await pedirDelRepartidor(CONTRATO_DEL_REPARTIDOR.estadisticas, { metodo: 'GET', token });
+  if (!resultado.ok) {
+    return resultado;
+  }
+  const datos = resultado.datos;
+  if (!esObjeto(datos) || !esConteo(datos.entregas_del_dia) || !esConteo(datos.entregas_de_la_semana)) {
+    return { ok: false, motivo: 'servidor' };
+  }
+  return {
+    ok: true,
+    datos: { entregas_del_dia: datos.entregas_del_dia, entregas_de_la_semana: datos.entregas_de_la_semana },
+  };
+}
+
+// Un conteo: un número entero, cero o más.
+function esConteo(valor: unknown): valor is number {
+  return typeof valor === 'number' && Number.isInteger(valor) && valor >= 0;
 }
 
 /** El estado del botón Entregado, el único que lleva la foto de evidencia (repartidor-E23). */

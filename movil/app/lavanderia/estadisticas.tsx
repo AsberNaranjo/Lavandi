@@ -5,7 +5,8 @@
 // los mensajes generales de la app.
 //
 // La composición sigue la imagen b05-estadisticas de la Propuesta 04: una tarjeta con una fila por cifra, con los números
-// tabulares (design system, reglas transversales). Del mock no entran el ingreso total (DD-013, DD-020 y DD-012), la
+// tabulares (design system, reglas transversales), la de src/piezas/TarjetaDeCifras.tsx, que comparte con las
+// estadísticas del repartidor. Del mock no entran el ingreso total (DD-013, DD-020 y DD-012), la
 // calificación promedio (DD-052) ni la actividad por día de la semana (proposal.md, "Fuera del contrato").
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
@@ -18,8 +19,9 @@ import { RUTA_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA } from '../../src/pedidos-lavander
 import { MensajeDeError } from '../../src/piezas/MensajeDeError';
 import { Pantalla } from '../../src/piezas/Pantalla';
 import { Parrafo } from '../../src/piezas/Parrafo';
+import { TarjetaDeCifras } from '../../src/piezas/TarjetaDeCifras';
 import { letra } from '../../src/tema/letra';
-import { color, espaciado, grosor, radio, tipografia } from '../../src/tema/theme';
+import { color, espaciado, tipografia } from '../../src/tema/theme';
 
 export default function EstadisticasDeLaLavanderia() {
   const regresar = useRegresar(RUTA_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA);
@@ -35,30 +37,21 @@ export default function EstadisticasDeLaLavanderia() {
       ) : null}
       {estado.fase === 'lista' ? (
         <>
-          <View style={estilos.tarjeta}>
-            <Cifra testID="pedidos-del-dia" etiqueta={TEXTOS.pedidosDelDia} valor={estado.datos.pedidos_del_dia} />
-            <View style={estilos.separador} />
-            <Cifra
-              testID="pedidos-de-la-semana"
-              etiqueta={TEXTOS.pedidosDeLaSemana}
-              valor={estado.datos.pedidos_de_la_semana}
-            />
-          </View>
+          <TarjetaDeCifras
+            cifras={[
+              { testID: 'pedidos-del-dia', etiqueta: TEXTOS.pedidosDelDia, valor: estado.datos.pedidos_del_dia },
+              {
+                testID: 'pedidos-de-la-semana',
+                etiqueta: TEXTOS.pedidosDeLaSemana,
+                valor: estado.datos.pedidos_de_la_semana,
+              },
+            ]}
+          />
           <Parrafo alineacion="inicio">{TEXTOS.laSemana}</Parrafo>
         </>
       ) : null}
       <MensajeDeError texto={estado.fase === 'error' ? mensajeDeLaFalla(estado.falla) : undefined} />
     </Pantalla>
-  );
-}
-
-// Una fila de la tarjeta: lo que cuenta a la izquierda y la cifra a la derecha. Se lee en un solo anuncio.
-function Cifra({ testID, etiqueta, valor }: { testID: string; etiqueta: string; valor: number }) {
-  return (
-    <View accessible accessibilityLabel={`${etiqueta}: ${valor}`} testID={testID} style={estilos.fila}>
-      <Text style={[estilos.etiqueta, letra('cuerpo', 'regular')]}>{etiqueta}</Text>
-      <Text style={[estilos.valor, letra('titulares', 'fuerte')]}>{String(valor)}</Text>
-    </View>
   );
 }
 
@@ -71,35 +64,5 @@ const estilos = StyleSheet.create({
   suave: {
     color: color.semantico.texto_suave,
     fontSize: tipografia.escala.cuerpo,
-  },
-  tarjeta: {
-    paddingHorizontal: espaciado[4],
-    paddingVertical: espaciado[2],
-    borderWidth: grosor.control,
-    borderColor: color.semantico.borde,
-    borderRadius: radio.grande,
-    backgroundColor: color.semantico.superficie,
-  },
-  fila: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: espaciado[3],
-    paddingVertical: espaciado[3],
-  },
-  separador: {
-    height: grosor.control,
-    backgroundColor: color.semantico.borde,
-  },
-  etiqueta: {
-    flex: 1,
-    color: color.semantico.texto,
-    fontSize: tipografia.escala.cuerpo,
-  },
-  // Los números tabulares, para que las cifras no bailen (design system, reglas transversales).
-  valor: {
-    color: color.semantico.texto,
-    fontSize: tipografia.escala.titulo_menor,
-    fontVariant: ['tabular-nums'],
   },
 });
