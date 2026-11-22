@@ -46,6 +46,75 @@ Dos decisiones de implementación de la lista (tareas 1.1 y 1.2). Las tomó Clau
 5. **La lista no se pagina por ahora.** Entrega todos los pedidos de la cuenta, o todos los del rango. Ni el contrato ni
    la spec piden páginas, y un usuario tiene pocos pedidos al principio de la operación. El riesgo queda en Risks.
 
+## La calificación: lectura provisional (tarea 1.3)
+
+La tomó Claude por delegación de Arthur (C-236), el 2026-11-22, con la tarea 1.3. No resuelve BR-25 ni DD-107:
+historial-E10 sigue bloqueado y la tarea 3.2 la reemplaza. Tampoco DD-052: historial-E11 y E14 siguen bloqueados.
+
+6. **Mientras BR-25 no responda, solo se califica un pedido Entregado, una vez y sin plazo.** E06 a E09 parten de un
+   pedido Entregado, el caso que vale con cualquier respuesta (decisión 3). Para lo demás se toma lo más estrecho, que
+   cualquier respuesta solo puede ampliar sin romper lo ya guardado:
+   - un pedido propio que todavía no está Entregado (espera su pago, está en curso o lo rechazó la lavandería) responde
+     `409` "Este pedido todavía no se puede calificar." y no guarda nada;
+   - un pedido ya calificado responde `409` "Este pedido ya está calificado." y su calificación queda como estaba. Una
+     segunda fila tampoco cabe en la base: el único por pedido y lavandería (historial-E13);
+   - no hay plazo para calificar: inventarlo sería fijar BR-25.
+
+   Alternativa descartada: no revisar el estado, que dejaría calificar un pedido sin pagar o sin entregar, y que la
+   respuesta a BR-25 tendría que deshacer borrando calificaciones. Las dos pruebas que fijan esta lectura llevan
+   "lectura provisional" en su nombre (`servidor/tests/Feature/Historial/CalificacionTest.php`).
+7. **El comentario se topa en 1000 caracteres** (`pedidos.comentario_de_calificacion_maximo`). El contrato no le pone
+   largo: es un límite técnico, configurable, como el del motivo del rechazo (500) y el del reporte de soporte (5000).
+   Se guarda tal como llega, sin los espacios de los extremos; vacío o solo con espacios es "sin comentario" (E06).
+8. **Dónde vive:** `App\Calificaciones\CalificacionDelServicio` guarda la fila con el pedido, su plaza, su lavandería y
+   la cuenta que lo hizo, sin repartidor (E12), en el componente `calificaciones` de `vault/arquitectura/c3-api.md`. De
+   quién es el pedido lo decide `App\Autorizacion\Autorizacion::pedidosVisibles()` antes de llegar ahí (E09). El
+   historial la muestra en cada pedido (E06) con la relación `Pedido::calificacionDelServicio()`.
+
+## Contrato de la API: la calificación
+
+Lo implementa la tarea 1.3. La forma exacta vive también en
+`servidor/app/Http/Controllers/Api/CalificacionesController.php`. La app (tarea 2.3) se construye contra él.
+
+```
+POST /api/pedidos/{id_publico}/calificacion
+Authorization: Bearer <token de la sesión>        (auth:sanctum y autorizar:usuario)
+Content-Type: application/json
+
+{ "estrellas": 4, "comentario": "La ropa llegó limpia." }
+```
+
+- **Ruta:** `{id_publico}` es el ULID del pedido, el de `GET /api/pedidos`, en mayúsculas o en minúsculas.
+- **Cuerpo:**
+  - `estrellas`, obligatoria: un número entero de 1 a 5;
+  - `comentario`, opcional: texto de hasta 1000 caracteres. `null`, vacío o solo con espacios es una calificación sin
+    comentario;
+  - cualquier otro campo se ignora: ni la lavandería ni el repartidor se eligen desde la app (DD-052).
+- **Respuesta**, `201`:
+
+  ```json
+  { "calificacion": { "estrellas": 4, "comentario": "La ropa llegó limpia." } }
+  ```
+
+  Sin comentario, `"comentario": null`.
+- **Errores**, en este orden de revisión. En ninguno se guarda la calificación:
+  - `401` sin sesión;
+  - `403` `{ "message": "Esta cuenta no tiene acceso." }` si la cuenta no tiene el rol de usuario, como la de una
+    lavandería o un repartidor;
+  - `422` con un error por campo y `message` con el primero. Se revisa antes de buscar el pedido, así que no dice nada
+    de él:
+    - `errors.estrellas`: "Elige de 1 a 5 estrellas." (falta o llega `null`), "Las estrellas van como un número entero
+      de 1 a 5." (4.5, "cuatro") o "Las estrellas van de 1 a 5." (0, 6, -1);
+    - `errors.comentario`: "El comentario va en texto." o "El comentario no puede pasar de 1000 caracteres.";
+  - `404` `{ "message": "No existe el pedido." }` si el pedido es de otra cuenta, no existe o el valor no es un ULID,
+    como un folio: los tres responden igual (historial-E09; ADR-0019, decisión 3);
+  - `409` `{ "message": "Este pedido todavía no se puede calificar." }` si el pedido propio no está Entregado, y `409`
+    `{ "message": "Este pedido ya está calificado." }` si ya tiene su calificación. Los dos son la lectura provisional
+    de la decisión 6: cuando BR-25 responda, pueden cambiar.
+- **El historial lo muestra calificado** (historial-E06): cada pedido de `GET /api/pedidos` trae ahora
+  `"calificacion": null` mientras no se califique, y `"calificacion": { "estrellas": 4, "comentario": … }` después. Es
+  un campo nuevo al final de cada pedido; la app que no lo lea sigue funcionando.
+
 ## Tablas y migración
 
 Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cambio **no crea tablas: completa
@@ -118,11 +187,15 @@ Authorization: Bearer <token de la sesión>        (auth:sanctum y autorizar:usu
         "folio": "X4TCWWR5",
         "fecha": "2026-12-03",
         "lavanderia": { "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1u", "nombre": "Lavandería de prueba 1" },
-        "estado": { "codigo": "entregado", "nombre": "Entregado", "visible_usuario": true }
+        "estado": { "codigo": "entregado", "nombre": "Entregado", "visible_usuario": true },
+        "calificacion": null
       }
     ]
   }
   ```
+
+  `calificacion` lo agregó la tarea 1.3: vacía mientras el pedido no se califique, y con sus estrellas y su comentario
+  después ("Contrato de la API: la calificación").
 
 - **Qué pedidos entran:**
   - solo los de la cuenta de la sesión (historial-E02), por `App\Autorizacion\Autorizacion::pedidosVisibles()`

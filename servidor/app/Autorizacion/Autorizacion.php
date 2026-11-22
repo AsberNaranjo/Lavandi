@@ -156,8 +156,9 @@ final class Autorizacion
 
     /**
      * Los pedidos que la cuenta ve: solo los que hizo (confirmacion-E12 e historial-E02; NSV-2026-001-v8.pdf:20:ANEXO A,
-     * Sección A.3). Toda consulta de pedidos de la API para el usuario parte de aquí, también su historial. Los de la
-     * lavandería y el repartidor, con su tenencia y su plaza, llegan con autorizacion-por-rol (H5).
+     * Sección A.3). Toda consulta de pedidos de la API para el usuario parte de aquí, también su historial y la
+     * calificación del servicio, que solo se hace sobre un pedido propio (historial-E09). Los de la lavandería y el
+     * repartidor, con su tenencia y su plaza, llegan con autorizacion-por-rol (H5).
      *
      * @return Builder<Pedido>
      */
