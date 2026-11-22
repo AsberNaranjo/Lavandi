@@ -37,8 +37,8 @@
   el registro para la conciliación, la ausencia de datos de tarjeta y las llaves por entorno.
 - Integrar Conekta, la pasarela vigente, detrás de la interfaz neutral: la autenticidad de sus avisos, su orden y su
   checkout, la traducción de sus avisos y la prueba contra su sandbox (sección 3 de `tasks.md`).
-- Que la app espere la confirmación sin dar el pago por bueno. Cómo abre el pago la app espera pago-E02 (DD-055,
-  DD-079).
+- Que la app espere la confirmación sin dar el pago por bueno. Cómo abre el pago la app lo fija pago-E02, con la
+  decisión 32 (adenda del 2026-11-22 de ADR-0010).
 
 **Non-Goals:**
 
@@ -136,8 +136,8 @@ DD-079) y `movimientos_pasarela`
   Conekta lo dice ese ADR. Mientras no se firme, no se construye nada de Stripe ni de Mercado Pago.
 - [El efectivo sigue abierto (DD-056)] → pago-E12, pago-E13 y pago-E20 quedan bloqueados. **El resultado de H4 que
   promete el plan, "pago con tarjeta y en efectivo en el sandbox", no está listo:** la tarjeta ya se integra en
-  `servidor/` con el sandbox de Conekta, pero la pantalla que la cobra espera pago-E02 (DD-055, DD-079), y el efectivo
-  espera DD-056. El plan ya dice que, si DD-012 y DD-079 no llegan antes del 18 de enero, H4 se salta y entra H5.
+  `servidor/` con el sandbox de Conekta y la pantalla que la cobra ya tiene su regla (pago-E02, decisión 32), pero el
+  efectivo espera DD-056. El plan ya dice que, si DD-012 y DD-079 no llegan antes del 18 de enero, H4 se salta y entra H5.
 - [Conekta, o la que se elija si se firma el cambio, no permite apartar el monto, ni ajustes, ni fijar el vencimiento
   del efectivo] → Con Conekta se ve en su sandbox (tareas 3.2 y 3.3; el efectivo, cuando DD-056 lo desbloquee); con la
   elegida, al escribir su ADR. Si cambia el mecanismo, cambian pago-E01, pago-E15 y pago-E20.
@@ -145,8 +145,8 @@ DD-079) y `movimientos_pasarela`
   `jsonb`. Antes de guardar `contenido` se quita cualquier dato de tarjeta que no sea la marca y los últimos cuatro
   dígitos (`:20:A.3`; modelo-E13); qué trae cada aviso se confirma con las cargas del sandbox de Conekta (tarea 3.2) y,
   si se firma el cambio, con las de la elegida.
-- [El ADR de la pasarela decide capturar la tarjeta dentro de la app (C-198), en lugar del checkout redirigido] →
-  Cambian pago-E02, pago-E01, pago-E08 y la tarea 3.2, es decir, la pantalla de pago y el arranque del cobro; la orden,
+- [Nadir confirma que C-198 pide los campos de la tarjeta en la app, o el formulario nativo de la pasarela llega a 1.0
+  (criterio de reversión de la adenda de ADR-0010)] → Cambian pago-E02, pago-E01, pago-E08 y la tarea 3.2, es decir, la pantalla de pago y el arranque del cobro; la orden,
   los avisos y la conciliación se conservan (ADR-0010, costo estimado de revertir).
 - [El usuario vuelve a la app antes que el webhook] → pago-E07 y pago-E08: la app espera; el servidor no se fía de la
   app.
@@ -168,14 +168,18 @@ DD-079) y `movimientos_pasarela`
 - **Contrato contra ADR-0010: ¿se paga dentro de la app?** El contrato dice "Permite que el usuario pague dentro de la
   aplicación" (`NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`); ADR-0010 dice que "el usuario sale un momento de la app
   para pagar". Manda el contrato, y pago-E02 lo escribe así: el checkout se abre en la vista de navegador del sistema
-  presentada dentro de la app, no cambiando a Safari o a Chrome. Con qué módulo (por ejemplo `expo-web-browser`, grado
-  E, `SIN VERIFICAR`) y cómo se ve en iPhone y en Android lo decide Arthur (DD-102, punto 1). Además, C-198 dice que la
-  tarjeta se captura dentro de la app, lo que choca con el checkout redirigido de ADR-0010: capturarla dentro de la app
-  o redirigir se decide con el ADR de la pasarela (DD-055, DD-079). **pago-E02 queda bloqueado hasta entonces.**
+  presentada dentro de la app, no cambiando a Safari o a Chrome. **Resuelta por la decisión 32** de
+  `acta-2026-11-20-modelo-y-pasarela.md`, con la adenda del 2026-11-22 de ADR-0010 (Claude, por delegación de Arthur,
+  C-236): la tarjeta se escribe en el checkout de la pasarela, en la vista de navegador del sistema presentada dentro de
+  la app con `expo-web-browser` (`openAuthSessionAsync` con la dirección de regreso; en iPhone, con
+  `preferEphemeralSession`), y ninguna pantalla de la app tiene campos de tarjeta. Cierra la segunda parte de DD-055 y
+  el punto 1 de DD-102, y desbloquea pago-E02. Si Nadir confirma que C-198 pide los campos de la tarjeta en la app, se
+  pasa al formulario nativo de la pasarela, como dice el criterio de reversión de la adenda.
 - **Las llaves de Conekta en `verificar_secretos.py`** (DD-102, punto 3): hoy no las detecta. Recomendación: agregarlas
   antes de que existan llaves de su sandbox en la máquina local (tarea 3.3). Las de la elegida, si se firma el cambio.
-- **Cada cuánto consulta la app en "Procesando pago".** ADR-0007 fija 30 s para la pantalla del pedido; para el pago no
-  hay cifra. Si Arthur elige otra, se anota en el ADR de la pasarela.
+- **Cada cuánto consulta la app en "Procesando pago".** Resuelta por la decisión 32: cada 5 s, hasta 3 minutos. A los 3
+  minutos sin respuesta deja de esperar, muestra que el pago sigue en revisión y ofrece volver a consultar (adenda del
+  2026-11-22 de ADR-0010). ADR-0007 sigue fijando 30 s para la pantalla del pedido.
 - **El regreso a la app.** Las direcciones de éxito y de error del checkout usan el esquema de la app, que sale de la
   configuración; nunca la marca escrita a mano (`CLAUDE.md` §5).
 - **El estado de un intento rechazado.** pago-E04 deja reintentar el mismo cobro; si el cobro sigue `pendiente` o pasa a

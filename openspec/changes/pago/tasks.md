@@ -1,7 +1,8 @@
 Cada tarea va en rojo, verde y limpieza: primero el test con el identificador del escenario en su nombre, que falla;
-luego el código mínimo que lo pone en verde; luego la limpieza con el test en verde. pago-E02 está bloqueado (DD-055,
-DD-079); cuando se desbloquee, antes de implementarlo se resuelve la precisión de ADR-0010 que pide DD-102, punto 1 (ver
-`design.md`). Antes de pago-E09 se confirma en el sandbox de Conekta la del punto 2. Ninguna tarea de las secciones 1, 2
+luego el código mínimo que lo pone en verde; luego la limpieza con el test en verde. pago-E02 ya no está bloqueado: la
+decisión 32 de `acta-2026-11-20-modelo-y-pasarela.md`, con la adenda del 2026-11-22 de ADR-0010, fija que la tarjeta se
+escribe en el checkout de la pasarela, en la vista de navegador del sistema dentro de la app con `expo-web-browser`, y
+cierra la precisión que pedía DD-102, punto 1 (ver `design.md`). Antes de pago-E09 se confirma en el sandbox de Conekta la del punto 2. Ninguna tarea de las secciones 1, 2
 y 4 llama a un proveedor real: todas usan la pasarela simulada. La sección 3 llama solo a Conekta.
 
 ## 1. Servidor: tablas y base del cobro
@@ -32,8 +33,8 @@ adelanta nada para Stripe ni para Mercado Pago (`CLAUDE.md` §2-bis, punto 7).
 
 ## 4. App
 
-- [ ] 4.1 pago-E02: la pantalla de pago pide el checkout con el pedido y el método, y lo abre en el navegador del sistema dentro de la app — **bloqueada por DD-055 y DD-079:** capturar la tarjeta dentro de la app (C-198) contra el checkout redirigido de ADR-0010 se decide con el ADR de la pasarela — test: `movil/__tests__/pago/abrir-checkout.test.tsx` — tamaño M
-- [ ] 4.2 pago-E08: la espera "Procesando pago" consulta el cobro hasta que queda pagado o rechazado — test: `movil/__tests__/pago/procesando-pago.test.tsx` — tamaño M
+- [ ] 4.1 pago-E02: la pantalla de pago pide el checkout con el pedido y el método, y lo abre en el navegador del sistema dentro de la app, con `openAuthSessionAsync` de `expo-web-browser` y la dirección de regreso (en iPhone, con `preferEphemeralSession`), sin campos de tarjeta en ninguna pantalla (decisión 32; adenda del 2026-11-22 de ADR-0010) — test: `movil/__tests__/pago/abrir-checkout.test.tsx` — tamaño M
+- [ ] 4.2 pago-E08: la espera "Procesando pago" consulta el cobro cada 5 s hasta que queda pagado o rechazado, y a los 3 minutos deja de esperar y ofrece volver a consultar (decisión 32) — test: `movil/__tests__/pago/procesando-pago.test.tsx` — tamaño M
 
 ## 5. Bloqueados: no tienen tarea hasta que cierre su fila
 
@@ -55,11 +56,9 @@ La evidencia de A43-4 en sandbox (un pago de prueba en el checkout real, con su 
 ## Horas
 
 - **Banda media de S-006:** S = 2 h, M = 5 h.
-- **Listas (secciones 1, 2 y 3, y la tarea 4.2):** 41 h (5 M y 8 S). Antes eran 34 h (4 M y 7 S): entra la sección 3,
-  que ya no espera DD-079 (+12 h: 3.1 M, 3.2 M y 3.3 S), y sale la tarea 4.1, que queda bloqueada con pago-E02 (M,
-  −5 h). Diferencia: +7 h.
-- **Bloqueadas (tarea 4.1, por DD-055 y DD-079):** 5 h (1 M). Antes eran 12 h, la sección 3 por DD-079. Diferencia:
-  −7 h.
+- **Listas (las secciones 1 a 4):** 46 h (6 M y 8 S). Antes eran 41 h (5 M y 8 S): vuelve la tarea 4.1, que la
+  decisión 32 desbloqueó (M, +5 h). Diferencia: +5 h.
+- **Bloqueadas:** ninguna tarea. Antes, la 4.1, 5 h (1 M), por DD-055 y DD-079. Diferencia: −5 h.
 - **Total con tarea:** 46 h, sin cambio. Los escenarios de la sección 5 no tienen tarea ni horas.
-- **El plan:** le da a `pago` 12 h (F-A10, tamaño L, hito H4). Las listas quedan 29 h por encima (antes, 22); el total,
-  34 h por encima.
+- **El plan:** le da a `pago` 12 h (F-A10, tamaño L, hito H4). Las listas y el total quedan 34 h por encima (antes, las
+  listas 29 h).
