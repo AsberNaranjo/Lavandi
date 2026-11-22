@@ -1,0 +1,38 @@
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| El contenido de la landing
+|--------------------------------------------------------------------------
+|
+| NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2; ADR-0011; openspec/changes/landing/.
+|
+| Los textos y las imágenes de la portada son de EL CLIENTE (NSV-2026-001-v8.pdf:6:Cláusula III, inciso B; DD-117) y
+| entran aquí como contenido, sin programar (NSV-2026-001-v8.pdf:23:ANEXO A, Sección A.7). Mientras no lleguen, cada
+| uno va vacío y la portada muestra en su lugar un marcador de contenido de prueba, marcado como tal: nunca se
+| inventa un texto, una promesa, un precio ni una cifra. Los testimonios se editan en el panel (ADR-0011).
+|
+| Los títulos de las secciones, los cuatro pasos y los títulos de los seis pilares son los del contrato y viven en la
+| vista. El nombre del producto es APP_NAME (config/app.php); el WhatsApp es el de config/soporte.php.
+|
+*/
+
+return [
+
+    /*
+     * El logo, como ruta dentro de public/. Por omisión, el símbolo aprobado por EL CLIENTE (C-63), en un archivo de
+     * nombre neutro, como en la app (C-237).
+     */
+    'logo' => env('LANDING_LOGO', 'marca/logotipo.png'),
+
+    /*
+     * Sección 1, "Hero / Encabezado": el tagline y la imagen con el mockup de la app, como ruta dentro de public/, con
+     * su texto alternativo. El mockup necesita pantallas terminadas de la app (landing-E04).
+     */
+    'encabezado' => [
+        'tagline' => env('LANDING_TAGLINE'),
+        'imagen' => env('LANDING_IMAGEN_ENCABEZADO'),
+        'imagen_texto' => env('LANDING_IMAGEN_ENCABEZADO_TEXTO', ''),
+    ],
+
+];
