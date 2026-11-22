@@ -1,7 +1,8 @@
 // Los textos del paso de la dirección del pedido y de la dirección nueva (openspec/changes/direcciones), juntos para
 // revisarlos en un solo lugar. Los de la dirección nueva siguen el tablero "Dirección nueva" de la Propuesta 5
 // corregida (C-233), con los campos de DD-135, punto 6: calle, número, colonia y municipio. El municipio se elige de la
-// lista del territorio (C-238, direcciones-E17).
+// lista del territorio y la colonia se sugiere por el código postal, que se pide y no se exige (C-238,
+// direcciones-E17, E19 y E20; decisión 29 del acta del 2026-11-20).
 import { MENSAJES, mensajeGeneral } from '../acceso/mensajes';
 import type { Direccion, FallaDelAlta, Municipio, Rechazo } from './api';
 
@@ -27,6 +28,7 @@ export const TEXTOS_DE_DIRECCIONES = {
   calle: 'Calle',
   numero: 'Número',
   numeroInterior: 'Número interior (opcional)',
+  codigoPostal: 'Código postal (opcional)',
   colonia: 'Colonia',
   municipio: 'Municipio',
   referencias: 'Referencias (opcional)',
@@ -43,6 +45,15 @@ export const TEXTOS_DE_DIRECCIONES = {
   // En el mapa el municipio es opcional: la dirección se guarda sin él.
   municipiosNoDisponiblesEnElMapa: 'No pudimos cargar la lista de municipios. Puedes guardar la dirección sin él.',
   intentarDeNuevo: 'Intentar de nuevo',
+  // La colonia, de la lista de su código postal, o escrita a mano (direcciones-E19 y E20).
+  elegirColonia: 'Elige tu colonia',
+  buscarColonia: 'Buscar colonia',
+  noApareceMiColonia: 'No aparece mi colonia',
+  elegirDeLaLista: 'Elegir de la lista de colonias',
+  buscandoColonias: 'Buscando las colonias…',
+  sinColoniasDelCodigoPostal: 'No encontramos colonias con ese código postal. Escríbela.',
+  // Sin escenario propio: el catálogo ayuda y no bloquea.
+  coloniasNoDisponibles: 'No pudimos buscar las colonias de ese código postal. Escríbela.',
   instruccionDelMapa: 'Mueve el mapa para dejar el pin sobre tu puerta.',
   // Sin escenario propio: sin permiso de ubicación, o sin ubicación, el mapa no tiene dónde abrirse.
   sinUbicacionParaElMapa: 'Sin tu ubicación no podemos abrir el mapa. Puedes escribir la dirección.',

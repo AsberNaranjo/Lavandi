@@ -83,6 +83,8 @@ let anuncio: jest.SpyInstance;
 
 beforeEach(() => {
   anuncio = jest.spyOn(AccessibilityInfo, 'announceForAccessibilityWithOptions').mockImplementation(() => {});
+  // El preset de React Native ya la simula: spyOn devuelve la misma, con las llamadas de las pruebas anteriores.
+  anuncio.mockClear();
 });
 
 afterEach(() => {

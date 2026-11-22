@@ -79,10 +79,11 @@ export function Selector({
     setAbierta(true);
   }
 
+  // Primero se anuncia la elección y luego se avisa: lo que la pantalla anuncie con ella se oye después.
   function elegir(opcion: OpcionDelSelector) {
     setAbierta(false);
+    anunciar(`${etiqueta}: ${opcion.texto}`);
     alElegir(opcion);
-    AccessibilityInfo.announceForAccessibilityWithOptions(`${etiqueta}: ${opcion.texto}`, { queue: true });
   }
 
   function elegirLaOtra() {
@@ -216,6 +217,11 @@ function Opcion({
       </View>
     </Pressable>
   );
+}
+
+/** Anuncia al lector de pantalla, en cola: en iPhone no corta lo que dice al cerrarse la hoja. */
+export function anunciar(texto: string): void {
+  AccessibilityInfo.announceForAccessibilityWithOptions(texto, { queue: true });
 }
 
 /** Las opciones cuyo texto o detalle contienen lo buscado, sin distinguir mayúsculas ni acentos. */

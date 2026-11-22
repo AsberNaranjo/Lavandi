@@ -56,6 +56,8 @@ export interface SenasDeLaDireccion {
   calle: string;
   numero_exterior: string;
   numero_interior: string;
+  /** Opcional: si viene, cinco números (direcciones-E20). */
+  codigo_postal: string;
   colonia: string;
   /** El código del municipio elegido de la lista (direcciones-E17); vacío si no eligió ninguno. */
   municipio: string;

@@ -39,7 +39,7 @@ verde, refactor.
 Empiezan con la 4.3 y la 4.4 en verde, y con la pieza de lista que decida Arthur (Open Questions de `design.md`).
 
 - [x] 5.1 direcciones-E01, direcciones-E17, direcciones-E18: el municipio se elige de la lista de `GET /api/catalogos/municipios`, pedida una vez por sesión de la app; manda el `codigo`; el error del campo va junto a él; sin lista, lo dice y la forma del mapa sigue sirviendo; `consultarMunicipios` en `movil/src/direcciones/api.ts` — test: `movil/__tests__/direcciones/municipio.test.tsx` y `movil/__tests__/direcciones/formulario.test.tsx` — tamaño M — vive en `movil/`
-- [ ] 5.2 direcciones-E02, direcciones-E19, direcciones-E20: el campo de código postal de cinco números; con los cinco, las colonias de `GET /api/codigos-postales/{codigo_postal}/colonias` en una lista, que al elegir escribe la colonia y, sin municipio elegido, elige el suyo; sin colonias, lo dice y deja escribirla; la colonia sigue obligatoria aunque haya código postal; `consultarColonias` en `movil/src/direcciones/api.ts` — test: `movil/__tests__/direcciones/codigo-postal-y-colonia.test.tsx` — tamaño M — vive en `movil/`
+- [x] 5.2 direcciones-E02, direcciones-E19, direcciones-E20: el campo de código postal de cinco números; con los cinco, las colonias de `GET /api/codigos-postales/{codigo_postal}/colonias` en una lista, que al elegir escribe la colonia y, sin municipio elegido, elige el suyo; sin colonias, lo dice y deja escribirla; la colonia sigue obligatoria aunque haya código postal; `consultarColonias` en `movil/src/direcciones/api.ts` — test: `movil/__tests__/direcciones/codigo-postal-y-colonia.test.tsx` — tamaño M — vive en `movil/`
 
 ## Horas
 

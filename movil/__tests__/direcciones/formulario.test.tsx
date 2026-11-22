@@ -1,7 +1,8 @@
-// Spec: openspec/changes/direcciones/specs/direcciones/spec.md, direcciones-E01, E02 y E03 (tareas 2.1 y 5.1). La
-// dirección nueva, escrita: calle, número, colonia y municipio, con el número interior y las referencias opcionales
-// (DD-135, punto 6). La colonia es obligatoria y el municipio se elige de la lista del territorio (direcciones-E17, que
-// prueba municipio.test.tsx). El servidor convierte la dirección en un punto una sola vez, al guardarla
+// Spec: openspec/changes/direcciones/specs/direcciones/spec.md, direcciones-E01, E02 y E03 (tareas 2.1, 5.1 y 5.2). La
+// dirección nueva, escrita: calle, número, colonia y municipio, con el número interior, el código postal y las
+// referencias opcionales (DD-135, punto 6; C-238). La colonia es obligatoria y el municipio se elige de la lista del
+// territorio (direcciones-E17, que prueba municipio.test.tsx; el código postal y la colonia de su lista, en
+// codigo-postal-y-colonia.test.tsx). El servidor convierte la dirección en un punto una sola vez, al guardarla
 // (ADR-0009, decisión 4); si no la encuentra, la app ofrece marcarla en el mapa. Se abre la app real, con las rutas de
 // movil/app/ (ADR-0017), en iPhone y en Android, con el servidor simulado: la geocodificación vive en el servidor, así
 // que aquí ninguna prueba la consulta.
@@ -173,24 +174,25 @@ afterEach(() => {
 
 describe('direcciones-E01: una dirección escrita se guarda con su punto', () => {
   test.each(PLATAFORMAS)(
-    'direcciones-E01 — (%s) la dirección nueva se escribe por omisión, con calle, número, número interior, colonia, municipio y referencias',
+    'direcciones-E01 — (%s) la dirección nueva se escribe por omisión, con calle, número, número interior, código postal, colonia, municipio y referencias',
     async (plataforma) => {
       await abrirElFormulario(plataforma);
 
       expect(screen.getByRole('tab', { name: 'Escribirla' })).toBeSelected();
       expect(screen.getByRole('tab', { name: 'En el mapa' })).not.toBeSelected();
+      // El código postal se pide y no se exige (C-238; decisión 29 del acta del 2026-11-20): lo prueba
+      // codigo-postal-y-colonia.test.tsx.
       for (const etiqueta of [
         'Calle',
         'Número',
         'Número interior (opcional)',
+        'Código postal (opcional)',
         'Colonia',
         'Municipio',
         'Referencias (opcional)',
       ]) {
         expect(screen.getByLabelText(etiqueta)).toBeOnTheScreen();
       }
-      // Sin código postal en el formulario (DD-135, punto 6).
-      expect(screen.queryByLabelText(/postal/i)).not.toBeOnTheScreen();
     },
   );
 

@@ -11,6 +11,12 @@
 //   de texto libre: el servidor rechaza un municipio que no es del catálogo, y su error va junto al campo
 //   (direcciones-E18). Sin lista, lo dice junto al campo y deja intentarlo de nuevo; la forma del mapa sigue sirviendo,
 //   porque ahí el municipio es opcional.
+// - El código postal, en las dos formas, antes de la colonia: se pide y no se exige, y son cinco números (direcciones-E20;
+//   decisión 29 del acta del 2026-11-20). Con los cinco, la app pide sus colonias y las ofrece en la pieza Selector, con
+//   "No aparece mi colonia" para escribirla a mano. Elegir una escribe su nombre en la colonia y, si la persona no había
+//   elegido municipio, elige el de esa colonia (direcciones-E19). Sin colonias para ese código postal, lo dice y la
+//   colonia se escribe (direcciones-E20). La lista ayuda y no llena sola la colonia, que sigue obligatoria
+//   (direcciones-E02). Si la persona cambia el código postal, la colonia que eligió de la lista anterior se quita.
 // - En el mapa (direcciones-E04 y E05): el mapa nativo de cada plataforma se abre en la ubicación del teléfono, la
 //   persona lo mueve bajo el pin y escribe la colonia, obligatoria, y las demás señas, opcionales. Se guarda con el
 //   punto del pin, sin geocodificar. Sin ubicación, o en un Android sin la llave de Google Maps, no hay mapa: lo dice y
@@ -21,9 +27,9 @@
 //   para la entrega, y la app vuelve al paso de la dirección.
 //
 // La composición es la del tablero "Dirección nueva" de la Propuesta 5 corregida (C-233) y las imágenes
-// a08-direccion-nueva y a08-direccion-mapa de la Propuesta 04. Del mock no entran el código postal (DD-135, punto 6), el
-// autocompletado de la calle (direcciones-E21 a E23, bloqueados por DD-137) ni la calle sugerida desde el pin (BR-12 y
-// ADR-0009: sin geocodificación inversa).
+// a08-direccion-nueva y a08-direccion-mapa de la Propuesta 04, con el código postal que agregó C-238. Del mock no entran
+// el autocompletado de la calle (direcciones-E21 a E23, bloqueados por DD-137) ni la calle sugerida desde el pin (BR-12
+// y ADR-0009: sin geocodificación inversa).
 //
 // Sin conexión o con el servidor caído, sin escenario propio: los mensajes generales de la app.
 import { Redirect, useLocalSearchParams } from 'expo-router';
@@ -34,6 +40,7 @@ import type { Punto } from '../../src/cercanas/api';
 import { hayMapaNativo } from '../../src/cercanas/mapa';
 import {
   guardarDireccion,
+  type ColoniaDelCatalogo,
   type DireccionNueva,
   type FallaDelAlta,
   type SenasDeLaDireccion,
@@ -45,6 +52,7 @@ import {
   ofreceElMapa,
   TEXTOS_DE_DIRECCIONES,
 } from '../../src/direcciones/textos';
+import { LARGO_DEL_CODIGO_POSTAL, useColonias } from '../../src/direcciones/useColonias';
 import { useMunicipios } from '../../src/direcciones/useMunicipios';
 import { usePuntoDeInicio } from '../../src/direcciones/usePuntoDeInicio';
 import { useRegresar } from '../../src/navegacion/regresar';
@@ -52,11 +60,12 @@ import { agregarDireccion, usePedidoEnCurso, type ParaQueEsLaDireccion } from '.
 import { RUTA_DE_LA_DIRECCION } from '../../src/pedido/rutas';
 import { Boton } from '../../src/piezas/Boton';
 import { CampoDeTexto } from '../../src/piezas/CampoDeTexto';
+import { Enlace } from '../../src/piezas/Enlace';
 import { Interruptor } from '../../src/piezas/Interruptor';
 import { MensajeDeError } from '../../src/piezas/MensajeDeError';
 import { Pantalla } from '../../src/piezas/Pantalla';
 import { Pestanas } from '../../src/piezas/Pestanas';
-import { Selector, type OpcionDelSelector } from '../../src/piezas/Selector';
+import { anunciar, Selector, type OpcionDelSelector } from '../../src/piezas/Selector';
 import { useSesion } from '../../src/sesion/ProveedorDeSesion';
 import { color, espaciado, tipografia } from '../../src/tema/theme';
 
@@ -74,15 +83,26 @@ const SIN_SENAS: SenasEscritas = {
   calle: '',
   numero_exterior: '',
   numero_interior: '',
+  codigo_postal: '',
   colonia: '',
   referencias: '',
 };
 
-/** El municipio elegido de la lista: el código que viaja y el texto que muestra el campo. */
+/**
+ * El municipio elegido: el código que viaja y el texto que muestra el campo. porLaColonia: lo eligió la app con la
+ * colonia, no la persona, así que otra colonia lo cambia (direcciones-E19).
+ */
 interface MunicipioElegido {
   codigo: string;
   texto: string;
+  porLaColonia: boolean;
 }
+
+/**
+ * Cómo se captura la colonia cuando su código postal trae colonias: de la lista, a mano, o según lo escrito (con la
+ * colonia vacía, la lista; con algo escrito antes, a mano, para no esconderlo).
+ */
+type FormaDeLaColonia = 'segun-lo-escrito' | 'de-la-lista' | 'a-mano';
 
 // Los campos que la pantalla muestra, con el municipio y el nombre de la favorita: el error de cualquiera de ellos va
 // junto a él, no arriba del botón.
@@ -94,6 +114,7 @@ const ETIQUETAS: Record<Forma, Record<keyof SenasDeLaDireccion, string>> = {
     calle: TEXTOS_DE_DIRECCIONES.calle,
     numero_exterior: TEXTOS_DE_DIRECCIONES.numero,
     numero_interior: TEXTOS_DE_DIRECCIONES.numeroInterior,
+    codigo_postal: TEXTOS_DE_DIRECCIONES.codigoPostal,
     colonia: TEXTOS_DE_DIRECCIONES.colonia,
     municipio: TEXTOS_DE_DIRECCIONES.municipio,
     referencias: TEXTOS_DE_DIRECCIONES.referencias,
@@ -102,6 +123,7 @@ const ETIQUETAS: Record<Forma, Record<keyof SenasDeLaDireccion, string>> = {
     calle: TEXTOS_DE_DIRECCIONES.calleEnElMapa,
     numero_exterior: TEXTOS_DE_DIRECCIONES.numeroEnElMapa,
     numero_interior: TEXTOS_DE_DIRECCIONES.numeroInterior,
+    codigo_postal: TEXTOS_DE_DIRECCIONES.codigoPostal,
     colonia: TEXTOS_DE_DIRECCIONES.colonia,
     municipio: TEXTOS_DE_DIRECCIONES.municipioEnElMapa,
     referencias: TEXTOS_DE_DIRECCIONES.referencias,
@@ -119,6 +141,10 @@ export default function PantallaDeDireccionNueva() {
   const [senas, setSenas] = useState<SenasEscritas>(SIN_SENAS);
   const [municipio, setMunicipio] = useState<MunicipioElegido | null>(null);
   const municipios = useMunicipios();
+  const colonias = useColonias(senas.codigo_postal);
+  // La clave de la colonia elegida de la lista; null si se escribió a mano o no se eligió.
+  const [coloniaDeLaLista, setColoniaDeLaLista] = useState<string | null>(null);
+  const [formaDeLaColonia, setFormaDeLaColonia] = useState<FormaDeLaColonia>('segun-lo-escrito');
   const [esFavorita, setEsFavorita] = useState(false);
   const [alias, setAlias] = useState('');
   const [falla, setFalla] = useState<FallaDelAlta | null>(null);
@@ -159,6 +185,104 @@ export default function PantallaDeDireccionNueva() {
     );
   }
 
+  // Solo números, hasta cinco. Si cambia, la colonia elegida de la lista del código postal anterior se quita.
+  function cambiarElCodigoPostal(texto: string) {
+    const codigo = texto.replace(/\D/g, '').slice(0, LARGO_DEL_CODIGO_POSTAL);
+    const cambio = codigo !== senas.codigo_postal;
+    const quitarLaColonia = cambio && coloniaDeLaLista !== null;
+    // Aunque no cambie, se vuelve a dibujar: así el campo borra lo que no era número.
+    setSenas((anteriores) => ({
+      ...anteriores,
+      codigo_postal: codigo,
+      colonia: quitarLaColonia ? '' : anteriores.colonia,
+    }));
+    if (cambio) {
+      setColoniaDeLaLista(null);
+      setFormaDeLaColonia('segun-lo-escrito');
+    }
+  }
+
+  function escribirLaColonia(texto: string) {
+    setSenas((anteriores) => ({ ...anteriores, colonia: texto }));
+    setColoniaDeLaLista(null);
+  }
+
+  // La colonia elegida de la lista: su nombre del catálogo y, si la persona no eligió municipio, el suyo
+  // (direcciones-E19).
+  function elegirLaColonia(clave: string, colonia: ColoniaDelCatalogo) {
+    setSenas((anteriores) => ({ ...anteriores, colonia: colonia.nombre }));
+    setColoniaDeLaLista(clave);
+    setFormaDeLaColonia('de-la-lista');
+    if (municipio && !municipio.porLaColonia) {
+      return;
+    }
+    const delCatalogo =
+      municipios.estado.fase === 'listos'
+        ? municipios.estado.municipios.find((uno) => uno.codigo === colonia.municipio.codigo)
+        : undefined;
+    const texto = delCatalogo ? municipioEnTexto(delCatalogo) : colonia.municipio.nombre;
+    setMunicipio({ codigo: colonia.municipio.codigo, texto, porLaColonia: true });
+    if (municipio?.codigo !== colonia.municipio.codigo) {
+      anunciar(`${ETIQUETAS[forma].municipio}: ${texto}`);
+    }
+  }
+
+  // "No aparece mi colonia": se escribe a mano, empezando con lo que buscó (direcciones-E20).
+  function escribirlaAMano(busqueda: string) {
+    setFormaDeLaColonia('a-mano');
+    setColoniaDeLaLista(null);
+    if (busqueda) {
+      setSenas((anteriores) => ({ ...anteriores, colonia: busqueda }));
+    }
+  }
+
+  // La colonia: de la lista de su código postal, o escrita, con lo que diga el catálogo de ese código postal.
+  function campoDeLaColonia() {
+    const etiqueta = ETIQUETAS[forma].colonia;
+    const error = errores.colonia?.[0];
+    if (colonias.fase === 'con-colonias') {
+      const deLaLista =
+        formaDeLaColonia === 'de-la-lista' || (formaDeLaColonia === 'segun-lo-escrito' && senas.colonia.trim() === '');
+      if (deLaLista) {
+        const lista = colonias.colonias;
+        return (
+          <Selector
+            nombre="colonia"
+            etiqueta={etiqueta}
+            valor={senas.colonia}
+            marcador={TEXTOS_DE_DIRECCIONES.elegirColonia}
+            etiquetaDeLaBusqueda={TEXTOS_DE_DIRECCIONES.buscarColonia}
+            opciones={lista.map((una, indice) => ({ clave: String(indice), texto: una.nombre, detalle: una.tipo }))}
+            elegida={coloniaDeLaLista}
+            alElegir={({ clave }) => elegirLaColonia(clave, lista[Number(clave)])}
+            error={error}
+            otraOpcion={{ texto: TEXTOS_DE_DIRECCIONES.noApareceMiColonia, alElegir: escribirlaAMano }}
+          />
+        );
+      }
+    }
+    const nota = NOTA_DE_LAS_COLONIAS[colonias.fase];
+    return (
+      <View style={estilos.campoConNota}>
+        <CampoDeTexto
+          nombre="colonia"
+          etiqueta={etiqueta}
+          valor={senas.colonia}
+          alCambiar={escribirLaColonia}
+          error={error}
+        />
+        {nota ? (
+          <Text accessibilityLiveRegion="polite" style={estilos.texto}>
+            {nota}
+          </Text>
+        ) : null}
+        {colonias.fase === 'con-colonias' ? (
+          <Enlace texto={TEXTOS_DE_DIRECCIONES.elegirDeLaLista} alTocar={() => setFormaDeLaColonia('de-la-lista')} />
+        ) : null}
+      </View>
+    );
+  }
+
   // El municipio de la lista, o lo que se ve mientras llega o si no llegó (direcciones-E17).
   function campoDelMunicipio() {
     const { estado, reintentar } = municipios;
@@ -183,7 +307,7 @@ export default function PantallaDeDireccionNueva() {
           etiquetaDeLaBusqueda={TEXTOS_DE_DIRECCIONES.buscarMunicipio}
           opciones={opciones}
           elegida={municipio?.codigo ?? null}
-          alElegir={({ clave, texto }) => setMunicipio({ codigo: clave, texto })}
+          alElegir={({ clave, texto }) => setMunicipio({ codigo: clave, texto, porLaColonia: false })}
           // El error del servidor manda; sin él, el aviso de la lista que no llegó.
           error={errores.municipio?.[0] ?? (sinLista ? aviso : undefined)}
           deshabilitado={estado.fase !== 'listos'}
@@ -241,7 +365,15 @@ export default function PantallaDeDireccionNueva() {
         {campo('calle')}
         {campo('numero_exterior')}
         {campo('numero_interior')}
-        {campo('colonia')}
+        <CampoDeTexto
+          nombre="codigo_postal"
+          tipo="codigo-postal"
+          etiqueta={ETIQUETAS[forma].codigo_postal}
+          valor={senas.codigo_postal}
+          alCambiar={cambiarElCodigoPostal}
+          error={errores.codigo_postal?.[0]}
+        />
+        {campoDeLaColonia()}
         {campoDelMunicipio()}
         {campo('referencias', true)}
         <Interruptor
@@ -295,9 +427,19 @@ function ElMapa({ inicio, alMover }: { inicio: ReturnType<typeof usePuntoDeInici
   }
 }
 
+// Lo que se dice junto a la colonia escrita, según lo que dio su código postal (direcciones-E20).
+const NOTA_DE_LAS_COLONIAS: Partial<Record<ReturnType<typeof useColonias>['fase'], string>> = {
+  buscando: TEXTOS_DE_DIRECCIONES.buscandoColonias,
+  'sin-colonias': TEXTOS_DE_DIRECCIONES.sinColoniasDelCodigoPostal,
+  'no-disponibles': TEXTOS_DE_DIRECCIONES.coloniasNoDisponibles,
+};
+
 const estilos = StyleSheet.create({
   campos: {
     gap: espaciado[4],
+  },
+  campoConNota: {
+    gap: espaciado[1],
   },
   mapa: {
     gap: espaciado[2],
