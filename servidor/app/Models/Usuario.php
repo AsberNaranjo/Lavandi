@@ -58,7 +58,8 @@ class Usuario extends Modelo implements AuthenticatableContract, AuthorizableCon
 
     protected $fillable = ['correo', 'password'];
 
-    protected $hidden = ['password'];
+    /** La ruta de la foto tampoco sale: la foto se ve con su URL firmada (perfil-usuario-E03; ADR-0006). */
+    protected $hidden = ['password', 'foto_ruta'];
 
     /**
      * @return array<string, string>

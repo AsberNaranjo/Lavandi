@@ -9,7 +9,7 @@ S = 2 h, M = 5 h, L = 12 h.
 ## 1. Servidor (`servidor/`)
 
 - [x] 1.1 perfil-usuario-E01, perfil-usuario-E02 y perfil-usuario-E06: API del perfil para leer y cambiar el nombre, sin guardar ni devolver números de tarjeta — test: `servidor/tests/Feature/PerfilUsuario/PerfilTest.php` — tamaño S
-- [ ] 1.2 perfil-usuario-E03 y perfil-usuario-E04: subida de la foto al bucket privado, URL firmada y rechazo de archivos inválidos o más grandes que el máximo configurado — test: `servidor/tests/Feature/PerfilUsuario/FotoDePerfilTest.php` — tamaño S
+- [x] 1.2 perfil-usuario-E03 y perfil-usuario-E04: subida de la foto al bucket privado, URL firmada y rechazo de archivos inválidos o más grandes que el máximo configurado — test: `servidor/tests/Feature/PerfilUsuario/FotoDePerfilTest.php` — tamaño S. El contrato está en `design.md`, "La foto de perfil"; quitar la foto no tiene escenario (Open Questions)
 - [x] 1.3 perfil-usuario-E09 y perfil-usuario-E10: el número de soporte como dato de configuración que lee la app, vacío si no existe (depende de la pregunta abierta de `design.md`) — test: `servidor/tests/Feature/PerfilUsuario/NumeroDeSoporteTest.php` — tamaño S
 - [x] 1.4 perfil-usuario-E11, perfil-usuario-E12 y perfil-usuario-E13: guardar el reporte en `reportes_soporte` con descripción obligatoria y pedido propio opcional — test: `servidor/tests/Feature/PerfilUsuario/ReporteTest.php` — tamaño S
 - [x] 1.5 perfil-usuario-E15: borrar la cuenta, revocar todos sus tokens y rechazar su inicio de sesión por correo, Google y Apple — test: `servidor/tests/Feature/PerfilUsuario/BorrarCuentaTest.php` — tamaño S

@@ -2,23 +2,24 @@
 
 namespace App\Lavanderias;
 
+use App\Fotos\AlmacenDeFotos;
 use App\Models\Lavanderia;
 use App\Models\LavanderiaFoto;
-use Carbon\CarbonImmutable;
-use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 /**
- * La foto de la lavandería en el disco privado de fotos del entorno (config/fotos.php; ADR-0006). En la base solo va su
- * ruta, en lavanderia_fotos; la app y el panel la ven con una URL firmada que vence. La ruta nunca sale como campo de la
- * API.
+ * Las fotos de la lavandería en el almacenamiento privado de fotos del entorno (App\Fotos\AlmacenDeFotos; ADR-0006). En
+ * la base solo va su ruta, en lavanderia_fotos, con su orden; la app y el panel las ven con una URL firmada que vence.
+ * La ruta nunca sale como campo de la API.
  *
  * El registro pide una foto (Módulo B #1): es la principal, la de menor orden. Cambiarla reemplaza esa misma fila y
- * borra el archivo anterior; las demás fotos de la lavandería, si las hay, no se tocan.
+ * borra el archivo anterior; las demás fotos de la lavandería, si las hay, no se tocan. El perfil que ve el usuario las
+ * muestra todas, en su orden (perfil-lavanderia-E03).
  */
 final class FotosDeLaLavanderia
 {
+    public function __construct(private readonly AlmacenDeFotos $almacen) {}
+
     /**
      * Guarda la foto nueva como la principal de la lavandería. Devuelve la ruta del archivo que reemplazó, que se borra
      * cuando la transacción quede guardada (borrar()), o null si no había.
@@ -27,7 +28,7 @@ final class FotosDeLaLavanderia
      */
     public function reemplazarPrincipal(Lavanderia $lavanderia, UploadedFile $foto, array &$guardadas): ?string
     {
-        $ruta = (string) $foto->store('lavanderias/'.$lavanderia->id_publico, (string) config('fotos.disco'));
+        $ruta = $this->almacen->guardar($foto, 'lavanderias/'.$lavanderia->id_publico);
         $guardadas[] = $ruta;
 
         $principal = $this->principal($lavanderia);
@@ -56,12 +57,7 @@ final class FotosDeLaLavanderia
      */
     public function url(LavanderiaFoto $foto): array
     {
-        $vence = CarbonImmutable::now()->addMinutes((int) config('fotos.vigencia_minutos'));
-
-        return [
-            'url' => $this->disco()->temporaryUrl($foto->ruta, $vence),
-            'vence_en' => $vence->utc()->toIso8601ZuluString(),
-        ];
+        return $this->almacen->urlFirmada($foto->ruta);
     }
 
     /**
@@ -71,13 +67,6 @@ final class FotosDeLaLavanderia
      */
     public function borrar(array $rutas): void
     {
-        if ($rutas !== []) {
-            $this->disco()->delete($rutas);
-        }
-    }
-
-    private function disco(): Filesystem
-    {
-        return Storage::disk((string) config('fotos.disco'));
+        $this->almacen->borrar($rutas);
     }
 }

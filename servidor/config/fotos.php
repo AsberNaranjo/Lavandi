@@ -2,12 +2,13 @@
 
 /*
 |--------------------------------------------------------------------------
-| Fotos de las lavanderías
+| Fotos de las lavanderías y de perfil
 |--------------------------------------------------------------------------
 |
 | Dónde se guardan y qué acepta el servidor (ADR-0006; ADR-0012; openspec/changes/alta-de-lavanderias/design.md,
-| "La foto"). La app las comprime antes de subirlas, con sus propios parámetros (alta-lavanderias-E03); el servidor solo
-| revisa el tipo y el peso.
+| "La foto"). Valen para las fotos de las lavanderías y para la foto de perfil de cada cuenta (perfil-y-soporte, tarea
+| 1.2). La app las comprime antes de subirlas, con sus propios parámetros (alta-lavanderias-E03); el servidor solo
+| revisa el tipo y el peso (App\Fotos\ReglasDeLaFoto) y las guarda y firma en App\Fotos\AlmacenDeFotos.
 |
 | - disco: uno de config/filesystems.php, siempre privado. En producción, fotos_s3, el almacenamiento S3 privado del
 |   entorno; fuera de producción, fotos_local, un disco local privado que sirve cada foto solo con URL firmada.

@@ -29,6 +29,20 @@ Questions). Las piezas siguen a sus ADRs:
 1. **Foto (ADR-0006).** Se guarda con el `Storage` de Laravel en el bucket privado del entorno y se sirve con URL
    firmada. La app la comprime antes de subirla. El tamaño máximo y la calidad quedan como configuración: el ADR los
    deja a la spec y aquí no se fija un número.
+   - **Lo que hizo la tarea 1.2** (Claude por delegación de Arthur, C-236). Usa el mismo almacenamiento que las fotos
+     de las lavanderías, el de `servidor/config/fotos.php`: `fotos_s3`, el bucket S3 privado del entorno, en
+     producción, y `fotos_local`, el disco local privado que solo sirve con firma, en los demás
+     (`alta-de-lavanderias/design.md`, "La foto"). La URL firmada sale de `App\Fotos\AlmacenDeFotos`, con la misma forma
+     que la de la lavandería, `{ url, vence_en }`.
+   - **Los mismos límites que la foto de la lavandería,** escritos una sola vez en `App\Fotos\ReglasDeLaFoto`: los tipos
+     de `FOTOS_TIPOS` (`jpg,jpeg,png,webp`) y el peso de `FOTOS_PESO_MAXIMO_KB` (5120 KB por omisión, provisional: lo
+     fija Arthur). No se abrió una variable aparte para el perfil: ningún escenario pide un máximo distinto.
+   - **En la base, solo la ruta,** en `usuarios.foto_ruta`, que ya existía (`modelo-de-datos.md`): no hubo migración. El
+     archivo va a `usuarios/{id_publico}/` y la ruta nunca sale como campo; `foto_ruta` quedó oculta en el modelo, como
+     la contraseña.
+   - **Una foto por cuenta** (`App\Identidad\FotoDePerfil`): la nueva reemplaza a la anterior y su archivo se borra
+     cuando la nueva ya quedó guardada. La validación corre antes de guardar nada: un archivo rechazado no llega al
+     almacenamiento y la anterior sigue (E04).
 2. **Borrado de la cuenta (ADR-0005).** Revoca todos los tokens de Sanctum de la cuenta y deja de aceptar su inicio de
    sesión por cualquiera de los tres caminos. Qué pasa con los datos queda en E16.
    - **La opción mínima que tomó E15, sin decidir DD-109** (tarea 1.5, Claude por delegación de Arthur, C-236). La
@@ -140,16 +154,23 @@ tarjeta (modelo-E13). No lleva plaza: está en la lista de tablas sin plaza de `
   pasarela permite reutilizarla, como en pago-E06) y **DD-082** (número de WhatsApp).
 - **La fecha del reporte: resuelta.** Todas las tablas del negocio con llave propia llevan `created_at` y
   `updated_at` en `timestamptz`; la fecha de perfil-usuario-E11 es `reportes_soporte.created_at`.
+- **Quitar la foto de perfil, sin escenario.** El numeral 15 lista la "foto" del perfil, y la spec pide ponerla (E03)
+  y rechazar un archivo inválido (E04), pero ningún escenario pide quitarla y dejar la cuenta sin foto. La tarea 1.2 no
+  creó esa ruta (`CLAUDE.md` §9.2: sin escenario no hay código). Si se quiere, el especificador agrega el escenario
+  (por ejemplo, `DELETE /api/perfil/foto`, que borra el archivo y deja `foto` en `null`) y entra como tarea S. Hoy,
+  para cambiarla, se sube otra.
+- **El límite de subida de PHP.** El servidor rechaza con el mensaje de peso lo que pasa de `FOTOS_PESO_MAXIMO_KB`,
+  pero solo si el archivo llega: `upload_max_filesize` y `post_max_size` de PHP tienen que ser al menos ese máximo en
+  cada entorno (hoy, 5 MB). Lo revisa quien prepare el servidor (DD-070), igual para la foto de la lavandería.
 - **Pantallas sin componente.** Perfil y Ayuda no usan ninguno de los seis componentes de
   `vault/design-system/componentes.md`. La Definition of Ready pide que el componente exista o que la tarea lo cree.
 
 ## Contrato de la API
 
-Lo que implementan las tareas 1.1, 1.3, 1.4 y 1.5 en `servidor/`, para que la app (grupo 2) se construya contra él. El
-mismo contrato vive en el comentario de cada controlador de `servidor/app/Http/Controllers/Api/`. La foto (tarea 1.2)
-llega cuando exista el disco privado del entorno, y agrega su campo al perfil.
+Lo que implementan las tareas 1.1 a 1.5 en `servidor/`, para que la app (grupo 2) se construya contra él. El mismo
+contrato vive en el comentario de cada controlador de `servidor/app/Http/Controllers/Api/`.
 
-**Común a las cinco rutas.** Todas llevan sesión y pasan por el componente único de autorización (ADR-0019), y todas
+**Común a las seis rutas.** Todas llevan sesión y pasan por el componente único de autorización (ADR-0019), y todas
 actúan sobre la cuenta de la sesión: ninguna recibe de quién.
 
 ```
@@ -163,13 +184,15 @@ Un error de validación sale como siempre en Laravel: `422 { "message": "<el pri
 
 ### El perfil (tarea 1.1: perfil-usuario-E01, E02 y E06)
 
-El perfil, como sale en las dos respuestas:
+El perfil, como sale en las tres respuestas (`GET` y `PATCH /api/perfil`, y `POST /api/perfil/foto`):
 
 ```
 {
   "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",   el ULID de la cuenta, el mismo de GET /api/cuenta
   "nombre": "Ana Prueba" | null,                vacío hasta que la persona lo escribe: el registro no lo pide (C-225)
-  "correo": "ana@ejemplo.com"                   solo para mostrarlo: no se cambia desde el perfil
+  "correo": "ana@ejemplo.com",                  solo para mostrarlo: no se cambia desde el perfil
+  "foto": { "url": "https://…firmada…", "vence_en": "2026-11-22T18:00:00Z" } | null
+                                                null hasta que sube una (tarea 1.2; ver "La foto de perfil")
 }
 ```
 
@@ -188,6 +211,41 @@ PATCH /api/perfil
 
 Ninguna respuesta del perfil lleva un número de tarjeta (E06). Las direcciones guardadas del perfil (E05) son las de
 `GET /api/direcciones/favoritas` y `GET /api/direcciones/{id_publico}`, del cambio `direcciones`.
+
+### La foto de perfil (tarea 1.2: perfil-usuario-E03 y E04)
+
+```
+POST /api/perfil/foto           multipart/form-data, por POST porque PHP solo lee los archivos de un POST
+  foto    obligatorio: una imagen de los tipos de FOTOS_TIPOS (jpg, jpeg, png o webp) y de hasta FOTOS_PESO_MAXIMO_KB
+          (5120 KB por omisión); la app la comprime antes (tarea 2.2)
+  cualquier otro campo se ignora
+
+200  { "perfil": { ...el perfil, con la foto nueva... } }
+     la foto queda en el almacenamiento privado, ligada a la cuenta de la sesión; reemplaza a la anterior, si había, y
+     el archivo anterior se borra (E03)
+
+422  { "message": "Elige una foto.", "errors": { "foto": ["Elige una foto."] } }
+     no viene la foto; los otros mensajes, en el mismo campo:
+       "La foto debe ser una imagen: jpg, jpeg, png, webp."   no es un archivo, no es una imagen o es de otro tipo (E04)
+       "La foto pesa más de 5120 KB."                         pasa el peso máximo de la configuración (E04)
+     en ningún error cambia la foto que había ni se guarda un archivo
+```
+
+La foto, en las respuestas del perfil (`GET`, `PATCH` y este `POST`):
+
+```
+"foto": {
+  "url": "https://…firmada…",          la única forma de verla: sin la firma, el almacenamiento responde 403
+  "vence_en": "2026-11-22T18:00:00Z"   en UTC, a los FOTOS_VIGENCIA_MINUTOS (60 por omisión); después, 403. Al volver
+}                                      a pedir el perfil llega otra URL
+"foto": null                           la cuenta todavía no sube una
+```
+
+Es la misma forma que la foto de la lavandería (`alta-de-lavanderias` y `perfil-de-lavanderia`). La ruta del archivo
+no sale nunca como campo.
+
+**Quitar la foto no tiene ruta.** Ningún escenario lo pide (E03 pone una foto y E04 rechaza un archivo): ver Open
+Questions.
 
 ### El número de soporte (tarea 1.3: perfil-usuario-E09 y E10)
 

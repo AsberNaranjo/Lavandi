@@ -26,9 +26,10 @@ que a su vez lee las tablas de la tarea 1.1 (ver `design.md`, Open Questions).
 
 ## 2. Fotos
 
-- [ ] 2.1 perfil-lavanderia-E03, perfil-lavanderia-E04 (`servidor/`): disco S3 privado del entorno; fotos de prueba
+- [x] 2.1 perfil-lavanderia-E03, perfil-lavanderia-E04 (`servidor/`): disco S3 privado del entorno; fotos de prueba
   sembradas en `lavanderia_fotos`, con su orden; URLs firmadas que vencen — test:
-  `servidor/tests/Feature/PerfilLavanderia/FotosTest.php` — tamaño M
+  `servidor/tests/Feature/PerfilLavanderia/FotosTest.php` — tamaño M. El contrato está en `design.md`, "Contrato de la
+  API: las fotos del perfil". En producción, el disco `fotos_s3` espera su librería y el hosting (DD-070)
 
 ## 3. Pantalla del perfil
 
