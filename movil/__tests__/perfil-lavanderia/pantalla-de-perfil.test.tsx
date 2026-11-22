@@ -1,13 +1,15 @@
 // Spec: openspec/changes/perfil-de-lavanderia/specs/perfil-lavanderia/spec.md, perfil-lavanderia-E09 y
-// perfil-lavanderia-E10 (tarea 3.1). La pantalla del perfil muestra lo que entrega el servidor: descripción, servicios
-// con su precio por kilo, calificación promedio con el número de calificaciones y reseñas, con un acceso para pedir; sin
-// calificaciones, lo dice con texto y no muestra promedio. Se abre la app real, con las rutas de movil/app/ (ADR-0017),
-// en iPhone y en Android; el servidor va simulado con el contrato de GET /api/lavanderias/{id_publico}
-// (servidor/app/Http/Controllers/Api/PerfilDeLavanderiaController.php).
+// perfil-lavanderia-E10 (tarea 3.1). La pantalla del perfil muestra lo que entrega el servidor: fotos, descripción,
+// servicios con su precio por kilo, calificación promedio con el número de calificaciones y reseñas, con un acceso para
+// pedir; sin calificaciones, lo dice con texto y no muestra promedio. Se abre la app real, con las rutas de movil/app/
+// (ADR-0017), en iPhone y en Android; el servidor va simulado con el contrato de GET /api/lavanderias/{id_publico}
+// (servidor/app/Http/Controllers/Api/PerfilDeLavanderiaController.php y design.md del cambio, "Contrato de la API: las
+// fotos del perfil").
 //
-// Las fotos no llegan todavía: el servidor las entrega con la tarea 2.1 (perfil-lavanderia-E03, bloqueada). La pantalla
-// deja su lugar, sin imágenes inventadas. La cantidad de reseñas a la vista es la de DD-135, punto 3: las tres más
-// recientes y "ver todas" cuando hay más.
+// Las fotos llegan en "fotos", en orden, cada una con su URL firmada y su vencimiento; la primera es la principal. Que la
+// URL esté firmada y venza lo prueba el servidor (perfil-lavanderia-E03 y E04); aquí, que la app las muestre en ese orden
+// desde su URL y que, al volver a entrar, pida el perfil otra vez y use las URLs nuevas (design.md, Risks). La cantidad
+// de reseñas a la vista es la de DD-135, punto 3: las tres más recientes y "ver todas" cuando hay más.
 import path from 'node:path';
 
 import Constants from 'expo-constants';
@@ -44,12 +46,19 @@ const CERCANA = {
   numero_de_calificaciones: 4,
 };
 
-// El perfil de prueba: dos servicios con precio, cuatro calificaciones con promedio 4.5 y dos de ellas en las reseñas
-// de la pantalla, una con comentario y otra sin él.
+// Tres fotos de prueba, como las firma el servidor: en orden, la primera es la principal.
+const FOTOS = [1, 2, 3].map((numero) => ({
+  url: `https://fotos.prueba.invalid/lavanderias/${ID}/prueba-${numero}.png?firma=a${numero}`,
+  vence_en: '2026-11-22T18:00:00Z',
+}));
+
+// El perfil de prueba: tres fotos, dos servicios con precio, cuatro calificaciones con promedio 4.5 y dos de ellas en
+// las reseñas de la pantalla, una con comentario y otra sin él.
 const PERFIL = {
   id_publico: ID,
   nombre: 'Lavandería de prueba perfil',
   descripcion: 'Descripción de prueba de la lavandería.',
+  fotos: FOTOS,
   servicios: [
     { codigo: 'estandar', nombre: 'Lavado estándar', precio: '45.00', unidad: { codigo: 'kg', nombre: 'kilo' } },
     { codigo: 'planchado', nombre: 'Lavado con planchado', precio: '60.50', unidad: { codigo: 'kg', nombre: 'kilo' } },
@@ -212,14 +221,86 @@ describe('perfil-lavanderia-E09: la pantalla muestra el perfil', () => {
     expect(within(screen.getByTestId('acciones')).getByRole('button', { name: 'Pedir aquí' })).toBeOnTheScreen();
   });
 
-  test('perfil-lavanderia-E09 — el lugar de las fotos queda reservado, sin imágenes, hasta que el servidor las entregue (tarea 2.1)', async () => {
+  test.each(PLATAFORMAS)(
+    'perfil-lavanderia-E09 — (%s) se ven sus fotos, en el orden del servidor y cada una desde su URL firmada; la primera es la principal',
+    async (plataforma) => {
+      await abrirElPerfil(plataforma);
+
+      const fotos = screen.getByTestId('fotos');
+      const imagenes = within(fotos).getAllByRole('image');
+      expect(imagenes).toHaveLength(3);
+      imagenes.forEach((imagen, indice) => {
+        expect(imagen).toHaveAccessibleName(`Foto ${indice + 1} de 3 de la lavandería`);
+        expect(imagen).toHaveProp('source', { uri: FOTOS[indice].url });
+      });
+      // Al abrir se ve la principal. El contador es solo para la vista: cada foto ya le dice al lector cuál es.
+      expect(within(fotos).getByText('1 / 3', { includeHiddenElements: true })).toBeOnTheScreen();
+      // Las fotos van arriba, antes del nombre de la lavandería, como en el mock a05-lavanderia.
+      expect(screen.getByTestId('contenido').children[0]).toBe(fotos);
+    },
+  );
+
+  test.each(PLATAFORMAS)('perfil-lavanderia-E09 — (%s) al deslizar las fotos, el contador dice cuál se ve', async (plataforma) => {
+    await abrirElPerfil(plataforma);
+
+    const carrete = screen.getByTestId('carrete-de-fotos');
+    // Cada foto mide lo ancho del carrete, que se conoce al dibujarlo.
+    await fireEvent(carrete, 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: 343, height: 193 } } });
+    expect(within(carrete).getAllByRole('image')[1]).toHaveStyle({ width: 343 });
+
+    await fireEvent.scroll(carrete, {
+      nativeEvent: { contentOffset: { x: 343, y: 0 }, layoutMeasurement: { width: 343, height: 193 } },
+    });
+    expect(screen.getByText('2 / 3', { includeHiddenElements: true })).toBeOnTheScreen();
+
+    await fireEvent.scroll(carrete, {
+      nativeEvent: { contentOffset: { x: 686, y: 0 }, layoutMeasurement: { width: 343, height: 193 } },
+    });
+    expect(screen.getByText('3 / 3', { includeHiddenElements: true })).toBeOnTheScreen();
+  });
+
+  test('perfil-lavanderia-E09 — con una sola foto, se ve sin contador', async () => {
+    servidor({ ...PERFIL, fotos: [FOTOS[0]] });
+
+    await abrirElPerfil('android');
+
+    const fotos = screen.getByTestId('fotos');
+    expect(within(fotos).getByRole('image')).toHaveAccessibleName('Foto 1 de 1 de la lavandería');
+    expect(within(fotos).queryByText(/\d+ \/ \d+/, { includeHiddenElements: true })).not.toBeOnTheScreen();
+  });
+
+  test('perfil-lavanderia-E09 — una lavandería sin fotos no deja un hueco: el perfil empieza con su nombre', async () => {
+    servidor({ ...PERFIL, fotos: [] });
+
     await abrirElPerfil('ios');
 
-    // Es decorativo mientras no hay fotos: el lector de pantalla lo salta, por eso se busca entre lo oculto.
-    const lugar = screen.getByTestId('lugar-de-las-fotos', { includeHiddenElements: true });
-    expect(lugar).toBeOnTheScreen();
-    expect(within(lugar).queryByRole('image', { includeHiddenElements: true })).not.toBeOnTheScreen();
+    expect(screen.queryByTestId('fotos', { includeHiddenElements: true })).not.toBeOnTheScreen();
+    expect(screen.queryByRole('image')).not.toBeOnTheScreen();
+    expect(screen.getByText('$45.00 por kilo')).toBeOnTheScreen();
   });
+
+  test.each(PLATAFORMAS)(
+    'perfil-lavanderia-E09 — (%s) al volver a entrar, la app pide el perfil otra vez y muestra las fotos con sus URLs nuevas',
+    async (plataforma) => {
+      await conSesion(plataforma);
+      const pantalla = await renderRouter(APP, { initialUrl: `/lavanderias/${ID}` });
+      await screen.findByRole('header', { name: PERFIL.nombre });
+      expect(within(screen.getByTestId('fotos')).getAllByRole('image')[0]).toHaveProp('source', { uri: FOTOS[0].url });
+
+      // Mientras tanto, las URLs vencieron: el servidor firma otras.
+      const nuevas = FOTOS.map((foto, indice) => ({
+        url: foto.url.replace(/firma=a\d/, `firma=b${indice + 1}`),
+        vence_en: '2026-11-22T19:30:00Z',
+      }));
+      servidor({ ...PERFIL, fotos: nuevas });
+      pantalla.unmount();
+      await abrirElPerfil(plataforma);
+
+      expect(consultasDelPerfil()).toHaveLength(2);
+      const imagenes = within(screen.getByTestId('fotos')).getAllByRole('image');
+      imagenes.forEach((imagen, indice) => expect(imagen).toHaveProp('source', { uri: nuevas[indice].url }));
+    },
+  );
 
   test('perfil-lavanderia-E09 — una lavandería sin descripción no deja un párrafo vacío', async () => {
     servidor({ ...PERFIL, descripcion: null });
@@ -286,6 +367,12 @@ describe('perfil-lavanderia-E09: la pantalla muestra el perfil', () => {
     ['sin conexión', MENSAJES.sinConexion, () => Promise.reject(new TypeError('Network request failed'))],
     ['la lavandería ya no está activa (404)', MENSAJES.servidor, async () => respuesta(404, { message: 'No existe la lavandería.' })],
     ['una respuesta fuera del contrato', MENSAJES.servidor, async () => respuesta(200, { lavanderia: { nombre: 'Sin lo demás' } })],
+    ['sin la lista de fotos', MENSAJES.servidor, async () => respuesta(200, { lavanderia: { ...PERFIL, fotos: undefined } })],
+    [
+      'una foto sin su URL firmada',
+      MENSAJES.servidor,
+      async () => respuesta(200, { lavanderia: { ...PERFIL, fotos: [{ ruta: 'lavanderias/prueba-1.png' }] } }),
+    ],
   ])('perfil-lavanderia-E09 — si el perfil no llega (%s), lo dice y no ofrece pedir', async (_caso, mensaje, contestar) => {
     fetchFalso.mockImplementation(async (url: string) => {
       const ruta = url.slice(BASE.length);

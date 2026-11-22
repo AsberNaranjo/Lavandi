@@ -2,7 +2,7 @@
 // id_publico, con el token de la sesión (sin sesión el servidor no contesta, perfil-lavanderia-E02). Como las demás
 // consultas, nunca lanza: devuelve un Resultado.
 import { pedir, type Resultado } from '../configuracion/api';
-import { esObjeto, numero, numeroOVacio } from '../configuracion/lectura';
+import { esObjeto, fotoFirmada, numero, numeroOVacio, type FotoFirmada } from '../configuracion/lectura';
 
 /**
  * El contrato de la consulta con el servidor (tarea 1.2 de perfil-de-lavanderia), en un solo lugar para ajustarlo:
@@ -38,14 +38,16 @@ export interface Resena {
   fecha: string;
 }
 
-/**
- * El perfil como lo devuelve el servidor, con sus nombres de campo. Las fotos llegan con la tarea 2.1
- * (perfil-lavanderia-E03), en una clave nueva que esta lectura todavía no conoce.
- */
+/** El perfil como lo devuelve el servidor, con sus nombres de campo. */
 export interface PerfilDeLavanderia {
   id_publico: string;
   nombre: string;
   descripcion: string | null;
+  /**
+   * Todas sus fotos, en el orden del servidor; la primera es la principal. Vacía si no tiene. Cada URL está firmada y
+   * vence: al volver a entrar al perfil se pide otra vez y llegan nuevas (perfil-lavanderia-E03 y E04).
+   */
+  fotos: FotoFirmada[];
   servicios: ServicioDeLavanderia[];
   /** El promedio de 1 a 5, o null si aún no tiene calificaciones (perfil-lavanderia-E07). */
   calificacion_promedio: number | null;
@@ -73,15 +75,24 @@ function leerPerfil(datos: unknown): PerfilDeLavanderia | null {
   const descripcion = datos.descripcion === null || typeof datos.descripcion === 'string' ? datos.descripcion : undefined;
   const promedio = numeroOVacio(datos.calificacion_promedio);
   const calificaciones = numero(datos.numero_de_calificaciones);
+  const fotos = todas(datos.fotos, fotoFirmada);
   const servicios = todas(datos.servicios, leerServicio);
   const resenas = todas(datos.resenas, leerResena);
-  if (descripcion === undefined || promedio === undefined || calificaciones === null || !servicios || !resenas) {
+  if (
+    descripcion === undefined ||
+    promedio === undefined ||
+    calificaciones === null ||
+    !fotos ||
+    !servicios ||
+    !resenas
+  ) {
     return null;
   }
   return {
     id_publico: datos.id_publico,
     nombre: datos.nombre,
     descripcion,
+    fotos,
     servicios,
     calificacion_promedio: promedio,
     numero_de_calificaciones: calificaciones,

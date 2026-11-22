@@ -22,3 +22,21 @@ export function numeroOVacio(valor: unknown): number | null | undefined {
   }
   return numero(valor) ?? undefined;
 }
+
+/**
+ * Una foto del almacenamiento privado, como la entrega la API (ADR-0006): solo su URL firmada y el instante en que
+ * vence, en UTC. Al volver a pedir lo que la trae llega otra URL. Es la misma forma en las fotos del perfil de la
+ * lavandería y en la foto de perfil del usuario.
+ */
+export interface FotoFirmada {
+  url: string;
+  vence_en: string;
+}
+
+/** La foto leída campo por campo; null si no es del contrato. */
+export function fotoFirmada(valor: unknown): FotoFirmada | null {
+  if (!esObjeto(valor) || typeof valor.url !== 'string' || valor.url === '' || typeof valor.vence_en !== 'string') {
+    return null;
+  }
+  return { url: valor.url, vence_en: valor.vence_en };
+}

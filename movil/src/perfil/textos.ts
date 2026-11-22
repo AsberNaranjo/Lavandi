@@ -13,6 +13,16 @@ export const TEXTOS_DEL_PERFIL = {
   pedirAqui: 'Pedir aquí',
 } as const;
 
+/** Cada foto para el lector de pantalla: "Foto 2 de 3 de la lavandería" (perfil-lavanderia-E09). */
+export function fotoParaLeer(numero: number, total: number): string {
+  return `Foto ${numero} de ${total} de la lavandería`;
+}
+
+/** El contador de las fotos, solo para la vista: "2 / 3", como en el mock a05-lavanderia. */
+export function contadorDeFotos(numero: number, total: number): string {
+  return `${numero} / ${total}`;
+}
+
 /** El precio de un servicio en su unidad, como lo entrega el servidor: "$45.00 por kilo" (perfil-lavanderia-E05). */
 export function precioEnTexto({ precio, unidad }: Pick<ServicioDeLavanderia, 'precio' | 'unidad'>): string {
   return `$${precio} por ${unidad.nombre}`;
