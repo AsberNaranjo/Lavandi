@@ -29,8 +29,8 @@ use Tests\TestCase;
  *
  * Pedido activo es el confirmado que todavía no se entrega ni se cancela (design.md, lectura 1): con C-188, uno que
  * espera su pago no está activo. El rechazado sigue activo mientras DD-103 y DD-016 no digan qué pasa con él: está
- * pagado y no se entregó ni se canceló. El mapa espera la llave de Google Maps JavaScript (DD-072, administracion-E09 y
- * E10) y el cancelado, DD-016 (administracion-E08).
+ * pagado y no se entregó ni se canceló. El mapa de los mismos pedidos lo prueba MapaDelMonitoreoTest (administracion-E09
+ * y E10); el cancelado espera DD-016 (administracion-E08).
  *
  * Escenarios: administracion-E06 y administracion-E07 · Spec: openspec/changes/administracion/specs/administracion/
  * spec.md · Tareas 2.1 y 2.2

@@ -193,11 +193,46 @@ de solo lectura. Los pedidos los da `Autorizacion::pedidosActivosDelPanel()`, y 
   Si esas filas lo llevan a un estado de cancelación, sale por E08.
 - **No entran** el entregado, el que espera su pago (C-188) ni un estado que se agregue después, como `cancelado`,
   mientras no se nombre en el modelo (E08 espera DD-016 y BR-22).
-- **El mapa** (E09 y E10) espera la llave de Google Maps JavaScript (DD-072).
+- **El mapa** (tarea 2.4, administracion-E09 y E10): ver "El mapa del monitoreo", abajo.
 - **El refresco** (tarea 2.2, administracion-E07): la tabla se vuelve a consultar sola cada 30 segundos mientras la
   página está abierta (`wire:poll.30s` de Livewire, con `poll()` de Filament; ADR-0007), sin recargar la página. Un
   cambio de estado que hace la lavandería, un pedido que se entrega o uno que se confirma se ven en el siguiente
   refresco, a lo más 30 segundos después.
+
+**El mapa del monitoreo** (tarea 2.4, administracion-E09 y E10; lectura 5; BR-30), arriba de la tabla, en la misma
+página (`App\Filament\Pages\MonitoreoDePedidos`):
+
+- **Qué pinta:** los mismos pedidos activos de la tabla, que da `Autorizacion::pedidosActivosDelPanel()`, con un
+  marcador en la dirección de recolección de cada uno y otro en la de entrega cuando es distinta
+  (`App\Pedidos\MarcadoresDelMonitoreo`). Cada marcador lleva su letra en el mapa, R en la recolección y E en la entrega,
+  con una leyenda debajo; al elegirlo, su ventana dice el folio, el estado operativo (como la tabla), si es la
+  recolección o la entrega y la plaza, como texto. Ningún repartidor: su posición está fuera del contrato (proposal.md).
+- **Cuándo la entrega es distinta** (lectura del implementador): cuando su copia en `pedido_direcciones` salió de otra
+  dirección guardada que la de la recolección (`id_direcciones`). Sin otra dirección de entrega, la app copia la misma
+  dirección dos veces (direcciones-E09), y el pedido lleva un solo marcador, en la recolección, que dice "Recolección y
+  entrega". Dos direcciones guardadas distintas en el mismo punto llevan dos marcadores, uno encima del otro.
+- **De dónde salen los puntos:** de la `ubicacion` que se guardó con cada dirección, leída con PostGIS
+  (`PedidoDireccion::conCoordenadas()`). El mapa no geocodifica nada (`presupuesto-de-mapas.md`, decisión 3).
+- **El mapa es Google Maps JavaScript** (ADR-0009, decisión 3) y sigue el camino del mapa de calor de los indicadores,
+  con las mismas piezas (`App\Filament\MapaDelPanel`): la llave `GOOGLE_MAPS_PANEL_LLAVE`, el aviso sin llave ("El mapa
+  no está disponible porque falta la llave de Google Maps del panel. Los pedidos están en la tabla."), el contenedor con
+  `wire:ignore` y el cargador, que trae la API una sola vez por página.
+- **Una carga de mapa por visita** (`presupuesto-de-mapas.md`: "una sesión por turno de trabajo"): el mapa se crea una
+  vez al abrir la página. El refresco de 30 segundos de la tabla vuelve a dibujar la página y con ella los datos del mapa
+  (el atributo `data-mapa-datos`), pero no su contenedor; el script vuelve a poner los marcadores sobre el mismo mapa y
+  Livewire no le manda el script otra vez. No hay un segundo sondeo: el mapa y la tabla salen de la misma consulta
+  periódica (ADR-0007), así que nunca difieren.
+- **Lo que hace el script al refrescar** (lectura del implementador, para que el refresco no estorbe): el mapa se
+  encuadra solo la primera vez que hay pedidos; después no mueve lo que la administración ve. Si tenía abierto un
+  marcador que sigue en el mapa, lo deja abierto con sus datos nuevos; si su pedido salió, lo cierra.
+- **El marcador es `google.maps.Marker`** (lectura del implementador). Google lo marcó como obsoleto en la versión 3.56
+  (febrero de 2024) a favor de `AdvancedMarkerElement`, pero "at this time, google.maps.Marker is not scheduled to be
+  discontinued" y avisará con al menos 12 meses (grado E, `https://developers.google.com/maps/deprecations`, consultado
+  el 2026-11-22, `SIN VERIFICAR` en el navegador). `AdvancedMarkerElement` pide además un identificador de mapa creado
+  en la consola de Google Cloud de cada entorno: otra variable y otro trámite. Si Google pone fecha de retiro, se cambia
+  el marcador dentro de la vista del mapa, con ese identificador; el resto no cambia.
+- **Quién lo ve:** la página ya pregunta al componente (`puedeEntrarAlPanel()`), y los marcadores salen de los pedidos
+  que el componente le da a la cuenta; a una de otro rol no le da ninguno.
 
 **Comisiones** (tarea 3.1, administracion-E11 a E13), dos páginas en el grupo "Comisiones" del menú. Las reglas y la
 vigencia viven en `App\Comisiones\PorcentajesDeComision`, no en las páginas:
