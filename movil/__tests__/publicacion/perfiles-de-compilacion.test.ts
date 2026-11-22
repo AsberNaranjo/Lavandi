@@ -5,7 +5,7 @@
 //
 // Las variables de cada entorno de EAS, con su tipo y su visibilidad, están en el design.md del cambio ("Las variables de
 // cada entorno de EAS"). Aquí se simulan con valores de prueba.
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -117,5 +117,53 @@ describe('publicacion-E07: un perfil por entorno', () => {
         llaveDelManifiesto(porPerfil.production.configuracion),
       );
     });
+  });
+});
+
+describe('publicacion-E09: la compilación de producción firmada de Android', () => {
+  interface Eas {
+    cli?: { appVersionSource?: string };
+    build?: Record<string, PerfilDeEas & { autoIncrement?: boolean | string; credentialsSource?: string }>;
+  }
+  interface PropiedadDeGradle {
+    key?: string;
+    value?: string;
+  }
+  const eas = () => JSON.parse(textoDeEas()) as Eas;
+  let produccion: ConfiguracionLeida & { android?: { versionCode?: number }; ios?: { buildNumber?: string } };
+
+  beforeAll(() => {
+    produccion = configuracionDeExpo({
+      ...entornoMinimo('publicacion-E09'),
+      EXPO_PUBLIC_API_URL: 'https://api.prueba.invalid/publicacion-e09',
+      ...(perfilesDeEas().production?.env ?? {}),
+    });
+  }, 120_000);
+
+  test('publicacion-E09 — production compila para Google Play: un paquete de aplicación, no un APK', () => {
+    expect(eas().build?.production?.android?.buildType).toBe('app-bundle');
+  });
+
+  test('publicacion-E09 — la firma de Android vive en EAS: eas.json no la busca en el repositorio, que no la tiene', () => {
+    expect(eas().build?.production?.credentialsSource).toBe('remote');
+    expect(existsSync(path.join(RAIZ, 'credentials.json'))).toBe(false);
+  });
+
+  test('publicacion-E09 — el número de versión lo lleva EAS y production lo sube en cada compilación', () => {
+    expect(eas().cli?.appVersionSource).toBe('remote');
+    expect(eas().build?.production?.autoIncrement).toBe(true);
+  });
+
+  test('publicacion-E09 — la configuración no fija el número de la compilación, que es de EAS', () => {
+    expect(produccion.android?.versionCode).toBeUndefined();
+    expect(produccion.ios?.buildNumber).toBeUndefined();
+  });
+
+  test('publicacion-E09 — la compilación de las tiendas no se minifica, como el APK local que sí abre (C-236)', () => {
+    const modResults = produccion._internal?.modResults as { android?: { gradleProperties?: PropiedadDeGradle[] } };
+    const minificar = modResults?.android?.gradleProperties?.find(
+      (propiedad) => propiedad.key === 'android.enableMinifyInReleaseBuilds',
+    );
+    expect(minificar?.value).toBe('false');
   });
 });

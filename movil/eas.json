@@ -1,4 +1,7 @@
 {
+  "cli": {
+    "appVersionSource": "remote"
+  },
   "build": {
     "preview": {
       "environment": "preview",
@@ -12,6 +15,11 @@
     },
     "production": {
       "environment": "production",
+      "credentialsSource": "remote",
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
       "env": {
         "PERFIL_DE_COMPILACION": "production"
       }

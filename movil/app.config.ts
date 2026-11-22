@@ -198,7 +198,11 @@ export default ({ projectRoot }: ConfigContext): ExpoConfig => {
           ios: { deploymentTarget: IOS_MINIMO },
           android: {
             minSdkVersion: ANDROID_API_MINIMA,
-            ...(perfil ? { usesCleartextTraffic: false } : {}),
+            // Las compilaciones de EAS: sin tráfico sin cifrar (publicacion-E06) y sin minificar (publicacion-E09). Con
+            // R8, el release se cierra al abrir porque desaparece la base interna de WorkManager, que llega con la
+            // ubicación; el APK local ya lo apaga y abre (herramientas/apk-local/compilar.ps1, C-236). Sin perfil no se
+            // toca: el APK local sale como antes.
+            ...(perfil ? { usesCleartextTraffic: false, enableMinifyInReleaseBuilds: false } : {}),
           },
         },
       ],

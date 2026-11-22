@@ -99,6 +99,22 @@ en la cuenta de cada entorno (ADR-0012): la de prueba puede ser la de EL PRESTAD
 - En `preview` y en local no se revisa: ahí el identificador es uno neutro de desarrollo, como el de `.env.example`.
   Que producción no lleve uno de esos neutros no lo pide el escenario, y queda en manos de quien llene su entorno.
 
+### 5. La compilación de producción de Android (tarea 3.3, publicacion-E09)
+
+- **Para Google Play, un paquete de aplicación** (`buildType: app-bundle`), firmado con la llave de subida que guarda
+  EAS (`credentialsSource: remote`). La llave nunca entra al repositorio: `.gitignore` ya excluye `*.jks` y
+  `*.keystore`, y `herramientas/ci/verificar_secretos.py` lo revisa.
+- **La versión sube sola:** EAS lleva el número de cada compilación (`cli.appVersionSource: remote`) y `production` lo
+  sube en cada una (`autoIncrement`). `app.config.ts` no fija `android.versionCode` ni `ios.buildNumber`; la versión que
+  ve la persona sigue siendo `version`.
+- **Sin minificar en `preview` y `production`.** El APK local ya lo apaga porque con R8 el release se cierra al abrir:
+  desaparece la base interna de WorkManager, que llega con las dependencias de la ubicación
+  (`herramientas/apk-local/compilar.ps1`, C-236). Con el mismo ajuste en `expo-build-properties`, la compilación de las
+  tiendas sale como el APK que ya se probó. Cuesta un paquete más grande. Volver a minificar con las reglas de
+  conservación de WorkManager es una mejora para después, que necesita su prueba en un teléfono.
+- **Lo que no se comprobó:** el registro de una compilación real de EAS, que espera la cuenta de Expo del entorno
+  (ADR-0012) y, para `production`, el identificador definitivo (DD-088, punto 4).
+
 ## Tablas y migración
 
 No crea tablas: ninguna tabla de `vault/arquitectura/modelo-de-datos.md` nace aquí (ADR-0016). En prueba y en producción
