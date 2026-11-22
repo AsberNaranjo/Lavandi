@@ -56,4 +56,28 @@ return [
         'confianza' => null,
     ],
 
+    /*
+     * Sección 4, "Descarga la app": el enlace de cada tienda y el texto de su botón mientras no lo tenga (landing-E08 y
+     * landing-E09). Los enlaces existen hasta que la app esté publicada (publicacion); solo se publica uno que sea una
+     * dirección http o https. Qué dice el botón mientras tanto lo decide EL CLIENTE (DD-117).
+     */
+    'tiendas' => [
+        'app_store' => [
+            'enlace' => env('LANDING_APP_STORE_ENLACE'),
+            'texto_sin_enlace' => env('LANDING_APP_STORE_TEXTO_SIN_ENLACE'),
+        ],
+        'google_play' => [
+            'enlace' => env('LANDING_GOOGLE_PLAY_ENLACE'),
+            'texto_sin_enlace' => env('LANDING_GOOGLE_PLAY_TEXTO_SIN_ENLACE'),
+        ],
+    ],
+
+    /*
+     * La imagen con el mockup de pantalla de "Descarga la app", como ruta dentro de public/, con su texto alternativo.
+     */
+    'descarga' => [
+        'imagen' => env('LANDING_IMAGEN_DESCARGA'),
+        'imagen_texto' => env('LANDING_IMAGEN_DESCARGA_TEXTO', ''),
+    ],
+
 ];
