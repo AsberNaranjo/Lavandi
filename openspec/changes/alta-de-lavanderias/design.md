@@ -117,6 +117,13 @@ decisión agrega una librería ni un servicio externo.
   la lectura de la pregunta abierta 9 mientras DD-053 siga abierta. Hoy una pendiente todavía aparece al usuario, porque
   `Lavanderia::visiblesParaElUsuario()` solo excluye las suspendidas y las de baja (DD-083, cercanas-E09); E12 la quita
   cuando cierre DD-053.
+- **Los servicios.** Se admiten los tipos activos del catálogo con su unidad definida en
+  `ServiciosYVentanas::UNIDAD_POR_TIPO`: hoy, `estandar` y `planchado`, por kilo (E05). Un código fuera del catálogo
+  se rechaza nombrándolo y diciendo cuáles sí hay (E06, `App\Lavanderias\ServicioAdmitido`). **El lavado en seco se
+  rechaza mientras DD-010 siga abierta**, con el mensaje de que falta decidir su unidad: aceptarlo por kilo decidiría
+  E07 en silencio. Cuando DD-010 responda, entra como una línea de ese mapa (y una fila de `unidades_medida` si es por
+  prenda). Un tipo que ya no viene en la lista queda `activo = false`, sin borrarse. El precio va en pesos, sin signo y
+  con hasta dos decimales; el piso, el techo y quién lo fija son E08 (DD-010).
 - **Una cuenta, una lavandería.** El modelo dice `usuarios ||--o| lavanderias`: el registro de una cuenta que ya tiene
   la suya responde 409 y no guarda nada. La base no lo exige con un único; si DD-053 lo confirma, entra como índice.
 - **La foto.** Va al disco privado de fotos del entorno, que elige `config/fotos.php` (`FOTOS_DISCO`): `fotos_s3` en

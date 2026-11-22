@@ -9,7 +9,7 @@ M = 5 h, L = 12 h.
 ## 1. Registro de la lavandería en el servidor
 
 - [x] 1.1 alta-lavanderias-E01, alta-lavanderias-E02: registro completo y registro incompleto, con la foto en el almacenamiento S3 privado — test: `servidor/tests/Feature/AltaLavanderias/RegistroTest.php` — tamaño M
-- [ ] 1.2 alta-lavanderias-E05, alta-lavanderias-E06: los tres tipos de servicio con su precio por kilo y el rechazo de cualquier otro tipo — test: `servidor/tests/Feature/AltaLavanderias/ServiciosYPreciosTest.php` — tamaño S
+- [x] 1.2 alta-lavanderias-E05, alta-lavanderias-E06: los tres tipos de servicio con su precio por kilo y el rechazo de cualquier otro tipo — test: `servidor/tests/Feature/AltaLavanderias/ServiciosYPreciosTest.php` — tamaño S
 - [ ] 1.3 alta-lavanderias-E09, alta-lavanderias-E10: plaza según la dirección, con la geocodificación simulada, y rechazo fuera de las zonas — test: `servidor/tests/Feature/AltaLavanderias/PlazaPorDireccionTest.php` — tamaño S
 
 ## 2. Perfil y ventanas en el servidor

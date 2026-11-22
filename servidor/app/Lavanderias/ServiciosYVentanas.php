@@ -19,17 +19,32 @@ use App\Models\UnidadMedida;
 final class ServiciosYVentanas
 {
     /**
+     * La unidad en que se cobra cada tipo de servicio que se puede registrar: "precios por kilo"
+     * (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #5; alta-lavanderias-E05). El lavado en seco no está:
+     * entra con la unidad que fije DD-010 (alta-lavanderias-E07, BR-16), y mientras tanto App\Lavanderias\
+     * ServicioAdmitido no lo deja registrar.
+     */
+    public const UNIDAD_POR_TIPO = [
+        TipoServicio::ESTANDAR => UnidadMedida::KILO,
+        TipoServicio::PLANCHADO => UnidadMedida::KILO,
+    ];
+
+    /**
      * @param  list<array{tipo: string, precio: string|int|float}>  $servicios
      */
     public function guardarServicios(Lavanderia $lavanderia, array $servicios): void
     {
-        $kilo = UnidadMedida::query()->where('codigo', UnidadMedida::KILO)->sole();
         $tipos = TipoServicio::query()->whereIn('codigo', array_column($servicios, 'tipo'))->pluck('id_tipos_servicio', 'codigo');
+        $unidades = UnidadMedida::query()->whereIn('codigo', self::UNIDAD_POR_TIPO)->pluck('id_unidades_medida', 'codigo');
 
         foreach ($servicios as $servicio) {
             $lavanderia->servicios()->updateOrCreate(
                 ['id_tipos_servicio' => $tipos[$servicio['tipo']]],
-                ['id_unidades_medida' => $kilo->getKey(), 'precio' => (string) $servicio['precio'], 'activo' => true],
+                [
+                    'id_unidades_medida' => $unidades[self::UNIDAD_POR_TIPO[$servicio['tipo']]],
+                    'precio' => (string) $servicio['precio'],
+                    'activo' => true,
+                ],
             );
         }
 

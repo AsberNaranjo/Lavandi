@@ -4,7 +4,6 @@ namespace App\Lavanderias;
 
 use App\Http\Requests\GuardarDireccionRequest;
 use App\Models\Municipio;
-use App\Models\TipoServicio;
 use Illuminate\Validation\Rule;
 
 /**
@@ -65,7 +64,9 @@ final class ReglasDeLaLavanderia
             'servicios' => [
                 'servicios' => ['required', 'array', 'list', 'min:1'],
                 'servicios.*' => ['array'],
-                'servicios.*.tipo' => ['bail', 'required', 'string', Rule::exists(TipoServicio::class, 'codigo')->where('activo', true)],
+                // Uno de los tres del contrato, una sola vez (alta-lavanderias-E06; lavanderia_servicios es único por
+                // lavandería y tipo).
+                'servicios.*.tipo' => ['bail', 'required', 'string', 'max:50', 'distinct', new ServicioAdmitido],
                 'servicios.*.precio' => ['bail', 'required', 'regex:'.self::PRECIO],
             ],
             'ventanas' => [
@@ -113,7 +114,8 @@ final class ReglasDeLaLavanderia
             'servicios.min' => 'Falta al menos un servicio con su precio.',
             'servicios.*.array' => 'Cada servicio lleva su tipo y su precio.',
             'servicios.*.tipo.required' => 'Falta el tipo del servicio.',
-            'servicios.*.tipo.exists' => 'Ese servicio no se admite.',
+            'servicios.*.tipo.distinct' => 'Ese servicio ya está en la lista.',
+            'servicios.*.tipo.max' => 'Ese servicio no se admite.',
             'servicios.*.precio.required' => 'Falta el precio del servicio.',
             'servicios.*.precio.regex' => 'El precio va en pesos, sin signo y con hasta dos decimales.',
             'ventanas.required' => 'Falta el horario: al menos una ventana de una hora.',
