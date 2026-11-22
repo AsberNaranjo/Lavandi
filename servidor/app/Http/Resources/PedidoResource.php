@@ -30,7 +30,7 @@ class PedidoResource extends JsonResource
         return new self($pedido->load([
             'plaza',
             'lavanderia',
-            'estado',
+            'estado.paso',
             'eventos',
             'servicios' => fn ($servicios) => $servicios->with(['tipo', 'unidad'])->orderBy('id_pedido_servicios'),
             'direcciones' => fn ($direcciones) => $direcciones->conCoordenadas(),
@@ -51,11 +51,7 @@ class PedidoResource extends JsonResource
             'id_publico' => $this->id_publico,
             'folio' => $this->folio,
             'confirmado_en' => $this->confirmado_en?->toIso8601ZuluString(),
-            'estado' => [
-                'codigo' => $this->estado->codigo,
-                'nombre' => $this->estado->nombre_usuario,
-                'visible_usuario' => $this->estado->visible_usuario,
-            ],
+            'estado' => self::estadoParaElUsuario($this->estado),
             // Los cinco estados que ve el usuario, en el orden del contrato, para pintar el seguimiento (estados-E01),
             // cada uno con la hora en que el pedido llegó a él, en la hora de la plaza, o null si no ha llegado
             // (estados-E24).
@@ -95,6 +91,25 @@ class PedidoResource extends JsonResource
             // Vacíos hasta DD-012 y DD-010, y DD-019 y DD-025.
             'monto_estimado' => $this->monto_estimado,
             'envio' => $this->envio,
+        ];
+    }
+
+    /**
+     * El estado actual como lo ve el usuario: el paso del seguimiento en que lo ve, con el nombre del estado. Un estado
+     * operativo que se ve como uno de los cinco, como aceptado, sale con el código de ese paso, para que la app lo
+     * ubique en el seguimiento; uno fuera del flujo, como por_pagar, sale con su código y visible_usuario falso (adenda
+     * propuesta a ADR-0021, en openspec/changes/pedidos-de-la-lavanderia/design.md). Espera cargado estado.paso.
+     *
+     * @return array{codigo: string, nombre: string, visible_usuario: bool}
+     */
+    public static function estadoParaElUsuario(EstadoPedido $estado): array
+    {
+        $paso = $estado->paso;
+
+        return [
+            'codigo' => $paso?->codigo ?? $estado->codigo,
+            'nombre' => $estado->nombre_usuario,
+            'visible_usuario' => $paso !== null,
         ];
     }
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\DireccionesController;
 use App\Http\Controllers\Api\DispositivosController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
 use App\Http\Controllers\Api\PedidosController;
+use App\Http\Controllers\Api\PedidosDeLaLavanderiaController;
 use App\Http\Controllers\Api\PerfilController;
 use App\Http\Controllers\Api\PerfilDeLavanderiaController;
 use App\Http\Controllers\Api\RecuperacionController;
@@ -95,4 +96,11 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     // El token de Firebase del teléfono que recibe los avisos de la cuenta (avisos). El contrato está en el
     // controlador; se borra al cerrar la sesión, con DELETE sesion.
     Route::post('dispositivos', [DispositivosController::class, 'registrar'])->name('dispositivos.registrar');
+});
+
+// Con sesión de socio lavandería, el Módulo B (pedidos-de-la-lavanderia y estados-del-pedido). El contrato está en el
+// controlador. Sin whereUlid a propósito: un valor que no es ULID responde el mismo 404 que un pedido ajeno.
+Route::middleware(['auth:sanctum', 'autorizar:lavanderia'])->prefix('lavanderia')->group(function () {
+    Route::post('pedidos/{pedido}/aceptar', [PedidosDeLaLavanderiaController::class, 'aceptar'])
+        ->name('lavanderia.pedidos.aceptar');
 });

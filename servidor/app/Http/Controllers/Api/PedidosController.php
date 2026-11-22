@@ -274,7 +274,7 @@ class PedidosController extends Controller
             ->confirmados()
             ->recolectadosEntre($peticion->validated('desde'), $peticion->validated('hasta'))
             ->delMasRecienteAlMasAntiguo()
-            ->with(['plaza', 'lavanderia', 'estado'])
+            ->with(['plaza', 'lavanderia', 'estado.paso'])
             ->get();
 
         return response()->json(['pedidos' => PedidoDeLaListaResource::collection($pedidos)]);

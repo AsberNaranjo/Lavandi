@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Un estado del pedido, del catálogo estados_pedido (openspec/changes/resumen-y-confirmacion/design.md, "Tablas y
@@ -13,6 +14,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Entregado (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo A #12). Otra siembra por_pagar, el estado previo al
  * pago, que el usuario no ve (ADR-0021); su código se lee de config/pedidos.php. Los demás internos los siembra el
  * cambio que los usa (ADR-0021, decisión 3).
+ *
+ * visible_usuario dice si el estado es uno de los cinco pasos del seguimiento. Un estado operativo que el usuario ve
+ * como uno de ellos, como aceptado, lleva visible_usuario falso y el nombre y el orden de ese paso: el usuario ve el
+ * paso (paso()). Uno sin paso de su orden, como por_pagar, está fuera del flujo (adenda propuesta a ADR-0021, en
+ * openspec/changes/pedidos-de-la-lavanderia/design.md).
  */
 class EstadoPedido extends Modelo
 {
@@ -21,6 +27,9 @@ class EstadoPedido extends Modelo
 
     /** El primer estado que ve el usuario: el pago quedó acreditado y el pedido tiene folio (C-188). */
     public const CONFIRMADO = 'confirmado';
+
+    /** La lavandería aceptó el pedido (Módulo B #2). El usuario lo sigue viendo en Confirmado. */
+    public const ACEPTADO = 'aceptado';
 
     public const RECOLECTADO = 'recolectado';
 
@@ -56,6 +65,18 @@ class EstadoPedido extends Modelo
     public function scopeDelSeguimiento(Builder $consulta): void
     {
         $consulta->where($consulta->qualifyColumn('visible_usuario'), true)->orderBy($consulta->qualifyColumn('orden'));
+    }
+
+    /**
+     * El paso del seguimiento en que el usuario ve este estado: el mismo, si es uno de los cinco; el de su mismo orden,
+     * si es un estado operativo que se ve como uno de ellos (aceptado se ve como Confirmado). Ninguno si el pedido está
+     * fuera del flujo, como por_pagar.
+     *
+     * @return HasOne<EstadoPedido, $this>
+     */
+    public function paso(): HasOne
+    {
+        return $this->hasOne(self::class, 'orden', 'orden')->where('visible_usuario', true);
     }
 
     /**
