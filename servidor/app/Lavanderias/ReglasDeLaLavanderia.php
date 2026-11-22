@@ -2,6 +2,7 @@
 
 namespace App\Lavanderias;
 
+use App\Fotos\ReglasDeLaFoto;
 use App\Http\Requests\GuardarDireccionRequest;
 use App\Models\Municipio;
 use Illuminate\Validation\Rule;
@@ -52,14 +53,7 @@ final class ReglasDeLaLavanderia
                 'direccion.municipio' => ['bail', 'required', 'string', Rule::exists(Municipio::class, 'codigo')],
             ],
             'foto' => [
-                'foto' => [
-                    'bail',
-                    'required',
-                    'file',
-                    'image',
-                    'mimes:'.implode(',', self::tiposDeFoto()),
-                    'max:'.(int) config('fotos.peso_maximo_kb'),
-                ],
+                'foto' => ReglasDeLaFoto::reglas(),
             ],
             'servicios' => [
                 'servicios' => ['required', 'array', 'list', 'min:1'],
@@ -89,7 +83,7 @@ final class ReglasDeLaLavanderia
      */
     public static function mensajes(): array
     {
-        $tipos = implode(', ', self::tiposDeFoto());
+        $tipos = implode(', ', ReglasDeLaFoto::tipos());
 
         return [
             'nombre.required' => 'Falta el nombre de la lavandería.',
@@ -140,13 +134,5 @@ final class ReglasDeLaLavanderia
             '*.string' => 'Este campo debe ser texto.',
             '*.max' => 'Este campo es demasiado largo.',
         ];
-    }
-
-    /**
-     * @return list<string>
-     */
-    private static function tiposDeFoto(): array
-    {
-        return array_values((array) config('fotos.tipos'));
     }
 }

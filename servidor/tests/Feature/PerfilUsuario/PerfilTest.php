@@ -42,6 +42,8 @@ class PerfilTest extends TestCase
                 'id_publico' => $ana->id_publico,
                 'nombre' => null,
                 'correo' => 'ana@ejemplo.com',
+                // Sin foto hasta que la sube (perfil-usuario-E03, FotoDePerfilTest).
+                'foto' => null,
             ]]);
 
         $this->comoCuenta($ana)->patchJson('/api/perfil', ['nombre' => 'Ana Prueba'])
@@ -50,6 +52,7 @@ class PerfilTest extends TestCase
                 'id_publico' => $ana->id_publico,
                 'nombre' => 'Ana Prueba',
                 'correo' => 'ana@ejemplo.com',
+                'foto' => null,
             ]]);
 
         $this->comoCuenta($ana)->getJson('/api/perfil')
@@ -148,7 +151,8 @@ class PerfilTest extends TestCase
 
         foreach ([$cambio, $consulta] as $respuesta) {
             $this->assertStringNotContainsString(self::NUMERO_DE_TARJETA, $respuesta->getContent());
-            $this->assertSame(['id_publico', 'nombre', 'correo'], array_keys($respuesta->json('perfil')));
+            // Solo los campos del perfil; la foto, de la tarea 1.2, es su URL firmada o null.
+            $this->assertSame(['id_publico', 'nombre', 'correo', 'foto'], array_keys($respuesta->json('perfil')));
         }
 
         $this->assertSame([], $this->tablasQueGuardan(self::NUMERO_DE_TARJETA));

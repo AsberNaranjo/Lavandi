@@ -91,6 +91,8 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     // El perfil de la cuenta de la sesión, y ninguna otra (perfil-y-soporte). El contrato está en el controlador.
     Route::get('perfil', [PerfilController::class, 'mostrar'])->name('perfil.mostrar');
     Route::patch('perfil', [PerfilController::class, 'cambiar'])->name('perfil.cambiar');
+    // La foto de perfil va en multipart, así que es POST: PHP solo lee los archivos de un POST.
+    Route::post('perfil/foto', [PerfilController::class, 'subirFoto'])->name('perfil.foto');
 
     // Soporte: el número de WhatsApp de la configuración y el formulario de reporte (perfil-y-soporte). El contrato está
     // en cada controlador.
