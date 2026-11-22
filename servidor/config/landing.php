@@ -98,6 +98,15 @@ return [
     ],
 
     /*
+     * Sección 7, "Cobertura": la tolerancia, en grados, con la que PostGIS simplifica el polígono de cada zona antes de
+     * mandarlo a la portada. 0.0005 grados son unos 55 metros: no cambia la forma a la escala del mapa y quita los
+     * vértices de más (landing-E12; App\Landing\ZonasDeLaCobertura).
+     */
+    'cobertura' => [
+        'simplificacion' => (float) env('LANDING_COBERTURA_SIMPLIFICACION', 0.0005),
+    ],
+
+    /*
      * Sección 9, "Preguntas frecuentes": la ruta del archivo JSON con las preguntas y sus respuestas, absoluta o relativa
      * a la carpeta del servidor, como lista de {"pregunta": "…", "respuesta": "…"}. Se muestran a lo más ocho
      * (landing-E20; App\Landing\PreguntasFrecuentes).
