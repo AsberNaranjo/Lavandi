@@ -113,6 +113,9 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
   en curso hasta hoy, por día.
 - **"Hoy"** (el rango sin filtros) se lee en la zona horaria de la aplicación, porque la cuenta no tiene plaza; es la
   misma pregunta 8.
+- **La dona** cuenta los pedidos confirmados en el rango por su estado actual: activos son `confirmado`, `aceptado`,
+  `recolectado`, `en_proceso`, `listo` y `en_entrega` (ADR-0021 y su adenda); completados, `entregado`. Un pedido
+  `rechazado` no es activo ni completado, y la dona no lo muestra mientras E05 espera DD-016.
 
 ## Open Questions
 

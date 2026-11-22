@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Autorizacion\Autorizacion;
+use App\Filament\Widgets\Indicadores\PedidosPorEstadoGrafica;
 use App\Filament\Widgets\Indicadores\PedidosTotalesGrafica;
 use App\Filament\Widgets\Indicadores\PedidosTotalesTabla;
 use App\Indicadores\Granularidad;
@@ -84,6 +85,7 @@ class Indicadores extends Dashboard
         return [
             PedidosTotalesGrafica::class,
             PedidosTotalesTabla::class,
+            PedidosPorEstadoGrafica::class,
         ];
     }
 }

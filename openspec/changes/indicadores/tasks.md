@@ -11,7 +11,7 @@ M = 5 h.
 - [x] 1.1 indicadores-E01: página de indicadores con rango y granularidad; pedidos por día en barras y en tabla — test: `servidor/tests/Feature/Indicadores/PedidosTotalesTest.php` — tamaño M
 - [x] 1.2 indicadores-E02: pedidos por semana y por mes, cada periodo junto al anterior — test: `servidor/tests/Feature/Indicadores/PedidosTotalesTest.php` — tamaño S
 - [x] 1.3 indicadores-E03: el día de un pedido es el de su plaza — test: `servidor/tests/Feature/Indicadores/PedidosTotalesTest.php` — tamaño S
-- [ ] 1.4 indicadores-E04: dona de activos y completados — test: `servidor/tests/Feature/Indicadores/PedidosPorEstadoTest.php` — tamaño S
+- [x] 1.4 indicadores-E04: dona de activos y completados — test: `servidor/tests/Feature/Indicadores/PedidosPorEstadoTest.php` — tamaño S
 - [ ] 1.5 indicadores-E05: cancelados en la dona — test: `servidor/tests/Feature/Indicadores/PedidosPorEstadoTest.php` — tamaño S — bloqueada: DD-016, BR-22
 
 ## 2. Usuarios (servidor/)
