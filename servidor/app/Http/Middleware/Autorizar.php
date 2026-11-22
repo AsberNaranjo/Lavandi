@@ -10,16 +10,18 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * La puerta de las rutas protegidas hacia el componente de autorización: autorizar:<rol>. No decide nada; pregunta a
- * App\Autorizacion\Autorizacion (registro-E14). Va siempre después de auth:sanctum.
+ * La puerta de las rutas protegidas hacia el componente de autorización: autorizar:<rol>[,<rol>...]. Deja pasar a la
+ * cuenta que tenga cualquiera de los roles. No decide nada; pregunta a App\Autorizacion\Autorizacion (registro-E14). Va
+ * siempre después de auth:sanctum.
  *
  *     Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(...);
+ *     Route::middleware(['auth:sanctum', 'autorizar:usuario,lavanderia'])->group(...);
  */
 class Autorizar
 {
     public function __construct(private readonly Autorizacion $autorizacion) {}
 
-    public function handle(Request $request, Closure $next, string $rol): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $usuario = $request->user();
 
@@ -27,7 +29,9 @@ class Autorizar
             throw new AuthenticationException;
         }
 
-        abort_unless($this->autorizacion->permite($usuario, $rol), 403, 'Esta cuenta no tiene acceso.');
+        $permitido = array_any($roles, fn (string $rol): bool => $this->autorizacion->permite($usuario, $rol));
+
+        abort_unless($permitido, 403, 'Esta cuenta no tiene acceso.');
 
         return $next($request);
     }

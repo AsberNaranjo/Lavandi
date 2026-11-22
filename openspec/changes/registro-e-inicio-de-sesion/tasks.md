@@ -75,6 +75,8 @@ nunca en las dos.
 - [ ] 4.6 registro-E29: la aceptación en la pantalla de registro, si EL CLIENTE la pide. Bloqueada por DD-080 — test:
   `movil/__tests__/registro/documentos-legales.test.tsx` — tamaño S
 
+- [x] 3.9 registro-E33: la cuenta y el cierre de la sesión para toda cuenta con un rol de la app (decisión 31) — test: `servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php` — tamaño S
+
 ## Horas
 
 | Grupo | Tareas | Horas |

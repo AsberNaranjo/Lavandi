@@ -39,9 +39,14 @@ Route::post('contrasena/olvido', RecuperacionController::class)
 
 // Con sesión, y por el componente único de autorización (registro-E14). Una ruta nueva sin las dos no pasa la prueba
 // tests/Feature/Registro/AutorizacionTest.php.
-Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
+// La cuenta y el cierre de la sesión, de toda cuenta con un rol de la app: con el rol, la app sabe a qué módulo entra
+// (registro-E33). La administración entra por el panel. El rol del repartidor se agrega cuando nazca (H8).
+Route::middleware(['auth:sanctum', 'autorizar:usuario,lavanderia'])->group(function () {
     Route::get('cuenta', CuentaController::class)->name('cuenta');
     Route::delete('sesion', [SesionController::class, 'cerrar'])->name('sesion.cerrar');
+});
+
+Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
 
     // Las lavanderías cercanas a un punto (lavanderias-cercanas).
     Route::get('lavanderias/cercanas', LavanderiasCercanasController::class)->name('lavanderias.cercanas');

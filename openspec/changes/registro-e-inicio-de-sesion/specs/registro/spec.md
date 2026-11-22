@@ -327,3 +327,20 @@ Cita: A → `NSV-2026-001-v8.pdf:31:ANEXO B, Sección B.7` y `NSV-2026-001-v8.pd
   constancia
 
 SIN RESPUESTA — bloquea: registro-E29 (DD-080)
+
+### Requirement: Cada rol de la app consulta su cuenta y cierra su sesión
+
+La API DEBE (MUST) dejar que una cuenta con un rol de la app —usuario, socio lavandería o socio repartidor— consulte su
+cuenta, con su rol, y cierre su sesión. Con el rol la app sabe a qué módulo entra la cuenta. La administración entra por
+el panel y NO DEBE (MUST NOT) usar estas rutas de la app.
+
+Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (una sola app con los módulos del usuario, la lavandería y el
+repartidor) · D → ADR-0019 (la autorización en un solo componente) y decisión 31 del acta del 2026-11-20 (C-236)
+
+#### Scenario: registro-E33 — Una cuenta de lavandería consulta su cuenta y cierra su sesión
+
+- **DADO** una cuenta de socio lavandería con la sesión iniciada
+- **CUANDO** la app consulta su cuenta
+- **ENTONCES** recibe su correo y su rol, `lavanderia`
+- **Y** cuando la app cierra la sesión, el token deja de servir
+- **Y** una cuenta de administración recibe 403 en las dos rutas, sin datos
