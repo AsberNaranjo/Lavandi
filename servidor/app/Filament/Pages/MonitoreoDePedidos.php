@@ -4,13 +4,16 @@ namespace App\Filament\Pages;
 
 use App\Autorizacion\Autorizacion;
 use App\Filament\EstadosDelPedido;
+use App\Filament\MapaDelPanel;
 use App\Models\EstadoPedido;
 use App\Models\Pedido;
 use App\Models\Usuario;
+use App\Pedidos\MarcadoresDelMonitoreo;
 use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\EmbeddedTable;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -25,8 +28,14 @@ use Illuminate\Database\Eloquent\Builder;
  * administracion-E06 y E07). Es de solo lectura, y se refresca sola cada 30 segundos mientras está abierta (ADR-0007).
  *
  * Los pedidos salen del componente de autorización (Autorizacion::pedidosActivosDelPanel()); cuáles están activos lo dice
- * el modelo del pedido (Pedido::activosDelMonitoreo()). El mapa espera la llave de Google Maps JavaScript (DD-072,
- * administracion-E09 y E10).
+ * el modelo del pedido (Pedido::activosDelMonitoreo()).
+ *
+ * Arriba de la tabla, el mapa de los mismos pedidos (tarea 2.4; administracion-E09 y E10): un marcador en la recolección
+ * de cada pedido y otro en la entrega cuando es en otra dirección (App\Pedidos\MarcadoresDelMonitoreo). Es Google Maps
+ * JavaScript, con la llave, el aviso, el contenedor y el cargador de todos los mapas del panel (App\Filament\MapaDelPanel;
+ * ADR-0009, decisión 3). El mapa se crea una sola vez al abrir la página: el refresco de la tabla vuelve a dibujar la
+ * página, y con ella los datos del mapa, pero no su contenedor (wire:ignore), así que no se carga otro mapa
+ * (presupuesto-de-mapas.md).
  */
 class MonitoreoDePedidos extends Page implements HasTable
 {
@@ -79,7 +88,19 @@ class MonitoreoDePedidos extends Page implements HasTable
 
     public function content(Schema $schema): Schema
     {
-        return $schema->components([EmbeddedTable::make()]);
+        return $schema->components([
+            // Se calcula en cada dibujo de la página, también en el refresco, con los pedidos que el componente le da a
+            // la cuenta: los mismos de la tabla.
+            View::make('filament.pages.monitoreo-de-pedidos.mapa')
+                ->viewData(fn (): array => [
+                    'llave' => MapaDelPanel::llave(),
+                    'datos' => [
+                        'marcadores' => app(MarcadoresDelMonitoreo::class)
+                            ->deLosPedidos(app(Autorizacion::class)->pedidosActivosDelPanel(self::cuenta())),
+                    ],
+                ]),
+            EmbeddedTable::make(),
+        ]);
     }
 
     private static function cuenta(): Usuario

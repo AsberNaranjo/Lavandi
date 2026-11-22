@@ -3,11 +3,12 @@
     indicadores-E19 e indicadores-E20). Lo arma App\Filament\Widgets\Indicadores\MapaDeCalor con los agregados que
     calcula el servidor; aquí solo se dibujan.
 
-    - Con la llave de Google Maps JavaScript del panel (services.google_maps_panel.llave; ADR-0009, decisión 3), el
-      mapa se monta una sola vez en un contenedor que Livewire no toca (wire:ignore). Los datos van en el atributo
-      data-mapa-datos, que sí se actualiza con el refresco y los filtros; el script vuelve a dibujar las figuras sobre el
-      mismo mapa, sin crear otro, para no gastar cargas de mapa (presupuesto-de-mapas.md).
-    - Sin la llave, el mapa no se monta y el aviso dice por qué.
+    - Con la llave de Google Maps JavaScript del panel (App\Filament\MapaDelPanel; ADR-0009, decisión 3), el mapa se
+      monta una sola vez en el contenedor que Livewire no toca (filament.mapas.contenedor, con wire:ignore), con la API
+      que carga filament.mapas.cargador. Los datos van en el atributo data-mapa-datos, que sí se actualiza con el
+      refresco y los filtros; el script vuelve a dibujar las figuras sobre el mismo mapa, sin crear otro, para no gastar
+      cargas de mapa (presupuesto-de-mapas.md).
+    - Sin la llave, el mapa no se monta y el aviso dice por qué (filament.mapas.sin-llave).
     - La tabla trae las mismas cifras, para leerlas sin el mapa y sin depender del color; cada figura del mapa dice su
       nombre y su número de pedidos al elegirla.
 --}}
@@ -35,18 +36,9 @@
         <div hidden data-mapa-datos="{{ json_encode($datos, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION) }}"></div>
 
         @if ($llave === null)
-            <p role="status" style="padding: 1rem; border: 1px dashed var(--gray-300); border-radius: 0.5rem; margin-bottom: 1rem;">
-                El mapa no está disponible porque falta la llave de Google Maps del panel. Las cifras están en la tabla.
-            </p>
+            @include('filament.mapas.sin-llave', ['respaldo' => 'Las cifras están en la tabla.'])
         @else
-            <div
-                wire:ignore
-                data-mapa
-                data-llave="{{ $llave }}"
-                role="region"
-                aria-label="Mapa de calor de pedidos"
-                style="height: 26rem; border-radius: 0.5rem; overflow: hidden; margin-bottom: 0.75rem;"
-            ></div>
+            @include('filament.mapas.contenedor', ['llave' => $llave, 'etiqueta' => 'Mapa de calor de pedidos'])
 
             <div aria-hidden="true" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; margin-bottom: 1rem;">
                 <span>Menos pedidos</span>
@@ -87,23 +79,13 @@
 @if ($llave !== null)
 @script
 <script>
+    @include('filament.mapas.cargador')
+
     const raiz = $wire.$el;
     const contenedor = raiz.querySelector('[data-mapa]');
 
     if (contenedor) {
-        // La API de mapas se carga una sola vez por página, con la llave de la configuración.
-        window.mapasDelPanel ??= new Promise((resolver, rechazar) => {
-            window.alCargarLosMapasDelPanel = () => resolver(window.google.maps);
-
-            const script = document.createElement('script');
-            script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(contenedor.dataset.llave)
-                + '&loading=async&callback=alCargarLosMapasDelPanel';
-            script.async = true;
-            script.onerror = rechazar;
-            document.head.append(script);
-        });
-
-        window.mapasDelPanel.then((maps) => {
+        window.cargarLosMapasDelPanel(contenedor.dataset.llave).then((maps) => {
             const mapa = new maps.Map(contenedor, {
                 center: { lat: 0, lng: 0 },
                 zoom: 2,
