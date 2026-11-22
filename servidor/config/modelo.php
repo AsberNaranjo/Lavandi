@@ -43,7 +43,8 @@ return [
     /*
      * Sin plaza, por diseño: los catálogos, las plazas, las cuentas y lo de la pasarela. Los del territorio
      * (entidades_federativas, municipios y colonias) no son de una plaza, y una plaza nueva no los cambia (direcciones,
-     * design.md, "La dirección asistida").
+     * design.md, "La dirección asistida"). Los testimonios de la landing tampoco: la portada es una para todo el sitio
+     * (landing, design.md, "Tablas y migración").
      */
     'sin_plaza' => [
         'roles',
@@ -62,6 +63,7 @@ return [
         'eventos_pasarela',
         'metodos_pago_guardados',
         'movimientos_pasarela',
+        'testimonios',
     ],
 
     /*

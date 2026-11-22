@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: mixto
-fuente: NSV-2026-001-v8.pdf:4:Cláusula I, :16-20:ANEXO A, Sección A.3, :22:A.5 (A); ADR-0004, ADR-0005, ADR-0006, ADR-0010 (D); arquitectura/modelo-multi-plaza.md y c3-api.md (B); las 26 specs de openspec/changes/ (B); acta-2026-11-19-normativa-y-arranque.md C-187 a C-190 y acta-2026-11-20-modelo-y-pasarela.md C-192 a C-194 (C); C-238 y la decisión 29 del acta del 2026-11-20, con openspec/changes/direcciones/design.md (el catálogo del territorio, 2026-11-21); openspec/changes/alta-de-lavanderias/design.md (el municipio de la lavandería, por delegación de C-236, 2026-11-22); openspec/changes/administracion/design.md (comisiones y avisos_masivos como quedaron en la tarea 0.1, por delegación de C-236, 2026-11-22); diseño de Claude del 2026-11-19
+fuente: NSV-2026-001-v8.pdf:4:Cláusula I, :16-20:ANEXO A, Sección A.3, :22:A.5 (A); ADR-0004, ADR-0005, ADR-0006, ADR-0010 (D); arquitectura/modelo-multi-plaza.md y c3-api.md (B); las 26 specs de openspec/changes/ (B); acta-2026-11-19-normativa-y-arranque.md C-187 a C-190 y acta-2026-11-20-modelo-y-pasarela.md C-192 a C-194 (C); C-238 y la decisión 29 del acta del 2026-11-20, con openspec/changes/direcciones/design.md (el catálogo del territorio, 2026-11-21); openspec/changes/alta-de-lavanderias/design.md (el municipio de la lavandería, por delegación de C-236, 2026-11-22); openspec/changes/administracion/design.md (comisiones y avisos_masivos como quedaron en la tarea 0.1, por delegación de C-236, 2026-11-22); openspec/changes/landing/design.md (testimonios, tarea 4.0, por delegación de C-236, 2026-11-22); diseño de Claude del 2026-11-19
 fecha: 2026-11-19
 dueño: Arthur Naranjo
 ---
@@ -220,14 +220,21 @@ deuda: no se crea hasta que se responda.
 | `reportes_soporte` | `id_reportes_soporte`, `id_usuarios`, `id_pedidos`, `id_plazas`, `mensaje`, `estado`, `atendido_en` | `id_plazas` sale del pedido; sin pedido, del último pedido de la cuenta o de su dirección guardada más reciente, y es no nula (decisión 27 del acta del 2026-11-20). A quién llega: DD-108 | `:17:A.3 #16` | `perfil-y-soporte` |
 | `avisos_masivos` | `id_avisos_masivos`, `id_plazas`, `segmento` (`jsonb`), `titulo`, `mensaje`, `id_usuarios` (quien lo envió), `enviado_en`, `destinatarios` | `id_plazas` vacía: el aviso es para todas las plazas. `segmento` vacío: sin segmento. `enviado_en` es cuándo lo envió la administración. `destinatarios` es el número de teléfonos a los que salió (`integer`, no negativo), vacío hasta que sale. Los segmentos: DD-113 | `:19:Módulo D #7` | `administracion` |
 
+### Landing
+
+| Tabla | Columnas | Reglas | Cita | Nace en |
+|---|---|---|---|---|
+| `testimonios` | `id_testimonios`, `autor`, `texto`, `activo`, `orden` | Las opiniones de la sección 8 de la portada, que se editan en el panel con su interruptor de activo y su orden (ADR-0011). `autor` y `texto` no nulos ni en blanco (`CHECK`). `activo` vale `false` por omisión: un testimonio nuevo no se publica hasta activarlo. `orden` es `smallint`, 0 por omisión y no negativo (`CHECK`). **Sin `id_plazas`:** la portada es una para todo el sitio; va en la lista `sin_plaza` de `config/modelo.php` (modelo-E05). Sin el trigger `impedir_cambio()`: es contenido, no historial | `:15:A.2`, sección 8; ADR-0011 | `landing` |
+
 **Los indicadores no tienen tablas propias.** Se calculan de `pedidos`, `pedido_eventos`, `pagos`, `calificaciones` y
 `actividad_usuarios`. Si una consulta resulta lenta, se agrega una vista materializada, que no cambia ninguna tabla
 (DD-116).
 
 **Lo que no tiene tabla todavía, a propósito:**
 - `documentos_repartidor`: excluido por el contrato (`:18`). Si entra por Orden de Cambio, es una tabla nueva.
-- El cupo por ventana (DD-099), los festivos (DD-078) y los textos de la landing (ADR-0011): entran cuando se decidan,
-  como columnas opcionales o tablas nuevas.
+- El cupo por ventana (DD-099), los festivos (DD-078) y los logos de prensa de la landing (ADR-0011; tarea 4.2 de
+  `landing`, que espera los logos de EL CLIENTE): entran cuando se decidan, como columnas opcionales o tablas nuevas.
+  Los demás textos de la landing no tienen tabla: salen de la configuración (`openspec/changes/landing/design.md`).
 
 ## Lo que falta decidir y toca el modelo
 
