@@ -46,7 +46,8 @@ class FilaDeOperacionConPlazaTest extends TestCase
     public function test_plazas_e09_la_lista_de_tablas_sin_plaza_es_la_de_modelo_de_datos_y_la_de_plaza_opcional_tiene_cuatro(): void
     {
         // Las del escenario: los catálogos, plazas, las de cuentas y las de la pasarela. Los tres del territorio los
-        // agregó la dirección asistida (openspec/changes/direcciones/design.md, tarea 4.1; C-238).
+        // agregó la dirección asistida (openspec/changes/direcciones/design.md, tarea 4.1; C-238), y testimonios, la
+        // landing (openspec/changes/landing/design.md, tarea 4.0).
         $this->assertEqualsCanonicalizing([
             'roles',
             'tipos_servicio',
@@ -64,6 +65,7 @@ class FilaDeOperacionConPlazaTest extends TestCase
             'eventos_pasarela',
             'metodos_pago_guardados',
             'movimientos_pasarela',
+            'testimonios',
         ], config('modelo.sin_plaza'));
 
         $this->assertEqualsCanonicalizing(
