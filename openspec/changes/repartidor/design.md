@@ -231,6 +231,26 @@ El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/
 - **El tiempo real** es la consulta cada 30 s de la app (ADR-0007): el servidor responde la lista de ese momento, y un
   pedido recién ofrecido aparece en la siguiente consulta (E11).
 
+### Aceptar o rechazar (tarea 1.4)
+
+- **La respuesta vive en `pedido_asignaciones`**, en `App\Repartidores\RespuestaDelRepartidor`, con el pedido y la oferta
+  bloqueados: aceptar deja la oferta `aceptado` con su hora y escribe `pedidos.id_repartidores` (E15); rechazar la deja
+  `rechazado` con su motivo y su hora (E16). **Ninguna cambia el estado del pedido ni agrega un evento a su historial:**
+  la oferta no es un estado del pedido (ADR-0021).
+- **El pedido aceptado es de quien lo aceptó:** a otro repartidor con una oferta del mismo pedido deja de aparecerle, y
+  aceptarlo le responde 404. Si dos aceptan a la vez, el bloqueo deja pasar al primero; el segundo recibe 409 "El pedido
+  ya lo tomó otro repartidor.". Esto no decide DD-014: la regla de a quién se ofrece sigue abierta; solo impide que un
+  pedido tenga dos repartidores a la vez en `pedidos.id_repartidores`.
+- **Se acepta aunque la lavandería todavía no responda el pedido**, porque la oferta puede llegar antes; sus botones
+  esperan a que la lavandería lo acepte (ver la adenda propuesta a ADR-0021).
+- **Una oferta respondida no se vuelve a responder:** aceptar dos veces, o rechazar después de aceptar, responde 409 "La
+  oferta ya fue respondida.". Deshacer una aceptación no lo pide la spec.
+- **El motivo** usa la regla del rechazo de la lavandería (`App\Http\Requests\RechazarPedidoRequest`): obligatorio, texto,
+  sin los espacios de las orillas y de hasta `pedidos.motivo_de_rechazo_maximo` caracteres (500), y se valida antes de
+  buscar el pedido (E17).
+- **Después del rechazo** el pedido sale de su lista y pedirlo le responde 404 ("deja de estar asignado a él"). Qué pasa
+  con el pedido rechazado (se reasigna, se avisa o se detiene) espera DD-014 (E18): no se toca.
+
 ### Cómo se prueba en local
 
 1. `php artisan migrate --seed` (o `php artisan db:seed` si ya está migrada). En local, el sembrado agrega
@@ -370,6 +390,24 @@ vacía si no hay.
 ### `GET /api/repartidor/pedidos/{id_publico}` (E12 y E30)
 
 Un pedido suyo en cualquier estado, también uno que ya entregó. **200** `{ "pedido": { … } }` · **404** como arriba.
+
+### `POST /api/repartidor/pedidos/{id_publico}/aceptar` (E15)
+
+Sin cuerpo. **200** `{ "pedido": { … } }`, con `asignacion.estado` en `aceptado`, su `respondido_en` y `por_responder` en
+`false`; el estado del pedido no cambia. **409** `{ "message": "…", "pedido": { …como está… } }`, sin cambiar nada, con
+uno de: "La oferta ya fue respondida.", "El pedido ya no está en curso." o "El pedido ya lo tomó otro repartidor.".
+
+### `POST /api/repartidor/pedidos/{id_publico}/rechazar` (E16 y E17)
+
+`{ "motivo": "Mi moto está en el taller." }`: obligatorio, texto, sin los espacios de las orillas, de hasta 500
+caracteres (`pedidos.motivo_de_rechazo_maximo`).
+
+- **200** `{ "asignacion": { "pedido": "<id_publico>", "estado": "rechazado", "motivo": "…", "respondido_en": "…Z" } }`.
+  El pedido deja de estar asignado a él: sale de su lista y pedirlo responde 404. Qué pasa con él espera DD-014 (E18).
+- **422** `{ "message": "Escribe el motivo del rechazo.", "errors": { "motivo": ["Escribe el motivo del rechazo."] } }`
+  sin motivo, vacío, de puros espacios o que no es texto; "El motivo no puede pasar de 500 caracteres." si pasa del
+  máximo. Se valida antes de buscar el pedido. La oferta sigue `ofrecido`.
+- **409** "La oferta ya fue respondida." si ya la aceptó.
 
 ## Risks / Trade-offs
 

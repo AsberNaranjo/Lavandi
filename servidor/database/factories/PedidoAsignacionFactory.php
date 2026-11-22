@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  * Las asignaciones de las pruebas y del sembrado de desarrollo. Quién asigna un pedido a un repartidor, y desde dónde,
  * espera DD-014 (repartidor-E13), así que no hay operación de asignar: mientras tanto, la oferta se crea directo en la
  * base con esta fábrica (openspec/changes/repartidor/tasks.md). Nace ofrecida: aceptarla o rechazarla va por la
- * operación real del repartidor, nunca por la fábrica.
+ * operación real del repartidor, App\Repartidores\RespuestaDelRepartidor, nunca por la fábrica.
  *
  *     PedidoAsignacion::factory()->para($pedido, $repartidor)->create();
  *

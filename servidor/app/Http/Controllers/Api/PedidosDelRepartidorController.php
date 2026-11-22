@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Autorizacion\Autorizacion;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\RepartidorQueOpera;
+use App\Http\Requests\RechazarPedidoRequest;
 use App\Http\Resources\PedidoDelRepartidorResource;
 use App\Models\Pedido;
 use App\Models\Repartidor;
 use App\Pedidos\PedidoNoVisible;
+use App\Repartidores\RespuestaDelRepartidor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -37,6 +39,25 @@ use Illuminate\Support\Str;
  *
  *     200  { "pedido": { ...el pedido... } }
  *     404  { "message": "No existe el pedido." }
+ *
+ *     POST /api/repartidor/pedidos/{id_publico}/aceptar     Acepta la oferta (repartidor-E15). Sin cuerpo
+ *
+ *     200  { "pedido": { ...el pedido, con "asignacion.estado" en "aceptado" y "por_responder" en false... } }
+ *     409  { "message": "La oferta ya fue respondida." | "El pedido ya no está en curso." |
+ *                     "El pedido ya lo tomó otro repartidor.", "pedido": { ...el pedido como está... } }
+ *
+ *     POST /api/repartidor/pedidos/{id_publico}/rechazar    Rechaza la oferta con su motivo (repartidor-E16 y E17)
+ *
+ *     { "motivo": "Mi moto está en el taller." }            obligatorio: texto, sin los espacios de las orillas, de
+ *                                                           hasta pedidos.motivo_de_rechazo_maximo caracteres (500)
+ *
+ *     200  { "asignacion": { "pedido": "<id_publico>", "estado": "rechazado", "motivo": "…", "respondido_en": "…Z" } }
+ *          El pedido deja de estar asignado a él: sale de su lista y pedirlo responde 404. Qué pasa con él espera
+ *          DD-014 (repartidor-E18).
+ *     422  { "message": "Escribe el motivo del rechazo.", "errors": { "motivo": ["Escribe el motivo del rechazo."] } }
+ *          Sin motivo, vacío, de puros espacios o que no es texto; o "El motivo no puede pasar de 500 caracteres.".
+ *          Se valida antes de buscar el pedido.
+ *     409  { "message": "La oferta ya fue respondida.", "pedido": { ... } }    ya la aceptó
  */
 class PedidosDelRepartidorController extends Controller
 {
@@ -65,14 +86,30 @@ class PedidosDelRepartidorController extends Controller
         return $this->respuesta($this->pedidoVisible($repartidor, $pedido), $repartidor);
     }
 
-    public function aceptar(): JsonResponse
+    public function aceptar(Request $peticion, string $pedido, RespuestaDelRepartidor $respuesta): JsonResponse
     {
-        throw new PedidoNoVisible;
+        $repartidor = RepartidorQueOpera::de($peticion);
+
+        $aceptado = $respuesta->aceptar($this->pedidoVisible($repartidor, $pedido), $repartidor);
+
+        return $this->respuesta($aceptado, $repartidor);
     }
 
-    public function rechazar(): JsonResponse
+    /**
+     * El rechazo deja de asignarle el pedido: la respuesta es la oferta rechazada, no el pedido, que ya no es suyo.
+     */
+    public function rechazar(RechazarPedidoRequest $peticion, string $pedido, RespuestaDelRepartidor $respuesta): JsonResponse
     {
-        throw new PedidoNoVisible;
+        $repartidor = RepartidorQueOpera::de($peticion);
+
+        $rechazo = $respuesta->rechazar($this->pedidoVisible($repartidor, $pedido), $repartidor, $peticion->validated('motivo'));
+
+        return response()->json(['asignacion' => [
+            'pedido' => $rechazo->pedido->id_publico,
+            'estado' => $rechazo->estado,
+            'motivo' => $rechazo->motivo,
+            'respondido_en' => $rechazo->respondido_en->utc()->toIso8601ZuluString(),
+        ]]);
     }
 
     public function marcar(): JsonResponse
