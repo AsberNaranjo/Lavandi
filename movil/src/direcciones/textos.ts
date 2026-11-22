@@ -1,8 +1,10 @@
 // Los textos del paso de la dirección del pedido y de la dirección nueva (openspec/changes/direcciones), juntos para
 // revisarlos en un solo lugar. Los de la dirección nueva siguen el tablero "Dirección nueva" de la Propuesta 5
-// corregida (C-233), con los campos de DD-135, punto 6: calle, número, colonia y municipio, sin código postal.
+// corregida (C-233), con los campos de DD-135, punto 6: calle, número, colonia y municipio. El municipio se elige de la
+// lista del territorio y la colonia se sugiere por el código postal, que se pide y no se exige (C-238,
+// direcciones-E17, E19 y E20; decisión 29 del acta del 2026-11-20).
 import { MENSAJES, mensajeGeneral } from '../acceso/mensajes';
-import type { Direccion, FallaDelAlta, Rechazo } from './api';
+import type { Direccion, FallaDelAlta, Municipio, Rechazo } from './api';
 
 export const TEXTOS_DE_DIRECCIONES = {
   // El paso de la dirección, con el tablero "Dirección (3 de 4)" de la Propuesta 5 corregida.
@@ -26,6 +28,7 @@ export const TEXTOS_DE_DIRECCIONES = {
   calle: 'Calle',
   numero: 'Número',
   numeroInterior: 'Número interior (opcional)',
+  codigoPostal: 'Código postal (opcional)',
   colonia: 'Colonia',
   municipio: 'Municipio',
   referencias: 'Referencias (opcional)',
@@ -33,6 +36,24 @@ export const TEXTOS_DE_DIRECCIONES = {
   calleEnElMapa: 'Calle (opcional)',
   numeroEnElMapa: 'Número (opcional)',
   municipioEnElMapa: 'Municipio (opcional)',
+  // El municipio, de la lista del territorio (direcciones-E17). Sin lista, no hay campo de texto libre: el servidor
+  // rechazaría un municipio que no es del catálogo (direcciones-E18).
+  elegirMunicipio: 'Elige tu municipio',
+  cargandoMunicipios: 'Cargando los municipios…',
+  buscarMunicipio: 'Buscar municipio',
+  municipiosNoDisponibles: 'No pudimos cargar la lista de municipios. Intenta de nuevo o marca la dirección en el mapa.',
+  // En el mapa el municipio es opcional: la dirección se guarda sin él.
+  municipiosNoDisponiblesEnElMapa: 'No pudimos cargar la lista de municipios. Puedes guardar la dirección sin él.',
+  intentarDeNuevo: 'Intentar de nuevo',
+  // La colonia, de la lista de su código postal, o escrita a mano (direcciones-E19 y E20).
+  elegirColonia: 'Elige tu colonia',
+  buscarColonia: 'Buscar colonia',
+  noApareceMiColonia: 'No aparece mi colonia',
+  elegirDeLaLista: 'Elegir de la lista de colonias',
+  buscandoColonias: 'Buscando las colonias…',
+  sinColoniasDelCodigoPostal: 'No encontramos colonias con ese código postal. Escríbela.',
+  // Sin escenario propio: el catálogo ayuda y no bloquea.
+  coloniasNoDisponibles: 'No pudimos buscar las colonias de ese código postal. Escríbela.',
   instruccionDelMapa: 'Mueve el mapa para dejar el pin sobre tu puerta.',
   // Sin escenario propio: sin permiso de ubicación, o sin ubicación, el mapa no tiene dónde abrirse.
   sinUbicacionParaElMapa: 'Sin tu ubicación no podemos abrir el mapa. Puedes escribir la dirección.',
@@ -46,6 +67,11 @@ export const TEXTOS_DE_DIRECCIONES = {
   sinGeocodificacion: 'No pudimos buscar la dirección. Márcala en el mapa o inténtalo más tarde.',
   marcarlaEnElMapa: 'Marcarla en el mapa',
 } as const;
+
+/** Un municipio de la lista con su estado, que distingue a Matamoros, Coahuila: "Torreón, Coahuila de Zaragoza". */
+export function municipioEnTexto({ nombre, estado }: Municipio): string {
+  return `${nombre}, ${estado.nombre}`;
+}
 
 /** Las fallas del alta después de las cuales se ofrece marcar la dirección en el mapa (direcciones-E03). */
 export function ofreceElMapa(falla: FallaDelAlta): boolean {

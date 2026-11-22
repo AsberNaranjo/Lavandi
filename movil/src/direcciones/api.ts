@@ -1,7 +1,9 @@
 // Las direcciones de la cuenta (openspec/changes/direcciones): guardar una nueva, escrita o marcada en el mapa
 // (direcciones-E01 a E04 y E06), la lista de favoritas (direcciones-E06 a E08) y la recogida y la entrega de un pedido,
-// que el servidor acepta solo dentro de la zona de servicio de la plaza de la lavandería (direcciones-E09 a E11). Todo va con el token de la sesión y la API identifica cada dirección por su
-// id_publico. El contrato exacto con cada cuerpo y cada error está en el comentario de
+// que el servidor acepta solo dentro de la zona de servicio de la plaza de la lavandería (direcciones-E09 a E11). Y el
+// catálogo del territorio para escribirla (C-238): los municipios, para elegir uno de la lista (direcciones-E17), y las
+// colonias de un código postal (direcciones-E19 y E20). Todo va con el token de la sesión y la API identifica cada
+// dirección por su id_publico; al municipio, por su código del catálogo. El contrato exacto con cada cuerpo y cada error está en el comentario de
 // servidor/app/Http/Controllers/Api/DireccionesController.php. Como las demás consultas, nunca lanza: devuelve un
 // Resultado.
 //
@@ -19,6 +21,9 @@ export const CONTRATO_DE_DIRECCIONES = {
   favoritas: 'direcciones/favoritas',
   lista: 'direcciones',
   recogidaYEntrega: 'direcciones/recogida-y-entrega',
+  municipios: 'catalogos/municipios',
+  /** GET codigos-postales/{codigo_postal}/colonias. */
+  colonias: (codigoPostal: string) => `codigos-postales/${encodeURIComponent(codigoPostal)}/colonias`,
 } as const;
 
 /** Los motivos con los que el servidor rechaza guardar una dirección escrita (direcciones-E03). */
@@ -37,7 +42,10 @@ export interface Direccion {
   /** Siempre: es obligatoria (direcciones-E02). */
   colonia: string;
   codigo_postal: string | null;
+  /** El nombre del municipio del catálogo; null en una del mapa sin municipio. */
   municipio: string | null;
+  /** El nombre del estado de ese municipio (direcciones-E17); null sin municipio. */
+  estado: string | null;
   referencias: string | null;
   latitud: number;
   longitud: number;
@@ -48,7 +56,10 @@ export interface SenasDeLaDireccion {
   calle: string;
   numero_exterior: string;
   numero_interior: string;
+  /** Opcional: si viene, cinco números (direcciones-E20). */
+  codigo_postal: string;
   colonia: string;
+  /** El código del municipio elegido de la lista (direcciones-E17); vacío si no eligió ninguno. */
   municipio: string;
   referencias: string;
 }
@@ -128,12 +139,7 @@ export async function consultarFavoritas(token: string): Promise<Resultado<Direc
   if (!resultado.ok) {
     return resultado;
   }
-  const filas = esObjeto(resultado.datos) ? resultado.datos[lista] : undefined;
-  const direcciones = Array.isArray(filas) ? filas.map(leerDireccion) : null;
-  // Una respuesta fuera del contrato no se pinta a medias: cuenta como falla del servidor.
-  return direcciones && direcciones.every((direccion) => direccion !== null)
-    ? { ok: true, datos: direcciones as Direccion[] }
-    : { ok: false, motivo: 'servidor' };
+  return listaDelContrato(resultado.datos, lista, leerDireccion);
 }
 
 /**
@@ -222,7 +228,7 @@ export function leerDireccion(fila: unknown): Direccion | null {
   if (latitud === null || longitud === null || textos.some((texto) => texto === undefined)) {
     return null;
   }
-  const [alias, calle, numero_exterior, numero_interior, codigo_postal, municipio, referencias] = textos as (
+  const [alias, calle, numero_exterior, numero_interior, codigo_postal, municipio, estado, referencias] = textos as (
     | string
     | null
   )[];
@@ -236,6 +242,7 @@ export function leerDireccion(fila: unknown): Direccion | null {
     colonia: fila.colonia,
     codigo_postal,
     municipio,
+    estado,
     referencias,
     latitud,
     longitud,
@@ -250,8 +257,81 @@ const CAMPOS_DE_TEXTO = [
   'numero_interior',
   'codigo_postal',
   'municipio',
+  'estado',
   'referencias',
 ] as const;
+
+/** Un municipio del territorio, con su estado, como lo da GET /api/catalogos/municipios (direcciones-E17). */
+export interface Municipio {
+  /** El que la app manda en POST /api/direcciones. */
+  codigo: string;
+  nombre: string;
+  estado: { codigo: string; nombre: string };
+}
+
+/**
+ * GET de los municipios del catálogo del territorio, con la sesión, en el orden del servidor: por el nombre del estado y
+ * luego por el del municipio. Sin catálogo cargado, la lista viene vacía.
+ */
+export async function consultarMunicipios(token: string): Promise<Resultado<Municipio[]>> {
+  const resultado = await pedir<unknown>(CONTRATO_DE_DIRECCIONES.municipios, { metodo: 'GET', token });
+  if (!resultado.ok) {
+    return resultado;
+  }
+  return listaDelContrato(resultado.datos, 'municipios', leerMunicipio);
+}
+
+/** Una colonia del catálogo, con su municipio, como la da GET /api/codigos-postales/{codigo_postal}/colonias. */
+export interface ColoniaDelCatalogo {
+  nombre: string;
+  /** El tipo de asentamiento: Colonia, Fraccionamiento, Barrio… Distingue dos con el mismo nombre. */
+  tipo: string;
+  municipio: { codigo: string; nombre: string };
+}
+
+/**
+ * GET de las colonias de un código postal de cinco números, con la sesión, ordenadas por nombre (direcciones-E19). Un
+ * código postal que no está en el catálogo da la lista vacía, y no es un error: la colonia se escribe a mano
+ * (direcciones-E20).
+ */
+export async function consultarColonias(token: string, codigoPostal: string): Promise<Resultado<ColoniaDelCatalogo[]>> {
+  const resultado = await pedir<unknown>(CONTRATO_DE_DIRECCIONES.colonias(codigoPostal), { metodo: 'GET', token });
+  if (!resultado.ok) {
+    return resultado;
+  }
+  return listaDelContrato(resultado.datos, 'colonias', leerColonia);
+}
+
+// La lista de una respuesta, leída fila por fila. Una respuesta fuera del contrato no se pinta a medias: cuenta como
+// falla del servidor.
+function listaDelContrato<T>(datos: unknown, clave: string, leer: (fila: unknown) => T | null): Resultado<T[]> {
+  const filas = esObjeto(datos) ? datos[clave] : undefined;
+  const leidas = Array.isArray(filas) ? filas.map(leer) : null;
+  return leidas && leidas.every((fila) => fila !== null)
+    ? { ok: true, datos: leidas as T[] }
+    : { ok: false, motivo: 'servidor' };
+}
+
+// Un código con su nombre, como el estado de un municipio o el municipio de una colonia; null si no es del contrato.
+function leerCodigoYNombre(valor: unknown): { codigo: string; nombre: string } | null {
+  return esObjeto(valor) && typeof valor.codigo === 'string' && typeof valor.nombre === 'string'
+    ? { codigo: valor.codigo, nombre: valor.nombre }
+    : null;
+}
+
+function leerMunicipio(fila: unknown): Municipio | null {
+  const municipio = leerCodigoYNombre(fila);
+  const estado = esObjeto(fila) ? leerCodigoYNombre(fila.estado) : null;
+  return municipio && estado ? { ...municipio, estado } : null;
+}
+
+function leerColonia(fila: unknown): ColoniaDelCatalogo | null {
+  if (!esObjeto(fila) || typeof fila.nombre !== 'string' || typeof fila.tipo !== 'string') {
+    return null;
+  }
+  const municipio = leerCodigoYNombre(fila.municipio);
+  return municipio ? { nombre: fila.nombre, tipo: fila.tipo, municipio } : null;
+}
 
 // Texto o null; cualquier otra cosa no es del contrato (undefined).
 function textoOVacio(valor: unknown): string | null | undefined {

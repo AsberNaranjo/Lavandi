@@ -64,6 +64,7 @@ const CASA = {
   colonia: 'Colonia de prueba',
   codigo_postal: null,
   municipio: 'Municipio de prueba',
+  estado: 'Estado de prueba',
   referencias: 'Portón gris',
   latitud: 24.0277,
   longitud: -104.6532,
@@ -78,6 +79,7 @@ const OFICINA = {
   colonia: 'Otra colonia de prueba',
   codigo_postal: null,
   municipio: 'Municipio de prueba',
+  estado: 'Estado de prueba',
   referencias: null,
   latitud: 24.0311,
   longitud: -104.6612,
@@ -138,6 +140,12 @@ function servidor({
     const metodo = opciones.method ?? 'GET';
     if (ruta === '/cuenta') {
       return respuesta(200, { usuario: USUARIO });
+    }
+    // La lista del territorio, que la dirección nueva pide al abrirse (direcciones-E17).
+    if (ruta === '/catalogos/municipios' && metodo === 'GET') {
+      return respuesta(200, {
+        municipios: [{ codigo: '00001', nombre: 'Municipio de prueba', estado: { codigo: '00', nombre: 'Estado de prueba' } }],
+      });
     }
     if (ruta === '/direcciones/favoritas' && metodo === 'GET') {
       return favoritas();
@@ -202,7 +210,12 @@ async function agregarDireccion(seccion: () => ReturnType<typeof within>, { favo
   await escribir('Calle', 'Calle nueva de prueba');
   await escribir('Número', '123');
   await escribir('Colonia', 'Colonia de prueba');
-  await escribir('Municipio', 'Municipio de prueba');
+  // El municipio, de la lista del territorio (direcciones-E17).
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Municipio' })).toBeEnabled());
+  await fireEvent.press(screen.getByRole('button', { name: 'Municipio' }));
+  await fireEvent.press(
+    within(screen.getByTestId('hoja-municipio')).getByRole('radio', { name: 'Municipio de prueba, Estado de prueba' }),
+  );
   if (favoritaConNombre) {
     await fireEvent(screen.getByRole('switch', { name: 'Guardar como favorita' }), 'valueChange', true);
     await escribir('Nombre', favoritaConNombre);
@@ -267,7 +280,7 @@ describe('direcciones-E06: guardar una dirección como favorita', () => {
           calle: 'Calle nueva de prueba',
           numero_exterior: '123',
           colonia: 'Colonia de prueba',
-          municipio: 'Municipio de prueba',
+          municipio: '00001',
           es_favorita: true,
           alias: 'Casa nueva',
         },

@@ -1,5 +1,6 @@
 // Campo de texto de formulario, con su etiqueta y su error junto a él (registro-E04). Con varias líneas, para las
-// referencias de una dirección (direcciones-E01), crece hacia abajo desde arriba.
+// referencias de una dirección (direcciones-E01), crece hacia abajo desde arriba. El código postal de una dirección
+// (direcciones-E20) lleva el teclado de números.
 // Colores y medidas de theme.ts (ADR-0013); el alto mínimo es el área táctil del design system y el borde, el grosor de
 // control. Con el foco, el borde pasa al grosor y al color de foco: "foco visible siempre", contorno de 3 px
 // (vault/design-system/componentes.md, reglas transversales; DD-133, punto 5).
@@ -9,7 +10,7 @@ import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-na
 import { letra } from '../tema/letra';
 import { tema } from '../tema/theme';
 
-export type TipoDeCampo = 'texto' | 'correo' | 'contrasena' | 'contrasena-nueva' | 'fecha';
+export type TipoDeCampo = 'texto' | 'correo' | 'contrasena' | 'contrasena-nueva' | 'fecha' | 'codigo-postal';
 
 interface Propiedades {
   /** El nombre del campo en la API: une el campo con su error (`campo-<nombre>`). */
@@ -54,6 +55,14 @@ const POR_TIPO: Record<TipoDeCampo, TextInputProps> = {
     maxLength: 'DD/MM/AAAA'.length,
     placeholder: 'DD/MM/AAAA',
     placeholderTextColor: tema.color.semantico.texto_suave,
+  },
+  // El código postal de México son cinco números (direcciones-E20). El teclado de números de las dos plataformas, y el
+  // autocompletado del sistema con el de la persona.
+  'codigo-postal': {
+    keyboardType: 'number-pad',
+    maxLength: 5,
+    autoComplete: 'postal-code',
+    textContentType: 'postalCode',
   },
 };
 
