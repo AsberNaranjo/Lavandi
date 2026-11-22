@@ -152,6 +152,42 @@ decisión agrega una librería ni un servicio externo.
 - **Para producción falta una dependencia:** el driver S3 de Laravel necesita `league/flysystem-aws-s3-v3`. No se
   instaló, porque hoy solo existe el entorno local (C-154); se propone instalarla cuando se decida el hosting (DD-070).
 
+## El panel de administración
+
+El recurso de lavanderías de Filament (ADR-0003, ADR-0011) vive en `servidor/app/Filament/Resources/Lavanderias/`.
+
+- **Quién entra:** solo el rol de administración. El panel le pregunta al componente de autorización con
+  `Usuario::canAccessPanel()`, y el recurso toma sus lavanderías de `Autorizacion::lavanderiasDelPanel()`: todas, de
+  todas las plazas, para la administración; ninguna para otra cuenta (autorizacion-E03, con su prueba en
+  `servidor/tests/Feature/Autorizacion/PanelSoloAdministracionTest.php`). No usa Policies de Filament (ADR-0019).
+- **La lista** muestra nombre, estado (Pendiente, Activa, Suspendida, Dada de baja) y plaza (E13).
+- **La edición** usa los mismos campos del registro y pasa por `ReglasDeLaLavanderia` y `EdicionDeLavanderia`, como
+  la app; cada error vuelve junto a su campo. Solo se manda lo que cambió desde que se abrió la página, como en el
+  `PATCH` de la app: así una lavandería de prueba sin municipio, o con sus franjas largas de prueba, se edita en lo
+  demás. La foto solo cambia si se sube una nueva.
+- **No hay alta ni borrado:** el alta espera DD-053 (E11) y la baja no borra (E17).
+- **`Usuario` implementa `HasName` de Filament:** el panel no podía pintar la barra de la cuenta de administración
+  porque `usuarios` no tiene `name`; muestra el nombre, o el correo mientras el nombre esté vacío (C-225).
+- **El idioma de la interfaz de Filament** sale de `APP_LOCALE`, que hoy es `en` en `.env.example`: las etiquetas de
+  este recurso están en español, pero los botones propios de Filament salen en inglés hasta que se cambie a `es`.
+  No se cambió aquí porque toca a todo el servidor.
+
+### Cómo se entra al panel en local
+
+1. Con la base de desarrollo migrada, sembrar: `php artisan db:seed` (o `php artisan migrate --seed`). En local, el
+   sembrado agrega `Database\Seeders\CuentasDeDesarrolloSeeder`, que solo corre con `APP_ENV=local`.
+2. `php artisan serve` y abrir `http://localhost:8000/admin` (o el `APP_URL` del `.env` más `/admin`).
+3. Entrar con las cuentas de prueba, con la contraseña de las cuentas de prueba, `contrasena-de-prueba`
+   (`UsuarioFactory::CONTRASENA`), guardada con hash:
+
+| Cuenta | Rol | Para qué |
+|---|---|---|
+| `admin@ejemplo.com` | Administración | Entra al panel: `/admin/lavanderias` |
+| `lavanderia@ejemplo.com` | Socio lavandería, sin lavandería | Entra a la app para probar el registro (`POST /api/socio/lavanderias`) |
+
+Las fotos de local quedan en `servidor/storage/app/private/fotos/` y se ven en `/archivos/fotos/…` solo con la URL
+firmada. Ninguna de estas cuentas se siembra en el entorno de prueba ni en producción.
+
 ## El contrato de la API
 
 Para la app (tareas 4.1 y 4.2). El mismo texto, con su detalle, está en

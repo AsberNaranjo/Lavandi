@@ -89,6 +89,20 @@ final class Autorizacion
     }
 
     /**
+     * Las lavanderías que la cuenta ve y gestiona en el panel: todas, de todas las plazas, si es de administración
+     * (autorizacion-E03 y E13; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #1); ninguna si no lo es. El
+     * recurso de lavanderías del panel parte de aquí, además de que el panel ya no deja entrar a otra cuenta.
+     *
+     * @return Builder<Lavanderia>
+     */
+    public function lavanderiasDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = Lavanderia::query();
+
+        return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
      * Los teléfonos que la cuenta puede borrar: solo los suyos (avisos-E05). Al cerrar la sesión, el token de otra
      * cuenta no se toca aunque la app lo mande.
      *
