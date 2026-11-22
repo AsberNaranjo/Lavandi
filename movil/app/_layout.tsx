@@ -9,10 +9,10 @@
 // entre la bienvenida y el inicio de sesión (bienvenida-E01, E02 y E04; C-237).
 // Mientras se lee la sesión no se muestra ninguna pantalla. La bienvenida y las informativas no dependen de la sesión.
 //
-// Con sesión, las pantallas se ven además según el módulo de la cuenta, por su rol (registro-E33): las del usuario, solo
-// con una cuenta de usuario; las de la lavandería (pedidos-de-la-lavanderia y estados-del-pedido, en app/lavanderia/),
-// solo con una de socio lavandería. Las de un módulo que no es el suyo, y las de la entrada con la sesión abierta, llevan
-// al arranque, que abre la primera del módulo de la cuenta.
+// Con sesión, las pantallas se ven además según el módulo de la cuenta, por su rol (registro-E33): las del usuario,
+// solo con una cuenta de usuario; las de la lavandería (pedidos-de-la-lavanderia y estados-del-pedido, en
+// app/lavanderia/), solo con una de socio lavandería. Las de un módulo que no es el suyo, y las de la entrada con la
+// sesión abierta, llevan al arranque, que abre la primera del módulo de la cuenta.
 //
 // Tampoco se muestra ninguna mientras carga la letra de la marca (adenda del 2026-11-21 de ADR-0013): la carga empieza
 // junto con la lectura de la sesión, y si falla, la app sigue con la letra del sistema.

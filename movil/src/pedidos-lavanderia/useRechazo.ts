@@ -12,7 +12,7 @@ import { mensajeDeLaAccion } from './useAccionesDeLaLavanderia';
 
 const { motivo: CAMPO } = CONTRATO_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA;
 
-/** Si el motivo dice algo: sin él, o con puros espacios, la app no deja confirmar el rechazo (pedidos-lavanderia-E13). */
+/** Si el motivo dice algo: sin él, o con puros espacios, la app no deja confirmar el rechazo (E13). */
 export function hayMotivo(motivo: string): boolean {
   return motivo.trim() !== '';
 }

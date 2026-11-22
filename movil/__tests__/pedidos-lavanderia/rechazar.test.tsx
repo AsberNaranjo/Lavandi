@@ -195,7 +195,8 @@ describe('pedidos-lavanderia-E08 (en la app): rechazar un pedido ya respondido',
     await fireEvent.press(screen.getByRole('button', { name: 'Regresar' }));
     await waitFor(() => expect(screen).toHavePathname(RUTA_DE_LOS_PEDIDOS));
     const tarjeta = within(screen.getByTestId(`pedido-${NUEVO.id_publico}`));
-    await waitFor(() => expect(within(tarjeta.getByTestId('estado-del-pedido')).getByText('Aceptado')).toBeOnTheScreen());
+    const estado = () => within(tarjeta.getByTestId('estado-del-pedido'));
+    await waitFor(() => expect(estado().getByText('Aceptado')).toBeOnTheScreen());
   });
 
   // Sin escenario propio: sin conexión, los mensajes generales de la app; el pedido sigue igual.

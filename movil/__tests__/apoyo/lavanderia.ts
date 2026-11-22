@@ -155,8 +155,8 @@ export interface Peticion {
 }
 
 /**
- * Lo que una prueba pone en lugar de la respuesta normal: si devuelve algo, el servidor contesta eso (una respuesta, una
- * promesa que la prueba suelta cuando quiere, o lanza un error de red); si devuelve undefined, contesta lo normal.
+ * Lo que una prueba pone en lugar de la respuesta normal: si devuelve algo, el servidor contesta eso (una respuesta,
+ * una promesa que la prueba suelta cuando quiere, o lanza un error de red); si devuelve undefined, contesta lo normal.
  */
 export type Interceptor = (peticion: Peticion) => unknown;
 
@@ -184,7 +184,9 @@ export class ServidorDeLaLavanderia {
 
   /** Lo que la app pidió, en orden. */
   peticiones(): Peticion[] {
-    return this.fetch.mock.calls.map(([url, opciones]: [string, RequestInit | undefined]) => leer(this.base, url, opciones));
+    return this.fetch.mock.calls.map(([url, opciones]: [string, RequestInit | undefined]) =>
+      leer(this.base, url, opciones),
+    );
   }
 
   /** Cuántas veces la app pidió la lista de pedidos. */
@@ -341,9 +343,9 @@ export function usarElServidorDeLaLavanderia(nombre: string): () => ServidorDeLa
 }
 
 /**
- * Abre la app como al tocar su ícono, en esa plataforma, con la sesión guardada de una cuenta que ya entró antes en esta
- * instalación (vio la bienvenida y tiene su token). La cuenta es la del servidor: la de la lavandería, si la prueba no
- * dice otra.
+ * Abre la app como al tocar su ícono, en esa plataforma, con la sesión guardada de una cuenta que ya entró antes en
+ * esta instalación (vio la bienvenida y tiene su token). La cuenta es la del servidor: la de la lavandería, si la
+ * prueba no dice otra.
  */
 export async function abrirLaAppConSesion(plataforma: Plataforma, ruta = '/'): Promise<void> {
   jest.replaceProperty(Platform, 'OS', plataforma);

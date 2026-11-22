@@ -2,8 +2,11 @@
 // canvas/PedidoLavanderia.dc.html), para los pedidos activos del Módulo B (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3,
 // Módulo B #2): arriba, "Pedido <folio>" y la insignia cuadrada de su estado operativo, con el nombre que le da el
 // servidor; debajo, la fecha y la ventana de recolección en la hora de la plaza y el servicio (pedidos-lavanderia-E03).
-// El pedido que espera respuesta ofrece Rechazar y Aceptar, con la nota de que el rechazo pide el motivo. Sin las dos
-// respuestas, como en la pantalla del rechazo, la tarjeta solo muestra el pedido.
+// El pedido que espera respuesta ofrece Rechazar y Aceptar, con la nota de que el rechazo pide el motivo. El aceptado
+// ofrece solo el botón del paso siguiente, el que da el servidor en "siguiente", con su texto: Recolectado, En proceso,
+// Listo o En proceso de entrega (Módulo B #3; estados-E06). Nunca un botón de un salto ni de un regreso; sin paso
+// siguiente, como en En proceso de entrega, ninguno. Sin las acciones, como en la pantalla del rechazo, la tarjeta solo
+// muestra el pedido.
 //
 // Del componente no entran: el monto y la calificación del pedido cerrado (historial-de-la-lavanderia, F-B04), ni el
 // peso (sin escenario). La tarjeta no tiene datos del usuario: la API no los manda (pedidos-lavanderia-E04, DD-022 y
@@ -40,12 +43,20 @@ interface Propiedades {
   alAceptar?: () => void;
   /** Rechazar el pedido que espera respuesta: abre el motivo. */
   alRechazar?: () => void;
+  /** Tocar el botón del paso siguiente. */
+  alAvanzar?: () => void;
   /** Mientras se manda una acción del pedido, sus botones se bloquean: un doble toque no manda dos veces. */
   enviando?: boolean;
 }
 
-export function TarjetaDePedidoDeLavanderia({ pedido, alAceptar, alRechazar, enviando = false }: Propiedades) {
-  const { id_publico: idPublico, folio, estado, por_responder: porResponder } = pedido;
+export function TarjetaDePedidoDeLavanderia({
+  pedido,
+  alAceptar,
+  alRechazar,
+  alAvanzar,
+  enviando = false,
+}: Propiedades) {
+  const { id_publico: idPublico, folio, estado, por_responder: porResponder, siguiente } = pedido;
   return (
     <View style={estilos.tarjeta} testID={`pedido-${idPublico}`}>
       <View style={estilos.cabecera}>
@@ -75,6 +86,11 @@ export function TarjetaDePedidoDeLavanderia({ pedido, alAceptar, alRechazar, env
           </View>
           <Text style={[estilos.nota, letra('cuerpo', 'regular')]}>{TEXTOS.notaDelRechazo}</Text>
         </>
+      ) : null}
+      {siguiente && alAvanzar ? (
+        <Boton ocupado={enviando} onPress={alAvanzar}>
+          {siguiente.boton}
+        </Boton>
       ) : null}
     </View>
   );

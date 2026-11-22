@@ -29,8 +29,8 @@ interface SesionAbierta {
 type Lectura = SesionAbierta | 'sin-sesion' | 'sin-acceso';
 
 // Lo que hace "Cerrar sesión" fuera del teléfono: pide al servidor revocar el token, y a Google cerrar su sesión, para
-// que la siguiente entrada con Google deje elegir la cuenta. No espera a ninguno de los dos: si el servidor no contesta,
-// la petición se corta sola al vencer su plazo, y Google nunca falla.
+// que la siguiente entrada con Google deje elegir la cuenta. No espera a ninguno de los dos: si el servidor no
+// contesta, la petición se corta sola al vencer su plazo, y Google nunca falla.
 function cerrarFueraDelTelefono(token: string | null) {
   if (token) {
     void cerrarSesionEnServidor(token);
@@ -43,8 +43,8 @@ async function borrarDelTelefono(): Promise<void> {
   await borrarRol();
 }
 
-// La sesión guardada, si el servidor la sigue reconociendo. Si ya no, la borra del teléfono, salvo que mientras tanto la
-// persona haya iniciado otra sesión (puedeBorrar).
+// La sesión guardada, si el servidor la sigue reconociendo. Si ya no, la borra del teléfono, salvo que mientras tanto
+// la persona haya iniciado otra sesión (puedeBorrar).
 async function leerSesionVigente(puedeBorrar: () => boolean): Promise<Lectura> {
   await comprobarInstalacion();
   const token = await leerToken();

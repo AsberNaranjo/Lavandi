@@ -2,8 +2,8 @@
 // con la respuesta de la app al 409 de pedidos-lavanderia-E08. La lavandería acepta desde la tarjeta un pedido que
 // espera su respuesta (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #2: "Aceptar o rechazar con motivo"): la
 // app lo manda al servidor (POST /api/lavanderia/pedidos/{id_publico}/aceptar) y la tarjeta se ve aceptada, ya sin
-// Aceptar ni Rechazar. Si el pedido ya fue respondido (409), la app muestra el mensaje del servidor y vuelve a consultar
-// la lista. Mientras manda, la tarjeta se bloquea: un doble toque no manda dos veces.
+// Aceptar ni Rechazar. Si el pedido ya fue respondido (409), la app muestra el mensaje del servidor y vuelve a
+// consultar la lista. Mientras manda, la tarjeta se bloquea: un doble toque no manda dos veces.
 //
 // Se abre la app real con la sesión de una cuenta de socio lavandería, en iPhone y en Android, con el servidor simulado
 // (__tests__/apoyo/lavanderia.ts), que acepta como el real: solo desde "Por aceptar".

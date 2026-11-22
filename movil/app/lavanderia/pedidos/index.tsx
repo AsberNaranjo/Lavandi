@@ -1,16 +1,18 @@
 // La pantalla de pedidos de la lavandería, la primera del Módulo B (openspec/changes/pedidos-de-la-lavanderia;
-// NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #2): a donde entra la cuenta de socio lavandería (registro-E33).
-// Muestra sus pedidos activos, como los da el servidor, de la recolección más próxima a la más lejana, cada uno con la
-// tarjeta de pedido de socio lavandería, el componente 4 del design system (pedidos-lavanderia-E03). Sin pedidos, un
-// mensaje neutro; si la lista no llega, sin escenario propio, los mensajes generales de la app, como "Mis pedidos".
+// NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #2): a donde entra la cuenta de socio lavandería
+// (registro-E33). Muestra sus pedidos activos, como los da el servidor, de la recolección más próxima a la más lejana,
+// cada uno con la tarjeta de pedido de socio lavandería, el componente 4 del design system (pedidos-lavanderia-E03).
+// Sin pedidos, un mensaje neutro; si la lista no llega, sin escenario propio, los mensajes generales de la app, como
+// "Mis pedidos".
 //
 // El pedido que espera respuesta se acepta desde su tarjeta (pedidos-lavanderia-E07): la tarjeta se bloquea mientras se
-// manda y se pone al día con la respuesta. Si el pedido ya fue respondido (409), el mensaje del servidor va arriba de la
-// lista y la lista se vuelve a consultar (pedidos-lavanderia-E08). "Rechazar" abre el rechazo, que pide el motivo
-// (pedidos-lavanderia-E12 y E13).
+// manda y se pone al día con la respuesta. Si el pedido ya fue respondido (409), el mensaje del servidor va arriba de
+// la lista y la lista se vuelve a consultar (pedidos-lavanderia-E08). "Rechazar" abre el rechazo, que pide el motivo
+// (pedidos-lavanderia-E12 y E13). El pedido aceptado ofrece solo el botón de su paso siguiente, que se manda igual que
+// Aceptar (estados-E06); si ya no es el paso siguiente (409), el mensaje va arriba y la lista se vuelve a consultar.
 //
-// "Cerrar sesión" va abajo, con la confirmación de la app (registro-E13). La composición sigue las imágenes del Módulo B
-// de la Propuesta 04 (mocks/Lavandi - Propuesta 04/Lavandería/): el título a la izquierda y las tarjetas debajo.
+// "Cerrar sesión" va abajo, con la confirmación de la app (registro-E13). La composición sigue las imágenes del Módulo
+// B de la Propuesta 04 (mocks/Lavandi - Propuesta 04/Lavandería/): el título a la izquierda y las tarjetas debajo.
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
@@ -54,6 +56,7 @@ export default function PedidosDeLaLavanderia() {
           enviando={acciones.enviandoEl(pedido)}
           alAceptar={() => void acciones.aceptar(pedido)}
           alRechazar={() => router.push(rutaDelRechazo(pedido.id_publico))}
+          alAvanzar={() => void acciones.avanzar(pedido)}
         />
       ))}
       <MensajeDeError texto={mensajeDeLaLista && mensajeDeLaLista !== acciones.aviso ? mensajeDeLaLista : undefined} />

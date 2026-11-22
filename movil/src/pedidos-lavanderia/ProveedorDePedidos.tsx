@@ -1,7 +1,7 @@
 // La lista de pedidos de la lavandería, compartida por las pantallas del Módulo B: la de pedidos la consulta cada 30
-// segundos y la pone al día con cada respuesta (pedidos-lavanderia-E03, E05 y E07); la del rechazo lee de ella el pedido
-// que se rechaza y, al rechazarlo, lo quita, para que no vuelva a verse en la lista (pedidos-lavanderia-E12). Vive en
-// app/lavanderia/_layout.tsx: solo existe con la sesión de una cuenta de socio lavandería y se va con ella.
+// segundos y la pone al día con cada respuesta (pedidos-lavanderia-E03, E05 y E07); la del rechazo lee de ella el
+// pedido que se rechaza y, al rechazarlo, lo quita, para que no vuelva a verse en la lista (pedidos-lavanderia-E12).
+// Vive en app/lavanderia/_layout.tsx: solo existe con la sesión de una cuenta de socio lavandería y se va con ella.
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
 import type { Falla, Resultado } from '../configuracion/api';
@@ -16,8 +16,8 @@ export interface EstadoDeLaLista {
 
 export interface PedidosCompartidos extends EstadoDeLaLista {
   /**
-   * La respuesta de una consulta de la lista: con la lista, la pone; si no llegó, conserva la última con el motivo, para
-   * que la pantalla lo diga. La siguiente que llega lo quita.
+   * La respuesta de una consulta de la lista: con la lista, la pone; si no llegó, conserva la última con el motivo,
+   * para que la pantalla lo diga. La siguiente que llega lo quita.
    */
   recibir(resultado: Resultado<PedidoDeLaLavanderia[]>): void;
   /** Pone en la lista el pedido como lo devolvió el servidor, en el lugar del que tenía. */

@@ -1,13 +1,13 @@
 // Spec: openspec/changes/registro-e-inicio-de-sesion/specs/registro/spec.md, requisito "Cada rol de la app consulta su
 // cuenta y cierra su sesión" (registro-E33): "Con el rol la app sabe a qué módulo entra la cuenta. La administración
-// entra por el panel". Una sola app con los módulos del usuario y de la lavandería
-// (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3), con las pantallas separadas por tipo de usuario
-// (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, Medidas de seguridad).
+// entra por el panel". Una sola app con los módulos del usuario y de la lavandería (NSV-2026-001-v8.pdf:16:ANEXO A,
+// Sección A.3), con las pantallas separadas por tipo de usuario (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, Medidas
+// de seguridad).
 //
 // Al entrar, la cuenta de usuario llega al inicio del Módulo A y la de socio lavandería a sus pedidos del Módulo B
-// (pedidos-lavanderia-E03); ninguna abre las pantallas de la otra, como ya no se abren sin sesión (ADR-0018). La cuenta de
-// administración no usa la app: si llegara a entrar, la app cierra su sesión y lo dice. La lavandería cierra su sesión
-// como el usuario (registro-E13), con la confirmación de la app.
+// (pedidos-lavanderia-E03); ninguna abre las pantallas de la otra, como ya no se abren sin sesión (ADR-0018). La cuenta
+// de administración no usa la app: si llegara a entrar, la app cierra su sesión y lo dice. La lavandería cierra su
+// sesión como el usuario (registro-E13), con la confirmación de la app.
 //
 // Se abre la app real, con las rutas de movil/app/ (ADR-0017), en iPhone y en Android, con el servidor simulado
 // (__tests__/apoyo/lavanderia.ts). Cómo se registra un socio y llega a su cuenta es DD-053: aquí la cuenta ya existe.

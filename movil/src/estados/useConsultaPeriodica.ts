@@ -26,8 +26,8 @@ function alFrente(estado: string | null | undefined): boolean {
 
 /**
  * Corre la consulta mientras la pantalla está visible y entrega cada respuesta vigente. Sin consulta (null), como
- * mientras se lee la sesión, espera. Las dos funciones deben ser estables (useCallback): si cambian, el ciclo empieza de
- * nuevo. Devuelve "consultar de nuevo": consulta ya, descarta la respuesta que esté en camino y vuelve a contar 30
+ * mientras se lee la sesión, espera. Las dos funciones deben ser estables (useCallback): si cambian, el ciclo empieza
+ * de nuevo. Devuelve "consultar de nuevo": consulta ya, descarta la respuesta que esté en camino y vuelve a contar 30
  * segundos desde ahí; con la pantalla oculta o la app al fondo no hace nada.
  */
 export function useConsultaPeriodica<T>(

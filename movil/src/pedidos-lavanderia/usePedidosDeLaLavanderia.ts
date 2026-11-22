@@ -4,8 +4,8 @@
 // ella o al traer la app al frente consulta de inmediato, como el seguimiento del usuario
 // (src/estados/useConsultaPeriodica.ts). La lista vive en ProveedorDePedidos, que comparte con la pantalla del rechazo.
 //
-// Después de una acción, la pantalla pone al día la tarjeta con el pedido que devolvió el servidor (reemplazar) y vuelve
-// a consultar la lista (consultarDeNuevo): la respuesta de una consulta que salió antes ya no se pinta.
+// Después de una acción, la pantalla pone al día la tarjeta con el pedido que devolvió el servidor (reemplazar) y
+// vuelve a consultar la lista (consultarDeNuevo): la respuesta de una consulta que salió antes ya no se pinta.
 import { useMemo } from 'react';
 
 import { useConsultaPeriodica } from '../estados/useConsultaPeriodica';

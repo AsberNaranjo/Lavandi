@@ -1,6 +1,7 @@
 // Dónde vive la sesión en el teléfono: el almacenamiento cifrado del sistema, Keychain en iPhone y Keystore en Android,
 // con expo-secure-store (ADR-0018, decisión 1). Guarda el token y el rol de la cuenta, que dice a qué módulo entra
-// (registro-E33): con él, la app sabe a dónde llevar a la persona aunque al abrirla no llegue al servidor (registro-E11).
+// (registro-E33): con él, la app sabe a dónde llevar a la persona aunque al abrirla no llegue al servidor
+// (registro-E11).
 import * as SecureStore from 'expo-secure-store';
 
 const CLAVE_DEL_TOKEN = 'sesion.token';

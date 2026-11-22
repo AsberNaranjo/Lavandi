@@ -1,7 +1,7 @@
 // A dónde llega la persona al abrir la app (bienvenida-E01 y bienvenida-E02, C-225): con sesión, a la primera pantalla
-// del módulo de su cuenta, el inicio del usuario o los pedidos de la lavandería (registro-E33); sin sesión
-// y sin haber visto la bienvenida, a la bienvenida; sin sesión y ya vista, al inicio de sesión, que ofrece registrarse o
-// iniciar sesión (bienvenida-E04, C-237). Mientras lee el teléfono no muestra nada.
+// del módulo de su cuenta, el inicio del usuario o los pedidos de la lavandería (registro-E33); sin sesión y sin haber
+// visto la bienvenida, a la bienvenida; sin sesión y ya vista, al inicio de sesión, que ofrece registrarse o iniciar
+// sesión (bienvenida-E04, C-237). Mientras lee el teléfono no muestra nada.
 import { Redirect } from 'expo-router';
 import { useEffect, useState } from 'react';
 

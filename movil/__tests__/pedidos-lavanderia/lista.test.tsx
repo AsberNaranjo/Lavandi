@@ -1,13 +1,13 @@
 // Spec: openspec/changes/pedidos-de-la-lavanderia/specs/pedidos-lavanderia/spec.md, pedidos-lavanderia-E03 (tarea 2.1).
-// La pantalla de pedidos del Módulo B (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #2): cada pedido activo
-// de la lavandería con la tarjeta de pedido de socio lavandería, el componente 4 del design system
+// La pantalla de pedidos del Módulo B (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #2): cada pedido activo de
+// la lavandería con la tarjeta de pedido de socio lavandería, el componente 4 del design system
 // (vault/design-system/componentes.md; vault/design-system/canvas/PedidoLavanderia.dc.html), con su folio, su servicio,
-// su fecha y su ventana de recolección en la hora de la plaza, y su estado con el nombre que le da la lavandería. Solo el
-// pedido que espera respuesta ofrece Aceptar y Rechazar.
+// su fecha y su ventana de recolección en la hora de la plaza, y su estado con el nombre que le da la lavandería. Solo
+// el pedido que espera respuesta ofrece Aceptar y Rechazar.
 //
 // Se abre la app real con la sesión de una cuenta de socio lavandería, en iPhone y en Android, con el servidor simulado
-// con el contrato de GET /api/lavanderia/pedidos (__tests__/apoyo/lavanderia.ts). Los datos de recolección y del usuario
-// esperan DD-022 y DD-014 (pedidos-lavanderia-E04): la API no los manda.
+// con el contrato de GET /api/lavanderia/pedidos (__tests__/apoyo/lavanderia.ts). Los datos de recolección y del
+// usuario esperan DD-022 y DD-014 (pedidos-lavanderia-E04): la API no los manda.
 import { screen, waitFor, within } from 'expo-router/testing-library';
 
 import { MENSAJES } from '../../src/acceso/mensajes';

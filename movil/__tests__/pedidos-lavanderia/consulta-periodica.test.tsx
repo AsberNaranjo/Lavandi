@@ -5,8 +5,8 @@
 // inmediato y retoma el ciclo. Es la misma forma del seguimiento del usuario (src/estados/useSeguimiento.ts).
 //
 // Se abre la app real con la sesión de una cuenta de socio lavandería, en iPhone y en Android, con el servidor simulado
-// (__tests__/apoyo/lavanderia.ts) y los temporizadores falsos de Jest. El aviso de pedido nuevo que adelanta la consulta
-// espera DD-054 (pedidos-lavanderia-E15 y E16).
+// (__tests__/apoyo/lavanderia.ts) y los temporizadores falsos de Jest. El aviso de pedido nuevo que adelanta la
+// consulta espera DD-054 (pedidos-lavanderia-E15 y E16).
 import { router } from 'expo-router';
 import { act, screen, waitFor, within } from 'expo-router/testing-library';
 import { AppState, type AppStateStatus, type NativeEventSubscription } from 'react-native';

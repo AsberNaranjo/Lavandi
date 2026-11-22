@@ -1,12 +1,12 @@
 // La API de los pedidos de la lavandería, el Módulo B (openspec/changes/pedidos-de-la-lavanderia, "Contrato de la API",
 // y openspec/changes/estados-del-pedido, "Los botones de la lavandería"; el mismo contrato del comentario de
-// servidor/app/Http/Controllers/Api/PedidosDeLaLavanderiaController.php). Todas las rutas van con la sesión de una cuenta
-// de socio lavandería, y el servidor solo le da los pedidos de sus lavanderías, de su plaza y con el pago acreditado
-// (C-188). Como las demás consultas, nunca lanza: devuelve un Resultado.
+// servidor/app/Http/Controllers/Api/PedidosDeLaLavanderiaController.php). Todas las rutas van con la sesión de una
+// cuenta de socio lavandería, y el servidor solo le da los pedidos de sus lavanderías, de su plaza y con el pago
+// acreditado (C-188). Como las demás consultas, nunca lanza: devuelve un Resultado.
 //
 // El pedido trae su folio, su estado con el nombre que le da la lavandería, si espera su respuesta, el único botón que
-// puede tocar, su servicio y su ventana de recolección. No trae datos del usuario ni direcciones (pedidos-lavanderia-E04,
-// DD-022 y DD-014), ni montos.
+// puede tocar, su servicio y su ventana de recolección. No trae datos del usuario ni direcciones
+// (pedidos-lavanderia-E04, DD-022 y DD-014), ni montos.
 import type { Ventana } from '../agenda/api';
 import { leerVentana } from '../agenda/api';
 import { pedir, pedirConEstado, type Falla, type Resultado } from '../configuracion/api';
@@ -24,6 +24,8 @@ export const CONTRATO_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA = {
   /** POST <ruta>/<id_publico>/<rechazar>, con { "<motivo>": "…" }; 422 con errors.<motivo> (E12 y E13). */
   rechazar: 'rechazar',
   motivo: 'motivo',
+  /** POST <ruta>/<id_publico>/<estado>, con { "<estado>": siguiente.estado }: el botón del paso siguiente (E06). */
+  estado: 'estado',
 } as const;
 
 /** El estado operativo del pedido (ADR-0021 y su adenda), con el nombre que le da la app de la lavandería. */
@@ -84,13 +86,26 @@ export function aceptarPedido(token: string, idPublico: string): Promise<Resulta
 }
 
 /**
- * POST de rechazar el pedido que espera respuesta, con su motivo, sin los espacios de las orillas (pedidos-lavanderia-E12).
- * El servidor exige el motivo y su largo máximo vive en su configuración: lo que no acepta lo dice con 422 en el campo
- * (pedidos-lavanderia-E13).
+ * POST de rechazar el pedido que espera respuesta, con su motivo, sin los espacios de las orillas
+ * (pedidos-lavanderia-E12). El servidor exige el motivo y su largo máximo vive en su configuración: lo que no acepta lo
+ * dice con 422 en el campo (pedidos-lavanderia-E13).
  */
 export function rechazarPedido(token: string, idPublico: string, motivo: string): Promise<ResultadoDeLaAccion> {
   const { rechazar, motivo: campo } = CONTRATO_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA;
   return mandarAccion(token, idPublico, rechazar, { [campo]: motivo.trim() });
+}
+
+/**
+ * POST del botón del paso siguiente, con el estado al que lleva, tal como lo dio el servidor en "siguiente"
+ * (estados-E06). Si ese ya no es el paso siguiente, el servidor responde 409 y el pedido no cambia (estados-E05 y E09).
+ */
+export function marcarPasoSiguiente(
+  token: string,
+  idPublico: string,
+  paso: PasoSiguiente,
+): Promise<ResultadoDeLaAccion> {
+  const { estado } = CONTRATO_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA;
+  return mandarAccion(token, idPublico, estado, { [estado]: paso.estado });
 }
 
 async function mandarAccion(

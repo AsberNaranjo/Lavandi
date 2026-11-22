@@ -2,9 +2,9 @@
 // diálogo del sistema de cada teléfono, como "Eliminar mi cuenta" (src/perfil-usuario/BorrarCuenta.tsx): "¿Cerrar
 // sesión?", "Cancelar" y "Cerrar sesión". El design system no tiene un diálogo propio y el del sistema no necesita uno.
 //
-// Al confirmar, borra la sesión del teléfono, pide al servidor revocar el token sin esperarlo y abre el inicio de sesión
-// como primera pantalla (C-237; DD-131, punto 3). Lo usa la pantalla de pedidos de la lavandería; el inicio del usuario
-// conserva el suyo, sin la confirmación, mientras su perfil no lo tenga (app/inicio.tsx).
+// Al confirmar, borra la sesión del teléfono, pide al servidor revocar el token sin esperarlo y abre el inicio de
+// sesión como primera pantalla (C-237; DD-131, punto 3). Lo usa la pantalla de pedidos de la lavandería; el inicio del
+// usuario conserva el suyo, sin la confirmación, mientras su perfil no lo tenga (app/inicio.tsx).
 import { useState } from 'react';
 import { Alert } from 'react-native';
 
