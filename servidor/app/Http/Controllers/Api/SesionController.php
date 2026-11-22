@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Autorizacion\Autorizacion;
 use App\Avisos\TelefonosRegistrados;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CierreDeSesionRequest;
@@ -60,6 +61,13 @@ class SesionController extends Controller
         if ($usuario === null) {
             throw ValidationException::withMessages(['correo' => 'Las credenciales no son válidas.']);
         }
+
+        // Solo los roles con módulo en la app reciben token; la administración entra por el panel (registro-E33).
+        abort_unless(
+            app(Autorizacion::class)->usaLaApp($usuario->load('roles')),
+            403,
+            'Esta cuenta no tiene acceso a la app. Las cuentas de administración entran por el panel.',
+        );
 
         return response()->json([
             'token' => $usuario->createToken(self::NOMBRE_DEL_TOKEN)->plainTextToken,

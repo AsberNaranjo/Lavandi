@@ -33,6 +33,15 @@ final class Autorizacion
     }
 
     /**
+     * Si la cuenta usa la app: la de un rol con módulo en ella, usuario o socio lavandería; el repartidor se suma cuando
+     * nazca (H8). La administración entra por el panel y la app no le da token (registro-E33).
+     */
+    public function usaLaApp(Usuario $usuario): bool
+    {
+        return $this->permite($usuario, Rol::USUARIO) || $this->permite($usuario, Rol::LAVANDERIA);
+    }
+
+    /**
      * Si la cuenta entra al panel de administración: solo con el rol de administración (ADR-0005; base-tecnica,
      * "Panel de administración cerrado"). Una cuenta de usuario nunca entra (registro-E15).
      */

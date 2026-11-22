@@ -149,6 +149,6 @@ GET /api/lavanderia/pedidos/{id_publico}
 - **La consulta periódica en `movil/`: resuelta.** Un temporizador propio, sin dependencia nueva: `useFocusEffect` de
   expo-router para consultar solo con la pantalla visible y `AppState` de React Native para pausar con la app al fondo;
   al volver a la pantalla o al traer la app al frente consulta de inmediato (estados-E15 y E16). Vive en
-  `movil/src/estados/useSeguimiento.ts`. Se decidió por delegación de Arthur (C-236), con la tarea 4.2; TanStack Query
+  `movil/src/estados/useConsultaPeriodica.ts`, que comparte con la lista de la lavandería. Se decidió por delegación de Arthur (C-236), con la tarea 4.2; TanStack Query
   u otra biblioteca no entran mientras no hagan falta.
 - **Dónde viven los flujos de Maestro.** No hay convención escrita; las tareas usan `movil/.maestro/estados/`.

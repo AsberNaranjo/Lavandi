@@ -344,3 +344,4 @@ repartidor) · D → ADR-0019 (la autorización en un solo componente) y decisi�
 - **ENTONCES** recibe su correo y su rol, `lavanderia`
 - **Y** cuando la app cierra la sesión, el token deja de servir
 - **Y** una cuenta de administración recibe 403 en las dos rutas, sin datos
+- **Y** una cuenta de administración que inicia sesión en la app con su correo y su contraseña recibe 403, sin token

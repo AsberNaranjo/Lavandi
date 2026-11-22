@@ -4,6 +4,7 @@ namespace Tests\Feature\Registro;
 
 use App\Models\Rol;
 use App\Models\Usuario;
+use Database\Factories\UsuarioFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
@@ -55,5 +56,29 @@ class CuentaDeLosRolesDeLaAppTest extends TestCase
         $this->withToken($token)->deleteJson('/api/sesion')->assertForbidden();
 
         $this->assertSame(1, $administracion->tokens()->count());
+    }
+
+    #[TestDox('registro-E33: una cuenta de administración no recibe token al iniciar sesión en la app')]
+    public function test_registro_e33_la_administracion_no_recibe_token_de_la_app(): void
+    {
+        $administracion = Usuario::factory()->conRol(Rol::ADMINISTRACION)->create(['correo' => 'panel@ejemplo.com']);
+
+        $this->postJson('/api/sesion', ['correo' => 'panel@ejemplo.com', 'password' => UsuarioFactory::CONTRASENA])
+            ->assertForbidden()
+            ->assertJsonMissingPath('token')
+            ->assertJsonPath('message', 'Esta cuenta no tiene acceso a la app. Las cuentas de administración entran por el panel.');
+
+        $this->assertSame(0, $administracion->tokens()->count());
+    }
+
+    #[TestDox('registro-E33: una cuenta de lavandería inicia sesión en la app y recibe su token y su rol')]
+    public function test_registro_e33_la_lavanderia_inicia_sesion_en_la_app(): void
+    {
+        Usuario::factory()->conRol(Rol::LAVANDERIA)->create(['correo' => 'socio@ejemplo.com']);
+
+        $this->postJson('/api/sesion', ['correo' => 'socio@ejemplo.com', 'password' => UsuarioFactory::CONTRASENA])
+            ->assertOk()
+            ->assertJsonPath('usuario.rol', Rol::LAVANDERIA)
+            ->assertJsonStructure(['token']);
     }
 }
