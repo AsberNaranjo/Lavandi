@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets\Indicadores;
 
+use App\Filament\MapaDelPanel;
 use App\Filament\Widgets\Indicadores\Concerns\EsDeIndicadores;
 use App\Indicadores\Intensidad;
 use App\Indicadores\PedidosPorColonia;
@@ -18,8 +19,8 @@ use Filament\Widgets\Widget;
  * - El mapa es Google Maps JavaScript (ADR-0009, decisión 3), sin su capa de calor: dibuja los agregados del servidor.
  *   Se carga una vez al abrir la página; el refresco, los filtros y el cambio de agrupación cambian solo los datos, sin
  *   crear otro mapa, para no gastar cargas de mapa (presupuesto-de-mapas.md).
- * - La llave sale de la configuración (services.google_maps_panel.llave). Sin ella, el mapa no se monta y el panel lo
- *   dice, como la app sin la llave de Android.
+ * - La llave, el aviso sin ella, el contenedor y el cargador de la API son los de todos los mapas del panel
+ *   (App\Filament\MapaDelPanel). Sin llave, el mapa no se monta y el panel lo dice, como la app sin la llave de Android.
  * - Las mismas cifras van en una tabla, para leerlas sin el mapa y sin depender del color.
  */
 class MapaDeCalor extends Widget
@@ -46,7 +47,7 @@ class MapaDeCalor extends Widget
     protected function getViewData(): array
     {
         $comun = [
-            'llave' => self::llave(),
+            'llave' => MapaDelPanel::llave(),
             'intervalo' => $this->getPollingInterval(),
             'rampa' => Intensidad::RAMPA,
             'agrupaciones' => self::AGRUPACIONES,
@@ -119,15 +120,5 @@ class MapaDeCalor extends Widget
                 ], $zonas),
             ],
         ];
-    }
-
-    /**
-     * La llave de Google Maps JavaScript del panel, de la configuración; null si no hay.
-     */
-    private static function llave(): ?string
-    {
-        $llave = config('services.google_maps_panel.llave');
-
-        return is_string($llave) && trim($llave) !== '' ? trim($llave) : null;
     }
 }
