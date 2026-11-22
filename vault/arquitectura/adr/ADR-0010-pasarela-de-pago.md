@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-10 y RN-28 (A); brecha-ejecutivo-tecnico.md BR-50 (B); deuda-de-decision.md DD-012, DD-055 y DD-056 (B); verificaciones-fase-6.md, fila 5b y sección del 2026-11-12 (E); ADR-0002 y ADR-0003 (D); adenda del 2026-11-22: acta-2026-11-20-modelo-y-pasarela.md, decisión 32, por delegación de C-236 (C); NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (A); registro de npm de conekta-elements-react-native, consultado el 2026-11-22 (E)
+fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-10 y RN-28 (A); brecha-ejecutivo-tecnico.md BR-50 (B); deuda-de-decision.md DD-012, DD-055 y DD-056 (B); verificaciones-fase-6.md, fila 5b y sección del 2026-11-12 (E); ADR-0002 y ADR-0003 (D); adenda del 2026-11-22: acta-2026-11-20-modelo-y-pasarela.md, decisión 32, por delegación de C-236 (C); NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (A); registro de npm de conekta-elements-react-native, consultado el 2026-11-22 (E); adenda de la conciliación: decisión 34, por delegación de C-236 (C), y la referencia de la API de órdenes de Conekta, consultada el 2026-11-22 (E)
 fecha: 2026-11-13
 dueño: Arthur Naranjo
 adr: ADR-0010
@@ -138,3 +138,37 @@ Cierra la segunda parte de DD-055 y el punto 1 de DD-102. Lo que no cierra:
 - si la tarjeta se puede guardar como referencia: punto 5 de la decisión, en el sandbox;
 - la firma de los webhooks: DD-102, punto 2;
 - el cambio de pasarela: DD-079.
+
+## Adenda del 2026-11-22: de dónde salen los movimientos para conciliar
+
+**Contexto.**
+
+- El Módulo D pide "conciliación con Conekta" (`NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`, Módulo D #6). Este ADR
+  cubre los webhooks, no la conciliación. DD-112 le dejó a Arthur de dónde salen los movimientos: la API de órdenes y
+  cargos, o el reporte que se descarga del panel de Conekta.
+- **La API de órdenes de Conekta (grado E, `developers.conekta.com/reference/getorders`, consultada el 2026-11-22,
+  `SIN VERIFICAR`):**
+  - lista las órdenes en páginas de 1 a 250, por cursor (`next`, `previous`, `has_more`);
+  - filtra por estado del pago y busca por id, cliente, correo, cargo, teléfono o monto;
+  - la referencia no muestra un filtro por fecha.
+
+**Decisión.**
+
+- **6. Los movimientos salen de la API de la pasarela, leídos por la misma interfaz neutral del cobro.**
+  - La interfaz suma una operación: los pagos del periodo, con el id de la orden, el monto, la comisión si la trae y la
+    fecha del pago. La pasarela simulada la implementa en las pruebas.
+  - **Con Conekta:**
+    - se piden las órdenes pagadas, de la más nueva hacia atrás, hasta pasar el inicio del periodo;
+    - el corte por fecha lo hace el servidor;
+    - se comprueba en su sandbox, con la tarea de Conekta de `pago`.
+- **7. Se leen cuando la administración concilia un periodo, no con una tarea programada.**
+  - Se guardan en `movimientos_pasarela`, una fila por orden de la pasarela, sin repetirse aunque se lea dos veces.
+  - La tabla no lleva plaza propia: la cuenta de la pasarela es una para todas las plazas, y la plaza de un movimiento
+    es la del pedido con el que cuadra. Un movimiento sin pedido es justo una diferencia (administracion-E21).
+  - La tabla entra en la lista de tablas sin plaza de `servidor/config/modelo.php`, con esa razón.
+- **Descartado: el reporte descargado del panel de Conekta.** Exige un paso a mano cada periodo y depende de un formato
+  que el proveedor puede cambiar sin aviso.
+
+**La tomó** Claude, por delegación de Arthur (C-236), en la decisión 34 de `acta-2026-11-20-modelo-y-pasarela.md`.
+Cierra DD-112 y desbloquea administracion-E20 y E21. administracion-E22 sigue esperando DD-013: quién absorbe la
+comisión de la pasarela.
