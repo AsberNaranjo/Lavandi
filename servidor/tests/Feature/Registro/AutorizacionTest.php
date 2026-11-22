@@ -33,7 +33,8 @@ class AutorizacionTest extends TestCase
 
     /**
      * Las únicas rutas de la API que no piden sesión: las que abren una sesión o recuperan la contraseña (registro-E14).
-     * Algunas llegan con otras tareas (Google, 3.1; recuperación, 3.3) y ya están permitidas.
+     * Algunas llegan con otras tareas (Google, 3.1; recuperación, 3.3) y ya están permitidas. El registro del
+     * repartidor también abre una sesión, con su cuenta pendiente de alta (repartidor-E01).
      *
      * Fuera de /api también son públicas la de salud (up) y la página web para crear la contraseña nueva
      * (contrasena/restablecer, ADR-0018). Esta prueba recorre la API.
@@ -43,6 +44,7 @@ class AutorizacionTest extends TestCase
         'POST api/sesion',
         'POST api/sesion/google',
         'POST api/contrasena/olvido',
+        'POST api/repartidor/registro',
     ];
 
     /** Las rutas protegidas que ya existen: la prueba no pasa en vacío. */

@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Usuario;
 use App\Validacion\Contrasena;
-use Closure;
+use App\Validacion\CorreoSinCuenta;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -24,7 +23,7 @@ class RegistroRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'correo' => ['bail', 'required', 'string', 'email', 'max:255', $this->sinCuenta(...)],
+            'correo' => ['bail', 'required', 'string', 'email', 'max:255', new CorreoSinCuenta],
             'password' => Contrasena::reglas(),
         ];
     }
@@ -41,16 +40,5 @@ class RegistroRequest extends FormRequest
             'correo.max' => 'El correo no puede tener más de :max caracteres.',
             ...Contrasena::mensajes(),
         ];
-    }
-
-    /**
-     * El correo no tiene cuenta, sin distinguir mayúsculas y contando las cuentas borradas, como el único de la base
-     * (registro-E02).
-     */
-    private function sinCuenta(string $atributo, mixed $correo, Closure $fallar): void
-    {
-        if (Usuario::withTrashed()->conCorreo($correo)->exists()) {
-            $fallar('Ese correo ya tiene una cuenta.');
-        }
     }
 }

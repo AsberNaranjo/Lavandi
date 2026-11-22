@@ -10,10 +10,12 @@ use App\Http\Controllers\Api\LavanderiaDelSocioController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
 use App\Http\Controllers\Api\PedidosController;
 use App\Http\Controllers\Api\PedidosDeLaLavanderiaController;
+use App\Http\Controllers\Api\PedidosDelRepartidorController;
 use App\Http\Controllers\Api\PerfilController;
 use App\Http\Controllers\Api\PerfilDeLavanderiaController;
 use App\Http\Controllers\Api\RecuperacionController;
 use App\Http\Controllers\Api\RegistroController;
+use App\Http\Controllers\Api\RepartidorController;
 use App\Http\Controllers\Api\ReportesDeSoporteController;
 use App\Http\Controllers\Api\SesionConGoogleController;
 use App\Http\Controllers\Api\SesionController;
@@ -32,6 +34,9 @@ Route::post('sesion', [SesionController::class, 'iniciar'])
     ->middleware('throttle:inicio-de-sesion')
     ->name('sesion.iniciar');
 Route::post('sesion/google', SesionConGoogleController::class)->name('sesion.google');
+// Pública: el registro del repartidor, que crea su cuenta pendiente de alta (repartidor-E01). El contrato está en el
+// controlador.
+Route::post('repartidor/registro', [RepartidorController::class, 'registrar'])->name('repartidor.registro');
 
 // Pública: la petición del enlace de recuperación, con su límite por correo y por dirección (registro-E31).
 Route::post('contrasena/olvido', RecuperacionController::class)
@@ -41,8 +46,8 @@ Route::post('contrasena/olvido', RecuperacionController::class)
 // Con sesión, y por el componente único de autorización (registro-E14). Una ruta nueva sin las dos no pasa la prueba
 // tests/Feature/Registro/AutorizacionTest.php.
 // La cuenta y el cierre de la sesión, de toda cuenta con un rol de la app: con el rol, la app sabe a qué módulo entra
-// (registro-E33). La administración entra por el panel. El rol del repartidor se agrega cuando nazca (H8).
-Route::middleware(['auth:sanctum', 'autorizar:usuario,lavanderia'])->group(function () {
+// (registro-E33). La administración entra por el panel.
+Route::middleware(['auth:sanctum', 'autorizar:usuario,lavanderia,repartidor'])->group(function () {
     Route::get('cuenta', CuentaController::class)->name('cuenta');
     Route::delete('sesion', [SesionController::class, 'cerrar'])->name('sesion.cerrar');
 
@@ -142,4 +147,26 @@ Route::middleware(['auth:sanctum', 'autorizar:lavanderia'])->prefix('lavanderia'
     // Sus pedidos completados del día y de la semana, en la hora de la plaza (historial-de-la-lavanderia).
     Route::get('estadisticas', [HistorialDeLaLavanderiaController::class, 'estadisticas'])
         ->name('lavanderia.estadisticas');
+});
+
+// El Módulo C del socio repartidor (repartidor). El contrato está en openspec/changes/repartidor/design.md, "Contrato de
+// la API", y en cada controlador. Con sesión y por el componente único de autorización con el rol de repartidor.
+Route::middleware(['auth:sanctum', 'autorizar:repartidor'])->prefix('repartidor')->group(function () {
+    // Su perfil y su estado, también mientras espera su alta o está suspendido (repartidor-E01 y E08).
+    Route::get('perfil', [RepartidorController::class, 'perfil'])->name('repartidor.perfil');
+
+    // Lo demás, solo si el repartidor opera: activo y con su plaza (repartidor-E03 y E06). Sin whereUlid a propósito:
+    // un valor que no es ULID responde el mismo 404 que un pedido ajeno.
+    Route::middleware('repartidor-opera')->group(function () {
+        Route::get('pedidos', [PedidosDelRepartidorController::class, 'lista'])->name('repartidor.pedidos.lista');
+        Route::get('pedidos/{pedido}', [PedidosDelRepartidorController::class, 'mostrar'])
+            ->name('repartidor.pedidos.mostrar');
+        Route::post('pedidos/{pedido}/aceptar', [PedidosDelRepartidorController::class, 'aceptar'])
+            ->name('repartidor.pedidos.aceptar');
+        Route::post('pedidos/{pedido}/rechazar', [PedidosDelRepartidorController::class, 'rechazar'])
+            ->name('repartidor.pedidos.rechazar');
+        // Los botones Recolectado, En tránsito y Entregado.
+        Route::post('pedidos/{pedido}/estado', [PedidosDelRepartidorController::class, 'marcar'])
+            ->name('repartidor.pedidos.estado');
+    });
 });

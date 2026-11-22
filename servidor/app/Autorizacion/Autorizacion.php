@@ -7,8 +7,10 @@ use App\Models\Dispositivo;
 use App\Models\Lavanderia;
 use App\Models\Pedido;
 use App\Models\Plaza;
+use App\Models\Repartidor;
 use App\Models\Rol;
 use App\Models\Usuario;
+use App\Repartidores\RepartidorSinAcceso;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -22,8 +24,8 @@ use Illuminate\Database\Eloquent\Builder;
  * usuario (confirmacion-E12) y de los de la lavandería, con su plaza (pedidos-lavanderia-E02 y E09), qué teléfonos
  * reciben los avisos de un pedido (avisos-E04 y avisos-E12), qué ve la administración en el panel (las plazas, las
  * lavanderías, los usuarios y los pedidos de todas las plazas: autorizacion-E03, administracion-E01, E06 y E11) y quién
- * abre sesión o bloquea (administracion-E03). La tenencia del repartidor llega aquí mismo con repartidor (hito H8;
- * ADR-0019, decisión 1).
+ * abre sesión o bloquea (administracion-E03). Del repartidor (hito H8; ADR-0019, decisión 1), conoce su rol en la app,
+ * qué repartidor opera (repartidor-E03 y E06) y, con su tarea, sus pedidos, de su plaza y con el pago acreditado.
  */
 final class Autorizacion
 {
@@ -57,12 +59,51 @@ final class Autorizacion
     }
 
     /**
-     * Si la cuenta usa la app: la de un rol con módulo en ella, usuario o socio lavandería; el repartidor se suma cuando
-     * nazca (H8). La administración entra por el panel y la app no le da token (registro-E33).
+     * Si la cuenta usa la app: la de un rol con módulo en ella, usuario, socio lavandería o socio repartidor. La
+     * administración entra por el panel y la app no le da token (registro-E33).
      */
     public function usaLaApp(Usuario $usuario): bool
     {
-        return $this->permite($usuario, Rol::USUARIO) || $this->permite($usuario, Rol::LAVANDERIA);
+        return $this->permite($usuario, Rol::USUARIO)
+            || $this->permite($usuario, Rol::LAVANDERIA)
+            || $this->permite($usuario, Rol::REPARTIDOR);
+    }
+
+    /**
+     * El repartidor de la cuenta, en cualquier estado salvo de baja: el que consulta su perfil, también mientras espera
+     * su alta o está suspendido (repartidor-E01 y E08). Ninguno si la cuenta no es de un repartidor.
+     */
+    public function repartidorDeLaCuenta(Usuario $usuario): ?Repartidor
+    {
+        return Repartidor::query()->where('id_usuarios', $usuario->getKey())->first();
+    }
+
+    /**
+     * El repartidor de la cuenta, si opera: solo uno activo, con su plaza, ve y mueve pedidos, y su historial y sus
+     * estadísticas (repartidor-E03, E05 y E06). Toda ruta de pedidos del Módulo C pasa por aquí, con el middleware
+     * repartidor-opera (App\Http\Middleware\RepartidorQueOpera).
+     *
+     * @throws RepartidorSinAcceso con el estado del repartidor: pendiente, suspendido, o ninguno
+     */
+    public function repartidorQueOpera(Usuario $usuario): Repartidor
+    {
+        $repartidor = $this->permite($usuario, Rol::REPARTIDOR) ? $this->repartidorDeLaCuenta($usuario) : null;
+
+        if ($repartidor === null || ! $this->repartidorOpera($repartidor)) {
+            throw new RepartidorSinAcceso($repartidor?->estado);
+        }
+
+        return $repartidor;
+    }
+
+    /**
+     * Si el repartidor opera: activo, dado de alta en una plaza y no dado de baja (repartidor-E05 y E06).
+     */
+    public function repartidorOpera(Repartidor $repartidor): bool
+    {
+        return $repartidor->estado === Repartidor::ACTIVO
+            && $repartidor->id_plazas !== null
+            && ! $repartidor->trashed();
     }
 
     /**

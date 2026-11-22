@@ -165,6 +165,92 @@ Cuando DD-014 responda, la operación nace como un servicio interno de `servidor
 `ofrecido`, y **quién lo llama** (una acción del panel en el Módulo D, o una de la lavandería en el Módulo B) es esa
 respuesta, con su cita. Lo que pasa con un pedido rechazado (E18) también espera DD-014.
 
+### El registro y el acceso (tarea 1.1)
+
+- **Una ruta pública propia,** `POST /api/repartidor/registro`, aparte de `POST /api/registro` del usuario, que ignora
+  cualquier rol (registro-E01). Es la recomendación de DD-053 ("lavandería y repartidor, desde su propia entrada y con
+  aprobación en el Módulo D; una cuenta, un rol en la v1"); **la entrada en la app y los roles de la cuenta siguen
+  esperando DD-053** (E04). Se sumó a la lista de rutas públicas de `tests/Feature/Registro/AutorizacionTest.php`.
+- **El registro abre la sesión,** como el del usuario: la app necesita el token para mostrar la espera y consultar,
+  con `GET /api/repartidor/perfil`, si ya tiene alta. El repartidor pendiente o suspendido también inicia sesión con su
+  correo y su contraseña; lo que no puede es ver ni mover pedidos (E03 y E06). El de baja no inicia sesión (E07).
+- **El código:** `App\Repartidores\RegistroDeRepartidor` crea la cuenta con el rol de repartidor, su nombre, su
+  teléfono, su contraseña con hash y su foto, y la fila `pendiente`, en una transacción; si algo falla, borra la foto.
+  Las reglas viven en `App\Http\Requests\RegistroDeRepartidorRequest`, y la edición del panel (E08) usa las mismas. El
+  correo sin cuenta es la regla `App\Validacion\CorreoSinCuenta`, que ahora comparte con el registro del usuario.
+- **El teléfono** se guarda como lo escribió la persona, con la regla técnica mínima de 10 a 15 dígitos, con espacios,
+  guiones, paréntesis y un `+` al frente. El contrato no fija su formato.
+- **La foto** va al almacenamiento privado de fotos, en la carpeta de la cuenta (`usuarios/<id_publico>/`), como la foto
+  de perfil de cualquier cuenta (`App\Identidad\FotoDePerfil`, ADR-0006), con las reglas de `App\Fotos\ReglasDeLaFoto`.
+- **Quién opera** lo decide `Autorizacion::repartidorQueOpera()`: solo un repartidor activo, con su plaza y no dado de
+  baja. Las rutas de pedidos, historial y estadísticas llevan el middleware `repartidor-opera`
+  (`App\Http\Middleware\RepartidorQueOpera`), que pregunta ahí y responde 403 con el estado del repartidor
+  (`App\Repartidores\RepartidorSinAcceso`). El rol `repartidor` se sumó a `Autorizacion::usaLaApp()` y al grupo de la
+  cuenta, la sesión y el catálogo de `routes/api.php`.
+
+## Contrato de la API
+
+El contrato con que se hará la app del Módulo C (tareas 2.1 a 2.7). Todo va bajo `/api`, en JSON salvo donde se dice
+multipart. Los instantes van en UTC (`…Z`); la ventana, con el desfase de la plaza, como en el pedido del usuario.
+
+**Sesión y acceso.** Salvo el registro, toda ruta lleva `Authorization: Bearer <token>` y pasa por el componente de
+autorización (`auth:sanctum` y `autorizar:repartidor`). Las de pedidos, historial y estadísticas, además, solo con un
+repartidor que opera (`repartidor-opera`). Las respuestas de error comunes:
+
+| Código | Cuerpo | Cuándo |
+|---|---|---|
+| 401 | `{ "message": "Unauthenticated." }` | Sin sesión, o con un token revocado (al darlo de baja, E07) |
+| 403 | `{ "message": "Esta cuenta no tiene acceso." }` | La cuenta no tiene el rol de repartidor (E09) |
+| 403 | `{ "message": "Tu registro espera la autorización de la administración.", "estado": "pendiente" }` | Pendiente de alta (E03) |
+| 403 | `{ "message": "Tu cuenta de repartidor está suspendida.", "estado": "suspendido" }` | Suspendido (E06) |
+| 404 | `{ "message": "No existe el pedido." }` | El pedido no existe, no es un ULID, no se le ofreció a él, lo rechazó, es de otra plaza o no tiene el pago acreditado: todos igual y sin datos (ADR-0019, decisión 3; E12 y E30) |
+
+La cuenta y la sesión son las de toda cuenta de la app: `POST /api/sesion` (inicia sesión con correo y contraseña;
+`usuario.rol` es `repartidor`), `GET /api/cuenta` y `DELETE /api/sesion`.
+
+### El repartidor
+
+Como sale en el registro y en el perfil:
+
+```json
+{
+  "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",
+  "nombre": "Rubén Repartidor",
+  "telefono": "618 123 4567",
+  "correo": "ruben@ejemplo.com",
+  "foto": { "url": "https://…", "vence_en": "2026-12-01T19:00:00Z" },
+  "tipo_vehiculo": "Motocicleta",
+  "estado": "pendiente",
+  "puede_operar": false,
+  "plaza": null
+}
+```
+
+- `foto`: URL firmada que vence (ADR-0006), o `null` sin foto. La ruta del archivo nunca sale.
+- `estado`: `pendiente`, `activo` o `suspendido`. `puede_operar` es `true` solo si está activo y con su plaza.
+- `plaza`: `{ "nombre": "…" }`, la del alta; `null` mientras está pendiente.
+
+### `POST /api/repartidor/registro` (E01 y E02)
+
+Sin sesión, en multipart. Campos, todos obligatorios: `nombre` (texto, hasta 255), `telefono` (de 10 a 15 dígitos, con
+espacios, guiones, paréntesis y `+`), `correo` (sin cuenta; se guarda en minúsculas), `password` (con el mínimo de
+`config/acceso.php`, 8 por omisión), `foto` (imagen de los tipos y del peso de `config/fotos.php`, ya comprimida por la
+app) y `tipo_vehiculo` (texto libre, hasta 100). Cualquier otro campo, como un estado, una plaza o un rol, se ignora.
+
+- **201** `{ "token": "…", "usuario": { "id_publico": "…", "correo": "…", "rol": "repartidor" }, "repartidor": { … } }`,
+  con `repartidor.estado` en `pendiente` y `puede_operar` en `false`: la app muestra que espera la autorización de EL
+  CLIENTE.
+- **422** `{ "message": "…", "errors": { "<campo>": ["…"] } }`. No se crea ninguna cuenta ni se guarda la foto. Los
+  mensajes: "Escribe tu nombre.", "Escribe tu teléfono.", "El teléfono no es válido.", "Escribe tu correo.", "El correo
+  no es válido.", "Ese correo ya tiene una cuenta.", "Escribe una contraseña.", "La contraseña debe tener al menos 8
+  caracteres.", "Toma o elige tu foto de perfil.", "La foto debe ser una imagen: jpg, jpeg, png, webp.", "La foto pesa
+  más de 5120 KB." y "Escribe tu tipo de vehículo.".
+
+### `GET /api/repartidor/perfil` (E01 y E08)
+
+En cualquier estado. **200** `{ "repartidor": { … } }`. La app lo consulta para saber si ya tiene alta: con
+`puede_operar` en `true`, abre sus pedidos. También trae lo que la administración le editó en el panel (E08).
+
 ## Risks / Trade-offs
 
 - [El contrato guarda "evidencias de entrega" (p. 20), pero ninguna pantalla del Módulo C las captura, y su alcance es

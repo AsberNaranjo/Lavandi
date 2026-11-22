@@ -9,7 +9,7 @@ fábrica.
 
 ## 1. Servidor (`servidor/`)
 
-- [ ] 1.1 repartidor-E01, repartidor-E02 y repartidor-E03: registro del repartidor con sus cinco datos y estado pendiente sin acceso a pedidos — test: `servidor/tests/Feature/Repartidor/RegistroTest.php` — tamaño S
+- [x] 1.1 repartidor-E01, repartidor-E02 y repartidor-E03: registro del repartidor con sus cinco datos y estado pendiente sin acceso a pedidos — test: `servidor/tests/Feature/Repartidor/RegistroTest.php` — tamaño S
 - [ ] 1.2 repartidor-E05, repartidor-E06, repartidor-E07, repartidor-E08 y repartidor-E09: recurso de repartidores en el panel de Filament, con alta en una plaza, suspensión, baja y edición, solo para la administración — test: `servidor/tests/Feature/Repartidor/GestionEnElPanelTest.php` — tamaño M
 - [ ] 1.3 repartidor-E10, repartidor-E12 y repartidor-E30: API de pedidos asignados, solo los suyos, de su plaza y con el pago acreditado (`pedidos.confirmado_en`), en el componente de autorización — test: `servidor/tests/Feature/Repartidor/PedidosAsignadosTest.php` — tamaño S
 - [ ] 1.4 repartidor-E15, repartidor-E16 y repartidor-E17: aceptar, y rechazar con motivo obligatorio, en `pedido_asignaciones` — test: `servidor/tests/Feature/Repartidor/AceptarORechazarTest.php` — tamaño S
