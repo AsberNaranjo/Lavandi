@@ -15,6 +15,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { fireEvent, screen, waitFor, within } from 'expo-router/testing-library';
 
 import { MENSAJES } from '../../src/acceso/mensajes';
+import permisosDeLaFoto from '../../src/alta-lavanderias/permisos-de-la-foto.json';
 import { COMPRESION_DE_FOTOS } from '../../src/configuracion/fotos';
 import {
   abrirLaAppConSesion,
@@ -248,5 +249,10 @@ describe('repartidor-E23: el repartidor toma la evidencia al entregar', () => {
     await waitFor(() => expect(screen).toHavePathname(RUTA_DE_LOS_PEDIDOS));
     expect(servidor().acciones()).toEqual([]);
     expect(servidor().estadoDe(PRIMERO)).toBe('en_entrega');
+  });
+
+  // El texto llega al Info.plist (alta-lavanderias-E03 lo compara): en iPhone, el permiso dice para qué es la cámara.
+  test('repartidor-E23 — en iPhone, el permiso de la cámara dice que también es para la foto de una entrega', () => {
+    expect(permisosDeLaFoto.camara).toMatch(/foto de una entrega/);
   });
 });
