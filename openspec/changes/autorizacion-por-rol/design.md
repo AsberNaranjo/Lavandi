@@ -113,6 +113,23 @@ un servicio externo, ni decide una fila abierta.
 - **Una cuenta por rol en todo el recorrido:** la puerta del panel guarda en la sesión la cuenta que entró
   (`AuthenticateSession`), y cambiar de cuenta en cada petición la cerraba.
 
+### El barrido de rutas (tareas 2.1, 2.5 y 4.1)
+
+- **Un solo recorrido para las tres** (`Soporte/BarridoDeRutas.php`): una cuenta llama a cada ruta de la API con su
+  sesión, y en cada parámetro de la ruta pide, uno por uno, los datos que no le corresponden. Se espera 403 sin datos si
+  la ruta no admite su rol, 404 sin datos si la admite y el parámetro es ajeno (ADR-0019), y ninguna respuesta con un
+  dato ajeno. Los datos ajenos se buscan como texto en la respuesta: van en ASCII, para que el JSON no los escape.
+- **Un parámetro que el barrido no conoce hace fallar la prueba,** que lo nombra: una ruta nueva con un parámetro nuevo,
+  como un cobro, no pasa sin revisar. Hoy los parámetros son `{pedido}`, `{direccion}`, `{lavanderia}` y
+  `{codigo_postal}`. El perfil de una lavandería es público para el usuario (Módulo A #5); para el socio, una lavandería
+  ajena es un dato ajeno.
+- **El cuerpo y la consulta también llevan los datos ajenos** (`recogida`, `entrega`, `pedido`, `direccion`), con un
+  pedido que pasa la validación, para que una ruta que los reciba en el cuerpo también se revise.
+- **Cada barrido tiene su prueba de que detecta:** una ruta de prueba que devuelve un dato ajeno hace fallar el barrido,
+  que nombra la ruta, el rol y el dato.
+- **E07 reusa** confirmacion-E12 y direcciones-E14, que prueban el detalle de cada ruta, y recorre todas. **El cobro**
+  se agrega cuando `pago` cree `pagos` y sus rutas.
+
 ## Risks / Trade-offs
 
 - [Una ruta nueva sin regla expone datos] → autorizacion-E01 y autorizacion-E14 corren en cada pull request.
