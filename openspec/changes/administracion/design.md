@@ -73,6 +73,9 @@ solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`. Todas las llaves fo
      Un cambio de porcentaje es una fila nueva y la anterior queda como historial (`modelo-de-datos.md`); qué pasa con
      los pedidos ya cobrados es DD-020 (E16).
    - La migración no siembra ningún porcentaje: los captura EL CLIENTE.
+   - A lo más una fila abierta (sin `vigente_hasta`) por plaza para la global y por lavandería para la propia, con
+     dos índices únicos parciales (`comisiones_global_abierta_unique` y `comisiones_propia_abierta_unique`). Lo agregó
+     el implementador con la tarea 0.1: sin él, dos cambios a la vez dejarían dos porcentajes vigentes.
 2. `avisos_masivos` (E23 y E24):
    - Columnas: `id_avisos_masivos`, `id_plazas`, `segmento`, `titulo`, `mensaje`, `id_usuarios`, `enviado_en`,
      `destinatarios`.
@@ -84,6 +87,9 @@ solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`. Todas las llaves fo
    - `segmento` es `jsonb`; sus criterios son DD-113 (E24).
    - `enviado_en` es `timestamptz`. `destinatarios` guarda a cuántos dispositivos se mandó (propuesta: el modelo no
      dice su tipo).
+   - **Cómo quedó en la tarea 0.1:** `titulo` es `varchar(255)` y `mensaje` es `text`, los dos no nulos; `id_usuarios`
+     y `enviado_en` (cuándo lo envió la administración) son no nulos; `destinatarios` es `integer`, vacío hasta que el
+     envío lo cuente (tarea 5.1), con `CHECK` de no negativo; `segmento` es `jsonb` opcional, vacío sin segmento.
 
 Las dos tablas llevan `created_at` y `updated_at` en `timestamptz`, como todas las tablas del negocio con llave propia.
 

@@ -4,7 +4,7 @@ M = 5 h.
 
 ## 0. Tablas y migración (servidor/)
 
-- [ ] 0.1 Migración de `comisiones` y `avisos_masivos`, con la llave compuesta con la plaza hacia `lavanderias`, el `CHECK` del porcentaje, `avisos_masivos.id_plazas` opcional (lista de "plaza opcional") y `created_at` y `updated_at` en `timestamptz`, y sus modelos de Eloquent `Comision` y `AvisoMasivo`, sobre `App\Models\Modelo`, que sostienen administracion-E11 a administracion-E16, administracion-E19, administracion-E23 y administracion-E24 — test: `servidor/tests/Feature/Administracion/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — tamaño S
+- [x] 0.1 Migración de `comisiones` y `avisos_masivos`, con la llave compuesta con la plaza hacia `lavanderias`, el `CHECK` del porcentaje, `avisos_masivos.id_plazas` opcional (lista de "plaza opcional") y `created_at` y `updated_at` en `timestamptz`, y sus modelos de Eloquent `Comision` y `AvisoMasivo`, sobre `App\Models\Modelo`, que sostienen administracion-E11 a administracion-E16, administracion-E19, administracion-E23 y administracion-E24 — test: `servidor/tests/Feature/Administracion/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — tamaño S
 - [ ] 0.2 Migración de `movimientos_pasarela` y su modelo de Eloquent, con la forma que fije DD-112, para administracion-E20 a administracion-E22 — test: `servidor/tests/Feature/Administracion/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — tamaño S — bloqueada: DD-112
 
 ## 1. Gestión de usuarios (servidor/)
