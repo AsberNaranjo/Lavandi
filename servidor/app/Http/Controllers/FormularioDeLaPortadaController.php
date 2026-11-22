@@ -42,11 +42,15 @@ class FormularioDeLaPortadaController extends Controller
 
     /**
      * Un envío completo, mientras DD-119 no diga su destino: vuelve a su sección con el aviso de que no se entregó.
+     *
+     * Con formulario_enviado, la portada de vuelta pone en la medición el evento del formulario, con solo su nombre
+     * (medicion-E05; resources/views/publico/medicion.blade.php). Un envío rechazado no llega aquí, así que no lo pone.
      */
     private function sinDestino(FormularioDeLaPortadaRequest $request): RedirectResponse
     {
         return redirect()
             ->to(route('portada').'#'.$request::seccion())
-            ->with('envio_sin_destino', $request::formulario());
+            ->with('envio_sin_destino', $request::formulario())
+            ->with('formulario_enviado', $request::formulario());
     }
 }

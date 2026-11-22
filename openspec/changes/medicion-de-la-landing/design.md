@@ -42,6 +42,30 @@ cumple cada escenario; se pueden rehacer sin tocar los requisitos.
   la cabecera, así que lo llevan la portada, el aviso de privacidad, los términos y cualquier página pública que llegue.
   Sin el marco `<noscript>` de la instalación de GTM: GA4 y Meta Pixel necesitan JavaScript, así que sin él no mide
   ninguno de los eventos de la spec.
+- **El plan de eventos (tarea 1.2, 2026-11-22; pregunta 1):** la página pone tres eventos en la capa de datos del
+  contenedor (`dataLayer`), y las etiquetas del contenedor los mandan a GA4 y a Meta Pixel:
+
+  | Qué pasa | En la capa de datos | A GA4 | A Meta Pixel |
+  |---|---|---|---|
+  | Se abre una página pública (medicion-E03) | `gtm.js`, el de la instalación de GTM | `page_view` | `PageView` |
+  | Se toca el botón de App Store o el de Google Play (medicion-E04) | `descarga`, con `tienda`: `app_store` o `google_play` | `descarga`, con `tienda` | `Descarga` (personalizado), con `tienda` |
+  | Se envía completo el formulario de interés o el de contacto (medicion-E05) | `formulario_enviado`, con `formulario`: `interes` o `contacto` | `formulario_enviado`, con `formulario` | `Lead` (estándar), con `formulario` |
+
+  Ningún evento lleva otro dato. El de descarga lo pone `resources/js/portada.js` al tocar cualquier elemento con
+  `data-tienda`, tenga o no el enlace de su tienda: también antes de publicar la app se toca el botón. El del formulario
+  lo pone el servidor en la portada de vuelta de un envío completo, con el aviso `formulario_enviado` de la sesión que
+  deja `FormularioDeLaPortadaController`; un envío rechazado no pasa por ahí. Quien configure el contenedor de EL
+  CLIENTE (tarea 1.3) no usa variables que lean los campos de los formularios: la spec no admite lo que la persona
+  escribió en ningún evento.
+- **El contenedor de prueba (tarea 1.2):** no hay contenedor de prueba en una cuenta de EL PRESTADOR, así que las
+  pruebas de navegador sirven `tests/Browser/Soporte/contenedor-de-prueba.js` en lugar del `gtm.js` de Google, con las
+  etiquetas del plan de arriba, e interceptan las peticiones hacia GA4 y Meta Pixel: ninguna sale a internet. Manda con
+  cada evento todo lo que la página puso en la capa de datos, para que un dato personal ahí hiciera fallar la prueba.
+  Las pruebas son `tests/Browser/Medicion/Eventos.spec.js`, con Playwright desde Node, como las de `landing` (su
+  pregunta 7), y `tests/Feature/Medicion/EventosDeLaPortadaTest.php` para la parte del servidor, que sí corre en la
+  integración continua. La configuración del servidor de las pruebas de navegador ahora trae el contenedor de prueba y
+  enlaces de prueba de las tiendas (`tests/Browser/Soporte/configuracion.js`); por eso landing-E13, que revisa que el
+  mapa no pida nada a otro servidor, sirve vacío ese contenedor y lo deja fuera de su cuenta.
 
 ## Tablas y migración
 
@@ -65,9 +89,13 @@ ningún evento de medición se guarda en la base.
 ## Open Questions
 
 1. **El plan de eventos (BR-11).** La spec fija qué se mide —visita, descarga y formulario— pero no el nombre de cada
-   evento. Se propone en la tarea 1.2 y lo aprueba Arthur.
+   evento. Se propone en la tarea 1.2 y lo aprueba Arthur. *Resuelta el 2026-11-22, por delegación de Arthur (C-236):*
+   el plan de "Cómo quedó implementado".
 2. **¿Se versiona en el repositorio la exportación del contenedor de GTM?** Sin ella, la configuración de etiquetas
-   vive solo en la cuenta del cliente. Lo decide Arthur.
+   vive solo en la cuenta del cliente. Lo decide Arthur. *Recomendación de Claude, por delegación (C-236):* no en
+   `servidor/`, porque trae los identificadores de GA4 y de Meta Pixel, y medicion-E01 no admite ninguno escrito en el
+   código; la exportación, con fecha, va a `vault/evidencias/medicion/` con las capturas de la tarea 1.3, cuando exista
+   el contenedor de EL CLIENTE. Mientras tanto, el plan de eventos de arriba dice qué etiquetas lleva.
 3. **¿El entorno de prueba pide a los buscadores que no lo indexen?** No lo dicen el contrato ni ADR-0012. **Necesita
    decisión de Arthur, en ADR-0012.**
 4. **Dónde corre Lighthouse CI:** un trabajo más en `.github/workflows/ci.yml`, con la portada levantada en la máquina

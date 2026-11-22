@@ -4,17 +4,28 @@
     una sola vez por página. El identificador sale de la configuración del entorno (config/medicion.php); sin él, no sale
     nada y la página no carga ningún código de medición de terceros (medicion-E02).
 
-    Escenarios: medicion-E01 y medicion-E02 · Spec: openspec/changes/medicion-de-la-landing/specs/medicion/spec.md · Tarea
-    1.1
+    Los eventos van a la capa de datos del contenedor (dataLayer), con el plan de eventos de
+    openspec/changes/medicion-de-la-landing/design.md; las etiquetas de GA4 y de Meta Pixel los toman de ahí:
+    - gtm.js, al abrir la página: la visita (medicion-E03);
+    - descarga, con la tienda: el toque en un botón de descarga, que pone resources/js/portada.js (medicion-E04);
+    - formulario_enviado, con el formulario: el envío completo de uno, que pone esta vista en la portada de vuelta
+      (medicion-E05). Solo lleva el nombre del formulario, nunca lo que la persona escribió.
+
+    Escenarios: medicion-E01 a medicion-E05 · Spec: openspec/changes/medicion-de-la-landing/specs/medicion/spec.md ·
+    Tareas 1.1 y 1.2
 --}}
 @php
     $contenedor = app(\App\Medicion\ContenedorDeEtiquetas::class)->identificador();
+    $formulario = session('formulario_enviado');
 @endphp
 @if ($contenedor !== null)
     <script data-medicion>
         (function (ventana, documento, contenedor) {
             ventana.dataLayer = ventana.dataLayer || [];
             ventana.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+            @if (is_string($formulario) && $formulario !== '')
+                ventana.dataLayer.push(@json(['event' => 'formulario_enviado', 'formulario' => $formulario]));
+            @endif
 
             var script = documento.createElement('script');
             script.async = true;
