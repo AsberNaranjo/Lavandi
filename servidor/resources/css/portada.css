@@ -617,6 +617,55 @@
         font-weight: var(--ds-tipografia-peso-semifuerte);
     }
 
+    /* --- Documentos legales: el aviso de privacidad y los términos (textos-legales) --- */
+
+    .encabezado-legal {
+        padding-block: var(--ds-espaciado-4);
+        border-bottom: var(--ds-grosor-control) solid var(--ds-color-semantico-borde);
+    }
+
+    .publico .encabezado-legal__marca {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--ds-espaciado-3);
+        min-height: var(--ds-accesibilidad-area-tactil-minima-dp);
+        color: var(--ds-color-semantico-texto);
+        font-family: var(--ds-tipografia-familia-titulares);
+        font-size: var(--ds-tipografia-escala-titulo);
+        font-weight: var(--ds-tipografia-peso-fuerte);
+        text-decoration: none;
+    }
+
+    .encabezado-legal__logo {
+        width: var(--ds-espaciado-7);
+        height: var(--ds-espaciado-7);
+    }
+
+    .documento-legal {
+        max-width: var(--container-3xl);
+    }
+
+    .documento-legal__titulo {
+        margin: 0 0 var(--ds-espaciado-5);
+        font-size: var(--ds-tipografia-escala-titulo-mayor);
+
+        @variant md {
+            font-size: var(--ds-tipografia-escala-despliegue);
+        }
+    }
+
+    /* El texto tal como se cargó: con sus saltos de línea y sus espacios, sin salirse del ancho. */
+    .documento-legal__texto {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .documento-legal__no-disponible {
+        margin: 0;
+        color: var(--ds-color-semantico-texto-suave);
+        font-size: var(--ds-tipografia-escala-cuerpo-grande);
+    }
+
     /* --- Pie legal --- */
 
     .pie-legal {
@@ -624,6 +673,34 @@
         border-top: var(--ds-grosor-control) solid var(--ds-color-semantico-borde);
         background-color: var(--ds-color-semantico-superficie-hundida);
         font-size: var(--ds-tipografia-escala-menor);
+    }
+
+    .pie-legal__rejilla {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--ds-espaciado-4);
+    }
+
+    .pie-legal__enlaces {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--ds-espaciado-2) var(--ds-espaciado-5);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .pie-legal__enlaces a {
+        display: inline-flex;
+        align-items: center;
+        min-height: var(--ds-accesibilidad-area-tactil-minima-dp);
+    }
+
+    .pie-legal__derechos {
+        margin: 0;
+        color: var(--ds-color-semantico-texto-suave);
     }
 
     .solo-lectores {

@@ -78,6 +78,15 @@ dependencias.
   arrastrar y el nombre de la zona, en `resources/js/portada.js`, sin dependencias.
 - **Preguntas frecuentes (pregunta 4):** con la lectura mínima de ADR-0011, en un archivo JSON cuya ruta es
   `LANDING_PREGUNTAS_FRECUENTES`; se muestran a lo más ocho, en `details` y `summary`.
+- **Pie legal (tarea 6.1, 2026-11-22):** lo pone el diseño base, `publico.layout`, con `publico/pie-legal.blade.php`,
+  así que lo llevan la portada y las páginas de textos-legales, y cualquier página pública que llegue después
+  (landing-E24). Sus dos enlaces van por el nombre de la ruta, `textos-legales.aviso-de-privacidad` (`/aviso-de-privacidad`)
+  y `textos-legales.terminos` (`/terminos`), con el título de cada documento como texto. El aviso de derechos de autor
+  es "© {año} {titular}. Todos los derechos reservados.", con `LANDING_DERECHOS_TITULAR` y `LANDING_DERECHOS_ANIO`
+  (`landing.derechos`; landing-E25). Una lectura del mismo tipo que las de arriba, por delegación de Arthur (C-236):
+  mientras falte el titular o el año (DD-120), fuera de producción el pie lleva un marcador de contenido de prueba; en
+  producción no lleva ninguno ni inventa el aviso, porque textos-legales-E02 no admite texto de prueba en las páginas de
+  los documentos. Los demás marcadores de la portada no cambian.
 - **Pruebas de navegador (pregunta 7):** Playwright desde Node, 1.57.0, en `servidor/tests/Browser/**/*.spec.js`, con
   `npx playwright test` desde `servidor/`. Su servidor de prueba compila los estilos, deja la base de pruebas desde cero
   con `tests/Browser/Soporte/PortadaDePrueba.php` y la sirve en un puerto propio. La integración continua todavía no

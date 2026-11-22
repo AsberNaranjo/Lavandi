@@ -92,9 +92,13 @@ jobs:
       # Falla si las migraciones no corren desde cero sobre PostgreSQL con PostGIS (ADR-0004).
       - name: Migraciones desde cero
         run: php artisan migrate:fresh --force
-      # Falla si un test falla.
+      # Falla si una ruta no declara su regla de autorización o si alguna respuesta trae datos de otro socio, de otro
+      # usuario o de otra plaza (autorizacion-E01 y E14, SEG-3). Corre en su propio paso para que una fuga se vea sola.
+      - name: Barrido contra fugas
+        run: php artisan test --group=barrido-contra-fugas
+      # Falla si un test falla. El barrido ya corrió en el paso anterior.
       - name: Tests
-        run: php artisan test
+        run: php artisan test --exclude-group=barrido-contra-fugas
 
   movil:
     needs: detectar

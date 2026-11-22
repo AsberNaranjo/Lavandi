@@ -3,6 +3,7 @@
 use App\Http\Controllers\FormularioDeLaPortadaController;
 use App\Http\Controllers\PortadaController;
 use App\Http\Controllers\RecuperacionController;
+use App\Http\Controllers\TextosLegalesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,3 +28,15 @@ Route::get('/', PortadaController::class)->name('portada');
  */
 Route::post('/formularios/interes', [FormularioDeLaPortadaController::class, 'interes'])->name('portada.interes');
 Route::post('/formularios/contacto', [FormularioDeLaPortadaController::class, 'contacto'])->name('portada.contacto');
+
+/*
+ * El aviso de privacidad y los términos y condiciones de EL CLIENTE, cada uno en su dirección fija y pública
+ * (openspec/changes/textos-legales/, tarea 1.1). Las direcciones no cambian con una versión nueva (textos-legales-E04):
+ * las declaran las tiendas, el pie de la landing y la app.
+ */
+Route::get('/aviso-de-privacidad', TextosLegalesController::class)
+    ->defaults('documento', 'aviso-de-privacidad')
+    ->name('textos-legales.aviso-de-privacidad');
+Route::get('/terminos', TextosLegalesController::class)
+    ->defaults('documento', 'terminos')
+    ->name('textos-legales.terminos');

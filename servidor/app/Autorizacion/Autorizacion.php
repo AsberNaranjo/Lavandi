@@ -15,14 +15,19 @@ use App\Models\Rol;
 use App\Models\Testimonio;
 use App\Models\Usuario;
 use App\Repartidores\RepartidorSinAcceso;
+use Filament\Pages\Dashboard;
+use Filament\Widgets\AccountWidget;
+use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Livewire;
 
 /**
  * El componente único de autorización: decide si una cuenta puede ver o tocar algo (vault/arquitectura/c3-api.md;
  * CLAUDE.md §9.5; NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, Separación por tipo de usuario).
  *
  * Toda ruta protegida de la API pasa por él con el middleware autorizar:<rol> (App\Http\Middleware\Autorizar), y el
- * panel de Filament le pregunta a través de Usuario::canAccessPanel(). Ninguna otra clase decide accesos.
+ * panel de Filament le pregunta a través de Usuario::canAccessPanel(). Ninguna otra clase decide accesos. Las rutas que
+ * no piden sesión y las piezas del panel que no muestran datos también se declaran aquí (autorizacion-E01).
  *
  * Conoce el rol (registro-E14 y registro-E15), la tenencia de las direcciones (direcciones-E14), de los pedidos del
  * usuario (confirmacion-E12) y de los de la lavandería, con su plaza (pedidos-lavanderia-E02 y E09), qué teléfonos
@@ -40,6 +45,87 @@ use Illuminate\Database\Eloquent\Builder;
  */
 final class Autorizacion
 {
+    /**
+     * Las rutas que no piden sesión, por "MÉTODO uri" y sin HEAD, cada una con la razón por la que no la pide
+     * (autorizacion-E01). Toda otra ruta de la API pide la sesión de Sanctum y pasa por autorizar:<rol>, y toda otra
+     * ruta del panel pasa por su puerta, que pregunta a puedeEntrarAlPanel(). Una ruta que no hace nada de eso hace
+     * fallar tests/Feature/Autorizacion/CoberturaDeReglasTest.php, que la nombra. La misma uri con otro método no
+     * hereda el permiso.
+     *
+     * @return array<string, string>
+     */
+    public function rutasSinSesion(): array
+    {
+        // Livewire arma su prefijo con la llave de la aplicación, así que cambia en cada instalación.
+        $livewire = ltrim(Livewire::getUriPrefix(), '/');
+
+        $firmada = 'Solo con una URL firmada que vence, que el servidor arma después de autorizar.';
+        $deLivewire = 'Un archivo de Livewire, sin datos.';
+
+        return [
+            // Las de la app que abren una sesión o recuperan la contraseña (registro-E14; ADR-0005 y ADR-0018).
+            'POST api/registro' => 'Crea la cuenta de usuario y abre su sesión (registro-e-inicio-de-sesion).',
+            'POST api/sesion' => 'Abre la sesión con correo y contraseña (registro-e-inicio-de-sesion).',
+            'POST api/sesion/google' => 'Abre la sesión con Google (registro-e-inicio-de-sesion).',
+            'POST api/contrasena/olvido' => 'Pide el enlace para recuperar la contraseña, con su límite (registro-E31).',
+            'POST api/repartidor/registro' => 'Crea la cuenta del repartidor, pendiente de alta, y abre su sesión (repartidor-E01).',
+
+            // La portada y sus formularios, que son públicos (ADR-0011; openspec/changes/landing/).
+            'GET /' => 'La portada pública de la landing.',
+            'POST formularios/interes' => 'El formulario de interés de lavanderías de la portada.',
+            'POST formularios/contacto' => 'El formulario de contacto de la portada.',
+            // Los textos legales, públicos como la portada (textos-legales-E01).
+            'GET aviso-de-privacidad' => 'El aviso de privacidad, sin datos de ninguna cuenta (textos-legales-E01).',
+            'GET terminos' => 'Los términos y condiciones, sin datos de ninguna cuenta (textos-legales-E01).',
+
+            // La página para crear la contraseña nueva: la llave es el token del enlace del correo (ADR-0018, decisión 4).
+            'GET contrasena/restablecer/{token}' => 'Muestra el formulario; la llave es el token del enlace del correo.',
+            'POST contrasena/restablecer' => 'Guarda la contraseña nueva solo con el token válido del enlace del correo.',
+
+            // La entrada al panel: después, toda ruta del panel pasa por su puerta (registro-E15 y autorizacion-E03).
+            'GET admin/login' => 'La página de inicio de sesión del panel; lo que sigue pasa por la puerta del panel.',
+
+            // La infraestructura de Laravel, de Sanctum y de Filament.
+            'GET up' => 'La salud del servidor, sin datos (base-E01).',
+            'GET sanctum/csrf-cookie' => 'Solo pone la cookie CSRF de Sanctum, sin datos.',
+            'GET storage/{path}' => $firmada,
+            'PUT storage/{path}' => $firmada,
+            // Las fotos privadas en local y en las pruebas; en producción viven en el bucket privado (ADR-0006).
+            'GET archivos/fotos/{path}' => $firmada,
+            'PUT archivos/fotos/{path}' => $firmada,
+            'GET filament/exports/{export}/download' => 'De Filament: el panel no exporta; su controlador exige sesión y que el archivo sea de la cuenta.',
+            'GET filament/imports/{import}/failed-rows/download' => 'De Filament: el panel no importa; su controlador exige sesión y que el archivo sea de la cuenta.',
+
+            // Livewire, con el que corre el panel.
+            "POST {$livewire}/update" => 'Las acciones de los componentes de Livewire: las del panel vuelven a pasar por su puerta, que Filament hace persistente.',
+            "POST {$livewire}/upload-file" => $firmada,
+            "GET {$livewire}/preview-file/{filename}" => $firmada,
+            "GET {$livewire}/livewire.js" => $deLivewire,
+            "GET {$livewire}/livewire.min.js.map" => $deLivewire,
+            "GET {$livewire}/livewire.csp.min.js.map" => $deLivewire,
+            "GET {$livewire}/js/{component}.js" => $deLivewire,
+            "GET {$livewire}/css/{component}.css" => $deLivewire,
+            "GET {$livewire}/css/{component}.global.css" => $deLivewire,
+        ];
+    }
+
+    /**
+     * Las piezas del panel que no muestran datos de la operación y por eso no piden otra regla que la puerta del panel,
+     * cada una con su razón (autorizacion-E01). Todo otro recurso, página o widget del panel le niega la entrada a una
+     * cuenta que no es de administración aunque pasara la puerta: lo comprueba
+     * tests/Feature/Autorizacion/CoberturaDeReglasTest.php.
+     *
+     * @return array<class-string, string>
+     */
+    public function panelSinDatos(): array
+    {
+        return [
+            Dashboard::class => 'La página de inicio de Filament: solo muestra los widgets que cada uno deja ver.',
+            AccountWidget::class => 'El nombre de la propia cuenta y el botón de salir.',
+            FilamentInfoWidget::class => 'La versión de Filament y sus enlaces.',
+        ];
+    }
+
     /**
      * Si la cuenta tiene el rol que pide la ruta. Una cuenta bloqueada no pasa ninguna (administracion-E03): al
      * bloquearla se revocan sus tokens, y si le quedara uno, tampoco serviría.
@@ -163,8 +249,9 @@ final class Autorizacion
 
     /**
      * Los pedidos que la cuenta ve: solo los que hizo (confirmacion-E12 e historial-E02; NSV-2026-001-v8.pdf:20:ANEXO A,
-     * Sección A.3). Toda consulta de pedidos de la API para el usuario parte de aquí, también su historial. Los de la
-     * lavandería y el repartidor, con su tenencia y su plaza, llegan con autorizacion-por-rol (H5).
+     * Sección A.3). Toda consulta de pedidos de la API para el usuario parte de aquí, también su historial y la
+     * calificación del servicio, que solo se hace sobre un pedido propio (historial-E09). Los de la lavandería y el
+     * repartidor, con su tenencia y su plaza, llegan con autorizacion-por-rol (H5).
      *
      * @return Builder<Pedido>
      */

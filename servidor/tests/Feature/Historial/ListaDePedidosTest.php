@@ -185,6 +185,8 @@ class ListaDePedidosTest extends TestCase
                 'nombre' => $pedido->lavanderia->nombre,
             ],
             'estado' => $estado,
+            // Sin calificar todavía (historial-E06).
+            'calificacion' => null,
         ];
     }
 

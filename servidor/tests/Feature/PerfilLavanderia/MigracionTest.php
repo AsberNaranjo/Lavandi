@@ -304,17 +304,19 @@ class MigracionTest extends TestCase
     {
         $plaza = $this->insertarPlaza('Plaza de prueba 1');
         $lavanderia = $this->insertarLavanderia($plaza);
+        // Un pedido que existe en la plaza: la llave de id_pedidos la agregó historial-y-calificacion.
+        $pedido = $this->insertarPedido($lavanderia, $plaza);
 
-        $this->insertarCalificacion(['id_pedidos' => 1, 'id_lavanderias' => $lavanderia, 'id_plazas' => $plaza]);
+        $this->insertarCalificacion(['id_pedidos' => $pedido, 'id_lavanderias' => $lavanderia, 'id_plazas' => $plaza]);
         $this->assertRechazada(
-            fn () => $this->insertarCalificacion(['id_pedidos' => 1, 'id_lavanderias' => $lavanderia, 'id_plazas' => $plaza]),
+            fn () => $this->insertarCalificacion(['id_pedidos' => $pedido, 'id_lavanderias' => $lavanderia, 'id_plazas' => $plaza]),
             self::UNICO_REPETIDO,
         );
 
         $repartidor = $this->insertarRepartidor($plaza);
-        $this->insertarCalificacion(['id_pedidos' => 1, 'id_repartidores' => $repartidor, 'id_plazas' => $plaza]);
+        $this->insertarCalificacion(['id_pedidos' => $pedido, 'id_repartidores' => $repartidor, 'id_plazas' => $plaza]);
         $this->assertRechazada(
-            fn () => $this->insertarCalificacion(['id_pedidos' => 1, 'id_repartidores' => $repartidor, 'id_plazas' => $plaza]),
+            fn () => $this->insertarCalificacion(['id_pedidos' => $pedido, 'id_repartidores' => $repartidor, 'id_plazas' => $plaza]),
             self::UNICO_REPETIDO,
         );
 
@@ -585,6 +587,26 @@ class MigracionTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ], 'id_repartidores');
+    }
+
+    /**
+     * Un pedido de una cuenta nueva a la lavandería, en su plaza, en el estado previo al pago. La llave de
+     * calificaciones.id_pedidos hacia pedidos la agregó historial-y-calificacion: la calificación de un pedido apunta a
+     * uno que existe en su plaza (modelo-E06).
+     */
+    private function insertarPedido(int $lavanderia, int $plaza): int
+    {
+        return DB::table('pedidos')->insertGetId([
+            'id_publico' => Str::lower((string) Str::ulid()),
+            'id_plazas' => $plaza,
+            'id_usuarios' => $this->insertarUsuario(),
+            'id_lavanderias' => $lavanderia,
+            'id_estados_pedido' => DB::table('estados_pedido')->where('codigo', 'por_pagar')->value('id_estados_pedido'),
+            'ventana_inicio' => '2026-12-03 17:00:00+00',
+            'ventana_fin' => '2026-12-03 18:00:00+00',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ], 'id_pedidos');
     }
 
     /**

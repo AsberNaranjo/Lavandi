@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AvisosDeLaPasarelaController;
 use App\Http\Controllers\Api\BorradoDeCuentaController;
+use App\Http\Controllers\Api\CalificacionesController;
 use App\Http\Controllers\Api\CatalogoDelTerritorioController;
 use App\Http\Controllers\Api\CuentaController;
 use App\Http\Controllers\Api\DireccionesController;
@@ -100,6 +101,9 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     // Un pedido de la cuenta, por su ULID. Sin whereUlid a propósito: un valor que no es ULID, como un folio, responde
     // el mismo 404 que un pedido ajeno o que no existe (confirmacion-E12).
     Route::get('pedidos/{pedido}', [PedidosController::class, 'mostrar'])->name('pedidos.mostrar');
+    // La calificación del servicio de un pedido de la cuenta (historial-y-calificacion). El contrato está en el
+    // controlador. Sin whereUlid por lo mismo: uno ajeno, uno que no existe y un folio responden el mismo 404.
+    Route::post('pedidos/{pedido}/calificacion', CalificacionesController::class)->name('pedidos.calificacion');
 
     // El perfil de la cuenta de la sesión, y ninguna otra (perfil-y-soporte). El contrato está en el controlador.
     Route::get('perfil', [PerfilController::class, 'mostrar'])->name('perfil.mostrar');
