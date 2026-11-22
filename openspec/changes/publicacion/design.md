@@ -89,6 +89,16 @@ en la cuenta de cada entorno (ADR-0012): la de prueba puede ser la de EL PRESTAD
   que da `eas init` cuando exista la cuenta de Expo de cada entorno. Como cambian de una cuenta a otra, irán también
   desde el entorno.
 
+### 4. El marcador detiene la compilación de producción (tarea 3.2, publicacion-E08)
+
+- El identificador sigue saliendo de `APP_IDENTIFIER`, el mismo en iPhone y Android (base-E05).
+- Con `production`, si `APP_IDENTIFIER` trae el marcador `{{MARCA}}`, en cualquier forma de escribirlo, la
+  configuración se detiene con "Falta el identificador de la app", antes de que EAS suba nada.
+- **Recomendación:** que el entorno `production` de EAS lleve `APP_IDENTIFIER={{MARCA}}` hasta que DD-088 dé el
+  definitivo. Así ninguna compilación de producción sale con un identificador provisional.
+- En `preview` y en local no se revisa: ahí el identificador es uno neutro de desarrollo, como el de `.env.example`.
+  Que producción no lleve uno de esos neutros no lo pide el escenario, y queda en manos de quien llene su entorno.
+
 ## Tablas y migración
 
 No crea tablas: ninguna tabla de `vault/arquitectura/modelo-de-datos.md` nace aquí (ADR-0016). En prueba y en producción

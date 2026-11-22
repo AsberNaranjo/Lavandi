@@ -118,6 +118,21 @@ function exigirApiCifrada(perfil: PerfilDeEas, direccion: string): void {
   }
 }
 
+// El identificador de la app no se puede cambiar después de publicar, y el definitivo espera la marca (DD-023 y DD-088).
+// Mientras el entorno de producción traiga el marcador {{MARCA}} en APP_IDENTIFIER, la compilación de producción se
+// detiene antes de empezar (publicacion-E08). En local y en preview no se revisa: ahí el identificador es uno neutro de
+// desarrollo.
+const MARCADOR_DE_LA_MARCA = /\{\{\s*marca\s*\}\}/i;
+
+function exigirIdentificadorDefinitivo(perfil: PerfilDeEas | null, identificador: string): void {
+  if (perfil === 'production' && MARCADOR_DE_LA_MARCA.test(identificador)) {
+    throw new Error(
+      'Falta el identificador de la app: APP_IDENTIFIER trae el marcador de la marca. El definitivo espera DD-088 y no ' +
+        'se puede cambiar después de publicar.',
+    );
+  }
+}
+
 // Sin tráfico sin cifrar en las compilaciones de EAS (publicacion-E06): en Android, usesCleartextTraffic en false; en
 // iPhone, la seguridad de transporte sin cargas arbitrarias ni a la red local, y sin la excepción que la plantilla de
 // Expo deja para la máquina local.
@@ -126,6 +141,7 @@ const TRANSPORTE_CIFRADO_EN_IPHONE = { NSAllowsArbitraryLoads: false, NSAllowsLo
 export default ({ projectRoot }: ConfigContext): ExpoConfig => {
   const entorno = leerEntorno();
   const perfil = perfilDeCompilacion();
+  exigirIdentificadorDefinitivo(perfil, entorno.APP_IDENTIFIER);
   if (perfil) {
     exigirApiCifrada(perfil, entorno.EXPO_PUBLIC_API_URL);
   }

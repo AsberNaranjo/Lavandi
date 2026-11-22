@@ -24,7 +24,7 @@ bloqueadas por sus otras filas.
 ## 3. Compilaciones
 
 - [x] 3.1 publicacion-E07: perfiles `preview` y `production` de EAS, cada uno con su API, su Firebase y su llave de mapas como secretos — test: `movil/__tests__/publicacion/perfiles-de-compilacion.test.ts` — tamaño S. Las variables de cada entorno de EAS están en `design.md`; darlas de alta espera las cuentas (ADR-0012, DD-072)
-- [ ] 3.2 publicacion-E08: identificador de la app y nombre del paquete desde la configuración; la compilación de producción se detiene con el marcador — test: `movil/__tests__/publicacion/identificador.test.ts` — tamaño S
+- [x] 3.2 publicacion-E08: identificador de la app y nombre del paquete desde la configuración; la compilación de producción se detiene con el marcador — test: `movil/__tests__/publicacion/identificador.test.ts` — tamaño S
 - [ ] 3.3 publicacion-E09: compilación de producción firmada de Android, con la firma en EAS y la versión que sube sola — test: `movil/__tests__/publicacion/perfiles-de-compilacion.test.ts`, más el registro de la compilación — tamaño S
 - [ ] 3.4 publicacion-E10: compilación de producción firmada de iPhone (bloqueada: DD-017, DD-084) — test: `movil/__tests__/publicacion/perfiles-de-compilacion.test.ts`, más el registro de la compilación — tamaño S
 
