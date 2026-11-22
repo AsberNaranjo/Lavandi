@@ -29,6 +29,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(IniciarSesion::class)
+            // Los avisos del panel de cada cuenta, como el de archivo listo de una descarga (exportacion-E10).
+            ->databaseNotifications()
             ->colors([
                 'primary' => Color::Amber,
             ])

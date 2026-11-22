@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -28,7 +29,8 @@ use Laravel\Sanctum\HasApiTokens;
  *
  * Usa los traits de autenticación que arma Illuminate\Foundation\Auth\User, salvo MustVerifyEmail: la verificación
  * del correo está fuera del contrato (proposal.md, "Fuera del contrato"). Los tokens de la app son de Sanctum y la
- * cuenta se borra en suave. No lleva plaza: la persona no pertenece a una plaza, su domicilio sí.
+ * cuenta se borra en suave. No lleva plaza: la persona no pertenece a una plaza, su domicilio sí. Con Notifiable, sus
+ * avisos del panel viven en notifications, como el de archivo listo de una descarga (exportacion-E10).
  *
  * El correo se guarda en minúsculas y se busca sin distinguir mayúsculas, como lo exige el único sobre lower(correo).
  * La contraseña se guarda con el hash de Laravel y nunca sale en JSON (registro-E05 y registro-E06).
@@ -43,6 +45,7 @@ class Usuario extends Modelo implements AuthenticatableContract, AuthorizableCon
     /** @use HasFactory<UsuarioFactory> */
     use HasFactory;
 
+    use Notifiable;
     use SoftDeletes;
     use TieneIdPublico;
 

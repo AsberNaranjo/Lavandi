@@ -19,7 +19,7 @@ M = 5 h.
 - [x] 2.1 indicadores-E06: personas distintas por día, semana y mes, leídas de `actividad_usuarios`, en línea de tendencia — test: `servidor/tests/Feature/Indicadores/UsuariosActivosTest.php` — tamaño M
 - [ ] 2.2 indicadores-E07: qué escribe en `actividad_usuarios` — test: `servidor/tests/Feature/Indicadores/UsuariosActivosTest.php` — tamaño S — bloqueada: BR-33, DD-111
 - [x] 2.3 indicadores-E08: porcentaje que vuelve a pedir, por mes de registro — test: `servidor/tests/Feature/Indicadores/RetencionPorMesDeRegistroTest.php` — tamaño M
-- [ ] 2.4 indicadores-E09: monto promedio y su tendencia frente al periodo anterior — test: `servidor/tests/Feature/Indicadores/MontoPromedioTest.php` — tamaño S
+- [x] 2.4 indicadores-E09: monto promedio y su tendencia frente al periodo anterior — test: `servidor/tests/Feature/Indicadores/MontoPromedioTest.php` — tamaño S
 - [ ] 2.5 indicadores-E10: qué monto cuenta, estimado o final — test: `servidor/tests/Feature/Indicadores/MontoPromedioTest.php` — tamaño S — bloqueada: DD-012
 
 ## 3. Socios (servidor/)
@@ -28,7 +28,7 @@ M = 5 h.
 - [x] 3.2 indicadores-E12: ranking por calificación promedio, con las que no tienen calificaciones al final — test: `servidor/tests/Feature/Indicadores/IndicadoresDeSociosTest.php` — tamaño S
 - [x] 3.3 indicadores-E13: semáforo con dos cortes de configuración y su texto — test: `servidor/tests/Feature/Indicadores/IndicadoresDeSociosTest.php` — tamaño S
 - [ ] 3.4 indicadores-E14: cargar los valores de los cortes — test: `servidor/tests/Feature/Indicadores/IndicadoresDeSociosTest.php` — tamaño S — bloqueada: BR-33, DD-114
-- [ ] 3.5 indicadores-E15: entregas completadas por repartidor — test: `servidor/tests/Feature/Indicadores/IndicadoresDeSociosTest.php` — tamaño S
+- [x] 3.5 indicadores-E15: entregas completadas por repartidor — test: `servidor/tests/Feature/Indicadores/IndicadoresDeSociosTest.php` — tamaño S
 
 ## 4. Financiero (servidor/)
 
@@ -38,18 +38,19 @@ M = 5 h.
 
 ## 5. Geográfico (servidor/)
 
-- [ ] 5.1 indicadores-E19: agregados por colonia en el servidor y su componente de mapa, sin geocodificación inversa — test: `servidor/tests/Feature/Indicadores/MapaDeCalorTest.php` — tamaño M
-- [ ] 5.2 indicadores-E20: zonas de servicio pintadas con su número de pedidos (PostGIS) — test: `servidor/tests/Feature/Indicadores/MapaDeCalorTest.php` — tamaño M
+- [x] 5.1 indicadores-E19: agregados por colonia en el servidor y su componente de mapa, sin geocodificación inversa — test: `servidor/tests/Feature/Indicadores/MapaDeCalorTest.php` — tamaño M
+- [x] 5.2 indicadores-E20: zonas de servicio pintadas con su número de pedidos (PostGIS) — test: `servidor/tests/Feature/Indicadores/MapaDeCalorTest.php` — tamaño M
 
 ## 6. El panel (servidor/)
 
 - [x] 6.1 indicadores-E21: refresco automático con intervalo de configuración — test: `servidor/tests/Feature/Indicadores/PanelEnTiempoRealTest.php` — tamaño S
-- [ ] 6.2 indicadores-E22: el valor del intervalo — test: `servidor/tests/Feature/Indicadores/PanelEnTiempoRealTest.php` — tamaño S — bloqueada: BR-33, DD-116, necesita ADR
+- [x] 6.2 indicadores-E22: el valor del intervalo, 30 s por omisión (adenda del 2026-11-22 de ADR-0007, decisión 33; cierra DD-116) — test: `servidor/tests/Feature/Indicadores/PanelEnTiempoRealTest.php` — tamaño S
 - [x] 6.3 indicadores-E23: cada indicador con las cifras de la base, sin cifras de ejemplo en el código — test: `servidor/tests/Feature/Indicadores/DatosRealesTest.php` — tamaño S
 
 ## Horas
 
-- **Este archivo:** 50 h sin bloqueo y 16 h bloqueadas, 66 h en total.
+- **Este archivo:** 52 h sin bloqueo y 14 h bloqueadas, 66 h en total. La 6.2 (S) dejó de estar bloqueada con la
+  adenda del 2026-11-22 de ADR-0007.
 - **Contra la versión anterior (64 h; 48 sin bloqueo y 16 bloqueadas):** 2 h más, de la migración de
   `actividad_usuarios` (0.1, S). La tarea 2.1 conserva su tamaño M: le quedan la consulta y la línea de tendencia.
 - **Contra el plan:** el plan de sprints le da 57 h (F-I01 a F-I11). La diferencia pasa de 7 h a 9 h.

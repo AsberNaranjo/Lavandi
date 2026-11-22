@@ -202,6 +202,32 @@ vigencia viven en `App\Comisiones\PorcentajesDeComision`, no en las páginas:
   cobrado lo decide DD-020 (E15 y E16).
 - El porcentaje de un socio repartidor espera DD-019 (E14).
 
+**Avisos masivos** (`/admin/avisos-masivos`; tarea 5.1, administracion-E23), en el menú como "Avisos masivos":
+
+- **La lista:** los avisos enviados, del más reciente al más antiguo, con su título, su texto, cuándo y quién lo mandó
+  y a cuántos teléfonos salió ("En cola" mientras no se cuentan). Es de solo lectura: un aviso enviado no se edita ni se
+  borra. La da `Autorizacion::avisosMasivosDelPanel()`.
+- **Escribir aviso:** título (hasta 255 caracteres, como la columna) y texto (hasta 1000), los dos obligatorios. El tope
+  del texto es del implementador, para que el mensaje quepa en lo que FCM acepta por mensaje (grado E, `SIN VERIFICAR`:
+  4096 bytes). Al guardarlo, la fila de `avisos_masivos` queda con la cuenta que lo mandó, `enviado_en` y sin plaza ni
+  segmento: es global. El formulario no ofrece segmentos mientras DD-113 no los defina (E24).
+- **El envío va en cola** (`App\Avisos\MandarAvisoMasivo`): el panel no espera a Google. El trabajo pregunta al
+  componente qué teléfonos reciben el aviso (`Autorizacion::telefonosQueRecibenElAvisoMasivo()`), guarda a cuántos se
+  manda en `destinatarios` y pone en cola un envío por teléfono (`App\Avisos\MandarAvisoMasivoAlTelefono`). Corre una
+  sola vez, para no mandar el aviso dos veces.
+- **Un envío por teléfono, con la lista de tokens de `dispositivos`** (pregunta abierta 3, para el aviso global): FCM
+  HTTP v1, que ya usa el servidor (adenda de ADR-0008), manda a un token por petición. No se usan temas de FCM: la app
+  tendría que suscribirse a ellos, y eso es de `movil/`. Si DD-113 define segmentos, la decisión se revisa con ellos.
+- **Cada envío** sigue las reglas del aviso del pedido: vuelve a preguntar al componente si el teléfono todavía recibe
+  el aviso, un token que FCM rechaza se borra (avisos-E06) y un fallo de Google se reintenta con las esperas de
+  `avisos.esperas` (trait `App\Avisos\EsperasDeReintento`, que ahora comparten los dos envíos).
+- **El mensaje** (`App\Avisos\MensajeMasivo`) es un aviso visible, con la parte de Android y la de iPhone, con el título
+  y el texto; en `data` lleva solo `tipo: aviso_masivo`, porque no hay pedido que consultar.
+- **Quién lo recibe** (lectura del implementador): los teléfonos registrados de todas las cuentas de la app que pueden
+  usarla. No una cuenta bloqueada desde el panel, ni la de un repartidor dado de baja, ni una borrada: no pueden iniciar
+  sesión (`Autorizacion::puedeIniciarSesion()`). Una cuenta sin teléfono no genera ningún envío. Si quien apagó los
+  avisos en su perfil recibe el aviso sigue siendo la pregunta abierta 5.
+
 ## Risks / Trade-offs
 
 - [El plugin de mapas de Filament está en beta] → se hace como componente propio (ADR-0009). Si el mapa sin código a
@@ -226,7 +252,9 @@ vigencia viven en `App\Comisiones\PorcentajesDeComision`, no en las páginas:
    `movimientos_pasarela` no nace hasta que se responda DD-112, así que E20 y E21 quedan bloqueados, como ya dice la
    fila DD-112.
 3. **Avisos masivos: temas de FCM o lista de tokens.** Condiciona cómo se arman los segmentos. Necesita ADR, o
-   ampliar el ADR-0008.
+   ampliar el ADR-0008. **Para el aviso global, la tarea 5.1 usa la lista de tokens** de `dispositivos`, un envío por
+   teléfono, con el canal de FCM HTTP v1 que ya está en la adenda de ADR-0008 (sección "El panel", "Avisos masivos").
+   Para los segmentos sigue abierta, con DD-113.
 4. **El porcentaje global es por plaza, según el modelo de datos** (ADR-0016, C-193): `comisiones` lleva `id_plazas`,
    e `id_lavanderias` vacío es la comisión global de la plaza. Si el "global" del contrato es uno solo para todo el
    territorio, se guarda la misma cifra en cada plaza y E11 se lee como el global de la plaza. Arthur lo confirma.

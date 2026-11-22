@@ -4,12 +4,16 @@ namespace App\Providers;
 
 use App\Avisos\AvisarAlUsuario;
 use App\Avisos\MandarCorreoDeConfirmacion;
+use App\Exportacion\Exportacion;
+use App\Exportacion\PoliticaDeExportacion;
 use App\Models\Usuario;
 use App\Pedidos\EstadoDelPedidoCambiado;
 use App\Pedidos\PedidoConfirmado;
+use Filament\Actions\Exports\Models\Export;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -21,7 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // La exportación de Filament usa el modelo que liga la descarga a usuarios.id_usuarios: aquí no existe la tabla
+        // users (openspec/changes/exportacion/design.md, "Tablas y migración").
+        $this->app->bind(Export::class, Exportacion::class);
     }
 
     /**
@@ -36,6 +42,10 @@ class AppServiceProvider extends ServiceProvider
         // openspec/changes/avisos/design.md).
         Event::listen(PedidoConfirmado::class, AvisarAlUsuario::class);
         Event::listen(EstadoDelPedidoCambiado::class, AvisarAlUsuario::class);
+
+        // La ruta de descarga de Filament pregunta a esta Policy, que solo pasa la pregunta al componente único de
+        // autorización (exportacion-E11; ADR-0019).
+        Gate::policy(Exportacion::class, PoliticaDeExportacion::class);
 
         // La regla de la contraseña sale de la configuración cada vez que se pide (ADR-0018, decisión 2).
         Password::defaults(fn (): Password => Password::min((int) config('acceso.contrasena_minima')));
