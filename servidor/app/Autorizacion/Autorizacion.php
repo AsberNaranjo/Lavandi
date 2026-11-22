@@ -38,10 +38,9 @@ use Livewire\Livewire;
  * sus pedidos, de su plaza y con el pago acreditado.
  *
  * Del cobro (openspec/changes/pago/), conoce qué pedidos paga la cuenta y qué cobros consulta: solo los suyos, con
- * pedidosVisibles() y pagosVisibles(). La ruta
- * del aviso de la pasarela, POST api/pasarela/avisos, es pública con verificación de la pasarela: no hay cuenta detrás,
- * y solo un aviso que la pasarela configurada reconoce como suyo cambia algo (App\Cobro\RecepcionDeAvisos;
- * openspec/changes/pago/design.md, decisión 5).
+ * pedidosVisibles() y pagosVisibles(). La ruta del aviso de la pasarela, POST api/pasarela/avisos, no pide sesión y lo
+ * declara rutasSinSesion(): no hay cuenta detrás, y solo un aviso que la pasarela configurada reconoce como suyo cambia
+ * algo (App\Cobro\RecepcionDeAvisos; openspec/changes/pago/design.md, decisión 5).
  */
 final class Autorizacion
 {
@@ -69,6 +68,9 @@ final class Autorizacion
             'POST api/sesion/google' => 'Abre la sesión con Google (registro-e-inicio-de-sesion).',
             'POST api/contrasena/olvido' => 'Pide el enlace para recuperar la contraseña, con su límite (registro-E31).',
             'POST api/repartidor/registro' => 'Crea la cuenta del repartidor, pendiente de alta, y abre su sesión (repartidor-E01).',
+
+            // El aviso (webhook) de la pasarela de pago: lo manda la pasarela, no una cuenta (pago; ADR-0010).
+            'POST api/pasarela/avisos' => 'El aviso de la pasarela de pago: sin cuenta detrás; solo uno que la pasarela autentica cambia algo (pago-E07).',
 
             // La portada y sus formularios, que son públicos (ADR-0011; openspec/changes/landing/).
             'GET /' => 'La portada pública de la landing.',

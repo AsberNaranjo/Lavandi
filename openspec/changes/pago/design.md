@@ -215,16 +215,17 @@ el sistema ni toca otro cambio.
 4. **El checkout se pide en `POST /api/pagos/checkout`** (tarea 1.3), con el pedido y el método en el cuerpo, como dice
    pago-E02. Va bajo `/api/pagos` y no bajo `/api/pedidos/{pedido}` para no abrir otra ruta de pedidos: confirmacion-E07
    prueba que bajo `/api/pedidos` solo hay crear y consultar. La tenencia la decide `Autorizacion::pedidosVisibles()`: un
-   pedido de otra cuenta responde el mismo 404 que uno que no existe.
+   pedido de otra cuenta responde el mismo 404 que uno que no existe, también si el método viene mal: lo propio se busca
+   antes de revisar el resto del cuerpo, como pide el barrido contra fugas (autorizacion-E14).
 5. **Un solo checkout vigente por cobro** (tarea 1.3). `App\Cobro\CheckoutDelCobro` bloquea el cobro, pregunta a la
    pasarela configurada si la orden que ya tiene sigue vigente (`Pasarela::checkoutVigente()`) y solo si no, crea otra
    para el mismo cobro y reemplaza su `id_pasarela_orden`. No se guarda la URL del checkout: el modelo de datos no la
    tiene y la pasarela la da. La app recibe además `checkout.regreso`, la dirección de regreso de
    `PASARELA_REGRESO`, para abrir el checkout con ella (adenda de ADR-0010). Un pedido sin cobro responde 409: el cobro lo
    crea pago-E14, bloqueado por DD-012. Solo se acepta `tarjeta`; el efectivo responde 422 hasta DD-056.
-6. **El webhook es `POST /api/pasarela/avisos`** (tarea 2.1), público y sin sesión, en la lista de rutas públicas de
-   `tests/Feature/Registro/AutorizacionTest.php`. Lo atiende `App\Cobro\RecepcionDeAvisos`, el único camino por el que un
-   aviso cambia algo: la pasarela configurada lo traduce (`Pasarela::traducir()`), se guarda con `createOrFirst` sobre el
+6. **El webhook es `POST /api/pasarela/avisos`** (tarea 2.1), sin sesión, declarado con su razón en
+   `App\Autorizacion\Autorizacion::rutasSinSesion()` (autorizacion-E01). Lo atiende `App\Cobro\RecepcionDeAvisos`, el
+   único camino por el que un aviso cambia algo: la pasarela configurada lo traduce (`Pasarela::traducir()`), se guarda con `createOrFirst` sobre el
    único `(pasarela, id_pasarela_evento)`, y se procesa una vez, con el aviso bloqueado. Si el procesamiento falla, la
    transacción se deshace, el aviso queda con su `error` y sin `procesado_en`, y la respuesta es 500: la pasarela lo
    reintenta y el reintento sí lo procesa. Un aviso que la pasarela no reconoce responde 400 y no se guarda. Antes de

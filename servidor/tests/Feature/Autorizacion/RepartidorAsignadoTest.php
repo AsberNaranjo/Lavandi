@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Autorizacion;
 
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\Direccion;
 use App\Models\Pedido;
 use App\Models\Repartidor;
 use App\Models\Rol;
-use App\Pedidos\ConfirmacionDePedido;
 use Database\Factories\RepartidorFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
@@ -171,6 +171,8 @@ class RepartidorAsignadoTest extends TestCase
             Rol::REPARTIDOR,
             ajenos: [
                 'pedido' => $ajenos,
+                // Las rutas del cobro son del Módulo A: el del pedido sin asignar.
+                'pago' => [$this->sinAsignar->cobro->id_publico => 'el cobro del pedido sin asignar'],
                 // Las rutas de la dirección son del Módulo A: la del usuario del pedido sin asignar.
                 'direccion' => [$this->direcciones['SinAsignar']->id_publico => 'la dirección del usuario sin asignar'],
             ],
@@ -195,7 +197,8 @@ class RepartidorAsignadoTest extends TestCase
     }
 
     /**
-     * Un pedido confirmado a la lavandería de prueba, de un usuario con su nombre y su dirección de recogida de prueba.
+     * Un pedido confirmado a la lavandería de prueba, de un usuario con su nombre y su dirección de recogida de prueba,
+     * pagado con la pasarela simulada.
      */
     private function pedidoConDatos(string $marca): Pedido
     {
@@ -205,6 +208,6 @@ class RepartidorAsignadoTest extends TestCase
 
         $id = $this->aceptarResumen($cuenta, $this->resumen($recogida))->assertCreated()->json('pedido.id_publico');
 
-        return app(ConfirmacionDePedido::class)->confirmar(Pedido::query()->where('id_publico', $id)->sole())->fresh();
+        return app(CobroSimulado::class)->pagar(Pedido::query()->where('id_publico', $id)->sole())->fresh();
     }
 }

@@ -54,7 +54,11 @@ class PagosController extends Controller
         /** @var Usuario $usuario */
         $usuario = $peticion->user();
 
-        $checkout = $checkouts->abrir($this->pedidoDeLaCuenta($usuario, $peticion->validated('pedido')));
+        // Lo propio primero: el pedido de otra cuenta responde 404 aunque el método venga mal.
+        $pedido = $this->pedidoDeLaCuenta($usuario, $peticion->validated('pedido'));
+        $peticion->metodo();
+
+        $checkout = $checkouts->abrir($pedido);
 
         return response()->json([
             'checkout' => [

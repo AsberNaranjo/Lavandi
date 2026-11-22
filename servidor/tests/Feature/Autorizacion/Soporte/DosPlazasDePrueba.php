@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Autorizacion\Soporte;
 
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\Direccion;
 use App\Models\Lavanderia;
 use App\Models\Pedido;
@@ -9,7 +10,6 @@ use App\Models\Plaza;
 use App\Models\Repartidor;
 use App\Models\Rol;
 use App\Models\Usuario;
-use App\Pedidos\ConfirmacionDePedido;
 use Carbon\CarbonImmutable;
 use Database\Factories\RepartidorFactory;
 
@@ -94,6 +94,7 @@ trait DosPlazasDePrueba
         foreach (['enCurso' => 'en curso', 'entregado' => 'entregado'] as $cual => $como) {
             $datos[$cadena[$cual]->id_publico] = "el pedido {$como} {$marca}";
             $datos[$cadena[$cual]->folio] = "el folio del pedido {$como} {$marca}";
+            $datos[$cadena[$cual]->cobro->id_publico] = "el cobro del pedido {$como} {$marca}";
         }
 
         if ($conLoPublico) {
@@ -161,8 +162,8 @@ trait DosPlazasDePrueba
     }
 
     /**
-     * Un pedido del usuario a la lavandería, recogido en su dirección a esa hora del jueves de prueba y confirmado como
-     * lo confirmará el cobro.
+     * Un pedido del usuario a la lavandería, recogido en su dirección a esa hora del jueves de prueba y confirmado por su
+     * cobro, pagado con la pasarela simulada (pago-E18).
      */
     private function pedidoDeLaCadena(Usuario $usuario, Lavanderia $lavanderia, Direccion $direccion, string $hora): Pedido
     {
@@ -173,6 +174,6 @@ trait DosPlazasDePrueba
             'ventana' => ['inicio' => $inicio->toIso8601String(), 'fin' => $inicio->addHour()->toIso8601String()],
         ]))->assertCreated()->json('pedido.id_publico');
 
-        return app(ConfirmacionDePedido::class)->confirmar(Pedido::query()->where('id_publico', $id)->sole())->fresh();
+        return app(CobroSimulado::class)->pagar(Pedido::query()->where('id_publico', $id)->sole())->fresh();
     }
 }

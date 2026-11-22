@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Autorizacion;
 
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\Direccion;
 use App\Models\Pedido;
 use App\Models\Rol;
 use App\Models\Usuario;
-use App\Pedidos\ConfirmacionDePedido;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -109,6 +109,8 @@ class UsuarioAisladoTest extends TestCase
             Rol::USUARIO,
             ajenos: [
                 'pedido' => [$this->pedidoDeBeto->id_publico => 'el pedido de Beto'],
+                // El cobro del pedido de Beto, que consulta "Procesando pago" (pago-E08).
+                'pago' => [$this->pedidoDeBeto->cobro->id_publico => 'el cobro del pedido de Beto'],
                 'direccion' => [$this->direccionDeBeto->id_publico => 'la dirección de Beto'],
             ],
             // El perfil de las lavanderías es público en el Módulo A (Módulo A #5); el catálogo, de todos.
@@ -116,6 +118,7 @@ class UsuarioAisladoTest extends TestCase
             datosAjenos: [
                 $this->pedidoDeBeto->id_publico => 'el id_publico del pedido de Beto',
                 $this->pedidoDeBeto->folio => 'el folio del pedido de Beto',
+                $this->pedidoDeBeto->cobro->id_publico => 'el id_publico del cobro del pedido de Beto',
                 $this->direccionDeBeto->id_publico => 'el id_publico de la dirección de Beto',
                 'CalleDeBetoAislado' => 'la calle de Beto',
                 'ReferenciasDeBetoAislado' => 'las referencias de Beto',
@@ -142,7 +145,7 @@ class UsuarioAisladoTest extends TestCase
 
     /**
      * Una cuenta de usuario con su nombre y su teléfono, una dirección guardada como favorita y un pedido confirmado
-     * desde ella, como lo confirmará el cobro.
+     * desde ella, confirmado por su cobro pagado con la pasarela simulada.
      *
      * @return array{Usuario, Direccion, Pedido}
      */
@@ -159,7 +162,7 @@ class UsuarioAisladoTest extends TestCase
         ]);
 
         $id = $this->aceptarResumen($cuenta, $this->resumen($direccion))->assertCreated()->json('pedido.id_publico');
-        $pedido = app(ConfirmacionDePedido::class)->confirmar(Pedido::query()->where('id_publico', $id)->sole())->fresh();
+        $pedido = app(CobroSimulado::class)->pagar(Pedido::query()->where('id_publico', $id)->sole())->fresh();
 
         return [$cuenta->fresh(), $direccion, $pedido];
     }

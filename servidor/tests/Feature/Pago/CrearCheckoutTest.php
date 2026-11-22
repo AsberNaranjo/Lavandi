@@ -143,6 +143,22 @@ class CrearCheckoutTest extends TestCase
         $this->assertNull($ajeno->cobro->fresh()->id_pasarela_orden);
     }
 
+    #[TestDox('pago-E01: el pedido de otra cuenta responde 404 aunque el método falte o venga mal: lo propio se busca antes de revisar el cuerpo')]
+    public function test_pago_e01_el_pedido_de_otra_cuenta_responde_404_aunque_el_metodo_venga_mal(): void
+    {
+        $ajeno = $this->pedidoPorPagar();
+        $this->cobroPendiente($ajeno);
+        $otraCuenta = $this->cuentaDeUsuario();
+
+        foreach ([[], ['metodo' => Pago::EFECTIVO], ['metodo' => 'oxxo'], ['metodo' => ['tarjeta']]] as $metodo) {
+            $this->pedirConDatos($otraCuenta, ['pedido' => $ajeno->id_publico, ...$metodo])
+                ->assertNotFound()
+                ->assertExactJson(['message' => 'No existe el pedido.']);
+        }
+
+        $this->assertSame(0, $this->ordenesCreadas());
+    }
+
     #[TestDox('pago-E01: sin sesión responde 401, y una cuenta de lavandería o de repartidor no pasa el componente de autorización')]
     public function test_pago_e01_sin_sesion_o_sin_el_rol_de_usuario_no_se_pide_el_checkout(): void
     {
