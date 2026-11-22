@@ -182,8 +182,8 @@ DD-079) y `movimientos_pasarela`
   2026-11-22 de ADR-0010). ADR-0007 sigue fijando 30 s para la pantalla del pedido.
 - **El regreso a la app.** Las direcciones de éxito y de error del checkout usan el esquema de la app, que sale de la
   configuración; nunca la marca escrita a mano (`CLAUDE.md` §5).
-- **El estado de un intento rechazado.** pago-E04 deja reintentar el mismo cobro; si el cobro sigue `pendiente` o pasa a
-  `fallido` y se abre otro lo fija Arthur al escribir la tarea 2.5.
+- **El estado de un intento rechazado.** Resuelta en la tarea 2.5 (ver "Decisiones de la implementación", punto 11): el
+  cobro pasa a `fallido` y se reintenta con el mismo cobro, que vuelve a `pendiente`; no se abre otro.
 - **Los valores de `reembolsos.estado`.** Resuelta en la tarea 1.1: `vault/arquitectura/modelo-de-datos.md` sí los da
   (`pendiente`, `reembolsado`, `fallido`) y van en un `CHECK`. Si pago-E16 o el ADR de la pasarela piden otro, entra con
   una migración hacia adelante.
@@ -251,3 +251,13 @@ el sistema ni toca otro cambio.
 10. **El registro para la conciliación es la fila del cobro** (tarea 2.4): `pasarela`, `id_pasarela_orden`, `monto`,
     `metodo`, `pagado_en`, `id_pedidos` e `id_plazas`, que toma la de su pedido. No hay otra tabla ni otra copia: la
     conciliación y sus reportes viven en `administracion` (DD-112).
+11. **Un intento rechazado deja el cobro `fallido` y se reintenta con el mismo cobro** (tarea 2.5). `fallido` dice que
+    el último intento se rechazó, y así lo ve la app al consultar el cobro. Pedir el checkout otra vez lo reabre: vuelve
+    a `pendiente`, con el mismo checkout si sigue vigente o con otra orden si no; nunca se abre otro cobro, por el único
+    `pagos_un_cobro_por_pedido`. Un aviso de aprobado de un cobro `fallido` lo paga, porque la pasarela cobró de verdad
+    en un intento posterior del mismo checkout; un rechazo que llega después del pago no lo deshace. Por qué no un cobro
+    nuevo por intento: el pedido tendría varios cobros y la conciliación tendría que saber cuál cuenta.
+12. **"Procesando pago" consulta `GET /api/pagos/{pago}`** (tarea 2.5), con el `id_publico` del cobro que devuelve el
+    checkout. Va bajo `/api/pagos` por la misma razón que el checkout (punto 4), y solo lee. La tenencia la decide
+    `Autorizacion::pagosVisibles()`, que parte de `pedidosVisibles()`: el cobro de un pedido de otra cuenta responde el
+    mismo 404 que uno que no existe.

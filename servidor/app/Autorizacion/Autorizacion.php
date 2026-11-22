@@ -6,6 +6,7 @@ use App\Models\Direccion;
 use App\Models\Dispositivo;
 use App\Models\EstadoPedido;
 use App\Models\Lavanderia;
+use App\Models\Pago;
 use App\Models\Pedido;
 use App\Models\PedidoAsignacion;
 use App\Models\Plaza;
@@ -31,7 +32,8 @@ use Illuminate\Database\Eloquent\Builder;
  * (hito H8; ADR-0019, decisión 1), conoce su rol en la app, qué repartidor opera (repartidor-E03 y E06) y, con su tarea,
  * sus pedidos, de su plaza y con el pago acreditado.
  *
- * Del cobro (openspec/changes/pago/), conoce qué pedidos paga la cuenta: solo los suyos, con pedidosVisibles(). La ruta
+ * Del cobro (openspec/changes/pago/), conoce qué pedidos paga la cuenta y qué cobros consulta: solo los suyos, con
+ * pedidosVisibles() y pagosVisibles(). La ruta
  * del aviso de la pasarela, POST api/pasarela/avisos, es pública con verificación de la pasarela: no hay cuenta detrás,
  * y solo un aviso que la pasarela configurada reconoce como suyo cambia algo (App\Cobro\RecepcionDeAvisos;
  * openspec/changes/pago/design.md, decisión 5).
@@ -169,6 +171,18 @@ final class Autorizacion
     public function pedidosVisibles(Usuario $usuario): Builder
     {
         return Pedido::query()->where('id_usuarios', $usuario->getKey());
+    }
+
+    /**
+     * Los pagos que la cuenta consulta: solo los de los pedidos que hizo (pago-E08; NSV-2026-001-v8.pdf:20:ANEXO A,
+     * Sección A.3). Parte de pedidosVisibles(): el de un pedido de otra cuenta responde igual que uno que no existe
+     * (ADR-0019, decisión 3).
+     *
+     * @return Builder<Pago>
+     */
+    public function pagosVisibles(Usuario $usuario): Builder
+    {
+        return Pago::query()->whereIn('id_pedidos', $this->pedidosVisibles($usuario)->select('id_pedidos'));
     }
 
     /**

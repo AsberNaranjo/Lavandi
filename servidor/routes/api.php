@@ -122,6 +122,9 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     // El cobro del pedido (pago). El contrato está en el controlador y en openspec/changes/pago/design.md. Ninguna de
     // estas rutas da un cobro por pagado: solo el aviso auténtico de la pasarela (pago-E07).
     Route::post('pagos/checkout', [PagosController::class, 'checkout'])->name('pagos.checkout');
+    // El cobro que consulta "Procesando pago". Sin whereUlid a propósito: un valor que no es ULID responde el mismo 404
+    // que un cobro ajeno.
+    Route::get('pagos/{pago}', [PagosController::class, 'mostrar'])->name('pagos.mostrar');
 });
 
 // El Módulo B del socio lavandería: su lavandería (alta-de-lavanderias). Con sesión y por el componente único de

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Autorizacion\Autorizacion;
 use App\Cobro\CheckoutDelCobro;
+use App\Cobro\PagoNoVisible;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PedirCheckoutRequest;
 use App\Http\Resources\PagoResource;
@@ -11,6 +12,7 @@ use App\Models\Pedido;
 use App\Models\Usuario;
 use App\Pedidos\PedidoNoVisible;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /**
@@ -31,6 +33,14 @@ use Illuminate\Support\Str;
  *          está pagado." o "Este cobro ya no se puede pagar."
  *     422  { "message": "…", "errors": { "pedido" | "metodo": ["…"] } }
  *     503  { "message": "El pago no está disponible por ahora." }: sin pasarela en el entorno
+ *
+ * GET /api/pagos/{id_publico} (pago-E04 y pago-E08)
+ *
+ *     200  { "pago": { …el pago… } }: lo que consulta "Procesando pago" cada 5 s, hasta 3 minutos (decisión 32).
+ *          pendiente, sigue esperando; pagado, el pedido ya está Confirmado; fallido, el intento se rechazó y se puede
+ *          volver a intentar con POST /api/pagos/checkout.
+ *     401  sin sesión · 403 sin el rol de usuario
+ *     404  { "message": "No existe el pago." }: no existe, no es ULID o es de un pedido de otra cuenta
  *
  * Ninguna ruta de este controlador da un cobro por pagado: eso lo hace solo el aviso auténtico de la pasarela
  * (pago-E07; App\Cobro\RecepcionDeAvisos).
@@ -53,6 +63,25 @@ class PagosController extends Controller
             ],
             'pago' => new PagoResource($checkout->cobro->load('pedido')),
         ]);
+    }
+
+    /**
+     * Un cobro de la cuenta, por su identificador público. Solo lee: aunque la petición diga que ya pagó, no cambia nada
+     * (pago-E07).
+     */
+    public function mostrar(Request $peticion, string $pago): JsonResponse
+    {
+        /** @var Usuario $usuario */
+        $usuario = $peticion->user();
+
+        $encontrado = Str::isUlid($pago)
+            ? $this->autorizacion->pagosVisibles($usuario)
+                ->where('id_publico', Str::lower($pago))
+                ->with('pedido')
+                ->first()
+            : null;
+
+        return response()->json(['pago' => new PagoResource($encontrado ?? throw new PagoNoVisible)]);
     }
 
     /**

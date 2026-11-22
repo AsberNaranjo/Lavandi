@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
  * ya tiene un checkout vigente en la pasarela configurada, devuelve ese mismo en lugar de crear otro.
  *
  * Abrir el checkout no da nada por pagado: el cobro sigue pendiente hasta el aviso auténtico de la pasarela (pago-E07).
+ * Un cobro fallido, cuyo último intento se rechazó, se reabre: vuelve a pendiente, con el mismo checkout si sigue
+ * vigente, para volver a intentar el pago del mismo cobro (pago-E04).
  *
  * Bloquea el cobro mientras decide, así que dos peticiones a la vez del mismo pedido no crean dos órdenes. Quién puede
  * pedirlo lo decide antes el componente de autorización: aquí llega el pedido de la cuenta.
@@ -40,9 +42,12 @@ final class CheckoutDelCobro
 
             if ($url === null) {
                 $orden = $pasarela->crearOrden($cobro);
-                $cobro->forceFill(['pasarela' => $pasarela->codigo(), 'id_pasarela_orden' => $orden->id])->save();
+                $cobro->forceFill(['pasarela' => $pasarela->codigo(), 'id_pasarela_orden' => $orden->id]);
                 $url = $orden->urlDelCheckout;
             }
+
+            // Un intento nuevo después de un rechazo.
+            $cobro->forceFill(['estado' => Pago::PENDIENTE])->save();
 
             return new Checkout($cobro, $url);
         });
@@ -63,7 +68,7 @@ final class CheckoutDelCobro
             throw CobroQueNoSePaga::yaPagado();
         }
 
-        if ($cobro->estado !== Pago::PENDIENTE) {
+        if (! in_array($cobro->estado, [Pago::PENDIENTE, Pago::FALLIDO], true)) {
             throw CobroQueNoSePaga::yaNoSePaga();
         }
     }
