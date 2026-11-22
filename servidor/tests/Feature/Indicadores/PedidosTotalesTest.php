@@ -188,6 +188,46 @@ class PedidosTotalesTest extends TestCase
         }
     }
 
+    #[TestDox('indicadores-E03: un pedido confirmado a las 23:30 en la hora de su plaza, cuando en UTC ya es el día siguiente, cuenta en el día de su plaza')]
+    public function test_indicadores_e03_el_pedido_de_las_23_30_cuenta_en_el_dia_de_su_plaza(): void
+    {
+        // En America/Mexico_City (UTC-6): el martes a las 18:30 es el miércoles a las 00:30 en UTC, y el miércoles a las
+        // 23:30 es el jueves a las 05:30. El jueves a las 00:15 ya es jueves en los dos.
+        $deLaNoche = $this->pedidoConfirmadoEl('2026-12-02 23:30:00');
+        $this->assertSame('2026-12-03 05:30', $deLaNoche->confirmado_en->utc()->format('Y-m-d H:i'));
+        $this->pedidoConfirmadoEl('2026-12-01 18:30:00');
+        $this->pedidoConfirmadoEl('2026-12-03 00:15:00');
+        $this->comoAdministracion();
+        $filtros = $this->filtros(self::LUNES_DE_PRUEBA, self::DOMINGO_DE_PRUEBA);
+
+        $datos = $this->datosDeLaGrafica($this->widget(PedidosTotalesGrafica::class, $filtros));
+        $this->assertSame([0, 1, 1, 1, 0, 0, 0], $datos['datasets'][0]['data']);
+
+        $this->widget(PedidosTotalesTabla::class, $filtros)
+            ->assertTableColumnStateSet('pedidos', 1, '2026-12-02')
+            ->assertTableColumnStateSet('pedidos', 1, '2026-12-03');
+    }
+
+    #[TestDox('indicadores-E03: la semana y el mes de un pedido también son los de su plaza')]
+    public function test_indicadores_e03_la_semana_y_el_mes_tambien_son_los_de_su_plaza(): void
+    {
+        // El domingo 29 de noviembre a las 23:30 es el lunes 30 en UTC; el lunes 30 a las 23:30, el martes 1 de diciembre.
+        $this->pedidoConfirmadoEl('2026-11-29 23:30:00');
+        $this->pedidoConfirmadoEl('2026-11-30 23:30:00');
+        $this->comoAdministracion();
+
+        $semanas = $this->datosDeLaGrafica(
+            $this->widget(PedidosTotalesGrafica::class, $this->filtros('2026-11-23', self::DOMINGO_DE_PRUEBA, 'semana')),
+        );
+        $this->assertSame(['Semana del 23/11/2026', 'Semana del 30/11/2026'], $semanas['labels']);
+        $this->assertSame([1, 1], $semanas['datasets'][0]['data']);
+
+        $meses = $this->datosDeLaGrafica(
+            $this->widget(PedidosTotalesGrafica::class, $this->filtros('2026-11-01', '2026-12-31', 'mes')),
+        );
+        $this->assertSame([2, 0], $meses['datasets'][0]['data']);
+    }
+
     /**
      * Dos pedidos en la semana del lunes 5 de enero de 2026 (el martes y el jueves), uno en la del lunes 12 (el
      * miércoles) y tres en febrero, en tres semanas distintas.
