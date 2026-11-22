@@ -296,6 +296,15 @@ El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/
   historial de la lavandería (`App\Http\Resources\PedidoEntregadoResource`). De la más reciente a la más antigua.
 - **Sin monto ni calificación recibida:** esperan DD-019 y DD-013 (E26) y DD-052 (E27). Entran como campos nuevos.
 
+### Las estadísticas (tarea 1.8)
+
+- **Cuentan las mismas entregas del historial** (`Autorizacion::entregasDelRepartidor()`), por el instante en que él
+  marcó Entregado, en `App\Repartidores\EstadisticasDelRepartidor`, con la misma consulta que las de la lavandería
+  (`App\Pedidos\EstadisticasDeLaLavanderia`).
+- **"Del día" y "de la semana"** se leen en la zona horaria de la plaza (lectura 5): una entrega a las 19:30 del jueves en
+  la plaza es del jueves, aunque en UTC ya sea el viernes. La semana va de lunes a domingo e incluye hoy.
+- **Sin ingreso total acumulado:** espera DD-019 y DD-013 (E29). Entra como un campo nuevo.
+
 ### Adenda propuesta a ADR-0021: las transiciones del repartidor
 
 Propuesta por Claude por delegación de Arthur (C-236), con la tarea 1.5. No edita el ADR: Arthur la asienta o la cambia
@@ -528,6 +537,24 @@ todavía no acepta el pedido, entre Recolectado y Listo (le toca a la lavanderí
 Sus entregas completadas, las que él marcó Entregado: ni una en curso ni la de otro repartidor. `entregado_en` es el
 instante en UTC; `fecha`, ese instante en la fecha de la plaza. De la más reciente a la más antigua; sin paginación; vacía
 si no hay. El detalle de cada una es `GET /api/repartidor/pedidos/{id_publico}`. Sin monto ni calificación (E26, E27).
+
+### `GET /api/repartidor/estadisticas` (E28)
+
+**200** `{ "entregas_del_dia": 2, "entregas_de_la_semana": 5 }`. Las mismas entregas del historial, por el instante en
+que marcó Entregado. "Del día" es hoy y "de la semana", de lunes a domingo, los dos en la zona horaria de su plaza. Sin
+entregas, los dos en 0. Sin ingreso total acumulado (E29, DD-019 y DD-013).
+
+### Lo que falta en el contrato, y espera su fila
+
+| Qué | Escenario | Espera |
+|---|---|---|
+| Quién asigna el pedido y desde qué pantalla; qué pasa con el que se rechaza | E13, E18 | DD-014 |
+| La entrada al registro en la app y los roles de la cuenta | E04 | DD-053 |
+| El aviso al teléfono de un pedido asignado con la app cerrada | E14 | DD-054 |
+| Cómo ve el usuario Recolectado, En tránsito y Entregado del repartidor; uno o dos viajes | E22 | DD-022, DD-011 |
+| Si la evidencia es obligatoria, en qué momentos, y si es foto o firma | E24 | BR-29, DD-110 |
+| El monto por entrega y el ingreso total acumulado | E26, E29 | DD-019, DD-013 |
+| La calificación recibida por entrega | E27 | DD-052 |
 
 ## Risks / Trade-offs
 

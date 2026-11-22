@@ -171,5 +171,8 @@ Route::middleware(['auth:sanctum', 'autorizar:repartidor'])->prefix('repartidor'
             ->name('repartidor.pedidos.estado');
         // Sus entregas completadas (repartidor-E25).
         Route::get('historial', [HistorialDelRepartidorController::class, 'historial'])->name('repartidor.historial');
+        // Sus entregas del día y de la semana, en la hora de su plaza (repartidor-E28).
+        Route::get('estadisticas', [HistorialDelRepartidorController::class, 'estadisticas'])
+            ->name('repartidor.estadisticas');
     });
 });
