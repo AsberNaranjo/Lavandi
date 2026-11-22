@@ -11,8 +11,12 @@
 //
 // Con sesión, las pantallas se ven además según el módulo de la cuenta, por su rol (registro-E33): las del usuario,
 // solo con una cuenta de usuario; las de la lavandería (pedidos-de-la-lavanderia y estados-del-pedido, en
-// app/lavanderia/), solo con una de socio lavandería. Las de un módulo que no es el suyo, y las de la entrada con la
-// sesión abierta, llevan al arranque, que abre la primera del módulo de la cuenta.
+// app/lavanderia/), solo con una de socio lavandería; las del repartidor (repartidor, en app/repartidor/), solo con una
+// de socio repartidor. Las de un módulo que no es el suyo, y las de la entrada con la sesión abierta, llevan al
+// arranque, que abre la primera del módulo de la cuenta.
+//
+// El registro del repartidor (repartidor-E01) es de la entrada: sin sesión. Su enlace desde la bienvenida o el inicio de
+// sesión espera DD-053 (repartidor-E04).
 //
 // Tampoco se muestra ninguna mientras carga la letra de la marca (adenda del 2026-11-21 de ADR-0013): la carga empieza
 // junto con la lectura de la sesión, y si falla, la app sigue con la letra del sistema.
@@ -69,10 +73,14 @@ function Pantallas({ letraLista }: { letraLista: boolean }) {
       <Stack.Protected guard={modulo === 'lavanderia'} redirectTo="/">
         <Stack.Screen name="lavanderia" />
       </Stack.Protected>
+      <Stack.Protected guard={modulo === 'repartidor'} redirectTo="/">
+        <Stack.Screen name="repartidor" />
+      </Stack.Protected>
       <Stack.Protected guard={!conSesion} redirectTo="/">
         <Stack.Screen name="registro" />
         <Stack.Screen name="inicio-de-sesion" />
         <Stack.Screen name="recuperar-contrasena" />
+        <Stack.Screen name="registro-de-repartidor" />
       </Stack.Protected>
     </Stack>
   );
