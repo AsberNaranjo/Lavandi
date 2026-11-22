@@ -3,8 +3,8 @@
 //
 // En iPhone, el almacén cifrado (expo-secure-store, el Keychain) sobrevive a desinstalar la app; en Android se borra.
 // Por eso la app guarda una marca de instalación en sus documentos, que el sistema borra al desinstalar en los dos
-// teléfonos. Si al arrancar no la encuentra, borra del almacén cifrado el token y la marca de la bienvenida, y luego la
-// escribe.
+// teléfonos. Si al arrancar no la encuentra, borra del almacén cifrado el token, su rol y la marca de la bienvenida, y
+// luego la escribe.
 //
 // El almacén cifrado es la simulación en memoria de __mocks__/expo-secure-store.ts. Los documentos son la simulación en
 // memoria que expo-file-system trae para Jest y que jest-expo conecta sola. Lo que de verdad borra cada sistema al
@@ -17,7 +17,7 @@ import { renderRouter, screen, waitFor } from 'expo-router/testing-library';
 
 import { leerBienvenidaVista, marcarBienvenidaVista } from '../../src/bienvenida/vista';
 import { comprobarInstalacion } from '../../src/instalacion/marca';
-import { guardarToken, leerToken } from '../../src/sesion/almacen';
+import { guardarRol, guardarToken, leerRol, leerToken } from '../../src/sesion/almacen';
 
 // El primer render carga expo-router y sus pantallas; con la caché de Babel vacía, como en la integración continua,
 // pasa de los 5 s que Jest da por omisión.
@@ -40,6 +40,7 @@ function borrarLosDocumentosDeLaApp() {
 async function personaQueYaUsoLaApp() {
   await comprobarInstalacion();
   await marcarBienvenidaVista();
+  await guardarRol('usuario');
   await guardarToken('token-de-antes');
 }
 
@@ -92,13 +93,14 @@ afterEach(() => {
 
 describe('registro-E32: al reinstalar la app, la sesión no sobrevive', () => {
   describe('la marca de instalación', () => {
-    test('registro-E32 — sin la marca, borra del almacén cifrado el token y la marca de la bienvenida', async () => {
+    test('registro-E32 — sin la marca, borra del almacén cifrado el token, su rol y la marca de la bienvenida', async () => {
       await personaQueYaUsoLaApp();
       desinstalarEnIPhone();
 
       await comprobarInstalacion();
 
       await expect(leerToken()).resolves.toBeNull();
+      await expect(leerRol()).resolves.toBeNull();
       await expect(leerBienvenidaVista()).resolves.toBe(false);
     });
 
@@ -134,7 +136,8 @@ describe('registro-E32: al reinstalar la app, la sesión no sobrevive', () => {
 
       await Promise.all([comprobarInstalacion(), comprobarInstalacion()]);
 
-      expect(SecureStore.deleteItemAsync).toHaveBeenCalledTimes(2);
+      // El token, su rol (registro-E33) y la marca de la bienvenida.
+      expect(SecureStore.deleteItemAsync).toHaveBeenCalledTimes(3);
       expect(crear).toHaveBeenCalledTimes(1);
     });
 

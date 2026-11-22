@@ -9,6 +9,8 @@ export const MENSAJES = {
   demasiadosIntentos: 'Demasiados intentos. Espera un minuto e intenta de nuevo.',
   credenciales: 'El correo o la contraseña no son válidos.',
   google: 'No se pudo entrar con Google. Intenta de nuevo.',
+  // Una cuenta sin módulo en la app, como la de administración, que entra por el panel (registro-E33).
+  sinAccesoALaApp: 'Esta cuenta no tiene acceso a la app. Las cuentas de administración entran por el panel.',
 } as const;
 
 /**

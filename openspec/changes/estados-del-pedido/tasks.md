@@ -25,7 +25,7 @@
 
 ## 5. App: los botones de la lavandería
 
-- [ ] 5.1 estados-E06: tarjeta de pedido de la lavandería (componente 4 del design system) con solo el botón del paso siguiente habilitado — test: `movil/__tests__/estados/botones-de-la-lavanderia.test.tsx` — tamaño M
+- [x] 5.1 estados-E06: tarjeta de pedido de la lavandería (componente 4 del design system) con solo el botón del paso siguiente habilitado — test: `movil/__tests__/estados/botones-de-la-lavanderia.test.tsx` — tamaño M
 
 ## 6. Bloqueadas: no entran al sprint mientras su fila siga abierta
 
