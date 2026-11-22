@@ -1,11 +1,17 @@
 {
   "build": {
     "preview": {
+      "environment": "preview",
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
       "env": {
         "PERFIL_DE_COMPILACION": "preview"
       }
     },
     "production": {
+      "environment": "production",
       "env": {
         "PERFIL_DE_COMPILACION": "production"
       }

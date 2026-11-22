@@ -61,6 +61,34 @@ la rama `feat/avisos-y-publicacion-movil`. Ninguna sale del contrato ni de la sp
   deja `NSAllowsArbitraryLoads` en `true` y una excepción para la máquina local, y con eso una compilación de las tiendas
   habría permitido el tráfico sin cifrar.
 
+### 3. Las variables de cada entorno de EAS (tarea 3.1, publicacion-E07)
+
+`preview` toma las variables del entorno `preview` de EAS, y `production` las del entorno `production` (el campo
+`environment` de cada perfil). `eas.json` no trae ninguna: ni la API, ni el identificador, ni el archivo de Firebase, ni
+la llave de mapas (`movil/__tests__/publicacion/perfiles-de-compilacion.test.ts`). Se dan de alta con `eas env:create`
+en la cuenta de cada entorno (ADR-0012): la de prueba puede ser la de EL PRESTADOR; la de producción es la del cliente.
+
+| Variable | Tipo | Visibilidad en EAS | Qué lleva |
+|---|---|---|---|
+| `EXPO_PUBLIC_NOMBRE_APP` | texto | texto plano | El nombre del producto; hoy `{{MARCA}}` (DD-023) |
+| `EXPO_PUBLIC_API_URL` | texto | texto plano | La API del entorno, por https (publicacion-E06); el entorno de prueba espera DD-070 |
+| `APP_IDENTIFIER` | texto | texto plano | El identificador de la app; el definitivo espera DD-088 (publicacion-E08) |
+| `GOOGLE_SERVICES_JSON` | archivo | secreta | El `google-services.json` del proyecto de Firebase del entorno (ADR-0008; DD-072) |
+| `GOOGLE_MAPS_ANDROID_API_KEY` | texto | secreta | La llave de Google Maps de Android del entorno, restringida a la app (ADR-0009) |
+| `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` | texto | texto plano | Los clientes OAuth de Google del entorno (ADR-0005; DD-072) |
+| `EXPO_PUBLIC_AVISO_DE_PRIVACIDAD_URL`, `EXPO_PUBLIC_TERMINOS_URL` | texto | texto plano | Las páginas legales del servidor del entorno (DD-080) |
+
+- **Las `EXPO_PUBLIC_*` no son secretas:** van dentro de la app y cualquiera las puede leer de ella.
+- **Una variable secreta no se lee en la máquina** al preparar la compilación, solo en el servidor de EAS (grado E,
+  `SIN VERIFICAR`, documentación de variables de entorno de EAS, consultada de memoria el 2026-11-22). Por eso
+  `app.config.ts` no se detiene si falta el archivo de Firebase o la llave de mapas: en la máquina faltan, y en la nube
+  están.
+- **`preview` es la compilación interna** (`distribution: internal`) y en Android sale un APK que se instala sin tienda,
+  como pide ADR-0012. TestFlight, en iPhone, llega con la tarea 3.4 (DD-017, DD-084).
+- **Pendiente, sin cuenta todavía:** el identificador del proyecto de EAS (`extra.eas.projectId`) y su dueño (`owner`),
+  que da `eas init` cuando exista la cuenta de Expo de cada entorno. Como cambian de una cuenta a otra, irán también
+  desde el entorno.
+
 ## Tablas y migración
 
 No crea tablas: ninguna tabla de `vault/arquitectura/modelo-de-datos.md` nace aquí (ADR-0016). En prueba y en producción
