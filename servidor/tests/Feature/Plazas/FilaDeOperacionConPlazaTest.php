@@ -45,12 +45,16 @@ class FilaDeOperacionConPlazaTest extends TestCase
     #[TestDox('plazas-E09: la lista de tablas sin plaza es la de modelo-de-datos, y la de plaza opcional tiene cuatro')]
     public function test_plazas_e09_la_lista_de_tablas_sin_plaza_es_la_de_modelo_de_datos_y_la_de_plaza_opcional_tiene_cuatro(): void
     {
-        // Las del escenario: los catálogos, plazas, las de cuentas y las de la pasarela.
+        // Las del escenario: los catálogos, plazas, las de cuentas y las de la pasarela. Los tres del territorio los
+        // agregó la dirección asistida (openspec/changes/direcciones/design.md, tarea 4.1; C-238).
         $this->assertEqualsCanonicalizing([
             'roles',
             'tipos_servicio',
             'unidades_medida',
             'estados_pedido',
+            'entidades_federativas',
+            'municipios',
+            'colonias',
             'plazas',
             'usuarios',
             'rol_usuario',

@@ -71,7 +71,7 @@ use Illuminate\Support\Str;
  *         "numero_interior": "4" | null,
  *         "colonia": "Centro",
  *         "codigo_postal": "34000" | null,
- *         "municipio": "Durango, Dgo." | null,
+ *         "municipio": "Durango" | null,              el nombre del municipio del catálogo al crear el pedido; sin estado
  *         "referencias": "Portón gris" | null,
  *         "latitud": 24.0277,
  *         "longitud": -104.6532

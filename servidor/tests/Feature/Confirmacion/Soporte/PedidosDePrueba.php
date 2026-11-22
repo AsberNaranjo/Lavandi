@@ -12,6 +12,7 @@ use App\Models\Usuario;
 use App\Models\Zona;
 use Carbon\CarbonImmutable;
 use Illuminate\Testing\TestResponse;
+use Tests\Feature\Direcciones\Soporte\CatalogoDePrueba;
 
 /**
  * Lo que comparten las pruebas de resumen-y-confirmacion: una plaza de prueba con su agenda y su zona, una lavandería
@@ -84,7 +85,8 @@ trait PedidosDePrueba
     }
 
     /**
-     * Una dirección guardada de la cuenta, en la plaza de prueba y dentro de su zona, con lo que se pase encima.
+     * Una dirección guardada de la cuenta, en la plaza de prueba y dentro de su zona, con lo que se pase encima. Su
+     * municipio es el ficticio del catálogo de prueba, "Municipio de prueba" (CatalogoDePrueba).
      *
      * @param  array<string, mixed>  $datos
      */
@@ -98,7 +100,7 @@ trait PedidosDePrueba
             'numero_interior' => '4',
             'colonia' => 'Colonia de prueba',
             'codigo_postal' => '00000',
-            'municipio' => 'Municipio de prueba',
+            'id_municipios' => CatalogoDePrueba::municipio()->getKey(),
             'referencias' => 'Portón de prueba',
             'ubicacion' => ['latitud' => 10.5, 'longitud' => -119.5],
             ...$datos,

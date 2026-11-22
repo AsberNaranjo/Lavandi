@@ -41,13 +41,18 @@ return [
     ],
 
     /*
-     * Sin plaza, por diseño: los cuatro catálogos, las plazas, las cuentas y lo de la pasarela.
+     * Sin plaza, por diseño: los catálogos, las plazas, las cuentas y lo de la pasarela. Los del territorio
+     * (entidades_federativas, municipios y colonias) no son de una plaza, y una plaza nueva no los cambia (direcciones,
+     * design.md, "La dirección asistida").
      */
     'sin_plaza' => [
         'roles',
         'tipos_servicio',
         'unidades_medida',
         'estados_pedido',
+        'entidades_federativas',
+        'municipios',
+        'colonias',
         'plazas',
         'usuarios',
         'rol_usuario',

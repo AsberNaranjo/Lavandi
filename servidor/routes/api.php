@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\BorradoDeCuentaController;
+use App\Http\Controllers\Api\CatalogoDelTerritorioController;
 use App\Http\Controllers\Api\CuentaController;
 use App\Http\Controllers\Api\DireccionesController;
 use App\Http\Controllers\Api\DispositivosController;
@@ -62,6 +63,13 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     Route::get('direcciones/{direccion}', [DireccionesController::class, 'mostrar'])
         ->whereUlid('direccion')
         ->name('direcciones.mostrar');
+
+    // El catálogo del territorio para la dirección asistida (direcciones, C-238). El contrato está en el controlador.
+    // Sin where en el código postal a propósito: uno que no son cinco números responde 422, no 404 (direcciones-E20).
+    Route::get('catalogos/municipios', [CatalogoDelTerritorioController::class, 'municipios'])
+        ->name('catalogos.municipios');
+    Route::get('codigos-postales/{codigo_postal}/colonias', [CatalogoDelTerritorioController::class, 'colonias'])
+        ->name('codigos-postales.colonias');
 
     // Los pedidos de la cuenta (resumen-y-confirmacion). El contrato está en el controlador. Ninguna ruta confirma un
     // pedido: lo confirma el cobro cuando la pasarela confirma el pago (C-188; confirmacion-E07).

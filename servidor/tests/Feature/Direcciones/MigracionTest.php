@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\Direcciones\Soporte\CatalogoDePrueba;
 use Tests\Feature\Plazas\Soporte\PlazasDePrueba;
 use Tests\TestCase;
 
@@ -61,11 +62,12 @@ class MigracionTest extends TestCase
     #[TestDox('modelo-E01 a modelo-E17: las columnas son las del modelo de datos, en su orden')]
     public function test_modelo_e01_a_e17_las_columnas_son_las_del_modelo_de_datos_en_su_orden(): void
     {
+        // id_municipios va al final: la agregó la segunda migración del cambio, que también quitó municipio (tarea 4.1).
         $this->assertSame(
             [
                 'id_direcciones', 'id_publico', 'id_usuarios', 'id_plazas', 'alias', 'calle', 'numero_exterior',
-                'numero_interior', 'colonia', 'codigo_postal', 'municipio', 'referencias', 'ubicacion', 'es_favorita',
-                'created_at', 'updated_at', 'deleted_at',
+                'numero_interior', 'colonia', 'codigo_postal', 'referencias', 'ubicacion', 'es_favorita',
+                'created_at', 'updated_at', 'deleted_at', 'id_municipios',
             ],
             Schema::getColumnListing('direcciones'),
         );
@@ -94,8 +96,10 @@ class MigracionTest extends TestCase
         $this->assertFalse($this->admiteVacio('id_usuarios'));
         $this->assertContains([['id_usuarios'], 'usuarios', ['id_usuarios'], 'restrict'], $this->llaves());
 
-        // Solo esas dos llaves: la dirección no apunta a nada más.
-        $this->assertCount(2, $this->llaves());
+        // Y la del municipio del catálogo, opcional (tarea 4.1). Solo esas tres: la dirección no apunta a nada más.
+        $this->assertTrue($this->admiteVacio('id_municipios'));
+        $this->assertContains([['id_municipios'], 'municipios', ['id_municipios'], 'restrict'], $this->llaves());
+        $this->assertCount(3, $this->llaves());
     }
 
     #[TestDox('modelo-E06 y direcciones-E12: los únicos son id_publico y (id_direcciones, id_plazas), el destino de la llave compuesta del pedido')]
@@ -175,7 +179,7 @@ class MigracionTest extends TestCase
             'numero_exterior' => null,
             'numero_interior' => null,
             'codigo_postal' => null,
-            'municipio' => null,
+            'id_municipios' => null,
             'referencias' => null,
         ]);
 
@@ -271,7 +275,7 @@ class MigracionTest extends TestCase
             'calle' => 'Calle de prueba',
             'numero_exterior' => '1',
             'colonia' => 'Colonia de prueba',
-            'municipio' => 'Municipio de prueba',
+            'id_municipios' => CatalogoDePrueba::municipio()->getKey(),
             'ubicacion' => ['latitud' => 10.25, 'longitud' => -119.75],
         ]);
 
@@ -286,6 +290,7 @@ class MigracionTest extends TestCase
 
         $this->assertTrue($usuario->is($direccion->usuario));
         $this->assertTrue($plaza->is($direccion->plaza));
+        $this->assertTrue(CatalogoDePrueba::municipio()->is($direccion->municipio));
         $this->assertSame('id_usuarios', $direccion->usuario()->getForeignKeyName());
         $this->assertSame('id_plazas', $direccion->plaza()->getForeignKeyName());
         $this->assertTrue($direccion->fresh()->es_favorita);
@@ -325,7 +330,6 @@ class MigracionTest extends TestCase
             'calle' => 'Calle de prueba',
             'numero_exterior' => '1',
             'colonia' => 'Colonia de prueba',
-            'municipio' => 'Municipio de prueba',
             'ubicacion' => DB::raw("ST_GeogFromText('SRID=4326;POINT(-119.5 10.5)')"),
             'created_at' => now(),
             'updated_at' => now(),

@@ -2,6 +2,7 @@
 
 namespace App\Direcciones;
 
+use App\Models\Municipio;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
@@ -21,7 +22,10 @@ final class GeocodificadorDeGoogle implements Geocodificador
 {
     private const SEGUNDOS_DE_ESPERA = 5;
 
-    public function geocodificar(string $direccion): ?Punto
+    /**
+     * Google recibe solo el texto, que ya lleva el municipio y el estado; el municipio del catálogo no viaja.
+     */
+    public function geocodificar(string $texto, Municipio $municipio): ?Punto
     {
         $llave = (string) config('services.geocodificacion.llave');
 
@@ -33,7 +37,7 @@ final class GeocodificadorDeGoogle implements Geocodificador
             $respuesta = Http::timeout(self::SEGUNDOS_DE_ESPERA)
                 ->acceptJson()
                 ->get((string) config('services.geocodificacion.direccion'), [
-                    'address' => $direccion,
+                    'address' => $texto,
                     'components' => 'country:MX',
                     'key' => $llave,
                 ]);

@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use RuntimeException;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
 use Tests\Feature\Confirmacion\Soporte\PedidosDePrueba;
+use Tests\Feature\Direcciones\Soporte\CatalogoDePrueba;
 use Tests\Feature\PerfilLavanderia\Soporte\LavanderiasDePrueba;
 use Tests\Feature\Plazas\Soporte\PlazasDePrueba;
 use Tests\TestCase;
@@ -25,7 +26,8 @@ use Tests\TestCase;
  * El pedido nace al aceptar el resumen, antes del pago: en el estado previo al pago, sin folio y sin confirmado_en, con
  * la plaza de su lavandería, la ventana, el servicio con el precio por kilo copiado y las dos direcciones copiadas, y
  * su primer evento, todo en una transacción (NSV-2026-001-v8.pdf:16-17:ANEXO A, Sección A.3, Módulo A #9 a #11; C-188;
- * ADR-0016). La copia no cambia si después cambian el precio o la dirección guardada.
+ * ADR-0016). La copia no cambia si después cambian el precio, la dirección guardada o el nombre del municipio en el
+ * catálogo: el municipio se copia como texto (openspec/changes/direcciones/tasks.md, tarea 4.5).
  *
  * El estado previo al pago es uno de prueba: su código y su nombre los fija DD-123.
  *
@@ -168,15 +170,30 @@ class CrearPedidoTest extends TestCase
             $this->assertSame($direccion->getKey(), $copia->id_direcciones, $tipo);
             $this->assertSame($this->plaza->getKey(), $copia->id_plazas, $tipo);
 
-            foreach (['alias', 'calle', 'numero_exterior', 'numero_interior', 'colonia', 'codigo_postal', 'municipio',
-                'referencias'] as $columna) {
+            foreach (['alias', 'calle', 'numero_exterior', 'numero_interior', 'colonia', 'codigo_postal', 'referencias'] as $columna) {
                 $this->assertSame($direccion->{$columna}, $copia->{$columna}, "{$tipo}.{$columna}");
             }
+
+            // El municipio se copia como texto, con su nombre del catálogo (direcciones, design.md, tarea 4.5).
+            $this->assertSame('Municipio de prueba', $copia->municipio, "{$tipo}.municipio");
         }
 
         // El mismo punto que la dirección guardada, copiado en la base.
         $this->assertSame([10.5, -119.5], [(float) $copias['recoleccion']->latitud, (float) $copias['recoleccion']->longitud]);
         $this->assertSame([10.25, -119.75], [(float) $copias['entrega']->latitud, (float) $copias['entrega']->longitud]);
+    }
+
+    #[TestDox('confirmacion-E05: una dirección marcada en el mapa sin municipio se copia sin municipio')]
+    public function test_confirmacion_e05_una_direccion_sin_municipio_se_copia_sin_municipio(): void
+    {
+        $cuenta = $this->cuentaDeUsuario();
+        $delMapa = $this->direccionDe($cuenta, ['calle' => null, 'numero_exterior' => null, 'id_municipios' => null]);
+
+        $this->aceptarResumen($cuenta, $this->resumen($delMapa))
+            ->assertCreated()
+            ->assertJsonPath('pedido.recogida.municipio', null);
+
+        $this->assertSame([null, null], DB::table('pedido_direcciones')->pluck('municipio')->all());
     }
 
     #[TestDox('confirmacion-E05: sin entrega, la entrega es la copia de la misma dirección de la recogida')]
@@ -334,6 +351,8 @@ class CrearPedidoTest extends TestCase
             'ubicacion' => ['latitud' => 10.75, 'longitud' => -119.25],
         ]);
         $casa->delete();
+        // Y el catálogo cambia el nombre del municipio, como al cargar un archivo nuevo de Correos de México.
+        CatalogoDePrueba::municipio()->update(['nombre' => 'Municipio renombrado']);
 
         $this->assertSame('25.50', $this->servicio->fresh()->precio);
         $this->assertSame(self::PRECIO_POR_KILO, $pedido->servicios()->sole()->precio_unitario);
@@ -387,7 +406,8 @@ class CrearPedidoTest extends TestCase
             'numero_interior' => $direccion->numero_interior,
             'colonia' => $direccion->colonia,
             'codigo_postal' => $direccion->codigo_postal,
-            'municipio' => $direccion->municipio,
+            // El nombre del municipio del catálogo, copiado como texto.
+            'municipio' => $direccion->municipio?->nombre,
             'referencias' => $direccion->referencias,
             'latitud' => (float) $punto->latitud,
             'longitud' => (float) $punto->longitud,
