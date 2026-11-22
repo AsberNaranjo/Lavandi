@@ -38,6 +38,25 @@
 No hay decisión técnica nueva: el cambio aplica ADR-0002, ADR-0004, ADR-0008, ADR-0009, ADR-0010 y ADR-0012, sin
 repetirlos.
 
+**Cómo quedó implementado.** Las lecturas de abajo las tomó Claude por delegación de Arthur (C-236), con la mínima que
+cumple cada escenario; se pueden rehacer sin tocar los requisitos.
+
+- **Configuración por entorno (tarea 1.1, 2026-11-22):** lo que pide publicacion-E01 ya lo habían dejado `pago`
+  (`PASARELA` y su llave, pago-E17), `avisos` (`FCM_CREDENCIALES`, la ruta a la cuenta de servicio del proyecto de
+  Firebase del entorno), `registro-e-inicio-de-sesion`, `direcciones` e `indicadores` (`GOOGLE_CLIENTES_OAUTH`,
+  `GOOGLE_GEOCODIFICACION_LLAVE` y `GOOGLE_MAPS_PANEL_LLAVE`) y el correo de Laravel (`MAIL_*`). No hizo falta código: la
+  prueba `servidor/tests/Feature/Publicacion/ConfiguracionPorEntornoTest.php` lo fija. Simula el `.env` de cada entorno
+  poniendo las variables en el proceso y volviendo a leer la configuración: el aviso va al proyecto de Firebase del
+  entorno, la orden de pago lleva la llave del entorno, en producción no cobra la pasarela simulada, y cada credencial
+  cambia con su variable. Revisa además que ninguna llave de Google, cliente de OAuth, llave privada ni llave de Conekta
+  esté escrita en el código, y que nada fuera de `config/` lea el entorno, porque con la configuración en caché, como en
+  producción, `env()` ya no lee nada. Nació en verde; con la ruta de Firebase escrita a mano en `config/avisos.php`, dos
+  de sus pruebas fallan.
+- **La pasarela de prueba y la de producción:** Conekta llega con la sección 3 de `openspec/changes/pago/tasks.md`. Sus
+  llaves de modo de prueba y de producción entran por el mismo camino, con sus variables en el `.env` de cada entorno;
+  hasta entonces, en prueba y en producción el pago responde que no está disponible. La parte de la pasarela de
+  publicacion-E01 se termina de acreditar con esa tarea.
+
 ## Tablas y migración
 
 No crea tablas: ninguna tabla de `vault/arquitectura/modelo-de-datos.md` nace aquí (ADR-0016). En prueba y en producción
