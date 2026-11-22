@@ -191,8 +191,8 @@ DD-079) y `movimientos_pasarela`
 
 ## Decisiones de la implementación
 
-Las tomó Claude por delegación de Arthur (C-236), dentro de lo que dicen la spec y los ADRs. Ninguna cambia lo que hace
-el sistema ni toca otro cambio.
+Las tomó Claude por delegación de Arthur (C-236), dentro de lo que dicen la spec y los ADRs. Ninguna cambia lo que dice
+la spec ni un ADR. La 9 ajusta pruebas de otros cambios para que paguen por el cobro, sin comprobar menos.
 
 1. **`pasarela` admite `conekta` y `simulada`** (tarea 1.1), con el mismo `CHECK` en `pagos` y en `eventos_pasarela`.
    `conekta` es la del contrato (ADR-0010); `simulada` es la de local y las pruebas, y el código no la usa en ningún otro
@@ -225,8 +225,9 @@ el sistema ni toca otro cambio.
    crea pago-E14, bloqueado por DD-012. Solo se acepta `tarjeta`; el efectivo responde 422 hasta DD-056.
 6. **El webhook es `POST /api/pasarela/avisos`** (tarea 2.1), sin sesión, declarado con su razón en
    `App\Autorizacion\Autorizacion::rutasSinSesion()` (autorizacion-E01). Lo atiende `App\Cobro\RecepcionDeAvisos`, el
-   único camino por el que un aviso cambia algo: la pasarela configurada lo traduce (`Pasarela::traducir()`), se guarda con `createOrFirst` sobre el
-   único `(pasarela, id_pasarela_evento)`, y se procesa una vez, con el aviso bloqueado. Si el procesamiento falla, la
+   único camino por el que un aviso cambia algo: la pasarela configurada lo autentica (punto 13) y lo traduce
+   (`Pasarela::traducir()`), se guarda con `createOrFirst` sobre el único `(pasarela, id_pasarela_evento)`, y se procesa
+   una vez, con el aviso bloqueado. Si el procesamiento falla, la
    transacción se deshace, el aviso queda con su `error` y sin `procesado_en`, y la respuesta es 500: la pasarela lo
    reintenta y el reintento sí lo procesa. Un aviso que la pasarela no reconoce responde 400 y no se guarda. Antes de
    guardar el contenido, `App\Cobro\SinDatosDeTarjeta` quita a cualquier profundidad las llaves del número, el
@@ -246,7 +247,7 @@ el sistema ni toca otro cambio.
    el cobro pendiente que pago-E14 todavía no crea, abre su checkout por `CheckoutDelCobro` y manda el aviso de aprobado
    de la pasarela simulada a `RecepcionDeAvisos`, el mismo camino del webhook. Lo usan las ayudas de prueba de
    `resumen-y-confirmacion`, `estados-del-pedido`, `historial-y-calificacion`, `indicadores`,
-   `pedidos-de-la-lavanderia`, `avisos` y `repartidor`, y `RepartidorDeDesarrolloSeeder`. Su monto,
+   `pedidos-de-la-lavanderia`, `avisos`, `repartidor` y `autorizacion-por-rol`, y `RepartidorDeDesarrolloSeeder`. Su monto,
    `CobroSimulado::MONTO_DE_PRUEBA`, es ficticio. Solo sirve con la pasarela simulada, así que fuera de local y de las
    pruebas no hace nada.
 10. **El registro para la conciliación es la fila del cobro** (tarea 2.4): `pasarela`, `id_pasarela_orden`, `monto`,
