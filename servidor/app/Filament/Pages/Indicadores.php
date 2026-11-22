@@ -6,6 +6,7 @@ use App\Autorizacion\Autorizacion;
 use App\Filament\Widgets\Indicadores\PedidosPorEstadoGrafica;
 use App\Filament\Widgets\Indicadores\PedidosTotalesGrafica;
 use App\Filament\Widgets\Indicadores\PedidosTotalesTabla;
+use App\Filament\Widgets\Indicadores\RetencionTabla;
 use App\Filament\Widgets\Indicadores\UsuariosActivosGrafica;
 use App\Indicadores\Granularidad;
 use App\Indicadores\Rango;
@@ -88,6 +89,7 @@ class Indicadores extends Dashboard
             PedidosTotalesTabla::class,
             PedidosPorEstadoGrafica::class,
             UsuariosActivosGrafica::class,
+            RetencionTabla::class,
         ];
     }
 }

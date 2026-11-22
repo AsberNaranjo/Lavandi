@@ -18,7 +18,7 @@ M = 5 h.
 
 - [x] 2.1 indicadores-E06: personas distintas por día, semana y mes, leídas de `actividad_usuarios`, en línea de tendencia — test: `servidor/tests/Feature/Indicadores/UsuariosActivosTest.php` — tamaño M
 - [ ] 2.2 indicadores-E07: qué escribe en `actividad_usuarios` — test: `servidor/tests/Feature/Indicadores/UsuariosActivosTest.php` — tamaño S — bloqueada: BR-33, DD-111
-- [ ] 2.3 indicadores-E08: porcentaje que vuelve a pedir, por mes de registro — test: `servidor/tests/Feature/Indicadores/RetencionPorMesDeRegistroTest.php` — tamaño M
+- [x] 2.3 indicadores-E08: porcentaje que vuelve a pedir, por mes de registro — test: `servidor/tests/Feature/Indicadores/RetencionPorMesDeRegistroTest.php` — tamaño M
 - [ ] 2.4 indicadores-E09: monto promedio y su tendencia frente al periodo anterior — test: `servidor/tests/Feature/Indicadores/MontoPromedioTest.php` — tamaño S
 - [ ] 2.5 indicadores-E10: qué monto cuenta, estimado o final — test: `servidor/tests/Feature/Indicadores/MontoPromedioTest.php` — tamaño S — bloqueada: DD-012
 

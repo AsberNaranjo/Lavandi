@@ -119,6 +119,9 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
 - **Los usuarios activos** cuentan todas las filas de `actividad_usuarios`, sin filtrar por rol: quien escriba la tabla
   (E07, DD-111) decide quién cuenta, como dice "Tablas y migración". Hasta entonces nada la escribe, y en producción la
   línea da 0.
+- **La retención** pone una fila por cada mes del rango, aunque ese mes nadie se haya registrado. El mes de registro se
+  lee en la zona horaria de la aplicación (pregunta 8). Cuentan también las cuentas borradas después, porque su
+  registro y sus pedidos son historial. El porcentaje lleva un decimal.
 
 ## Open Questions
 
