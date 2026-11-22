@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Avisos;
 
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\Dispositivo;
 use App\Models\EstadoPedido;
 use App\Models\Pedido;
 use App\Models\Usuario;
-use App\Pedidos\ConfirmacionDePedido;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
@@ -23,8 +23,8 @@ use Tests\TestCase;
  * (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo A #17). Cada aviso va solo a los teléfonos de la cuenta dueña
  * del pedido, con el texto de su momento en config/avisos.php, la única lista de momentos (ADR-0008).
  *
- * La confirmación la publica la operación de confirmar, cuando la pasarela confirma el pago (C-188): aquí la llama la
- * prueba, como lo hará el cobro. Los demás cambios los publica la lavandería con sus botones (estados-del-pedido,
+ * La confirmación la publica la operación de confirmar, cuando la pasarela confirma el pago (C-188): aquí, la pasarela
+ * simulada acredita el pago y el cobro confirma el pedido. Los demás cambios los publica la lavandería con sus botones (estados-del-pedido,
  * tarea 2.1), sobre el pedido que aceptó (CambiosDeEstadoDePrueba), y Entregado, el repartidor, cuyo botón llega con
  * repartidor (EstadosDePrueba::entregarComoElRepartidor()). FCM está simulado (FcmSimulado).
  *
@@ -64,7 +64,7 @@ class MomentosDelPedidoTest extends TestCase
         // Aceptar el resumen no avisa: el pedido todavía no está pagado (C-188).
         $this->assertSame([], $this->mensajesAFcm());
 
-        $pedido = app(ConfirmacionDePedido::class)->confirmar($pedido)->fresh();
+        $pedido = app(CobroSimulado::class)->pagar($pedido)->fresh();
 
         $this->assertAvisoDelMomento($telefono, $pedido, EstadoPedido::CONFIRMADO);
     }
@@ -75,8 +75,8 @@ class MomentosDelPedidoTest extends TestCase
         $telefono = $this->telefonoDe($this->cuenta);
         $pedido = $this->pedidoPorPagarDe($this->cuenta);
 
-        app(ConfirmacionDePedido::class)->confirmar($pedido);
-        app(ConfirmacionDePedido::class)->confirmar($pedido);
+        app(CobroSimulado::class)->pagar($pedido);
+        app(CobroSimulado::class)->pagar($pedido);
 
         $this->assertCount(1, $this->mensajesAlToken($telefono->token_fcm));
     }

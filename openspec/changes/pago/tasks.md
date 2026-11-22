@@ -2,8 +2,9 @@ Cada tarea va en rojo, verde y limpieza: primero el test con el identificador de
 luego el código mínimo que lo pone en verde; luego la limpieza con el test en verde. pago-E02 ya no está bloqueado: la
 decisión 32 de `acta-2026-11-20-modelo-y-pasarela.md`, con la adenda del 2026-11-22 de ADR-0010, fija que la tarjeta se
 escribe en el checkout de la pasarela, en la vista de navegador del sistema dentro de la app con `expo-web-browser`, y
-cierra la precisión que pedía DD-102, punto 1 (ver `design.md`). Antes de pago-E09 se confirma en el sandbox de Conekta la del punto 2. Ninguna tarea de las secciones 1, 2
-y 4 llama a un proveedor real: todas usan la pasarela simulada. La sección 3 llama solo a Conekta.
+cierra la precisión que pedía DD-102, punto 1 (ver `design.md`). Antes de pago-E09 se confirma en el sandbox de Conekta
+la del punto 2. Ninguna tarea de las secciones 1, 2 y 4 llama a un proveedor real: todas usan la pasarela simulada. La
+sección 3 llama solo a Conekta.
 
 ## 1. Servidor: tablas y base del cobro
 
@@ -15,7 +16,7 @@ y 4 llama a un proveedor real: todas usan la pasarela simulada. La sección 3 ll
 
 - [x] 2.1 pago-E10: cada aviso se guarda en `eventos_pasarela` y se procesa una sola vez; el repetido recibe 200 y no cambia nada — test: `servidor/tests/Feature/Pago/WebhookUnaSolaVezTest.php` — tamaño S
 - [x] 2.2 pago-E03: el aviso de pago aprobado, ya traducido por la pasarela simulada, marca el cobro `pagado` con `pagado_en` — test: `servidor/tests/Feature/Pago/PagoAprobadoTest.php` — tamaño S
-- [ ] 2.3 pago-E18, pago-E19: el cobro pagado confirma su pedido en la misma transacción, con la operación de `resumen-y-confirmacion`, y esa operación rechaza un pedido sin cobro pagado — test: `servidor/tests/Feature/Pago/PagoConfirmaElPedidoTest.php` — tamaño S
+- [x] 2.3 pago-E18, pago-E19: el cobro pagado confirma su pedido en la misma transacción, con la operación de `resumen-y-confirmacion`, y esa operación rechaza un pedido sin cobro pagado — test: `servidor/tests/Feature/Pago/PagoConfirmaElPedidoTest.php` — tamaño S
 - [ ] 2.4 pago-E11: guardar `pasarela`, `id_pasarela_orden`, monto, método, `pagado_en`, pedido y plaza del pago — test: `servidor/tests/Feature/Pago/RegistroParaConciliacionTest.php` — tamaño S
 - [ ] 2.5 pago-E04: el rechazo deja el cobro sin pagar, el pedido sin folio, y permite volver a intentar — test: `servidor/tests/Feature/Pago/PagoRechazadoTest.php` — tamaño S
 - [ ] 2.6 pago-E07: ninguna petición de la app marca un cobro como pagado — test: `servidor/tests/Feature/Pago/SoloElWebhookConfirmaTest.php` — tamaño S

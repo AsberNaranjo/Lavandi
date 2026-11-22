@@ -3,6 +3,7 @@
 namespace Tests\Feature\Repartidor;
 
 use App\Models\EstadoPedido;
+use App\Models\Pago;
 use App\Models\Pedido;
 use App\Models\PedidoAsignacion;
 use App\Models\Repartidor;
@@ -22,8 +23,8 @@ use Tests\TestCase;
  * (openspec/changes/repartidor/design.md, "Cómo se prueba en local"). Quién asigna en la operación real espera DD-014:
  * aquí la oferta la crea el sembrado.
  *
- * Los pedidos nacen por el camino real (CreacionDePedido, ConfirmacionDePedido y CambioDeEstado), con la lavandería de
- * prueba Durango Norte, y sin mandar avisos ni correos. Son ficticios y solo existen en local.
+ * Los pedidos nacen por el camino real (CreacionDePedido, el pago con la pasarela simulada, que los confirma por su
+ * cobro, y CambioDeEstado), con la lavandería de prueba Durango Norte, y sin mandar avisos ni correos. Son ficticios y solo existen en local.
  *
  * Escenario al que sirve: repartidor-E10, para probarlo a mano · Tarea 1.3
  */
@@ -68,6 +69,9 @@ class CuentaDeDesarrolloTest extends TestCase
             $this->assertSame(PedidoAsignacion::OFRECIDO, $pedido['asignacion']['estado']);
             $this->assertNotNull($pedido['folio']);
             $this->assertSame('Lavandería de prueba Durango Norte', $pedido['lavanderia']['nombre']);
+            // Confirmado por su cobro, pagado en la pasarela simulada (pago-E18).
+            $cobro = Pedido::query()->where('id_publico', $pedido['id_publico'])->sole()->cobro;
+            $this->assertSame([Pago::PAGADO, Pago::PASARELA_SIMULADA], [$cobro->estado, $cobro->pasarela]);
         }
     }
 

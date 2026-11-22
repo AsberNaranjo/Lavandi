@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Historial\Soporte;
 
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\Direccion;
 use App\Models\Lavanderia;
 use App\Models\Pedido;
 use App\Models\Usuario;
-use App\Pedidos\ConfirmacionDePedido;
 use Carbon\CarbonImmutable;
 use Illuminate\Testing\TestResponse;
 
@@ -16,7 +16,7 @@ use Illuminate\Testing\TestResponse;
  * AgendaDePrueba, EstadosDePrueba, LavanderiasDePrueba, PedidosDePrueba y PlazasDePrueba, después de prepararPedido().
  *
  * Cada pedido nace por la misma ruta que en la app: el reloj se fija al empezar ese día en la hora de la plaza, el
- * usuario acepta el resumen con una ventana de ese día y la operación de confirmar hace de aviso del cobro (C-188). Las
+ * usuario acepta el resumen con una ventana de ese día y lo paga con la pasarela simulada, cuyo cobro lo confirma (C-188). Las
  * fechas son de prueba.
  */
 trait HistorialDePrueba
@@ -53,7 +53,7 @@ trait HistorialDePrueba
     }
 
     /**
-     * El mismo pedido, ya confirmado como lo confirmará el cobro: con su folio y en Confirmado.
+     * El mismo pedido, ya confirmado por su cobro pagado: con su folio y en Confirmado.
      */
     protected function pedidoConfirmadoEl(
         Usuario $cuenta,
@@ -64,7 +64,7 @@ trait HistorialDePrueba
     ): Pedido {
         $pedido = $this->pedidoPorPagarEl($cuenta, $fecha, $hora, $lavanderia, $recogida);
 
-        return app(ConfirmacionDePedido::class)->confirmar($pedido)->fresh();
+        return app(CobroSimulado::class)->pagar($pedido)->fresh();
     }
 
     /**

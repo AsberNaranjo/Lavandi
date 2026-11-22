@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Confirmacion;
 
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\EstadoPedido;
 use App\Models\Lavanderia;
 use App\Models\Pedido;
 use App\Models\PedidoEvento;
-use App\Pedidos\ConfirmacionDePedido;
 use App\Pedidos\FolioDelPedido;
 use App\Pedidos\PedidoConfirmado;
 use Carbon\CarbonImmutable;
@@ -26,9 +26,9 @@ use Tests\TestCase;
 
 /**
  * El pedido pasa a Confirmado, con un folio que no se repite en su plaza y con confirmado_en, solo cuando el componente
- * de cobro avisa que la pasarela confirmó su pago (C-188; ADR-0010, punto 1). En este cambio no existe todavía el
- * cobro (lo crea pago): la prueba llama directo a la operación de confirmar. Ni el botón del resumen ni ninguna
- * petición de la app confirman.
+ * de cobro avisa que la pasarela confirmó su pago (C-188; ADR-0010, punto 1). La prueba paga el pedido con la pasarela
+ * simulada (App\Cobro\Desarrollo\CobroSimulado): su aviso de aprobado, por el camino del webhook, deja el cobro pagado
+ * y llama a la operación de confirmar (pago-E18). Ni el botón del resumen ni ninguna petición de la app confirman.
  *
  * La unicidad del folio la garantiza la base, con el único (id_plazas, folio), no solo el código (design.md, decisión
  * 6). El formato del folio es provisional hasta DD-101: la prueba no lo fija.
@@ -60,8 +60,8 @@ class ConfirmarPedidoTest extends TestCase
         $pedido = $this->pedidoPorPagar();
         $this->elJuevesALas('09:45:00');
 
-        // En la prueba, la llamada directa a la operación de confirmar hace de aviso del cobro.
-        $confirmado = app(ConfirmacionDePedido::class)->confirmar($pedido);
+        // La pasarela simulada acredita el pago con su aviso, por el camino del webhook, y el cobro confirma el pedido.
+        $confirmado = app(CobroSimulado::class)->pagar($pedido);
 
         $guardado = $pedido->fresh();
         $this->assertSame(EstadoPedido::CONFIRMADO, $guardado->estado->codigo);
@@ -77,7 +77,7 @@ class ConfirmarPedidoTest extends TestCase
         $pedido = $this->pedidoPorPagar();
         $this->elJuevesALas('09:45:00');
 
-        app(ConfirmacionDePedido::class)->confirmar($pedido);
+        app(CobroSimulado::class)->pagar($pedido);
 
         $eventos = PedidoEvento::query()->where('id_pedidos', $pedido->getKey())->orderBy('id_pedido_eventos')->get();
         $this->assertSame(
@@ -99,7 +99,7 @@ class ConfirmarPedidoTest extends TestCase
         Event::listen('eloquent.creating: '.PedidoEvento::class, fn () => throw new RuntimeException('Falla de prueba.'));
 
         try {
-            app(ConfirmacionDePedido::class)->confirmar($pedido);
+            app(CobroSimulado::class)->pagar($pedido);
             $this->fail('El evento debió fallar.');
         } catch (RuntimeException $error) {
             $this->assertSame('Falla de prueba.', $error->getMessage());
@@ -118,7 +118,7 @@ class ConfirmarPedidoTest extends TestCase
         Event::fake([PedidoConfirmado::class]);
         $pedido = $this->pedidoPorPagar();
 
-        app(ConfirmacionDePedido::class)->confirmar($pedido);
+        app(CobroSimulado::class)->pagar($pedido);
 
         Event::assertDispatchedTimes(PedidoConfirmado::class, 1);
         Event::assertDispatched(
@@ -131,14 +131,14 @@ class ConfirmarPedidoTest extends TestCase
     public function test_confirmacion_e13_un_aviso_repetido_no_cambia_el_folio_ni_agrega_otro_evento(): void
     {
         $pedido = $this->pedidoPorPagar();
-        $confirmacion = app(ConfirmacionDePedido::class);
-        $confirmacion->confirmar($pedido);
+        $cobro = app(CobroSimulado::class);
+        $cobro->pagar($pedido);
         $folio = $pedido->fresh()->folio;
         $confirmadoEn = $pedido->fresh()->confirmado_en;
 
         Event::fake([PedidoConfirmado::class]);
         $this->elJuevesALas('10:15:00');
-        $confirmacion->confirmar($pedido->fresh());
+        $cobro->pagar($pedido->fresh());
 
         $this->assertSame($folio, $pedido->fresh()->folio);
         $this->assertTrue($confirmadoEn->eq($pedido->fresh()->confirmado_en));
@@ -152,7 +152,7 @@ class ConfirmarPedidoTest extends TestCase
         $pedidos = array_map(fn (): Pedido => $this->pedidoPorPagar(), range(1, 5));
 
         foreach ($pedidos as $pedido) {
-            app(ConfirmacionDePedido::class)->confirmar($pedido);
+            app(CobroSimulado::class)->pagar($pedido);
         }
 
         $folios = Pedido::query()->where('id_plazas', $this->plaza->getKey())->pluck('folio')->all();
@@ -166,7 +166,7 @@ class ConfirmarPedidoTest extends TestCase
     {
         $primero = $this->pedidoPorPagar();
         $segundo = $this->pedidoPorPagar();
-        app(ConfirmacionDePedido::class)->confirmar($primero);
+        app(CobroSimulado::class)->pagar($primero);
         $folio = $primero->fresh()->folio;
 
         try {
@@ -186,7 +186,7 @@ class ConfirmarPedidoTest extends TestCase
     public function test_confirmacion_e06_el_folio_es_unico_por_plaza(): void
     {
         $deEstaPlaza = $this->pedidoPorPagar();
-        app(ConfirmacionDePedido::class)->confirmar($deEstaPlaza);
+        app(CobroSimulado::class)->pagar($deEstaPlaza);
 
         $otraPlaza = $this->plazaConAgenda('Plaza de prueba 2', self::ZONA_HORARIA);
         $otraLavanderia = Lavanderia::factory()->en($otraPlaza)->create();
@@ -205,8 +205,8 @@ class ConfirmarPedidoTest extends TestCase
         $primero = $this->pedidoPorPagar();
         $segundo = $this->pedidoPorPagar();
 
-        app(ConfirmacionDePedido::class)->confirmar($primero);
-        app(ConfirmacionDePedido::class)->confirmar($segundo);
+        app(CobroSimulado::class)->pagar($primero);
+        app(CobroSimulado::class)->pagar($segundo);
 
         $this->assertSame('FOLIO-1', $primero->fresh()->folio);
         $this->assertSame('FOLIO-2', $segundo->fresh()->folio);
@@ -221,10 +221,10 @@ class ConfirmarPedidoTest extends TestCase
         $this->folios(array_fill(0, 20, 'FOLIO-1'));
         $primero = $this->pedidoPorPagar();
         $segundo = $this->pedidoPorPagar();
-        app(ConfirmacionDePedido::class)->confirmar($primero);
+        app(CobroSimulado::class)->pagar($primero);
 
         try {
-            app(ConfirmacionDePedido::class)->confirmar($segundo);
+            app(CobroSimulado::class)->pagar($segundo);
             $this->fail('La confirmación debió fallar.');
         } catch (QueryException $error) {
             $this->assertSame(self::UNICO_REPETIDO, $error->getCode());

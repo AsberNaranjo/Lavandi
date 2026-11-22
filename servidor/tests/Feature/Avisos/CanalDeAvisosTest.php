@@ -6,10 +6,10 @@ use App\Avisos\Fcm\CanalDeFcm;
 use App\Avisos\Fcm\FcmNoDisponible;
 use App\Avisos\MandarAvisoAlTelefono;
 use App\Avisos\MensajeDelPedido;
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\EstadoPedido;
 use App\Models\Pedido;
 use App\Models\Usuario;
-use App\Pedidos\ConfirmacionDePedido;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -198,7 +198,7 @@ class CanalDeAvisosTest extends TestCase
         $id = $this->aceptarResumen($otraCuenta, $this->resumen($this->direccionDe($otraCuenta)))->json('pedido.id_publico');
         Log::spy();
 
-        $pedido = app(ConfirmacionDePedido::class)->confirmar(Pedido::query()->where('id_publico', $id)->sole())->fresh();
+        $pedido = app(CobroSimulado::class)->pagar(Pedido::query()->where('id_publico', $id)->sole())->fresh();
 
         $this->assertSame(EstadoPedido::CONFIRMADO, $pedido->estado->codigo);
         $this->assertNotNull($pedido->folio);

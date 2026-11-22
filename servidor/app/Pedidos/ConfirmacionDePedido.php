@@ -3,6 +3,7 @@
 namespace App\Pedidos;
 
 use App\Models\EstadoPedido;
+use App\Models\Pago;
 use App\Models\Pedido;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -15,9 +16,9 @@ use Illuminate\Support\Facades\DB;
  * Pasa el pedido a Confirmado, con un folio que no se repite en su plaza y con confirmado_en, guarda el evento en la
  * misma transacción y, ya guardado, publica PedidoConfirmado (confirmacion-E13).
  *
- * No la llama la app ni ninguna ruta (confirmacion-E07). La llama el componente cobro del cambio pago cuando la
- * pasarela confirma el pago (ADR-0010, punto 1); en este cambio la llaman las pruebas. La regla de que exista un cobro
- * pagado (pago-E19) la agrega pago, porque pagos nace ahí.
+ * No la llama la app ni ninguna ruta (confirmacion-E07). La llama el componente cobro cuando la pasarela confirma el pago
+ * (ADR-0010, punto 1), en la misma transacción en que el cobro queda pagado (App\Cobro\EfectoDelAviso; pago-E18). Y
+ * rechaza el pedido cuyo cobro no está pagado, la llame quien la llame (pago-E19; C-188).
  *
  * Un aviso repetido no confirma dos veces: un pedido que ya tiene confirmado_en se devuelve como está, sin otro folio,
  * otro evento ni otra publicación.
@@ -33,6 +34,7 @@ final class ConfirmacionDePedido
     public function __construct(private readonly FolioDelPedido $folios) {}
 
     /**
+     * @throws PedidoSinPagoAcreditado si el pedido no tiene su cobro pagado
      * @throws UniqueConstraintViolationException si ninguno de los folios propuestos quedó libre en la plaza
      */
     public function confirmar(Pedido $pedido): Pedido
@@ -43,6 +45,17 @@ final class ConfirmacionDePedido
 
             if ($bloqueado->confirmado_en !== null) {
                 return $bloqueado;
+            }
+
+            // Sin pago acreditado no hay confirmación (pago-E19): solo el cobro, no un ajuste, confirma el pedido.
+            $pagado = Pago::query()
+                ->where('id_pedidos', $bloqueado->getKey())
+                ->where('tipo', Pago::COBRO)
+                ->where('estado', Pago::PAGADO)
+                ->exists();
+
+            if (! $pagado) {
+                throw new PedidoSinPagoAcreditado;
             }
 
             $confirmado = EstadoPedido::query()->where('codigo', EstadoPedido::CONFIRMADO)->sole();

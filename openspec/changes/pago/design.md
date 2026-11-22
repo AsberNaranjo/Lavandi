@@ -235,3 +235,16 @@ el sistema ni toca otro cambio.
    no cambia. Un aviso de una orden que no es de ningún cobro (por ejemplo, de otro entorno que comparte el sandbox) o
    de un cobro vencido o cancelado responde 200, queda procesado y no cambia nada; la razón queda como nota en
    `eventos_pasarela.error`, para conciliarlo (DD-016). `pagado_en` es la hora en que servidor/ recibe la confirmación.
+8. **El cobro pagado confirma su pedido en la misma transacción** (tarea 2.3). `EfectoDelAviso` marca el cobro `pagado`
+   y llama a `App\Pedidos\ConfirmacionDePedido::confirmar()`, dentro de la transacción del aviso: si la confirmación
+   falla, el cobro tampoco queda pagado y el aviso queda sin procesar para el reintento. Un ajuste pagado (DD-012) no
+   confirma nada. `confirmar()`, por su parte, rechaza con `App\Pedidos\PedidoSinPagoAcreditado` un pedido que no tiene
+   su cobro `pagado` (pago-E19), la llame quien la llame; un pedido ya confirmado lo sigue devolviendo como está.
+9. **Las pruebas y el sembrado de otros cambios pagan por el cobro simulado** (tarea 2.3). Desde la regla de pago-E19,
+   ya nada confirma un pedido llamando directo a `confirmar()`: `App\Cobro\Desarrollo\CobroSimulado::pagar()` le crea
+   el cobro pendiente que pago-E14 todavía no crea, abre su checkout por `CheckoutDelCobro` y manda el aviso de aprobado
+   de la pasarela simulada a `RecepcionDeAvisos`, el mismo camino del webhook. Lo usan las ayudas de prueba de
+   `resumen-y-confirmacion`, `estados-del-pedido`, `historial-y-calificacion`, `indicadores`,
+   `pedidos-de-la-lavanderia`, `avisos` y `repartidor`, y `RepartidorDeDesarrolloSeeder`. Su monto,
+   `CobroSimulado::MONTO_DE_PRUEBA`, es ficticio. Solo sirve con la pasarela simulada, así que fuera de local y de las
+   pruebas no hace nada.
