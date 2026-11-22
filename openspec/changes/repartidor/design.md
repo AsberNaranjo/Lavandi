@@ -188,6 +188,32 @@ respuesta, con su cita. Lo que pasa con un pedido rechazado (E18) también esper
   (`App\Repartidores\RepartidorSinAcceso`). El rol `repartidor` se sumó a `Autorizacion::usaLaApp()` y al grupo de la
   cuenta, la sesión y el catálogo de `routes/api.php`.
 
+### El panel (tarea 1.2)
+
+El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/Repartidores/`, como el de lavanderías.
+
+- **Quién entra:** solo la administración (`Autorizacion::puedeEntrarAlPanel()`), y el recurso toma sus repartidores de
+  `Autorizacion::repartidoresDelPanel()`: todos, de todas las plazas y en cualquier estado, también los pendientes sin
+  plaza y los de baja; ninguno para otra cuenta (E09). No usa Policies de Filament (ADR-0019).
+- **La lista** muestra nombre, correo, teléfono, tipo de vehículo, estado (Pendiente, Activo, Suspendido, Dado de baja) y
+  plaza. No hay alta desde cero ni borrado.
+- **Las acciones** van en la lista y en la página de cada uno, y su regla vive en `App\Repartidores\EstadoDelRepartidor`,
+  con la fila bloqueada:
+  - **Dar de alta** (E05): de `pendiente` a `activo`, con la plaza que elige la administración entre las plazas activas
+    y la hora en `aprobado_en`.
+  - **Suspender** y **levantar la suspensión** (E06): de `activo` a `suspendido` y de regreso, en su misma plaza.
+  - **Dar de baja** (E07): de `activo` o `suspendido` a `baja`, con `deleted_at`, y revoca todos sus tokens. La cuenta
+    no se borra. `Autorizacion::puedeIniciarSesion()` ya no le abre sesión por ninguna vía: `POST /api/sesion` responde
+    el 422 de la cuenta bloqueada ("Esta cuenta está bloqueada."). Sus entregas se quedan, con el pedido ligado a él
+    (`Pedido::repartidor()` lo encuentra aunque esté de baja). Ninguna acción deshace la baja.
+  - **Un pendiente no se da de baja:** no tiene plaza, y la base solo admite la plaza vacía en `pendiente`
+    (`repartidores_plaza_check`). Ver Open Questions.
+- **La edición** (E08) son los cinco datos del registro, con sus mismas reglas (`RegistroDeRepartidorRequest::
+  reglasDeLosDatos()`), en `App\Repartidores\EdicionDeRepartidor`. El correo no choca con el de su propia cuenta
+  (`CorreoSinCuenta` con `salvo`). La foto solo cambia si se sube una nueva, y reemplaza a la anterior con
+  `App\Identidad\FotoDePerfil`. La contraseña no se edita. El repartidor ve el cambio en `GET /api/repartidor/perfil`.
+- **Lo que pasa con sus pedidos en curso** al suspenderlo o darlo de baja no lo fija la spec: no se tocan.
+
 ## Contrato de la API
 
 El contrato con que se hará la app del Módulo C (tareas 2.1 a 2.7). Todo va bajo `/api`, en JSON salvo donde se dice
@@ -206,7 +232,10 @@ repartidor que opera (`repartidor-opera`). Las respuestas de error comunes:
 | 404 | `{ "message": "No existe el pedido." }` | El pedido no existe, no es un ULID, no se le ofreció a él, lo rechazó, es de otra plaza o no tiene el pago acreditado: todos igual y sin datos (ADR-0019, decisión 3; E12 y E30) |
 
 La cuenta y la sesión son las de toda cuenta de la app: `POST /api/sesion` (inicia sesión con correo y contraseña;
-`usuario.rol` es `repartidor`), `GET /api/cuenta` y `DELETE /api/sesion`.
+`usuario.rol` es `repartidor`), `GET /api/cuenta` y `DELETE /api/sesion`. Un repartidor pendiente o suspendido inicia
+sesión; uno dado de baja no: con su contraseña correcta, `POST /api/sesion` responde
+`422 { "message": "Esta cuenta está bloqueada.", "errors": { "correo": ["Esta cuenta está bloqueada."] } }`, sin token
+(E07).
 
 ### El repartidor
 
@@ -277,6 +306,11 @@ En cualquier estado. **200** `{ "repartidor": { … } }`. La app lo consulta par
   `vault/arquitectura/modelo-de-datos.md` ("`id_plazas` vacía solo si `estado` es `pendiente`") y la lista
   `plaza_opcional` de `servidor/config/modelo.php`, y no cambia los cinco datos de E01 y E02. La tarea 0.1 la
   implementa (sección "Implementación en el servidor").
+- **Un registro pendiente que EL CLIENTE no autoriza** (al implementar la tarea 1.2). El contrato pide alta, baja,
+  suspensión y edición (Módulo D #2), y la spec da de baja a un repartidor activo (E07), sin decir qué pasa con un
+  registro que nunca se autoriza. Hoy se queda `pendiente`, sin acceso a pedidos: la base no admite la baja sin plaza.
+  Si Arthur quiere que también se pueda dar de baja, la salida es que el `CHECK` admita la plaza vacía en `baja` cuando
+  `aprobado_en` está vacía, con su escenario.
 - **En tránsito** no es uno de los cinco estados del usuario: es un estado interno de `estados_pedido` que fija el ADR
   de la máquina de estados (DD-123, límite 2027-01-04). E19 y E20 lo necesitan antes del sprint 18.
 - **Pantallas sin componente.** El componente 5 de `vault/design-system/componentes.md` cubre la tarjeta de pedido

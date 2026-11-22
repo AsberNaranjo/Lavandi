@@ -41,11 +41,24 @@ final class Autorizacion
     /**
      * Si la cuenta puede abrir una sesión, por cualquier vía: con correo y contraseña, con Google y, cuando exista, con
      * Apple (DD-069). Una cuenta bloqueada desde el panel no puede hasta que se levante el bloqueo (administracion-E03 y
-     * E04; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #3). Toda entrada pregunta aquí.
+     * E04; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #3), ni la de un repartidor dado de baja
+     * (repartidor-E07; Módulo D #2). Toda entrada pregunta aquí.
      */
     public function puedeIniciarSesion(Usuario $usuario): bool
     {
-        return $usuario->estado !== Usuario::BLOQUEADO;
+        return $usuario->estado !== Usuario::BLOQUEADO && ! $this->esRepartidorDeBaja($usuario);
+    }
+
+    /**
+     * Si la cuenta es la de un repartidor dado de baja. Solo pregunta a la base si la cuenta tiene el rol de repartidor.
+     */
+    private function esRepartidorDeBaja(Usuario $usuario): bool
+    {
+        return $usuario->roles->contains('codigo', Rol::REPARTIDOR)
+            && Repartidor::onlyTrashed()
+                ->where('id_usuarios', $usuario->getKey())
+                ->where('estado', Repartidor::BAJA)
+                ->exists();
     }
 
     /**
@@ -207,6 +220,20 @@ final class Autorizacion
     public function lavanderiasDelPanel(Usuario $usuario): Builder
     {
         $consulta = Lavanderia::query();
+
+        return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
+     * Los repartidores que la cuenta ve y gestiona en el panel: todos, de todas las plazas y en cualquier estado, también
+     * los pendientes sin plaza y los de baja, si es de administración (repartidor-E05 a E09; NSV-2026-001-v8.pdf:19:ANEXO
+     * A, Sección A.3, Módulo D #2); ninguno si no lo es. El recurso de repartidores del panel parte de aquí.
+     *
+     * @return Builder<Repartidor>
+     */
+    public function repartidoresDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = Repartidor::query()->withTrashed();
 
         return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
     }
