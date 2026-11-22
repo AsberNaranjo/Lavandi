@@ -9,7 +9,7 @@
 // DD-022 y DD-014), ni montos.
 import type { Ventana } from '../agenda/api';
 import { leerVentana } from '../agenda/api';
-import { pedir, type Resultado } from '../configuracion/api';
+import { pedir, pedirConEstado, type Falla, type Resultado } from '../configuracion/api';
 import { esObjeto } from '../configuracion/lectura';
 
 /** El contrato con el servidor, en un solo lugar para ajustarlo. */
@@ -17,6 +17,10 @@ export const CONTRATO_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA = {
   /** GET: { "<lista>": PedidoDeLaLavanderia[] }, de la recolección más próxima a la más lejana. */
   ruta: 'lavanderia/pedidos',
   lista: 'pedidos',
+  /** Lo que devuelve cada acción: { "<pedido>": PedidoDeLaLavanderia }, ya en su estado nuevo. */
+  pedido: 'pedido',
+  /** POST <ruta>/<id_publico>/<aceptar>, sin cuerpo (pedidos-lavanderia-E07). */
+  aceptar: 'aceptar',
 } as const;
 
 /** El estado operativo del pedido (ADR-0021 y su adenda), con el nombre que le da la app de la lavandería. */
@@ -60,6 +64,43 @@ export async function consultarPedidosDeLaLavanderia(token: string): Promise<Res
     return { ok: false, motivo: 'servidor' };
   }
   return { ok: true, datos: pedidos as PedidoDeLaLavanderia[] };
+}
+
+/**
+ * Por qué no salió una acción sobre un pedido. Además de las fallas generales: el 409, que el servidor da cuando el
+ * pedido ya fue respondido (pedidos-lavanderia-E08) o cuando el botón no es el del paso siguiente (estados-E05 y E09),
+ * con su mensaje para la persona. El pedido no cambió.
+ */
+export type FallaDeLaAccion = Falla | { ok: false; motivo: 'conflicto'; mensaje?: string };
+
+export type ResultadoDeLaAccion = { ok: true; datos: PedidoDeLaLavanderia } | FallaDeLaAccion;
+
+/** POST de aceptar el pedido que espera respuesta, con la sesión (pedidos-lavanderia-E07). */
+export function aceptarPedido(token: string, idPublico: string): Promise<ResultadoDeLaAccion> {
+  return mandarAccion(token, idPublico, CONTRATO_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA.aceptar);
+}
+
+async function mandarAccion(
+  token: string,
+  idPublico: string,
+  accion: string,
+  cuerpo?: unknown,
+): Promise<ResultadoDeLaAccion> {
+  const { ruta, pedido } = CONTRATO_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA;
+  const { resultado, estado } = await pedirConEstado<unknown>(`${ruta}/${encodeURIComponent(idPublico)}/${accion}`, {
+    metodo: 'POST',
+    token,
+    cuerpo,
+  });
+  if (!resultado.ok) {
+    if (estado === 409) {
+      return { ok: false, motivo: 'conflicto', mensaje: 'mensaje' in resultado ? resultado.mensaje : undefined };
+    }
+    return resultado;
+  }
+  const respondido = esObjeto(resultado.datos) ? leerPedidoDeLaLavanderia(resultado.datos[pedido]) : null;
+  // Una respuesta fuera del contrato no se pinta a medias: cuenta como falla del servidor.
+  return respondido ? { ok: true, datos: respondido } : { ok: false, motivo: 'servidor' };
 }
 
 /** Un pedido leído campo por campo, como lo dan todas las respuestas de la lavandería; null si no es del contrato. */

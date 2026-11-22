@@ -39,9 +39,11 @@ interface Propiedades {
   alAceptar?: () => void;
   /** Rechazar el pedido que espera respuesta: abre el motivo. */
   alRechazar?: () => void;
+  /** Mientras se manda una acción del pedido, sus botones se bloquean: un doble toque no manda dos veces. */
+  enviando?: boolean;
 }
 
-export function TarjetaDePedidoDeLavanderia({ pedido, alAceptar, alRechazar }: Propiedades) {
+export function TarjetaDePedidoDeLavanderia({ pedido, alAceptar, alRechazar, enviando = false }: Propiedades) {
   const { id_publico: idPublico, folio, estado, por_responder: porResponder } = pedido;
   return (
     <View style={estilos.tarjeta} testID={`pedido-${idPublico}`}>
@@ -60,12 +62,12 @@ export function TarjetaDePedidoDeLavanderia({ pedido, alAceptar, alRechazar }: P
         <>
           <View style={estilos.respuestas}>
             <View>
-              <Boton variante="secundario" deshabilitado={!alRechazar} onPress={() => alRechazar?.()}>
+              <Boton variante="secundario" deshabilitado={enviando || !alRechazar} onPress={() => alRechazar?.()}>
                 {TEXTOS.rechazar}
               </Boton>
             </View>
             <View style={estilos.crece}>
-              <Boton deshabilitado={!alAceptar} onPress={() => alAceptar?.()}>
+              <Boton ocupado={enviando} deshabilitado={!alAceptar} onPress={() => alAceptar?.()}>
                 {TEXTOS.aceptar}
               </Boton>
             </View>

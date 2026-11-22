@@ -4,12 +4,17 @@
 // tarjeta de pedido de socio lavandería, el componente 4 del design system (pedidos-lavanderia-E03). Sin pedidos, un
 // mensaje neutro; si la lista no llega, sin escenario propio, los mensajes generales de la app, como "Mis pedidos".
 //
+// El pedido que espera respuesta se acepta desde su tarjeta (pedidos-lavanderia-E07): la tarjeta se bloquea mientras se
+// manda y se pone al día con la respuesta. Si el pedido ya fue respondido (409), el mensaje del servidor va arriba de la
+// lista y la lista se vuelve a consultar (pedidos-lavanderia-E08).
+//
 // "Cerrar sesión" va abajo, con la confirmación de la app (registro-E13). La composición sigue las imágenes del Módulo B
 // de la Propuesta 04 (mocks/Lavandi - Propuesta 04/Lavandería/): el título a la izquierda y las tarjetas debajo.
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { mensajeDeLaFalla } from '../../../src/cercanas/textos';
 import { TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA as TEXTOS } from '../../../src/pedidos-lavanderia/textos';
+import { useAccionesDeLaLavanderia } from '../../../src/pedidos-lavanderia/useAccionesDeLaLavanderia';
 import { usePedidosDeLaLavanderia } from '../../../src/pedidos-lavanderia/usePedidosDeLaLavanderia';
 import { MensajeDeError } from '../../../src/piezas/MensajeDeError';
 import { Pantalla } from '../../../src/piezas/Pantalla';
@@ -21,11 +26,16 @@ import { letra } from '../../../src/tema/letra';
 import { color, espaciado, tipografia } from '../../../src/tema/theme';
 
 export default function PedidosDeLaLavanderia() {
-  const { pedidos, falla } = usePedidosDeLaLavanderia();
+  const lista = usePedidosDeLaLavanderia();
+  const { pedidos, falla } = lista;
+  const acciones = useAccionesDeLaLavanderia(lista);
+  // El mensaje de la lista solo si no repite el de la última acción, como sin conexión en las dos.
+  const mensajeDeLaLista = falla ? mensajeDeLaFalla(falla) : null;
 
   return (
     <Pantalla desplazable acciones={<CerrarSesion />}>
       <Titulo alineacion="inicio">{TEXTOS.titulo}</Titulo>
+      <MensajeDeError texto={acciones.aviso ?? undefined} />
       {pedidos === null && falla === null ? (
         <View style={estilos.cargando}>
           <ActivityIndicator color={color.semantico.accion} />
@@ -33,8 +43,15 @@ export default function PedidosDeLaLavanderia() {
         </View>
       ) : null}
       {pedidos?.length === 0 ? <Parrafo alineacion="inicio">{TEXTOS.sinPedidos}</Parrafo> : null}
-      {pedidos?.map((pedido) => <TarjetaDePedidoDeLavanderia key={pedido.id_publico} pedido={pedido} />)}
-      <MensajeDeError texto={falla ? mensajeDeLaFalla(falla) : undefined} />
+      {pedidos?.map((pedido) => (
+        <TarjetaDePedidoDeLavanderia
+          key={pedido.id_publico}
+          pedido={pedido}
+          enviando={acciones.enviandoEl(pedido)}
+          alAceptar={() => void acciones.aceptar(pedido)}
+        />
+      ))}
+      <MensajeDeError texto={mensajeDeLaLista && mensajeDeLaLista !== acciones.aviso ? mensajeDeLaLista : undefined} />
     </Pantalla>
   );
 }

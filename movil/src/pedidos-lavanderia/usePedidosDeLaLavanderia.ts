@@ -6,6 +6,9 @@
 //
 // Si una consulta no llega, se conserva la última lista que llegó, con el motivo para que la pantalla lo diga; la
 // siguiente que llega lo quita. Sin escenario propio: los mensajes generales de la app.
+//
+// Después de una acción, la pantalla pone al día la tarjeta con el pedido que devolvió el servidor (reemplazar) y vuelve
+// a consultar la lista (consultarDeNuevo): la respuesta de una consulta que salió antes ya no se pinta.
 import { useCallback, useMemo, useState } from 'react';
 
 import type { Falla, Resultado } from '../configuracion/api';
@@ -20,7 +23,14 @@ export interface EstadoDeLaLista {
   falla: Falla | null;
 }
 
-export function usePedidosDeLaLavanderia(): EstadoDeLaLista {
+export interface ListaDeLaLavanderia extends EstadoDeLaLista {
+  /** Pone en la lista el pedido como lo devolvió el servidor, en el lugar del que tenía. */
+  reemplazar(pedido: PedidoDeLaLavanderia): void;
+  /** Consulta ya y vuelve a contar 30 segundos desde ahí. */
+  consultarDeNuevo(): void;
+}
+
+export function usePedidosDeLaLavanderia(): ListaDeLaLavanderia {
   const { token } = useSesion();
   const [estado, setEstado] = useState<EstadoDeLaLista>({ pedidos: null, falla: null });
 
@@ -31,8 +41,14 @@ export function usePedidosDeLaLavanderia(): EstadoDeLaLista {
       resultado.ok ? { pedidos: resultado.datos, falla: null } : { pedidos: anterior.pedidos, falla: resultado },
     );
   }, []);
+  const consultarDeNuevo = useConsultaPeriodica(consulta, alLlegar);
 
-  useConsultaPeriodica(consulta, alLlegar);
+  const reemplazar = useCallback((pedido: PedidoDeLaLavanderia) => {
+    setEstado((anterior) => ({
+      ...anterior,
+      pedidos: anterior.pedidos?.map((otro) => (otro.id_publico === pedido.id_publico ? pedido : otro)) ?? null,
+    }));
+  }, []);
 
-  return estado;
+  return { ...estado, reemplazar, consultarDeNuevo };
 }
