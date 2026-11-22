@@ -47,8 +47,11 @@ class DatosRealesTest extends TestCase
     use PlazasDePrueba;
     use RefreshDatabase;
 
-    /** Los archivos del panel de indicadores: la página, sus widgets y sus consultas. */
-    private const CODIGO_DEL_PANEL = ['Filament/Pages', 'Filament/Widgets/Indicadores', 'Indicadores'];
+    /**
+     * Los archivos del panel de indicadores: la página, sus widgets y sus consultas, con los de los reportes financieros,
+     * de donde salen los ingresos brutos (indicadores-E16).
+     */
+    private const CODIGO_DEL_PANEL = ['Filament/Pages', 'Filament/Widgets/Indicadores', 'Indicadores', 'Filament/Widgets/Finanzas', 'Finanzas'];
 
     /** Diciembre de 2026, por mes: el mes del jueves de prueba. */
     private const FILTROS = ['desde' => '2026-12-01', 'hasta' => '2026-12-31', 'granularidad' => 'mes'];

@@ -8,6 +8,8 @@ use App\Esquema\Violacion;
 use App\Models\AvisoMasivo;
 use App\Models\Comision;
 use App\Models\Lavanderia;
+use App\Models\MovimientoPasarela;
+use App\Models\Pago;
 use App\Models\Plaza;
 use App\Models\Rol;
 use App\Models\Usuario;
@@ -21,19 +23,23 @@ use Tests\Feature\Plazas\Soporte\PlazasDePrueba;
 use Tests\TestCase;
 
 /**
- * Las tablas comisiones y avisos_masivos y sus modelos de Eloquent, Comision y AvisoMasivo
- * (openspec/changes/administracion/design.md, "Tablas y migración"; vault/arquitectura/modelo-de-datos.md; ADR-0016).
+ * Las tablas comisiones, avisos_masivos y movimientos_pasarela y sus modelos de Eloquent, Comision, AvisoMasivo y
+ * MovimientoPasarela (openspec/changes/administracion/design.md, "Tablas y migración"; vault/arquitectura/
+ * modelo-de-datos.md; ADR-0016).
  *
  * - comisiones: el porcentaje global de cada plaza (sin lavandería) y el propio de cada lavandería, con su vigencia. La
  *   llave hacia la lavandería es compuesta con la plaza, el porcentaje va de 0 a 100 y la migración no siembra ninguno:
  *   los captura EL CLIENTE (administracion-E11 a E13).
  * - avisos_masivos: el aviso al celular con su título, su texto, quién lo envió y a cuántos teléfonos salió. La plaza es
  *   opcional: vacía, el aviso es para todas (lista "plaza opcional" de config/modelo.php).
+ * - movimientos_pasarela: los pagos que acreditó la pasarela, leídos de su API al conciliar un periodo, una fila por
+ *   orden (segunda adenda del 2026-11-22 de ADR-0010, decisiones 6 y 7). Sin plaza propia: la plaza de un movimiento es
+ *   la del pedido con el que cuadra, y uno sin pedido es justo una diferencia (lista "sin plaza" de config/modelo.php).
  *
  * Las filas se insertan con el constructor de consultas, sin pasar por el modelo, para probar lo que hace la base.
  *
- * Escenarios: modelo-E01 a modelo-E17 sobre las dos tablas, y la base de administracion-E11 a E16, E19, E23 y E24 ·
- * Spec: openspec/changes/administracion/specs/administracion/spec.md · Tarea 0.1
+ * Escenarios: modelo-E01 a modelo-E17 sobre las tres tablas, y la base de administracion-E11 a E16 y E19 a E24 ·
+ * Spec: openspec/changes/administracion/specs/administracion/spec.md · Tareas 0.1 y 0.2
  */
 class MigracionTest extends TestCase
 {
@@ -298,6 +304,111 @@ class MigracionTest extends TestCase
         $this->assertSame('2026-12-03T12:00:00Z', $aviso->enviado_en->toIso8601ZuluString());
     }
 
+    #[TestDox('modelo-E01 a modelo-E17: la tabla movimientos_pasarela existe y cumple la prueba de esquema, y su modelo también')]
+    public function test_modelo_e01_a_e17_movimientos_pasarela_existe_y_cumple_la_prueba_de_esquema(): void
+    {
+        $this->assertTrue(Schema::hasTable('movimientos_pasarela'));
+
+        $violaciones = array_filter(
+            (new RevisorDeEsquema)->revisar(),
+            fn (Violacion $violacion): bool => $violacion->tabla === 'movimientos_pasarela',
+        );
+
+        $this->assertSame([], array_values(array_map('strval', $violaciones)));
+        $this->assertSame([], array_map('strval', (new RevisorDeModelos)->revisar([MovimientoPasarela::class])));
+        $this->assertSame(
+            ['movimientos_pasarela', 'id_movimientos_pasarela'],
+            [(new MovimientoPasarela)->getTable(), (new MovimientoPasarela)->getKeyName()],
+        );
+    }
+
+    #[TestDox('administracion-E20: movimientos_pasarela trae de cada pago de la pasarela el id de la orden, el monto, la comisión y la fecha del pago, en su orden, con sus fechas de alta y de cambio; el dinero en numeric(12,2) y cada instante en timestamptz')]
+    public function test_administracion_e20_las_columnas_de_movimientos_pasarela(): void
+    {
+        $this->assertSame(
+            ['id_movimientos_pasarela', 'pasarela', 'id_pasarela_orden', 'monto', 'comision', 'pagado_en', 'created_at', 'updated_at'],
+            Schema::getColumnListing('movimientos_pasarela'),
+        );
+
+        $this->assertSame('bigint', $this->tipo('movimientos_pasarela', 'id_movimientos_pasarela'));
+        $this->assertSame('numeric(12,2)', $this->tipo('movimientos_pasarela', 'monto'));
+        $this->assertSame('numeric(12,2)', $this->tipo('movimientos_pasarela', 'comision'));
+
+        foreach (['pagado_en', 'created_at', 'updated_at'] as $columna) {
+            $this->assertSame(self::INSTANTE, $this->tipo('movimientos_pasarela', $columna), $columna);
+        }
+    }
+
+    #[TestDox('administracion-E20 y plazas-E09: movimientos_pasarela no lleva plaza propia, está en la lista sin plaza y no apunta a ningún pago: un movimiento sin pedido también se guarda')]
+    public function test_administracion_e20_movimientos_pasarela_no_lleva_plaza(): void
+    {
+        $this->assertContains('movimientos_pasarela', config('modelo.sin_plaza'));
+        $this->assertNotContains('id_plazas', Schema::getColumnListing('movimientos_pasarela'));
+        $this->assertSame([], $this->llaves('movimientos_pasarela'));
+
+        // Una orden que no es de ningún cobro de la plataforma.
+        $this->insertarMovimiento(['id_pasarela_orden' => 'orden-sin-pedido']);
+        $this->assertSame(1, DB::table('movimientos_pasarela')->count());
+    }
+
+    #[TestDox('administracion-E20: una orden de la pasarela es una sola fila: la misma orden en la misma pasarela se rechaza, y en otra pasarela es otro movimiento')]
+    public function test_administracion_e20_una_fila_por_orden(): void
+    {
+        $this->assertContains(['pasarela', 'id_pasarela_orden'], $this->unicos('movimientos_pasarela'));
+
+        $this->insertarMovimiento(['id_pasarela_orden' => 'orden-de-prueba-1']);
+        $this->assertRechazada(fn () => $this->insertarMovimiento(['id_pasarela_orden' => 'orden-de-prueba-1']), self::UNICO_REPETIDO);
+        $this->insertarMovimiento(['id_pasarela_orden' => 'orden-de-prueba-1', 'pasarela' => 'conekta']);
+
+        $this->assertSame(2, DB::table('movimientos_pasarela')->count());
+    }
+
+    #[TestDox('administracion-E20: la pasarela, la orden, el monto y la fecha del pago son no nulos y la comisión es opcional; la pasarela es conekta o la simulada, el monto es mayor que cero y la comisión no es negativa')]
+    public function test_administracion_e20_lo_obligatorio_y_los_check_de_movimientos_pasarela(): void
+    {
+        foreach (['pasarela', 'id_pasarela_orden', 'monto', 'pagado_en'] as $columna) {
+            $this->assertFalse($this->admiteVacio('movimientos_pasarela', $columna), "{$columna} es no nula.");
+            $this->assertRechazada(fn () => $this->insertarMovimiento([$columna => null]), self::VALOR_VACIO);
+        }
+
+        $this->assertTrue($this->admiteVacio('movimientos_pasarela', 'comision'));
+
+        $this->assertRechazada(fn () => $this->insertarMovimiento(['pasarela' => 'otra']), self::CHECK_INCUMPLIDO);
+        $this->assertRechazada(fn () => $this->insertarMovimiento(['monto' => '0.00']), self::CHECK_INCUMPLIDO);
+        $this->assertRechazada(fn () => $this->insertarMovimiento(['monto' => '-1.00']), self::CHECK_INCUMPLIDO);
+        $this->assertRechazada(fn () => $this->insertarMovimiento(['comision' => '-0.01']), self::CHECK_INCUMPLIDO);
+
+        $this->insertarMovimiento(['comision' => null]);
+        $this->insertarMovimiento(['comision' => '0.00']);
+        $this->insertarMovimiento(['comision' => '4.35', 'pasarela' => 'conekta']);
+        $this->assertSame(3, DB::table('movimientos_pasarela')->count());
+    }
+
+    #[TestDox('modelo-E11: movimientos_pasarela no lleva el trigger impedir_cambio(): leer otra vez la orden actualiza su fila')]
+    public function test_modelo_e11_movimientos_pasarela_no_lleva_el_trigger(): void
+    {
+        $this->assertSame(0, DB::table('information_schema.triggers')
+            ->where('event_object_schema', 'public')
+            ->where('event_object_table', 'movimientos_pasarela')
+            ->count());
+    }
+
+    #[TestDox('modelo-E16: MovimientoPasarela guarda el monto y la comisión con dos decimales y la fecha del pago como instante')]
+    public function test_modelo_e16_movimiento_pasarela_lleva_sus_tipos(): void
+    {
+        $movimiento = MovimientoPasarela::create([
+            'pasarela' => Pago::PASARELA_SIMULADA,
+            'id_pasarela_orden' => 'orden-de-prueba',
+            'monto' => '180',
+            'comision' => '6.3',
+            'pagado_en' => '2027-03-05 16:00:00+00',
+        ])->fresh();
+
+        $this->assertSame('180.00', $movimiento->monto);
+        $this->assertSame('6.30', $movimiento->comision);
+        $this->assertSame('2027-03-05T16:00:00Z', $movimiento->pagado_en->toIso8601ZuluString());
+    }
+
     /**
      * Una comisión global de la plaza, vigente desde el 1 de enero de 2026, con las columnas que se pasan.
      *
@@ -336,6 +447,38 @@ class MigracionTest extends TestCase
             'updated_at' => now(),
             ...$datos,
         ], 'id_avisos_masivos');
+    }
+
+    /**
+     * Un pago de la pasarela simulada, de 180 pesos, con las columnas que se pasan.
+     *
+     * @param  array<string, mixed>  $datos
+     */
+    private function insertarMovimiento(array $datos = []): int
+    {
+        return DB::table('movimientos_pasarela')->insertGetId([
+            'pasarela' => Pago::PASARELA_SIMULADA,
+            'id_pasarela_orden' => 'orden-'.Str::lower((string) Str::ulid()),
+            'monto' => '180.00',
+            'comision' => null,
+            'pagado_en' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+            ...$datos,
+        ], 'id_movimientos_pasarela');
+    }
+
+    /**
+     * Las columnas de cada índice único de la tabla.
+     *
+     * @return list<list<string>>
+     */
+    private function unicos(string $tabla): array
+    {
+        return array_values(array_map(
+            fn (array $indice): array => $indice['columns'],
+            array_filter(Schema::getIndexes($tabla), fn (array $indice): bool => $indice['unique'] && ! $indice['primary']),
+        ));
     }
 
     private function administracion(): Usuario

@@ -34,7 +34,7 @@ cambio, la elegida se agrega con su ADR como otra implementación de la misma in
 adelanta nada para Stripe ni para Mercado Pago (`CLAUDE.md` §2-bis, punto 7).
 
 - [ ] 3.1 pago-E09: comprobar la autenticidad del aviso de Conekta, según ADR-0010 (punto 2), cuya firma está por confirmar en su sandbox (DD-102, punto 2) — test: `servidor/tests/Feature/Pago/WebhookAutenticidadTest.php` — tamaño M
-- [ ] 3.2 pago-E01, pago-E03, pago-E04: la implementación de la interfaz para Conekta, que crea su orden y su checkout redirigido y traduce sus avisos de aprobado, rechazado y vencido, probada con cargas capturadas de su sandbox — test: `servidor/tests/Feature/Pago/PasarelaConektaTest.php` — tamaño M
+- [ ] 3.2 pago-E01, pago-E03, pago-E04: la implementación de la interfaz para Conekta, que crea su orden y su checkout redirigido, traduce sus avisos de aprobado, rechazado y vencido y lee sus pagos del periodo para la conciliación (`pagosDelPeriodo()`, segunda adenda del 2026-11-22 de ADR-0010, decisión 6; administracion-E20), probada con cargas capturadas de su sandbox — test: `servidor/tests/Feature/Pago/PasarelaConektaTest.php` — tamaño M
 - [ ] 3.3 pago-E01: la misma orden contra el sandbox de Conekta, con la cuenta de prueba de Arthur (C-170); se salta sin llaves y no corre en la integración continua — test: `servidor/tests/Integracion/Pago/SandboxPasarelaTest.php` — tamaño S
 
 ## 4. App

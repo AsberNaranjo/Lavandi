@@ -153,6 +153,19 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
     su plaza.
   - **Quién sale:** los repartidores dados de alta que no se dieron de baja, también con 0; uno pendiente o de baja,
     solo si tiene entregas en el rango, porque sus entregas se conservan (repartidor-E07).
+- **Los ingresos brutos** (tarea 4.1, E16) son una gráfica de barras, `IngresosBrutosGrafica`, después de los
+  indicadores de socios y antes del mapa, el orden del A.5:
+  - **La misma consulta del reporte financiero:** lee `App\Finanzas\Ingresos::porPeriodo()`, la que da la tabla de
+    ingresos por periodo de `/admin/ingresos` (`administracion`, administracion-E17). Cada barra es, por construcción, la
+    cifra de ese reporte para su periodo; la prueba lo compara mes por mes.
+  - **Qué cuenta:** los pagos que la pasarela confirmó por su aviso (`pagos.estado = 'pagado'`), por el día de la
+    confirmación en la hora de la plaza, sin descontar reembolsos ni comisiones (administracion-E18 y E19, bloqueados).
+    No salen de los montos del pedido, así que no dependen de DD-012 (ver el `design.md` de `administracion`).
+  - **Las barras:** una sola serie, una barra por periodo del rango, sin leyenda. El A.5 pide barras agrupadas; por qué
+    se agrupan espera a EL CLIENTE (E17, BR-31, DD-115). Cuando lo diga, cada grupo es otra serie de la misma gráfica.
+  - Los montos llegan a la gráfica como números solo para dibujarla; la cifra exacta, con dos decimales, va en el texto
+    alterno de la gráfica, en el reporte y en la descarga.
+  - Se refresca como los demás widgets de la página (E21 y E22).
 - **El mapa de calor** (tareas 5.1 y 5.2, E19 y E20) es el widget `MapaDeCalor`, con su vista
   `resources/views/filament/widgets/indicadores/mapa-de-calor.blade.php`:
   - **Por colonia** (E19) lee `App\Indicadores\PedidosPorColonia`: la colonia de la **dirección de recolección** del

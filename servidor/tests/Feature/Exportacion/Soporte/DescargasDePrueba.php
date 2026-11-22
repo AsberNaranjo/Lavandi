@@ -25,13 +25,15 @@ use OpenSpout\Reader\XLSX\Reader as LectorDeXlsx;
 trait DescargasDePrueba
 {
     /**
-     * La administración pide en la página de indicadores la descarga de un reporte, con el rango y la granularidad.
+     * La administración pide la descarga de un reporte, con el rango y la granularidad, en la página de indicadores o en
+     * la del reporte que se pase, como la de los ingresos.
      *
      * @param  array<string, mixed>  $datos
+     * @param  class-string  $pagina
      */
-    protected function pedirDescarga(string $accion, array $datos): Testable
+    protected function pedirDescarga(string $accion, array $datos, string $pagina = Indicadores::class): Testable
     {
-        return Livewire::test(Indicadores::class)->callAction($accion, data: $datos);
+        return Livewire::test($pagina)->callAction($accion, data: $datos);
     }
 
     /**

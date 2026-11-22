@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: mixto
-fuente: NSV-2026-001-v8.pdf:4:Cláusula I, :16-20:ANEXO A, Sección A.3, :22:A.5 (A); ADR-0004, ADR-0005, ADR-0006, ADR-0010 (D); arquitectura/modelo-multi-plaza.md y c3-api.md (B); las 26 specs de openspec/changes/ (B); acta-2026-11-19-normativa-y-arranque.md C-187 a C-190 y acta-2026-11-20-modelo-y-pasarela.md C-192 a C-194 (C); C-238 y la decisión 29 del acta del 2026-11-20, con openspec/changes/direcciones/design.md (el catálogo del territorio, 2026-11-21); openspec/changes/alta-de-lavanderias/design.md (el municipio de la lavandería, por delegación de C-236, 2026-11-22); openspec/changes/administracion/design.md (comisiones y avisos_masivos como quedaron en la tarea 0.1, por delegación de C-236, 2026-11-22); openspec/changes/landing/design.md (testimonios, tarea 4.0, por delegación de C-236, 2026-11-22); openspec/changes/repartidor/design.md (repartidores, pedido_asignaciones y evidencias como quedaron en la tarea 0.1, por delegación de C-236, 2026-11-22); diseño de Claude del 2026-11-19
+fuente: NSV-2026-001-v8.pdf:4:Cláusula I, :16-20:ANEXO A, Sección A.3, :22:A.5 (A); ADR-0004, ADR-0005, ADR-0006, ADR-0010 (D); arquitectura/modelo-multi-plaza.md y c3-api.md (B); las 26 specs de openspec/changes/ (B); acta-2026-11-19-normativa-y-arranque.md C-187 a C-190 y acta-2026-11-20-modelo-y-pasarela.md C-192 a C-194 (C); C-238 y la decisión 29 del acta del 2026-11-20, con openspec/changes/direcciones/design.md (el catálogo del territorio, 2026-11-21); openspec/changes/alta-de-lavanderias/design.md (el municipio de la lavandería, por delegación de C-236, 2026-11-22); openspec/changes/administracion/design.md (comisiones y avisos_masivos como quedaron en la tarea 0.1, por delegación de C-236, 2026-11-22); segunda adenda del 2026-11-22 de ADR-0010 y openspec/changes/administracion/design.md (movimientos_pasarela, tarea 0.2, que cierra DD-112, por delegación de C-236, 2026-11-22); openspec/changes/landing/design.md (testimonios, tarea 4.0, por delegación de C-236, 2026-11-22); openspec/changes/repartidor/design.md (repartidores, pedido_asignaciones y evidencias como quedaron en la tarea 0.1, por delegación de C-236, 2026-11-22); diseño de Claude del 2026-11-19
 fecha: 2026-11-19
 dueño: Arthur Naranjo
 ---
@@ -211,7 +211,7 @@ deuda: no se crea hasta que se responda.
 | `eventos_pasarela` | `id_eventos_pasarela`, `pasarela`, `id_pasarela_evento`, `tipo`, `contenido` (`jsonb`), `recibido_en`, `procesado_en`, `error` | Único `(pasarela, id_pasarela_evento)`: un aviso repetido no se procesa dos veces | `:19`; ADR-0010 (Conekta; se reemplaza si el cliente firma el cambio, DD-079) | `pago` |
 | `comisiones` | `id_comisiones`, `id_plazas`, `id_lavanderias`, `porcentaje`, `vigente_desde`, `vigente_hasta` | `id_lavanderias` vacío es la comisión global de la plaza; con valor, llave compuesta con la plaza hacia `lavanderias`. Porcentaje de 0 a 100. La vigencia termina después de empezar. A lo más una abierta (sin `vigente_hasta`) por plaza y por lavandería: un cambio cierra la anterior y agrega otra fila. Sin semilla | `:19:Módulo D #5` | `administracion` |
 | ⛔ `metodos_pago_guardados` | `id_metodos_pago_guardados`, `id_usuarios`, `pasarela`, `id_pasarela_cliente`, `id_pasarela_fuente`, `marca`, `ultimos_4`, `deleted_at` | Solo la referencia que da la pasarela | `:17:A.3 #15`; `:20` | `perfil-y-soporte`: Nadir dijo que sí (C-198); espera saber si el checkout permite reutilizar la tarjeta (pago-E06, DD-079) |
-| ⛔ `movimientos_pasarela` | Según de dónde salgan los datos | Para la conciliación | `:19:Módulo D #6` | `administracion`, con DD-112 |
+| `movimientos_pasarela` | `id_movimientos_pasarela`, `pasarela`, `id_pasarela_orden`, `monto`, `comision`, `pagado_en` | Los pagos que acreditó la pasarela, leídos de su API al conciliar un periodo. Una fila por orden: único `(pasarela, id_pasarela_orden)`; leer otra vez actualiza la fila. `pasarela` con los valores de `pagos`; `monto` mayor que cero; `comision` opcional, no negativa (quién la absorbe: DD-013). **Sin `id_plazas` ni llave a `pagos`:** la plaza es la del pedido con el que cuadra y un movimiento sin pedido es una diferencia; va en la lista `sin_plaza` de `config/modelo.php`. Ningún dato de tarjeta | `:19:Módulo D #6`; segunda adenda del 2026-11-22 de ADR-0010 | `administracion` |
 
 ### Comunicación y soporte
 
@@ -246,6 +246,5 @@ deuda: no se crea hasta que se responda.
 | DD-099 | La columna de cupo en `lavanderia_horarios` |
 | DD-101 | El formato del folio |
 | DD-055 | Nadir dijo que sí (C-198): se guarda solo la referencia. Falta saber si el checkout de la pasarela permite reutilizar la tarjeta (ADR-0010, punto 5; DD-079) para crear `metodos_pago_guardados` |
-| DD-112 | La forma de `movimientos_pasarela` |
 | DD-079 | Los valores de `pasarela`: `conekta` mientras no se firme el cambio; la elegida, si se firma (C-216) |
 | DD-093 y DD-094 | Las filas semilla de `plazas` y `zonas` |

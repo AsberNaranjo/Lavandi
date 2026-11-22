@@ -62,6 +62,9 @@ return [
         'actividad_usuarios',
         'eventos_pasarela',
         'metodos_pago_guardados',
+        // Los pagos que acreditó la pasarela, para conciliar: la cuenta de la pasarela es una para todas las plazas, y
+        // la plaza de un movimiento es la del pedido con el que cuadra; uno sin pedido es justo una diferencia (segunda
+        // adenda del 2026-11-22 de ADR-0010, decisión 7; administracion-E20 y E21).
         'movimientos_pasarela',
         'testimonios',
     ],
