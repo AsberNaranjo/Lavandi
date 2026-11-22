@@ -90,6 +90,18 @@ un servicio externo, ni decide una fila abierta.
   puerta, con su propio `canAccess()` o `canView()` hacia el componente. Los tres de Filament que no muestran datos de la
   operación (la página de inicio, el widget de la cuenta y el de la versión) se declaran en `Autorizacion::panelSinDatos()`.
 
+### La matriz de rol por módulo (tarea 1.2)
+
+- **El módulo de una ruta sale de su prefijo:** el B, `api/lavanderia/` y `api/socio/`; el C, `api/repartidor/`; el A, las
+  demás. Solo cuatro rutas son comunes a los tres roles de la app, y se nombran en la prueba: la cuenta, el cierre de la
+  sesión (registro-E33) y las dos del catálogo del territorio (C-238). La prueba falla si una ruta de un módulo admite
+  otro rol en su `autorizar:<rol>`, aunque el middleware la deje pasar como se le pidió.
+- **Cada llamada corre en su propio punto de guardado de la base** y se deshace al terminar
+  (`Soporte/LlamadasSinEfecto.php`): así se recorren también `DELETE api/cuenta` y `DELETE api/sesion` sin que una
+  llamada cambie la siguiente.
+- **Las respuestas se revisan sin el detalle de depuración** (`app.debug` apagado en la prueba), como salen en
+  producción: un 403 trae solo `{"message": "Esta cuenta no tiene acceso."}`.
+
 ## Risks / Trade-offs
 
 - [Una ruta nueva sin regla expone datos] → autorizacion-E01 y autorizacion-E14 corren en cada pull request.
