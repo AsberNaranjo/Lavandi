@@ -385,6 +385,16 @@ final class Autorizacion
     }
 
     /**
+     * Si la cuenta descarga los reportes del panel en CSV y en Excel: solo la administración, porque son los indicadores
+     * y los reportes financieros que ve en el panel (NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5; exportacion-E01). El
+     * botón de descarga y el trabajo de la cola que escribe el archivo preguntan aquí.
+     */
+    public function puedeDescargarReportes(Usuario $usuario): bool
+    {
+        return $this->puedeVerLosIndicadores($usuario);
+    }
+
+    /**
      * Si la cuenta escribe y manda avisos masivos desde el panel: solo la administración (administracion-E23;
      * NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #7).
      */

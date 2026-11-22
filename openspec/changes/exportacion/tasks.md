@@ -7,7 +7,7 @@ modelo de datos no le suma horas: este cambio no crea tablas.
 
 ## 1. Descarga en CSV y en Excel (servidor/)
 
-- [ ] 1.1 exportacion-E01 y exportacion-E02: exportador de pedidos totales en CSV y XLSX, con la exportación de Filament (depende de la pregunta abierta 3 de `design.md`, sobre `exports` y `notifications`) — test: `servidor/tests/Feature/Exportacion/DescargaCsvYExcelTest.php` — tamaño M
+- [x] 1.1 exportacion-E01 y exportacion-E02: exportador de pedidos totales en CSV y XLSX, con la exportación de Filament (depende de la pregunta abierta 3 de `design.md`, sobre `exports` y `notifications`) — test: `servidor/tests/Feature/Exportacion/DescargaCsvYExcelTest.php` — tamaño M
 - [ ] 1.2 exportacion-E03: exportadores de los indicadores de operaciones y de usuarios (F-I01 a F-I05), con las cifras del panel — test: `servidor/tests/Feature/Exportacion/TodosLosReportesTest.php` — tamaño M
 - [ ] 1.3 exportacion-E03: exportadores de los indicadores de socios, dinero y geografía (F-I06 a F-I11) y de los tres reportes financieros — test: `servidor/tests/Feature/Exportacion/TodosLosReportesTest.php` — tamaño M — parcialmente bloqueada: DD-083, DD-020, DD-013 y DD-115, a través de sus indicadores; la conciliación, por DD-112
 

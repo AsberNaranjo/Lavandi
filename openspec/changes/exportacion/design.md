@@ -64,6 +64,32 @@ La exportación usa además tablas del framework:
 - [El escape de fórmulas convierte un número negativo en texto] → el escape solo va en celdas de texto
   (exportacion-E09).
 
+## Implementación en el servidor
+
+Lo que decidió el implementador dentro de esta spec y de ADR-0003, sin decisión técnica nueva. Las preguntas abiertas
+técnicas las decidió por delegación de Arthur (C-236); cada una dice su recomendación más abajo.
+
+- **El botón.** La página de indicadores (`/admin/indicadores`) lleva un botón "Descargar" con un reporte por indicador
+  (`App\Filament\Actions\DescargarReporte`, sobre la `ExportAction` de Filament). El formulario pide el rango y la
+  granularidad, con los de la página por omisión. Solo lo ve y lo usa la administración
+  (`Autorizacion::puedeDescargarReportes()`).
+- **Un exportador de Filament por reporte** (`app/Exportacion/Exportadores/`), sobre
+  `App\Exportacion\ExportadorDeIndicador`: cada uno da su nombre, sus columnas, las que llevan números y sus filas, que
+  pide a la misma consulta de `App\Indicadores` que usa su widget. Las columnas son las del panel, con sus nombres.
+- **Sin registros de Eloquent.** La exportación de Filament reparte los registros de un modelo en lotes; un indicador
+  no tiene registros, sino las filas de su consulta. Por eso la acción crea la fila de `exports` sin contar registros,
+  y el primer trabajo de la cola es `App\Exportacion\EscribirArchivoDelReporte` en lugar del de Filament: escribe el
+  encabezado y las filas del CSV y las cuenta. Lo demás es de Filament sin cambios: el lote y la cadena de la cola, el
+  XLSX que arma a partir del CSV, el aviso con un enlace por formato y la ruta de descarga.
+- **Los dos formatos en cada descarga:** el aviso trae "Descargar .csv" y "Descargar .xlsx" (lectura 2).
+- **El XLSX lleva las cifras como números** (`ExportadorDeIndicador::makeXlsxRow()`): Filament lo arma leyendo el CSV,
+  donde todo es texto, y el exportador vuelve número cada celda de una columna de números.
+- **El nombre del archivo** es el reporte y sus dos días: `pedidos-totales-2026-11-30-al-2026-12-06.csv`.
+- **`exports`** (pregunta 3, ya en la lista del framework de `config/modelo.php`): su migración es la de Filament con
+  una sola diferencia, la cuenta en `id_usuarios` hacia `usuarios.id_usuarios`, porque aquí no existe `users`. El
+  modelo `App\Exportacion\Exportacion` extiende el de Filament con esa relación, y `AppServiceProvider` lo pone en su
+  lugar en el contenedor, así que la acción, la cola y la ruta de descarga usan el mismo.
+
 ## Open Questions
 
 1. **Cómo se logra que Excel lea bien los acentos del CSV.** Recomendación de Claude: UTF-8 con marca de orden de

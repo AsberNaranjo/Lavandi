@@ -3,6 +3,8 @@
 namespace App\Filament\Pages;
 
 use App\Autorizacion\Autorizacion;
+use App\Exportacion\Exportadores\PedidosTotalesExportador;
+use App\Filament\Actions\DescargarReporte;
 use App\Filament\Widgets\Indicadores\EntregasPorRepartidorTabla;
 use App\Filament\Widgets\Indicadores\MapaDeCalor;
 use App\Filament\Widgets\Indicadores\MontoPromedioIndicador;
@@ -17,6 +19,7 @@ use App\Indicadores\Rango;
 use App\Indicadores\Refresco;
 use App\Models\Usuario;
 use BackedEnum;
+use Filament\Actions\ActionGroup;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -88,6 +91,25 @@ class Indicadores extends Dashboard
                 ->columns(3)
                 ->columnSpanFull(),
         ]);
+    }
+
+    /**
+     * El botón "Descargar", con un reporte por indicador, en CSV y en Excel (NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5;
+     * openspec/changes/exportacion/). Cada reporte sale de la misma consulta que su widget.
+     *
+     * @return array<ActionGroup>
+     */
+    protected function getHeaderActions(): array
+    {
+        return [
+            ActionGroup::make([
+                DescargarReporte::de(PedidosTotalesExportador::class),
+            ])
+                ->label('Descargar')
+                ->icon(Heroicon::OutlinedArrowDownTray)
+                ->color('gray')
+                ->button(),
+        ];
     }
 
     /**

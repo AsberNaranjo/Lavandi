@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use App\Avisos\AvisarAlUsuario;
 use App\Avisos\MandarCorreoDeConfirmacion;
+use App\Exportacion\Exportacion;
 use App\Models\Usuario;
 use App\Pedidos\EstadoDelPedidoCambiado;
 use App\Pedidos\PedidoConfirmado;
+use Filament\Actions\Exports\Models\Export;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -21,7 +23,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // La exportación de Filament usa el modelo que liga la descarga a usuarios.id_usuarios: aquí no existe la tabla
+        // users (openspec/changes/exportacion/design.md, "Tablas y migración").
+        $this->app->bind(Export::class, Exportacion::class);
     }
 
     /**
