@@ -67,6 +67,7 @@ class ConfiguracionPorEntornoTest extends TestCase
     private const CREDENCIALES = [
         ['pasarela', 'pasarela', 'PASARELA'],
         ['pasarela', 'simulada.llave', 'PASARELA_SIMULADA_LLAVE'],
+        ['pasarela', 'conekta.llave', 'PASARELA_CONEKTA_LLAVE'],
         ['avisos', 'fcm.credenciales', 'FCM_CREDENCIALES'],
         ['services', 'geocodificacion.llave', 'GOOGLE_GEOCODIFICACION_LLAVE'],
         ['services', 'google_maps_panel.llave', 'GOOGLE_MAPS_PANEL_LLAVE'],

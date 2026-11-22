@@ -53,6 +53,9 @@ class Pago extends Modelo
      */
     public const PASARELA_SIMULADA = 'simulada';
 
+    /** El valor de pasarela de Conekta, la del contrato (App\Cobro\PasarelaConekta; ADR-0010). */
+    public const PASARELA_CONEKTA = 'conekta';
+
     protected $table = 'pagos';
 
     protected $primaryKey = 'id_pagos';
