@@ -2,6 +2,17 @@
 // "Procesando pago" de su cobro (/pedido/pago/procesando/[cobro], pago-E08), y el enlace de regreso del checkout.
 import type { Href } from 'expo-router';
 
+/** El parámetro de la pantalla de pago que dice que el último intento se rechazó. */
+export const INTENTO_RECHAZADO = 'rechazado';
+
+/**
+ * La pantalla de pago del pedido después de un intento rechazado (pago-E04 y pago-E08): dice que el pago no se completó
+ * y su botón vuelve a pedir el checkout del mismo cobro.
+ */
+export function rutaDelPagoRechazado(pedido: string): Href {
+  return { pathname: '/pedido/pago/[id]', params: { id: pedido, intento: INTENTO_RECHAZADO } };
+}
+
 /** La espera del cobro, por su id_publico: la que consulta el servidor hasta que el cobro queda pagado o rechazado. */
 export function rutaDeLaEspera(cobro: string): Href {
   return { pathname: '/pedido/pago/procesando/[cobro]', params: { cobro } };

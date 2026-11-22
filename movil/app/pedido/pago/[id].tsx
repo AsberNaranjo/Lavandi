@@ -7,6 +7,8 @@
 // - "Pagar con tarjeta" pide el checkout al servidor, solo con el pedido y el método, y lo abre en la vista de navegador
 //   del sistema, sin salir de la app (src/pago/checkout.ts). Al volver, la app pasa a la espera "Procesando pago", que
 //   consulta el cobro hasta que el servidor lo da por pagado o rechazado (pago-E08). Volver no confirma nada (pago-E07).
+// - Si el servidor informa que el intento se rechazó, la espera vuelve aquí y la pantalla lo dice; "Pagar con tarjeta"
+//   pide otra vez el checkout, del mismo cobro (pago-E04).
 // - Si el servidor no da el checkout, su mensaje (409, 503) y el botón para intentar de nuevo; sin conexión o con el
 //   servidor caído, sin escenario propio, los mensajes generales de la app.
 //
@@ -15,6 +17,7 @@
 import { useLocalSearchParams } from 'expo-router';
 
 import { useRegresar } from '../../../src/navegacion/regresar';
+import { INTENTO_RECHAZADO } from '../../../src/pago/rutas';
 import { TEXTOS_DEL_PAGO } from '../../../src/pago/textos';
 import { usePagoConTarjeta } from '../../../src/pago/usePagoConTarjeta';
 import { RUTA_DEL_RESUMEN } from '../../../src/pedido/rutas';
@@ -25,9 +28,13 @@ import { Parrafo } from '../../../src/piezas/Parrafo';
 import { Titulo } from '../../../src/piezas/Titulo';
 
 export default function Pago() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, intento } = useLocalSearchParams<{ id: string; intento?: string }>();
   const regresar = useRegresar(RUTA_DEL_RESUMEN);
-  const { pagar, ocupado, mensaje } = usePagoConTarjeta(id);
+  // Después de un intento rechazado, la espera abre esta pantalla para decirlo (pago-E04 y pago-E08).
+  const { pagar, ocupado, mensaje } = usePagoConTarjeta(
+    id,
+    intento === INTENTO_RECHAZADO ? TEXTOS_DEL_PAGO.rechazado : undefined,
+  );
 
   return (
     <Pantalla

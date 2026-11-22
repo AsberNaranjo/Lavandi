@@ -15,12 +15,23 @@ export const TEXTOS_DEL_PAGO = {
   pagarConTarjeta: 'Pagar con tarjeta',
   // El pedido no existe o es de otra cuenta: el servidor responde igual.
   noEncontrado: 'No encontramos este pedido.',
+  // El último intento se rechazó (pago-E04 y pago-E08), con el texto del mock A10, sin "o usa otra tarjeta": la
+  // persona elige la tarjeta en la página de pago.
+  rechazado: 'El pago no se completó. Intenta de nuevo.',
 } as const;
 
 // La espera del cobro después del checkout (pago-E08), con el texto del mock A10, sin nombrar a la pasarela.
 export const TEXTOS_DE_LA_ESPERA = {
   procesando: 'Procesando pago',
   esperamos: 'Esperamos la confirmación de tu pago.',
+  // A los 3 minutos sin confirmación (decisión 32): deja de esperar y ofrece volver a consultar.
+  enRevision: 'Tu pago sigue en revisión',
+  todaviaNo: 'Todavía no recibimos la confirmación de tu pago. Puedes volver a consultar en un momento.',
+  volverAConsultar: 'Volver a consultar',
+  // El cobro no existe o es de otra cuenta: el servidor responde igual.
+  noEncontrado: 'No encontramos este pago.',
+  // vencido o cancelado: hoy no los pone nada (DD-056, DD-012 y DD-016).
+  yaNoSePuedePagar: 'Este cobro ya no se puede pagar.',
 } as const;
 
 /**

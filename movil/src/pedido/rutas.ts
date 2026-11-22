@@ -21,3 +21,8 @@ export function rutaDeLaDireccionNueva(para: ParaQueEsLaDireccion): Href {
 export function rutaDelPago(idPublico: string): Href {
   return { pathname: '/pedido/pago/[id]', params: { id: idPublico } };
 }
+
+/** La confirmación del pedido con su folio, por su id_publico (confirmacion-E09). */
+export function rutaDeLaConfirmacion(idPublico: string): Href {
+  return { pathname: '/pedido/confirmacion/[id]', params: { id: idPublico } };
+}

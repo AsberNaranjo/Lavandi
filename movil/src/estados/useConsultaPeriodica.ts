@@ -1,11 +1,13 @@
 // La consulta cada 30 segundos de una pantalla (ADR-0007), solo mientras la pantalla está visible y la app al frente:
 //
-// - al abrirse o al volver a la pantalla, consulta de inmediato y empieza a contar 30 segundos;
+// - al abrirse o al volver a la pantalla, consulta de inmediato y empieza a contar 30 segundos, o lo que diga la
+//   pantalla;
 // - al salir de la pantalla, o al cerrarla, deja de consultar (useFocusEffect de expo-router);
 // - con la app al fondo deja de consultar, y al traerla al frente consulta de inmediato (AppState de React Native).
 //
 // La usan el seguimiento del pedido del usuario (estados-E15 y E16) y la lista de pedidos de la lavandería
-// (pedidos-lavanderia-E05 y E06). Es un temporizador propio, sin biblioteca nueva: decisión por delegación de Arthur
+// (pedidos-lavanderia-E05 y E06), cada 30 segundos, y la espera "Procesando pago" (pago-E08), cada 5: la espera del pago
+// es corta y la persona la está mirando (decisión 32; adenda del 2026-11-22 de ADR-0010). Es un temporizador propio, sin biblioteca nueva: decisión por delegación de Arthur
 // (C-236), anotada en las Open Questions del design.md de estados-del-pedido. Cuenta 30 segundos desde que sale cada
 // consulta, no desde que llega su respuesta: con el plazo de las peticiones de 15 s (src/configuracion/entorno.ts), una
 // respuesta llega antes de que salga la siguiente. Si llegara una respuesta vieja después de una nueva, no se entrega.
@@ -28,11 +30,12 @@ function alFrente(estado: string | null | undefined): boolean {
  * Corre la consulta mientras la pantalla está visible y entrega cada respuesta vigente. Sin consulta (null), como
  * mientras se lee la sesión, espera. Las dos funciones deben ser estables (useCallback): si cambian, el ciclo empieza
  * de nuevo. Devuelve "consultar de nuevo": consulta ya, descarta la respuesta que esté en camino y vuelve a contar 30
- * segundos desde ahí; con la pantalla oculta o la app al fondo no hace nada.
+ * segundos desde ahí; con la pantalla oculta o la app al fondo no hace nada. cadaCuantoMs cambia los 30 segundos.
  */
 export function useConsultaPeriodica<T>(
   consulta: (() => Promise<T>) | null,
   alLlegar: (respuesta: T) => void,
+  cadaCuantoMs: number = CADA_CUANTO_SE_CONSULTA_MS,
 ): () => void {
   const reiniciar = useRef<(() => void) | null>(null);
 
@@ -58,7 +61,7 @@ export function useConsultaPeriodica<T>(
 
       function empezar() {
         consultar();
-        temporizador = setInterval(consultar, CADA_CUANTO_SE_CONSULTA_MS);
+        temporizador = setInterval(consultar, cadaCuantoMs);
       }
 
       function detener() {
@@ -96,7 +99,7 @@ export function useConsultaPeriodica<T>(
         suscripcion.remove();
         reiniciar.current = null;
       };
-    }, [consulta, alLlegar]),
+    }, [consulta, alLlegar, cadaCuantoMs]),
   );
 
   return useCallback(() => reiniciar.current?.(), []);

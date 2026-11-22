@@ -1,5 +1,6 @@
-// El cobro del pedido en la API (openspec/changes/pago, pago-E02): pedir el checkout de la pasarela para pagar el pedido
-// con tarjeta. Todo va con el token de la sesión. El contrato exacto, con cada cuerpo y cada error, está en
+// El cobro del pedido en la API (openspec/changes/pago): pedir el checkout de la pasarela para pagar el pedido con
+// tarjeta (pago-E02) y consultar el cobro mientras se espera la confirmación (pago-E08). Todo va con el token de la
+// sesión. El contrato exacto, con cada cuerpo y cada error, está en
 // openspec/changes/pago/design.md, "Contrato de la API". Como las demás consultas, nunca lanza: devuelve un Resultado.
 //
 // Ninguna petición de la app da un cobro por pagado: lo hace solo el aviso de la pasarela al servidor (pago-E07). La app
@@ -11,6 +12,8 @@ import { esObjeto } from '../configuracion/lectura';
 /** Las rutas y los nombres del cobro, en un solo lugar para ajustarlos. */
 export const CONTRATO_DEL_PAGO = {
   checkout: 'pagos/checkout',
+  // GET <cobro>/<id_publico del cobro>: solo lee, aunque lleve que ya pagó (pago-E07).
+  cobro: 'pagos',
   clave: 'pago',
   // El único método que se ofrece: el efectivo espera DD-056 y la tarjeta guardada, DD-055 y DD-079.
   tarjeta: 'tarjeta',
@@ -75,6 +78,26 @@ export async function pedirCheckout(
   return checkout && cobro ? { ok: true, datos: { checkout, cobro } } : { ok: false, motivo: 'servidor' };
 }
 
+/** El cobro no existe, no es un ULID o es de un pedido de otra cuenta: el servidor responde igual (404). */
+export type FallaDelCobro = Falla | { ok: false; motivo: 'no-encontrado' };
+
+/** GET del cobro por su id_publico, con la sesión: lo que consulta la espera "Procesando pago" (pago-E08). */
+export async function consultarCobro(
+  token: string,
+  idPublico: string,
+): Promise<{ ok: true; datos: Cobro } | FallaDelCobro> {
+  const { cobro: ruta, clave } = CONTRATO_DEL_PAGO;
+  const { resultado, estado } = await pedirConEstado<unknown>(`${ruta}/${encodeURIComponent(idPublico)}`, {
+    metodo: 'GET',
+    token,
+  });
+  if (!resultado.ok) {
+    return estado === 404 ? { ok: false, motivo: 'no-encontrado' } : resultado;
+  }
+  const cobro = esObjeto(resultado.datos) ? leerCobro(resultado.datos[clave]) : null;
+  return cobro ? { ok: true, datos: cobro } : { ok: false, motivo: 'servidor' };
+}
+
 function leerCheckout(fila: unknown): Checkout | null {
   if (!esObjeto(fila) || typeof fila.url !== 'string' || fila.url === '') {
     return null;
@@ -86,7 +109,7 @@ function leerCheckout(fila: unknown): Checkout | null {
 }
 
 /** El cobro leído campo por campo; null si no es del contrato. */
-export function leerCobro(fila: unknown): Cobro | null {
+function leerCobro(fila: unknown): Cobro | null {
   if (
     !esObjeto(fila) ||
     typeof fila.id_publico !== 'string' ||

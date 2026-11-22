@@ -328,6 +328,21 @@ ADR-0010. Ninguna cambia la spec ni un ADR.
     tienen ningún campo de texto, y una prueba recorre `movil/app/` y `movil/src/` y falla si algún archivo declara el
     autocompletado de tarjeta del sistema (`cc-…`) o su tipo de contenido (`creditCard…`)
     (`movil/__tests__/pago/abrir-checkout.test.tsx`).
+23. **La espera consulta con `useConsultaPeriodica`, cada 5 s** (tarea 4.2, `movil/src/pago/useEsperaDelCobro.ts`). La
+    pieza de ADR-0007 recibe ahora cada cuánto consulta, con 30 s por omisión: el seguimiento y la lista de la
+    lavandería no cambian. Como ahí, consulta solo con la pantalla visible y la app al frente, y al volver al frente
+    consulta de inmediato. Los 3 minutos cuentan desde que la espera empieza, y otra vez desde cada "Volver a
+    consultar". A los 3 minutos deja de consultar y dice "Tu pago sigue en revisión".
+24. **El resultado lo muestra la pantalla que sigue** (tarea 4.2). Con `pagado`, la espera abre en su lugar la
+    confirmación del pedido del cobro (`/pedido/confirmacion/[id]`, confirmacion-E09), que lo pide al servidor y
+    muestra su folio. Con `fallido`, vuelve a la pantalla de pago del pedido con `intento=rechazado`: la pantalla dice
+    "El pago no se completó. Intenta de nuevo." y su botón pide otra vez el checkout, que reabre el mismo cobro
+    (punto 11). Así el mensaje queda donde está el botón, como en el mock A10.
+25. **`vencido`, `cancelado` y el 404** (tarea 4.2): la espera lo dice ("Este cobro ya no se puede pagar.", "No
+    encontramos este pago.") y deja de consultar. Hoy nada pone los dos primeros (DD-056, DD-012 y DD-016).
+26. **Sin conexión o con el servidor caído en la espera** (tarea 4.2), sin escenario propio: como el seguimiento del
+    pedido, la falla se dice con los mensajes generales de la app y la consulta sigue cada 5 s; la siguiente respuesta
+    la quita. No es un estado nuevo del pago: es la misma lectura que ya hacen las demás consultas periódicas.
 
 ## Contrato de la API
 

@@ -40,7 +40,7 @@ adelanta nada para Stripe ni para Mercado Pago (`CLAUDE.md` §2-bis, punto 7).
 ## 4. App
 
 - [x] 4.1 pago-E02: la pantalla de pago pide el checkout con el pedido y el método, y lo abre en el navegador del sistema dentro de la app, con `openAuthSessionAsync` de `expo-web-browser` y la dirección de regreso (en iPhone, con `preferEphemeralSession`), sin campos de tarjeta en ninguna pantalla (decisión 32; adenda del 2026-11-22 de ADR-0010) — test: `movil/__tests__/pago/abrir-checkout.test.tsx` — tamaño M
-- [ ] 4.2 pago-E08: la espera "Procesando pago" consulta el cobro cada 5 s hasta que queda pagado o rechazado, y a los 3 minutos deja de esperar y ofrece volver a consultar (decisión 32) — test: `movil/__tests__/pago/procesando-pago.test.tsx` — tamaño M
+- [x] 4.2 pago-E08: la espera "Procesando pago" consulta el cobro cada 5 s hasta que queda pagado o rechazado, y a los 3 minutos deja de esperar y ofrece volver a consultar (decisión 32) — test: `movil/__tests__/pago/procesando-pago.test.tsx` — tamaño M
 
 ## 5. Bloqueados: no tienen tarea hasta que cierre su fila
 

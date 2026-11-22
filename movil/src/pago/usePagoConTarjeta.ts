@@ -14,12 +14,13 @@ import { abrirCheckout } from './checkout';
 import { rutaDeLaEspera } from './rutas';
 import { mensajeDelCheckout } from './textos';
 
-export function usePagoConTarjeta(pedido: string | undefined) {
+/** mensajeInicial: lo que la pantalla dice al abrirse, como un intento rechazado; se va al volver a intentar. */
+export function usePagoConTarjeta(pedido: string | undefined, mensajeInicial?: string) {
   const router = useRouter();
   const { token } = useSesion();
   const enCamino = useRef(false);
   const [ocupado, setOcupado] = useState(false);
-  const [mensaje, setMensaje] = useState<string | undefined>();
+  const [mensaje, setMensaje] = useState<string | undefined>(mensajeInicial);
 
   function terminar(conMensaje?: string) {
     enCamino.current = false;
