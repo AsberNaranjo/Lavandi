@@ -139,8 +139,8 @@
         text-align: center;
     }
 
+    /* Sin margen propio: toma el del lugar que ocupa, como .seccion__entrada. */
     .de-prueba {
-        margin: 0;
         padding: var(--ds-espaciado-2) var(--ds-espaciado-3);
         border: var(--ds-grosor-control) dashed var(--ds-color-semantico-borde-fuerte);
         border-radius: var(--ds-radio-medio);
