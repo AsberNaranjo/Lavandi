@@ -9,6 +9,7 @@ use App\Http\Requests\CalificarPedidoRequest;
 use App\Http\Resources\CalificacionResource;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /**
@@ -37,17 +38,17 @@ use Illuminate\Support\Str;
  *
  *     401  { "message": "Unauthenticated." }              sin sesión
  *     403  { "message": "Esta cuenta no tiene acceso." }  la cuenta no tiene el rol de usuario, como la de una lavandería
+ *     404  { "message": "No existe el pedido." }
+ *          No existe, es de otra cuenta, o el valor no es un ULID, como un folio: todos responden igual y sin ningún dato
+ *          (historial-E09; ADR-0019, decisión 3). Se busca antes de revisar el cuerpo, así que un pedido ajeno responde
+ *          404 aunque el cuerpo venga mal, como en el resto de la API (autorizacion-E07 y E14).
  *     422  { "message": "...", "errors": { "estrellas": ["..."] } }
- *          Un error por campo, y "message" es el primero:
+ *          Solo sobre un pedido propio. Un error por campo, y "message" es el primero:
  *            estrellas   "Elige de 1 a 5 estrellas."                        falta, o llega null
  *            estrellas   "Las estrellas van como un número entero de 1 a 5." 4.5, "cuatro"
  *            estrellas   "Las estrellas van de 1 a 5."                      0, 6, -1
  *            comentario  "El comentario va en texto."
  *            comentario  "El comentario no puede pasar de 1000 caracteres."
- *          Se revisa antes de buscar el pedido: no dice nada de él.
- *     404  { "message": "No existe el pedido." }
- *          No existe, es de otra cuenta, o el valor no es un ULID, como un folio: todos responden igual y sin ningún dato
- *          (historial-E09; ADR-0019, decisión 3).
  *     409  { "message": "Este pedido todavía no se puede calificar." }
  *          El pedido propio no está en Entregado: espera su pago, está en curso o lo rechazó la lavandería.
  *     409  { "message": "Este pedido ya está calificado." }
@@ -61,7 +62,7 @@ class CalificacionesController extends Controller
 {
     public function __construct(private readonly Autorizacion $autorizacion) {}
 
-    public function __invoke(CalificarPedidoRequest $peticion, CalificacionDelServicio $calificacion, string $pedido): JsonResponse
+    public function __invoke(Request $peticion, CalificacionDelServicio $calificacion, string $pedido): JsonResponse
     {
         /** @var Usuario $usuario */
         $usuario = $peticion->user();
@@ -78,10 +79,13 @@ class CalificacionesController extends Controller
             return response()->json(['message' => 'No existe el pedido.'], 404);
         }
 
+        // El cuerpo se revisa ya con el pedido propio en la mano: resolver la petición validada la valida (422).
+        $validada = app(CalificarPedidoRequest::class);
+
         $guardada = $calificacion->calificar(
             $encontrado,
-            (int) $peticion->validated('estrellas'),
-            $peticion->validated('comentario'),
+            (int) $validada->validated('estrellas'),
+            $validada->validated('comentario'),
         );
 
         return response()->json(['calificacion' => new CalificacionResource($guardada)], 201);

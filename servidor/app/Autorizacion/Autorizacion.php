@@ -67,6 +67,9 @@ final class Autorizacion
             'GET /' => 'La portada pública de la landing.',
             'POST formularios/interes' => 'El formulario de interés de lavanderías de la portada.',
             'POST formularios/contacto' => 'El formulario de contacto de la portada.',
+            // Los textos legales, públicos como la portada (textos-legales-E01).
+            'GET aviso-de-privacidad' => 'El aviso de privacidad, sin datos de ninguna cuenta (textos-legales-E01).',
+            'GET terminos' => 'Los términos y condiciones, sin datos de ninguna cuenta (textos-legales-E01).',
 
             // La página para crear la contraseña nueva: la llave es el token del enlace del correo (ADR-0018, decisión 4).
             'GET contrasena/restablecer/{token}' => 'Muestra el formulario; la llave es el token del enlace del correo.',

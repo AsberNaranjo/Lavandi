@@ -101,13 +101,14 @@ Content-Type: application/json
   - `401` sin sesión;
   - `403` `{ "message": "Esta cuenta no tiene acceso." }` si la cuenta no tiene el rol de usuario, como la de una
     lavandería o un repartidor;
-  - `422` con un error por campo y `message` con el primero. Se revisa antes de buscar el pedido, así que no dice nada
-    de él:
+  - `404` `{ "message": "No existe el pedido." }` si el pedido es de otra cuenta, no existe o el valor no es un ULID,
+    como un folio: los tres responden igual (historial-E09; ADR-0019, decisión 3). Se revisa antes que el cuerpo: un
+    pedido ajeno responde 404 aunque el cuerpo venga mal, como en el resto de la API (autorizacion-E07 y E14). Así
+    quedó al unirlo con las pruebas de autorización, el 2026-11-22;
+  - `422`, solo sobre un pedido propio, con un error por campo y `message` con el primero:
     - `errors.estrellas`: "Elige de 1 a 5 estrellas." (falta o llega `null`), "Las estrellas van como un número entero
       de 1 a 5." (4.5, "cuatro") o "Las estrellas van de 1 a 5." (0, 6, -1);
     - `errors.comentario`: "El comentario va en texto." o "El comentario no puede pasar de 1000 caracteres.";
-  - `404` `{ "message": "No existe el pedido." }` si el pedido es de otra cuenta, no existe o el valor no es un ULID,
-    como un folio: los tres responden igual (historial-E09; ADR-0019, decisión 3);
   - `409` `{ "message": "Este pedido todavía no se puede calificar." }` si el pedido propio no está Entregado, y `409`
     `{ "message": "Este pedido ya está calificado." }` si ya tiene su calificación. Los dos son la lectura provisional
     de la decisión 6: cuando BR-25 responda, pueden cambiar.

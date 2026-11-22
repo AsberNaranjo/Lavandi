@@ -184,6 +184,20 @@ class CalificacionTest extends TestCase
         $this->assertSame(0, $ajeno->calificaciones()->count());
     }
 
+    #[TestDox('historial-E09: el pedido de otro usuario responde que no existe antes de revisar el cuerpo: sin estrellas o fuera de la escala, también 404 y no 422')]
+    public function test_historial_e09_el_pedido_de_otro_usuario_responde_404_antes_de_revisar_el_cuerpo(): void
+    {
+        $ajeno = $this->entregado($this->cuentaDeUsuario());
+
+        foreach ([[], ['estrellas' => 9], ['estrellas' => 5, 'comentario' => ['no', 'es', 'texto']]] as $cuerpo) {
+            $this->calificar($this->cuenta, $ajeno->id_publico, $cuerpo)
+                ->assertNotFound()
+                ->assertExactJson(['message' => 'No existe el pedido.']);
+        }
+
+        $this->assertSame(0, Calificacion::query()->count());
+    }
+
     #[TestDox('historial-E09: sin sesión responde 401, y una cuenta sin el rol de usuario, como la de la lavandería del pedido, 403; ninguna guarda calificación')]
     public function test_historial_e09_sin_sesion_o_sin_el_rol_de_usuario_no_se_califica(): void
     {
