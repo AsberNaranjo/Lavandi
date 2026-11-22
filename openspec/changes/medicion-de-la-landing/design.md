@@ -108,6 +108,14 @@ cumple cada escenario; se pueden rehacer sin tocar los requisitos.
     cumple a medias. Lo que acredita es medicion-E12, con el contenedor del cliente.
   - *Lo que depende del alojamiento (DD-070):* Lighthouse marca la falta de compresión del texto y la respuesta lenta
     del documento, que son del servidor de desarrollo de PHP; en prueba y en producción las da el servidor web.
+- **De http a https (tarea 3.2, 2026-11-22):** el middleware global `App\Http\Middleware\SoloHttps`, el mismo que
+  prueba `publicacion` en el panel y la API (publicacion-E04 y E05). Con `config('app.solo_https')`, una petición por
+  http recibe una redirección 301 a la misma dirección, con su consulta, por https y en el dominio de `APP_URL`, sin
+  procesarse. `app.solo_https` es verdadero en todo entorno que no sea `local` ni `testing`, y no tiene variable que
+  lo apague: así prueba, cuyo nombre de entorno todavía no existe, y producción quedan cubiertos solos. Va al final del
+  grupo global, después de `TrustProxies`. Si el alojamiento de DD-070 termina el https en un proxy, ese proxy se
+  declara de confianza (`trustProxies`) al desplegar; sin eso, cada petición llegaría como http y se redirigiría sin
+  fin. No se agregó el encabezado HSTS: la spec no lo pide.
 
 ## Tablas y migración
 
