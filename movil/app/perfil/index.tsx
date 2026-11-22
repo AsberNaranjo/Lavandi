@@ -8,11 +8,13 @@
 //   lo rechaza y el error va junto al campo; el nombre guardado no cambia (perfil-usuario-E02).
 // - El correo solo se ve: el numeral 15 no lo lista y no se cambia desde el perfil.
 // - Las direcciones guardadas son las favoritas de la cuenta (perfil-usuario-E05).
+// - "Legal", el aviso de privacidad y los términos, con las direcciones de la configuración, que se abren dentro de la
+//   app (textos-legales-E05; src/textos-legales/EnlacesLegales.tsx). No dependen del perfil: se ven aunque no llegue.
 // - "Eliminar mi cuenta", al final, borra la cuenta después de confirmarlo y vuelve a la bienvenida (perfil-usuario-E15).
 //
 // La composición sigue las imágenes a15-perfil y a15-perfil-foto de la Propuesta 04 en lo que tiene escenario. Del mock
 // no entran todavía: los métodos de pago (perfil-usuario-E07, bloqueado por DD-055), las notificaciones (tarea 2.3, con
-// el cambio avisos), lo legal (textos-legales), la barra inferior y el lápiz de cada dirección (su edición no existe
+// el cambio avisos), la barra inferior y el lápiz de cada dirección (su edición no existe
 // todavía). "Cerrar sesión" sigue en la pantalla principal (registro-E13).
 //
 // Si el perfil no llega, sin escenario propio: los mensajes generales de la app, como el perfil de la lavandería, y sin
@@ -37,6 +39,8 @@ import { MensajeDeError } from '../../src/piezas/MensajeDeError';
 import { Pantalla } from '../../src/piezas/Pantalla';
 import { useSesion } from '../../src/sesion/ProveedorDeSesion';
 import { letra } from '../../src/tema/letra';
+import { EnlacesLegales } from '../../src/textos-legales/EnlacesLegales';
+import { TEXTOS_LEGALES } from '../../src/textos-legales/textos';
 import { color, espaciado, tipografia } from '../../src/tema/theme';
 
 export default function MiPerfil() {
@@ -60,6 +64,7 @@ export default function MiPerfil() {
           <DireccionesGuardadas favoritas={favoritas} />
         </>
       ) : null}
+      <EnlacesLegales titulo={TEXTOS_LEGALES.legal} />
       <BorrarCuenta />
     </Pantalla>
   );

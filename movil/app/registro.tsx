@@ -1,6 +1,7 @@
 // Pantalla de registro (registro-E04, E19, E20 y E28): solo el correo y la contraseña (C-225), "Continuar con
 // Google" si el entorno trae el cliente de Google y la app no corre en Expo Go (base-E11), y los enlaces a los
-// documentos legales que dé la configuración.
+// documentos legales que dé la configuración, que se abren dentro de la app (src/textos-legales/EnlacesLegales.tsx,
+// registro-E28 y textos-legales-E05).
 // En iPhone, "Continuar con Apple" es la tarea 4.3, bloqueada por DD-069; en Android no se ofrece (ADR-0005).
 //
 // El aspecto es el de la imagen a02-registro de la Propuesta 04 de los mocks (tarea 2.3, C-230): encabezado con
@@ -9,12 +10,10 @@
 // perfil), la casilla "Acepto…" (registro-E29, bloqueado por DD-080), el botón para ver la contraseña ni el texto de
 // ayuda bajo ella: no tienen escenario.
 import { useState } from 'react';
-import { Linking, StyleSheet, View } from 'react-native';
 
 import { registrar } from '../src/acceso/api';
 import { googleDisponible } from '../src/acceso/google';
 import { useEntrada } from '../src/acceso/useEntrada';
-import { direccionDeLosTerminos, direccionDelAvisoDePrivacidad } from '../src/configuracion/entorno';
 import { useRegresar } from '../src/navegacion/regresar';
 import { Boton } from '../src/piezas/Boton';
 import { BotonDeGoogle } from '../src/piezas/BotonDeGoogle';
@@ -24,7 +23,7 @@ import { MensajeDeError } from '../src/piezas/MensajeDeError';
 import { Pantalla } from '../src/piezas/Pantalla';
 import { Presentacion } from '../src/piezas/Presentacion';
 import { Separador } from '../src/piezas/Separador';
-import { espaciado } from '../src/tema/theme';
+import { EnlacesLegales } from '../src/textos-legales/EnlacesLegales';
 
 export default function Registro() {
   // "Regresar" y "¿Ya tienes cuenta? Inicia sesión" hacen lo mismo (C-236): vuelven al inicio de sesión que abrió el
@@ -35,8 +34,6 @@ export default function Registro() {
   const [password, setPassword] = useState('');
 
   const conGoogle = googleDisponible();
-  const aviso = direccionDelAvisoDePrivacidad();
-  const terminos = direccionDeLosTerminos();
 
   return (
     <Pantalla desplazable encabezado={{ titulo: 'Crear cuenta', alRegresar: regresar }}>
@@ -67,12 +64,8 @@ export default function Registro() {
         alCambiar={setPassword}
         error={errorDe('password')}
       />
-      {aviso || terminos ? (
-        <View style={estilos.legales}>
-          {aviso ? <Enlace menor texto="Aviso de privacidad" alTocar={() => abrirDocumento(aviso)} /> : null}
-          {terminos ? <Enlace menor texto="Términos y condiciones" alTocar={() => abrirDocumento(terminos)} /> : null}
-        </View>
-      ) : null}
+      {/* Los dos enlaces legales en una línea, donde el mock pone la casilla. */}
+      <EnlacesLegales enLinea />
       <MensajeDeError texto={errorGeneral} />
       <Boton ocupado={enviando} onPress={() => entrarCon(() => registrar({ correo, password }))}>
         Crear cuenta
@@ -87,16 +80,3 @@ export default function Registro() {
   );
 }
 
-// El documento se abre fuera de la app, en el navegador del teléfono.
-function abrirDocumento(direccion: string) {
-  Linking.openURL(direccion).catch(() => {});
-}
-
-const estilos = StyleSheet.create({
-  // Los dos enlaces legales en una línea, donde el mock pone la casilla; si no caben, bajan a la siguiente.
-  legales: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    columnGap: espaciado[4],
-  },
-});
