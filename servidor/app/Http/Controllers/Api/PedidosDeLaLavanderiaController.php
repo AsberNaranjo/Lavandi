@@ -74,6 +74,15 @@ use Illuminate\Support\Str;
  *
  * ---------------------------------------------------------------------------------------------------------------------
  *
+ *     GET /api/lavanderia/pedidos/{id_publico}       Un pedido de la lavandería, en cualquier estado (estados-E06 y E23)
+ *
+ *     200  { "pedido": { ...el pedido... } }
+ *          También uno que ya salió de la lista, como uno rechazado o entregado: es suyo.
+ *     404  { "message": "No existe el pedido." }
+ *          Como en todas las rutas: ajeno, de otra plaza, sin pago acreditado, que no existe o que no es ULID.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
  *     POST /api/lavanderia/pedidos/{id_publico}/aceptar        La lavandería acepta el pedido (pedidos-lavanderia-E07)
  *
  *     Sin cuerpo.
@@ -145,6 +154,13 @@ class PedidosDeLaLavanderiaController extends Controller
             ->get();
 
         return response()->json(['pedidos' => PedidoDeLaLavanderiaResource::collection($pedidos)]);
+    }
+
+    public function mostrar(Request $peticion, string $pedido): JsonResponse
+    {
+        $encontrado = $this->pedidoVisible($this->cuenta($peticion), $pedido);
+
+        return response()->json(['pedido' => PedidoDeLaLavanderiaResource::delPedido($encontrado)]);
     }
 
     public function aceptar(Request $peticion, string $pedido): JsonResponse

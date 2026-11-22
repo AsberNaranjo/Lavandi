@@ -103,6 +103,7 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
 Route::middleware(['auth:sanctum', 'autorizar:lavanderia'])->prefix('lavanderia')->group(function () {
     // La lista en tiempo real de sus pedidos activos; la app la consulta cada 30 s (ADR-0007).
     Route::get('pedidos', [PedidosDeLaLavanderiaController::class, 'lista'])->name('lavanderia.pedidos.lista');
+    Route::get('pedidos/{pedido}', [PedidosDeLaLavanderiaController::class, 'mostrar'])->name('lavanderia.pedidos.mostrar');
     Route::post('pedidos/{pedido}/aceptar', [PedidosDeLaLavanderiaController::class, 'aceptar'])
         ->name('lavanderia.pedidos.aceptar');
     Route::post('pedidos/{pedido}/rechazar', [PedidosDeLaLavanderiaController::class, 'rechazar'])
