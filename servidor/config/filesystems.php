@@ -91,6 +91,37 @@ return [
             'report' => false,
         ],
 
+        /*
+         * El aviso de privacidad y los términos vigentes (config/textos_legales.php; ADR-0006). Los dos son privados: el
+         * servidor lee el archivo y lo muestra en su página, nunca lo sirve directo.
+         *
+         * textos_legales_local es el de local y de las pruebas: guarda en storage/app/private/textos-legales.
+         * textos_legales_s3 es el de producción: la carpeta textos-legales del bucket privado del entorno, con las
+         * credenciales del .env de cada entorno, nunca en el repositorio (ADR-0012). Un archivo que falta se lee vacío y
+         * la página dice que el documento no está disponible; un error al leerlo se registra.
+         */
+        'textos_legales_local' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/textos-legales'),
+            'visibility' => 'private',
+            'throw' => false,
+            'report' => true,
+        ],
+
+        'textos_legales_s3' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('TEXTOS_LEGALES_BUCKET', env('AWS_BUCKET')),
+            'root' => 'textos-legales',
+            'endpoint' => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'visibility' => 'private',
+            'throw' => false,
+            'report' => true,
+        ],
+
     ],
 
     /*

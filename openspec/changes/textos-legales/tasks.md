@@ -6,7 +6,7 @@ están bloqueadas (tarea 1.3).
 
 ## 1. Sitio
 
-- [ ] 1.1 textos-legales-E01, textos-legales-E02: páginas públicas del aviso de privacidad y de los términos con el documento cargado, sin texto de ejemplo en producción — test: `servidor/tests/Feature/TextosLegales/PaginasPublicasTest.php` — tamaño S
+- [x] 1.1 textos-legales-E01, textos-legales-E02: páginas públicas del aviso de privacidad y de los términos con el documento cargado, sin texto de ejemplo en producción — test: `servidor/tests/Feature/TextosLegales/PaginasPublicasTest.php` — tamaño S
 - [ ] 1.2 textos-legales-E04: reemplazo de un documento por su versión nueva sin tocar el código, con la misma dirección — test: `servidor/tests/Feature/TextosLegales/NuevaVersionTest.php` — tamaño S
 - [ ] 1.3 textos-legales-E03: carga en producción de los documentos de EL CLIENTE, con captura en `vault/evidencias/textos-legales/` (bloqueada: DD-080) — test: `servidor/tests/Feature/TextosLegales/PaginasPublicasTest.php` con la configuración de producción — tamaño S
 
