@@ -26,11 +26,32 @@ use Illuminate\Database\Eloquent\Builder;
 final class Autorizacion
 {
     /**
-     * Si la cuenta tiene el rol que pide la ruta.
+     * Si la cuenta tiene el rol que pide la ruta. Una cuenta bloqueada no pasa ninguna (administracion-E03): al
+     * bloquearla se revocan sus tokens, y si le quedara uno, tampoco serviría.
      */
     public function permite(Usuario $usuario, string $rol): bool
     {
-        return $usuario->roles->contains('codigo', $rol);
+        return $this->puedeIniciarSesion($usuario) && $usuario->roles->contains('codigo', $rol);
+    }
+
+    /**
+     * Si la cuenta puede abrir una sesión, por cualquier vía: con correo y contraseña, con Google y, cuando exista, con
+     * Apple (DD-069). Una cuenta bloqueada desde el panel no puede hasta que se levante el bloqueo (administracion-E03 y
+     * E04; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #3). Toda entrada pregunta aquí.
+     */
+    public function puedeIniciarSesion(Usuario $usuario): bool
+    {
+        return $usuario->estado !== Usuario::BLOQUEADO;
+    }
+
+    /**
+     * Si la cuenta puede bloquear a otra o levantar su bloqueo desde el panel: solo la administración, y solo a una
+     * cuenta de usuario, de las que ve en la gestión de usuarios (administracion-E03 y E04). Las cuentas de los socios se
+     * suspenden con su lavandería y su repartidor (Módulo D #1 y #2).
+     */
+    public function puedeBloquear(Usuario $quien, Usuario $cuenta): bool
+    {
+        return $this->usuariosDelPanel($quien)->whereKey($cuenta->getKey())->exists();
     }
 
     /**

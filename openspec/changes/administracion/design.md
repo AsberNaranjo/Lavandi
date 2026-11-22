@@ -140,6 +140,29 @@ rol de administración (ADR-0005; autorizacion-E03). Cada página pregunta al co
 - **Solo lectura:** sin alta, edición ni borrado (fuera del contrato). El filtro de usuarios activos del periodo espera
   DD-111 (E02).
 
+**Bloquear y levantar el bloqueo** (tarea 1.3, administracion-E03 y E04), con un botón en cada fila de la lista y en
+la cabecera de la ficha, con confirmación. "Bloquear" solo aparece en una cuenta activa y "Levantar el bloqueo" solo en
+una bloqueada.
+
+- **Bloquear** (`App\Identidad\BloqueoDeCuenta`) escribe `usuarios.estado = 'bloqueado'` con la hora en `bloqueado_en`
+  y revoca todos los tokens de Sanctum de la cuenta: la siguiente petición de la app con cualquiera de sus sesiones
+  responde `401`. No toca sus teléfonos registrados, sus direcciones ni sus pedidos (E05 espera DD-016).
+- **Mientras esté bloqueada**, el componente no le abre sesión por ninguna vía (`Autorizacion::puedeIniciarSesion()`):
+  - `POST /api/sesion` con la contraseña correcta responde
+    `422 { "message": "Esta cuenta está bloqueada.", "errors": { "correo": ["Esta cuenta está bloqueada."] } }`, sin
+    token. Con otra contraseña, la respuesta de siempre ("Las credenciales no son válidas."): no se dice que la cuenta
+    existe a quien no sabe su contraseña.
+  - `POST /api/sesion/google` responde el mismo mensaje en `errors.id_token`, ya ligada la cuenta de Google o por su
+    correo, y no liga nada ni anula la contraseña.
+  - La entrada con Apple no existe todavía (DD-069): cuando llegue, pregunta al mismo método.
+  - Si le quedara un token, `Autorizacion::permite()` lo rechaza con `403` en toda ruta, y una cuenta de administración
+    bloqueada tampoco entra al panel.
+- **Levantar el bloqueo** la deja en `activo`, con `bloqueado_en` vacío, y la persona vuelve a entrar con su contraseña
+  o con Google.
+- **Quién bloquea a quién:** solo la administración, y solo a las cuentas de usuario de la lista
+  (`Autorizacion::puedeBloquear()`). Las de los socios se suspenden con su lavandería o su repartidor (Módulo D #1 y
+  #2).
+
 ## Risks / Trade-offs
 
 - [El plugin de mapas de Filament está en beta] → se hace como componente propio (ADR-0009). Si el mapa sin código a

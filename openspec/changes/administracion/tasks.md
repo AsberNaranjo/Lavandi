@@ -11,7 +11,7 @@ M = 5 h.
 
 - [x] 1.1 administracion-E01: ficha del usuario con su historial de pedidos, de solo lectura — test: `servidor/tests/Feature/Administracion/GestionDeUsuariosTest.php` — tamaño S
 - [ ] 1.2 administracion-E02: filtro de usuarios activos del periodo, sobre `actividad_usuarios` — test: `servidor/tests/Feature/Administracion/GestionDeUsuariosTest.php` — tamaño S — bloqueada: BR-33, DD-111
-- [ ] 1.3 administracion-E03 y administracion-E04: bloquear y levantar el bloqueo en `usuarios.estado`; se revocan los tokens de Sanctum y se rechaza la entrada por correo, Google y Apple — test: `servidor/tests/Feature/Administracion/BloqueoDeUsuariosTest.php` — tamaño M
+- [x] 1.3 administracion-E03 y administracion-E04: bloquear y levantar el bloqueo en `usuarios.estado`; se revocan los tokens de Sanctum y se rechaza la entrada por correo, Google y Apple — test: `servidor/tests/Feature/Administracion/BloqueoDeUsuariosTest.php` — tamaño M
 - [ ] 1.4 administracion-E05: bloqueo con un pedido activo — test: `servidor/tests/Feature/Administracion/BloqueoDeUsuariosTest.php` — tamaño S — bloqueada: DD-016
 
 ## 2. Monitoreo de pedidos (servidor/)
