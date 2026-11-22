@@ -1,10 +1,11 @@
 <?php
 
+use App\Http\Controllers\PortadaController;
 use App\Http\Controllers\RecuperacionController;
 use Illuminate\Support\Facades\Route;
 
 /*
- * La raíz no tiene ruta: responde 404 hasta que la ocupe el cambio landing (ADR-0011). La salud es /up (base-E01).
+ * La raíz es la portada de la landing (ADR-0011; openspec/changes/landing/). La salud es /up (base-E01).
  */
 
 /*
@@ -14,3 +15,8 @@ Route::get('/contrasena/restablecer/{token}', [RecuperacionController::class, 'm
     ->name('contrasena.formulario');
 Route::post('/contrasena/restablecer', [RecuperacionController::class, 'guardarContrasena'])
     ->name('contrasena.restablecer');
+
+/*
+ * La portada pública de la landing, con sus 12 secciones (openspec/changes/landing/, tarea 1.1).
+ */
+Route::get('/', PortadaController::class)->name('portada');
