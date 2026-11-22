@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FormularioDeLaPortadaController;
 use App\Http\Controllers\PortadaController;
 use App\Http\Controllers\RecuperacionController;
 use Illuminate\Support\Facades\Route;
@@ -20,3 +21,8 @@ Route::post('/contrasena/restablecer', [RecuperacionController::class, 'guardarC
  * La portada pública de la landing, con sus 12 secciones (openspec/changes/landing/, tarea 1.1).
  */
 Route::get('/', PortadaController::class)->name('portada');
+
+/*
+ * Los formularios de la portada: interés de lavanderías y contacto (openspec/changes/landing/, tareas 2.4 y 5.1).
+ */
+Route::post('/formularios/interes', [FormularioDeLaPortadaController::class, 'interes'])->name('portada.interes');

@@ -80,4 +80,21 @@ return [
         'imagen_texto' => env('LANDING_IMAGEN_DESCARGA_TEXTO', ''),
     ],
 
+    /*
+     * Sección 5, "Lavanderías partner": el texto de la invitación a unirse (landing-E10).
+     */
+    'lavanderias' => [
+        'invitacion' => env('LANDING_INVITACION_LAVANDERIAS'),
+    ],
+
+    /*
+     * Sección 6, "Beneficios para socios": el texto de cada uno de los tres pilares del contrato (landing-E11). El de
+     * cero gestión de cobranza promete que la plataforma cobra por el socio: no se escribe hasta que DD-013 cierre.
+     */
+    'beneficios_socios' => [
+        'mas_clientes' => null,
+        'pagos_seguros' => null,
+        'cero_gestion_de_cobranza' => null,
+    ],
+
 ];
