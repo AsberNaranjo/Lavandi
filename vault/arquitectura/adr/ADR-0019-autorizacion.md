@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-20-modelo-y-pasarela.md C-236 (C) y decisión 21; DD-129; registro-E14 y `servidor/app/Autorizacion/` (B)
+fuente: acta-2026-11-20-modelo-y-pasarela.md C-236 (C) y decisión 21; DD-129; registro-E14 y `servidor/app/Autorizacion/` (B); adenda del 2026-11-22: decisión 35, por delegación de C-236 (C), y exportacion-E11
 fecha: 2026-11-21
 dueño: Arthur Naranjo
 adr: ADR-0019
@@ -62,3 +62,18 @@ Unas 5 horas: mover las reglas a Policies y cambiar el middleware por `can:`.
 - **Restricciones:** RN-09.
 - **Pendientes:** DD-129, cerrada.
 - **ADRs relacionados:** ADR-0003 y ADR-0018.
+
+## Adenda del 2026-11-22: un adaptador donde Filament solo sabe preguntar a una Policy
+
+**Contexto.** La descarga de una exportación del panel es una ruta de Filament (`filament/exports/{export}/download`)
+que decide el acceso preguntando a una Policy del modelo `Export`; no tiene otro punto donde enchufar el componente.
+exportacion-E11 pide que solo descargue quien la pidió.
+
+**Decisión.**
+
+- **2, precisión.** Donde una pieza de terceros solo sepa preguntar a una Policy, se admite una Policy adaptadora sin
+  regla propia: su único cuerpo es llamar al componente (`App\Exportacion\PoliticaDeExportacion` llama a
+  `Autorizacion::puedeDescargarLaExportacion()`). La regla sigue viviendo en una sola clase; la Policy no decide nada.
+- La prueba de cobertura (autorizacion-E01) y el barrido (E14) siguen recorriendo esa ruta como cualquier otra.
+
+**La tomó** Claude, por delegación de Arthur (C-236), en la decisión 35 de `acta-2026-11-20-modelo-y-pasarela.md`.
