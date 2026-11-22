@@ -1,9 +1,11 @@
 // La consulta de "Mis pedidos" (openspec/changes/historial-y-calificacion, historial-E01, E03 y E04): la lista de los
 // pedidos del usuario, con el token de la sesión, y, si hay filtro, solo los de un rango de días. El servidor solo
 // entrega los del usuario (historial-E02) y solo los confirmados, así que el folio siempre viene. Cada pedido trae lo que
-// pinta la lista: el folio, la fecha, la lavandería y el estado. Como las demás consultas, nunca lanza: devuelve un
-// Resultado.
-import { pedir, type Resultado } from '../configuracion/api';
+// pinta la lista: el folio, la fecha, la lavandería, el estado y su calificación del servicio, si ya la tiene
+// (historial-E06). Y la calificación del servicio de un pedido, de 1 a 5 estrellas con un comentario opcional
+// (historial-E06 a E08), con el "Contrato de la API: la calificación" de
+// openspec/changes/historial-y-calificacion/design.md. Como las demás consultas, nunca lanza: devuelve un Resultado.
+import { pedir, pedirConEstado, type Falla, type Resultado } from '../configuracion/api';
 import { esObjeto } from '../configuracion/lectura';
 import { leerEstado, type EstadoDelPedido } from '../estados/api';
 
@@ -18,7 +20,20 @@ export const CONTRATO_DEL_HISTORIAL = {
   clave: 'pedidos',
   desde: 'desde',
   hasta: 'hasta',
+  // POST <ruta>/<id_publico>/<calificacion>, con { estrellas, comentario }; responde { "<calificacion>": … } con 201.
+  calificacion: 'calificacion',
+  estrellas: 'estrellas',
+  comentario: 'comentario',
 } as const;
+
+/** Las estrellas van de 1 a 5 (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo A #14). */
+export const ESTRELLAS_DE_LA_CALIFICACION = [1, 2, 3, 4, 5] as const;
+
+/** La calificación del servicio de un pedido: sus estrellas y su comentario, o null si no lo tiene. */
+export interface CalificacionDelPedido {
+  estrellas: number;
+  comentario: string | null;
+}
 
 /** Un rango de días de la plaza, AAAA-MM-DD, los dos incluidos (historial-E03). */
 export interface RangoDeFechas {
@@ -35,6 +50,8 @@ export interface PedidoDelHistorial {
   lavanderia: { id_publico: string; nombre: string };
   /** Con visible_usuario en false, la app no lo nombra. */
   estado: EstadoDelPedido;
+  /** null mientras no se califica (historial-E06). Un servidor que todavía no lo manda cuenta como sin calificar. */
+  calificacion: CalificacionDelPedido | null;
 }
 
 const FECHA = /^\d{4}-\d{2}-\d{2}$/;
@@ -75,7 +92,8 @@ function leerPedido(datos: unknown): PedidoDelHistorial | null {
     return null;
   }
   const estado = leerEstado(datos.estado);
-  if (!estado) {
+  const calificacion = datos.calificacion === undefined ? null : leerCalificacion(datos.calificacion);
+  if (!estado || calificacion === undefined) {
     return null;
   }
   return {
@@ -84,5 +102,61 @@ function leerPedido(datos: unknown): PedidoDelHistorial | null {
     fecha: datos.fecha,
     lavanderia: { id_publico: datos.lavanderia.id_publico, nombre: datos.lavanderia.nombre },
     estado,
+    calificacion,
   };
+}
+
+/** La calificación leída campo por campo: null si no la tiene, undefined si no es del contrato. */
+function leerCalificacion(datos: unknown): CalificacionDelPedido | null | undefined {
+  if (datos === null) {
+    return null;
+  }
+  if (
+    !esObjeto(datos) ||
+    !ESTRELLAS_DE_LA_CALIFICACION.includes(datos.estrellas as (typeof ESTRELLAS_DE_LA_CALIFICACION)[number]) ||
+    (datos.comentario !== null && typeof datos.comentario !== 'string')
+  ) {
+    return undefined;
+  }
+  return { estrellas: datos.estrellas as number, comentario: datos.comentario };
+}
+
+/** Lo que la app manda al calificar: las estrellas y el comentario tal como se escribió, o null sin comentario. */
+export interface SolicitudDeCalificacion {
+  estrellas: number;
+  comentario: string | null;
+}
+
+/**
+ * Por qué no se guardó la calificación. Además de las fallas generales (con 422, el error de cada campo): el pedido no
+ * existe o es de otra cuenta (404), o el servidor no la acepta y lo dice con un mensaje para la persona (409: todavía no
+ * se puede calificar o ya está calificado, la lectura provisional de BR-25).
+ */
+export type FallaAlCalificar =
+  | Falla
+  | { ok: false; motivo: 'no-encontrado' }
+  | { ok: false; motivo: 'no-se-puede'; mensaje: string };
+
+/** POST de la calificación del servicio de un pedido de la cuenta, con la sesión (historial-E06 a E08). */
+export async function calificarPedido(
+  token: string,
+  idPublico: string,
+  solicitud: SolicitudDeCalificacion,
+): Promise<{ ok: true; datos: CalificacionDelPedido } | FallaAlCalificar> {
+  const { ruta, calificacion: clave } = CONTRATO_DEL_HISTORIAL;
+  const { resultado, estado } = await pedirConEstado<unknown>(
+    `${ruta}/${encodeURIComponent(idPublico)}/${clave}`,
+    { metodo: 'POST', token, cuerpo: solicitud },
+  );
+  if (!resultado.ok) {
+    if (estado === 404) {
+      return { ok: false, motivo: 'no-encontrado' };
+    }
+    if (estado === 409 && resultado.motivo === 'servidor' && resultado.mensaje) {
+      return { ok: false, motivo: 'no-se-puede', mensaje: resultado.mensaje };
+    }
+    return resultado;
+  }
+  const guardada = esObjeto(resultado.datos) ? leerCalificacion(resultado.datos[clave]) : undefined;
+  return guardada ? { ok: true, datos: guardada } : { ok: false, motivo: 'servidor' };
 }

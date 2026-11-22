@@ -17,6 +17,11 @@ interface Propiedades {
   alinear?: 'inicio' | 'centro' | 'fin';
   /** El tamaño menor, el de los enlaces legales del registro. */
   menor?: boolean;
+  /**
+   * Lo que lee el lector de pantalla en lugar del texto, cuando el texto solo no dice a qué lleva: "Calificar el pedido
+   * 3HT8W2QZ" en una lista de pedidos que dicen "Calificar" (historial-E06).
+   */
+  paraLeer?: string;
 }
 
 const ALINEACION: Record<NonNullable<Propiedades['alinear']>, ViewStyle['alignSelf']> = {
@@ -25,12 +30,12 @@ const ALINEACION: Record<NonNullable<Propiedades['alinear']>, ViewStyle['alignSe
   fin: 'flex-end',
 };
 
-export function Enlace({ texto, alTocar, pregunta, alinear = 'inicio', menor = false }: Propiedades) {
+export function Enlace({ texto, alTocar, pregunta, alinear = 'inicio', menor = false, paraLeer }: Propiedades) {
   const estiloDelEnlace = [estilos.texto, letra('cuerpo', 'semifuerte'), pregunta || menor ? estilos.menor : null];
   return (
     <Pressable
       role="link"
-      accessibilityLabel={pregunta ? `${pregunta} ${texto}` : undefined}
+      accessibilityLabel={paraLeer ?? (pregunta ? `${pregunta} ${texto}` : undefined)}
       onPress={alTocar}
       style={[estilos.enlace, { alignSelf: ALINEACION[alinear] }]}
     >

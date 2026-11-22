@@ -71,6 +71,35 @@ historial-E10 sigue bloqueado y la tarea 3.2 la reemplaza. Tampoco DD-052: histo
    quién es el pedido lo decide `App\Autorizacion\Autorizacion::pedidosVisibles()` antes de llegar ahí (E09). El
    historial la muestra en cada pedido (E06) con la relación `Pedido::calificacionDelServicio()`.
 
+## La calificación en la app (tarea 2.3)
+
+La tomó Claude por delegación de Arthur (C-236), el 2026-11-22, con la tarea 2.3. No resuelve BR-25 ni DD-052: sigue la
+lectura provisional de la decisión 6 y la literal de la decisión 2.
+
+9. **Dónde se ofrece: solo donde el contrato de la API la acepta.** En "Mis pedidos", la tarjeta de un pedido en
+   `entregado` con `calificacion: null` lleva el enlace "Calificar"; la de uno ya calificado dice "Calificaste 4 de 5",
+   como el mock A13, y no ofrece calificar otra vez. Los demás estados no llevan nada. Va abajo de la tarjeta, fuera de
+   la parte que abre el seguimiento, para que el lector de pantalla llegue a él por separado ("Calificar el pedido
+   3HT8W2QZ"). Si BR-25 amplía los estados, cambia una constante de `movil/src/historial/TarjetaDePedido.tsx`. Un
+   servidor que todavía no manda `calificacion` cuenta como sin calificar; una `calificacion` fuera del contrato, como
+   una respuesta fuera del contrato.
+10. **La pantalla, `/pedido/calificacion/[id]`,** con el folio y el nombre de la lavandería que ya tiene la lista, como
+    parámetros, para decir qué pedido se califica sin volver a pedirlo. Una sola calificación, del servicio (decisión 2,
+    DD-052): sin la del repartidor del mock A14. Del mock no entra "Ahora no": hace lo mismo que "Regresar".
+11. **Las estrellas: un grupo de radio con cinco, de 1 a 5** (`movil/src/historial/SelectorDeEstrellas.tsx`). No es uno
+    de los seis componentes del design system: el mock A14 dice "Ninguno de los seis", así que se arma con los tokens
+    (ADR-0013), como el mock: cada estrella mide al menos el área táctil mínima (48) y la llena usa `color.estado.atencion`,
+    porque la capa semántica no tiene un amarillo de relleno. Las estrellas son caracteres (★ y ☆), como las reseñas del
+    perfil de la lavandería, porque la app no tiene librería de íconos; su trazo se revisa en un teléfono. El número
+    elegido va también en texto ("4 de 5"): el color nunca solo.
+12. **Sin estrellas no se manda** (historial-E08): el botón no se puede tocar y dice "Elige una estrella". La pantalla no
+    ofrece 0 ni 6. Si el servidor rechaza un campo (422), el error va junto a él y la calificación no se guarda.
+13. **El comentario va tal como se escribió;** vacío o con puros espacios, `null` (decisión 7). La app no le pone tope:
+    el de 1000 caracteres es configurable en el servidor, y su 422 va junto al campo.
+14. **Con 201, la app vuelve a "Mis pedidos",** que se pide de nuevo al verse y muestra el pedido calificado (E06). El
+    409, el 404 y las fallas generales se dicen arriba del botón y la pantalla sigue. Mientras manda, un segundo toque
+    no manda otra.
+
 ## Contrato de la API: la calificación
 
 Lo implementa la tarea 1.3. La forma exacta vive también en
@@ -240,7 +269,8 @@ Authorization: Bearer <token de la sesión>        (auth:sanctum y autorizar:usu
 - **El orden de `repartidores`** frente a esta migración (ver Risks).
 - **Pantallas sin componente.** El historial y la calificación no usan ninguno de los seis componentes de
   `vault/design-system/componentes.md`, salvo la insignia de estado del componente 3. La Definition of Ready pide que
-  el componente exista o que la tarea lo cree. **Lista: resuelta en la tarea 2.1.** La insignia se extrajo del
+  el componente exista o que la tarea lo cree. **Lista: resuelta en la tarea 2.1; calificación, en la tarea 2.3 (decisión
+  11).** La insignia se extrajo del
   seguimiento a `movil/src/piezas/InsigniaDeEstado.tsx`, sin cambiar cómo se ve, y la usan los dos; la tarjeta de cada
   pedido (`movil/src/historial/TarjetaDePedido.tsx`) y el filtro se arman con las piezas y los tokens.
 - **Cómo se eligen las fechas del filtro en `movil/`: resuelta.** Dos campos de texto, "Desde" y "Hasta", en

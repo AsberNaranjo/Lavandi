@@ -4,9 +4,9 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 
 import * as SecureStore from 'expo-secure-store';
+import * as WebBrowser from 'expo-web-browser';
 import { userEvent } from '@testing-library/react-native';
 import { renderRouter, screen, within } from 'expo-router/testing-library';
-import { Linking } from 'react-native';
 
 import Inicio from '../../app/inicio';
 import InicioDeSesion from '../../app/inicio-de-sesion';
@@ -212,8 +212,10 @@ describe('registro-E09: la pantalla de inicio de sesión', () => {
 });
 
 describe('registro-E28: los enlaces legales salen de la configuración', () => {
+  // Se abren en la vista de navegador de la app (textos-legales-E05, __tests__/textos-legales/enlaces-legales.test.tsx).
   test('registro-E28 — el registro muestra los dos enlaces y abren las direcciones de la configuración', async () => {
-    const abrirDireccion = jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined);
+    const abrirDireccion = (WebBrowser as unknown as typeof import('../../__mocks__/expo-web-browser')).openBrowserAsync;
+    abrirDireccion.mockClear();
     const usuario = userEvent.setup();
     await abrir('/registro');
 

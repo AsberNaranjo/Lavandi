@@ -5,7 +5,8 @@
 //   el folio y el resumen con la lavandería, el servicio, la fecha con su ventana y la recogida, con el componente 6 del
 //   design system. El resumen es la copia que guardó el pedido, no el pedido en curso del teléfono.
 // - Si todavía no lo está, no muestra folio ni nombra el estado previo al pago (DD-123, ADR-0021): solo que todavía no
-//   está confirmado. Cuándo se vuelve a consultar es del pago (pago-E02, bloqueado).
+//   está confirmado. La abre la espera "Procesando pago" cuando el servidor da el cobro por pagado (pago-E08), así que
+//   no vuelve a consultar.
 // - Si no existe o es de otra cuenta, el servidor responde igual (confirmacion-E12) y la app dice que no lo encontró.
 //   Sin conexión o con el servidor caído, sin escenario propio, los mensajes generales de la app.
 // - "Volver al inicio" deja la app sin pedido en curso y abre la pantalla principal como la primera de la pila.

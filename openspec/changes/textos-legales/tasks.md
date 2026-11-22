@@ -12,4 +12,4 @@ están bloqueadas (tarea 1.3).
 
 ## 2. App
 
-- [ ] 2.1 textos-legales-E05: enlaces de la app al aviso y a los términos con las direcciones de la configuración — test: `movil/__tests__/textos-legales/enlaces-legales.test.tsx` — tamaño S
+- [x] 2.1 textos-legales-E05: enlaces de la app al aviso y a los términos con las direcciones de la configuración — test: `movil/__tests__/textos-legales/enlaces-legales.test.tsx` — tamaño S

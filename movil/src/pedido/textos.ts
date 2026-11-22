@@ -1,6 +1,7 @@
 // Los textos de los pasos del pedido nuevo, juntos para revisarlos en un solo lugar. El pedido va en cuatro pasos
 // (decisión 16 del acta del 2026-11-20, C-233); el primero es el tipo de servicio (perfil-lavanderia-E11 a E13) y el
-// último, el resumen (resumen-y-confirmacion). Después vienen el pago y la confirmación.
+// último, el resumen (resumen-y-confirmacion). Después vienen el pago (sus textos, en src/pago/textos.ts) y la
+// confirmación.
 import { MENSAJES, mensajeGeneral } from '../acceso/mensajes';
 import type { FallaAlCrear } from './api';
 
@@ -38,11 +39,6 @@ export const TEXTOS_DEL_RESUMEN = {
   // El botón lleva al pago (confirmacion-E07). Con C-188 y C-197 se cobra al estimar, antes de recolectar: es la
   // variante "al pedir" del componente 6 (DD-012, parcial).
   confirmarYPagar: 'Confirmar y pagar',
-} as const;
-
-// El pago, provisional mientras pago-E02 espera DD-055 y DD-079. El encabezado es el del mock A10.
-export const TEXTOS_DEL_PAGO = {
-  encabezado: 'Pago',
 } as const;
 
 // La confirmación, con los textos del mock A11 (confirmacion-E09).

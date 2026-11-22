@@ -6,8 +6,9 @@
 // que no existe o es de otra cuenta responde 404 (confirmacion-E12): la app dice que no lo encontró. Al salir, la app
 // deja de tener pedido en curso y vuelve al inicio.
 //
-// Quien abre esta pantalla es el pago, que espera pago-E02 (DD-055 y DD-079): aquí se abre por su ruta, con la API
-// simulada con el contrato de servidor/app/Http/Controllers/Api/PedidosController.php, en iPhone y en Android.
+// Quien abre esta pantalla es la espera del pago cuando el cobro queda pagado (pago-E08, __tests__/pago/): aquí se abre
+// por su ruta, con la API simulada con el contrato de servidor/app/Http/Controllers/Api/PedidosController.php, en iPhone
+// y en Android.
 import path from 'node:path';
 
 import { fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';

@@ -7,7 +7,7 @@
 // visible_usuario } } ] }, del más reciente al más antiguo, con la fecha de la recolección en la hora de la plaza.
 //
 // No entran: el filtro por fecha (tarea 2.2, filtro-por-fecha.test.tsx), repetir un pedido (historial-E05, bloqueado por
-// BR-25) ni calificarlo (tarea 2.3 y el grupo 3).
+// BR-25) ni calificarlo (tarea 2.3, calificacion.test.tsx, y el grupo 3).
 import path from 'node:path';
 
 import * as Location from 'expo-location';
