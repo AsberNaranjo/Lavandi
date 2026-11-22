@@ -19,4 +19,11 @@ return [
      */
     'disco' => env('EXPORTACION_DISCO', 'local'),
 
+    /*
+     * Cuántos días vive una descarga (design.md, pregunta abierta 2): durante ese tiempo su enlace del aviso sirve, y
+     * después el comando model:prune, programado una vez al día, borra su fila y sus archivos. Una semana alcanza para
+     * bajar el archivo que se pidió y no deja copias de los reportes en el disco.
+     */
+    'dias_de_vida' => (int) env('EXPORTACION_DIAS_DE_VIDA', 7),
+
 ];

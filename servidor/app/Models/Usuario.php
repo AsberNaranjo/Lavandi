@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -42,6 +43,9 @@ class Usuario extends Modelo implements AuthenticatableContract, AuthorizableCon
 
     /** @use HasFactory<UsuarioFactory> */
     use HasFactory;
+
+    // Los avisos del panel en la tabla notifications, como el de archivo listo de una descarga (exportacion-E10).
+    use Notifiable;
 
     use SoftDeletes;
     use TieneIdPublico;

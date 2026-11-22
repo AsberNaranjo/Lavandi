@@ -2,6 +2,7 @@
 
 namespace App\Autorizacion;
 
+use App\Exportacion\Exportacion;
 use App\Models\AvisoMasivo;
 use App\Models\Direccion;
 use App\Models\Dispositivo;
@@ -87,7 +88,7 @@ final class Autorizacion
             // Las fotos privadas en local y en las pruebas; en producción viven en el bucket privado (ADR-0006).
             'GET archivos/fotos/{path}' => $firmada,
             'PUT archivos/fotos/{path}' => $firmada,
-            'GET filament/exports/{export}/download' => 'De Filament: el panel no exporta; su controlador exige sesión y que el archivo sea de la cuenta.',
+            'GET filament/exports/{export}/download' => 'De Filament: la descarga de un reporte del panel. Su controlador exige sesión (401 sin ella) y PoliticaDeExportacion le pregunta a puedeDescargarLaExportacion(): solo la baja la cuenta que la pidió; a otra le responde 404 (exportacion-E11).',
             'GET filament/imports/{import}/failed-rows/download' => 'De Filament: el panel no importa; su controlador exige sesión y que el archivo sea de la cuenta.',
 
             // Livewire, con el que corre el panel.
@@ -479,6 +480,16 @@ final class Autorizacion
     public function puedeDescargarReportes(Usuario $usuario): bool
     {
         return $this->puedeVerLosIndicadores($usuario);
+    }
+
+    /**
+     * Si la cuenta baja el archivo de una descarga: solo la que la pidió, mientras siga pudiendo bajar reportes
+     * (exportacion-E11). Para cualquier otra, el archivo responde como si no existiera (ADR-0019, decisión 3). La ruta
+     * de descarga de Filament pregunta aquí a través de App\Exportacion\PoliticaDeExportacion.
+     */
+    public function puedeDescargarLaExportacion(Usuario $usuario, Exportacion $exportacion): bool
+    {
+        return (int) $exportacion->id_usuarios === (int) $usuario->getKey() && $this->puedeDescargarReportes($usuario);
     }
 
     /**

@@ -51,7 +51,8 @@ La exportación usa además tablas del framework:
 - `exports`, de Filament, y `notifications`, de Laravel, para el aviso de archivo listo. **No están en esa lista.**
   Sus migraciones de fábrica usan `id`, `user_id` y `notifiable_id`, que la prueba de esquema rechaza (modelo-E01 y
   modelo-E02), y `exports` apunta a `users`, que aquí se llama `usuarios` (grado E, `SIN VERIFICAR` en Filament 5).
-  Ver Open Questions.
+  Ver Open Questions. **Al implementar:** las dos ya estaban en la lista del framework, y `exports` lleva la cuenta en
+  `id_usuarios` (ver "Implementación en el servidor").
 
 ## Risks / Trade-offs
 
@@ -114,6 +115,28 @@ técnicas las decidió por delegación de Arthur (C-236); cada una dice su recom
     adelantó de la tarea 1.3 porque E07 y E08 lo descargan. La prueba de E07 pasó desde que existió ese reporte, porque
     la marca de orden de bytes es de Filament; y la de E09 desde la tarea 1.2, porque los números ya iban como números:
     quedan como guardas del escape.
+- **El segundo plano** (tarea 4.1, E10 y E11):
+  - **La cola.** Con la cola de la base (`QUEUE_CONNECTION=database`, la del entorno de prueba y de producción, DD-070),
+    la acción solo crea la descarga y dice "El archivo se está generando"; el proceso de colas escribe el archivo y deja
+    el aviso "El archivo de … está listo" en las notificaciones del panel de esa cuenta, con "Descargar .csv" y
+    "Descargar .xlsx". Con la cola en la misma petición (local y pruebas), el aviso sale de una vez.
+  - **`notifications`** (pregunta 3): la migración de Laravel, con `data` en JSON porque el panel de Filament filtra
+    sus avisos por `data->>'format'`, que en PostgreSQL lo pide. La cuenta va en `notifiable_type` y
+    `notifiable_id`, hacia `usuarios.id_usuarios`. `Usuario` usa `Notifiable` y el panel enciende sus avisos
+    (`databaseNotifications()`, que se consultan cada 30 s, como manda ADR-0007 para el panel).
+  - **Quién baja el archivo** (E11) lo decide `Autorizacion::puedeDescargarLaExportacion()`: la cuenta que lo pidió,
+    mientras siga pudiendo bajar reportes. La ruta de descarga es la de Filament, que solo sabe preguntar a una Policy
+    de Laravel; `App\Exportacion\PoliticaDeExportacion` no decide nada y pasa la pregunta al componente. A otra cuenta
+    le responde 404, como si el archivo no existiera (ADR-0019, decisión 3); sin sesión, 401. La ruta sigue entre las
+    que no piden rol (`Autorizacion::rutasSinSesion()`), con esa razón. **Para revisar:** ADR-0019 dejó fuera las
+    Policies; esta es un puente de una línea hacia el componente, la única forma de que la ruta de Filament le pregunte
+    sin reemplazar su controlador.
+  - **El disco y la duración** (pregunta 2, decidida por delegación, C-236): el disco privado local de Laravel
+    (`storage/app/private`, `EXPORTACION_DISCO`), sin almacén nuevo, así que no hace falta ADR. Cada descarga vive
+    **7 días** (`EXPORTACION_DIAS_DE_VIDA`): después, `model:prune`, programado una vez al día en `routes/console.php`,
+    borra su fila y sus archivos. El hosting tiene que correr el proceso de colas y el programador
+    (`php artisan schedule:run` cada minuto); los dos son DD-070. Si el hosting no da disco persistente, el disco pasa a
+    un bucket privado con su ADR.
 - **Los dos formatos en cada descarga:** el aviso trae "Descargar .csv" y "Descargar .xlsx" (lectura 2).
 - **El XLSX lleva las cifras como números** (`ExportadorDeIndicador::makeXlsxRow()`): Filament lo arma leyendo el CSV,
   donde todo es texto, y el exportador vuelve número cada celda de una columna de números.
@@ -129,8 +152,11 @@ técnicas las decidió por delegación de Arthur (C-236); cada una dice su recom
    bytes (BOM). Lo decide Arthur. **Decidida por delegación (C-236) con la recomendación** en la tarea 3.1: ver
    "Implementación en el servidor", "La escritura del archivo".
 2. **En qué disco se guardan los archivos generados y cuánto tiempo.** El ADR-0006 es para fotos y evidencias. Lo
-   decide Arthur; si cambia el almacén, necesita ADR.
+   decide Arthur; si cambia el almacén, necesita ADR. **Decidida por delegación (C-236)** en la tarea 4.1: el disco
+   privado local, 7 días, con el borrado diario (ver "El segundo plano").
 3. **`exports` y `notifications` frente a la prueba de esquema.** Hay que agregarlas a la lista de tablas del
    framework en `servidor/config/modelo.php`, y que `exports` apunte a `usuarios.id_usuarios`. La lista es de
    `modelo-de-datos`; lo decide Arthur allí, antes de la tarea 1.1, porque toda exportación de Filament escribe en
-   `exports`.
+   `exports`. **Resuelta:** las dos ya estaban en la lista del framework de `config/modelo.php` al llegar a la tarea
+   1.1; `exports` apunta a `usuarios.id_usuarios` por su columna `id_usuarios` (tarea 1.1) y `notifications` guarda la
+   cuenta en `notifiable_id` (tarea 4.1).

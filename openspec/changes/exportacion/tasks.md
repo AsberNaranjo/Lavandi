@@ -21,4 +21,4 @@ modelo de datos no le suma horas: este cambio no crea tablas.
 
 ## 4. Segundo plano (servidor/)
 
-- [ ] 4.1 exportacion-E10 y exportacion-E11: generación en cola, aviso en el panel y descarga solo para quien la pidió — test: `servidor/tests/Feature/Exportacion/GeneracionEnSegundoPlanoTest.php` — tamaño S
+- [x] 4.1 exportacion-E10 y exportacion-E11: generación en cola, aviso en el panel y descarga solo para quien la pidió — test: `servidor/tests/Feature/Exportacion/GeneracionEnSegundoPlanoTest.php` — tamaño S
