@@ -6,6 +6,7 @@ use App\Direcciones\GeocodificacionNoDisponible;
 use App\Direcciones\Geocodificador;
 use App\Direcciones\GeocodificadorDeGoogle;
 use App\Direcciones\Punto;
+use App\Models\Municipio;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -27,7 +28,7 @@ class GeocodificadorDeGoogleTest extends TestCase
 
     private const LLAVE_DE_PRUEBA = 'llave-de-prueba-de-geocodificacion';
 
-    private const TEXTO = 'Calle de prueba 123, Colonia de prueba, 00000 Municipio de prueba';
+    private const TEXTO = 'Calle de prueba 123, Colonia de prueba, 00000 Municipio de prueba, Estado de prueba';
 
     protected function setUp(): void
     {
@@ -49,7 +50,7 @@ class GeocodificadorDeGoogleTest extends TestCase
             'results' => [['geometry' => ['location' => ['lat' => 10.25, 'lng' => -119.75]]]],
         ])]);
 
-        app(Geocodificador::class)->geocodificar(self::TEXTO);
+        app(Geocodificador::class)->geocodificar(self::TEXTO, $this->municipio());
 
         Http::assertSent(fn (Request $peticion): bool => str_starts_with($peticion->url(), self::DIRECCION_DE_GOOGLE));
     }
@@ -65,7 +66,7 @@ class GeocodificadorDeGoogleTest extends TestCase
             ],
         ])]);
 
-        $punto = (new GeocodificadorDeGoogle)->geocodificar(self::TEXTO);
+        $punto = (new GeocodificadorDeGoogle)->geocodificar(self::TEXTO, $this->municipio());
 
         $this->assertEquals(new Punto(10.25, -119.75), $punto);
 
@@ -89,7 +90,7 @@ class GeocodificadorDeGoogleTest extends TestCase
     {
         Http::fake([self::DIRECCION_DE_GOOGLE.'*' => Http::response(['status' => 'ZERO_RESULTS', 'results' => []])]);
 
-        $this->assertNull((new GeocodificadorDeGoogle)->geocodificar(self::TEXTO));
+        $this->assertNull((new GeocodificadorDeGoogle)->geocodificar(self::TEXTO, $this->municipio()));
         Http::assertSentCount(1);
     }
 
@@ -108,7 +109,7 @@ class GeocodificadorDeGoogleTest extends TestCase
             Http::fake([self::DIRECCION_DE_GOOGLE.'*' => $respuesta]);
 
             try {
-                (new GeocodificadorDeGoogle)->geocodificar(self::TEXTO);
+                (new GeocodificadorDeGoogle)->geocodificar(self::TEXTO, $this->municipio());
                 $this->fail("Con {$caso} debió decir que el servicio no está disponible.");
             } catch (GeocodificacionNoDisponible $error) {
                 // La llave no sale en el mensaje, que va a los registros.
@@ -126,9 +127,17 @@ class GeocodificadorDeGoogleTest extends TestCase
         $this->expectException(GeocodificacionNoDisponible::class);
 
         try {
-            (new GeocodificadorDeGoogle)->geocodificar(self::TEXTO);
+            (new GeocodificadorDeGoogle)->geocodificar(self::TEXTO, $this->municipio());
         } finally {
             Http::assertNothingSent();
         }
+    }
+
+    /**
+     * Un municipio del catálogo, sin guardar: Google usa solo el texto, que ya lo nombra (design.md, decisión 10).
+     */
+    private function municipio(): Municipio
+    {
+        return new Municipio(['codigo' => '99001', 'nombre' => 'Municipio de prueba']);
     }
 }

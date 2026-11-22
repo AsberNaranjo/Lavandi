@@ -34,7 +34,10 @@ use Illuminate\Validation\ValidationException;
  */
 final class CreacionDePedido
 {
-    /** Las señas de la dirección guardada que se copian al pedido, además de su punto. */
+    /**
+     * Las señas de la dirección guardada que se copian al pedido tal como están, además de su punto y del nombre de su
+     * municipio.
+     */
     private const SENAS = [
         'alias',
         'calle',
@@ -42,7 +45,6 @@ final class CreacionDePedido
         'numero_interior',
         'colonia',
         'codigo_postal',
-        'municipio',
         'referencias',
     ];
 
@@ -143,11 +145,16 @@ final class CreacionDePedido
 
     /**
      * La copia de la dirección guardada en el pedido, con su punto copiado en la base, sin pasar por PHP.
+     *
+     * El municipio se copia como texto, con el nombre que tiene hoy en el catálogo: la copia es la foto del momento y no
+     * cambia si el catálogo cambia después (ADR-0016; openspec/changes/direcciones/design.md, "pedido_direcciones no
+     * cambia"). El estado no se copia.
      */
     private function copiar(Pedido $pedido, Direccion $direccion, string $tipo): void
     {
         $pedido->direcciones()->create([
             ...$direccion->only(self::SENAS),
+            'municipio' => $direccion->municipio?->nombre,
             'tipo' => $tipo,
             'id_direcciones' => $direccion->getKey(),
             'ubicacion' => DB::raw(sprintf(

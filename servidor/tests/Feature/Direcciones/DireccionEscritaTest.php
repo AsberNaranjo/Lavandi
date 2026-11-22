@@ -6,19 +6,22 @@ use App\Direcciones\GeocodificacionNoDisponible;
 use App\Direcciones\Geocodificador;
 use App\Direcciones\Punto;
 use App\Models\Direccion;
+use App\Models\Municipio;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\Direcciones\Soporte\CatalogoDePrueba;
 use Tests\Feature\Direcciones\Soporte\DireccionesDePrueba;
 use Tests\Feature\Plazas\Soporte\PlazasDePrueba;
 use Tests\TestCase;
 
 /**
- * Guardar una dirección escrita: calle y número, colonia y municipio; la colonia es obligatoria, y el servidor la
- * convierte en un punto del mapa una sola vez, con el servicio de geocodificación detrás de una interfaz que aquí se
- * simula. La plaza de la dirección es la de la zona que contiene el punto, o ninguna (NSV-2026-001-v8.pdf:16:ANEXO A,
- * Sección A.3, Módulo A #8; ADR-0009, decisión 4; openspec/changes/direcciones/design.md, decisiones 1 y 3).
+ * Guardar una dirección escrita: calle y número, colonia y el municipio del catálogo; la colonia es obligatoria, y el
+ * servidor la convierte en un punto del mapa una sola vez, con el servicio de geocodificación detrás de una interfaz que
+ * aquí se simula y con el municipio y el estado del catálogo en el texto. La plaza de la dirección es la de la zona que
+ * contiene el punto, o ninguna (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #8; ADR-0009, decisión 4;
+ * openspec/changes/direcciones/design.md, decisiones 1, 3 y 10).
  *
  * POST /api/direcciones, con sesión y por el componente de autorización.
  *
@@ -55,22 +58,26 @@ class DireccionEscritaTest extends TestCase
             'referencias' => 'Portón de prueba',
         ]))->assertCreated();
 
-        // Una sola consulta, con la calle y el número, la colonia, el código postal y el municipio.
+        // Una sola consulta, con la calle y el número, la colonia, el código postal, y el municipio y el estado del
+        // catálogo (design.md, decisión 10).
         $this->assertSame(
-            ['Calle de prueba 123, Colonia de prueba, 00000 Municipio de prueba'],
+            ['Calle de prueba 123, Colonia de prueba, 00000 Municipio de prueba, Estado de prueba'],
             $geocodificacion->consultas,
         );
+        $this->assertSame([CatalogoDePrueba::MUNICIPIO_DE_PRUEBA], $geocodificacion->municipios);
 
         $direccion = Direccion::sole();
         $this->assertSame($cuenta->getKey(), $direccion->id_usuarios);
         $this->assertSame(['latitud' => 10.25, 'longitud' => -119.75], $this->puntoGuardado($direccion->id_publico));
         // La plaza sale de la zona que contiene el punto.
         $this->assertSame($plaza->getKey(), $direccion->id_plazas);
+        // El municipio, como llave al catálogo.
+        $this->assertSame(CatalogoDePrueba::municipio()->getKey(), $direccion->id_municipios);
         $this->assertSame(
-            ['Calle de prueba', '123', '4', 'Colonia de prueba', '00000', 'Municipio de prueba', 'Portón de prueba'],
+            ['Calle de prueba', '123', '4', 'Colonia de prueba', '00000', 'Portón de prueba'],
             [
                 $direccion->calle, $direccion->numero_exterior, $direccion->numero_interior, $direccion->colonia,
-                $direccion->codigo_postal, $direccion->municipio, $direccion->referencias,
+                $direccion->codigo_postal, $direccion->referencias,
             ],
         );
 
@@ -84,6 +91,7 @@ class DireccionEscritaTest extends TestCase
             'colonia' => 'Colonia de prueba',
             'codigo_postal' => '00000',
             'municipio' => 'Municipio de prueba',
+            'estado' => 'Estado de prueba',
             'referencias' => 'Portón de prueba',
             'latitud' => 10.25,
             'longitud' => -119.75,
@@ -180,7 +188,7 @@ class DireccionEscritaTest extends TestCase
     {
         $this->app->instance(Geocodificador::class, new class implements Geocodificador
         {
-            public function geocodificar(string $direccion): ?Punto
+            public function geocodificar(string $texto, Municipio $municipio): ?Punto
             {
                 throw GeocodificacionNoDisponible::porque('el servicio de prueba no responde');
             }

@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\DB;
  *
  * La API la identifica por su id_publico, un ULID, nunca por id_direcciones (modelo-E15). Se borra en suave. La plaza
  * sale de la zona que contiene el punto al guardarla, y queda vacía si no cae en ninguna (config/modelo.php,
- * plaza_opcional).
+ * plaza_opcional). El municipio es la llave al catálogo del territorio, id_municipios (C-238; design.md, decisión 7);
+ * la colonia y el código postal son texto.
  *
  * La ubicación se asigna con su latitud y su longitud, y la base la guarda como geography(Point, 4326). Leída de la
  * base es el EWKB que devuelve PostgreSQL, así que no sale en JSON; las coordenadas se leen con conCoordenadas().
@@ -41,7 +42,7 @@ class Direccion extends Modelo
         'numero_interior',
         'colonia',
         'codigo_postal',
-        'municipio',
+        'id_municipios',
         'referencias',
         'ubicacion',
         'es_favorita',
@@ -86,6 +87,17 @@ class Direccion extends Modelo
     public function plaza(): BelongsTo
     {
         return $this->belongsTo(Plaza::class, 'id_plazas');
+    }
+
+    /**
+     * El municipio del catálogo del territorio; null en una dirección del mapa que no lo dijo (direcciones-E04 y E17).
+     * Su estado es el de la dirección: no tiene columna propia.
+     *
+     * @return BelongsTo<Municipio, $this>
+     */
+    public function municipio(): BelongsTo
+    {
+        return $this->belongsTo(Municipio::class, 'id_municipios');
     }
 
     /**

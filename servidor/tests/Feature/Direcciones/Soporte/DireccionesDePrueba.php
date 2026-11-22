@@ -46,7 +46,8 @@ trait DireccionesDePrueba
     }
 
     /**
-     * Una dirección escrita completa, con lo que se pase encima.
+     * Una dirección escrita completa, con lo que se pase encima. Su municipio es el ficticio del catálogo de prueba,
+     * "Municipio de prueba" del "Estado de prueba", que se crea si no existe (CatalogoDePrueba).
      *
      * @param  array<string, mixed>  $datos
      * @return array<string, mixed>
@@ -58,7 +59,7 @@ trait DireccionesDePrueba
             'calle' => 'Calle de prueba',
             'numero_exterior' => '123',
             'colonia' => 'Colonia de prueba',
-            'municipio' => 'Municipio de prueba',
+            'municipio' => CatalogoDePrueba::municipio()->codigo,
             ...$datos,
         ];
     }

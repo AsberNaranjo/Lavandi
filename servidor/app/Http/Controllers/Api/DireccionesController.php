@@ -16,10 +16,11 @@ use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use LogicException;
 
 /**
  * Las direcciones de recogida y de entrega de la cuenta (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #8;
- * openspec/changes/direcciones/, tareas 1.2 a 1.5).
+ * openspec/changes/direcciones/, tareas 1.2 a 1.5, y la dirección asistida de C-238, tarea 4.4).
  *
  * Contrato para la app. Todas las rutas llevan sesión y pasan por el componente de autorización:
  *
@@ -39,7 +40,8 @@ use Illuminate\Support\Str;
  *       "numero_interior": "4" | null,
  *       "colonia": "Centro",                           siempre
  *       "codigo_postal": "34000" | null,
- *       "municipio": "Durango, Dgo." | null,
+ *       "municipio": "Durango" | null,                 el nombre del municipio del catálogo; null en una del mapa sin él
+ *       "estado": "Durango" | null,                    el estado de ese municipio (direcciones-E17)
  *       "referencias": "Portón gris" | null,
  *       "latitud": 24.0277,                            el punto guardado, en grados decimales (WGS 84)
  *       "longitud": -104.6532
@@ -55,14 +57,16 @@ use Illuminate\Support\Str;
  *       "calle": "Calle Ejemplo",           obligatorio, texto de hasta 255
  *       "numero_exterior": "123",           obligatorio, texto de hasta 255 ("S/N" si no tiene)
  *       "numero_interior": "4",             opcional
- *       "colonia": "Centro",                obligatorio
- *       "codigo_postal": "34000",           opcional
- *       "municipio": "Durango, Dgo.",       obligatorio
+ *       "codigo_postal": "34000",           opcional; si viene, cinco números (direcciones-E20)
+ *       "colonia": "Centro",                obligatorio, texto libre: de la lista de su código postal o a mano
+ *       "municipio": "10005",               obligatorio: el codigo de un municipio de GET /api/catalogos/municipios
  *       "referencias": "Portón gris",       opcional, texto de hasta 1000
  *       "es_favorita": true,                opcional, false si no viene
  *       "alias": "Casa"                     obligatorio si es_favorita es true; texto de hasta 255
  *     }
- *     No lleva latitud ni longitud: el punto sale de una sola consulta de geocodificación, que nunca se repite.
+ *     No lleva latitud ni longitud: el punto sale de una sola consulta de geocodificación, que nunca se repite. El
+ *     texto que se geocodifica lleva el municipio y el estado del catálogo: "Calle Ejemplo 123, Centro, 34000 Durango,
+ *     Durango". La colonia y el código postal no se comparan con el catálogo (direcciones-E20).
  *
  *     Marcada en el mapa (direcciones-E04):
  *     {
@@ -70,7 +74,8 @@ use Illuminate\Support\Str;
  *       "latitud": 24.0277,                 obligatorio, número de -90 a 90: el punto del pin
  *       "longitud": -104.6532,              obligatorio, número de -180 a 180
  *       "colonia": "Centro",                obligatorio
- *       "calle", "numero_exterior", "numero_interior", "codigo_postal", "municipio", "referencias":  opcionales
+ *       "calle", "numero_exterior", "numero_interior", "codigo_postal", "referencias":  opcionales
+ *       "municipio": "10005",               opcional; si viene, el codigo de un municipio del catálogo
  *       "es_favorita", "alias":             como en la escrita
  *     }
  *     Se guarda con el punto del pin, sin consultar la geocodificación.
@@ -81,7 +86,12 @@ use Illuminate\Support\Str;
  *     201  { "direccion": { ...la dirección... } }
  *
  *     422  { "message": "...", "errors": { "colonia": ["Falta la colonia."], ... } }
- *          Falta un campo o no es válido. No se consultó la geocodificación (direcciones-E02).
+ *          Falta un campo o no es válido. No se consultó la geocodificación (direcciones-E02). Entre ellos:
+ *     422  { "message": "Elige un municipio de la lista.",
+ *            "errors": { "municipio": ["Elige un municipio de la lista."] } }
+ *          El código no está en el catálogo: fuera del territorio, como Saltillo, o inventado (direcciones-E18).
+ *     422  { "message": "El código postal son cinco números.",
+ *            "errors": { "codigo_postal": ["El código postal son cinco números."] } }
  *     422  { "message": "No encontramos la dirección. Márcala en el mapa.", "motivo": "direccion_no_encontrada" }
  *          La geocodificación no la encontró. No se guardó nada; la app ofrece marcarla en el mapa (direcciones-E03).
  *     503  { "message": "No pudimos buscar la dirección. Márcala en el mapa o inténtalo más tarde.",
@@ -155,10 +165,17 @@ class DireccionesController extends Controller
         /** @var Usuario $usuario */
         $usuario = $peticion->user();
 
+        $municipio = $peticion->municipio();
+
         try {
             $direccion = $peticion->esDelMapa()
-                ? $alta->guardarDelMapa($usuario, $peticion->validated(), $peticion->pin())
-                : $alta->guardarEscrita($usuario, $peticion->validated());
+                ? $alta->guardarDelMapa($usuario, $peticion->validated(), $peticion->pin(), $municipio)
+                // La escrita siempre trae su municipio: la validación lo exige.
+                : $alta->guardarEscrita(
+                    $usuario,
+                    $peticion->validated(),
+                    $municipio ?? throw new LogicException('Una dirección escrita sin municipio pasó la validación.'),
+                );
         } catch (DireccionNoEncontrada) {
             return response()->json([
                 'message' => 'No encontramos la dirección. Márcala en el mapa.',
@@ -184,6 +201,7 @@ class DireccionesController extends Controller
         $favoritas = $this->autorizacion->direccionesVisibles($usuario)
             ->where('es_favorita', true)
             ->conCoordenadas()
+            ->with('municipio.entidadFederativa')
             ->orderBy('id_direcciones')
             ->get();
 
