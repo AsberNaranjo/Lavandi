@@ -117,6 +117,29 @@ de Conekta (de la elegida, si se firma el cambio, DD-079). Es la tarea 0.2, bloq
 | `dispositivos` | Los `token_fcm` a los que va un aviso masivo (E23) | `avisos` |
 | `repartidores` | La comisión de un repartidor (E14, bloqueado por DD-019) | `repartidor` |
 
+## El panel
+
+Lo implementó el implementador del servidor, tarea por tarea. Todo vive en el panel de Filament, `/admin`, solo con el
+rol de administración (ADR-0005; autorizacion-E03). Cada página pregunta al componente único de autorización
+(`App\Autorizacion\Autorizacion`, ADR-0019) qué filas ve la cuenta, y una cuenta de otro rol recibe 403.
+
+**Usuarios** (`/admin/usuarios`; tarea 1.1, administracion-E01):
+
+- **La lista:** las cuentas con el rol de usuario, con su correo, su nombre y su estado (Activo o Bloqueado), con
+  búsqueda por correo y por nombre. No trae las cuentas de las lavanderías (se gestionan con su lavandería, Módulo D #1)
+  ni las de la administración. La da `Autorizacion::usuariosDelPanel()`.
+- **La ficha** (`/admin/usuarios/{id_publico}`): la cuenta (correo, nombre, teléfono y estado) y su historial de
+  pedidos, una tabla con folio, fecha, lavandería, estado y monto, del más reciente al más antiguo. Los pedidos los da
+  `Autorizacion::pedidosDelPanel()`: los confirmados; uno que espera su pago no tiene folio y no entra (C-188).
+  - **Fecha:** la de la recolección en la hora de la plaza, como en el historial del usuario
+    (`historial-y-calificacion`, decisión 1), escrita DD/MM/AAAA.
+  - **Estado:** el operativo (ADR-0021 y su adenda): Confirmado, Aceptado, Recolectado, En proceso, Listo, En proceso
+    de entrega, Entregado o Rechazado. La administración distingue lo que el usuario ve igual.
+  - **Monto:** el final si ya se pesó y, si no, el estimado, en pesos. Hoy los dos nacen vacíos (DD-012 y DD-010), y la
+    ficha dice "Sin monto" hasta que se respondan. No es el cobro: lo cobrado vive en `pagos` y llega con `pago`.
+- **Solo lectura:** sin alta, edición ni borrado (fuera del contrato). El filtro de usuarios activos del periodo espera
+  DD-111 (E02).
+
 ## Risks / Trade-offs
 
 - [El plugin de mapas de Filament está en beta] → se hace como componente propio (ADR-0009). Si el mapa sin código a

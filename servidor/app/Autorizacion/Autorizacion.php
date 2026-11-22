@@ -18,9 +18,10 @@ use Illuminate\Database\Eloquent\Builder;
  * panel de Filament le pregunta a través de Usuario::canAccessPanel(). Ninguna otra clase decide accesos.
  *
  * Conoce el rol (registro-E14 y registro-E15), la tenencia de las direcciones (direcciones-E14), de los pedidos del
- * usuario (confirmacion-E12) y de los de la lavandería, con su plaza (pedidos-lavanderia-E02 y E09), y qué teléfonos
- * reciben los avisos de un pedido (avisos-E04 y avisos-E12). La tenencia del repartidor llega aquí mismo con
- * repartidor (hito H8; ADR-0019, decisión 1).
+ * usuario (confirmacion-E12) y de los de la lavandería, con su plaza (pedidos-lavanderia-E02 y E09), qué teléfonos
+ * reciben los avisos de un pedido (avisos-E04 y avisos-E12), y qué ve la administración en el panel: las lavanderías,
+ * los usuarios y los pedidos de todas las plazas (autorizacion-E03, administracion-E01 y E06). La tenencia del
+ * repartidor llega aquí mismo con repartidor (hito H8; ADR-0019, decisión 1).
  */
 final class Autorizacion
 {
@@ -122,6 +123,36 @@ final class Autorizacion
     public function lavanderiasDelPanel(Usuario $usuario): Builder
     {
         $consulta = Lavanderia::query();
+
+        return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
+     * Las cuentas de usuario que la cuenta ve en la gestión de usuarios del panel: todas las que tienen el rol de usuario,
+     * si es de administración (administracion-E01; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #3); ninguna si
+     * no lo es. Las de los socios se gestionan con su lavandería y su repartidor (Módulo D #1 y #2), y las de la
+     * administración no se listan.
+     *
+     * @return Builder<Usuario>
+     */
+    public function usuariosDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = Usuario::query()->whereHas('roles', fn (Builder $roles) => $roles->where('codigo', Rol::USUARIO));
+
+        return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
+     * Los pedidos que la cuenta ve en el panel: todos los confirmados, de todas las plazas, si es de administración
+     * (administracion-E01 y E06; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #3 y #4); ninguno si no lo es. Uno
+     * que espera su pago no entró al flujo y no tiene folio (C-188). El historial de la ficha del usuario y el monitoreo
+     * parten de aquí.
+     *
+     * @return Builder<Pedido>
+     */
+    public function pedidosDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = Pedido::query()->confirmados();
 
         return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
     }
