@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Avisos\AvisarAlUsuario;
 use App\Avisos\MandarCorreoDeConfirmacion;
 use App\Models\Usuario;
+use App\Pedidos\EstadoDelPedidoCambiado;
 use App\Pedidos\PedidoConfirmado;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -29,6 +31,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // El correo de confirmación cuelga del evento de pedido confirmado (confirmacion-E10; design.md, decisión 7).
         Event::listen(PedidoConfirmado::class, MandarCorreoDeConfirmacion::class);
+
+        // Los avisos al teléfono del usuario cuelgan de la confirmación y de cada cambio de estado (ADR-0008;
+        // openspec/changes/avisos/design.md).
+        Event::listen(PedidoConfirmado::class, AvisarAlUsuario::class);
+        Event::listen(EstadoDelPedidoCambiado::class, AvisarAlUsuario::class);
 
         // La regla de la contraseña sale de la configuración cada vez que se pide (ADR-0018, decisión 2).
         Password::defaults(fn (): Password => Password::min((int) config('acceso.contrasena_minima')));

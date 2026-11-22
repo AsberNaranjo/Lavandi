@@ -92,6 +92,16 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
 - C-237 (Arthur Naranjo, 2026-11-21). "Cuando estoy checando aquí el localhost, hay una que dice 'App en
   desarrollo'. En lugar de tener eso, lo que viene es el mockup del login; ajústalo ya." "App en desarrollo" es el
   nombre de prueba de `movil/.env.example`, que la entrada muestra como título.
+- C-238 (Arthur Naranjo, 2026-11-21, por la tarde). Sobre la dirección: "No sé si en el contrato venía algo así, pero
+  lo ideal sería que fueran listas desplegables y fueran buscándose con el Maps de Google, o sea, para que pueda
+  facilitar la dirección; obvio, si no viene, facilitarle al usuario escribirlo correctamente." Claude respondió que
+  no está fuera del contrato: F-A08 pide "ingreso manual o desde mapa" sin decir cómo
+  (`NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3`, Módulo A #8). Arthur aprobó la propuesta: el municipio en una lista
+  con solo los del territorio (`:4:Cláusula I`), las colonias por código postal con el catálogo de Correos de México
+  y el autocompletado de Google Places cuando exista la llave (DD-072). "1. ok".
+- C-239 (Arthur Naranjo, 2026-11-21, por la tarde). Sobre los avisos: aprueba que el servidor llame a la API HTTP v1
+  de FCM con `firebase/php-jwt` en lugar de `laravel-notification-channels/fcm`, que nombra ADR-0008 y que no se
+  puede instalar junto a las dependencias del proyecto. "2. ok". Queda como adenda de ADR-0008.
 
 ## Decisiones tomadas en la sesión
 

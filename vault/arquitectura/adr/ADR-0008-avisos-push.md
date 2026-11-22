@@ -74,3 +74,28 @@ Bajo. El envío está encapsulado en un canal de notificaciones de Laravel, y la
 - **Restricciones:** RN-06 y RN-30.
 - **Pendientes:** DD-011 y DD-054.
 - **ADRs relacionados:** ADR-0002, ADR-0003, ADR-0007 y ADR-0012.
+
+## Adenda del 2026-11-21: el servidor llama a FCM sin `laravel-notification-channels/fcm`
+
+**Qué cambia.** `servidor/` manda los avisos con la API HTTP v1 de FCM:
+- el canal propio `App\Avisos\Fcm\CanalDeFcm`, con el cliente HTTP de Laravel;
+- la cuenta de servicio, firmada con `firebase/php-jwt`, que ya estaba instalado (adenda de ADR-0005);
+- sin dependencias nuevas.
+
+La app no cambia: sigue con `@react-native-firebase/messaging`.
+
+**Por qué.** `laravel-notification-channels/fcm` depende de `kreait/firebase-php`, y ninguna de sus versiones se
+puede instalar aquí (`composer require --dry-run`, 2026-11-21):
+- la 8.0 choca con `firebase/php-jwt` ^7.2, que usa el inicio con Google;
+- de la 8.1 a la 8.3 piden guzzle 7, y el proyecto tiene la 8.5.2;
+- de la 8.4 en adelante piden la extensión `sodium`, que está apagada en el PHP local.
+
+**Qué queda igual.**
+- Los avisos van en cola, con un trabajo por teléfono y reintentos.
+- Un fallo de FCM nunca detiene el cambio de estado (avisos-E02 y E16).
+- La credencial es la ruta a la cuenta de servicio en `FCM_CREDENCIALES`, fuera del repositorio (ADR-0012).
+
+**Criterio de reversión.** Si se enciende `sodium` en el hosting y una versión del paquete convive con las
+dependencias, se puede volver a él: el canal es la única pieza que cambia.
+
+La aprobó Arthur Naranjo el 2026-11-21 (C-239), con la recomendación de Claude.
