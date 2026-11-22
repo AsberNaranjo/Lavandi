@@ -55,17 +55,15 @@ final class PedidosTotales
      */
     private function contar(Granularidad $granularidad, CarbonImmutable $desde, CarbonImmutable $hasta): array
     {
-        $periodo = sprintf("to_char(date_trunc('%s', %s), 'YYYY-MM-DD')", $granularidad->unidadSql(), self::FECHA_DEL_PEDIDO);
-
-        return DB::table('pedidos')
-            ->join('plazas', 'plazas.id_plazas', '=', 'pedidos.id_plazas')
-            ->whereNotNull('pedidos.confirmado_en')
-            ->whereRaw(self::FECHA_DEL_PEDIDO.' between ? and ?', [$desde->toDateString(), $hasta->toDateString()])
-            ->selectRaw("{$periodo} as periodo")
-            ->selectRaw('count(*) as pedidos')
-            ->groupByRaw($periodo)
-            ->pluck('pedidos', 'periodo')
-            ->map(fn (mixed $pedidos): int => (int) $pedidos)
-            ->all();
+        return ConteoPorPeriodo::contar(
+            DB::table('pedidos')
+                ->join('plazas', 'plazas.id_plazas', '=', 'pedidos.id_plazas')
+                ->whereNotNull('pedidos.confirmado_en'),
+            self::FECHA_DEL_PEDIDO,
+            'count(*)',
+            $granularidad,
+            $desde,
+            $hasta,
+        );
     }
 }

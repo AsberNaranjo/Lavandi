@@ -116,6 +116,9 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
 - **La dona** cuenta los pedidos confirmados en el rango por su estado actual: activos son `confirmado`, `aceptado`,
   `recolectado`, `en_proceso`, `listo` y `en_entrega` (ADR-0021 y su adenda); completados, `entregado`. Un pedido
   `rechazado` no es activo ni completado, y la dona no lo muestra mientras E05 espera DD-016.
+- **Los usuarios activos** cuentan todas las filas de `actividad_usuarios`, sin filtrar por rol: quien escriba la tabla
+  (E07, DD-111) decide quién cuenta, como dice "Tablas y migración". Hasta entonces nada la escribe, y en producción la
+  línea da 0.
 
 ## Open Questions
 
