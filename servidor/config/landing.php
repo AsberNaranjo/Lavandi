@@ -35,4 +35,25 @@ return [
         'imagen_texto' => env('LANDING_IMAGEN_ENCABEZADO_TEXTO', ''),
     ],
 
+    /*
+     * Sección 2, "¿Cómo funciona?": el texto bajo cada uno de los cuatro pasos del contrato, Pide → Recogemos → Lavamos
+     * → Entregamos (landing-E05).
+     */
+    'como_funciona' => [
+        'pide' => null,
+        'recogemos' => null,
+        'lavamos' => null,
+        'entregamos' => null,
+    ],
+
+    /*
+     * Sección 3, "Beneficios para usuarios": el texto de cada uno de los tres pilares del contrato (landing-E06). El
+     * de precio no publica cifras mientras DD-010 siga abierta.
+     */
+    'beneficios_usuarios' => [
+        'comodidad' => null,
+        'precio' => null,
+        'confianza' => null,
+    ],
+
 ];
