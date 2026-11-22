@@ -220,6 +220,71 @@ Al terminar se cierran Metro y los dos túneles, y `movil/.env` vuelve a su dire
 - la entrada con Google;
 - lo que depende de reinstalar la app (registro-E32).
 
+## 5-ter. La prueba de los 60 segundos con Maestro (estados-E17)
+
+El flujo `movil/.maestro/estados/cambio-en-60-segundos.yaml` cronometra, en el emulador o en un teléfono Android, cuánto
+tarda el seguimiento del usuario en mostrar "Recolectado" desde que la lavandería lo marca. Falla si pasa de 60 s
+(A.4.3). La evidencia del 2026-11-22 está en [[estados-e17-cambio-en-60-segundos-2026-11-22]].
+
+**Lo que hace cada corrida:**
+1. `preparar-pedido.ps1` crea un pedido por la API, como el usuario de prueba; lo paga con la pasarela simulada y la
+   lavandería lo acepta. Queda en Confirmado.
+2. El flujo borra los datos de la app, pasa la bienvenida e inicia sesión como el usuario de prueba. Concede la
+   ubicación al abrir.
+3. Abre el seguimiento con el enlace de la app, `<APP_IDENTIFIER>://pedido/seguimiento/<id_publico>`, y comprueba que
+   dice Confirmado.
+4. Marca Recolectado como la lavandería, por la API y con su token, y anota la hora.
+5. Espera sin tocar nada, con un tope de 60 s, a que la pantalla diga Recolectado. Calcula el tiempo y termina en el
+   inicio de la app.
+
+**Lo que hace falta:**
+- **El emulador o el teléfono** con el APK, el servidor y `adb reverse tcp:8000 tcp:8000`, como en la sección 5.
+- **El JDK 17** en `JAVA_HOME`: el de `%LOCALAPPDATA%\ittob-android\jdk17`.
+- **La CLI de Maestro 2.12.1**, en `%LOCALAPPDATA%\lavandi-android\maestro`, fuera del repositorio. Ya está instalada en
+  esta computadora. En otra:
+  1. baja `maestro.zip` y `checksums_sha256.txt` del release `cli-2.12.1` de `mobile-dev-inc/maestro` en GitHub;
+  2. comprueba el SHA-256 con `Get-FileHash`;
+  3. descomprime la carpeta `maestro` en `%LOCALAPPDATA%\lavandi-android\`.
+- **`movil\.env`** con `APP_IDENTIFIER` y `EXPO_PUBLIC_API_URL`. Si la rama no lo tiene, pasa el de otra copia con
+  `-EnvDeLaApp`, o los valores con `-AppId` y `-Api`.
+
+**Para correrla** (desde la raíz del repositorio; tarda unos dos minutos por corrida):
+
+```powershell
+$env:JAVA_HOME = "$env:LOCALAPPDATA\ittob-android\jdk17"
+powershell -ExecutionPolicy Bypass -File movil\.maestro\estados\correr-cambio-en-60-segundos.ps1 `
+    -Servidor C:\np\Lavandi\.claude\worktrees\integracion\servidor `
+    -Maestro "$env:LOCALAPPDATA\lavandi-android\maestro\bin\maestro.bat" `
+    -Corridas 3 `
+    -Salida vault\evidencias\estados\estados-e17-cambio-en-60-segundos-<fecha> `
+    -RegistrosDelTelefono C:\np\Lavandi\notas-locales\evidencias\estados-e17-cambio-en-60-segundos-<fecha>
+```
+
+- **`-Servidor`** es la carpeta `servidor` cuyo `artisan` usa la misma base que la API: la de `php artisan serve`.
+- **`-Salida`** recibe una carpeta por corrida y `resumen.csv` con los tiempos. Sin `-Salida`, va al directorio temporal.
+- **`-RegistrosDelTelefono`** recibe el registro completo del teléfono (`device-logcat.txt`), que no se versiona.
+- **Con más de un teléfono conectado,** se elige uno con `-Dispositivo emulator-5554`.
+
+El script termina con error si una corrida falla o pasa de 60 s.
+
+**Para correr solo el flujo** con un pedido que ya está en Confirmado y aceptado:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File movil\.maestro\estados\preparar-pedido.ps1 -Servidor <carpeta servidor>
+& "$env:LOCALAPPDATA\lavandi-android\maestro\bin\maestro.bat" test `
+    -e APP_ID=<APP_IDENTIFIER> -e API_URL=http://127.0.0.1:8000/api -e PEDIDO=<id_publico> `
+    -e USUARIO_CORREO=usuario.de.prueba@ejemplo.com -e USUARIO_CONTRASENA=contrasena-de-prueba `
+    -e LAVANDERIA_CORREO=lavanderia.centro@ejemplo.com -e LAVANDERIA_CONTRASENA=lavanderia-de-prueba `
+    movil\.maestro\estados\cambio-en-60-segundos.yaml
+```
+
+**Lo que cambia en el teléfono y en la base:**
+- **La app:** el flujo borra sus datos, así que cierra la sesión que hubiera. Al terminar queda abierta en el inicio, con
+  la sesión del usuario de prueba y la ubicación concedida.
+- **La base:** cada corrida deja en `nsv_lavanderia` un pedido en Recolectado y una dirección del usuario de prueba, que
+  no es favorita.
+- **Las sesiones:** las de la API que abre la prueba se cierran al final. La de la app queda abierta.
+
 ## 6. Problemas comunes
 
 | Síntoma | Causa y arreglo |
@@ -229,6 +294,9 @@ Al terminar se cierran Metro y los dos túneles, y `movil/.env` vuelve a su dire
 | "Faltan variables de entorno de la app" | Falta `movil\.env`: copia `movil\.env.example` y llénalo |
 | La app no conecta con el servidor | Revisa `EXPO_PUBLIC_API_URL` y que `http://localhost:8000/up` responda |
 | "running scripts is disabled" | Corre el script con `powershell -ExecutionPolicy Bypass -File …`, como arriba |
+| Maestro: "Illegal char <:>" | El `name` de un flujo lleva dos puntos: Maestro lo usa como carpeta y Windows no los acepta |
+| Maestro no encuentra el teléfono | `adb devices` debe listarlo; con más de uno, pasa `-Dispositivo` |
+| `preparar-pedido.ps1`: "no ofrece ninguna ventana" | La lavandería de prueba no tiene ventanas en los días que deja agendar la plaza: revisa su horario, que siembra `LavanderiasDePruebaSeeder`, y la agenda de la plaza en `parametros_plaza` |
 
 ## 7. Para apagar
 
