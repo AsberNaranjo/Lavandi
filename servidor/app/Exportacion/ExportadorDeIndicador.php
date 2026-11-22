@@ -14,7 +14,9 @@ use Filament\Schemas\Components\Component;
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Support\Number;
 use Illuminate\Support\Str;
+use League\Csv\EscapeFormula;
 use OpenSpout\Common\Entity\Cell;
+use OpenSpout\Common\Entity\Cell\StringCell;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
 
@@ -129,11 +131,18 @@ abstract class ExportadorDeIndicador extends Exporter
      */
     public function filasDelArchivo(): array
     {
+        $numericas = array_flip(static::columnasNumericas());
         $nombres = array_keys($this->columnMap);
+        $escape = new EscapeFormula;
         $filas = [];
 
         foreach ($this->filas($this->rango()) as $fila) {
-            $filas[] = array_map(fn (string $nombre): bool|float|int|string|null => self::celda($fila[$nombre] ?? null), $nombres);
+            $filas[] = array_map(function (string $nombre) use ($fila, $numericas, $escape): bool|float|int|string|null {
+                $celda = self::celda($fila[$nombre] ?? null);
+
+                // Solo las celdas de texto llevan el escape de fórmulas; los números se quedan como números (E08 y E09).
+                return isset($numericas[$nombre]) ? $celda : $escape->escapeRecord([$celda])[0];
+            }, $nombres);
         }
 
         return $filas;
@@ -178,12 +187,13 @@ abstract class ExportadorDeIndicador extends Exporter
      */
     public function makeXlsxHeaderRow(array $values, ?Style $style = null): Row
     {
-        return new Row(array_map(fn (mixed $valor): Cell => Cell::fromValue((string) $valor), array_values($values)), $style);
+        return new Row(array_map(fn (mixed $valor): Cell => new StringCell((string) $valor, null), array_values($values)), $style);
     }
 
     /**
-     * Una fila del XLSX, que Filament lee del CSV: las columnas de números como números, y las demás como el texto que
-     * se escribió (exportacion-E02).
+     * Una fila del XLSX, que Filament lee del CSV: las columnas de números como números (exportacion-E02 y E09), y las
+     * demás como celdas de texto, nunca de fórmula, con el texto como se capturó: sin el apóstrofo del escape del CSV
+     * (exportacion-E08). Una celda de texto del XLSX no se calcula, así que no necesita el apóstrofo.
      *
      * @param  array<mixed>  $values
      */
@@ -191,6 +201,7 @@ abstract class ExportadorDeIndicador extends Exporter
     {
         $numericas = array_flip(static::columnasNumericas());
         $nombres = array_keys($this->columnMap);
+        $escape = new EscapeFormula;
         $celdas = [];
 
         foreach (array_values($values) as $posicion => $valor) {
@@ -200,7 +211,7 @@ abstract class ExportadorDeIndicador extends Exporter
             $celdas[] = match (true) {
                 $texto === '' => Cell::fromValue(null),
                 $esNumero => Cell::fromValue(self::numero($texto)),
-                default => Cell::fromValue($texto),
+                default => new StringCell((string) $escape->unescapeRecord([$texto])[0], null),
             };
         }
 

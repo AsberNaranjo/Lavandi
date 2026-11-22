@@ -98,6 +98,22 @@ técnicas las decidió por delegación de Arthur (C-236); cada una dice su recom
   den las mismas cifras (E01). La columna "periodo anterior" de los pedidos totales es la comparación que muestra el
   panel junto a cada periodo, no una fila de fuera del rango. Las pruebas de E04 y E05 pasaron desde su primera
   corrida, porque el rango y la falta de tope ya venían de la tarea 1.1; quedan como guardas.
+- **La escritura del archivo** (tarea 3.1, E07 a E09):
+  - **Acentos y eñes (pregunta 1, decidida):** el CSV va en UTF-8 con su marca de orden de bytes (BOM), la
+    recomendación. Es como lo escribe Filament de fábrica: el encabezado lleva la marca y las filas van detrás, una
+    sola vez. El separador es la coma. El XLSX guarda el texto en UTF-8 por su formato.
+  - **Fórmulas:** toda celda de texto que empieza con `=`, `+`, `-`, `@`, tabulador o retorno de carro, o con un
+    apóstrofo, va en el CSV con un apóstrofo delante (`League\Csv\EscapeFormula`, la protección que Filament deja para
+    activar a mano; ADR-0003). En el XLSX va como celda de texto, nunca de fórmula, y sin el apóstrofo: una celda de
+    texto del XLSX no se calcula. El XML del XLSX lee un retorno de carro como salto de línea; la celda sigue siendo
+    texto.
+  - **Números:** las columnas de números de cada exportador no llevan el escape, aunque la cifra sea negativa
+    (`-100.00` en la diferencia del monto promedio), y en el XLSX son celdas numéricas. Un texto que parece número,
+    como una colonia "-5", sí lleva el escape, porque su columna es de texto.
+  - **El reporte con texto capturado** es el del mapa de calor por colonia (`PedidosPorColoniaExportador`), que se
+    adelantó de la tarea 1.3 porque E07 y E08 lo descargan. La prueba de E07 pasó desde que existió ese reporte, porque
+    la marca de orden de bytes es de Filament; y la de E09 desde la tarea 1.2, porque los números ya iban como números:
+    quedan como guardas del escape.
 - **Los dos formatos en cada descarga:** el aviso trae "Descargar .csv" y "Descargar .xlsx" (lectura 2).
 - **El XLSX lleva las cifras como números** (`ExportadorDeIndicador::makeXlsxRow()`): Filament lo arma leyendo el CSV,
   donde todo es texto, y el exportador vuelve número cada celda de una columna de números.
@@ -110,7 +126,8 @@ técnicas las decidió por delegación de Arthur (C-236); cada una dice su recom
 ## Open Questions
 
 1. **Cómo se logra que Excel lea bien los acentos del CSV.** Recomendación de Claude: UTF-8 con marca de orden de
-   bytes (BOM). Lo decide Arthur.
+   bytes (BOM). Lo decide Arthur. **Decidida por delegación (C-236) con la recomendación** en la tarea 3.1: ver
+   "Implementación en el servidor", "La escritura del archivo".
 2. **En qué disco se guardan los archivos generados y cuánto tiempo.** El ADR-0006 es para fotos y evidencias. Lo
    decide Arthur; si cambia el almacén, necesita ADR.
 3. **`exports` y `notifications` frente a la prueba de esquema.** Hay que agregarlas a la lista de tablas del

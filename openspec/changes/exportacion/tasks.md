@@ -17,7 +17,7 @@ modelo de datos no le suma horas: este cambio no crea tablas.
 
 ## 3. Escritura del archivo (servidor/)
 
-- [ ] 3.1 exportacion-E07, exportacion-E08 y exportacion-E09: acentos y eñes legibles en Excel, y escape de fórmulas solo en celdas de texto — test: `servidor/tests/Feature/Exportacion/EscrituraDelArchivoTest.php` — tamaño S
+- [x] 3.1 exportacion-E07, exportacion-E08 y exportacion-E09: acentos y eñes legibles en Excel, y escape de fórmulas solo en celdas de texto — test: `servidor/tests/Feature/Exportacion/EscrituraDelArchivoTest.php` — tamaño S
 
 ## 4. Segundo plano (servidor/)
 
