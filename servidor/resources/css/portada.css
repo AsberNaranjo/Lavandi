@@ -675,6 +675,34 @@
         font-size: var(--ds-tipografia-escala-menor);
     }
 
+    .pie-legal__rejilla {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--ds-espaciado-4);
+    }
+
+    .pie-legal__enlaces {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--ds-espaciado-2) var(--ds-espaciado-5);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .pie-legal__enlaces a {
+        display: inline-flex;
+        align-items: center;
+        min-height: var(--ds-accesibilidad-area-tactil-minima-dp);
+    }
+
+    .pie-legal__derechos {
+        margin: 0;
+        color: var(--ds-color-semantico-texto-suave);
+    }
+
     .solo-lectores {
         position: absolute;
         width: 1px;
