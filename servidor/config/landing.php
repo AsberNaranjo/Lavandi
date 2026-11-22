@@ -97,4 +97,12 @@ return [
         'cero_gestion_de_cobranza' => null,
     ],
 
+    /*
+     * Sección 11, "Contacto & Soporte": el correo de contacto, que confirma EL CLIENTE (DD-117). El número de WhatsApp
+     * Business es el de config/soporte.php (SOPORTE_WHATSAPP, DD-082), el mismo del soporte de la app (landing-E23).
+     */
+    'contacto' => [
+        'correo' => env('LANDING_CORREO_CONTACTO'),
+    ],
+
 ];

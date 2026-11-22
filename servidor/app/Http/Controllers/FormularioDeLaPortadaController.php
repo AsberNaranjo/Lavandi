@@ -19,4 +19,12 @@ class FormularioDeLaPortadaController extends Controller
     {
         return redirect()->to(route('portada').'#lavanderias');
     }
+
+    /**
+     * POST /formularios/contacto: el formulario de contacto.
+     */
+    public function contacto(): RedirectResponse
+    {
+        return redirect()->to(route('portada').'#contacto');
+    }
 }

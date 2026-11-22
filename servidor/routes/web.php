@@ -26,3 +26,4 @@ Route::get('/', PortadaController::class)->name('portada');
  * Los formularios de la portada: interés de lavanderías y contacto (openspec/changes/landing/, tareas 2.4 y 5.1).
  */
 Route::post('/formularios/interes', [FormularioDeLaPortadaController::class, 'interes'])->name('portada.interes');
+Route::post('/formularios/contacto', [FormularioDeLaPortadaController::class, 'contacto'])->name('portada.contacto');
