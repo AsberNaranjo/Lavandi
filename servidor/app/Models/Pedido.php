@@ -87,6 +87,26 @@ class Pedido extends Modelo
     }
 
     /**
+     * Los pedidos activos del repartidor, los de su lista en tiempo real: los confirmados que todavía no llegan a
+     * Entregado, de confirmado a en_entrega, se los haya ofrecido o los haya aceptado (repartidor-E10). Nunca uno
+     * entregado, que va a su historial (repartidor-E25), ni uno que la lavandería rechazó; tampoco uno de un estado que
+     * se agregue después, como cancelado, mientras no se nombre aquí.
+     *
+     * @param  Builder<Pedido>  $consulta
+     */
+    public function scopeActivosDelRepartidor(Builder $consulta): void
+    {
+        $consulta->whereHas('estado', fn (Builder $estado) => $estado->whereIn('codigo', [
+            EstadoPedido::CONFIRMADO,
+            EstadoPedido::ACEPTADO,
+            EstadoPedido::RECOLECTADO,
+            EstadoPedido::EN_PROCESO,
+            EstadoPedido::LISTO,
+            EstadoPedido::EN_ENTREGA,
+        ]));
+    }
+
+    /**
      * Los pedidos activos del monitoreo del panel: los que entraron al flujo y todavía no se entregan ni se cancelan
      * (openspec/changes/administracion/design.md, lectura 1; administracion-E06). Además de los activos de la
      * lavandería, entra el rechazado: está pagado y no se entregó ni se canceló, y lo que pasa con él esperan DD-103 y

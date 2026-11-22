@@ -214,6 +214,45 @@ El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/
   `App\Identidad\FotoDePerfil`. La contraseña no se edita. El repartidor ve el cambio en `GET /api/repartidor/perfil`.
 - **Lo que pasa con sus pedidos en curso** al suspenderlo o darlo de baja no lo fija la spec: no se tocan.
 
+### Los pedidos asignados (tarea 1.3)
+
+- **De quién son** lo decide `Autorizacion::pedidosDelRepartidor()`, en una sola consulta: los pedidos con el pago
+  acreditado (`confirmado_en`, E30), de la plaza del repartidor, con una oferta suya `ofrecido` o `aceptado`, y que no
+  tomó otro repartidor (`pedidos.id_repartidores` vacía o la suya). Uno de otro repartidor, de otra plaza, que él
+  rechazó o sin pago responde el mismo 404 que uno que no existe (E12; ADR-0019, decisión 3). Toda acción del
+  repartidor sobre un pedido parte de ahí.
+- **La lista** son los que están en curso, de `confirmado` a `en_entrega` (`Pedido::activosDelRepartidor()`): también
+  el que la lavandería todavía no responde, porque la oferta puede llegar antes. Nunca uno entregado, que va al
+  historial (E25), ni uno que la lavandería rechazó. De la recolección más próxima a la más lejana.
+- **El pedido** lleva su folio, su estado, su oferta, la ventana, la recogida y la entrega (la copia del pedido, como la
+  ve el usuario) y la lavandería con su dirección (`App\Http\Resources\PedidoDelRepartidorResource`). No lleva datos de
+  la cuenta que hizo el pedido: E10 no los pide, y cuáles ve el repartidor no lo fija la spec. Tampoco montos (E26,
+  DD-019 y DD-013).
+- **El tiempo real** es la consulta cada 30 s de la app (ADR-0007): el servidor responde la lista de ese momento, y un
+  pedido recién ofrecido aparece en la siguiente consulta (E11).
+
+### Cómo se prueba en local
+
+1. `php artisan migrate --seed` (o `php artisan db:seed` si ya está migrada). En local, el sembrado agrega
+   `Database\Seeders\RepartidorDeDesarrolloSeeder`, que solo corre con `APP_ENV=local` y necesita las plazas y las
+   lavanderías de prueba.
+2. `php artisan serve` y la app apuntando a ese servidor.
+3. Las cuentas, todas con la contraseña de las cuentas de prueba, `contrasena-de-prueba` (`UsuarioFactory::CONTRASENA`),
+   guardada con hash:
+
+| Cuenta | Rol | Para qué |
+|---|---|---|
+| `repartidor@ejemplo.com` | Repartidor, activo en la plaza de prueba de Durango | Entra a la app del Módulo C con tres pedidos ofrecidos |
+| `usuario.de.prueba@ejemplo.com` | Usuario | La cuenta que hizo los tres pedidos de prueba |
+| `lavanderia.norte@ejemplo.com` | Socio lavandería, con la contraseña `lavanderia-de-prueba` | Mueve los pedidos de la lavandería de prueba Durango Norte |
+| `admin@ejemplo.com` | Administración | Da de alta, suspende, da de baja y edita repartidores en `/admin/repartidores` |
+
+Los tres pedidos son de la lavandería de prueba Durango Norte, en la primera ventana que ofrece la agenda: uno que la
+lavandería todavía no responde, uno que ya aceptó y uno listo para el reparto. Nacen por el camino real (el resumen
+aceptado, la confirmación como la hará el cobro y los botones de la lavandería) sin mandar avisos ni correos. La oferta
+se crea directo en la base (DD-014). Sembrar dos veces no los duplica. Ninguna de estas cuentas se siembra en el
+entorno de prueba ni en producción.
+
 ## Contrato de la API
 
 El contrato con que se hará la app del Módulo C (tareas 2.1 a 2.7). Todo va bajo `/api`, en JSON salvo donde se dice
@@ -279,6 +318,58 @@ app) y `tipo_vehiculo` (texto libre, hasta 100). Cualquier otro campo, como un e
 
 En cualquier estado. **200** `{ "repartidor": { … } }`. La app lo consulta para saber si ya tiene alta: con
 `puede_operar` en `true`, abre sus pedidos. También trae lo que la administración le editó en el panel (E08).
+
+### El pedido
+
+Como sale en la lista, en el pedido y en las respuestas de aceptar, rechazar y los botones:
+
+```json
+{
+  "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",
+  "folio": "7KQ2M9XA",
+  "confirmado_en": "2026-12-03T15:30:00Z",
+  "estado": { "codigo": "listo", "nombre": "Listo" },
+  "asignacion": { "estado": "ofrecido", "ofrecido_en": "2026-12-03T15:40:00Z", "respondido_en": null },
+  "por_responder": true,
+  "zona_horaria": "America/Mexico_City",
+  "ventana": {
+    "inicio": "2026-12-03T11:00:00-06:00",
+    "fin": "2026-12-03T12:00:00-06:00",
+    "fecha": "2026-12-03",
+    "hora_inicio": "11:00",
+    "hora_fin": "12:00"
+  },
+  "recogida": {
+    "alias": "Casa", "calle": "Calle de prueba", "numero_exterior": "123", "numero_interior": "4",
+    "colonia": "Colonia de prueba", "codigo_postal": "34000", "municipio": "Durango",
+    "referencias": "Portón verde", "latitud": 24.042, "longitud": -104.655
+  },
+  "entrega": { "…": "la misma forma que recogida" },
+  "lavanderia": {
+    "id_publico": "01jd…", "nombre": "Lavandería …", "calle": "…", "numero": "…", "colonia": "…", "codigo_postal": "…"
+  }
+}
+```
+
+- `estado.codigo` es el estado operativo del pedido (ADR-0021): `confirmado`, `aceptado` (la lavandería lo aceptó),
+  `recolectado`, `en_proceso`, `listo`, `en_entrega`, `entregado` o `rechazado`. `estado.nombre` es como lo nombra la
+  app del repartidor: el del usuario, salvo `en_entrega`, que es **"En tránsito"**.
+- `asignacion` es la oferta de este repartidor: `ofrecido` mientras no responde, `aceptado` cuando la aceptó.
+  `por_responder` es `true` solo en `ofrecido`: la app ofrece Aceptar y Rechazar.
+- `recogida` y `entrega` son la copia del pedido; sin entrega distinta, las dos son la misma dirección.
+- No lleva datos de la cuenta que hizo el pedido, llaves internas ni montos (E26 espera DD-019 y DD-013).
+
+### `GET /api/repartidor/pedidos` (E10 a E12 y E30)
+
+La lista en tiempo real; la app la consulta cada 30 s con la pantalla visible (ADR-0007). **200**
+`{ "pedidos": [ { …el pedido… } ] }`: los que se le ofrecieron y los que aceptó, de `confirmado` a `en_entrega`. Nunca uno
+entregado (va al historial), rechazado por la lavandería, que él rechazó, que tomó otro repartidor, de otra plaza o sin
+pago acreditado. De la recolección más próxima a la más lejana; con la misma, del más viejo al más nuevo. Sin paginación;
+vacía si no hay.
+
+### `GET /api/repartidor/pedidos/{id_publico}` (E12 y E30)
+
+Un pedido suyo en cualquier estado, también uno que ya entregó. **200** `{ "pedido": { … } }` · **404** como arriba.
 
 ## Risks / Trade-offs
 

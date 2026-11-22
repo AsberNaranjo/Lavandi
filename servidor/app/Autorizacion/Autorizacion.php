@@ -6,6 +6,7 @@ use App\Models\Direccion;
 use App\Models\Dispositivo;
 use App\Models\Lavanderia;
 use App\Models\Pedido;
+use App\Models\PedidoAsignacion;
 use App\Models\Plaza;
 use App\Models\Repartidor;
 use App\Models\Rol;
@@ -183,6 +184,38 @@ final class Autorizacion
                 ->whereColumn('lavanderias.id_plazas', 'pedidos.id_plazas')
                 ->where('lavanderias.id_usuarios', $usuario->getKey())
                 ->whereNull('lavanderias.deleted_at'));
+    }
+
+    /**
+     * Los pedidos que ve y responde el repartidor que opera: los que se le ofrecieron y todavía no rechazó, o que aceptó,
+     * de su misma plaza, con el pago acreditado y que no tomó otro repartidor (NSV-2026-001-v8.pdf:18:ANEXO A, Sección
+     * A.3, Módulo C #2; :20, Separación por tipo de usuario; C-188). Toda consulta y toda acción del repartidor sobre sus
+     * pedidos parte de aquí: uno de otro repartidor, de otra plaza, que rechazó o sin pago responde igual que uno que no
+     * existe (repartidor-E12, E16 y E30; ADR-0019, decisión 3).
+     *
+     * Recibe el repartidor que ya dio repartidorQueOpera(); uno que no opera no ve ninguno (repartidor-E03 y E06).
+     *
+     * @return Builder<Pedido>
+     */
+    public function pedidosDelRepartidor(Repartidor $repartidor): Builder
+    {
+        $consulta = Pedido::query()->confirmados();
+
+        if (! $this->repartidorOpera($repartidor)) {
+            return $consulta->whereRaw('false');
+        }
+
+        return $consulta
+            ->where('pedidos.id_plazas', $repartidor->id_plazas)
+            ->where(fn (Builder $suyo) => $suyo
+                ->whereNull('pedidos.id_repartidores')
+                ->orWhere('pedidos.id_repartidores', $repartidor->getKey()))
+            ->whereExists(fn ($asignaciones) => $asignaciones->selectRaw('1')
+                ->from('pedido_asignaciones')
+                ->whereColumn('pedido_asignaciones.id_pedidos', 'pedidos.id_pedidos')
+                ->whereColumn('pedido_asignaciones.id_plazas', 'pedidos.id_plazas')
+                ->where('pedido_asignaciones.id_repartidores', $repartidor->getKey())
+                ->whereIn('pedido_asignaciones.estado', [PedidoAsignacion::OFRECIDO, PedidoAsignacion::ACEPTADO]));
     }
 
     /**

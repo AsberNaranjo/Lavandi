@@ -2,14 +2,21 @@
 
 namespace Tests\Feature\Repartidor\Soporte;
 
+use App\Models\Lavanderia;
+use App\Models\Pedido;
+use App\Models\PedidoAsignacion;
+use App\Models\Plaza;
 use App\Models\Repartidor;
 use App\Models\Usuario;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\TestResponse;
 
 /**
- * Lo que comparten las pruebas del Módulo C: el registro del repartidor desde la app, con sus datos de prueba, y las
- * peticiones con la sesión de su cuenta (openspec/changes/repartidor/design.md, "Contrato de la API").
+ * Lo que comparten las pruebas del Módulo C: el registro del repartidor desde la app, con sus datos de prueba, los
+ * repartidores activos, la oferta de un pedido con su fábrica y las peticiones con la sesión de su cuenta
+ * (openspec/changes/repartidor/design.md, "Contrato de la API"). Lo de los pedidos se usa junto con AgendaDePrueba,
+ * EstadosDePrueba, LavanderiasDePrueba, PedidosDeLaLavanderiaDePrueba, PedidosDePrueba y PlazasDePrueba, después de
+ * prepararPedido().
  *
  * Todo es ficticio: los nombres, los teléfonos y los correos son de prueba. Cada petición olvida la cuenta de la
  * anterior (forgetGuards), como dos peticiones reales al servidor.
@@ -65,5 +72,55 @@ trait RepartidorDePrueba
     protected function fotoDePrueba(string $nombre = 'foto.jpg', int $kilobytes = 120): UploadedFile
     {
         return UploadedFile::fake()->image($nombre, 800, 600)->size($kilobytes);
+    }
+
+    /**
+     * Un repartidor activo, dado de alta en esa plaza; sin plaza, en la de prepararPedido().
+     */
+    protected function repartidorActivo(?Plaza $plaza = null): Repartidor
+    {
+        return Repartidor::factory()->en($plaza ?? $this->plaza)->create();
+    }
+
+    /**
+     * Se le ofrece el pedido al repartidor, directo en la base: quién asigna espera DD-014 (repartidor-E13).
+     */
+    protected function ofrecerA(Pedido $pedido, Repartidor $repartidor): PedidoAsignacion
+    {
+        return PedidoAsignacion::factory()->para($pedido, $repartidor)->create();
+    }
+
+    protected function listaDelRepartidor(Repartidor $repartidor): TestResponse
+    {
+        return $this->comoRepartidor($repartidor)->getJson('/api/repartidor/pedidos');
+    }
+
+    protected function pedidoComoRepartidor(Repartidor $repartidor, string $pedido): TestResponse
+    {
+        return $this->comoRepartidor($repartidor)->getJson("/api/repartidor/pedidos/{$pedido}");
+    }
+
+    /**
+     * Los id_publico de la lista del repartidor, en el orden en que llegaron.
+     *
+     * @return list<string>
+     */
+    protected function idsDeLaListaDelRepartidor(TestResponse $respuesta): array
+    {
+        return array_column($respuesta->json('pedidos') ?? [], 'id_publico');
+    }
+
+    /**
+     * Una segunda plaza de prueba con su agenda y su zona (el cuadrado de un grado con su esquina suroeste en (-118, 10)),
+     * y una lavandería activa en ella. Para los pedidos de otra plaza (repartidor-E12).
+     *
+     * @return array{Plaza, Lavanderia}
+     */
+    protected function otraPlazaConLavanderia(): array
+    {
+        $plaza = $this->plazaConAgenda('Plaza de prueba 2', zonaHoraria: self::ZONA_HORARIA, anticipacionMinutos: 0, diasHaciaAdelante: 3);
+        $this->zonaDePrueba($plaza, 'Centro 2', $this->cuadrado(-118.0, 10.0));
+
+        return [$plaza, $this->otraLavanderia($plaza)];
     }
 }
