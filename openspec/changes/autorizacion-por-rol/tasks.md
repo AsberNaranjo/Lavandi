@@ -19,7 +19,7 @@ fijado.
 
 ## 3. Plaza y administración
 
-- [ ] 3.1 autorizacion-E12: un socio no ve pedidos de otra plaza — test: `servidor/tests/Feature/Autorizacion/SocioOtraPlazaTest.php` — tamaño S
+- [x] 3.1 autorizacion-E12: un socio no ve pedidos de otra plaza — test: `servidor/tests/Feature/Autorizacion/SocioOtraPlazaTest.php` — tamaño S. Con la lavandería: el repartidor de la plaza P1 se agrega con repartidor (H8), cuando nazcan repartidores y pedido_asignaciones, como dice design.md. La plaza la exige Autorizacion::pedidosDeLaLavanderia() junto con la tenencia; como la llave compuesta (id_lavanderias, id_plazas) de pedidos ya ata el pedido a la plaza de su lavandería, el rojo de la prueba se comprobó quitando la tenencia
 - [ ] 3.2 autorizacion-E13: la administración ve las dos plazas — test: `servidor/tests/Feature/Autorizacion/AdministracionTodasLasPlazasTest.php` — tamaño S
 
 ## 4. Barrido contra fugas
