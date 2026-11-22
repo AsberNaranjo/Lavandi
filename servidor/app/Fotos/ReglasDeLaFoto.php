@@ -27,6 +27,17 @@ final class ReglasDeLaFoto
     }
 
     /**
+     * Las reglas del campo de la foto cuando es opcional, como la evidencia de entrega (repartidor-E23): sin foto, nada
+     * que revisar; con foto, las mismas reglas.
+     *
+     * @return list<string>
+     */
+    public static function opcional(): array
+    {
+        return array_values(array_map(fn (string $regla): string => $regla === 'required' ? 'nullable' : $regla, self::reglas()));
+    }
+
+    /**
      * Las extensiones de imagen que se aceptan.
      *
      * @return list<string>

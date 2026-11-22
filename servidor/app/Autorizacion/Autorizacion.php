@@ -4,12 +4,16 @@ namespace App\Autorizacion;
 
 use App\Models\Direccion;
 use App\Models\Dispositivo;
+use App\Models\EstadoPedido;
 use App\Models\Lavanderia;
 use App\Models\Pedido;
+use App\Models\PedidoAsignacion;
 use App\Models\Plaza;
+use App\Models\Repartidor;
 use App\Models\Rol;
 use App\Models\Testimonio;
 use App\Models\Usuario;
+use App\Repartidores\RepartidorSinAcceso;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -23,8 +27,9 @@ use Illuminate\Database\Eloquent\Builder;
  * usuario (confirmacion-E12) y de los de la lavandería, con su plaza (pedidos-lavanderia-E02 y E09), qué teléfonos
  * reciben los avisos de un pedido (avisos-E04 y avisos-E12), qué ve la administración en el panel (las plazas, las
  * lavanderías, los usuarios y los pedidos de todas las plazas: autorizacion-E03, administracion-E01, E06 y E11) y quién
- * abre sesión o bloquea (administracion-E03), y quién edita los testimonios de la portada (landing-E19). La tenencia del
- * repartidor llega aquí mismo con repartidor (hito H8; ADR-0019, decisión 1).
+ * abre sesión o bloquea (administracion-E03), y quién edita los testimonios de la portada (landing-E19). Del repartidor
+ * (hito H8; ADR-0019, decisión 1), conoce su rol en la app, qué repartidor opera (repartidor-E03 y E06) y, con su tarea,
+ * sus pedidos, de su plaza y con el pago acreditado.
  */
 final class Autorizacion
 {
@@ -40,11 +45,24 @@ final class Autorizacion
     /**
      * Si la cuenta puede abrir una sesión, por cualquier vía: con correo y contraseña, con Google y, cuando exista, con
      * Apple (DD-069). Una cuenta bloqueada desde el panel no puede hasta que se levante el bloqueo (administracion-E03 y
-     * E04; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #3). Toda entrada pregunta aquí.
+     * E04; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #3), ni la de un repartidor dado de baja
+     * (repartidor-E07; Módulo D #2). Toda entrada pregunta aquí.
      */
     public function puedeIniciarSesion(Usuario $usuario): bool
     {
-        return $usuario->estado !== Usuario::BLOQUEADO;
+        return $usuario->estado !== Usuario::BLOQUEADO && ! $this->esRepartidorDeBaja($usuario);
+    }
+
+    /**
+     * Si la cuenta es la de un repartidor dado de baja. Solo pregunta a la base si la cuenta tiene el rol de repartidor.
+     */
+    private function esRepartidorDeBaja(Usuario $usuario): bool
+    {
+        return $usuario->roles->contains('codigo', Rol::REPARTIDOR)
+            && Repartidor::onlyTrashed()
+                ->where('id_usuarios', $usuario->getKey())
+                ->where('estado', Repartidor::BAJA)
+                ->exists();
     }
 
     /**
@@ -58,12 +76,51 @@ final class Autorizacion
     }
 
     /**
-     * Si la cuenta usa la app: la de un rol con módulo en ella, usuario o socio lavandería; el repartidor se suma cuando
-     * nazca (H8). La administración entra por el panel y la app no le da token (registro-E33).
+     * Si la cuenta usa la app: la de un rol con módulo en ella, usuario, socio lavandería o socio repartidor. La
+     * administración entra por el panel y la app no le da token (registro-E33).
      */
     public function usaLaApp(Usuario $usuario): bool
     {
-        return $this->permite($usuario, Rol::USUARIO) || $this->permite($usuario, Rol::LAVANDERIA);
+        return $this->permite($usuario, Rol::USUARIO)
+            || $this->permite($usuario, Rol::LAVANDERIA)
+            || $this->permite($usuario, Rol::REPARTIDOR);
+    }
+
+    /**
+     * El repartidor de la cuenta, en cualquier estado salvo de baja: el que consulta su perfil, también mientras espera
+     * su alta o está suspendido (repartidor-E01 y E08). Ninguno si la cuenta no es de un repartidor.
+     */
+    public function repartidorDeLaCuenta(Usuario $usuario): ?Repartidor
+    {
+        return Repartidor::query()->where('id_usuarios', $usuario->getKey())->first();
+    }
+
+    /**
+     * El repartidor de la cuenta, si opera: solo uno activo, con su plaza, ve y mueve pedidos, y su historial y sus
+     * estadísticas (repartidor-E03, E05 y E06). Toda ruta de pedidos del Módulo C pasa por aquí, con el middleware
+     * repartidor-opera (App\Http\Middleware\RepartidorQueOpera).
+     *
+     * @throws RepartidorSinAcceso con el estado del repartidor: pendiente, suspendido, o ninguno
+     */
+    public function repartidorQueOpera(Usuario $usuario): Repartidor
+    {
+        $repartidor = $this->permite($usuario, Rol::REPARTIDOR) ? $this->repartidorDeLaCuenta($usuario) : null;
+
+        if ($repartidor === null || ! $this->repartidorOpera($repartidor)) {
+            throw new RepartidorSinAcceso($repartidor?->estado);
+        }
+
+        return $repartidor;
+    }
+
+    /**
+     * Si el repartidor opera: activo, dado de alta en una plaza y no dado de baja (repartidor-E05 y E06).
+     */
+    public function repartidorOpera(Repartidor $repartidor): bool
+    {
+        return $repartidor->estado === Repartidor::ACTIVO
+            && $repartidor->id_plazas !== null
+            && ! $repartidor->trashed();
     }
 
     /**
@@ -133,6 +190,58 @@ final class Autorizacion
     }
 
     /**
+     * Los pedidos que ve y responde el repartidor que opera: los que se le ofrecieron y todavía no rechazó, o que aceptó,
+     * de su misma plaza, con el pago acreditado y que no tomó otro repartidor (NSV-2026-001-v8.pdf:18:ANEXO A, Sección
+     * A.3, Módulo C #2; :20, Separación por tipo de usuario; C-188). Toda consulta y toda acción del repartidor sobre sus
+     * pedidos parte de aquí: uno de otro repartidor, de otra plaza, que rechazó o sin pago responde igual que uno que no
+     * existe (repartidor-E12, E16 y E30; ADR-0019, decisión 3).
+     *
+     * Recibe el repartidor que ya dio repartidorQueOpera(); uno que no opera no ve ninguno (repartidor-E03 y E06).
+     *
+     * @return Builder<Pedido>
+     */
+    public function pedidosDelRepartidor(Repartidor $repartidor): Builder
+    {
+        $consulta = Pedido::query()->confirmados();
+
+        if (! $this->repartidorOpera($repartidor)) {
+            return $consulta->whereRaw('false');
+        }
+
+        return $consulta
+            ->where('pedidos.id_plazas', $repartidor->id_plazas)
+            ->where(fn (Builder $suyo) => $suyo
+                ->whereNull('pedidos.id_repartidores')
+                ->orWhere('pedidos.id_repartidores', $repartidor->getKey()))
+            ->whereExists(fn ($asignaciones) => $asignaciones->selectRaw('1')
+                ->from('pedido_asignaciones')
+                ->whereColumn('pedido_asignaciones.id_pedidos', 'pedidos.id_pedidos')
+                ->whereColumn('pedido_asignaciones.id_plazas', 'pedidos.id_plazas')
+                ->where('pedido_asignaciones.id_repartidores', $repartidor->getKey())
+                ->whereIn('pedido_asignaciones.estado', [PedidoAsignacion::OFRECIDO, PedidoAsignacion::ACEPTADO]));
+    }
+
+    /**
+     * Las entregas completadas del repartidor que opera: sus pedidos (pedidosDelRepartidor()) cuyo paso a Entregado marcó
+     * él (openspec/changes/repartidor/design.md, lectura 5: "una entrega es completada cuando el repartidor marca
+     * Entregado"). Su historial y sus estadísticas parten de aquí (repartidor-E25 y E28); la entrega de otro repartidor no
+     * aparece (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, Separación por tipo de usuario).
+     *
+     * @return Builder<Pedido>
+     */
+    public function entregasDelRepartidor(Repartidor $repartidor): Builder
+    {
+        return $this->pedidosDelRepartidor($repartidor)
+            ->where('pedidos.id_repartidores', $repartidor->getKey())
+            ->whereExists(fn ($eventos) => $eventos->selectRaw('1')
+                ->from('pedido_eventos')
+                ->join('estados_pedido', 'estados_pedido.id_estados_pedido', '=', 'pedido_eventos.id_estados_pedido')
+                ->whereColumn('pedido_eventos.id_pedidos', 'pedidos.id_pedidos')
+                ->where('estados_pedido.codigo', EstadoPedido::ENTREGADO)
+                ->where('pedido_eventos.id_usuarios', $repartidor->id_usuarios));
+    }
+
+    /**
      * Los teléfonos que reciben los avisos de un pedido: solo los de la cuenta que lo hizo (avisos-E04 y avisos-E12;
      * NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3). Todo envío de un aviso del pedido parte de aquí, también al correr
      * en la cola. Los avisos a la lavandería y al repartidor esperan DD-054 (avisos-E19 y avisos-E20).
@@ -167,6 +276,20 @@ final class Autorizacion
     public function lavanderiasDelPanel(Usuario $usuario): Builder
     {
         $consulta = Lavanderia::query();
+
+        return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
+     * Los repartidores que la cuenta ve y gestiona en el panel: todos, de todas las plazas y en cualquier estado, también
+     * los pendientes sin plaza y los de baja, si es de administración (repartidor-E05 a E09; NSV-2026-001-v8.pdf:19:ANEXO
+     * A, Sección A.3, Módulo D #2); ninguno si no lo es. El recurso de repartidores del panel parte de aquí.
+     *
+     * @return Builder<Repartidor>
+     */
+    public function repartidoresDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = Repartidor::query()->withTrashed();
 
         return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
     }

@@ -87,6 +87,26 @@ class Pedido extends Modelo
     }
 
     /**
+     * Los pedidos activos del repartidor, los de su lista en tiempo real: los confirmados que todavía no llegan a
+     * Entregado, de confirmado a en_entrega, se los haya ofrecido o los haya aceptado (repartidor-E10). Nunca uno
+     * entregado, que va a su historial (repartidor-E25), ni uno que la lavandería rechazó; tampoco uno de un estado que
+     * se agregue después, como cancelado, mientras no se nombre aquí.
+     *
+     * @param  Builder<Pedido>  $consulta
+     */
+    public function scopeActivosDelRepartidor(Builder $consulta): void
+    {
+        $consulta->whereHas('estado', fn (Builder $estado) => $estado->whereIn('codigo', [
+            EstadoPedido::CONFIRMADO,
+            EstadoPedido::ACEPTADO,
+            EstadoPedido::RECOLECTADO,
+            EstadoPedido::EN_PROCESO,
+            EstadoPedido::LISTO,
+            EstadoPedido::EN_ENTREGA,
+        ]));
+    }
+
+    /**
      * Los pedidos activos del monitoreo del panel: los que entraron al flujo y todavía no se entregan ni se cancelan
      * (openspec/changes/administracion/design.md, lectura 1; administracion-E06). Además de los activos de la
      * lavandería, entra el rechazado: está pagado y no se entregó ni se canceló, y lo que pasa con él esperan DD-103 y
@@ -210,6 +230,37 @@ class Pedido extends Modelo
     public function lavanderia(): BelongsTo
     {
         return $this->belongsTo(Lavanderia::class, 'id_lavanderias')->withTrashed();
+    }
+
+    /**
+     * El repartidor que aceptó el pedido, aunque después se dé de baja: el pedido es historial (repartidor-E07). Vacío
+     * mientras ninguno lo acepte.
+     *
+     * @return BelongsTo<Repartidor, $this>
+     */
+    public function repartidor(): BelongsTo
+    {
+        return $this->belongsTo(Repartidor::class, 'id_repartidores')->withTrashed();
+    }
+
+    /**
+     * Las ofertas del pedido a los repartidores, con su respuesta (repartidor-E15 y E16).
+     *
+     * @return HasMany<PedidoAsignacion, $this>
+     */
+    public function asignaciones(): HasMany
+    {
+        return $this->hasMany(PedidoAsignacion::class, 'id_pedidos');
+    }
+
+    /**
+     * Las fotos de evidencia del pedido (repartidor-E23).
+     *
+     * @return HasMany<Evidencia, $this>
+     */
+    public function evidencias(): HasMany
+    {
+        return $this->hasMany(Evidencia::class, 'id_pedidos');
     }
 
     /**

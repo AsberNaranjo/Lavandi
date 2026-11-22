@@ -4,13 +4,13 @@ namespace Tests\Feature\Estados\Soporte;
 
 use App\Models\EstadoPedido;
 use App\Models\Pedido;
+use App\Models\PedidoAsignacion;
 use App\Models\PedidoEvento;
+use App\Models\Repartidor;
 use App\Models\Usuario;
 use App\Pedidos\CambioDeEstado;
 use App\Pedidos\ConfirmacionDePedido;
-use App\Pedidos\EstadoDelPedidoCambiado;
-use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\DB;
+use App\Repartidores\RespuestaDelRepartidor;
 use Illuminate\Testing\TestResponse;
 
 /**
@@ -23,8 +23,9 @@ use Illuminate\Testing\TestResponse;
  * fuera de la tabla de ADR-0021 se rechaza. Sin aceptar no hay botones: un pedido que se va a mover se acepta primero
  * (pedidoAceptadoDe() o aceptarComoLaLavanderia()).
  *
- * Entregado no es de la lavandería (estados-E13, DD-022): lo marcará el repartidor, con el cambio repartidor (H8).
- * Mientras tanto, entregarComoElRepartidor() hace en la prueba lo que hará su botón.
+ * Entregado no es de la lavandería (estados-E13, DD-022): lo marca el repartidor con su botón, la operación real del
+ * cambio repartidor (entregarComoElRepartidor()). La oferta al repartidor se crea directo en la base, porque quién
+ * asigna espera DD-014, y él la acepta con la operación real.
  */
 trait EstadosDePrueba
 {
@@ -94,30 +95,42 @@ trait EstadosDePrueba
     }
 
     /**
-     * El pedido pasa a Entregado como lo hará el botón del repartidor (Módulo C #3), que llega con el cambio repartidor
-     * (H8): el estado actual y su evento en una transacción, sin cuenta de repartidor todavía, y la publicación del
-     * cambio. Como la lavandería no marca Entregado (DD-022), es la única forma de llegar a él en las pruebas. Exige el
-     * pedido en en_entrega, el paso anterior de ADR-0021.
+     * El repartidor del pedido marca Entregado con su botón, la operación real (Módulo C #3;
+     * App\Pedidos\CambioDeEstado::marcarComoRepartidor(), repartidor, tarea 1.5): el estado actual y su evento con la
+     * cuenta del repartidor, en una transacción, y la publicación del cambio. Como la lavandería no marca Entregado
+     * (DD-022), es la única forma de llegar a él. Exige el pedido en en_entrega, el paso anterior de ADR-0021.
+     *
+     * El repartidor es el que se pasa, el que ya aceptó el pedido o, si no tiene, uno nuevo de su plaza. Al que todavía no
+     * lo aceptó se le ofrece y lo acepta (repartidorQueLoAcepta()).
      */
-    protected function entregarComoElRepartidor(Pedido $pedido): PedidoEvento
+    protected function entregarComoElRepartidor(Pedido $pedido, ?Repartidor $repartidor = null): PedidoEvento
     {
-        $this->assertSame(EstadoPedido::EN_ENTREGA, $pedido->fresh()->estado->codigo, 'Entregado va después de en_entrega.');
+        $pedido = $pedido->fresh();
+        $this->assertSame(EstadoPedido::EN_ENTREGA, $pedido->estado->codigo, 'Entregado va después de en_entrega.');
 
-        return DB::transaction(function () use ($pedido): PedidoEvento {
-            $estado = EstadoPedido::query()->where('codigo', EstadoPedido::ENTREGADO)->sole();
+        $repartidor ??= $pedido->repartidor;
+        $repartidor = $repartidor !== null && $repartidor->getKey() === $pedido->id_repartidores
+            ? $repartidor
+            : $this->repartidorQueLoAcepta($pedido, $repartidor);
 
-            $pedido->forceFill(['id_estados_pedido' => $estado->getKey()])->save();
+        app(CambioDeEstado::class)->marcarComoRepartidor($pedido, $repartidor, EstadoPedido::ENTREGADO);
 
-            $evento = $pedido->eventos()->create([
-                'id_estados_pedido' => $estado->getKey(),
-                'id_usuarios' => null,
-                'ocurrido_en' => CarbonImmutable::now()->utc(),
-            ]);
+        return $this->ultimoEventoDe($pedido);
+    }
 
-            EstadoDelPedidoCambiado::dispatch($pedido, $evento);
+    /**
+     * Se le ofrece el pedido a ese repartidor, o a uno nuevo y activo de la plaza del pedido, directo en la base, porque
+     * quién asigna espera DD-014 (repartidor-E13); y lo acepta con la operación real (App\Repartidores\
+     * RespuestaDelRepartidor; repartidor-E15).
+     */
+    protected function repartidorQueLoAcepta(Pedido $pedido, ?Repartidor $repartidor = null): Repartidor
+    {
+        $repartidor ??= Repartidor::factory()->en($pedido->plaza)->create();
 
-            return $evento;
-        });
+        PedidoAsignacion::factory()->para($pedido, $repartidor)->create();
+        app(RespuestaDelRepartidor::class)->aceptar($pedido, $repartidor);
+
+        return $repartidor;
     }
 
     /**

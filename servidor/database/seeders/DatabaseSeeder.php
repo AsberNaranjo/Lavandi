@@ -19,5 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call(LavanderiasDePruebaSeeder::class);
         // Las cuentas para entrar a mano al panel y a la app; solo en local.
         $this->call(CuentasDeDesarrolloSeeder::class);
+        // El repartidor de prueba, con pedidos ofrecidos a él (repartidor); solo en local.
+        $this->call(RepartidorDeDesarrolloSeeder::class);
     }
 }

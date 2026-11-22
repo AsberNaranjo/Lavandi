@@ -232,6 +232,8 @@ class MigracionTest extends TestCase
             [['id_usuarios'], 'usuarios', ['id_usuarios'], 'restrict'],
             [['id_lavanderias', 'id_plazas'], 'lavanderias', ['id_lavanderias', 'id_plazas'], 'restrict'],
             [['id_estados_pedido'], 'estados_pedido', ['id_estados_pedido'], 'restrict'],
+            // La agregó el cambio repartidor, que crea repartidores (ADR-0016, regla 4).
+            [['id_repartidores', 'id_plazas'], 'repartidores', ['id_repartidores', 'id_plazas'], 'restrict'],
         ], $this->llaves('pedidos'));
 
         $alPedido = [['id_pedidos', 'id_plazas'], 'pedidos', ['id_pedidos', 'id_plazas'], 'restrict'];

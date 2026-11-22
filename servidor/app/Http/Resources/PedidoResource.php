@@ -129,11 +129,12 @@ class PedidoResource extends JsonResource
     }
 
     /**
-     * La copia de una dirección del pedido, leída con PedidoDireccion::conCoordenadas().
+     * La copia de una dirección del pedido, leída con PedidoDireccion::conCoordenadas(). La usa también el pedido del
+     * repartidor (PedidoDelRepartidorResource), con la misma forma.
      *
      * @return array<string, mixed>
      */
-    private static function direccion(PedidoDireccion $copia): array
+    public static function direccion(PedidoDireccion $copia): array
     {
         return [
             'alias' => $copia->alias,
