@@ -285,6 +285,12 @@ la spec ni un ADR. La 9 ajusta pruebas de otros cambios para que paguen por el c
       por el mismo camino del webhook, para probar sin el teléfono; si el cobro no tiene checkout, lo abre antes.
     - Los dos comandos se niegan a correr fuera de `local` y `testing`, y todo esto necesita la pasarela simulada, que
       tampoco existe en otro entorno (punto 3).
+15. **La interfaz de la pasarela suma una operación para la conciliación del Módulo D** (segunda adenda del 2026-11-22
+    de ADR-0010, decisión 6; `administracion`, tarea 4.4): `Pasarela::pagosDelPeriodo()`, los pagos que acreditó entre
+    dos instantes, cada uno con el id de su orden, el monto, la comisión si la trae y la fecha del pago
+    (`App\Cobro\MovimientoDePasarela`), autenticada con la llave del entorno. Solo lee: no cambia ningún cobro. La
+    simulada lleva sus libros en la caché de la aplicación: cada aviso de aprobado que manda es un pago que acreditó, con
+    el monto de su orden. La de Conekta la implementa la tarea 3.2 y la comprueba la 3.3, en su sandbox.
 
 ## Contrato de la API
 

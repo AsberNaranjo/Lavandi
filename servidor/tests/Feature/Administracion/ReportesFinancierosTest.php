@@ -3,14 +3,10 @@
 namespace Tests\Feature\Administracion;
 
 use App\Autorizacion\Autorizacion;
-use App\Cobro\CheckoutDelCobro;
-use App\Cobro\Desarrollo\CobroSimulado;
 use App\Filament\Pages\ReporteDeIngresos;
 use App\Filament\Widgets\Finanzas\IngresosDelPeriodo;
 use App\Filament\Widgets\Finanzas\IngresosPorPeriodoTabla;
-use App\Models\EventoPasarela;
 use App\Models\Pago;
-use App\Models\Pedido;
 use App\Models\Rol;
 use App\Models\Usuario;
 use Filament\Facades\Filament;
@@ -18,6 +14,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\Administracion\Soporte\PagosDelPeriodoDePrueba;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
 use Tests\Feature\AltaLavanderias\Soporte\PanelDePrueba;
 use Tests\Feature\Confirmacion\Soporte\PedidosDePrueba;
@@ -37,7 +34,7 @@ use Tests\TestCase;
  * - Una orden que la pasarela creó pero no confirmó, o cuyo intento se rechazó, no es ingreso.
  *
  * Cada pago de prueba pasa por el camino real: la pasarela simulada lo acredita con su aviso, por el webhook
- * (CobroSimulado). Todo es ficticio: los montos y las fechas son de prueba.
+ * (Soporte\PagosDelPeriodoDePrueba). Todo es ficticio: los montos y las fechas son de prueba.
  *
  * Escenario: administracion-E17 · Spec: openspec/changes/administracion/specs/administracion/spec.md · Tarea 4.1
  */
@@ -46,6 +43,7 @@ class ReportesFinancierosTest extends TestCase
     use AgendaDePrueba;
     use IndicadoresDePrueba;
     use LavanderiasDePrueba;
+    use PagosDelPeriodoDePrueba;
     use PanelDePrueba;
     use PedidosDePrueba;
     use PlazasDePrueba;
@@ -209,42 +207,5 @@ class ReportesFinancierosTest extends TestCase
             ->instance()->getTableRecords()
             ->map(fn (array $fila): array => array_diff_key($fila, ['__key' => true]))
             ->all();
-    }
-
-    /**
-     * Un pedido pagado por ese monto a esa fecha y hora de la plaza: la pasarela simulada lo acredita con su aviso.
-     */
-    private function pagadoEl(string $fechaYHora, string $monto): Pedido
-    {
-        return app(CobroSimulado::class)->pagar($this->pedidoSinPagarEl($fechaYHora), $monto)->fresh();
-    }
-
-    /**
-     * Un pedido con su cobro y su orden creada en la pasarela, a esa fecha y hora, cuyo pago nunca se confirma.
-     */
-    private function ordenSinConfirmarEl(string $fechaYHora, string $monto): Pago
-    {
-        $pedido = $this->pedidoSinPagarEl($fechaYHora);
-        app(CobroSimulado::class)->prepararCobro($pedido, $monto);
-
-        $cobro = app(CheckoutDelCobro::class)->abrir($pedido)->cobro->fresh();
-        $this->assertSame(Pago::PENDIENTE, $cobro->estado);
-        $this->assertNotNull($cobro->id_pasarela_orden);
-
-        return $cobro;
-    }
-
-    /**
-     * Un pedido cuyo intento de pago la pasarela rechazó con su aviso, a esa fecha y hora.
-     */
-    private function rechazadoEl(string $fechaYHora, string $monto): Pago
-    {
-        $pedido = $this->pedidoSinPagarEl($fechaYHora);
-        $cobro = app(CobroSimulado::class)->prepararCobro($pedido, $monto);
-        app(CobroSimulado::class)->avisar($cobro, EventoPasarela::RECHAZADO);
-
-        $this->assertSame(Pago::FALLIDO, $cobro->fresh()->estado);
-
-        return $cobro->fresh();
     }
 }

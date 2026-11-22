@@ -246,6 +246,42 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
 - Las comisiones del periodo esperan la base de cálculo (administracion-E19, DD-020) y la conciliación vive en su propia
   página.
 
+**Conciliación con la pasarela** (`/admin/conciliacion`; tareas 4.4 y 4.5, administracion-E20 y E21), en el grupo
+"Reportes financieros" (`App\Filament\Pages\Conciliacion`), con la segunda adenda del 2026-11-22 de ADR-0010
+(decisiones 6 y 7, que cierran DD-112):
+
+- **Conciliar:** el botón "Conciliar un periodo" pide el primer y el último día, los dos incluidos; uno al revés se
+  rechaza con "La fecha de fin no puede ser anterior a la de inicio.". Al conciliar, el servidor lee de la pasarela sus
+  pagos del periodo y los guarda; la tabla muestra el resultado. Antes de conciliar, la tabla no muestra nada: sin leer
+  la pasarela, todo pago parecería sin movimiento. No hay tarea programada que lea la pasarela (decisión 7).
+- **La operación nueva de la interfaz neutral** (`Pasarela::pagosDelPeriodo()`): los pagos que la pasarela acreditó
+  entre dos instantes, cada uno con el id de su orden, el monto, la comisión si la trae y la fecha del pago
+  (`App\Cobro\MovimientoDePasarela`), autenticada con la llave del entorno (pago-E17). La implementan la pasarela simulada
+  y, con la sección 3 de `pago`, la de Conekta: sus órdenes pagadas, de la más nueva hacia atrás, hasta pasar el
+  inicio, con el corte por fecha en el servidor (grado E, `SIN VERIFICAR`; se comprueba en su sandbox).
+- **Qué se le pide a la pasarela** (lectura del implementador): un día más a cada lado del periodo, en UTC, para que
+  entren los pagos de cualquier plaza sea cual sea su zona horaria; lo que devuelva fuera de ese lapso no se guarda.
+- **Cómo se guarda:** `App\Finanzas\ConciliacionConLaPasarela` hace un `upsert` en `movimientos_pasarela` por
+  `(pasarela, id_pasarela_orden)`: leer dos veces el mismo periodo vuelve a pedirle a la pasarela y actualiza las filas,
+  sin repetir ninguna. La comisión se guarda como llega, pero no se muestra ni se descuenta: quién la absorbe es DD-013
+  (administracion-E22).
+- **El cruce:** por la orden de la pasarela, `(pasarela, id_pasarela_orden)`, entre los pagos que la plataforma tiene
+  como pagados en el periodo, los mismos que cuentan como ingreso (`App\Finanzas\Ingresos`, por el día de su
+  confirmación en la hora de su plaza), y los movimientos ya guardados. Uno con su movimiento y el mismo monto queda
+  **Conciliado**. La plaza de un movimiento es la del pedido con el que cuadra.
+- **La tabla:** una fila por pago o movimiento, de la más antigua a la más nueva, con el resultado (una insignia con su
+  texto), la orden en la pasarela, el folio, la plaza, la fecha del pago (en la hora de la plaza) y los dos montos, el
+  de la plataforma y el de la pasarela; arriba, el periodo y cuántos hay de cada resultado. Es de solo lectura.
+- **Sin pasarela** (sin llave, o en un entorno sin pasarela): la página dice "No se pudo leer la pasarela" y no guarda
+  nada.
+- **Quién concilia:** `Autorizacion::puedeVerLosReportesFinancieros()`, solo la administración; la página y el botón le
+  preguntan.
+- **La pasarela simulada lleva sus libros:** cada aviso de aprobado que manda es un pago que acreditó, con el monto de su
+  orden, y los lee `pagosDelPeriodo()`. Viven en la caché de la aplicación, no en la base, porque son de la pasarela, no
+  de la plataforma: así duran entre peticiones en local (la página de checkout de desarrollo y `pago:simular-aviso`
+  acreditan, y la conciliación los encuentra). En las pruebas, la caché es de memoria. Las pruebas pueden acreditar un
+  pago con otro monto o quitar uno (`acreditar()` y `quitarPago()`), para simular las diferencias.
+
 **Avisos masivos** (`/admin/avisos-masivos`; tarea 5.1, administracion-E23), en el menú como "Avisos masivos":
 
 - **La lista:** los avisos enviados, del más reciente al más antiguo, con su título, su texto, cuándo y quién lo mandó

@@ -3,6 +3,7 @@
 namespace App\Cobro;
 
 use App\Models\Pago;
+use Carbon\CarbonImmutable;
 
 /**
  * La pasarela de pago, detrás de la frontera del componente cobro (vault/arquitectura/c3-api.md, "Habla con la
@@ -57,4 +58,19 @@ interface Pasarela
      * @throws AvisoNoReconocido si el cuerpo no es un aviso de esta pasarela
      */
     public function traducir(string $cuerpo): AvisoDePasarela;
+
+    /**
+     * Los pagos que la pasarela acreditó entre esos dos instantes, los dos incluidos, como los da su propia API: uno por
+     * orden pagada, con el id de la orden, el monto, la comisión si la trae y la fecha del pago (segunda adenda del
+     * 2026-11-22 de ADR-0010, decisión 6). Los lee la conciliación del Módulo D cuando la administración concilia un
+     * periodo (administracion-E20), autenticada con la llave de la configuración del entorno (pago-E17).
+     *
+     * Con Conekta, se piden las órdenes pagadas de la más nueva hacia atrás hasta pasar el primer instante, y el corte por
+     * fecha lo hace el servidor; se comprueba en su sandbox con la sección 3 de openspec/changes/pago/tasks.md.
+     *
+     * @return list<MovimientoDePasarela>
+     *
+     * @throws PasarelaNoDisponible si falta la llave o la pasarela no responde
+     */
+    public function pagosDelPeriodo(CarbonImmutable $desde, CarbonImmutable $hasta): array;
 }

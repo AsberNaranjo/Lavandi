@@ -209,9 +209,9 @@ elegida.
 - **CUANDO** la administración concilia el periodo
 - **ENTONCES** el reporte marca los tres como conciliados
 
-Criterio: A43-6
+Cita: D → `ADR-0010`, segunda adenda del 2026-11-22: los movimientos salen de la API de la pasarela, por la misma interfaz neutral del cobro, cuando la administración concilia un periodo, y se guardan en `movimientos_pasarela`, una fila por orden, sin plaza propia (decisión 34 de `acta-2026-11-20-modelo-y-pasarela.md`; cierra DD-112)
 
-SIN RESPUESTA — bloquea: administracion-E20 (DD-112: de dónde salen los movimientos y la forma de `movimientos_pasarela`)
+Criterio: A43-6
 
 #### Scenario: administracion-E21 — Periodo con diferencias
 
