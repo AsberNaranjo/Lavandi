@@ -1,9 +1,9 @@
-// Apoyo de las pruebas del Módulo B, lo que ve y hace el socio lavandería con sus pedidos
-// (openspec/changes/pedidos-de-la-lavanderia y openspec/changes/estados-del-pedido). No es una prueba: Jest no lo corre
-// como tal (testPathIgnorePatterns en package.json). Abre la app real, con las rutas de movil/app/ (ADR-0017), y simula
-// el servidor con el contrato de la API: "Contrato de la API" del design.md de pedidos-de-la-lavanderia y "Los botones
-// de la lavandería" del de estados-del-pedido, el mismo del comentario de
-// servidor/app/Http/Controllers/Api/PedidosDeLaLavanderiaController.php.
+// Apoyo de las pruebas del Módulo B, lo que ve y hace el socio lavandería: sus pedidos
+// (openspec/changes/pedidos-de-la-lavanderia y openspec/changes/estados-del-pedido) y su historial y sus estadísticas
+// (openspec/changes/historial-de-la-lavanderia). No es una prueba: Jest no lo corre como tal (testPathIgnorePatterns en
+// package.json). Abre la app real, con las rutas de movil/app/ (ADR-0017), y simula el servidor con el contrato de la
+// API de cada cambio: el "Contrato de la API" de sus design.md, el mismo de los comentarios de
+// servidor/app/Http/Controllers/Api/PedidosDeLaLavanderiaController.php y HistorialDeLaLavanderiaController.php.
 import path from 'node:path';
 
 import { renderRouter } from 'expo-router/testing-library';
@@ -134,6 +134,15 @@ export function pedidoEn(codigo: CodigoOperativo, datos: DatosDelPedido) {
   };
 }
 
+/**
+ * Cuándo se entregó un pedido, como lo da GET /api/lavanderia/historial: el instante en UTC y su fecha en la hora de la
+ * plaza (historial-de-la-lavanderia, design.md, "Contrato de la API").
+ */
+export interface Entrega {
+  entregado_en: string;
+  fecha: string;
+}
+
 export function respuesta(status: number, cuerpo?: unknown) {
   return {
     ok: status >= 200 && status < 300,
@@ -165,8 +174,11 @@ export class ServidorDeLaLavanderia {
   /** La cuenta de la sesión: la de la lavandería, salvo que la prueba diga otra. */
   cuenta: Cuenta = CUENTAS.lavanderia;
   interceptar: Interceptor | null = null;
+  /** Lo que da GET /api/lavanderia/estadisticas. */
+  estadisticas = { pedidos_del_dia: 0, pedidos_de_la_semana: 0 };
   readonly fetch: jest.Mock;
   private readonly estados = new Map<string, { codigo: CodigoOperativo; datos: DatosDelPedido }>();
+  private readonly entregas = new Map<string, Entrega>();
 
   constructor(private readonly base: string) {
     this.fetch = jest.fn((url: string, opciones: RequestInit = {}) => this.contestar(url, opciones));
@@ -175,6 +187,12 @@ export class ServidorDeLaLavanderia {
   /** Pone un pedido de la lavandería en ese estado; la lista los da en el orden en que se pusieron. */
   poner(codigo: CodigoOperativo, datos: DatosDelPedido): void {
     this.estados.set(datos.id_publico, { codigo, datos });
+  }
+
+  /** Pone un pedido de la lavandería en Entregado, con el momento de su entrega (historial-lavanderia-E01). */
+  entregar(datos: DatosDelPedido, entrega: Entrega): void {
+    this.poner('entregado', datos);
+    this.entregas.set(datos.id_publico, entrega);
   }
 
   /** El estado del pedido en el servidor. */
@@ -233,6 +251,12 @@ export class ServidorDeLaLavanderia {
       const activos = [...this.estados.values()].filter(({ codigo }) => ACTIVOS.includes(codigo));
       return respuesta(200, { pedidos: activos.map(({ codigo, datos }) => pedidoEn(codigo, datos)) });
     }
+    if (metodo === 'GET' && ruta === '/lavanderia/historial') {
+      return respuesta(200, { pedidos: this.historial() });
+    }
+    if (metodo === 'GET' && ruta === '/lavanderia/estadisticas') {
+      return respuesta(200, this.estadisticas);
+    }
     const partes = /^\/lavanderia\/pedidos\/([^/]+)(?:\/(aceptar|rechazar|estado))?$/.exec(ruta);
     const guardado = partes ? this.estados.get(partes[1]) : undefined;
     if (!partes || !guardado) {
@@ -246,6 +270,14 @@ export class ServidorDeLaLavanderia {
       throw new Error(`El servidor falso no esperaba ${metodo} ${ruta}`);
     }
     return this.responder(accion, guardado, cuerpo);
+  }
+
+  // Solo los Entregados, de la entrega más reciente a la más antigua (historial-lavanderia-E01).
+  private historial() {
+    return [...this.estados.values()]
+      .filter(({ codigo, datos }) => codigo === 'entregado' && this.entregas.has(datos.id_publico))
+      .map(({ datos }) => ({ id_publico: datos.id_publico, folio: datos.folio, ...this.entregas.get(datos.id_publico)! }))
+      .sort((una, otra) => otra.entregado_en.localeCompare(una.entregado_en));
   }
 
   private responder(

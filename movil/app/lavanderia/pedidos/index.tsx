@@ -11,16 +11,26 @@
 // (pedidos-lavanderia-E12 y E13). El pedido aceptado ofrece solo el botón de su paso siguiente, que se manda igual que
 // Aceptar (estados-E06); si ya no es el paso siguiente (409), el mensaje va arriba y la lista se vuelve a consultar.
 //
+// Bajo el título, las entradas a lo demás del Módulo B, como enlaces, igual que en el inicio del usuario mientras no
+// exista una barra inferior: el historial de pedidos (historial-lavanderia-E01) y las estadísticas
+// (historial-lavanderia-E05).
+//
 // "Cerrar sesión" va abajo, con la confirmación de la app (registro-E13). La composición sigue las imágenes del Módulo
 // B de la Propuesta 04: el título a la izquierda y las tarjetas debajo.
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { mensajeDeLaFalla } from '../../../src/cercanas/textos';
+import {
+  RUTA_DE_LAS_ESTADISTICAS_DE_LA_LAVANDERIA,
+  RUTA_DEL_HISTORIAL_DE_LA_LAVANDERIA,
+} from '../../../src/historial-lavanderia/rutas';
+import { TEXTOS_DEL_HISTORIAL_DE_LA_LAVANDERIA } from '../../../src/historial-lavanderia/textos';
 import { rutaDelRechazo } from '../../../src/pedidos-lavanderia/rutas';
 import { TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA as TEXTOS } from '../../../src/pedidos-lavanderia/textos';
 import { useAccionesDeLaLavanderia } from '../../../src/pedidos-lavanderia/useAccionesDeLaLavanderia';
 import { usePedidosDeLaLavanderia } from '../../../src/pedidos-lavanderia/usePedidosDeLaLavanderia';
+import { Enlace } from '../../../src/piezas/Enlace';
 import { MensajeDeError } from '../../../src/piezas/MensajeDeError';
 import { Pantalla } from '../../../src/piezas/Pantalla';
 import { Parrafo } from '../../../src/piezas/Parrafo';
@@ -41,6 +51,16 @@ export default function PedidosDeLaLavanderia() {
   return (
     <Pantalla desplazable acciones={<CerrarSesion />}>
       <Titulo alineacion="inicio">{TEXTOS.titulo}</Titulo>
+      <View style={estilos.entradas}>
+        <Enlace
+          texto={TEXTOS_DEL_HISTORIAL_DE_LA_LAVANDERIA.historial}
+          alTocar={() => router.push(RUTA_DEL_HISTORIAL_DE_LA_LAVANDERIA)}
+        />
+        <Enlace
+          texto={TEXTOS_DEL_HISTORIAL_DE_LA_LAVANDERIA.estadisticas}
+          alTocar={() => router.push(RUTA_DE_LAS_ESTADISTICAS_DE_LA_LAVANDERIA)}
+        />
+      </View>
       <MensajeDeError texto={acciones.aviso ?? undefined} />
       {pedidos === null && falla === null ? (
         <View style={estilos.cargando}>
@@ -65,6 +85,12 @@ export default function PedidosDeLaLavanderia() {
 }
 
 const estilos = StyleSheet.create({
+  // Las entradas a lo demás del módulo, en una línea; si no caben, bajan a la siguiente.
+  entradas: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    columnGap: espaciado[4],
+  },
   cargando: {
     alignItems: 'center',
     gap: espaciado[3],
