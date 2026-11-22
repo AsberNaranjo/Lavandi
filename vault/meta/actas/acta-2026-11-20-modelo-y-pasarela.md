@@ -102,6 +102,10 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
 - C-239 (Arthur Naranjo, 2026-11-21, por la tarde). Sobre los avisos: aprueba que el servidor llame a la API HTTP v1
   de FCM con `firebase/php-jwt` en lugar de `laravel-notification-channels/fcm`, que nombra ADR-0008 y que no se
   puede instalar junto a las dependencias del proyecto. "2. ok". Queda como adenda de ADR-0008.
+- C-240 (Arthur Naranjo, 2026-11-21, por la noche). "Hay que ver cómo pasársela a un compa para que la pruebe en iOS."
+  Sin la cuenta de Apple del cliente (DD-069) no hay compilación para iPhone; la vía es Expo Go (base-E11). En la misma
+  sesión: "el icono de la app debe ser el de LAVANDI que tenemos" y "el pull request es en GitHub, recuerda, para que lo
+  acepte Nadir".
 
 ## Decisiones tomadas en la sesión
 
