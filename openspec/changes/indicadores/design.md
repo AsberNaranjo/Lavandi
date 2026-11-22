@@ -130,6 +130,20 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
   una insignia con su texto (Verde, Amarillo, Rojo). Mientras DD-114 no dé los valores, los cortes van vacíos y la
   columna dice "Sin cortes configurados"; unos cortes fuera de 1 a 5, o con el bajo arriba del alto, cuentan como
   vacíos.
+- **El monto promedio** (tarea 2.4, E09) es un indicador destacado, `MontoPromedioIndicador`, que lee
+  `App\Indicadores\MontoPromedio`:
+  - **El periodo** es el rango de la página, ya ajustado a periodos completos; **el anterior** son los mismos días justo
+    antes (`Rango::anteriorDeLaMismaDuracion()`, lectura 4). Pedido del periodo es el confirmado en él, en el día de su
+    plaza, como en los pedidos totales.
+  - **Qué monto cuenta** espera DD-012 (E10, bloqueado). Mientras, la consulta usa la misma lectura que la ficha del
+    usuario en el panel (`administracion`): el final si ya se pesó y, si no, el estimado
+    (`coalesce(monto_final, monto_estimado)`). Es una lectura provisional, no una respuesta: cambia en una sola línea
+    de `MontoPromedio` cuando se responda DD-012, y la prueba de E09 no la afirma (cada pedido de prueba lleva el mismo
+    monto en los dos campos). Hoy nada escribe esos montos, así que en producción el indicador dice "Sin monto".
+  - Un pedido sin ningún monto no entra al promedio. El promedio va con dos decimales, en pesos, como texto.
+  - **La tendencia** va con su texto, su flecha y su color: "Subió $50.00 frente al periodo anterior ($200.00)", "Bajó
+    …" o "Igual que en el periodo anterior (…)". Sin pedidos con monto en el periodo anterior, dice que no hay con qué
+    comparar.
 - **El refresco** es el sondeo de Livewire de cada widget (`wire:poll`), la consulta periódica de ADR-0007: la gráfica
   llama a `updateChartData` y la tabla se vuelve a dibujar, sin recargar la página. El intervalo es
   `INDICADORES_REFRESCO` en `config/indicadores.php`, como "30s" o "1500ms". Mientras DD-116 no tenga su ADR va

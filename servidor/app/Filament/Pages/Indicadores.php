@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Autorizacion\Autorizacion;
+use App\Filament\Widgets\Indicadores\MontoPromedioIndicador;
 use App\Filament\Widgets\Indicadores\PedidosPorEstadoGrafica;
 use App\Filament\Widgets\Indicadores\PedidosTotalesGrafica;
 use App\Filament\Widgets\Indicadores\PedidosTotalesTabla;
@@ -100,6 +101,7 @@ class Indicadores extends Dashboard
             PedidosPorEstadoGrafica::class,
             UsuariosActivosGrafica::class,
             RetencionTabla::class,
+            MontoPromedioIndicador::class,
             RankingDeLavanderiasTabla::class,
         ];
     }
