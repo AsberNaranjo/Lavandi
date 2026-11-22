@@ -1,0 +1,114 @@
+// La API de los pedidos de la lavandería, el Módulo B (openspec/changes/pedidos-de-la-lavanderia, "Contrato de la API",
+// y openspec/changes/estados-del-pedido, "Los botones de la lavandería"; el mismo contrato del comentario de
+// servidor/app/Http/Controllers/Api/PedidosDeLaLavanderiaController.php). Todas las rutas van con la sesión de una cuenta
+// de socio lavandería, y el servidor solo le da los pedidos de sus lavanderías, de su plaza y con el pago acreditado
+// (C-188). Como las demás consultas, nunca lanza: devuelve un Resultado.
+//
+// El pedido trae su folio, su estado con el nombre que le da la lavandería, si espera su respuesta, el único botón que
+// puede tocar, su servicio y su ventana de recolección. No trae datos del usuario ni direcciones (pedidos-lavanderia-E04,
+// DD-022 y DD-014), ni montos.
+import type { Ventana } from '../agenda/api';
+import { leerVentana } from '../agenda/api';
+import { pedir, type Resultado } from '../configuracion/api';
+import { esObjeto } from '../configuracion/lectura';
+
+/** El contrato con el servidor, en un solo lugar para ajustarlo. */
+export const CONTRATO_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA = {
+  /** GET: { "<lista>": PedidoDeLaLavanderia[] }, de la recolección más próxima a la más lejana. */
+  ruta: 'lavanderia/pedidos',
+  lista: 'pedidos',
+} as const;
+
+/** El estado operativo del pedido (ADR-0021 y su adenda), con el nombre que le da la app de la lavandería. */
+export interface EstadoOperativo {
+  codigo: string;
+  nombre: string;
+}
+
+/** El único botón que la lavandería puede tocar (estados-E06): el estado al que lleva y su texto. */
+export interface PasoSiguiente {
+  estado: string;
+  boton: string;
+}
+
+/** Un pedido como lo ve la lavandería que lo atiende. */
+export interface PedidoDeLaLavanderia {
+  id_publico: string;
+  folio: string;
+  estado: EstadoOperativo;
+  /** true solo mientras espera su respuesta: la tarjeta ofrece Aceptar y Rechazar (pedidos-lavanderia-E03). */
+  por_responder: boolean;
+  /** null si espera respuesta, si ya está en En proceso de entrega o si salió del flujo. */
+  siguiente: PasoSiguiente | null;
+  /** Uno por ahora (DD-098), sin precio. */
+  servicios: { codigo: string; nombre: string }[];
+  /** La recolección, con la fecha y las horas ya en la hora de la plaza. */
+  ventana: Ventana;
+}
+
+/** GET de los pedidos activos de la lavandería, con la sesión (pedidos-lavanderia-E01 y E03). */
+export async function consultarPedidosDeLaLavanderia(token: string): Promise<Resultado<PedidoDeLaLavanderia[]>> {
+  const { ruta, lista } = CONTRATO_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA;
+  const resultado = await pedir<unknown>(ruta, { metodo: 'GET', token });
+  if (!resultado.ok) {
+    return resultado;
+  }
+  const filas = esObjeto(resultado.datos) ? resultado.datos[lista] : null;
+  const pedidos = Array.isArray(filas) ? filas.map(leerPedidoDeLaLavanderia) : null;
+  // Una respuesta fuera del contrato no se pinta a medias: cuenta como falla del servidor.
+  if (pedidos === null || !pedidos.every((pedido) => pedido !== null)) {
+    return { ok: false, motivo: 'servidor' };
+  }
+  return { ok: true, datos: pedidos as PedidoDeLaLavanderia[] };
+}
+
+/** Un pedido leído campo por campo, como lo dan todas las respuestas de la lavandería; null si no es del contrato. */
+export function leerPedidoDeLaLavanderia(datos: unknown): PedidoDeLaLavanderia | null {
+  if (
+    !esObjeto(datos) ||
+    typeof datos.id_publico !== 'string' ||
+    typeof datos.folio !== 'string' ||
+    typeof datos.por_responder !== 'boolean' ||
+    !Array.isArray(datos.servicios)
+  ) {
+    return null;
+  }
+  const estado = leerEstado(datos.estado);
+  const siguiente = datos.siguiente === null ? null : leerPaso(datos.siguiente);
+  const servicios = datos.servicios.map(leerServicio);
+  const ventana = leerVentana(datos.ventana);
+  if (!estado || siguiente === undefined || !ventana || !servicios.every((servicio) => servicio !== null)) {
+    return null;
+  }
+  return {
+    id_publico: datos.id_publico,
+    folio: datos.folio,
+    estado,
+    por_responder: datos.por_responder,
+    siguiente,
+    servicios: servicios as PedidoDeLaLavanderia['servicios'],
+    ventana,
+  };
+}
+
+function leerEstado(datos: unknown): EstadoOperativo | null {
+  if (!esObjeto(datos) || typeof datos.codigo !== 'string' || typeof datos.nombre !== 'string') {
+    return null;
+  }
+  return { codigo: datos.codigo, nombre: datos.nombre };
+}
+
+// El paso siguiente, o undefined si no es del contrato (null ya se leyó antes: no hay botón).
+function leerPaso(datos: unknown): PasoSiguiente | undefined {
+  if (!esObjeto(datos) || typeof datos.estado !== 'string' || typeof datos.boton !== 'string') {
+    return undefined;
+  }
+  return { estado: datos.estado, boton: datos.boton };
+}
+
+function leerServicio(datos: unknown): { codigo: string; nombre: string } | null {
+  if (!esObjeto(datos) || typeof datos.codigo !== 'string' || typeof datos.nombre !== 'string') {
+    return null;
+  }
+  return { codigo: datos.codigo, nombre: datos.nombre };
+}

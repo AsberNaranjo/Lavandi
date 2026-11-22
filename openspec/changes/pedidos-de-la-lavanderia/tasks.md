@@ -12,7 +12,7 @@ M = 5 h, L = 12 h.
 
 ## 2. Pantalla de pedidos en la app
 
-- [ ] 2.1 pedidos-lavanderia-E03: pantalla de pedidos con la tarjeta de pedido de socio lavandería — test: `movil/__tests__/pedidos-lavanderia/lista.test.tsx` — tamaño M
+- [x] 2.1 pedidos-lavanderia-E03: pantalla de pedidos con la tarjeta de pedido de socio lavandería — test: `movil/__tests__/pedidos-lavanderia/lista.test.tsx` — tamaño M
 - [ ] 2.2 pedidos-lavanderia-E05, pedidos-lavanderia-E06: consulta cada 30 segundos con la pantalla visible y pausa con la pantalla oculta, con temporizadores simulados — test: `movil/__tests__/pedidos-lavanderia/consulta-periodica.test.tsx` — tamaño M
 - [ ] 2.3 pedidos-lavanderia-E07: aceptar desde la tarjeta y verla como aceptada — test: `movil/__tests__/pedidos-lavanderia/aceptar.test.tsx` — tamaño S
 - [ ] 2.4 pedidos-lavanderia-E12, pedidos-lavanderia-E13: pantalla de rechazo con motivo obligatorio — test: `movil/__tests__/pedidos-lavanderia/rechazar.test.tsx` — tamaño S
