@@ -181,6 +181,36 @@ Las lavanderías de prueba salen del sembrado: `php artisan db:seed` en `servido
 - Apple solo existirá en iPhone (DD-069).
 - El correo de recuperación no sale: el enlace queda en `servidor\storage\logs\laravel.log`, como en la sección 4.
 
+## 5-bis. En un iPhone, con Expo Go (C-240)
+
+Mientras no exista la cuenta de Apple del cliente (DD-069) no hay compilación para iPhone. Lo que se puede hacer es
+abrir la app en **Expo Go**, la app gratuita de Expo en la App Store. Expo Go trae casi todos los módulos que usa la
+app; la entrada con Google no viene en él, así que ahí no aparece ese botón (base-E11).
+
+**Desde otra red,** por ejemplo un amigo en su casa, el iPhone tiene que llegar a dos cosas de esta máquina:
+- **Metro,** que sirve la app: con el túnel de Expo.
+- **La API:** con un túnel HTTPS, porque iOS bloquea las direcciones http.
+
+Publicar la API en internet, aunque sea con datos de prueba, lo aprueba Arthur antes.
+
+Los pasos:
+1. En el iPhone, instalar **Expo Go** desde la App Store y comprobar que corre el SDK 58.
+2. Levantar la base y el servidor (sección 2) y publicar la API: `cloudflared tunnel --url http://127.0.0.1:8000`.
+   Anotar la dirección `https://…trycloudflare.com` que muestra.
+3. En `movil/.env`, poner `EXPO_PUBLIC_API_URL=https://<la dirección del túnel>/api`.
+4. Entrar con una cuenta gratuita de Expo (no de Apple), porque el túnel de Metro la pide: `npx expo login`.
+5. Desde `movil/`: `npx expo start --go --tunnel --clear`.
+   - El `--go` hace que el QR abra Expo Go y no el development build.
+   - El `--clear` vuelve a leer el `.env`.
+6. En el iPhone, escanear el QR con la cámara, o mandarle la dirección `exp://` que muestra la terminal.
+
+Al terminar se cierran Metro y los dos túneles, y `movil/.env` vuelve a su dirección local.
+
+**Lo que no se prueba en Expo Go:**
+- el texto del permiso de ubicación, porque muestra el de Expo Go;
+- la entrada con Google;
+- lo que depende de reinstalar la app (registro-E32).
+
 ## 6. Problemas comunes
 
 | Síntoma | Causa y arreglo |
