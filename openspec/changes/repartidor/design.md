@@ -125,6 +125,46 @@ su `$table` y su `$primaryKey` (modelo-E16). `Repartidor` usa el ULID público (
 | `calificaciones` | La calificación recibida, con `id_repartidores` (E27, bloqueado por DD-052). Esta migración le pone la llave foránea a esa columna | `perfil-de-lavanderia` (base) y `historial-y-calificacion` |
 | `dispositivos` | El aviso de asignación (E14, bloqueado por DD-054) | `avisos` |
 
+## Implementación en el servidor
+
+Lo que se decidió al implementar las tareas 0.1 y 1.1 a 1.8, por delegación de Arthur (C-236), con lo mínimo que
+cumple cada escenario. Ninguna decisión agrega una librería ni un servicio externo, ni decide una fila abierta.
+
+### La migración (tarea 0.1)
+
+- **Archivo:** `servidor/database/migrations/2026_11_23_100000_crear_repartidores_asignaciones_y_evidencias.php`. Pasa
+  la prueba de esquema (modelo-E01 a E17) y la prueba propia, `servidor/tests/Feature/Repartidor/MigracionTest.php`.
+- **`repartidores`:** como en "Tablas y migración", con la plaza vacía solo en `pendiente`
+  (`repartidores_plaza_check`), la salida (a) de Open Questions. Además:
+  - `id_usuarios` es única, porque una cuenta es a lo más un repartidor (el diagrama del modelo);
+  - `estado` vale `pendiente` por omisión, que es como nace el registro de la app (E01);
+  - `deleted_at` es la baja (E07), con `estado = 'baja'`.
+- **`pedido_asignaciones`:** dos `CHECK` además del de `estado`, para que la base no guarde una respuesta a medias:
+  `respondido_en` vacía solo si la asignación sigue `ofrecido`, y un `rechazado` lleva `motivo` no vacío (E16 y E17). La
+  API valida el motivo antes (E17); el `CHECK` es la red de abajo.
+- **Las llaves de `pedidos` y `calificaciones`:** la compuesta `(id_repartidores, id_plazas)`, con su índice y
+  `ON DELETE RESTRICT`. Tres pruebas de cambios anteriores daban por hecho que la llave no existía y se ajustaron sin
+  bajar lo que revisan: la lista de llaves de `pedidos` en `tests/Feature/Confirmacion/MigracionTest.php` suma la nueva,
+  y las calificaciones de repartidor de `tests/Feature/PerfilLavanderia/MigracionTest.php` apuntan a un repartidor que
+  existe en su plaza en lugar del número 7.
+- **Los modelos:** `App\Models\Repartidor` (con su ULID, su borrado suave y sus relaciones `plaza`, `cuenta`,
+  `asignaciones` y `pedidos`), `App\Models\PedidoAsignacion` y `App\Models\Evidencia`, que toman la plaza de su pedido
+  (`HeredaLaPlazaDelPedido`). `Evidencia` esconde `ruta` del JSON. `Pedido` suma `repartidor`, `asignaciones` y
+  `evidencias`, y `Rol` suma `REPARTIDOR`.
+- **Las fábricas:** `RepartidorFactory` (activo en una plaza, con `pendiente()`, `suspendido()` y `deBaja()`) y
+  `PedidoAsignacionFactory`, que crea la oferta directo en la base mientras DD-014 siga abierta (ver "La asignación").
+
+### La asignación espera DD-014
+
+**No hay operación ni ruta que asigne un pedido a un repartidor.** E13 está bloqueado: quién asigna, desde qué pantalla
+y con qué regla es DD-014, de EL CLIENTE. Ninguno de los escenarios que entran (E10 a E12, E15 a E21, E23, E25, E28 y
+E30) necesita una operación de asignar: necesitan una oferta que ya existe. Por eso las pruebas y el sembrado de
+desarrollo la crean con `PedidoAsignacionFactory`, con la fila `ofrecido` directo en la base, como pide `tasks.md`.
+
+Cuando DD-014 responda, la operación nace como un servicio interno de `servidor/app/Repartidores/` que crea la fila
+`ofrecido`, y **quién lo llama** (una acción del panel en el Módulo D, o una de la lavandería en el Módulo B) es esa
+respuesta, con su cita. Lo que pasa con un pedido rechazado (E18) también espera DD-014.
+
 ## Risks / Trade-offs
 
 - [El contrato guarda "evidencias de entrega" (p. 20), pero ninguna pantalla del Módulo C las captura, y su alcance es
@@ -142,12 +182,15 @@ su `$table` y su `$primaryKey` (modelo-E16). `Repartidor` usa el ULID público (
   es la lavandería desde su módulo, es una acción nueva del Módulo B. Las dos necesitan su cita al cerrarse DD-014.
 - **BR-29 es DD-110.**
 - **DD-053, DD-054, DD-022, DD-011, DD-019, DD-013 y DD-052.**
-- **La plaza de un registro pendiente: necesita decisión de Arthur.** La lectura 2 fija la plaza al dar de alta, así
+- **La plaza de un registro pendiente: respondida con la salida (a).** La lectura 2 fija la plaza al dar de alta, así
   que un registro `pendiente` no la tiene; plazas-E09 y el modelo piden `id_plazas` no nula. Dos salidas: (a) que
   `id_plazas` quede vacía solo en `pendiente`, con un `CHECK` que la exija en los demás estados, y que `repartidores`
   entre a la lista de "plaza opcional" de la prueba de esquema de `modelo-de-datos`, como `avisos_masivos`; (b) la
   alternativa de la lectura 2: el repartidor elige su plaza al registrarse y la administración
-  la confirma al darlo de alta, lo que agrega un sexto dato a E01 y E02. La tarea 0.1 depende de esta respuesta.
+  la confirma al darlo de alta, lo que agrega un sexto dato a E01 y E02. **Quedó (a):** ya la traían
+  `vault/arquitectura/modelo-de-datos.md` ("`id_plazas` vacía solo si `estado` es `pendiente`") y la lista
+  `plaza_opcional` de `servidor/config/modelo.php`, y no cambia los cinco datos de E01 y E02. La tarea 0.1 la
+  implementa (sección "Implementación en el servidor").
 - **En tránsito** no es uno de los cinco estados del usuario: es un estado interno de `estados_pedido` que fija el ADR
   de la máquina de estados (DD-123, límite 2027-01-04). E19 y E20 lo necesitan antes del sprint 18.
 - **Pantallas sin componente.** El componente 5 de `vault/design-system/componentes.md` cubre la tarjeta de pedido

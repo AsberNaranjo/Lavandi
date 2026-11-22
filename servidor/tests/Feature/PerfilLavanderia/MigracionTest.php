@@ -311,9 +311,10 @@ class MigracionTest extends TestCase
             self::UNICO_REPETIDO,
         );
 
-        $this->insertarCalificacion(['id_pedidos' => 1, 'id_repartidores' => 7, 'id_plazas' => $plaza]);
+        $repartidor = $this->insertarRepartidor($plaza);
+        $this->insertarCalificacion(['id_pedidos' => 1, 'id_repartidores' => $repartidor, 'id_plazas' => $plaza]);
         $this->assertRechazada(
-            fn () => $this->insertarCalificacion(['id_pedidos' => 1, 'id_repartidores' => 7, 'id_plazas' => $plaza]),
+            fn () => $this->insertarCalificacion(['id_pedidos' => 1, 'id_repartidores' => $repartidor, 'id_plazas' => $plaza]),
             self::UNICO_REPETIDO,
         );
 
@@ -427,16 +428,17 @@ class MigracionTest extends TestCase
 
         $this->assertRechazada(fn () => $this->insertarCalificacion(['id_plazas' => $plaza]), self::CHECK_INCUMPLIDO);
 
-        // id_repartidores todavía no tiene llave: la agrega el cambio repartidor.
+        // Un repartidor que existe en la plaza: la llave de id_repartidores la agregó el cambio repartidor.
+        $repartidor = $this->insertarRepartidor($plaza);
         $this->assertRechazada(fn () => $this->insertarCalificacion([
             'id_plazas' => $plaza,
             'id_lavanderias' => $lavanderia,
-            'id_repartidores' => 7,
+            'id_repartidores' => $repartidor,
         ]), self::CHECK_INCUMPLIDO);
 
         // Con exactamente uno, entra.
         $this->insertarCalificacion(['id_plazas' => $plaza, 'id_lavanderias' => $lavanderia]);
-        $this->insertarCalificacion(['id_plazas' => $plaza, 'id_repartidores' => 7]);
+        $this->insertarCalificacion(['id_plazas' => $plaza, 'id_repartidores' => $repartidor]);
 
         $this->assertSame(2, DB::table('calificaciones')->count());
     }
@@ -565,6 +567,24 @@ class MigracionTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ], 'id_usuarios');
+    }
+
+    /**
+     * Un repartidor activo de la plaza, con su cuenta. La llave de calificaciones.id_repartidores hacia repartidores la
+     * agregó el cambio repartidor: la calificación del repartidor apunta a uno que existe en su plaza (modelo-E06).
+     */
+    private function insertarRepartidor(int $plaza): int
+    {
+        return DB::table('repartidores')->insertGetId([
+            'id_publico' => Str::lower((string) Str::ulid()),
+            'id_plazas' => $plaza,
+            'id_usuarios' => $this->insertarUsuario(),
+            'tipo_vehiculo' => 'Motocicleta',
+            'estado' => 'activo',
+            'aprobado_en' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ], 'id_repartidores');
     }
 
     /**

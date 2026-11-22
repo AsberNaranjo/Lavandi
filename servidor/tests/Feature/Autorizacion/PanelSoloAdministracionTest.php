@@ -27,8 +27,8 @@ class PanelSoloAdministracionTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** Los roles que no son de administración; repartidor todavía no tiene constante en Rol. */
-    private const OTROS_ROLES = [Rol::USUARIO, Rol::LAVANDERIA, 'repartidor'];
+    /** Los roles que no son de administración. */
+    private const OTROS_ROLES = [Rol::USUARIO, Rol::LAVANDERIA, Rol::REPARTIDOR];
 
     #[TestDox('autorizacion-E03: una cuenta de usuario, de socio lavandería o de socio repartidor no entra al panel con su contraseña')]
     public function test_autorizacion_e03_las_cuentas_de_otros_roles_no_entran_al_panel_con_su_contrasena(): void

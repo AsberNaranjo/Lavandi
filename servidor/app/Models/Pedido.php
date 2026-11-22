@@ -213,6 +213,37 @@ class Pedido extends Modelo
     }
 
     /**
+     * El repartidor que aceptó el pedido, aunque después se dé de baja: el pedido es historial (repartidor-E07). Vacío
+     * mientras ninguno lo acepte.
+     *
+     * @return BelongsTo<Repartidor, $this>
+     */
+    public function repartidor(): BelongsTo
+    {
+        return $this->belongsTo(Repartidor::class, 'id_repartidores')->withTrashed();
+    }
+
+    /**
+     * Las ofertas del pedido a los repartidores, con su respuesta (repartidor-E15 y E16).
+     *
+     * @return HasMany<PedidoAsignacion, $this>
+     */
+    public function asignaciones(): HasMany
+    {
+        return $this->hasMany(PedidoAsignacion::class, 'id_pedidos');
+    }
+
+    /**
+     * Las fotos de evidencia del pedido (repartidor-E23).
+     *
+     * @return HasMany<Evidencia, $this>
+     */
+    public function evidencias(): HasMany
+    {
+        return $this->hasMany(Evidencia::class, 'id_pedidos');
+    }
+
+    /**
      * El estado actual; su historia está en eventos().
      *
      * @return BelongsTo<EstadoPedido, $this>

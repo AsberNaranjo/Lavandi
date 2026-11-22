@@ -18,6 +18,9 @@ class Rol extends Modelo
     /** El rol del socio lavandería (Módulo B): la cuenta que administra una lavandería. */
     public const LAVANDERIA = 'lavanderia';
 
+    /** El rol del socio repartidor (Módulo C): la cuenta de un repartidor, con su fila en repartidores. */
+    public const REPARTIDOR = 'repartidor';
+
     /** El rol de quien entra al panel de administración (Módulo D). */
     public const ADMINISTRACION = 'administracion';
 
