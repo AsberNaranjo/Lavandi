@@ -127,7 +127,7 @@ Las tres llevan `created_at` y `updated_at` en `timestamptz` (modelo-E17; ADR-00
 
 **Lo que no crea:** `metodos_pago_guardados` (⛔, `perfil-y-soporte`: C-198 dijo que sí; espera lo mismo que pago-E06, DD-055 y
 DD-079) y `movimientos_pasarela`
-(⛔, `administracion` con DD-112).
+(`administracion`, tarea 0.2, con la segunda adenda del 2026-11-22 de ADR-0010, que cerró DD-112).
 
 ## Risks / Trade-offs
 
@@ -252,7 +252,13 @@ la spec ni un ADR. La 9 ajusta pruebas de otros cambios para que paguen por el c
    pruebas no hace nada.
 10. **El registro para la conciliación es la fila del cobro** (tarea 2.4): `pasarela`, `id_pasarela_orden`, `monto`,
     `metodo`, `pagado_en`, `id_pedidos` e `id_plazas`, que toma la de su pedido. No hay otra tabla ni otra copia: la
-    conciliación y sus reportes viven en `administracion` (DD-112).
+    conciliación y sus reportes viven en `administracion` (DD-112, cerrada por la segunda adenda del 2026-11-22 de
+    ADR-0010). Para conciliar, la interfaz de la pasarela suma una operación (decisión 6 de esa adenda; `administracion`,
+    tarea 4.4): `Pasarela::pagosDelPeriodo()`, los pagos que acreditó entre dos instantes, cada uno con el id de su
+    orden, el monto, la comisión si la trae y la fecha del pago (`App\Cobro\MovimientoDePasarela`), autenticada con la
+    llave del entorno. Solo lee: no cambia ningún cobro. La simulada lleva sus libros en la caché de la aplicación: cada
+    aviso de aprobado que manda es un pago que acreditó, con el monto de su orden. La de Conekta la implementa la tarea
+    3.2 y la comprueba la 3.3, en su sandbox.
 11. **Un intento rechazado deja el cobro `fallido` y se reintenta con el mismo cobro** (tarea 2.5). `fallido` dice que
     el último intento se rechazó, y así lo ve la app al consultar el cobro. Pedir el checkout otra vez lo reabre: vuelve
     a `pendiente`, con el mismo checkout si sigue vigente o con otra orden si no; nunca se abre otro cobro, por el único
@@ -285,12 +291,6 @@ la spec ni un ADR. La 9 ajusta pruebas de otros cambios para que paguen por el c
       por el mismo camino del webhook, para probar sin el teléfono; si el cobro no tiene checkout, lo abre antes.
     - Los dos comandos se niegan a correr fuera de `local` y `testing`, y todo esto necesita la pasarela simulada, que
       tampoco existe en otro entorno (punto 3).
-15. **La interfaz de la pasarela suma una operación para la conciliación del Módulo D** (segunda adenda del 2026-11-22
-    de ADR-0010, decisión 6; `administracion`, tarea 4.4): `Pasarela::pagosDelPeriodo()`, los pagos que acreditó entre
-    dos instantes, cada uno con el id de su orden, el monto, la comisión si la trae y la fecha del pago
-    (`App\Cobro\MovimientoDePasarela`), autenticada con la llave del entorno. Solo lee: no cambia ningún cobro. La
-    simulada lleva sus libros en la caché de la aplicación: cada aviso de aprobado que manda es un pago que acreditó, con
-    el monto de su orden. La de Conekta la implementa la tarea 3.2 y la comprueba la 3.3, en su sandbox.
 
 ### La app (tareas 4.1 y 4.2)
 
