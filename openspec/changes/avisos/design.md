@@ -149,9 +149,9 @@ frente el seguimiento consulta de inmediato (ADR-0007).
 - **No choca con el permiso de ubicación:** la pantalla principal no lo pide sola, solo al tocar "Continuar"
   (cercanas-E03), y Android no deja tocar nada con la petición de avisos abierta.
 - **Una sola vez.** Android no distingue "nunca respondió" de "lo negó", así que la app anota en el almacenamiento del
-  teléfono que ya mostró la petición (`avisos.permiso-pedido`), y Android la borra al desinstalar. Si la persona la
-  niega, la app no la vuelve a mostrar sola: la sección de notificaciones del perfil ofrece activarlos
-  (perfil-usuario-E08).
+  teléfono, cuando la persona contesta, que ya le mostró la petición (`avisos.permiso-pedido`); si la petición no llegó a
+  mostrarse, sigue sin responder. Android borra la nota al desinstalar. Si la persona la niega, la app no la vuelve a
+  mostrar sola: la sección de notificaciones del perfil ofrece activarlos (perfil-usuario-E08).
 - **Android 12 o anterior no tiene petición:** los avisos vienen permitidos, y solo se apagan en los ajustes.
 - **Android pide con `PermissionsAndroid`** de React Native, sin dependencias nuevas, porque
   `requestPermission()` de `@react-native-firebase/messaging` contesta que sí en Android sin preguntar. **iPhone pide con

@@ -68,6 +68,20 @@ Questions). Las piezas siguen a sus ADRs:
      distinto, es configuración de la validación, no un cambio de esquema (`mensaje` es `text`).
 4. **Notificaciones.** Lectura mínima del numeral 15: el perfil muestra el estado del permiso de avisos y lleva a
    activarlo. Si Arthur o el cliente leen otra cosa, cambia E08.
+   - **Lo que hizo la tarea 2.3** (Claude por delegación de Arthur, C-236), con el permiso del cambio `avisos`
+     (`movil/src/avisos/permiso.ts`; `avisos/design.md`, "Decisiones de la implementación de la app", punto 6). La
+     sección "Notificaciones" (`movil/src/perfil-usuario/Notificaciones.tsx`) va después de las direcciones guardadas,
+     en el orden del numeral 15, y no depende de que llegue el perfil.
+   - **Tres estados:** activos, sin botón; apagados y la persona nunca respondió, con "Activar avisos", que muestra la
+     petición del sistema; apagados porque ya la negó o los apagó en el teléfono, con "Abrir ajustes", que abre los
+     ajustes de la app en el sistema. En Android 12 o anterior no hay petición: si están apagados, solo los ajustes.
+   - **Al volver al frente,** como al regresar de los ajustes, lee otra vez el permiso; y se entera de la respuesta a la
+     petición que sale al abrirse la sesión. Si los avisos quedan activos, el teléfono se registra en la api
+     (avisos-E03).
+   - **Sin avisos en la compilación no aparece:** Expo Go, iPhone hasta avisos-E18 (DD-069) o un APK sin el archivo de
+     Firebase (DD-072). No hay qué activar, y es lo mismo que hace la entrada con Google en Expo Go (base-E11).
+   - **No usa ninguno de los seis componentes del design system,** como las otras secciones del perfil: se arma con el
+     título de sección, el botón y los tokens.
 5. **El número de soporte.** Vive en `servidor/config/soporte.php`, que lee la variable `SOPORTE_WHATSAPP` del `.env`
    del entorno, vacía en `.env.example` (decisión 27). La API lo entrega solo con sus dígitos, para que la app arme el
    enlace de WhatsApp aunque la configuración lo escriba con `+` o espacios; sin dígitos, sale `null` (E10). El número

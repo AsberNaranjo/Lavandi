@@ -28,6 +28,15 @@ export const TEXTOS_DEL_PERFIL_DE_USUARIO = {
   direccionesGuardadas: 'Direcciones guardadas',
   cargandoDirecciones: 'Cargando tus direcciones…',
   sinDirecciones: 'Todavía no tienes direcciones guardadas.',
+  // Las notificaciones (perfil-usuario-E08): si los avisos están activos y, si no, cómo activarlos. Del mock no entran
+  // los interruptores por tipo de aviso, que no tienen cita (proposal.md, "Fuera del contrato").
+  notificaciones: 'Notificaciones',
+  avisosActivos: 'Los avisos de tus pedidos están activos.',
+  avisosApagados: 'Los avisos de tus pedidos están apagados.',
+  activarAvisos: 'Activar avisos',
+  // Ya negó la petición, o los apagó: solo se activan en los ajustes del sistema.
+  activalosEnLosAjustes: 'Puedes activarlos en los ajustes del teléfono.',
+  abrirAjustes: 'Abrir ajustes',
   // Soporte (perfil-usuario-E09 y E10), con la imagen a16-soporte.
   ayuda: 'Ayuda',
   tituloDeWhatsApp: 'Escríbenos por WhatsApp',

@@ -63,8 +63,28 @@ export async function leerPermisoDeAvisos(): Promise<PermisoDeAvisos> {
   return androidLoPide() && !(await yaSePidio()) ? 'sin-responder' : 'negado';
 }
 
+// Quién quiere saber lo que contestó la persona a la petición, como la sección de notificaciones del perfil: la petición
+// puede salir de otro lado, al abrirse la sesión.
+const escuchas = new Set<(permiso: PermisoDeAvisos) => void>();
+
+/** Escucha lo que contesta la persona cada vez que se le muestra la petición. Devuelve la función que deja de escuchar. */
+export function alResponderLaPeticion(escucha: (permiso: PermisoDeAvisos) => void): () => void {
+  escuchas.add(escucha);
+  return () => {
+    escuchas.delete(escucha);
+  };
+}
+
 /** Muestra la petición del sistema y devuelve lo que contestó la persona. Donde no hay petición, el permiso como está. */
 export async function pedirPermisoDeAvisos(): Promise<PermisoDeAvisos> {
+  const permiso = await mostrarLaPeticion();
+  for (const escucha of [...escuchas]) {
+    escucha(permiso);
+  }
+  return permiso;
+}
+
+async function mostrarLaPeticion(): Promise<PermisoDeAvisos> {
   if (Platform.OS === 'ios') {
     const { firebase, instancia } = libreria();
     const estado = await firebase.requestPermission(instancia);
@@ -74,8 +94,9 @@ export async function pedirPermisoDeAvisos(): Promise<PermisoDeAvisos> {
   if (!androidLoPide()) {
     return leerPermisoDeAvisos();
   }
-  await anotarLaPeticion();
+  // La nota va después de la respuesta: si la petición no llegó a mostrarse, la persona sigue sin responder.
   const respuesta = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+  await anotarLaPeticion();
   return respuesta === PermissionsAndroid.RESULTS.GRANTED ? 'concedido' : 'negado';
 }
 

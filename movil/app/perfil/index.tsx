@@ -8,14 +8,17 @@
 //   lo rechaza y el error va junto al campo; el nombre guardado no cambia (perfil-usuario-E02).
 // - El correo solo se ve: el numeral 15 no lo lista y no se cambia desde el perfil.
 // - Las direcciones guardadas son las favoritas de la cuenta (perfil-usuario-E05).
+// - "Notificaciones" dice si los avisos están activos en el teléfono y, si no, ofrece pedir el permiso o abrir los
+//   ajustes (perfil-usuario-E08; src/perfil-usuario/Notificaciones.tsx). Sin avisos en la compilación no aparece. No
+//   depende del perfil: se ve aunque no llegue.
 // - "Legal", el aviso de privacidad y los términos, con las direcciones de la configuración, que se abren dentro de la
 //   app (textos-legales-E05; src/textos-legales/EnlacesLegales.tsx). No dependen del perfil: se ven aunque no llegue.
 // - "Eliminar mi cuenta", al final, borra la cuenta después de confirmarlo y vuelve a la bienvenida (perfil-usuario-E15).
 //
 // La composición sigue las imágenes a15-perfil y a15-perfil-foto de la Propuesta 04 en lo que tiene escenario. Del mock
-// no entran todavía: los métodos de pago (perfil-usuario-E07, bloqueado por DD-055), las notificaciones (tarea 2.3, con
-// el cambio avisos), la barra inferior y el lápiz de cada dirección (su edición no existe
-// todavía). "Cerrar sesión" sigue en la pantalla principal (registro-E13).
+// no entran todavía: los métodos de pago (perfil-usuario-E07, bloqueado por DD-055), los interruptores por tipo de aviso
+// (sin cita), la barra inferior y el lápiz de cada dirección (su edición no existe todavía). "Cerrar sesión" sigue en la
+// pantalla principal (registro-E13).
 //
 // Si el perfil no llega, sin escenario propio: los mensajes generales de la app, como el perfil de la lavandería, y sin
 // la foto ni el formulario del nombre.
@@ -31,6 +34,7 @@ import { cambiarNombre, type PerfilDeUsuario } from '../../src/perfil-usuario/ap
 import { BorrarCuenta } from '../../src/perfil-usuario/BorrarCuenta';
 import { DireccionesGuardadas } from '../../src/perfil-usuario/DireccionesGuardadas';
 import { FotoDePerfil } from '../../src/perfil-usuario/FotoDePerfil';
+import { Notificaciones } from '../../src/perfil-usuario/Notificaciones';
 import { mensajeDelNombre, TEXTOS_DEL_PERFIL_DE_USUARIO as TEXTOS } from '../../src/perfil-usuario/textos';
 import { usePerfilDeUsuario } from '../../src/perfil-usuario/usePerfilDeUsuario';
 import { Boton } from '../../src/piezas/Boton';
@@ -64,6 +68,7 @@ export default function MiPerfil() {
           <DireccionesGuardadas favoritas={favoritas} />
         </>
       ) : null}
+      <Notificaciones />
       <EnlacesLegales titulo={TEXTOS_LEGALES.legal} />
       <BorrarCuenta />
     </Pantalla>

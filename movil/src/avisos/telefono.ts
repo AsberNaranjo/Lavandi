@@ -20,6 +20,17 @@ import { leerPermisoDeAvisos, permisoAlAbrirLaSesion } from './permiso';
 /** El token que la app mandó con la sesión abierta. Uno a la vez: la app tiene una sola sesión. */
 let registrado: { sesion: string; tokenDelTelefono: string } | null = null;
 
+/** El registro del teléfono de la sesión abierta, para repetirlo cuando la persona activa los avisos. */
+let registrarConLaSesion: (() => void) | null = null;
+
+/**
+ * Registra otra vez el teléfono con la sesión abierta: lo usa la sección de notificaciones del perfil cuando la persona
+ * activa los avisos (perfil-usuario-E08). Sin sesión de usuario o sin avisos, no hace nada. Nunca lanza.
+ */
+export function registrarElTelefonoDeNuevo(): void {
+  registrarConLaSesion?.();
+}
+
 /** El token del teléfono que la app mandó con esa sesión, para mandarlo al cerrarla (avisos-E05). */
 export function tokenRegistradoCon(tokenDeSesion: string): string | undefined {
   return registrado?.sesion === tokenDeSesion ? registrado.tokenDelTelefono : undefined;
@@ -73,12 +84,17 @@ export function vigilarElTelefono(tokenDeSesion: string): () => void {
   } catch {
     // Sin las escuchas, el token se vuelve a mandar al abrir la app y el seguimiento consulta cada 30 segundos.
   }
+  const deNuevo = () => sinFallar();
+  registrarConLaSesion = deNuevo;
   sinFallar();
 
   return () => {
     vigente = false;
     dejarDeEscuchar();
     dejarDeRecibir();
+    if (registrarConLaSesion === deNuevo) {
+      registrarConLaSesion = null;
+    }
     if (registrado?.sesion === tokenDeSesion) {
       registrado = null;
     }
