@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Autorizacion\Autorizacion;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\RepartidorQueOpera;
+use App\Http\Requests\MarcarPedidoDelRepartidorRequest;
 use App\Http\Requests\RechazarPedidoRequest;
 use App\Http\Resources\PedidoDelRepartidorResource;
 use App\Models\Pedido;
 use App\Models\Repartidor;
+use App\Pedidos\CambioDeEstado;
 use App\Pedidos\PedidoNoVisible;
 use App\Repartidores\RespuestaDelRepartidor;
 use Illuminate\Http\JsonResponse;
@@ -58,6 +60,23 @@ use Illuminate\Support\Str;
  *          Sin motivo, vacío, de puros espacios o que no es texto; o "El motivo no puede pasar de 500 caracteres.".
  *          Se valida antes de buscar el pedido.
  *     409  { "message": "La oferta ya fue respondida.", "pedido": { ... } }    ya la aceptó
+ *
+ *     POST /api/repartidor/pedidos/{id_publico}/estado      Un botón del repartidor (repartidor-E19 a E21)
+ *
+ *     { "estado": "recolectado" }                           obligatorio: el estado al que lleva el botón, uno de
+ *                                                             "recolectado"   Recolectado
+ *                                                             "en_entrega"    En tránsito
+ *                                                             "entregado"     Entregado
+ *
+ *     Solo se puede marcar el paso siguiente, el de "siguiente", en un pedido que aceptó: Recolectado desde "aceptado"
+ *     (la lavandería ya lo aceptó); En tránsito desde "listo"; Entregado desde "en_entrega".
+ *
+ *     200  { "pedido": { ...el pedido en su estado nuevo, con su "siguiente"... } }
+ *          Se guarda el evento con su hora y la cuenta del repartidor.
+ *     422  { "message": "Ese no es un botón del repartidor.", "errors": { "estado": ["Ese no es un botón del repartidor."] } }
+ *          Sin estado, o uno que no es de los tres. Se valida antes de buscar el pedido.
+ *     409  { "message": "Ese no es el paso siguiente del pedido." | "Primero acepta el pedido.", "pedido": { ... } }
+ *          Un salto, un regreso, el mismo botón otra vez, o un pedido que no ha aceptado. No cambia.
  */
 class PedidosDelRepartidorController extends Controller
 {
@@ -112,9 +131,17 @@ class PedidosDelRepartidorController extends Controller
         ]]);
     }
 
-    public function marcar(): JsonResponse
+    public function marcar(MarcarPedidoDelRepartidorRequest $peticion, string $pedido, CambioDeEstado $cambio): JsonResponse
     {
-        throw new PedidoNoVisible;
+        $repartidor = RepartidorQueOpera::de($peticion);
+
+        $marcado = $cambio->marcarComoRepartidor(
+            $this->pedidoVisible($repartidor, $pedido),
+            $repartidor,
+            $peticion->validated('estado'),
+        );
+
+        return $this->respuesta($marcado, $repartidor);
     }
 
     private function respuesta(Pedido $pedido, Repartidor $repartidor): JsonResponse

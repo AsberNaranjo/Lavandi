@@ -377,13 +377,13 @@ class GestionEnElPanelTest extends TestCase
     }
 
     /**
-     * Una entrega completada del repartidor: un pedido confirmado que la lavandería lleva hasta En proceso de entrega,
-     * del que el repartidor es el repartidor, y que pasa a Entregado.
+     * Una entrega completada del repartidor: un pedido que se le ofrece y él acepta, que la lavandería lleva hasta En
+     * proceso de entrega y que él marca Entregado, todo con las operaciones reales.
      */
     private function entregaCompletadaDe(Repartidor $repartidor): Pedido
     {
         $pedido = $this->pedidoAceptadoDe($this->cuentaDeUsuario());
-        $pedido->forceFill(['id_repartidores' => $repartidor->getKey()])->save();
+        $this->repartidorQueLoAcepta($pedido, $repartidor);
 
         return $this->llevarHastaEntregado($pedido);
     }

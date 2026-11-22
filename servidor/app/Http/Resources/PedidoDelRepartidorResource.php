@@ -7,6 +7,7 @@ use App\Models\Pedido;
 use App\Models\PedidoAsignacion;
 use App\Models\PedidoDireccion;
 use App\Models\Repartidor;
+use App\Pedidos\CambioDeEstado;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
@@ -31,6 +32,13 @@ class PedidoDelRepartidorResource extends JsonResource
      */
     private const NOMBRES = [
         EstadoPedido::EN_ENTREGA => 'En tránsito',
+    ];
+
+    /** Los botones del repartidor, por el estado al que llevan, con sus nombres del contrato (Módulo C #3). */
+    private const BOTONES = [
+        EstadoPedido::RECOLECTADO => 'Recolectado',
+        EstadoPedido::EN_ENTREGA => 'En tránsito',
+        EstadoPedido::ENTREGADO => 'Entregado',
     ];
 
     public function __construct(Pedido $pedido, private readonly ?PedidoAsignacion $asignacion = null)
@@ -96,6 +104,21 @@ class PedidoDelRepartidorResource extends JsonResource
     }
 
     /**
+     * El botón del paso siguiente, con su nombre, o null si el repartidor no aceptó el pedido o no le toca nada: mientras
+     * la lavandería no lo acepta, entre Recolectado y Listo, y después de Entregado.
+     *
+     * @return array{estado: string, boton: string}|null
+     */
+    private function siguiente(string $codigo): ?array
+    {
+        $siguiente = $this->asignacion?->estado === PedidoAsignacion::ACEPTADO
+            ? CambioDeEstado::botonSiguienteDelRepartidor($codigo)
+            : null;
+
+        return $siguiente === null ? null : ['estado' => $siguiente, 'boton' => self::BOTONES[$siguiente]];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
@@ -121,6 +144,8 @@ class PedidoDelRepartidorResource extends JsonResource
             ],
             // Solo la oferta que espera su respuesta ofrece Aceptar y Rechazar (repartidor-E15 y E16).
             'por_responder' => $this->asignacion?->estado === PedidoAsignacion::OFRECIDO,
+            // El único botón que puede tocar, en un pedido que aceptó: el paso siguiente, o ninguno (repartidor-E19).
+            'siguiente' => $this->siguiente($codigo),
             'zona_horaria' => $this->plaza->zona_horaria,
             // Como en el pedido del usuario: instantes con el desfase de la plaza, y la fecha y las horas en su hora.
             'ventana' => [

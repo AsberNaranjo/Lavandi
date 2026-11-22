@@ -251,6 +251,57 @@ El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/
 - **Después del rechazo** el pedido sale de su lista y pedirlo le responde 404 ("deja de estar asignado a él"). Qué pasa
   con el pedido rechazado (se reasigna, se avisa o se detiene) espera DD-014 (E18): no se toca.
 
+### Los botones del repartidor (tarea 1.5)
+
+- **La misma operación que la lavandería:** `App\Pedidos\CambioDeEstado::marcarComoRepartidor()`, con su propia tabla
+  (la adenda propuesta de abajo). Cada botón cambia `pedidos.id_estados_pedido` y agrega su evento a `pedido_eventos`,
+  con la cuenta del repartidor y su hora, en una transacción con el pedido bloqueado, y publica
+  `EstadoDelPedidoCambiado` (E19).
+- **Solo en el pedido que aceptó:** el pedido tiene que ser suyo (`pedidos.id_repartidores`) y su oferta, `aceptado`.
+  Con la oferta todavía `ofrecido`, responde 409 "Primero acepta el pedido." (E20). Uno de otro repartidor ni siquiera
+  se encuentra: 404 (E21).
+- **Entre Recolectado y En tránsito van los botones de la lavandería,** En proceso y Listo (Módulo B #3): en esos dos el
+  repartidor no tiene botón (`siguiente` en `null`). E19 lo prueba así, con la lavandería en medio.
+- **Lo que no se decide aquí:** cómo ve el usuario Recolectado, En tránsito y Entregado del repartidor, y si el pedido
+  lleva un viaje de repartidor o dos (E22, DD-022 y DD-011). Hoy el usuario los ve como ya lo fija ADR-0021: Recolectado,
+  Listo (por `en_entrega`) y Entregado.
+- **`EstadosDePrueba::entregarComoElRepartidor()`** dejó de escribir el estado a mano: ahora usa
+  `marcarComoRepartidor()`, con un repartidor de la plaza del pedido que recibe la oferta (con su fábrica) y la acepta
+  con `RespuestaDelRepartidor`. El evento de Entregado queda con la cuenta de ese repartidor en lugar de vacío. La suite
+  completa sigue en verde con el cambio.
+
+### Adenda propuesta a ADR-0021: las transiciones del repartidor
+
+Propuesta por Claude por delegación de Arthur (C-236), con la tarea 1.5. No edita el ADR: Arthur la asienta o la cambia
+al revisar. Completa lo que la adenda del 2026-11-22 dejó abierto ("Desde dónde marca el repartidor su Recolectado lo
+fija `repartidor`"). Lo que esperan DD-022 (entregar sin repartidor), DD-011 (uno o dos viajes), DD-014 (asignación) y
+DD-016 (cancelación) **no** se decide aquí.
+
+1. **Las transiciones del repartidor,** en la tabla `DEL_REPARTIDOR` de `App\Pedidos\CambioDeEstado` (ADR-0021,
+   decisión 4):
+
+   | Desde | Botón del repartidor | Llega a |
+   |---|---|---|
+   | `aceptado` | Recolectado | `recolectado` |
+   | `listo` | En tránsito | `en_entrega` |
+   | `en_entrega` | Entregado | `entregado` |
+
+2. **Recolectado sale de `aceptado`, no de `confirmado`** (la decisión 2 original decía `confirmado` para los dos
+   socios). Si el repartidor pudiera recolectar un pedido `confirmado`, la lavandería ya no podría aceptarlo ni
+   rechazarlo (Módulo B #2): su tabla no tiene esas acciones desde `recolectado`. Es la misma regla que su adenda le
+   puso a la lavandería: sin aceptar no hay botones. El repartidor puede aceptar la oferta antes de que la lavandería
+   responda, pero su botón aparece hasta que ella acepte.
+3. **Solo mueve el pedido el repartidor que lo aceptó:** `pedidos.id_repartidores` es el suyo y su oferta en
+   `pedido_asignaciones` está `aceptado`. La oferta no es un estado del pedido: aceptarla o rechazarla no agrega evento.
+4. **Dos pasos los comparten la lavandería y el repartidor,** sin cambiar la tabla de ella: Recolectado (desde
+   `aceptado`) y `en_entrega` ("En proceso de entrega" de ella, "En tránsito" de él), como ya decía la decisión 2. Lo
+   marca quien llegue primero; si la lavandería ya marcó En proceso de entrega, el siguiente botón del repartidor es
+   Entregado. Si DD-022 decide que la lavandería entrega con su gente, su Entregado es una fila nueva en su tabla, sin
+   tocar esta.
+5. **Lo que ve el usuario no cambia** (adenda del 2026-11-22, punto 4): Recolectado, Listo por `en_entrega` y Entregado.
+   Si DD-011 decide dos viajes de repartidor (recoger y entregar), la oferta del segundo viaje es otra fila de
+   `pedido_asignaciones` y `pedidos.id_repartidores` pasa al segundo; esa regla se escribe con E22.
+
 ### Cómo se prueba en local
 
 1. `php artisan migrate --seed` (o `php artisan db:seed` si ya está migrada). En local, el sembrado agrega
@@ -351,6 +402,7 @@ Como sale en la lista, en el pedido y en las respuestas de aceptar, rechazar y l
   "estado": { "codigo": "listo", "nombre": "Listo" },
   "asignacion": { "estado": "ofrecido", "ofrecido_en": "2026-12-03T15:40:00Z", "respondido_en": null },
   "por_responder": true,
+  "siguiente": null,
   "zona_horaria": "America/Mexico_City",
   "ventana": {
     "inicio": "2026-12-03T11:00:00-06:00",
@@ -408,6 +460,26 @@ caracteres (`pedidos.motivo_de_rechazo_maximo`).
   sin motivo, vacío, de puros espacios o que no es texto; "El motivo no puede pasar de 500 caracteres." si pasa del
   máximo. Se valida antes de buscar el pedido. La oferta sigue `ofrecido`.
 - **409** "La oferta ya fue respondida." si ya la aceptó.
+
+### `POST /api/repartidor/pedidos/{id_publico}/estado` (E19 a E21)
+
+`{ "estado": "recolectado" }`: obligatorio, el estado al que lleva el botón, uno de `recolectado` (Recolectado),
+`en_entrega` (En tránsito) o `entregado` (Entregado). Solo se marca el paso siguiente, el que trae `siguiente`, en un
+pedido que aceptó: Recolectado desde `aceptado` (la lavandería ya lo aceptó), En tránsito desde `listo` y Entregado
+desde `en_entrega`.
+
+- **200** `{ "pedido": { … } }`, en su estado nuevo y con su `siguiente`. Se guarda el evento con su hora y la cuenta
+  del repartidor.
+- **422** `{ "message": "Ese no es un botón del repartidor.", "errors": { "estado": ["Ese no es un botón del repartidor."] } }`
+  sin estado o con uno que no es de los tres (`confirmado`, `aceptado`, `en_proceso`, `listo`…). Se valida antes de buscar
+  el pedido.
+- **409** `{ "message": "Ese no es el paso siguiente del pedido.", "pedido": { … } }` en un salto, un regreso, el mismo
+  botón otra vez, o un pedido que la lavandería todavía no acepta; `"Primero acepta el pedido."` si su oferta sigue
+  `ofrecido`. El pedido no cambia.
+
+**`siguiente`** en el pedido: `{ "estado": "recolectado", "boton": "Recolectado" }`, `{ "estado": "en_entrega", "boton":
+"En tránsito" }` o `{ "estado": "entregado", "boton": "Entregado" }`; `null` si no aceptó la oferta, si la lavandería
+todavía no acepta el pedido, entre Recolectado y Listo (le toca a la lavandería) y después de Entregado.
 
 ## Risks / Trade-offs
 
