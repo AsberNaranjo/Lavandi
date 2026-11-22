@@ -5,8 +5,12 @@
 //
 // Si una consulta no llega, se conserva el último pedido que llegó, con el motivo para que la pantalla lo diga; la
 // siguiente que llega lo quita. Sin escenario propio: los mensajes generales de la app.
-import { useCallback, useMemo, useState } from 'react';
+//
+// Con la app al frente, el mensaje de Firebase del cambio de estado de este pedido hace la consulta de inmediato y vuelve
+// a contar los 30 segundos desde ahí (avisos-E15; src/avisos/cambiosDeEstado.ts). Sin avisos, la consulta sigue igual.
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { alCambiarElEstado, mismoPedido } from '../avisos/cambiosDeEstado';
 import type { Falla, Resultado } from '../configuracion/api';
 import { useSesion } from '../sesion/ProveedorDeSesion';
 import { consultarPedido, type PedidoEnSeguimiento } from './api';
@@ -34,7 +38,18 @@ export function useSeguimiento(idPublico: string | undefined): EstadoDelSeguimie
     );
   }, []);
 
-  useConsultaPeriodica(consulta, alLlegar);
+  const consultarDeNuevo = useConsultaPeriodica(consulta, alLlegar);
+
+  useEffect(() => {
+    if (!idPublico) {
+      return;
+    }
+    return alCambiarElEstado((pedido) => {
+      if (mismoPedido(pedido, idPublico)) {
+        consultarDeNuevo();
+      }
+    });
+  }, [idPublico, consultarDeNuevo]);
 
   return estado;
 }

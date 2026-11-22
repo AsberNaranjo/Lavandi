@@ -161,6 +161,17 @@ frente el seguimiento consulta de inmediato (ADR-0007).
   con el de Firebase por los mismos mensajes. Ese camino de iPhone corre con la tarea 5.2.
 - **Si la petición falla,** la app sigue sin avisos y sin error (avisos-E08).
 
+### 7. El mensaje de cambio de estado adelanta la consulta del seguimiento abierto
+
+- Con la sesión del usuario, la app escucha los mensajes que llegan con ella al frente (`onMessage`). El que trae
+  `data.tipo = "cambio_de_estado"` se entrega al seguimiento abierto de ese pedido (`src/avisos/cambiosDeEstado.ts`), que
+  consulta `GET /api/pedidos/{id_publico}` de inmediato con el "consultar de nuevo" de la consulta periódica, y vuelve a
+  contar los 30 segundos desde ahí (avisos-E15). El aviso visible de un momento trae los mismos datos y hace lo mismo.
+- La app no toma el estado del mensaje: lo pide a la api, que es la que lo sabe. Un mensaje de otro pedido, o que no es
+  de cambio de estado, no hace nada.
+- Con la app al frente, Android no muestra el aviso visible de un momento: lo entrega a la app. El seguimiento abierto
+  lo refleja al instante; mostrar además un aviso dentro de la app no lo pide ningún escenario.
+
 ### Lo que no se comprobó en un teléfono
 
 - La captura del aviso en Android (avisos-E17) espera las llaves de Firebase (DD-072).

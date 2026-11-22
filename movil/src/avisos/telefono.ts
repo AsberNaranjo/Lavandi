@@ -6,12 +6,14 @@
 // pide a quien nunca respondió (avisos-E07, src/avisos/permiso.ts): sin él, el teléfono no se registra y el seguimiento
 // se pone al día con la consulta (avisos-E08, ADR-0007). Al cerrar la sesión, la app manda el
 // token registrado con DELETE /api/sesion para que la api lo borre (avisos-E05; src/sesion/ProveedorDeSesion.tsx).
+// Mientras tanto, entrega los mensajes que llegan con la app al frente (avisos-E15; src/avisos/cambiosDeEstado.ts).
 //
 // Si algo falla (Firebase no da el token, o la api no contesta), la app sigue sin error: lo vuelve a intentar al abrirse
 // otra vez o cuando Firebase renueve el token. Solo se usa con los avisos disponibles (src/avisos/firebase.ts).
 import { Platform } from 'react-native';
 
 import { registrarDispositivo, type Plataforma } from './api';
+import { avisarElCambioDeEstado } from './cambiosDeEstado';
 import { mensajeria } from './firebase';
 import { leerPermisoDeAvisos, permisoAlAbrirLaSesion } from './permiso';
 
@@ -63,16 +65,20 @@ export function vigilarElTelefono(tokenDeSesion: string): () => void {
   };
 
   let dejarDeEscuchar: () => void = () => undefined;
+  let dejarDeRecibir: () => void = () => undefined;
   try {
     dejarDeEscuchar = libreria.onTokenRefresh(instancia, (renovado) => sinFallar(renovado));
+    // Los mensajes con la app al frente: el de un cambio de estado adelanta la consulta del seguimiento (avisos-E15).
+    dejarDeRecibir = libreria.onMessage(instancia, (mensaje) => avisarElCambioDeEstado(mensaje.data));
   } catch {
-    // Sin la escucha de la renovación, el token se vuelve a mandar al abrir la app.
+    // Sin las escuchas, el token se vuelve a mandar al abrir la app y el seguimiento consulta cada 30 segundos.
   }
   sinFallar();
 
   return () => {
     vigente = false;
     dejarDeEscuchar();
+    dejarDeRecibir();
     if (registrado?.sesion === tokenDeSesion) {
       registrado = null;
     }
