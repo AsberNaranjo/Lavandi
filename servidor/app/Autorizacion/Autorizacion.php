@@ -261,6 +261,17 @@ final class Autorizacion
     }
 
     /**
+     * Si la cuenta ve los reportes financieros del panel, los ingresos por periodo y la conciliación con la pasarela:
+     * solo la administración (NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #6; administracion-E17, E20 y
+     * E21). Sus páginas, sus widgets y la acción de conciliar preguntan aquí. Cuentan los pagos de todas las plazas, como
+     * el resto del panel: la administración las ve todas.
+     */
+    public function puedeVerLosReportesFinancieros(Usuario $usuario): bool
+    {
+        return $this->puedeEntrarAlPanel($usuario);
+    }
+
+    /**
      * Las direcciones que la cuenta ve y usa: solo las suyas (direcciones-E14). Toda consulta de direcciones de la API
      * parte de aquí.
      *

@@ -202,6 +202,32 @@ vigencia viven en `App\Comisiones\PorcentajesDeComision`, no en las páginas:
   cobrado lo decide DD-020 (E15 y E16).
 - El porcentaje de un socio repartidor espera DD-019 (E14).
 
+**Ingresos** (`/admin/ingresos`; tarea 4.1, administracion-E17), en el grupo "Reportes financieros" del menú. Es un
+tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages\ReporteDeIngresos`):
+
+- **El periodo:** la administración elige el primer y el último día, los dos incluidos, y si lo ve por día, semana o mes,
+  con las mismas reglas del rango de los indicadores (`App\Indicadores\Rango`): por semana o por mes se ajusta a
+  periodos completos, y sin filtros es el mes en curso hasta hoy.
+- **Lo que muestra:** los ingresos de todo el periodo, en pesos, con cuántos pagos confirmados son, y una tabla con los
+  de cada periodo (periodo, pagos confirmados e ingresos). Es de solo lectura y no se refresca sola: el contrato no lo
+  pide para un reporte, y las cifras cambian al mover los filtros o al recargar.
+- **Qué cuenta (lectura 4):** cada pago en `pagado`, el estado que solo pone el aviso auténtico de la pasarela
+  (`App\Cobro\RecepcionDeAvisos`; ADR-0010, decisión 1). No cuentan una orden creada y sin confirmar, un intento
+  rechazado (`fallido`) ni un cobro vencido o cancelado. Entra cualquier `tipo`: hoy solo existe el cobro; el ajuste de
+  DD-012 entraría como lo cobrado que es, y qué hacer con él lo dice administracion-E18.
+- **Los montos y DD-012 (lectura del implementador):** el ingreso es `pagos.monto`, lo que la pasarela cobró, no el
+  monto estimado ni el final del pedido. Qué monto se cobra lo fija el modelo de cobro (pago-E14, DD-012): este cálculo
+  no lo afirma ni depende de esa respuesta. Los reembolsos no se descuentan todavía (administracion-E18, bloqueado por
+  DD-012 y DD-016): son ingresos brutos.
+- **La fecha:** la de la confirmación del pago (`pagos.pagado_en`), en la zona horaria de la plaza del pedido
+  (`modelo-multi-plaza.md`): un pago de las 23:30 del 31 de marzo cuenta en marzo aunque en UTC ya sea abril.
+- **Una sola fuente:** `App\Finanzas\Ingresos` calcula el total y cada periodo; el indicador de ingresos brutos
+  (`indicadores`, indicadores-E16) y las descargas (`exportacion`) leen de ahí, así que nunca difieren.
+- **Quién lo ve:** `Autorizacion::puedeVerLosReportesFinancieros()`, solo la administración; la página y sus dos widgets
+  le preguntan, y un widget montado por otra cuenta responde 403. Cuentan los pagos de todas las plazas.
+- Las comisiones del periodo esperan la base de cálculo (administracion-E19, DD-020) y la conciliación vive en su propia
+  página.
+
 **Avisos masivos** (`/admin/avisos-masivos`; tarea 5.1, administracion-E23), en el menú como "Avisos masivos":
 
 - **La lista:** los avisos enviados, del más reciente al más antiguo, con su título, su texto, cuándo y quién lo mandó

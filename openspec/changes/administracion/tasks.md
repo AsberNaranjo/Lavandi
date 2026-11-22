@@ -29,7 +29,7 @@ M = 5 h.
 
 ## 4. Reportes financieros (servidor/)
 
-- [ ] 4.1 administracion-E17: ingresos del periodo con los pagos que la pasarela confirmó por webhook, en la hora de la plaza — test: `servidor/tests/Feature/Administracion/ReportesFinancierosTest.php` — tamaño M
+- [x] 4.1 administracion-E17: ingresos del periodo con los pagos que la pasarela confirmó por webhook, en la hora de la plaza — test: `servidor/tests/Feature/Administracion/ReportesFinancierosTest.php` — tamaño M
 - [ ] 4.2 administracion-E18: reembolsos y ajustes en los ingresos — test: `servidor/tests/Feature/Administracion/ReportesFinancierosTest.php` — tamaño S — bloqueada: DD-012, DD-016
 - [ ] 4.3 administracion-E19: comisiones del periodo por socio y en total — test: `servidor/tests/Feature/Administracion/ReportesFinancierosTest.php` — tamaño S — bloqueada: DD-020
 - [ ] 4.4 administracion-E20: lectura de los movimientos de la pasarela del periodo y marca de los conciliados (pasarela simulada) — test: `servidor/tests/Feature/Administracion/ConciliacionTest.php` — tamaño M — bloqueada: DD-112; antes: ADR de la fuente de la conciliación (design.md, pregunta 2)
