@@ -270,7 +270,8 @@ class CargaDelCatalogoTest extends TestCase
      */
     private function archivoCon(string $original, callable $cambio, bool $utf8 = false): string
     {
-        $lineas = explode("\r\n", rtrim(mb_convert_encoding((string) file_get_contents($original), 'UTF-8', 'ISO-8859-1')));
+        $contenido = rtrim(mb_convert_encoding((string) file_get_contents($original), 'UTF-8', 'ISO-8859-1'));
+        $lineas = preg_split('/\r\n|\n|\r/', $contenido) ?: [];
         $texto = implode("\r\n", $cambio($lineas))."\r\n";
 
         $archivo = (string) tempnam(sys_get_temp_dir(), 'sepomex');
