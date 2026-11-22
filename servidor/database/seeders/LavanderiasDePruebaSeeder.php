@@ -29,6 +29,11 @@ use Illuminate\Support\Facades\DB;
  * filtro de calificación (cercanas-E17), y la lavandería de prueba 4 sin ninguna. Solo se siembran si la lavandería
  * todavía no tiene calificaciones.
  *
+ * Las tres de Durango, en local, las administra una cuenta de socio lavandería que sí entra a la app, con su correo de
+ * CUENTA y la contraseña CONTRASENA_DE_PRUEBA, para probar el Módulo B en un teléfono (pedidos-de-la-lavanderia y
+ * estados-del-pedido). Fuera de local, como las demás, la administra una cuenta sin contraseña. No son secretos: son
+ * cuentas ficticias que solo existen en la máquina de desarrollo.
+ *
  * Solo se siembran en local y en prueba, nunca en producción (ADR-0012; cercanas-E22). Sembrar dos veces no las
  * duplica: la lavandería se reconoce por su plaza y su nombre, y la cuenta por su correo.
  */
@@ -84,6 +89,7 @@ class LavanderiasDePruebaSeeder extends Seeder
         // inicial (DD-093, DD-094).
         [
             'nombre' => 'Lavandería de prueba Durango Centro',
+            'cuenta' => 'lavanderia.centro@ejemplo.com',
             'latitud' => 24.0277,
             'longitud' => -104.6532,
             'estado' => Lavanderia::ACTIVA,
@@ -92,6 +98,7 @@ class LavanderiasDePruebaSeeder extends Seeder
         ],
         [
             'nombre' => 'Lavandería de prueba Durango Norte',
+            'cuenta' => 'lavanderia.norte@ejemplo.com',
             'latitud' => 24.0450,
             'longitud' => -104.6600,
             'estado' => Lavanderia::ACTIVA,
@@ -100,6 +107,7 @@ class LavanderiasDePruebaSeeder extends Seeder
         ],
         [
             'nombre' => 'Lavandería de prueba Durango Sur',
+            'cuenta' => 'lavanderia.sur@ejemplo.com',
             'latitud' => 24.0100,
             'longitud' => -104.6400,
             'estado' => Lavanderia::ACTIVA,
@@ -128,6 +136,12 @@ class LavanderiasDePruebaSeeder extends Seeder
     /** El dominio reservado para pruebas (RFC 2606): ningún correo de estas cuentas llega a nadie. */
     private const DOMINIO_DE_PRUEBA = 'prueba.test';
 
+    /**
+     * La contraseña de prueba de las cuentas de las lavanderías de Durango, solo en local. Cumple el mínimo de
+     * config/acceso.php.
+     */
+    public const CONTRASENA_DE_PRUEBA = 'lavanderia-de-prueba';
+
     public function run(ResolucionDePunto $resolucion): void
     {
         // Aunque alguien fuerce el sembrado, y aunque ya haya plazas que cubran los puntos (cercanas-E22).
@@ -150,7 +164,7 @@ class LavanderiasDePruebaSeeder extends Seeder
                 $lavanderia = Lavanderia::withTrashed()->updateOrCreate(
                     ['id_plazas' => $punto->plaza->getKey(), 'nombre' => $datos['nombre']],
                     [
-                        'id_usuarios' => $this->cuenta('lavanderia-de-prueba-'.($numero + 1), Rol::LAVANDERIA)->getKey(),
+                        'id_usuarios' => $this->administradorDe($datos, $numero)->getKey(),
                         'descripcion' => 'Lavandería ficticia para probar la app. No es una lavandería real.',
                         'calle' => 'Calle de prueba',
                         'numero' => (string) ($numero + 1),
@@ -222,6 +236,26 @@ class LavanderiasDePruebaSeeder extends Seeder
     /**
      * Una cuenta de prueba con su rol, sin contraseña: no sirve para entrar, solo para ser dueña de los datos.
      */
+    /**
+     * La cuenta de socio lavandería que administra la lavandería de prueba: en local, la que entra a la app, si tiene
+     * una en CUENTA; si no, una sin contraseña del dominio reservado para pruebas.
+     *
+     * @param  array<string, mixed>  $datos
+     */
+    private function administradorDe(array $datos, int $numero): Usuario
+    {
+        if (! isset($datos['cuenta']) || ! app()->environment('local')) {
+            return $this->cuenta('lavanderia-de-prueba-'.($numero + 1), Rol::LAVANDERIA);
+        }
+
+        $cuenta = Usuario::withTrashed()->firstOrCreate(['correo' => $datos['cuenta']]);
+        // Siempre la de prueba: así el correo y la contraseña que se documentan sirven aunque alguien la haya cambiado.
+        $cuenta->forceFill(['password' => self::CONTRASENA_DE_PRUEBA, 'deleted_at' => null])->save();
+        $cuenta->roles()->syncWithoutDetaching([Rol::where('codigo', Rol::LAVANDERIA)->sole()->getKey()]);
+
+        return $cuenta;
+    }
+
     private function cuenta(string $nombre, string $rol): Usuario
     {
         $cuenta = Usuario::withTrashed()->firstOrCreate(['correo' => "{$nombre}@".self::DOMINIO_DE_PRUEBA]);
