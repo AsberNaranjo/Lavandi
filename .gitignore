@@ -53,6 +53,8 @@ servidor/public/hot
 servidor/bootstrap/cache/*.php
 .phpunit.result.cache
 *.log
+# Salvo los registros de las pruebas que se guardan como evidencia: el de Maestro trae los tiempos medidos.
+!vault/evidencias/**/*.log
 movil/android/
 movil/ios/
 movil/web-build/

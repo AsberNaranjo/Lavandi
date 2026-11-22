@@ -151,4 +151,29 @@ GET /api/lavanderia/pedidos/{id_publico}
   al volver a la pantalla o al traer la app al frente consulta de inmediato (estados-E15 y E16). Vive en
   `movil/src/estados/useConsultaPeriodica.ts`, que comparte con la lista de la lavandería. Se decidió por delegación de Arthur (C-236), con la tarea 4.2; TanStack Query
   u otra biblioteca no entran mientras no hagan falta.
-- **Dónde viven los flujos de Maestro.** No hay convención escrita; las tareas usan `movil/.maestro/estados/`.
+- **Dónde viven los flujos de Maestro y cómo se cronometra estados-E17: resuelta** con la tarea 4.3, por delegación de
+  Arthur (C-236). La recomendación, que es la que quedó:
+  - **Dónde.** Cada flujo, en `movil/.maestro/<cambio>/`; lo que usa y no se corre solo, en `pasos/`, porque Maestro
+    corre como prueba cada archivo de la carpeta que recibe, pero no los de sus subcarpetas. La preparación y el script
+    de las corridas van junto al flujo, en PowerShell, como `herramientas/apk-local/compilar.ps1`.
+  - **Maestro.** La CLI 2.12.1 del release oficial (`cli-2.12.1` de `mobile-dev-inc/maestro`), con su SHA-256
+    comprobado, fuera del repositorio, en `%LOCALAPPDATA%\lavandi-android\maestro`, con el JDK 17. Se fija la versión
+    para que las corridas se puedan repetir; se cambia a propósito, no al actualizar.
+  - **Cada corrida empieza igual.** El flujo borra los datos de la app, pasa la bienvenida e inicia sesión por la
+    pantalla, sin inyectar la sesión; concede la ubicación al abrir para que el inicio no lo detenga con el diálogo. El
+    pedido nace por el camino real, por la API, con la pasarela simulada y la aceptación de la lavandería, uno por
+    corrida (`preparar-pedido.ps1`).
+  - **El seguimiento se abre con el enlace de la app**, `<APP_IDENTIFIER>://pedido/seguimiento/<id_publico>`: el
+    esquema de los enlaces es el identificador de la app (`app.config.ts`). Así el flujo no depende del historial.
+  - **El cronómetro.** Empieza en la máquina, justo antes de que salga el botón de la lavandería por la API con su token,
+    y termina cuando Maestro lee "Recolectado, estado actual" en la etiqueta de accesibilidad del paso. Así incluye lo
+    que tarda el servidor en guardar y lo que tarda Maestro en leer la pantalla: puede pasarse un poco del real, nunca
+    quedarse corto. Falla si pasa de 60 000 ms, y la espera tiene un tope de 60 s. Se lee la etiqueta del paso y no el
+    texto suelto porque los cinco nombres siempre están en la pantalla; la insignia del estado actual se busca arriba
+    de los pasos, porque en la jerarquía que lee Maestro en Android su nombre no queda dentro de `estado-actual`.
+  - **La evidencia.** La salida de Maestro de cada corrida y un `resumen.csv` van al vault, en
+    `vault/evidencias/estados/`. El `.gitignore` deja pasar los `.log` de `vault/evidencias/`, porque el registro de
+    Maestro trae los tiempos; el registro completo del teléfono no se versiona.
+  - **Lo que queda fuera.** El flujo marca unos 3 s después de la primera consulta, así que cada corrida cae cerca del
+    peor caso de la consulta cada 30 s. No se agrega una espera al azar para variar la fase: alargaría la prueba sin
+    cambiar el peor caso. Los 10 cambios en teléfonos reales que pide la trazabilidad de A43-3 son otra prueba.

@@ -21,7 +21,7 @@
 
 - [x] 4.1 estados-E02 y estados-E24: pantalla de seguimiento con el componente 3 del design system: estado actual con su nombre, anteriores cumplidos y siguientes pendientes, solo con los cinco nombres — test: `movil/__tests__/estados/seguimiento.test.tsx` — tamaño M
 - [x] 4.2 estados-E15 y estados-E16: consulta cada 30 segundos solo con la pantalla visible, y consulta inmediata al volver — test: `movil/__tests__/estados/consulta-periodica.test.tsx` — tamaño S
-- [ ] 4.3 estados-E17: flujo de Maestro en Android que cronometra el cambio de Confirmado a Recolectado en 60 segundos o menos — test: `movil/.maestro/estados/cambio-en-60-segundos.yaml` — tamaño S
+- [x] 4.3 estados-E17: flujo de Maestro en Android que cronometra el cambio de Confirmado a Recolectado en 60 segundos o menos — test: `movil/.maestro/estados/cambio-en-60-segundos.yaml` — tamaño S. Lo corren `movil/.maestro/estados/correr-cambio-en-60-segundos.ps1`, que prepara un pedido por corrida con `preparar-pedido.ps1`, y Maestro 2.12.1. Tres corridas en el emulador con Android 15 el 2026-11-22: 27.5, 27.0 y 26.8 s; evidencia en `vault/evidencias/estados/estados-e17-cambio-en-60-segundos-2026-11-22.md`. Cómo se corre: `vault/formas-de-trabajo/correr-la-app-en-local.md`, sección 5-ter. No acredita A43-3 todavía: faltan los 10 cambios en teléfonos reales, el repartidor e iPhone
 
 ## 5. App: los botones de la lavandería
 
