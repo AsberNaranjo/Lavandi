@@ -17,5 +17,7 @@ class DatabaseSeeder extends Seeder
         // Las plazas ficticias y después sus lavanderías; cada sembrador no hace nada en producción.
         $this->call(PlazasDePruebaSeeder::class);
         $this->call(LavanderiasDePruebaSeeder::class);
+        // Las cuentas para entrar a mano al panel y a la app; solo en local.
+        $this->call(CuentasDeDesarrolloSeeder::class);
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CatalogoDelTerritorioController;
 use App\Http\Controllers\Api\CuentaController;
 use App\Http\Controllers\Api\DireccionesController;
 use App\Http\Controllers\Api\DispositivosController;
+use App\Http\Controllers\Api\LavanderiaDelSocioController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
 use App\Http\Controllers\Api\PedidosController;
 use App\Http\Controllers\Api\PerfilController;
@@ -95,4 +96,20 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     // El token de Firebase del teléfono que recibe los avisos de la cuenta (avisos). El contrato está en el
     // controlador; se borra al cerrar la sesión, con DELETE sesion.
     Route::post('dispositivos', [DispositivosController::class, 'registrar'])->name('dispositivos.registrar');
+});
+
+// El Módulo B del socio lavandería: su lavandería (alta-de-lavanderias). Con sesión y por el componente único de
+// autorización con el rol de socio lavandería; la tenencia la decide Autorizacion::lavanderiasDeLaCuenta(). El contrato
+// está en el controlador.
+Route::middleware(['auth:sanctum', 'autorizar:lavanderia'])->prefix('socio')->group(function () {
+    Route::post('lavanderias', [LavanderiaDelSocioController::class, 'registrar'])->name('socio.lavanderias.registrar');
+    Route::get('lavanderias', [LavanderiaDelSocioController::class, 'lista'])->name('socio.lavanderias.lista');
+    // Su lavandería, por su ULID. Una ajena responde igual que una que no existe (alta-lavanderias-E20).
+    Route::get('lavanderias/{lavanderia}', [LavanderiaDelSocioController::class, 'mostrar'])
+        ->whereUlid('lavanderia')
+        ->name('socio.lavanderias.mostrar');
+    // Con foto, la app la manda en multipart por POST con _method=PATCH.
+    Route::patch('lavanderias/{lavanderia}', [LavanderiaDelSocioController::class, 'editar'])
+        ->whereUlid('lavanderia')
+        ->name('socio.lavanderias.editar');
 });

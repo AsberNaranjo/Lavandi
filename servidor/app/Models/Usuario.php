@@ -6,6 +6,7 @@ use App\Autorizacion\Autorizacion;
 use App\Models\Concerns\TieneIdPublico;
 use Database\Factories\UsuarioFactory;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -32,7 +33,7 @@ use Laravel\Sanctum\HasApiTokens;
  * El correo se guarda en minúsculas y se busca sin distinguir mayúsculas, como lo exige el único sobre lower(correo).
  * La contraseña se guarda con el hash de Laravel y nunca sale en JSON (registro-E05 y registro-E06).
  */
-class Usuario extends Modelo implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, FilamentUser
+class Usuario extends Modelo implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, FilamentUser, HasName
 {
     use Authenticatable;
     use Authorizable;
@@ -124,5 +125,14 @@ class Usuario extends Modelo implements AuthenticatableContract, AuthorizableCon
     public function canAccessPanel(Panel $panel): bool
     {
         return app(Autorizacion::class)->puedeEntrarAlPanel($this);
+    }
+
+    /**
+     * El nombre con que el panel muestra la cuenta. La tabla no tiene name, y nombre está vacío hasta el perfil
+     * (C-225): entonces va el correo.
+     */
+    public function getFilamentName(): string
+    {
+        return filled($this->nombre) ? (string) $this->nombre : $this->correo;
     }
 }

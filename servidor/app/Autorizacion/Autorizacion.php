@@ -4,6 +4,7 @@ namespace App\Autorizacion;
 
 use App\Models\Direccion;
 use App\Models\Dispositivo;
+use App\Models\Lavanderia;
 use App\Models\Pedido;
 use App\Models\Rol;
 use App\Models\Usuario;
@@ -72,6 +73,33 @@ final class Autorizacion
     public function telefonosQueRecibenAvisosDe(Pedido $pedido): Builder
     {
         return Dispositivo::query()->where('id_usuarios', $pedido->id_usuarios);
+    }
+
+    /**
+     * Las lavanderías que la cuenta del socio administra y puede ver y editar: solo las suyas, en su plaza
+     * (alta-lavanderias-E20; NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, "un socio lavandería no puede consultar datos
+     * de otro socio"). Toda consulta de la lavandería desde el Módulo B parte de aquí; una ajena no aparece, y la ruta
+     * responde 404 como si no existiera (ADR-0019, decisión 3).
+     *
+     * @return Builder<Lavanderia>
+     */
+    public function lavanderiasDeLaCuenta(Usuario $usuario): Builder
+    {
+        return Lavanderia::query()->where('id_usuarios', $usuario->getKey());
+    }
+
+    /**
+     * Las lavanderías que la cuenta ve y gestiona en el panel: todas, de todas las plazas, si es de administración
+     * (autorizacion-E03 y E13; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #1); ninguna si no lo es. El
+     * recurso de lavanderías del panel parte de aquí, además de que el panel ya no deja entrar a otra cuenta.
+     *
+     * @return Builder<Lavanderia>
+     */
+    public function lavanderiasDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = Lavanderia::query();
+
+        return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
     }
 
     /**

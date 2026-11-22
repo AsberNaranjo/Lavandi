@@ -96,6 +96,8 @@ class MigracionTest extends TestCase
                 'id_lavanderias', 'id_publico', 'id_plazas', 'id_usuarios', 'nombre', 'descripcion', 'telefono',
                 'calle', 'numero', 'colonia', 'codigo_postal', 'ubicacion', 'estado', 'aprobada_en',
                 'created_at', 'updated_at', 'deleted_at',
+                // La agrega alta-de-lavanderias, al final (tests/Feature/AltaLavanderias/MigracionTest.php).
+                'id_municipios',
             ],
             Schema::getColumnListing('lavanderias'),
         );

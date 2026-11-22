@@ -60,6 +60,37 @@ return [
             'report' => false,
         ],
 
+        /*
+         * Las fotos de las lavanderías (config/fotos.php; ADR-0006). Las dos son privadas: la app y el panel las ven
+         * con una URL firmada que vence.
+         *
+         * fotos_local es el disco de local y de las pruebas: guarda en storage/app/private/fotos y sirve cada foto en
+         * /archivos/fotos/... solo con firma válida. fotos_s3 es el de producción: el bucket privado del entorno, con
+         * las credenciales del .env de cada entorno, nunca en el repositorio (ADR-0012).
+         */
+        'fotos_local' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/fotos'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/archivos/fotos',
+            'visibility' => 'private',
+            'serve' => true,
+            'throw' => true,
+            'report' => false,
+        ],
+
+        'fotos_s3' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('FOTOS_BUCKET', env('AWS_BUCKET')),
+            'endpoint' => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
     ],
 
     /*
