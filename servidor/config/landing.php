@@ -98,6 +98,13 @@ return [
     ],
 
     /*
+     * Sección 9, "Preguntas frecuentes": la ruta del archivo JSON con las preguntas y sus respuestas, absoluta o relativa
+     * a la carpeta del servidor, como lista de {"pregunta": "…", "respuesta": "…"}. Se muestran a lo más ocho
+     * (landing-E20; App\Landing\PreguntasFrecuentes).
+     */
+    'preguntas_frecuentes' => env('LANDING_PREGUNTAS_FRECUENTES'),
+
+    /*
      * Sección 11, "Contacto & Soporte": el correo de contacto, que confirma EL CLIENTE (DD-117). El número de WhatsApp
      * Business es el de config/soporte.php (SOPORTE_WHATSAPP, DD-082), el mismo del soporte de la app (landing-E23).
      */
