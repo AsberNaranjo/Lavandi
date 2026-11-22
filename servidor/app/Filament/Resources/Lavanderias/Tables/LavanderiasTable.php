@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Lavanderias\Tables;
 
+use App\Filament\Resources\Lavanderias\Actions\AccionesDeEstado;
 use App\Models\Lavanderia;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -41,6 +42,7 @@ class LavanderiasTable
             ->defaultSort('nombre')
             ->recordActions([
                 EditAction::make()->label('Editar'),
+                ...AccionesDeEstado::todas(),
             ]);
     }
 }

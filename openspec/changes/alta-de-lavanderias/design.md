@@ -166,6 +166,12 @@ El recurso de lavanderías de Filament (ADR-0003, ADR-0011) vive en `servidor/ap
   `PATCH` de la app: así una lavandería de prueba sin municipio, o con sus franjas largas de prueba, se edita en lo
   demás. La foto solo cambia si se sube una nueva.
 - **No hay alta ni borrado:** el alta espera DD-053 (E11) y la baja no borra (E17).
+- **Suspender y levantar la suspensión** (E14, E15) son acciones de la lista y de la página de cada lavandería, con
+  confirmación (`app/Filament/Resources/Lavanderias/Actions/AccionesDeEstado.php`). La regla vive en
+  `App\Lavanderias\EstadoDeLaLavanderia`, con la fila bloqueada: se suspende una activa o una pendiente; levantar
+  regresa a `activa` si `aprobada_en` tiene fecha y a `pendiente` si no. El efecto en la búsqueda, el perfil y los
+  pedidos nuevos sale solo de `Lavanderia::visiblesParaElUsuario()`, que ya excluía las suspendidas: no se tocó la
+  creación del pedido. Los pedidos en curso no se tocan (E16, DD-104).
 - **`Usuario` implementa `HasName` de Filament:** el panel no podía pintar la barra de la cuenta de administración
   porque `usuarios` no tiene `name`; muestra el nombre, o el correo mientras el nombre esté vacío (C-225).
 - **El idioma de la interfaz de Filament** sale de `APP_LOCALE`, que hoy es `en` en `.env.example`: las etiquetas de

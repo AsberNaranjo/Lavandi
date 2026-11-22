@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Lavanderias\Pages;
 
 use App\Direcciones\GeocodificacionNoDisponible;
+use App\Filament\Resources\Lavanderias\Actions\AccionesDeEstado;
 use App\Filament\Resources\Lavanderias\LavanderiaResource;
 use App\Http\Resources\LavanderiaDelSocioResource;
 use App\Lavanderias\DireccionNoUbicable;
@@ -12,6 +13,7 @@ use App\Lavanderias\ReglasDeLaLavanderia;
 use App\Models\Lavanderia;
 use App\Models\LavanderiaHorario;
 use App\Models\LavanderiaServicio;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Exceptions\Halt;
@@ -45,6 +47,16 @@ class EditLavanderia extends EditRecord
      */
     #[Locked]
     public array $inicial = [];
+
+    /**
+     * Las acciones de estado: suspender y levantar la suspensión (alta-lavanderias-E14 y E15).
+     *
+     * @return list<Action>
+     */
+    protected function getHeaderActions(): array
+    {
+        return AccionesDeEstado::todas();
+    }
 
     /**
      * @param  array<string, mixed>  $data
