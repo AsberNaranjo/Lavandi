@@ -163,8 +163,8 @@ DD-079) y `movimientos_pasarela`
   DD-012 y DD-056, y cómo hace ajustes y reembolsos (pago-E15 y E16; ADR-0010, punto 3) espera DD-012 y DD-016.
 - **DD-079: el cambio de pasarela.** EL CLIENTE dio un OK expreso y la firma sigue pendiente (C-216). Si se firma, el
   ADR de la elegida (Stripe o Mercado Pago, C-192) reemplaza a ADR-0010 y responde lo mismo para ella.
-- **El `CHECK` de `pasarela` y la pasarela simulada.** El valor real es `conekta`. Si el `CHECK` solo admite ese valor,
-  la pasarela simulada de las pruebas no puede usar uno propio. Lo resuelve Arthur al escribir la tarea 1.1.
+- **El `CHECK` de `pasarela` y la pasarela simulada.** Resuelta en la tarea 1.1 (ver "Decisiones de la
+  implementación", punto 1): el `CHECK` admite `conekta` y `simulada`.
 - **Contrato contra ADR-0010: ¿se paga dentro de la app?** El contrato dice "Permite que el usuario pague dentro de la
   aplicación" (`NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`); ADR-0010 dice que "el usuario sale un momento de la app
   para pagar". Manda el contrato, y pago-E02 lo escribe así: el checkout se abre en la vista de navegador del sistema
@@ -184,5 +184,25 @@ DD-079) y `movimientos_pasarela`
   configuración; nunca la marca escrita a mano (`CLAUDE.md` §5).
 - **El estado de un intento rechazado.** pago-E04 deja reintentar el mismo cobro; si el cobro sigue `pendiente` o pasa a
   `fallido` y se abre otro lo fija Arthur al escribir la tarea 2.5.
-- **Los valores de `reembolsos.estado`.** El modelo no los da; se fijan con pago-E16 y el ADR de la pasarela.
+- **Los valores de `reembolsos.estado`.** Resuelta en la tarea 1.1: `vault/arquitectura/modelo-de-datos.md` sí los da
+  (`pendiente`, `reembolsado`, `fallido`) y van en un `CHECK`. Si pago-E16 o el ADR de la pasarela piden otro, entra con
+  una migración hacia adelante.
 - **`created_at` y `updated_at`.** Resuelta: van en las tres tablas, en `timestamptz` (modelo-E17; ADR-0016, regla 7).
+
+## Decisiones de la implementación
+
+Las tomó Claude por delegación de Arthur (C-236), dentro de lo que dicen la spec y los ADRs. Ninguna cambia lo que hace
+el sistema ni toca otro cambio.
+
+1. **`pasarela` admite `conekta` y `simulada`** (tarea 1.1), con el mismo `CHECK` en `pagos` y en `eventos_pasarela`.
+   `conekta` es la del contrato (ADR-0010); `simulada` es la de local y las pruebas, y el código no la usa en ningún otro
+   entorno (punto 3), así que en producción ninguna fila puede llevarla aunque el `CHECK` la admita. Por qué no solo
+   `conekta`: la pasarela simulada no podría guardar su orden, y las pruebas fingirían ser Conekta. Si se firma el cambio
+   de pasarela (DD-079), la elegida entra con una migración hacia adelante.
+2. **Integridad del cobro en la base** (tarea 1.1), además de lo que pide el diseño:
+   - un solo cobro por pedido, con el índice único parcial `pagos_un_cobro_por_pedido` (`tipo = 'cobro'`); el ajuste de
+     DD-012 va aparte. Un intento rechazado se reintenta con el mismo cobro (punto 6);
+   - un pago `pagado` lleva su `pagado_en` (`pagos_pagado_en_check`);
+   - `eventos_pasarela.tipo` es el evento ya traducido, sin proveedor: `aprobado`, `rechazado`, `vencido` u `otro`;
+   - `reembolsos.estado`, con los tres valores del modelo de datos; `reembolsos.motivo` es opcional hasta que DD-016 y
+     DD-103 digan si siempre hay uno.

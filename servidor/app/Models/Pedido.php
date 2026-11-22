@@ -6,6 +6,7 @@ use App\Models\Concerns\TieneIdPublico;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Un pedido: siempre de la plaza de su lavandería, de una cuenta, con su ventana de recolección, su estado actual y sus
@@ -261,6 +262,26 @@ class Pedido extends Modelo
     public function evidencias(): HasMany
     {
         return $this->hasMany(Evidencia::class, 'id_pedidos');
+    }
+
+    /**
+     * Los pagos del pedido: su cobro y, si DD-012 lo pide, un ajuste (openspec/changes/pago/).
+     *
+     * @return HasMany<Pago, $this>
+     */
+    public function pagos(): HasMany
+    {
+        return $this->hasMany(Pago::class, 'id_pedidos');
+    }
+
+    /**
+     * El cobro del pedido, el único pago de tipo cobro. Vacío mientras pago-E14 no lo cree (DD-012).
+     *
+     * @return HasOne<Pago, $this>
+     */
+    public function cobro(): HasOne
+    {
+        return $this->hasOne(Pago::class, 'id_pedidos')->where('tipo', Pago::COBRO);
     }
 
     /**
