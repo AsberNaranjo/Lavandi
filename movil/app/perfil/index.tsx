@@ -1,6 +1,8 @@
 // "Mi perfil" del Módulo A (openspec/changes/perfil-y-soporte; NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo A
 // #15). Se abre desde "Mi perfil" en la pantalla principal y pide el perfil al servidor con la sesión.
 //
+// - Arriba, la foto: se toma con la cámara o se elige de la galería, y se sube comprimida en cuanto se tiene
+//   (perfil-usuario-E03); si la API la rechaza, el error va junto a ella y la anterior sigue (perfil-usuario-E04).
 // - El nombre se cambia y se guarda con "Guardar nombre" (perfil-usuario-E01). La app manda lo que se escribió y el
 //   servidor quita los espacios de los lados; el perfil muestra el nombre que guardó. Vacío o solo con espacios, la API
 //   lo rechaza y el error va junto al campo; el nombre guardado no cambia (perfil-usuario-E02).
@@ -8,13 +10,13 @@
 // - Las direcciones guardadas son las favoritas de la cuenta (perfil-usuario-E05).
 // - "Eliminar mi cuenta", al final, borra la cuenta después de confirmarlo y vuelve a la bienvenida (perfil-usuario-E15).
 //
-// La composición sigue la imagen a15-perfil de la Propuesta 04 en lo que tiene escenario. Del mock no entran todavía: la
-// foto (tarea 2.2, que espera el disco privado del servidor), los métodos de pago (perfil-usuario-E07, bloqueado por
-// DD-055), las notificaciones (tarea 2.3, con el cambio avisos), lo legal (textos-legales), la barra inferior y el lápiz
-// de cada dirección (su edición no existe todavía). "Cerrar sesión" sigue en la pantalla principal (registro-E13).
+// La composición sigue las imágenes a15-perfil y a15-perfil-foto de la Propuesta 04 en lo que tiene escenario. Del mock
+// no entran todavía: los métodos de pago (perfil-usuario-E07, bloqueado por DD-055), las notificaciones (tarea 2.3, con
+// el cambio avisos), lo legal (textos-legales), la barra inferior y el lápiz de cada dirección (su edición no existe
+// todavía). "Cerrar sesión" sigue en la pantalla principal (registro-E13).
 //
 // Si el perfil no llega, sin escenario propio: los mensajes generales de la app, como el perfil de la lavandería, y sin
-// el formulario del nombre.
+// la foto ni el formulario del nombre.
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
@@ -26,6 +28,7 @@ import { useRegresar } from '../../src/navegacion/regresar';
 import { cambiarNombre, type PerfilDeUsuario } from '../../src/perfil-usuario/api';
 import { BorrarCuenta } from '../../src/perfil-usuario/BorrarCuenta';
 import { DireccionesGuardadas } from '../../src/perfil-usuario/DireccionesGuardadas';
+import { FotoDePerfil } from '../../src/perfil-usuario/FotoDePerfil';
 import { mensajeDelNombre, TEXTOS_DEL_PERFIL_DE_USUARIO as TEXTOS } from '../../src/perfil-usuario/textos';
 import { usePerfilDeUsuario } from '../../src/perfil-usuario/usePerfilDeUsuario';
 import { Boton } from '../../src/piezas/Boton';
@@ -52,6 +55,7 @@ export default function MiPerfil() {
       {estado.fase === 'error' ? <MensajeDeError texto={mensajeDeLaFalla(estado.falla)} /> : null}
       {estado.fase === 'listo' ? (
         <>
+          <FotoDePerfil foto={estado.perfil.foto} alGuardar={actualizar} />
           <NombreYCorreo perfil={estado.perfil} alGuardar={actualizar} />
           <DireccionesGuardadas favoritas={favoritas} />
         </>

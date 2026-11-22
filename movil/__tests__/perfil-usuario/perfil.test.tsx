@@ -87,7 +87,7 @@ function respuesta(status: number, cuerpo: unknown) {
 }
 
 function perfil() {
-  return { id_publico: USUARIO.id_publico.toLowerCase(), nombre: nombreGuardado, correo: USUARIO.correo };
+  return { id_publico: USUARIO.id_publico.toLowerCase(), nombre: nombreGuardado, correo: USUARIO.correo, foto: null };
 }
 
 function tokenDe(opciones: RequestInit): string {

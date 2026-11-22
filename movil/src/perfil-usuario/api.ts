@@ -1,15 +1,16 @@
 // El perfil y el soporte de la cuenta (openspec/changes/perfil-y-soporte): leer el perfil y cambiar el nombre
-// (perfil-usuario-E01 y E02), el número de WhatsApp de soporte (perfil-usuario-E09 y E10), el reporte
-// (perfil-usuario-E11 y E12) y el borrado de la cuenta (perfil-usuario-E15). Todo va con el token de la sesión y actúa
+// (perfil-usuario-E01 y E02), subir la foto de perfil (perfil-usuario-E03 y E04), el número de WhatsApp de soporte
+// (perfil-usuario-E09 y E10), el reporte (perfil-usuario-E11 y E12) y el borrado de la cuenta (perfil-usuario-E15). Todo va con el token de la sesión y actúa
 // sobre la cuenta de la sesión: ninguna ruta recibe de quién. El contrato exacto con cada cuerpo y cada error está en design.md, sección "Contrato de la API", y en
 // el comentario de cada controlador de servidor/app/Http/Controllers/Api/. Como las demás consultas, nunca lanza:
 // devuelve un Resultado.
 import { pedir, type Falla, type Resultado } from '../configuracion/api';
-import { esObjeto } from '../configuracion/lectura';
+import { esObjeto, fotoFirmada, type FotoFirmada } from '../configuracion/lectura';
 
 /** Las rutas del perfil y del soporte, en un solo lugar para ajustarlas. */
 export const CONTRATO_DEL_PERFIL = {
   perfil: 'perfil',
+  foto: 'perfil/foto',
   soporte: 'soporte',
   reportes: 'soporte/reportes',
   cuenta: 'cuenta',
@@ -22,6 +23,8 @@ export interface PerfilDeUsuario {
   nombre: string | null;
   /** Solo para mostrarlo: no se cambia desde el perfil. */
   correo: string;
+  /** La URL firmada vence: al volver a pedir el perfil llega otra (perfil-usuario-E03). null hasta que sube una. */
+  foto: FotoFirmada | null;
 }
 
 /** GET del perfil de la cuenta de la sesión (perfil-usuario-E01). */
@@ -36,6 +39,31 @@ export async function consultarPerfil(token: string): Promise<Resultado<PerfilDe
 export async function cambiarNombre(token: string, nombre: string): Promise<Resultado<PerfilDeUsuario>> {
   return leerRespuestaDelPerfil(
     await pedir<unknown>(CONTRATO_DEL_PERFIL.perfil, { metodo: 'PATCH', token, cuerpo: { nombre } }),
+  );
+}
+
+/**
+ * La foto en el formulario multipart (perfil-y-soporte, design.md, "La foto de perfil"): en el campo "foto", como JPEG,
+ * porque así la deja la compresión (src/alta-lavanderias/foto.ts).
+ */
+export const ARCHIVO_DE_LA_FOTO = {
+  campo: 'foto',
+  nombre: 'foto.jpg',
+  tipo: 'image/jpeg',
+} as const;
+
+/**
+ * POST de la foto de perfil ya comprimida en el teléfono, en multipart (perfil-usuario-E03). Reemplaza a la anterior y
+ * devuelve el perfil con la foto nueva, por su URL firmada. Un archivo que no es imagen o que pasa el peso máximo
+ * responde 422 con su error en "foto", y la foto anterior se conserva (perfil-usuario-E04).
+ */
+export async function subirFoto(token: string, foto: { uri: string }): Promise<Resultado<PerfilDeUsuario>> {
+  const { campo, nombre, tipo } = ARCHIVO_DE_LA_FOTO;
+  const formulario = new FormData();
+  // React Native lee la foto del teléfono por su dirección; el tipo de FormData de la web no lo describe.
+  formulario.append(campo, { uri: foto.uri, name: nombre, type: tipo } as unknown as Blob);
+  return leerRespuestaDelPerfil(
+    await pedir<unknown>(CONTRATO_DEL_PERFIL.foto, { metodo: 'POST', token, formulario }),
   );
 }
 
@@ -57,7 +85,12 @@ function leerPerfil(fila: unknown): PerfilDeUsuario | null {
   ) {
     return null;
   }
-  return { id_publico: fila.id_publico, nombre: fila.nombre, correo: fila.correo };
+  // La foto viene siempre: null si no tiene, o con su URL firmada.
+  const foto = fila.foto === null ? null : fotoFirmada(fila.foto);
+  if (fila.foto !== null && foto === null) {
+    return null;
+  }
+  return { id_publico: fila.id_publico, nombre: fila.nombre, correo: fila.correo, foto };
 }
 
 /** El soporte por WhatsApp Business: el número de la configuración del servidor, o null si no hay (DD-082). */

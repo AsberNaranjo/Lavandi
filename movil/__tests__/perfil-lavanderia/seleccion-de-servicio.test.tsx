@@ -41,6 +41,7 @@ const PERFIL = {
   id_publico: ID,
   nombre: 'Lavandería de prueba servicio',
   descripcion: null,
+  fotos: [],
   servicios: [ESTANDAR, PLANCHADO],
   calificacion_promedio: null,
   numero_de_calificaciones: 0,

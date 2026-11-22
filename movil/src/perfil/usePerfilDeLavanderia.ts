@@ -1,6 +1,6 @@
 // El perfil de una lavandería para su pantalla (perfil-lavanderia-E09): lo pide al servidor con la sesión al abrirse.
-// Cada vez que se abre la pantalla se pide de nuevo; así, cuando lleguen las fotos (tarea 2.1), sus URLs firmadas
-// vienen nuevas (design.md, Risks).
+// Cada vez que se abre la pantalla se pide de nuevo; así, las URLs firmadas de las fotos, que vencen, vienen nuevas
+// (perfil-lavanderia-E03 y E04; design.md, Risks).
 import { useEffect, useState } from 'react';
 
 import type { Falla } from '../configuracion/api';
