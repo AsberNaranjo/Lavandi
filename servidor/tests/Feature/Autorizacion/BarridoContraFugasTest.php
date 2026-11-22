@@ -122,13 +122,16 @@ class BarridoContraFugasTest extends TestCase
             default => $this->administracion,
         };
 
-        $pedidos = $direcciones = $lavanderias = [];
+        $pedidos = $direcciones = $lavanderias = $pagos = [];
         $datosAjenos = [];
 
         foreach ($ajenas as $marca) {
             $cadena = $this->cadenas[$marca];
             $pedidos[$cadena['enCurso']->id_publico] = "el pedido en curso {$marca}";
             $pedidos[$cadena['entregado']->id_publico] = "el pedido entregado {$marca}";
+            // El cobro de cada pedido, que el usuario consulta en "Procesando pago" (pago-E08).
+            $pagos[$cadena['enCurso']->cobro->id_publico] = "el cobro del pedido en curso {$marca}";
+            $pagos[$cadena['entregado']->cobro->id_publico] = "el cobro del pedido entregado {$marca}";
             $direcciones[$cadena['direccion']->id_publico] = "la dirección del usuario {$marca}";
             $lavanderias[$cadena['lavanderia']->id_publico] = "la lavandería {$marca}";
             // Al usuario, el perfil de las lavanderías es público; a los socios, una lavandería ajena no. Se juntan con +,
@@ -155,6 +158,7 @@ class BarridoContraFugasTest extends TestCase
             $rol,
             ajenos: [
                 'pedido' => $pedidos,
+                'pago' => $pagos,
                 'direccion' => $direcciones,
                 ...($esUsuario ? [] : ['lavanderia' => $lavanderias]),
             ],

@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\PedidosLavanderia\Soporte;
 
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\Lavanderia;
 use App\Models\Pedido;
 use App\Models\Plaza;
 use App\Models\Usuario;
-use App\Pedidos\ConfirmacionDePedido;
 use Carbon\CarbonImmutable;
 use Illuminate\Testing\TestResponse;
 
@@ -96,7 +96,7 @@ trait PedidosDeLaLavanderiaDePrueba
     }
 
     /**
-     * El mismo pedido, ya confirmado como lo confirmará el cobro (C-188).
+     * El mismo pedido, ya confirmado por su cobro pagado (C-188).
      */
     protected function pedidoConfirmadoEn(
         Lavanderia $lavanderia,
@@ -107,7 +107,7 @@ trait PedidosDeLaLavanderiaDePrueba
     ): Pedido {
         $pedido = $this->pedidoPorPagarEn($lavanderia, $cuenta, $hora, $latitud, $longitud);
 
-        return app(ConfirmacionDePedido::class)->confirmar($pedido)->fresh();
+        return app(CobroSimulado::class)->pagar($pedido)->fresh();
     }
 
     /**

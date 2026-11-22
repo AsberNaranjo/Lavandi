@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Repartidor;
 
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\EstadoPedido;
 use App\Models\Repartidor;
-use App\Pedidos\ConfirmacionDePedido;
 use App\Repartidores\EstadoDelRepartidor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -186,8 +186,8 @@ class PedidosAsignadosTest extends TestCase
         $this->assertNull($porPagar->fresh()->id_repartidores);
         $this->assertSame('ofrecido', $porPagar->asignaciones()->sole()->estado);
 
-        // La llamada directa a la operación de confirmar hace de aviso del cobro (C-188).
-        app(ConfirmacionDePedido::class)->confirmar($porPagar);
+        // La pasarela simulada acredita el pago y el cobro confirma el pedido (C-188).
+        app(CobroSimulado::class)->pagar($porPagar);
 
         $respuesta = $this->listaDelRepartidor($repartidor)->assertOk();
         $this->assertSame([$porPagar->id_publico], $this->idsDeLaListaDelRepartidor($respuesta));

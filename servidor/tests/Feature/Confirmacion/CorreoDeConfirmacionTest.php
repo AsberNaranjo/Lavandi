@@ -3,10 +3,10 @@
 namespace Tests\Feature\Confirmacion;
 
 use App\Avisos\CorreoDeConfirmacion;
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\Pedido;
 use App\Models\PedidoEvento;
 use App\Models\Usuario;
-use App\Pedidos\ConfirmacionDePedido;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Mail\Transport\ArrayTransport;
 use Illuminate\Support\Facades\DB;
@@ -64,7 +64,7 @@ class CorreoDeConfirmacionTest extends TestCase
         // Aceptar el resumen no manda nada: el correo es de la confirmación.
         Mail::assertNothingOutgoing();
 
-        app(ConfirmacionDePedido::class)->confirmar($pedido);
+        app(CobroSimulado::class)->pagar($pedido);
 
         Mail::assertQueued(CorreoDeConfirmacion::class, 1);
         Mail::assertQueued(
@@ -86,7 +86,7 @@ class CorreoDeConfirmacionTest extends TestCase
             'colonia' => 'Colonia del trabajo',
             'ubicacion' => ['latitud' => 10.25, 'longitud' => -119.75],
         ]);
-        $pedido = app(ConfirmacionDePedido::class)->confirmar($this->pedidoPorPagar($this->resumen($casa, $trabajo)));
+        $pedido = app(CobroSimulado::class)->pagar($this->pedidoPorPagar($this->resumen($casa, $trabajo)));
         $correo = new CorreoDeConfirmacion($pedido->fresh());
 
         foreach ([
@@ -108,7 +108,7 @@ class CorreoDeConfirmacionTest extends TestCase
     #[TestDox('confirmacion-E10: el nombre del producto sale de la configuración, nunca escrito en la plantilla')]
     public function test_confirmacion_e10_el_nombre_del_producto_sale_de_la_configuracion(): void
     {
-        $pedido = app(ConfirmacionDePedido::class)->confirmar($this->pedidoPorPagar())->fresh();
+        $pedido = app(CobroSimulado::class)->pagar($this->pedidoPorPagar())->fresh();
 
         foreach (['Producto de prueba A', 'Producto de prueba B'] as $producto) {
             config(['app.name' => $producto]);
@@ -132,7 +132,7 @@ class CorreoDeConfirmacionTest extends TestCase
     {
         // La cola síncrona de las pruebas lo procesa al momento; el transporte de arreglo lo guarda y no lo manda.
         $this->assertSame('array', config('mail.default'));
-        $pedido = app(ConfirmacionDePedido::class)->confirmar($this->pedidoPorPagar());
+        $pedido = app(CobroSimulado::class)->pagar($this->pedidoPorPagar());
 
         $capturados = $this->correosCapturados();
         $this->assertCount(1, $capturados);
@@ -148,7 +148,7 @@ class CorreoDeConfirmacionTest extends TestCase
         Event::listen('eloquent.creating: '.PedidoEvento::class, fn () => throw new RuntimeException('Falla de prueba.'));
 
         try {
-            app(ConfirmacionDePedido::class)->confirmar($pedido);
+            app(CobroSimulado::class)->pagar($pedido);
             $this->fail('El evento debió fallar.');
         } catch (RuntimeException) {
             // La confirmación se deshizo.
@@ -166,7 +166,7 @@ class CorreoDeConfirmacionTest extends TestCase
         config(['queue.default' => 'database', 'logging.default' => 'null']);
         $servicio = $this->servicioDeCorreoQueFalla();
 
-        $pedido = app(ConfirmacionDePedido::class)->confirmar($this->pedidoPorPagar());
+        $pedido = app(CobroSimulado::class)->pagar($this->pedidoPorPagar());
 
         // El correo espera en la cola; el pedido ya está confirmado.
         $this->assertSame(1, DB::table('jobs')->count());

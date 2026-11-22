@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Agenda\Agenda;
 use App\Agenda\Ventana;
+use App\Cobro\Desarrollo\CobroSimulado;
+use App\Cobro\PasarelaNoDisponible;
 use App\Direcciones\DireccionesDelPedido;
 use App\Models\Direccion;
 use App\Models\EstadoPedido;
@@ -14,7 +16,6 @@ use App\Models\Repartidor;
 use App\Models\Rol;
 use App\Models\Usuario;
 use App\Pedidos\CambioDeEstado;
-use App\Pedidos\ConfirmacionDePedido;
 use App\Pedidos\CreacionDePedido;
 use App\Pedidos\EstadoDelPedidoCambiado;
 use App\Pedidos\PedidoConfirmado;
@@ -36,8 +37,9 @@ use Illuminate\Support\Facades\Event;
  *   rechazar con motivo y los tres botones (repartidor-E10, E15 a E21 y E23).
  *
  * Los pedidos nacen por el camino real: el resumen aceptado (CreacionDePedido) en la primera ventana que ofrece la
- * agenda, la confirmación como la hará el cobro (ConfirmacionDePedido, C-188) y los botones de la lavandería
- * (CambioDeEstado), sin mandar avisos ni correos. La oferta al repartidor se crea directo en la base: quién asigna espera
+ * agenda, el pago con la pasarela simulada, cuyo aviso deja el cobro pagado y confirma el pedido (CobroSimulado, C-188;
+ * pago-E18), y los botones de la lavandería (CambioDeEstado), sin mandar avisos ni correos. El cobro necesita
+ * PASARELA=simulada y PASARELA_SIMULADA_LLAVE en el .env; sin ellos se siembra el repartidor sin pedidos. La oferta al repartidor se crea directo en la base: quién asigna espera
  * DD-014 (repartidor-E13).
  *
  * Solo en local: nunca en el entorno de prueba, que está en internet, ni en producción (ADR-0012). Necesita las plazas y
@@ -62,7 +64,7 @@ class RepartidorDeDesarrolloSeeder extends Seeder
         ResolucionDePunto $resolucion,
         Agenda $agenda,
         CreacionDePedido $creacion,
-        ConfirmacionDePedido $confirmacion,
+        CobroSimulado $cobro,
         CambioDeEstado $cambio,
     ): void {
         if (! app()->isLocal()) {
@@ -94,23 +96,45 @@ class RepartidorDeDesarrolloSeeder extends Seeder
             return;
         }
 
+        try {
+            $this->sembrarPedidos($lavanderia, $repartidor, $ventana, $punto->plaza->getKey(), $creacion, $cobro, $cambio);
+        } catch (PasarelaNoDisponible) {
+            $this->command?->warn('Sin la pasarela simulada (PASARELA=simulada y PASARELA_SIMULADA_LLAVE) no se siembran pedidos.');
+        }
+    }
+
+    /**
+     * Los tres pedidos ofrecidos al repartidor, en una transacción: si el cobro simulado no está disponible, no queda
+     * ninguno.
+     *
+     * @throws PasarelaNoDisponible sin la pasarela simulada
+     */
+    private function sembrarPedidos(
+        Lavanderia $lavanderia,
+        Repartidor $repartidor,
+        Ventana $ventana,
+        int $plaza,
+        CreacionDePedido $creacion,
+        CobroSimulado $cobro,
+        CambioDeEstado $cambio,
+    ): void {
         // Sin avisos al teléfono ni correo de confirmación: son pedidos de prueba.
-        Event::fakeFor(function () use ($lavanderia, $repartidor, $ventana, $creacion, $confirmacion, $cambio, $punto): void {
-            DB::transaction(function () use ($lavanderia, $repartidor, $ventana, $creacion, $confirmacion, $cambio, $punto): void {
+        Event::fakeFor(function () use ($lavanderia, $repartidor, $ventana, $plaza, $creacion, $cobro, $cambio): void {
+            DB::transaction(function () use ($lavanderia, $repartidor, $ventana, $plaza, $creacion, $cobro, $cambio): void {
                 $usuario = $this->cuenta(self::CORREO_DEL_USUARIO, Rol::USUARIO, 'Usuario de prueba');
-                $direccion = $this->direccion($usuario, $punto->plaza->getKey());
+                $direccion = $this->direccion($usuario, $plaza);
                 $direcciones = new DireccionesDelPedido($direccion, $direccion, true);
                 $socio = $lavanderia->administrador;
 
                 // Uno que la lavandería todavía no responde.
-                $porResponder = $this->pedido($creacion, $confirmacion, $usuario, $lavanderia, $ventana, $direcciones);
+                $porResponder = $this->pedido($creacion, $cobro, $usuario, $lavanderia, $ventana, $direcciones);
 
                 // Uno que la lavandería ya aceptó: el repartidor, al aceptarlo, puede marcar Recolectado.
-                $aceptado = $this->pedido($creacion, $confirmacion, $usuario, $lavanderia, $ventana, $direcciones);
+                $aceptado = $this->pedido($creacion, $cobro, $usuario, $lavanderia, $ventana, $direcciones);
                 $cambio->aceptar($aceptado, $socio);
 
                 // Uno listo para el reparto: el repartidor, al aceptarlo, puede marcar En tránsito y Entregado.
-                $listo = $this->pedido($creacion, $confirmacion, $usuario, $lavanderia, $ventana, $direcciones);
+                $listo = $this->pedido($creacion, $cobro, $usuario, $lavanderia, $ventana, $direcciones);
                 $cambio->aceptar($listo, $socio);
                 $cambio->marcar($listo, $socio, EstadoPedido::RECOLECTADO);
                 $cambio->marcar($listo, $socio, EstadoPedido::EN_PROCESO);
@@ -195,11 +219,12 @@ class RepartidorDeDesarrolloSeeder extends Seeder
     }
 
     /**
-     * Un pedido del lavado estándar en esa ventana, creado como al aceptar el resumen y confirmado como lo hará el cobro.
+     * Un pedido del lavado estándar en esa ventana, creado como al aceptar el resumen y pagado con la pasarela simulada,
+     * que lo confirma por su cobro.
      */
     private function pedido(
         CreacionDePedido $creacion,
-        ConfirmacionDePedido $confirmacion,
+        CobroSimulado $cobro,
         Usuario $usuario,
         Lavanderia $lavanderia,
         Ventana $ventana,
@@ -208,6 +233,6 @@ class RepartidorDeDesarrolloSeeder extends Seeder
         $datos = $ventana->toArray();
         $pedido = $creacion->crear($usuario, $lavanderia, 'estandar', ['inicio' => $datos['inicio'], 'fin' => $datos['fin']], $direcciones);
 
-        return $confirmacion->confirmar($pedido)->fresh();
+        return $cobro->pagar($pedido);
     }
 }

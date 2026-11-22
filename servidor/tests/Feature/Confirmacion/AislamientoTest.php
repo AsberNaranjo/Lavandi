@@ -3,10 +3,10 @@
 namespace Tests\Feature\Confirmacion;
 
 use App\Autorizacion\Autorizacion;
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\Pedido;
 use App\Models\Rol;
 use App\Models\Usuario;
-use App\Pedidos\ConfirmacionDePedido;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -143,7 +143,7 @@ class AislamientoTest extends TestCase
     }
 
     /**
-     * Un pedido de la cuenta, creado al aceptar el resumen y confirmado como lo confirmará el cobro.
+     * Un pedido de la cuenta, creado al aceptar el resumen y confirmado por su cobro pagado.
      *
      * @param  array<string, mixed>  $direccion
      */
@@ -153,7 +153,7 @@ class AislamientoTest extends TestCase
             ->assertCreated()
             ->json('pedido.id_publico');
 
-        return app(ConfirmacionDePedido::class)->confirmar(Pedido::query()->where('id_publico', $id)->sole())->fresh();
+        return app(CobroSimulado::class)->pagar(Pedido::query()->where('id_publico', $id)->sole())->fresh();
     }
 
     private function verPedido(Usuario $cuenta, string $identificador): TestResponse

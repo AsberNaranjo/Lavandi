@@ -355,7 +355,9 @@ DD-016 (cancelación) **no** se decide aquí.
 
 Los tres pedidos son de la lavandería de prueba Durango Norte, en la primera ventana que ofrece la agenda: uno que la
 lavandería todavía no responde, uno que ya aceptó y uno listo para el reparto. Nacen por el camino real (el resumen
-aceptado, la confirmación como la hará el cobro y los botones de la lavandería) sin mandar avisos ni correos. La oferta
+aceptado, el pago con la pasarela simulada, cuyo cobro confirma el pedido, y los botones de la lavandería) sin mandar
+avisos ni correos. El pago necesita `PASARELA=simulada` y `PASARELA_SIMULADA_LLAVE` en el `.env`
+(`openspec/changes/pago/design.md`); sin ellas, se siembra el repartidor sin pedidos. La oferta
 se crea directo en la base (DD-014). Sembrar dos veces no los duplica. Ninguna de estas cuentas se siembra en el
 entorno de prueba ni en producción.
 

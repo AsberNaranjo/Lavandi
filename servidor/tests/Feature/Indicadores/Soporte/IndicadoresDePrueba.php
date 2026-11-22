@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Indicadores\Soporte;
 
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\Pedido;
 use App\Models\Usuario;
-use App\Pedidos\ConfirmacionDePedido;
 use Carbon\CarbonImmutable;
 use Filament\Widgets\Widget;
 use Livewire\Features\SupportTesting\Testable;
@@ -15,7 +15,7 @@ use Livewire\Livewire;
  * operación real, y la lectura de lo que da cada widget. Se usa junto con AgendaDePrueba, LavanderiasDePrueba,
  * PanelDePrueba, PedidosDePrueba y PlazasDePrueba, después de prepararPedido().
  *
- * Cada pedido nace al aceptar el resumen y se confirma como lo confirmará el cobro cuando la pasarela confirme el pago
+ * Cada pedido nace al aceptar el resumen y lo confirma su cobro cuando la pasarela simulada acredita el pago
  * (C-188), a la hora que se pide: es su confirmado_en, la fecha del pedido en los indicadores (design.md, lectura 1).
  * Su ventana es de 11:00 a 12:00 del día siguiente, dentro del horario de la lavandería de prueba.
  *
@@ -31,8 +31,8 @@ trait IndicadoresDePrueba
     {
         $pedido = $this->pedidoSinPagarEl($fechaYHora, $cuenta);
 
-        // En la prueba, la llamada directa a la operación de confirmar hace de aviso del cobro.
-        return app(ConfirmacionDePedido::class)->confirmar($pedido)->fresh();
+        // La pasarela simulada acredita el pago con su aviso, por el camino del webhook, y el cobro confirma el pedido.
+        return app(CobroSimulado::class)->pagar($pedido)->fresh();
     }
 
     /**

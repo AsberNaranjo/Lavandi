@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\PedidosLavanderia;
 
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\EstadoPedido;
 use App\Models\Pedido;
 use App\Models\Usuario;
-use App\Pedidos\ConfirmacionDePedido;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
@@ -21,7 +21,7 @@ use Tests\TestCase;
  * la pasarela todavía no confirma, con pedidos.confirmado_en vacío, no aparece en su lista ni se acepta o se rechaza. La
  * regla mira confirmado_en, no el nombre del estado previo al pago (ADR-0016).
  *
- * Aquí el pago se acredita con la operación de confirmar, como lo hará el cobro; uno sin acreditar se queda como lo dejó
+ * Aquí el pago lo acredita la pasarela simulada y el cobro confirma el pedido; uno sin acreditar se queda como lo dejó
  * POST /api/pedidos.
  *
  * Escenarios: pedidos-lavanderia-E17 y pedidos-lavanderia-E18 · Spec:
@@ -105,10 +105,10 @@ class SinPagoTest extends TestCase
     }
 
     /**
-     * La pasarela confirma el pago: aquí, la operación de confirmar, como la llamará el cobro (C-188).
+     * La pasarela confirma el pago: aquí, la simulada, cuyo aviso deja el cobro pagado y confirma el pedido (C-188).
      */
     private function confirmarComoElCobro(Pedido $pedido): void
     {
-        app(ConfirmacionDePedido::class)->confirmar($pedido);
+        app(CobroSimulado::class)->pagar($pedido);
     }
 }
