@@ -172,6 +172,10 @@ El recurso de lavanderías de Filament (ADR-0003, ADR-0011) vive en `servidor/ap
   regresa a `activa` si `aprobada_en` tiene fecha y a `pendiente` si no. El efecto en la búsqueda, el perfil y los
   pedidos nuevos sale solo de `Lavanderia::visiblesParaElUsuario()`, que ya excluía las suspendidas: no se tocó la
   creación del pedido. Los pedidos en curso no se tocan (E16, DD-104).
+- **Dar de baja** (E17) es otra acción, con confirmación, desde cualquier estado que no sea `baja`. Pone
+  `estado = 'baja'` y deja `deleted_at` vacío: el panel la sigue listando como "Dada de baja", y sus servicios, su
+  horario, sus calificaciones y sus pedidos pasados se quedan y la siguen encontrando. Es la lectura de la pregunta
+  abierta 10; `deleted_at` queda sin uso en este cambio. Ninguna acción deshace la baja: el contrato no lo pide.
 - **`Usuario` implementa `HasName` de Filament:** el panel no podía pintar la barra de la cuenta de administración
   porque `usuarios` no tiene `name`; muestra el nombre, o el correo mientras el nombre esté vacío (C-225).
 - **El idioma de la interfaz de Filament** sale de `APP_LOCALE`, que hoy es `en` en `.env.example`: las etiquetas de

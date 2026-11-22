@@ -32,6 +32,25 @@ final class EstadoDeLaLavanderia
     }
 
     /**
+     * Ninguna transición sale de baja: el contrato no pide deshacerla.
+     */
+    public function puedeDarseDeBaja(Lavanderia $lavanderia): bool
+    {
+        return $lavanderia->estado !== Lavanderia::BAJA;
+    }
+
+    /**
+     * La baja no borra la fila, ni en suave: deleted_at queda vacío, para que el panel la siga listando y sus pedidos
+     * la sigan encontrando (alta-lavanderias-E17).
+     *
+     * @throws TransicionNoPermitida
+     */
+    public function darDeBaja(Lavanderia $lavanderia): void
+    {
+        $this->cambiar($lavanderia, 'dar de baja', $this->puedeDarseDeBaja(...), fn (): string => Lavanderia::BAJA);
+    }
+
+    /**
      * @throws TransicionNoPermitida
      */
     public function suspender(Lavanderia $lavanderia): void

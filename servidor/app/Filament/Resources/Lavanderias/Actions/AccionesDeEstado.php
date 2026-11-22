@@ -19,7 +19,25 @@ final class AccionesDeEstado
      */
     public static function todas(): array
     {
-        return [self::suspender(), self::levantarSuspension()];
+        return [self::suspender(), self::levantarSuspension(), self::darDeBaja()];
+    }
+
+    public static function darDeBaja(): Action
+    {
+        return Action::make('darDeBaja')
+            ->label('Dar de baja')
+            ->icon(Heroicon::OutlinedArchiveBoxXMark)
+            ->color('gray')
+            ->requiresConfirmation()
+            ->modalHeading('Dar de baja la lavandería')
+            ->modalDescription('Deja de aparecer a los usuarios y de recibir pedidos. Sus datos y sus pedidos pasados se quedan en la base. La baja no se deshace desde el panel.')
+            ->modalSubmitActionLabel('Dar de baja')
+            ->visible(fn (Lavanderia $record): bool => app(EstadoDeLaLavanderia::class)->puedeDarseDeBaja($record))
+            ->action(function (Lavanderia $record, Action $action): void {
+                app(EstadoDeLaLavanderia::class)->darDeBaja($record);
+                $action->success();
+            })
+            ->successNotificationTitle('La lavandería quedó dada de baja.');
     }
 
     public static function suspender(): Action

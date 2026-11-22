@@ -21,7 +21,7 @@ M = 5 h, L = 12 h.
 
 - [x] 3.1 alta-lavanderias-E13: lista de lavanderías con su estado y su plaza, y edición con las validaciones del registro — test: `servidor/tests/Feature/AltaLavanderias/PanelEdicionTest.php` — tamaño M
 - [x] 3.2 alta-lavanderias-E14, alta-lavanderias-E15: suspender (`estado = 'suspendida'`) y levantar la suspensión (de vuelta a `activa` si `aprobada_en` tiene fecha, a `pendiente` si no), con su efecto en la búsqueda y en los pedidos nuevos — test: `servidor/tests/Feature/AltaLavanderias/PanelSuspensionTest.php` — tamaño S
-- [ ] 3.3 alta-lavanderias-E17: baja (`estado = 'baja'`, sin `deleted_at`) que conserva la lavandería y sus pedidos en la base — test: `servidor/tests/Feature/AltaLavanderias/PanelBajaTest.php` — tamaño S
+- [x] 3.3 alta-lavanderias-E17: baja (`estado = 'baja'`, sin `deleted_at`) que conserva la lavandería y sus pedidos en la base — test: `servidor/tests/Feature/AltaLavanderias/PanelBajaTest.php` — tamaño S
 
 ## 4. Pantallas del Módulo B en la app
 
