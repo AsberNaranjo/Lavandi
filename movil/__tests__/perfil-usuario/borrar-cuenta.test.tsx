@@ -57,7 +57,9 @@ function servidor({ borrar }: { borrar?: () => ReturnType<typeof respuesta> } = 
       return respuesta(200, { usuario: USUARIO });
     }
     if (ruta === '/perfil' && metodo === 'GET') {
-      return respuesta(200, { perfil: { id_publico: USUARIO.id_publico, nombre: 'Nombre de prueba', correo: USUARIO.correo } });
+      return respuesta(200, {
+        perfil: { id_publico: USUARIO.id_publico, nombre: 'Nombre de prueba', correo: USUARIO.correo, foto: null },
+      });
     }
     if (ruta === '/direcciones/favoritas' && metodo === 'GET') {
       return respuesta(200, { direcciones: [] });

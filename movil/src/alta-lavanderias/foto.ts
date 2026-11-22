@@ -1,4 +1,5 @@
-// La foto de la lavandería (alta-lavanderias-E03 y E19): se toma con la cámara o se elige de la galería
+// La foto de la lavandería (alta-lavanderias-E03 y E19) y la foto de perfil del usuario (perfil-usuario-E03, que la
+// reusa desde src/perfil-usuario/FotoDePerfil.tsx): se toma con la cámara o se elige de la galería
 // (expo-image-picker) y se comprime antes de subirla, con los parámetros de configuración (ADR-0006;
 // src/configuracion/fotos.ts), con expo-image-manipulator. La compresión la deja siempre en JPEG, uno de los tipos que
 // acepta el servidor (FOTOS_TIPOS), aunque el teléfono la dé en HEIC.

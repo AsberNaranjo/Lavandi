@@ -1,6 +1,6 @@
 // Los textos del perfil del usuario y del soporte (openspec/changes/perfil-y-soporte), juntos para revisarlos en un solo
 // lugar. Siguen las imágenes a15-perfil y a16-soporte de la Propuesta 04 en lo que tiene escenario.
-import { MENSAJES, mensajeGeneral } from '../acceso/mensajes';
+import { errorDeCampo, MENSAJES, mensajeGeneral } from '../acceso/mensajes';
 import type { Falla } from '../configuracion/api';
 import type { FallaDelReporte } from './api';
 
@@ -8,6 +8,15 @@ export const TEXTOS_DEL_PERFIL_DE_USUARIO = {
   // La entrada desde la pantalla principal y el encabezado de la pantalla.
   miPerfil: 'Mi perfil',
   cargando: 'Cargando tu perfil…',
+  // La foto (perfil-usuario-E03 y E04), con los botones de la imagen a15-perfil-foto.
+  tuFotoDePerfil: 'Tu foto de perfil',
+  tomarFoto: 'Tomar foto',
+  elegirDeLaGaleria: 'Elegir de la galería',
+  fotoGuardada: 'Guardamos tu foto.',
+  // Sin escenario propio: sin permiso de la cámara, la galería sigue sirviendo, porque no pide permiso.
+  sinPermisoDeLaCamara: 'Sin permiso de la cámara no podemos tomar la foto. Puedes elegirla de tu galería.',
+  // Sin escenario propio: la foto que no se pudo leer o comprimir en el teléfono no se sube.
+  fotoNoPreparada: 'No pudimos preparar la foto. Intenta con otra.',
   // El nombre (perfil-usuario-E01 y E02).
   nombre: 'Nombre',
   guardarNombre: 'Guardar nombre',
@@ -63,6 +72,22 @@ export function mensajeDelNombre(falla: Falla): string | undefined {
     return mensajeGeneral(falla, ['nombre']);
   }
   return falla.motivo === 'sin-conexion' ? MENSAJES.sinConexion : MENSAJES.servidor;
+}
+
+/**
+ * Por qué no se guardó la foto, junto a ella. Si la API la rechaza (perfil-usuario-E04), su error en "foto": que no es
+ * una imagen de los tipos que acepta o que pasa el peso máximo. Sin conexión o con el servidor caído, sin escenario
+ * propio: los mensajes generales de la app.
+ */
+export function mensajeDeLaFoto(falla: Falla): string {
+  switch (falla.motivo) {
+    case 'invalido':
+      return errorDeCampo(falla, 'foto') ?? mensajeGeneral(falla, ['foto']) ?? MENSAJES.servidor;
+    case 'sin-conexion':
+      return MENSAJES.sinConexion;
+    default:
+      return MENSAJES.servidor;
+  }
 }
 
 /**
