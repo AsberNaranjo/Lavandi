@@ -265,6 +265,26 @@ class Pedido extends Modelo
     }
 
     /**
+     * Los pagos del pedido: su cobro y, si DD-012 lo pide, un ajuste (openspec/changes/pago/).
+     *
+     * @return HasMany<Pago, $this>
+     */
+    public function pagos(): HasMany
+    {
+        return $this->hasMany(Pago::class, 'id_pedidos');
+    }
+
+    /**
+     * El cobro del pedido, el único pago de tipo cobro. Vacío mientras pago-E14 no lo cree (DD-012).
+     *
+     * @return HasOne<Pago, $this>
+     */
+    public function cobro(): HasOne
+    {
+        return $this->hasOne(Pago::class, 'id_pedidos')->where('tipo', Pago::COBRO);
+    }
+
+    /**
      * El estado actual; su historia está en eventos().
      *
      * @return BelongsTo<EstadoPedido, $this>

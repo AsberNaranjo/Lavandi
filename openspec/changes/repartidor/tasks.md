@@ -20,13 +20,13 @@ fábrica.
 
 ## 2. App (`movil/`)
 
-- [ ] 2.1 repartidor-E01, repartidor-E02 y repartidor-E03: pantalla de registro con foto y pantalla de espera de autorización — test: `movil/__tests__/repartidor/registro.test.tsx` — tamaño S
-- [ ] 2.2 repartidor-E10 y repartidor-E11: lista de pedidos asignados con consulta cada 30 s mientras está abierta — test: `movil/__tests__/repartidor/pedidos-asignados.test.tsx` — tamaño S
-- [ ] 2.3 repartidor-E15, repartidor-E16 y repartidor-E17: aceptar, y rechazar con motivo obligatorio — test: `movil/__tests__/repartidor/aceptar-o-rechazar.test.tsx` — tamaño S
-- [ ] 2.4 repartidor-E19 y repartidor-E20: botones Recolectado, En tránsito y Entregado, en orden — test: `movil/__tests__/repartidor/estados.test.tsx` — tamaño S
-- [ ] 2.5 repartidor-E23: foto de evidencia al marcar Entregado — test: `movil/__tests__/repartidor/evidencia.test.tsx` — tamaño S
-- [ ] 2.6 repartidor-E25: pantalla del historial de entregas — test: `movil/__tests__/repartidor/historial.test.tsx` — tamaño S
-- [ ] 2.7 repartidor-E28: pantalla de estadísticas — test: `movil/__tests__/repartidor/estadisticas.test.tsx` — tamaño S
+- [x] 2.1 repartidor-E01, repartidor-E02 y repartidor-E03: pantalla de registro con foto y pantalla de espera de autorización — test: `movil/__tests__/repartidor/registro.test.tsx` — tamaño S
+- [x] 2.2 repartidor-E10 y repartidor-E11: lista de pedidos asignados con consulta cada 30 s mientras está abierta — test: `movil/__tests__/repartidor/pedidos-asignados.test.tsx` — tamaño S
+- [x] 2.3 repartidor-E15, repartidor-E16 y repartidor-E17: aceptar, y rechazar con motivo obligatorio — test: `movil/__tests__/repartidor/aceptar-o-rechazar.test.tsx` — tamaño S
+- [x] 2.4 repartidor-E19 y repartidor-E20: botones Recolectado, En tránsito y Entregado, en orden — test: `movil/__tests__/repartidor/estados.test.tsx` — tamaño S
+- [x] 2.5 repartidor-E23: foto de evidencia al marcar Entregado — test: `movil/__tests__/repartidor/evidencia.test.tsx` — tamaño S
+- [x] 2.6 repartidor-E25: pantalla del historial de entregas — test: `movil/__tests__/repartidor/historial.test.tsx` — tamaño S
+- [x] 2.7 repartidor-E28: pantalla de estadísticas — test: `movil/__tests__/repartidor/estadisticas.test.tsx` — tamaño S
 
 ## 3. Bloqueadas: no entran al sprint hasta cerrar su fila
 

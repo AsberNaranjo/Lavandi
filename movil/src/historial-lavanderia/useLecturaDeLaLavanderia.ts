@@ -7,18 +7,21 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 
-import type { Falla, Resultado } from '../configuracion/api';
+import type { Falla } from '../configuracion/api';
 import { useSesion } from '../sesion/ProveedorDeSesion';
 
-/** cargando: se pide al servidor; lista: llegó; error: no llegó. */
-export type EstadoDeLaLectura<T> = { fase: 'cargando' } | { fase: 'lista'; datos: T } | { fase: 'error'; falla: Falla };
+/**
+ * cargando: se pide al servidor; lista: llegó; error: no llegó. La falla es la general de la app, salvo que la pantalla
+ * distinga otras, como la del repartidor que ya no opera (src/repartidor/useLecturaDelRepartidor.ts).
+ */
+export type EstadoDeLaLectura<T, F = Falla> = { fase: 'cargando' } | { fase: 'lista'; datos: T } | { fase: 'error'; falla: F };
 
 /** consultar debe ser estable: una función del módulo, no una creada en cada render. */
-export function useLecturaDeLaLavanderia<T>(
-  consultar: (token: string) => Promise<Resultado<T>>,
-): EstadoDeLaLectura<T> {
+export function useLecturaDeLaLavanderia<T, F extends { ok: false } = Falla>(
+  consultar: (token: string) => Promise<{ ok: true; datos: T } | F>,
+): EstadoDeLaLectura<T, F> {
   const { token } = useSesion();
-  const [estado, setEstado] = useState<EstadoDeLaLectura<T>>({ fase: 'cargando' });
+  const [estado, setEstado] = useState<EstadoDeLaLectura<T, F>>({ fase: 'cargando' });
 
   useFocusEffect(
     useCallback(() => {

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Estados\Soporte;
 
+use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\EstadoPedido;
 use App\Models\Pedido;
 use App\Models\PedidoAsignacion;
@@ -9,12 +10,11 @@ use App\Models\PedidoEvento;
 use App\Models\Repartidor;
 use App\Models\Usuario;
 use App\Pedidos\CambioDeEstado;
-use App\Pedidos\ConfirmacionDePedido;
 use App\Repartidores\RespuestaDelRepartidor;
 use Illuminate\Testing\TestResponse;
 
 /**
- * Lo que comparten las pruebas de estados-del-pedido: un pedido confirmado como lo confirmará el cobro, la lavandería
+ * Lo que comparten las pruebas de estados-del-pedido: un pedido confirmado por su cobro pagado, la lavandería
  * que lo acepta y lo mueve con sus botones, y la consulta del usuario. Se usa junto con AgendaDePrueba,
  * LavanderiasDePrueba, PedidosDePrueba y PlazasDePrueba, después de prepararPedido().
  *
@@ -30,8 +30,8 @@ use Illuminate\Testing\TestResponse;
 trait EstadosDePrueba
 {
     /**
-     * Un pedido de la cuenta, creado al aceptar el resumen y confirmado como lo confirmará el cobro cuando la pasarela
-     * confirme el pago (C-188). Su historial queda con dos eventos: por_pagar y confirmado.
+     * Un pedido de la cuenta, creado al aceptar el resumen y confirmado por su cobro cuando la pasarela simulada
+     * acredita el pago (C-188; pago-E18). Su historial queda con dos eventos: por_pagar y confirmado.
      */
     protected function pedidoConfirmadoDe(Usuario $cuenta): Pedido
     {
@@ -39,8 +39,8 @@ trait EstadosDePrueba
             ->assertCreated()
             ->json('pedido.id_publico');
 
-        // En la prueba, la llamada directa a la operación de confirmar hace de aviso del cobro.
-        return app(ConfirmacionDePedido::class)->confirmar(Pedido::query()->where('id_publico', $id)->sole())->fresh();
+        // La pasarela simulada acredita el pago con su aviso, por el camino del webhook, y el cobro confirma el pedido.
+        return app(CobroSimulado::class)->pagar(Pedido::query()->where('id_publico', $id)->sole())->fresh();
     }
 
     /**

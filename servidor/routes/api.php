@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AvisosDeLaPasarelaController;
 use App\Http\Controllers\Api\BorradoDeCuentaController;
 use App\Http\Controllers\Api\CalificacionesController;
 use App\Http\Controllers\Api\CatalogoDelTerritorioController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Api\HistorialDeLaLavanderiaController;
 use App\Http\Controllers\Api\HistorialDelRepartidorController;
 use App\Http\Controllers\Api\LavanderiaDelSocioController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
+use App\Http\Controllers\Api\PagosController;
 use App\Http\Controllers\Api\PedidosController;
 use App\Http\Controllers\Api\PedidosDeLaLavanderiaController;
 use App\Http\Controllers\Api\PedidosDelRepartidorController;
@@ -44,6 +46,10 @@ Route::post('repartidor/registro', [RepartidorController::class, 'registrar'])->
 Route::post('contrasena/olvido', RecuperacionController::class)
     ->middleware('throttle:recuperacion')
     ->name('contrasena.olvido');
+
+// Pública: el aviso (webhook) de la pasarela de pago, que no lleva sesión porque lo manda la pasarela (pago). El contrato
+// está en el controlador; todo aviso pasa por App\Cobro\RecepcionDeAvisos.
+Route::post('pasarela/avisos', AvisosDeLaPasarelaController::class)->name('pasarela.avisos');
 
 // Con sesión, y por el componente único de autorización (registro-E14). Una ruta nueva sin las dos no pasa la prueba
 // tests/Feature/Registro/AutorizacionTest.php.
@@ -116,6 +122,13 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     // El token de Firebase del teléfono que recibe los avisos de la cuenta (avisos). El contrato está en el
     // controlador; se borra al cerrar la sesión, con DELETE sesion.
     Route::post('dispositivos', [DispositivosController::class, 'registrar'])->name('dispositivos.registrar');
+
+    // El cobro del pedido (pago). El contrato está en el controlador y en openspec/changes/pago/design.md. Ninguna de
+    // estas rutas da un cobro por pagado: solo el aviso auténtico de la pasarela (pago-E07).
+    Route::post('pagos/checkout', [PagosController::class, 'checkout'])->name('pagos.checkout');
+    // El cobro que consulta "Procesando pago". Sin whereUlid a propósito: un valor que no es ULID responde el mismo 404
+    // que un cobro ajeno.
+    Route::get('pagos/{pago}', [PagosController::class, 'mostrar'])->name('pagos.mostrar');
 });
 
 // El Módulo B del socio lavandería: su lavandería (alta-de-lavanderias). Con sesión y por el componente único de

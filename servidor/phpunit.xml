@@ -30,6 +30,11 @@
         <env name="DB_DATABASE" value="nsv_lavanderia_pruebas"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
+        <!-- La pasarela de las pruebas es la simulada, que no llama a ningún proveedor; su llave es de prueba y no
+             sirve fuera de local y de las pruebas (openspec/changes/pago/, pago-E17). -->
+        <env name="PASARELA" value="simulada"/>
+        <env name="PASARELA_SIMULADA_LLAVE" value="llave-de-prueba-de-la-pasarela-simulada"/>
+        <env name="PASARELA_REGRESO" value="app.de.prueba://pago"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>

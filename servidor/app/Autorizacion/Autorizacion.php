@@ -8,6 +8,7 @@ use App\Models\Direccion;
 use App\Models\Dispositivo;
 use App\Models\EstadoPedido;
 use App\Models\Lavanderia;
+use App\Models\Pago;
 use App\Models\Pedido;
 use App\Models\PedidoAsignacion;
 use App\Models\Plaza;
@@ -37,6 +38,11 @@ use Livewire\Livewire;
  * abre sesión o bloquea (administracion-E03), y quién edita los testimonios de la portada (landing-E19). Del repartidor
  * (hito H8; ADR-0019, decisión 1), conoce su rol en la app, qué repartidor opera (repartidor-E03 y E06) y, con su tarea,
  * sus pedidos, de su plaza y con el pago acreditado.
+ *
+ * Del cobro (openspec/changes/pago/), conoce qué pedidos paga la cuenta y qué cobros consulta: solo los suyos, con
+ * pedidosVisibles() y pagosVisibles(). La ruta del aviso de la pasarela, POST api/pasarela/avisos, no pide sesión y lo
+ * declara rutasSinSesion(): no hay cuenta detrás, y solo un aviso que la pasarela configurada reconoce como suyo cambia
+ * algo (App\Cobro\RecepcionDeAvisos; openspec/changes/pago/design.md, decisión 5).
  */
 final class Autorizacion
 {
@@ -57,13 +63,16 @@ final class Autorizacion
         $firmada = 'Solo con una URL firmada que vence, que el servidor arma después de autorizar.';
         $deLivewire = 'Un archivo de Livewire, sin datos.';
 
-        return [
+        return [...$this->rutasSinSesionDeDesarrollo(),
             // Las de la app que abren una sesión o recuperan la contraseña (registro-E14; ADR-0005 y ADR-0018).
             'POST api/registro' => 'Crea la cuenta de usuario y abre su sesión (registro-e-inicio-de-sesion).',
             'POST api/sesion' => 'Abre la sesión con correo y contraseña (registro-e-inicio-de-sesion).',
             'POST api/sesion/google' => 'Abre la sesión con Google (registro-e-inicio-de-sesion).',
             'POST api/contrasena/olvido' => 'Pide el enlace para recuperar la contraseña, con su límite (registro-E31).',
             'POST api/repartidor/registro' => 'Crea la cuenta del repartidor, pendiente de alta, y abre su sesión (repartidor-E01).',
+
+            // El aviso (webhook) de la pasarela de pago: lo manda la pasarela, no una cuenta (pago; ADR-0010).
+            'POST api/pasarela/avisos' => 'El aviso de la pasarela de pago: sin cuenta detrás; solo uno que la pasarela autentica cambia algo (pago-E07).',
 
             // La portada y sus formularios, que son públicos (ADR-0011; openspec/changes/landing/).
             'GET /' => 'La portada pública de la landing.',
@@ -101,6 +110,26 @@ final class Autorizacion
             "GET {$livewire}/js/{component}.js" => $deLivewire,
             "GET {$livewire}/css/{component}.css" => $deLivewire,
             "GET {$livewire}/css/{component}.global.css" => $deLivewire,
+        ];
+    }
+
+    /**
+     * Las rutas de las herramientas de desarrollo que no piden sesión: solo existen en local y en las pruebas, así que solo
+     * se declaran ahí (routes/web.php).
+     *
+     * @return array<string, string>
+     */
+    private function rutasSinSesionDeDesarrollo(): array
+    {
+        if (! app()->environment(['local', 'testing'])) {
+            return [];
+        }
+
+        $simulada = 'La página de checkout de la pasarela simulada, solo en local y en las pruebas: la llave es la orden de la pasarela simulada, que el servidor da al dueño del pedido (openspec/changes/pago/design.md).';
+
+        return [
+            'GET desarrollo/pasarela/checkout/{orden}' => $simulada,
+            'POST desarrollo/pasarela/checkout/{orden}' => $simulada,
         ];
     }
 
@@ -253,6 +282,18 @@ final class Autorizacion
     public function pedidosVisibles(Usuario $usuario): Builder
     {
         return Pedido::query()->where('id_usuarios', $usuario->getKey());
+    }
+
+    /**
+     * Los pagos que la cuenta consulta: solo los de los pedidos que hizo (pago-E08; NSV-2026-001-v8.pdf:20:ANEXO A,
+     * Sección A.3). Parte de pedidosVisibles(): el de un pedido de otra cuenta responde igual que uno que no existe
+     * (ADR-0019, decisión 3).
+     *
+     * @return Builder<Pago>
+     */
+    public function pagosVisibles(Usuario $usuario): Builder
+    {
+        return Pago::query()->whereIn('id_pedidos', $this->pedidosVisibles($usuario)->select('id_pedidos'));
     }
 
     /**

@@ -355,7 +355,9 @@ DD-016 (cancelación) **no** se decide aquí.
 
 Los tres pedidos son de la lavandería de prueba Durango Norte, en la primera ventana que ofrece la agenda: uno que la
 lavandería todavía no responde, uno que ya aceptó y uno listo para el reparto. Nacen por el camino real (el resumen
-aceptado, la confirmación como la hará el cobro y los botones de la lavandería) sin mandar avisos ni correos. La oferta
+aceptado, el pago con la pasarela simulada, cuyo cobro confirma el pedido, y los botones de la lavandería) sin mandar
+avisos ni correos. El pago necesita `PASARELA=simulada` y `PASARELA_SIMULADA_LLAVE` en el `.env`
+(`openspec/changes/pago/design.md`); sin ellas, se siembra el repartidor sin pedidos. La oferta
 se crea directo en la base (DD-014). Sembrar dos veces no los duplica. Ninguna de estas cuentas se siembra en el
 entorno de prueba ni en producción.
 
@@ -556,6 +558,115 @@ entregas, los dos en 0. Sin ingreso total acumulado (E29, DD-019 y DD-013).
 | El monto por entrega y el ingreso total acumulado | E26, E29 | DD-019, DD-013 |
 | La calificación recibida por entrega | E27 | DD-052 |
 
+## Implementación en la app
+
+Lo que se decidió al implementar las tareas 2.1 a 2.7 en `movil/`, por delegación de Arthur (C-236), con lo mínimo que
+cumple cada escenario y el "Contrato de la API" de arriba, sin tocar `servidor/`. Ninguna decisión agrega una librería,
+un permiso ni un cambio en la configuración de EAS, ni decide una fila abierta. Cada pantalla se prueba en iPhone y en
+Android, con la app real y el servidor simulado con este contrato (`movil/__tests__/apoyo/repartidor.ts`), en
+`movil/__tests__/repartidor/`.
+
+### Las rutas y el módulo
+
+| Ruta | Pantalla | Escenarios |
+|---|---|---|
+| `/registro-de-repartidor` | El registro, sin sesión (`app/registro-de-repartidor.tsx`) | E01, E02 |
+| `/repartidor/espera` | La espera del alta, o de que le quiten la suspensión | E01, E03 |
+| `/repartidor/pedidos` | Los pedidos asignados, la primera del módulo | E10, E11, E15, E19, E20 |
+| `/repartidor/pedidos/rechazo/[id]` | El rechazo con motivo | E16, E17 |
+| `/repartidor/pedidos/entrega/[id]` | La entrega con la foto de evidencia | E23 |
+| `/repartidor/historial` | El historial de entregas | E25 |
+| `/repartidor/estadisticas` | Las estadísticas | E28 |
+
+- **El rol `repartidor` tiene su módulo** (`src/sesion/modulos.ts`, registro-E33): su primera pantalla son sus pedidos, y
+  sus pantallas solo se ven con una cuenta de repartidor (`app/_layout.tsx`).
+- **Al entrar, el módulo pide `GET /api/repartidor/perfil`** (`src/repartidor/ProveedorDelRepartidor.tsx`). Con
+  `puede_operar` abre sus pedidos; sin él, la única pantalla es la espera, y la app no pide sus pedidos (E03). Si el
+  perfil no llega, sin escenario propio, el mensaje general de la app con "Intentar de nuevo" y "Cerrar sesión".
+- **Si una ruta de pedidos, historial o estadísticas responde 403** (lo suspendieron con la app abierta, E06), la app
+  vuelve a pedir el perfil y el módulo lo lleva a la espera; la consulta cada 30 s se detiene con la pantalla.
+
+### El registro y la espera (tarea 2.1)
+
+- **El registro va fuera del módulo, sin sesión,** junto al registro y el inicio de sesión del usuario: con la sesión
+  abierta lleva al módulo de la cuenta. **No tiene enlace** desde la bienvenida ni desde el inicio de sesión: es DD-053,
+  de Nadir (E04). "Regresar" lleva al inicio de sesión.
+- **Los datos:** nombre, teléfono (teclado de teléfono; el formato lo revisa el servidor), correo, contraseña (ADR-0005),
+  foto de perfil y tipo de vehículo (texto libre, lectura 3), con los títulos de la imagen c01-registro. La contraseña no
+  está en el mock: la pide ADR-0005.
+- **La foto** se toma con la cámara o se elige de la galería y se comprime con `COMPRESION_DE_FOTOS`, como la de la
+  lavandería, con la pieza nueva `src/piezas/CampoDeFoto.tsx`. Viaja con el registro, en multipart.
+- **El 201 abre la sesión** con `useEntrada`, como el registro del usuario, y el módulo muestra la espera. Cada 422 va
+  junto a su campo (`useEntrada` recibe los campos de la pantalla) y no se repite arriba del botón.
+- **La espera** dice "Tu registro espera la autorización de la administración." o "Tu cuenta de repartidor está
+  suspendida.", los mismos mensajes del servidor. **"Revisar de nuevo"** vuelve a pedir el perfil: con el alta, abre sus
+  pedidos. No se consulta sola: ADR-0007 pide la consulta periódica para la lista, no para esta pantalla.
+
+### Los pedidos asignados (tareas 2.2 a 2.4)
+
+- **La tarjeta es el componente 5 del design system** (`src/piezas/TarjetaDePedidoDeRepartidor.tsx`): folio, estado en
+  insignia cuadrada con el nombre del servidor ("En tránsito" en `en_entrega`) y los colores del canvas, la recolección en
+  la hora de la plaza, "Recoger en", "Entregar en" ("La misma de la recogida" si el servidor manda la misma) y la
+  lavandería con su dirección. Del canvas no entran el pin (sin librería de íconos ni de SVG), la distancia (sin
+  ubicación) ni el acumulado del día (E29).
+- **La consulta cada 30 s** es la de la lavandería (`src/estados/useConsultaPeriodica.ts`), y la lista compartida entre la
+  lista, el rechazo y la entrega pasó a `src/estados/listaCompartida.tsx`, que también usa la lavandería sin cambiar lo
+  que hace.
+- **Aceptar y Rechazar** solo en la oferta `ofrecido`, con la nota del rechazo. Al aceptar, la tarjeta dice "Aceptaste
+  este pedido." y ofrece el botón de su paso siguiente; si la lavandería todavía no acepta el pedido, el botón espera.
+  **El rechazo** es la pantalla del de la lavandería, con su misma regla del motivo.
+- **Un solo botón, el de `siguiente`,** mandado con `POST …/estado`. El 409 ("La oferta ya fue respondida.", "Primero
+  acepta el pedido." o "Ese no es el paso siguiente del pedido.") muestra el mensaje del servidor y vuelve a consultar.
+  El código de los botones entró con la tarea 2.3, porque E15 pide habilitarlos al aceptar; la tarea 2.4 son sus pruebas,
+  que se corrieron en rojo antes de ese código.
+
+### La evidencia de entrega (tarea 2.5)
+
+- **"Entregado" abre la entrega** en lugar de mandarse desde la tarjeta: el pedido, la foto de evidencia y "Marcar
+  entregado", que manda el botón y la foto juntos, en multipart, como pide el contrato de arriba.
+- **Solo la cámara:** la evidencia es de lo que pasó en la entrega, no una foto de la galería.
+- **Sin foto se marca igual, en JSON:** si la evidencia es obligatoria espera BR-29 y DD-110 (E24); la app hace lo que hoy
+  acepta el servidor.
+
+### El historial y las estadísticas (tareas 2.6 y 2.7)
+
+- **Se abren desde sus pedidos,** con "Historial de entregas" y "Mis estadísticas" bajo el título, como las entradas de la
+  lavandería mientras no exista una barra inferior.
+- **El historial** usa la tarjeta del historial de la lavandería (`TarjetaDePedidoEntregado`): folio y "Entregado el …"
+  en la fecha de la plaza, como los da el servidor. Sin monto ni calificación (E26 y E27).
+- **Las estadísticas** usan la tarjeta de cifras que se sacó de las de la lavandería (`src/piezas/TarjetaDeCifras.tsx`):
+  "Entregas de hoy" y "Entregas de esta semana", con la nota de que la semana va de lunes a domingo. Sin ingreso
+  acumulado (E29) ni el desglose por día del mock c05 (fuera del contrato).
+
+### Lo que la app no hace todavía
+
+- **El enlace al registro** (E04, DD-053), **el aviso de asignación** (E14, DD-054), **los montos** (E26 y E29, DD-019 y
+  DD-013) y **la calificación recibida** (E27, DD-052): sin huecos ni datos de relleno.
+- **Un perfil del repartidor en la app** para ver lo que le editó la administración (E08): ninguna tarea de `movil/` lo
+  pide; hoy solo lo trae `GET /api/repartidor/perfil`.
+- **El texto del permiso de la cámara** (`src/alta-lavanderias/permisos-de-la-foto.json`, que `app.config.ts` lleva al
+  Info.plist) habla de la foto de perfil y de la de la lavandería, no de la evidencia de entrega. Cambiarlo es un cambio
+  de la configuración nativa que pide una compilación nueva: se le propone a Arthur y no se hizo.
+
+### Cómo se prueba en el emulador
+
+Con el servidor sembrado como dice "Cómo se prueba en local", la app apuntando a él y la sesión de
+`repartidor@ejemplo.com` (`contrasena-de-prueba`):
+
+1. **Sus pedidos:** entra a "Pedidos asignados" con los tres pedidos ofrecidos, cada uno con Aceptar y Rechazar. La
+   lista se pone al día sola cada 30 s con la pantalla a la vista.
+2. **Aceptar:** en el que la lavandería ya aceptó aparece "Recolectado"; en el listo para el reparto, "En tránsito"; en
+   el que la lavandería no responde, ningún botón hasta que `lavanderia.norte@ejemplo.com` lo acepte.
+3. **Rechazar:** pide el motivo; sin él, el botón dice "Escribe el motivo". El pedido sale de la lista.
+4. **Entregar:** "En tránsito" y luego "Entregado", que abre la entrega: "Tomar foto" abre la cámara del emulador y
+   "Marcar entregado" lo manda con la foto.
+5. **Historial y estadísticas:** "Historial de entregas" y "Mis estadísticas", bajo el título.
+6. **La espera:** con `admin@ejemplo.com`, suspender al repartidor en `/admin/repartidores`; a los 30 s la lista lo
+   lleva a la espera, y "Revisar de nuevo" lo regresa al quitarle la suspensión.
+7. **El registro:** no tiene enlace (DD-053). Se abre con el enlace de la app, `<esquema>://registro-de-repartidor`,
+   donde el esquema es el `APP_IDENTIFIER` de la configuración; por ejemplo en Android,
+   `adb shell am start -a android.intent.action.VIEW -d "<esquema>://registro-de-repartidor"`, sin sesión abierta.
+
 ## Risks / Trade-offs
 
 - [El contrato guarda "evidencias de entrega" (p. 20), pero ninguna pantalla del Módulo C las captura, y su alcance es
@@ -591,3 +702,6 @@ entregas, los dos en 0. Sin ingreso total acumulado (E29, DD-019 y DD-013).
   de la máquina de estados (DD-123, límite 2027-01-04). E19 y E20 lo necesitan antes del sprint 18.
 - **Pantallas sin componente.** El componente 5 de `vault/design-system/componentes.md` cubre la tarjeta de pedido
   del repartidor. El registro, el historial y las estadísticas no tienen componente; tampoco el recurso del panel.
+  **En la app** se armaron con las piezas y los tokens, como las pantallas de la lavandería sin componente (ADR-0013),
+  sin estilos sueltos: el campo de foto y la tarjeta de cifras son piezas nuevas de `movil/src/piezas/`, y el historial
+  usa la tarjeta del de la lavandería. Si se quieren en el design system, entran con su cita.
