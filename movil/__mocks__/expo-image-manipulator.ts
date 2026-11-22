@@ -1,7 +1,10 @@
 // Simulación de expo-image-manipulator para Jest: en las pruebas no hay imágenes que transformar. Registra cada foto que
 // la app prepara, con su tamaño nuevo y cómo la guarda, y devuelve una dirección nueva con las medidas resultantes, como
-// la librería. Jest la usa en todas las pruebas porque está en __mocks__/ junto a node_modules. La compresión real, y el
-// peso con que sale, se prueban en un teléfono real (alta-lavanderias-E03).
+// la librería. Como la librería, deja el archivo en esa dirección: en la memoria que expo-file-system trae para Jest y
+// que jest-expo conecta sola, con un contenido que nombra su dirección, para que la app lo lea al subirlo
+// (src/configuracion/foto-del-formulario.ts). Jest la usa en todas las pruebas porque está en __mocks__/ junto a
+// node_modules. La compresión real, y el peso con que sale, se prueban en un teléfono real (alta-lavanderias-E03).
+import { File } from 'expo-file-system';
 
 // Los mismos valores que la librería.
 export enum SaveFormat {
@@ -54,6 +57,9 @@ function contexto(preparacion: Preparacion) {
         async saveAsync(opciones: OpcionesDeGuardado = {}) {
           preparacion.guardado = opciones;
           preparacion.resultado = __preparada(preparacion.fuente);
+          const archivo = new File(preparacion.resultado);
+          archivo.create({ intermediates: true, overwrite: true });
+          await archivo.write(`foto preparada en ${preparacion.resultado}`);
           return {
             uri: preparacion.resultado,
             width: preparacion.redimension?.width ?? 0,

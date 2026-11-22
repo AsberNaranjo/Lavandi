@@ -5,6 +5,7 @@
 // el comentario de cada controlador de servidor/app/Http/Controllers/Api/. Como las demás consultas, nunca lanza:
 // devuelve un Resultado.
 import { pedir, type Falla, type Resultado } from '../configuracion/api';
+import { agregarFoto } from '../configuracion/foto-del-formulario';
 import { esObjeto, fotoFirmada, type FotoFirmada } from '../configuracion/lectura';
 
 /** Las rutas del perfil y del soporte, en un solo lugar para ajustarlas. */
@@ -43,14 +44,10 @@ export async function cambiarNombre(token: string, nombre: string): Promise<Resu
 }
 
 /**
- * La foto en el formulario multipart (perfil-y-soporte, design.md, "La foto de perfil"): en el campo "foto", como JPEG,
- * porque así la deja la compresión (src/alta-lavanderias/foto.ts).
+ * El campo de la foto en el formulario multipart (perfil-y-soporte, design.md, "La foto de perfil"). Su nombre y su
+ * tipo son los de toda foto que sube la app (src/configuracion/foto-del-formulario.ts).
  */
-export const ARCHIVO_DE_LA_FOTO = {
-  campo: 'foto',
-  nombre: 'foto.jpg',
-  tipo: 'image/jpeg',
-} as const;
+export const CAMPO_DE_LA_FOTO = 'foto';
 
 /**
  * POST de la foto de perfil ya comprimida en el teléfono, en multipart (perfil-usuario-E03). Reemplaza a la anterior y
@@ -58,10 +55,8 @@ export const ARCHIVO_DE_LA_FOTO = {
  * responde 422 con su error en "foto", y la foto anterior se conserva (perfil-usuario-E04).
  */
 export async function subirFoto(token: string, foto: { uri: string }): Promise<Resultado<PerfilDeUsuario>> {
-  const { campo, nombre, tipo } = ARCHIVO_DE_LA_FOTO;
   const formulario = new FormData();
-  // React Native lee la foto del teléfono por su dirección; el tipo de FormData de la web no lo describe.
-  formulario.append(campo, { uri: foto.uri, name: nombre, type: tipo } as unknown as Blob);
+  agregarFoto(formulario, CAMPO_DE_LA_FOTO, foto);
   return leerRespuestaDelPerfil(
     await pedir<unknown>(CONTRATO_DEL_PERFIL.foto, { metodo: 'POST', token, formulario }),
   );

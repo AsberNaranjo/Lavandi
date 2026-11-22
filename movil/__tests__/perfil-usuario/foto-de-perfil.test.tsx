@@ -25,6 +25,14 @@ import { marcarBienvenidaVista } from '../../src/bienvenida/vista';
 import { COMPRESION_DE_FOTOS } from '../../src/configuracion/fotos';
 import { comprobarInstalacion } from '../../src/instalacion/marca';
 import { guardarToken } from '../../src/sesion/almacen';
+import {
+  contenidoDelArchivo,
+  esFormulario,
+  FormDataDelTelefono,
+  leerFormulario,
+  partesLeidas,
+  type ParteDelFormulario,
+} from '../apoyo/formulario';
 
 // La primera pantalla tarda más mientras Jest prepara el entorno.
 jest.setTimeout(60_000);
@@ -55,10 +63,6 @@ const almacen = SecureStore as unknown as { __vaciar(): void };
 const camara = ImagePicker as unknown as typeof import('../../__mocks__/expo-image-picker');
 const manipulador = ImageManipulator as unknown as typeof import('../../__mocks__/expo-image-manipulator');
 
-// El FormData del teléfono: en Jest, el global es el de Node, que convierte en texto la foto ({ uri, name, type }).
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const FormDataDeReactNative = require('react-native/Libraries/Network/FormData').default as typeof FormData;
-
 const direccionOriginal = process.env.EXPO_PUBLIC_API_URL;
 const nombreOriginal = process.env.EXPO_PUBLIC_NOMBRE_APP;
 const fetchOriginal = global.fetch;
@@ -83,30 +87,18 @@ function tokenDe(opciones: RequestInit): string {
   return (encabezados.Authorization ?? '').replace(/^Bearer /, '');
 }
 
-/** Una parte del formulario multipart como la arma React Native: de texto, o un archivo por su dirección. */
-interface Parte {
-  fieldName: string;
-  string?: string;
-  uri?: string;
-  name?: string;
-  type?: string;
-}
-
-// Las partes del formulario, sin los encabezados que les agrega React Native; null si el cuerpo no es un formulario.
-function partesDe(cuerpo: unknown): Parte[] | null {
-  const formulario = cuerpo as { getParts?: () => Parte[] } | undefined;
-  if (typeof formulario?.getParts !== 'function') {
-    return null;
-  }
-  return formulario.getParts().map(({ fieldName, string, uri, name, type }) =>
-    string === undefined ? { fieldName, uri, name, type } : { fieldName, string },
-  );
+// Las partes del formulario como las leyó el servidor, ya mandadas como en el teléfono (__tests__/apoyo/formulario.ts);
+// null si el cuerpo no es un formulario.
+function partesDe(cuerpo: unknown): ParteDelFormulario[] | null {
+  return esFormulario(cuerpo) ? partesLeidas(cuerpo) : null;
 }
 
 // El servidor falso: reconoce el token, da el perfil con la foto que tiene y guarda la foto que llega como la API: la
 // reemplaza y la devuelve con otra URL firmada.
 function servidor() {
   fetchFalso.mockImplementation(async (url: string, opciones: RequestInit = {}) => {
+    // Como en el teléfono: el formulario lo manda expo/fetch, y si no sabe mandarlo, la petición no sale.
+    const partes = esFormulario(opciones.body) ? await leerFormulario(opciones.body) : [];
     const ruta = url.slice(BASE.length);
     const metodo = opciones.method ?? 'GET';
     if (tokenDe(opciones) !== TOKEN) {
@@ -123,13 +115,13 @@ function servidor() {
       if (otra !== undefined) {
         return otra;
       }
-      const foto = partesDe(opciones.body)?.find(({ fieldName }) => fieldName === 'foto');
-      if (!foto?.uri) {
+      const foto = partes.find((parte) => parte.campo === 'foto' && 'archivo' in parte);
+      if (!foto || !('archivo' in foto)) {
         return respuesta(422, { message: 'Elige una foto.', errors: { foto: ['Elige una foto.'] } });
       }
       firmas += 1;
       fotoGuardada = {
-        url: `https://fotos.prueba.invalid/usuarios/${encodeURIComponent(foto.uri)}?firma=${firmas + 1}`,
+        url: `https://fotos.prueba.invalid/usuarios/${encodeURIComponent(foto.archivo.contenido)}?firma=${firmas + 1}`,
         vence_en: '2026-11-22T19:00:00Z',
       };
       return respuesta(200, { perfil: perfil() });
@@ -142,12 +134,12 @@ function servidor() {
 }
 
 // Las subidas de la foto que mandó la app, con su token, si fueron multipart y sus partes.
-function subidas(): { token: string; multipart: boolean; partes: Parte[] | null }[] {
+function subidas(): { token: string; multipart: boolean; partes: ParteDelFormulario[] | null }[] {
   return fetchFalso.mock.calls
     .filter(([url, opciones]: [string, RequestInit | undefined]) => url === `${BASE}/perfil/foto` && opciones?.method === 'POST')
     .map(([, opciones]: [string, RequestInit]) => ({
       token: tokenDe(opciones),
-      multipart: opciones.body instanceof FormDataDeReactNative,
+      multipart: esFormulario(opciones.body),
       partes: partesDe(opciones.body),
     }));
 }
@@ -199,7 +191,8 @@ beforeEach(() => {
   process.env.EXPO_PUBLIC_NOMBRE_APP = 'Nombre de prueba perfil-foto';
   fetchFalso = jest.fn();
   global.fetch = fetchFalso as unknown as typeof fetch;
-  global.FormData = FormDataDeReactNative;
+  // El FormData del teléfono: en Jest, el global es el de Node.
+  global.FormData = FormDataDelTelefono;
   servidor();
 });
 
@@ -247,7 +240,14 @@ describe('perfil-usuario-E03: el usuario pone su foto', () => {
           token: TOKEN,
           multipart: true,
           partes: [
-            { fieldName: 'foto', uri: manipulador.__preparada(FOTO_DE_LA_CAMARA.uri), name: 'foto.jpg', type: 'image/jpeg' },
+            {
+              campo: 'foto',
+              archivo: {
+                nombre: 'foto.jpg',
+                tipo: 'image/jpeg',
+                contenido: contenidoDelArchivo(manipulador.__preparada(FOTO_DE_LA_CAMARA.uri)),
+              },
+            },
           ],
         },
       ]);
@@ -277,7 +277,16 @@ describe('perfil-usuario-E03: el usuario pone su foto', () => {
         },
       ]);
       expect(subidas().map(({ partes }) => partes)).toEqual([
-        [{ fieldName: 'foto', uri: manipulador.__preparada(FOTO_DE_LA_GALERIA.uri), name: 'foto.jpg', type: 'image/jpeg' }],
+        [
+          {
+            campo: 'foto',
+            archivo: {
+              nombre: 'foto.jpg',
+              tipo: 'image/jpeg',
+              contenido: contenidoDelArchivo(manipulador.__preparada(FOTO_DE_LA_GALERIA.uri)),
+            },
+          },
+        ],
       ]);
       expect(fotoDePerfil()).toHaveProp('source', { uri: fotoGuardada?.url });
     },
