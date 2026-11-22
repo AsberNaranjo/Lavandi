@@ -181,14 +181,17 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
     llave y el aviso. Se revisa a mano con una llave de prueba.
 - **El refresco** es el sondeo de Livewire de cada widget (`wire:poll`), la consulta periódica de ADR-0007: la gráfica
   llama a `updateChartData` y la tabla se vuelve a dibujar, sin recargar la página. El intervalo es
-  `INDICADORES_REFRESCO` en `config/indicadores.php`, como "30s" o "1500ms". Mientras DD-116 no tenga su ADR va
-  vacío: ningún widget sondea (también se quitan los 5 s que trae la gráfica de Filament) y la página dice que las
-  cifras se actualizan al abrir o recargar. Con intervalo, la página dice cada cuánto.
+  `INDICADORES_REFRESCO` en `config/indicadores.php`, como "30s" o "1500ms". **Por omisión son 30 s** (tarea 6.2,
+  E22), como fija la adenda del 2026-11-22 de ADR-0007, que cierra DD-116; un valor vacío en el entorno también toma
+  los 30 s, y cada entorno lo cambia sin tocar el código. Con un valor que no sirve, ningún widget sondea (también se
+  quitan los 5 s que trae la gráfica de Filament) y la página dice que las cifras se actualizan al abrir o recargar.
+  Con intervalo, la página dice cada cuánto.
 
 ## Open Questions
 
 1. **Cuánto es "en tiempo real" para los indicadores.** El ADR-0007 fija 30 s para los pedidos activos, no para los
-   indicadores. Necesita ADR, o ampliar el ADR-0007. Recomendación de Claude: los mismos 30 s. DD-116.
+   indicadores. Necesita ADR, o ampliar el ADR-0007. Recomendación de Claude: los mismos 30 s. DD-116. **Resuelta** por
+   la adenda del 2026-11-22 de ADR-0007 (decisión 33, C-236): 30 s; cierra DD-116.
 2. **Qué fecha cuenta para un pedido:** la de su confirmación, que es la que usan los escenarios, o la de su
    creación. Arthur la confirma al aprobar. Con C-188 la diferencia importa: el pedido se crea al aceptar el resumen y
    se confirma cuando se paga.

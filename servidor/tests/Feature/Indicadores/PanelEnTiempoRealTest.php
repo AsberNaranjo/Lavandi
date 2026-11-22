@@ -28,10 +28,12 @@ use Tests\TestCase;
  * updateChartData, que manda las cifras nuevas a Chart.js; la tabla, con su refresco. Es la consulta periódica de
  * ADR-0007, sin piezas nuevas.
  *
- * Cuánto es "en tiempo real" para los indicadores es DD-116 y necesita ADR (indicadores-E22, bloqueado): aquí la prueba
- * carga un intervalo propio. Sin intervalo, ningún widget sondea.
+ * Cuánto es "en tiempo real" lo fija la adenda del 2026-11-22 de ADR-0007: 30 s, el valor por omisión de
+ * config/indicadores.php, que cada entorno cambia con INDICADORES_REFRESCO (indicadores-E22). Las pruebas de E21 cargan
+ * un intervalo propio, para ver que el panel usa el de la configuración. Con uno que no sirve, ningún widget sondea.
  *
- * Escenarios: indicadores-E21 · Spec: openspec/changes/indicadores/specs/indicadores/spec.md · Tarea 6.1
+ * Escenarios: indicadores-E21 e indicadores-E22 · Spec: openspec/changes/indicadores/specs/indicadores/spec.md · Tareas
+ * 6.1 y 6.2
  */
 class PanelEnTiempoRealTest extends TestCase
 {
@@ -44,7 +46,7 @@ class PanelEnTiempoRealTest extends TestCase
     use PlazasDePrueba;
     use RefreshDatabase;
 
-    /** Un intervalo de prueba; el de producción espera DD-116. */
+    /** Un intervalo de prueba, distinto de los 30 s por omisión. */
     private const INTERVALO = '17s';
 
     protected function setUp(): void
@@ -117,6 +119,29 @@ class PanelEnTiempoRealTest extends TestCase
         $this->get('/admin/indicadores')->assertOk()->assertSee('Las cifras se actualizan al abrir o recargar la página.');
     }
 
+    #[TestDox('indicadores-E22: sin un valor del entorno, el panel refresca cada 30 segundos, el intervalo de la adenda de ADR-0007, y todos sus widgets sondean con él')]
+    public function test_indicadores_e22_por_omision_el_panel_refresca_cada_30_segundos(): void
+    {
+        $this->assertSame('30s', $this->refrescoDeLaConfiguracion(null));
+        // Un valor vacío, como el que deja copiar el .env.example sin llenarlo, también toma el de la adenda.
+        $this->assertSame('30s', $this->refrescoDeLaConfiguracion(''));
+
+        config(['indicadores.refresco' => $this->refrescoDeLaConfiguracion(null)]);
+        $this->comoAdministracion();
+
+        foreach ((new Indicadores)->getWidgets() as $widget) {
+            $this->widget($widget)->assertSeeHtml('wire:poll.30s');
+        }
+
+        $this->get('/admin/indicadores')->assertOk()->assertSee('Las cifras se actualizan solas cada 30 segundos.');
+    }
+
+    #[TestDox('indicadores-E22: cada entorno cambia el intervalo sin tocar el código, con INDICADORES_REFRESCO')]
+    public function test_indicadores_e22_cada_entorno_cambia_el_intervalo_sin_tocar_el_codigo(): void
+    {
+        $this->assertSame('45s', $this->refrescoDeLaConfiguracion('45s'));
+    }
+
     #[TestDox('indicadores-E21: el intervalo admite segundos y milisegundos, como el sondeo de Livewire')]
     public function test_indicadores_e21_el_intervalo_admite_segundos_y_milisegundos(): void
     {
@@ -125,6 +150,48 @@ class PanelEnTiempoRealTest extends TestCase
         config(['indicadores.refresco' => '1500ms']);
         $this->widget(PedidosTotalesGrafica::class)->assertSeeHtml('wire:poll.1500ms="updateChartData"');
         $this->get('/admin/indicadores')->assertSee('Las cifras se actualizan solas cada 1500 milisegundos.');
+    }
+
+    /**
+     * El valor de indicadores.refresco que deja config/indicadores.php con ese INDICADORES_REFRESCO en el entorno; null,
+     * sin la variable. La variable se deja como estaba.
+     */
+    private function refrescoDeLaConfiguracion(?string $valor): mixed
+    {
+        $antes = [$_SERVER['INDICADORES_REFRESCO'] ?? null, $_ENV['INDICADORES_REFRESCO'] ?? null, getenv('INDICADORES_REFRESCO')];
+
+        try {
+            $this->ponerVariable($valor);
+
+            return (require config_path('indicadores.php'))['refresco'];
+        } finally {
+            $this->ponerVariable(null);
+            [$servidor, $entorno, $proceso] = $antes;
+
+            if ($servidor !== null) {
+                $_SERVER['INDICADORES_REFRESCO'] = $servidor;
+            }
+            if ($entorno !== null) {
+                $_ENV['INDICADORES_REFRESCO'] = $entorno;
+            }
+            if ($proceso !== false) {
+                putenv("INDICADORES_REFRESCO={$proceso}");
+            }
+        }
+    }
+
+    private function ponerVariable(?string $valor): void
+    {
+        if ($valor === null) {
+            unset($_SERVER['INDICADORES_REFRESCO'], $_ENV['INDICADORES_REFRESCO']);
+            putenv('INDICADORES_REFRESCO');
+
+            return;
+        }
+
+        $_SERVER['INDICADORES_REFRESCO'] = $valor;
+        $_ENV['INDICADORES_REFRESCO'] = $valor;
+        putenv("INDICADORES_REFRESCO={$valor}");
     }
 
     /**
