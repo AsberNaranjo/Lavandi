@@ -88,3 +88,52 @@ Bajo: una migración de datos en `estados_pedido`.
 - **Pendientes:** DD-123, cerrada en lo que no esperan DD-016, DD-022 y DD-103.
 - **Riesgos:** R-008.
 - **ADRs relacionados:** ADR-0007, ADR-0016 y ADR-0020.
+
+## Adenda del 2026-11-22: el estado `aceptado` y cómo ve el usuario los estados operativos
+
+Asentada el 2026-11-22 (decisión 30 del acta del 2026-11-20). La escribió Claude por delegación de Arthur Naranjo
+(C-236), con la tarea 1.2 de `pedidos-de-la-lavanderia`, porque aceptar necesita un estado operativo propio que ADR-0021 no nombra. Lo que esperan DD-022 (entregar sin
+repartidor), DD-016 (cancelación) y DD-103 (plazo y consecuencias del rechazo) **no** se decide aquí.
+
+1. **`aceptado`, un estado operativo nuevo.** Lo pone la lavandería al aceptar (Módulo B #2), desde `confirmado`. El
+   usuario lo sigue viendo como **Confirmado**: el contrato no nombra un sexto estado para él (Módulo A #12).
+2. **Las transiciones de la lavandería**, en la tabla de `App\Pedidos\CambioDeEstado` (ADR-0021, decisión 4):
+
+   | Desde | Acción de la lavandería | Llega a |
+   |---|---|---|
+   | `confirmado` | Aceptar | `aceptado` |
+   | `confirmado` | Rechazar, con motivo | `rechazado` |
+   | `aceptado` | Recolectado | `recolectado` |
+   | `recolectado` | En proceso | `en_proceso` |
+   | `en_proceso` | Listo | `listo` |
+   | `listo` | En proceso de entrega | `en_entrega` |
+
+   - La lavandería marca Recolectado desde `aceptado`, no desde `confirmado`: sin aceptar no hay botones (estados-E09).
+     Desde dónde marca el repartidor su Recolectado lo fija `repartidor` (H8).
+   - Un pedido aceptado ya no se rechaza, ni uno rechazado se acepta: el pedido ya fue respondido
+     (pedidos-lavanderia-E08). Si después de aceptar se puede deshacer, es DD-103.
+   - Ninguna acción de la lavandería sale de `en_entrega`: Entregado espera DD-022 (estados-E13).
+3. **Cómo se siembra cada estado nuevo** (sin columnas nuevas):
+
+   | Código | `nombre_usuario` | `orden` | `visible_usuario` | Lo siembra |
+   |---|---|---|---|---|
+   | `aceptado` | Confirmado | el de `confirmado` (1) | falso | `pedidos-de-la-lavanderia`, tarea 1.2 |
+   | `rechazado` | Rechazado | 99, fuera del flujo | falso | `pedidos-de-la-lavanderia`, tarea 1.3 |
+   | `en_entrega` | Listo | el de `listo` (4) | falso | `estados-del-pedido`, tarea 2.1 |
+
+4. **Cómo se deriva lo que ve el usuario.** `visible_usuario` dice si el estado es **uno de los cinco pasos del
+   seguimiento**. Un estado operativo que el usuario ve como uno de los cinco lleva `visible_usuario` falso, el nombre de
+   ese paso y su mismo `orden`. La API del usuario le presenta el paso: `estado.codigo` es el del paso, `estado.nombre`
+   es el `nombre_usuario` del estado, y `estado.visible_usuario` es verdadero. Un estado sin paso de su orden
+   (`por_pagar`, `rechazado`) está fuera del flujo: sale con su propio código y `visible_usuario` falso, como ya salía
+   `por_pagar`. Lo hace `App\Http\Resources\PedidoResource::estadoParaElUsuario()`, con la relación
+   `EstadoPedido::paso()`.
+   - **Por qué así:** no hay columna nueva ni cambio de esquema para otros cambios; la app del Módulo A no cambia, porque
+     ubica el paso actual por `estado.codigo` y, tras el pago, espera `confirmado` aunque la lavandería ya haya
+     aceptado; el seguimiento sigue trayendo exactamente los cinco (estados-E01); y el criterio de reversión del ADR
+     ("En camino") sigue siendo un `nombre_usuario` nuevo.
+   - **Lo que ve el usuario de un pedido rechazado** sigue abierto (estados-E19, DD-103): hoy sale fuera del flujo, sin
+     nombre que la app muestre.
+5. **Cada cambio publica `App\Pedidos\EstadoDelPedidoCambiado`,** también aceptar y rechazar: es un cambio del estado
+   actual, y el aviso de solo datos deja que la app del usuario consulte de inmediato (ADR-0007; avisos-E14). Ninguno de
+   los dos es un momento de aviso visible (`config/avisos.php`).

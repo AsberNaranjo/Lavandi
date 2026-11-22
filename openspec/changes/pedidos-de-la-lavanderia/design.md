@@ -71,9 +71,9 @@ según la columna
   `BotonesDeLaLavanderiaTest`), y `tests/Feature/Confirmacion/MigracionTest.php` (modelo-E07) comprueba que los visibles
   siguen siendo exactamente los cinco.
 
-## Adenda propuesta a ADR-0021
+## Adenda a ADR-0021
 
-Estado: **propuesta**, no incorporada al ADR. La escribió Claude por delegación de Arthur Naranjo (C-236), con la tarea
+Estado: **asentada** en `vault/arquitectura/adr/ADR-0021-maquina-de-estados-del-pedido.md` el 2026-11-22 (decisión 30). La escribió Claude por delegación de Arthur Naranjo (C-236), con la tarea
 1.2, porque aceptar necesita un estado operativo propio que ADR-0021 no nombra. Lo que esperan DD-022 (entregar sin
 repartidor), DD-016 (cancelación) y DD-103 (plazo y consecuencias del rechazo) **no** se decide aquí.
 
