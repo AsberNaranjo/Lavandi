@@ -56,6 +56,16 @@ cumple cada escenario; se pueden rehacer sin tocar los requisitos.
   llaves de modo de prueba y de producción entran por el mismo camino, con sus variables en el `.env` de cada entorno;
   hasta entonces, en prueba y en producción el pago responde que no está disponible. La parte de la pasarela de
   publicacion-E01 se termina de acreditar con esa tarea.
+- **Solo https (tarea 2.1, 2026-11-22):** el middleware global `App\Http\Middleware\SoloHttps`, que implementó la
+  tarea 3.2 de `medicion-de-la-landing` (medicion-E13) y aquí se prueba en el panel y en la API. Se enciende con
+  `app.solo_https`, verdadero en todo entorno que no sea `local` ni `testing`. Por http, una página del panel o de la
+  landing recibe una redirección 301 a la misma dirección por https, en el dominio de `APP_URL` (publicacion-E04); una
+  ruta de la API recibe 403 con solo `{"message": "La API solo atiende por https."}`, sin redirección (publicacion-E05):
+  una app que siguiera la redirección volvería a mandar por http su token o su contraseña, y el 403 hace visible el error
+  de configuración en lugar de esconderlo. En los dos casos la petición no se procesa: no abre sesión, no crea token y no
+  guarda el aviso de la pasarela. La prueba recorre la tabla del enrutador, así que una ruta nueva entra sola. Si el
+  alojamiento de DD-070 termina el https en un proxy, ese proxy se declara de confianza al desplegar (`trustProxies`);
+  `SoloHttps` va después de `TrustProxies` para respetarlo.
 
 ## Tablas y migración
 
