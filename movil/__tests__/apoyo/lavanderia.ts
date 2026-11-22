@@ -19,6 +19,14 @@ import { marcarBienvenidaVista } from '../../src/bienvenida/vista';
 import { olvidarMunicipios } from '../../src/direcciones/useMunicipios';
 import { comprobarInstalacion } from '../../src/instalacion/marca';
 import { guardarToken } from '../../src/sesion/almacen';
+import {
+  esFormulario,
+  FormDataDelTelefono,
+  leerFormulario,
+  partesLeidas,
+  type ArchivoDelFormulario,
+  type ParteDelFormulario,
+} from './formulario';
 
 export const APP = path.resolve(__dirname, '..', '..', 'app');
 export const PLATAFORMAS = ['ios', 'android'] as const;
@@ -225,19 +233,13 @@ export function respuesta(status: number, cuerpo?: unknown) {
   };
 }
 
-/** Un archivo de un formulario multipart, como lo arma React Native: su dirección en el teléfono, nombre y tipo. */
-export interface ArchivoDelFormulario {
-  uri: string;
-  name?: string;
-  type?: string;
-}
-
 export interface Peticion {
   metodo: string;
   ruta: string;
   /**
    * El cuerpo leído: el JSON, o los campos del formulario multipart ya anidados como los lee Laravel
-   * ("direccion[calle]" queda en direccion.calle y "servicios[0][tipo]" en servicios[0].tipo).
+   * ("direccion[calle]" queda en direccion.calle y "servicios[0][tipo]" en servicios[0].tipo), leído como lo manda el
+   * teléfono (__tests__/apoyo/formulario.ts): un archivo, con su nombre, su tipo y su contenido.
    */
   cuerpo: unknown;
   /** Si el cuerpo fue un formulario multipart (FormData), como el registro con su foto. */
@@ -313,7 +315,7 @@ export class ServidorDeLaLavanderia {
   }
 
   private async contestar(url: string, opciones: RequestInit) {
-    const peticion = leer(this.base, url, opciones);
+    const peticion = await recibir(this.base, url, opciones);
     const interceptada = this.interceptar?.(peticion);
     if (interceptada !== undefined) {
       return interceptada;
@@ -481,7 +483,10 @@ function aplicar(lavanderia: LavanderiaDelSocio, cuerpo: Record<string, unknown>
   }
   if (esObjeto(cuerpo.foto)) {
     const foto = cuerpo.foto as unknown as ArchivoDelFormulario;
-    lavanderia.foto = { url: `https://fotos.prueba.invalid/${encodeURIComponent(foto.uri)}?firma=2`, vence_en: '2026-12-03T19:00:00Z' };
+    lavanderia.foto = {
+      url: `https://fotos.prueba.invalid/${encodeURIComponent(foto.contenido)}?firma=2`,
+      vence_en: '2026-12-03T19:00:00Z',
+    };
   }
   if (Array.isArray(cuerpo.servicios)) {
     lavanderia.servicios = (cuerpo.servicios as { tipo: string; precio: string }[]).map(({ tipo, precio }) => ({
@@ -502,21 +507,12 @@ function esObjeto(valor: unknown): valor is Record<string, unknown> {
   return typeof valor === 'object' && valor !== null;
 }
 
-/** Un FormData de React Native: el teléfono arma así el cuerpo multipart, con cada parte de texto o de archivo. */
-interface FormularioDeReactNative {
-  getParts(): ({ fieldName: string; string: string } | ({ fieldName: string } & ArchivoDelFormulario))[];
-}
-
-function esFormulario(cuerpo: unknown): cuerpo is FormularioDeReactNative {
-  return esObjeto(cuerpo) && typeof (cuerpo as Partial<FormularioDeReactNative>).getParts === 'function';
-}
-
 // Los campos del formulario anidados como los lee Laravel: "servicios[0][tipo]" queda en servicios[0].tipo.
-function anidar(formulario: FormularioDeReactNative): Record<string, unknown> {
+function anidar(partes: ParteDelFormulario[]): Record<string, unknown> {
   const raiz: Record<string, unknown> = {};
-  for (const parte of formulario.getParts()) {
-    const valor = 'string' in parte ? parte.string : { uri: parte.uri, name: parte.name, type: parte.type };
-    const claves = parte.fieldName.replace(/\]/g, '').split('[');
+  for (const parte of partes) {
+    const valor = 'texto' in parte ? parte.texto : parte.archivo;
+    const claves = parte.campo.replace(/\]/g, '').split('[');
     let nodo: Record<string, unknown> = raiz;
     claves.forEach((clave, indice) => {
       if (indice === claves.length - 1) {
@@ -534,8 +530,9 @@ function anidar(formulario: FormularioDeReactNative): Record<string, unknown> {
 
 /**
  * La petición que hizo la app, leída como la lee el servidor: su método, su ruta sin la dirección base, su cuerpo (el
- * JSON o los campos del formulario multipart ya anidados), si fue multipart y su autorización. La usa también el servidor
- * simulado del repartidor (__tests__/apoyo/repartidor.ts).
+ * JSON o los campos del formulario multipart ya anidados), si fue multipart y su autorización. Un formulario se lee al
+ * recibirlo (recibir()); antes, su cuerpo queda sin leer. La usa también el servidor simulado del repartidor
+ * (__tests__/apoyo/repartidor.ts).
  */
 export function leer(base: string, url: string, opciones: RequestInit = {}): Peticion {
   const cabeceras = (opciones.headers ?? {}) as Record<string, string>;
@@ -544,7 +541,8 @@ export function leer(base: string, url: string, opciones: RequestInit = {}): Pet
   if (typeof opciones.body === 'string') {
     cuerpo = JSON.parse(opciones.body);
   } else if (esFormulario(opciones.body)) {
-    cuerpo = anidar(opciones.body);
+    const partes = partesLeidas(opciones.body);
+    cuerpo = partes ? anidar(partes) : undefined;
   }
   return {
     metodo: opciones.method ?? 'GET',
@@ -555,15 +553,23 @@ export function leer(base: string, url: string, opciones: RequestInit = {}): Pet
   };
 }
 
+/**
+ * La petición al llegar al servidor: un formulario multipart se lee como lo manda el teléfono, con expo/fetch
+ * (__tests__/apoyo/formulario.ts). Si el teléfono no lo sabe mandar, falla como la petición en el teléfono, y la app
+ * dice que no hubo conexión.
+ */
+export async function recibir(base: string, url: string, opciones: RequestInit = {}): Promise<Peticion> {
+  if (esFormulario(opciones.body)) {
+    await leerFormulario(opciones.body);
+  }
+  return leer(base, url, opciones);
+}
+
 // Las simulaciones de __mocks__/, la misma instancia que importa la app.
 const almacen = SecureStore as unknown as { __vaciar(): void };
 const gps = Location as unknown as { __reiniciar(): void };
 const camara = ImagePicker as unknown as { __reiniciar(): void };
 const manipulador = ImageManipulator as unknown as { __reiniciar(): void };
-
-// El FormData del teléfono: en Jest, el global es el de Node, que convierte en texto la foto ({ uri, name, type }).
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const FormDataDeReactNative = require('react-native/Libraries/Network/FormData').default as typeof FormData;
 
 /**
  * Prepara cada prueba del archivo con la app recién abierta en esta instalación y el servidor simulado en la dirección
@@ -589,7 +595,8 @@ export function usarElServidorDeLaLavanderia(nombre: string): () => ServidorDeLa
     process.env.EXPO_PUBLIC_NOMBRE_APP = `Nombre de prueba ${nombre}`;
     servidor = new ServidorDeLaLavanderia(base);
     global.fetch = servidor.fetch as unknown as typeof fetch;
-    global.FormData = FormDataDeReactNative;
+    // El FormData del teléfono: en Jest, el global es el de Node.
+    global.FormData = FormDataDelTelefono;
     // El selector anuncia la elección al lector de pantalla; en Jest no hay lector.
     jest.spyOn(AccessibilityInfo, 'announceForAccessibilityWithOptions').mockImplementation(() => {});
   });
