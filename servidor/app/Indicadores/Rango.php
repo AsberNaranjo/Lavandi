@@ -89,16 +89,20 @@ final readonly class Rango
     }
 
     /**
-     * Cómo se lee el rango: "Del 30/11/2026 al 06/12/2026, por día".
+     * Cómo se lee el rango con su granularidad: "Del 30/11/2026 al 06/12/2026, por día".
      */
     public function descripcion(): string
     {
-        return sprintf(
-            'Del %s al %s, por %s',
-            $this->desde->format('d/m/Y'),
-            $this->hasta->format('d/m/Y'),
-            mb_strtolower($this->granularidad->nombre()),
-        );
+        return $this->dias().', por '.mb_strtolower($this->granularidad->nombre());
+    }
+
+    /**
+     * Cómo se leen solo los días del rango, para el indicador que no se agrupa por periodo: "Del 30/11/2026 al
+     * 06/12/2026".
+     */
+    public function dias(): string
+    {
+        return sprintf('Del %s al %s', $this->desde->format('d/m/Y'), $this->hasta->format('d/m/Y'));
     }
 
     private static function dia(mixed $valor): ?CarbonImmutable

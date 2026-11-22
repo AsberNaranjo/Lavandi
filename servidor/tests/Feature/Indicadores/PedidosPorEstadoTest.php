@@ -109,10 +109,16 @@ class PedidosPorEstadoTest extends TestCase
         $this->sembrarElEscenario();
         $this->comoAdministracion();
 
-        $this->widget(PedidosPorEstadoGrafica::class, $this->filtros('2026-12-01', '2026-12-31'))
+        $dona = $this->widget(PedidosPorEstadoGrafica::class, $this->filtros('2026-12-01', '2026-12-31'))
             ->assertSee('Pedidos por estado')
             ->assertSee('Activos: 3')
             ->assertSee('Completados: 3');
+
+        // Las cifras se leen en la descripción, sin pasar el cursor, y el rango sin granularidad: la dona no la usa.
+        $this->assertSame(
+            'Del 01/12/2026 al 31/12/2026. Activos: 3. Completados: 3.',
+            $dona->instance()->getDescription(),
+        );
 
         $this->assertContains(PedidosPorEstadoGrafica::class, (new Indicadores)->getWidgets());
     }

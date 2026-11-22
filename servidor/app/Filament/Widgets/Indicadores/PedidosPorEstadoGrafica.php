@@ -28,9 +28,12 @@ class PedidosPorEstadoGrafica extends ChartWidget
         return 'Pedidos por estado';
     }
 
+    /**
+     * Los días del rango y las cifras, visibles sin pasar el cursor por la dona. La dona no se agrupa por periodo.
+     */
     public function getDescription(): string|Htmlable|null
     {
-        return $this->rango()->descripcion();
+        return $this->rango()->dias().'. '.$this->getChartAssistiveContent();
     }
 
     public function getChartAssistiveContent(): string
