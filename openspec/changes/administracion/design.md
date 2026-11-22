@@ -181,6 +181,27 @@ de solo lectura. Los pedidos los da `Autorizacion::pedidosActivosDelPanel()`, y 
   cambio de estado que hace la lavandería, un pedido que se entrega o uno que se confirma se ven en el siguiente
   refresco, a lo más 30 segundos después.
 
+**Comisiones** (tarea 3.1, administracion-E11 a E13), dos páginas en el grupo "Comisiones" del menú. Las reglas y la
+vigencia viven en `App\Comisiones\PorcentajesDeComision`, no en las páginas:
+
+- **Comisión global** (`/admin/comision-global`): una fila por plaza (`Autorizacion::plazasDelPanel()`), con su
+  porcentaje global vigente ("Sin porcentaje" si no hay), desde cuándo rige en la hora de la plaza y el botón "Fijar
+  porcentaje". Aplica a toda lavandería de esa plaza sin porcentaje propio. Es global de la plaza, como dice el modelo
+  de datos (Open Questions 4): si EL CLIENTE quiere uno solo para todo el territorio, se captura la misma cifra en cada
+  plaza.
+- **Comisión por lavandería** (`/admin/comision-por-lavanderia`): una fila por lavandería de todas las plazas
+  (`Autorizacion::lavanderiasDelPanel()`), con su porcentaje propio ("Sin porcentaje propio") y el que le aplica, con
+  de dónde sale: "7.25 % (propio)", "10.00 % (global de la plaza)" o "Sin porcentaje". Los botones "Fijar porcentaje
+  propio" y "Quitar porcentaje propio" (solo si tiene uno; al quitarlo le vuelve a aplicar el global).
+- **Sin valores de fábrica** (E11): la tabla nace vacía; sin porcentaje guardado no aplica ninguno.
+- **El rango** (E13): de 0 a 100, con a lo más dos decimales. El formulario lo rechaza con su mensaje ("El porcentaje va
+  de 0 a 100.") y el vigente no cambia; `PorcentajesDeComision` valida lo mismo, y la base tiene su `CHECK`.
+- **La vigencia:** fijar un porcentaje cierra el vigente en ese instante (`vigente_hasta`) y abre una fila nueva; el
+  anterior queda como historial y `queAplica()` responde para cualquier instante. Quitar el propio lo cierra igual. Un
+  cambio en el mismo segundo que el anterior lo reemplaza, porque ese no llegó a regir. Cuál se usa para un pedido ya
+  cobrado lo decide DD-020 (E15 y E16).
+- El porcentaje de un socio repartidor espera DD-019 (E14).
+
 ## Risks / Trade-offs
 
 - [El plugin de mapas de Filament está en beta] → se hace como componente propio (ADR-0009). Si el mapa sin código a

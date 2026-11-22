@@ -6,6 +6,7 @@ use App\Models\Direccion;
 use App\Models\Dispositivo;
 use App\Models\Lavanderia;
 use App\Models\Pedido;
+use App\Models\Plaza;
 use App\Models\Rol;
 use App\Models\Usuario;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,9 +20,10 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * Conoce el rol (registro-E14 y registro-E15), la tenencia de las direcciones (direcciones-E14), de los pedidos del
  * usuario (confirmacion-E12) y de los de la lavandería, con su plaza (pedidos-lavanderia-E02 y E09), qué teléfonos
- * reciben los avisos de un pedido (avisos-E04 y avisos-E12), y qué ve la administración en el panel: las lavanderías,
- * los usuarios y los pedidos de todas las plazas (autorizacion-E03, administracion-E01 y E06). La tenencia del
- * repartidor llega aquí mismo con repartidor (hito H8; ADR-0019, decisión 1).
+ * reciben los avisos de un pedido (avisos-E04 y avisos-E12), qué ve la administración en el panel (las plazas, las
+ * lavanderías, los usuarios y los pedidos de todas las plazas: autorizacion-E03, administracion-E01, E06 y E11) y quién
+ * abre sesión o bloquea (administracion-E03). La tenencia del repartidor llega aquí mismo con repartidor (hito H8;
+ * ADR-0019, decisión 1).
  */
 final class Autorizacion
 {
@@ -144,6 +146,19 @@ final class Autorizacion
     public function lavanderiasDelPanel(Usuario $usuario): Builder
     {
         $consulta = Lavanderia::query();
+
+        return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
+     * Las plazas que la cuenta ve en el panel, para fijar su porcentaje de comisión global: todas, si es de
+     * administración (administracion-E11; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #5); ninguna si no lo es.
+     *
+     * @return Builder<Plaza>
+     */
+    public function plazasDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = Plaza::query();
 
         return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
     }
