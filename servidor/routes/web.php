@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BuscadoresController;
 use App\Http\Controllers\Desarrollo\CheckoutDeDesarrolloController;
 use App\Http\Controllers\FormularioDeLaPortadaController;
 use App\Http\Controllers\PortadaController;
@@ -41,6 +42,13 @@ Route::get('/aviso-de-privacidad', TextosLegalesController::class)
 Route::get('/terminos', TextosLegalesController::class)
     ->defaults('documento', 'terminos')
     ->name('textos-legales.terminos');
+
+/*
+ * El mapa del sitio y el archivo de robots que lo declara, para los buscadores (openspec/changes/medicion-de-la-landing/,
+ * tarea 2.1). Con las direcciones absolutas en el dominio de la configuración.
+ */
+Route::get('/sitemap.xml', [BuscadoresController::class, 'mapaDelSitio'])->name('medicion.mapa-del-sitio');
+Route::get('/robots.txt', [BuscadoresController::class, 'robots'])->name('medicion.robots');
 
 /*
  * Herramienta de desarrollo: la página de checkout de la pasarela simulada, para probar el cobro desde la app sin ninguna

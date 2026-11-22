@@ -66,6 +66,23 @@ cumple cada escenario; se pueden rehacer sin tocar los requisitos.
   integración continua. La configuración del servidor de las pruebas de navegador ahora trae el contenedor de prueba y
   enlaces de prueba de las tiendas (`tests/Browser/Soporte/configuracion.js`); por eso landing-E13, que revisa que el
   mapa no pida nada a otro servidor, sirve vacío ese contenedor y lo deja fuera de su cuenta.
+- **Títulos y descripciones (tarea 2.1, 2026-11-22):** el título de la portada es `APP_NAME`, y el de cada documento
+  legal, su nombre y `APP_NAME` ("Aviso de privacidad · …"), como ya estaban: ninguno inventa un texto. La descripción
+  de cada página sale de `LANDING_DESCRIPCION_PORTADA`, `LANDING_DESCRIPCION_AVISO_DE_PRIVACIDAD` y
+  `LANDING_DESCRIPCION_TERMINOS` (`landing.descripciones`), que aprueba EL CLIENTE (DD-117). Mientras falten, la misma
+  lectura que el pie legal de `landing`: fuera de producción, un marcador de contenido de prueba propio de cada página;
+  en producción, ninguna descripción, porque no se inventa y las páginas legales no admiten texto de prueba
+  (textos-legales-E02). medicion-E07 se acredita en producción cuando lleguen los tres textos.
+- **Mapa del sitio y robots (tarea 2.1):** dos rutas públicas, `GET /sitemap.xml` y `GET /robots.txt`
+  (`BuscadoresController`), declaradas en `Autorizacion::rutasSinSesion()`. Las direcciones salen de los nombres de las
+  rutas, así que van en el dominio de `APP_URL` aunque la consulta llegue por otro. El `public/robots.txt` fijo se
+  borró: el servidor web lo serviría antes que la ruta, y no sabe el dominio. El archivo de robots no le cierra nada a
+  ningún buscador y es el mismo en todos los entornos: si prueba pide no ser indexado es la pregunta 3.
+- **Información estructurada (tarea 2.1):** un bloque JSON-LD en la cabecera de la portada, con el vocabulario de
+  schema.org: `Service`, con `serviceType` "Lavandería a domicilio", `name` y `provider` con `APP_NAME`, `url` con la
+  dirección del sitio, y `areaServed` con cada plaza activa como `Place` y sus zonas activas en `containsPlace`. Sin
+  logo, teléfono, domicilio, correo ni coordenadas: no están configurados o no los pide la spec. Los nombres van con los
+  signos de HTML escapados, para que ninguno cierre el script.
 
 ## Tablas y migración
 
@@ -97,7 +114,9 @@ ningún evento de medición se guarda en la base.
    código; la exportación, con fecha, va a `vault/evidencias/medicion/` con las capturas de la tarea 1.3, cuando exista
    el contenedor de EL CLIENTE. Mientras tanto, el plan de eventos de arriba dice qué etiquetas lleva.
 3. **¿El entorno de prueba pide a los buscadores que no lo indexen?** No lo dicen el contrato ni ADR-0012. **Necesita
-   decisión de Arthur, en ADR-0012.**
+   decisión de Arthur, en ADR-0012.** *Sigue abierta.* Recomendación de Claude: sí, que prueba responda
+   `Disallow: /` en el archivo de robots, para que no compita con producción en los buscadores. No se implementó: pide
+   la adenda de ADR-0012, y el entorno de prueba no existe mientras siga abierta DD-070.
 4. **Dónde corre Lighthouse CI:** un trabajo más en `.github/workflows/ci.yml`, con la portada levantada en la máquina
    de la integración continua. Versiones por confirmar (E).
 5. **Consentimiento para la medición** (DD-118).

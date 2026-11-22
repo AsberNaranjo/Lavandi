@@ -12,7 +12,7 @@ De las 25 h, 6 h son de acreditación y están bloqueadas (tareas 1.3, 2.2 y 3.3
 
 ## 2. Buscadores
 
-- [ ] 2.1 medicion-E07, medicion-E08, medicion-E10: título y descripción por página, mapa del sitio y archivo de robots, e información estructurada con las plazas activas — test: `servidor/tests/Feature/Medicion/BuscadoresTest.php` — tamaño M
+- [x] 2.1 medicion-E07, medicion-E08, medicion-E10: título y descripción por página, mapa del sitio y archivo de robots, e información estructurada con las plazas activas — test: `servidor/tests/Feature/Medicion/BuscadoresTest.php` — tamaño M
 - [ ] 2.2 medicion-E09: verificación por DNS y envío del mapa del sitio en la Search Console de EL CLIENTE (bloqueada: DD-023, DD-118) — test: `servidor/tests/Feature/Medicion/BuscadoresTest.php` con el dominio de producción, más la captura — tamaño S
 
 ## 3. Velocidad y candado
