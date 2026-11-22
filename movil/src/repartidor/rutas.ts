@@ -13,6 +13,9 @@ export const RUTA_DE_LA_ESPERA_DEL_REPARTIDOR: Href = '/repartidor/espera';
 /** Sus pedidos asignados, la primera pantalla del módulo. */
 export const RUTA_DE_LOS_PEDIDOS_DEL_REPARTIDOR: Href = '/repartidor/pedidos';
 
+/** Su historial de entregas, que se abre desde sus pedidos (repartidor-E25). */
+export const RUTA_DEL_HISTORIAL_DEL_REPARTIDOR: Href = '/repartidor/historial';
+
 /** La entrega de un pedido, con su foto de evidencia (repartidor-E23). */
 export function rutaDeLaEntrega(idPublico: string): Href {
   return { pathname: '/repartidor/pedidos/entrega/[id]', params: { id: idPublico } };

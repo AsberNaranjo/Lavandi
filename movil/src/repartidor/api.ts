@@ -10,6 +10,7 @@ import type { SesionNueva } from '../acceso/api';
 import { leerVentana, type Ventana } from '../agenda/api';
 import { pedir, pedirConEstado, type Falla, type Resultado } from '../configuracion/api';
 import { esObjeto, fotoFirmada, type FotoFirmada } from '../configuracion/lectura';
+import { leerPedidoEntregado, type PedidoEntregado } from '../historial-lavanderia/api';
 import { leerDireccionDelPedido, type DireccionDelPedido } from '../pedido/api';
 
 /** El contrato con el servidor, en un solo lugar para ajustarlo. */
@@ -32,6 +33,8 @@ export const CONTRATO_DEL_REPARTIDOR = {
   /** POST pedidos/<id_publico>/<estado>, con { "<estado>": siguiente.estado }; con Entregado, la <foto> (E19 y E23). */
   estado: 'estado',
   foto: 'foto',
+  /** GET: { "<lista>": PedidoEntregado[] }, sus entregas completadas, de la más reciente a la más antigua (E25). */
+  historial: 'repartidor/historial',
   /** La foto en el formulario: JPEG, porque así la deja la compresión (src/alta-lavanderias/foto.ts). */
   nombreDeLaFoto: 'foto.jpg',
   tipoDeLaFoto: 'image/jpeg',
@@ -285,6 +288,26 @@ export function marcarPasoDelRepartidor(
 ): Promise<ResultadoDelRepartidor<PedidoDelRepartidor>> {
   const { estado } = CONTRATO_DEL_REPARTIDOR;
   return mandarAccion(rutaDeLaAccion(idPublico, estado), { metodo: 'POST', token, cuerpo: { [estado]: paso.estado } });
+}
+
+/**
+ * GET de su historial de entregas, con la sesión (repartidor-E25): las que él marcó Entregado, cada una con su folio, el
+ * instante en UTC y su fecha en la de la plaza, con la misma forma del historial de la lavandería. El servidor no da la
+ * que sigue en curso ni la de otro repartidor. Sin monto ni calificación: esperan DD-019, DD-013 y DD-052 (E26 y E27).
+ */
+export async function consultarHistorialDelRepartidor(token: string): Promise<ResultadoDelRepartidor<PedidoEntregado[]>> {
+  const { historial, lista } = CONTRATO_DEL_REPARTIDOR;
+  const resultado = await pedirDelRepartidor(historial, { metodo: 'GET', token });
+  if (!resultado.ok) {
+    return resultado;
+  }
+  const filas = esObjeto(resultado.datos) ? resultado.datos[lista] : null;
+  const entregas = Array.isArray(filas) ? filas.map(leerPedidoEntregado) : null;
+  // Una respuesta fuera del contrato no se pinta a medias: cuenta como falla del servidor.
+  if (entregas === null || !entregas.every((entrega) => entrega !== null)) {
+    return { ok: false, motivo: 'servidor' };
+  }
+  return { ok: true, datos: entregas as PedidoEntregado[] };
 }
 
 /** El estado del botón Entregado, el único que lleva la foto de evidencia (repartidor-E23). */

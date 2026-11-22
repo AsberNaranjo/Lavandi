@@ -72,6 +72,11 @@ export const TEXTOS_DEL_REPARTIDOR = {
   laFotoDeLaEvidencia: 'La foto de la evidencia',
   sinPermisoParaLaEvidencia: 'Sin permiso de la cámara no podemos tomar la foto. Puedes darlo en los ajustes del teléfono.',
   marcarEntregado: 'Marcar entregado',
+  // El historial de entregas (repartidor-E25), con el título de la imagen c04-historial. Sin escenario propio: el
+  // historial vacío, con un mensaje neutro, como el de la lavandería.
+  historialDeEntregas: 'Historial de entregas',
+  cargandoElHistorial: 'Cargando tu historial…',
+  sinEntregas: 'Todavía no tienes entregas completadas.',
   // El 409 sin mensaje del servidor: el pedido ya cambió. El servidor manda el suyo: "La oferta ya fue respondida.",
   // "Primero acepta el pedido." o "Ese no es el paso siguiente del pedido.".
   yaCambio: 'El pedido ya cambió. Revisa cómo está.',

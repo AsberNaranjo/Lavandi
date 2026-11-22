@@ -13,18 +13,26 @@
 // consultar (repartidor-E20). "Entregado" no se manda desde la tarjeta: abre la entrega, que deja tomar la foto de
 // evidencia antes de marcarlo (repartidor-E23).
 //
+// Bajo el título, las entradas a lo demás del Módulo C, como enlaces, igual que en los pedidos de la lavandería mientras
+// no exista una barra inferior: el historial de entregas (repartidor-E25) y las estadísticas (repartidor-E28).
+//
 // "Cerrar sesión" va abajo, con la confirmación de la app (registro-E13). La composición sigue la imagen c02-asignados
 // de la Propuesta 04: el título a la izquierda y las tarjetas debajo.
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
+import { Enlace } from '../../../src/piezas/Enlace';
 import { MensajeDeError } from '../../../src/piezas/MensajeDeError';
 import { Pantalla } from '../../../src/piezas/Pantalla';
 import { Parrafo } from '../../../src/piezas/Parrafo';
 import { TarjetaDePedidoDeRepartidor } from '../../../src/piezas/TarjetaDePedidoDeRepartidor';
 import { Titulo } from '../../../src/piezas/Titulo';
 import { ESTADO_ENTREGADO } from '../../../src/repartidor/api';
-import { rutaDeLaEntrega, rutaDelRechazoDelRepartidor } from '../../../src/repartidor/rutas';
+import {
+  RUTA_DEL_HISTORIAL_DEL_REPARTIDOR,
+  rutaDeLaEntrega,
+  rutaDelRechazoDelRepartidor,
+} from '../../../src/repartidor/rutas';
 import { mensajeDelRepartidor, TEXTOS_DEL_REPARTIDOR as TEXTOS } from '../../../src/repartidor/textos';
 import { useAccionesDelRepartidor } from '../../../src/repartidor/useAccionesDelRepartidor';
 import { usePedidosDelRepartidor } from '../../../src/repartidor/usePedidosDelRepartidor';
@@ -43,6 +51,12 @@ export default function PedidosDelRepartidor() {
   return (
     <Pantalla desplazable acciones={<CerrarSesion />}>
       <Titulo alineacion="inicio">{TEXTOS.pedidosAsignados}</Titulo>
+      <View style={estilos.entradas}>
+        <Enlace
+          texto={TEXTOS.historialDeEntregas}
+          alTocar={() => router.push(RUTA_DEL_HISTORIAL_DEL_REPARTIDOR)}
+        />
+      </View>
       <MensajeDeError texto={acciones.aviso ?? undefined} />
       {pedidos === null && falla === null ? (
         <View style={estilos.cargando}>
@@ -71,6 +85,12 @@ export default function PedidosDelRepartidor() {
 }
 
 const estilos = StyleSheet.create({
+  // Las entradas a lo demás del módulo, en una línea; si no caben, bajan a la siguiente.
+  entradas: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    columnGap: espaciado[4],
+  },
   cargando: {
     alignItems: 'center',
     gap: espaciado[3],
