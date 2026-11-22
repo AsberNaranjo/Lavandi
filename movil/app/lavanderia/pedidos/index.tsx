@@ -12,7 +12,7 @@
 // Aceptar (estados-E06); si ya no es el paso siguiente (409), el mensaje va arriba y la lista se vuelve a consultar.
 //
 // "Cerrar sesión" va abajo, con la confirmación de la app (registro-E13). La composición sigue las imágenes del Módulo
-// B de la Propuesta 04 (mocks/Lavandi - Propuesta 04/Lavandería/): el título a la izquierda y las tarjetas debajo.
+// B de la Propuesta 04: el título a la izquierda y las tarjetas debajo.
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
