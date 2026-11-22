@@ -130,4 +130,15 @@ return [
         'correo' => env('LANDING_CORREO_CONTACTO'),
     ],
 
+    /*
+     * Sección 12, "Footer legal": el titular y el año del aviso de derechos de autor (landing-E25). Quién aparece como
+     * titular y desde cuándo es DD-120: los derechos patrimoniales pasan a EL CLIENTE con el pago íntegro
+     * (NSV-2026-001-v8.pdf:10:Cláusula IX). Los enlaces al aviso de privacidad y a los términos son las rutas de
+     * textos-legales (config/textos_legales.php).
+     */
+    'derechos' => [
+        'titular' => env('LANDING_DERECHOS_TITULAR'),
+        'anio' => env('LANDING_DERECHOS_ANIO'),
+    ],
+
 ];

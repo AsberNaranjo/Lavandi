@@ -274,10 +274,12 @@ class ConfirmarPedidoTest extends TestCase
             ->all();
 
         $this->assertContains('POST api/pedidos', $rutas);
-        // Las de consultar son el pedido y el historial de la cuenta (historial-y-calificacion, historial-E01).
+        // Las de consultar son el pedido y el historial de la cuenta (historial-y-calificacion, historial-E01). La otra
+        // que escribe es la calificación del servicio (historial-E06), que solo guarda la calificación: abajo se ve que
+        // no confirma nada.
         $this->assertSame([], array_values(array_diff(
             $rutas,
-            ['POST api/pedidos', 'GET api/pedidos', 'GET api/pedidos/{pedido}'],
+            ['POST api/pedidos', 'GET api/pedidos', 'GET api/pedidos/{pedido}', 'POST api/pedidos/{pedido}/calificacion'],
         )));
 
         // Y una petición que intente confirmar no encuentra ruta.
@@ -302,6 +304,17 @@ class ConfirmarPedidoTest extends TestCase
         $this->withToken($token)
             ->getJson('/api/pedidos?'.http_build_query(['estado' => EstadoPedido::CONFIRMADO, 'pagado' => true]))
             ->assertOk();
+
+        // La calificación tampoco: un pedido que espera su pago no se califica, aunque la petición lleve los datos de un
+        // pago (historial-y-calificacion, lectura provisional de BR-25).
+        $this->app['auth']->forgetGuards();
+        $this->withToken($token)
+            ->postJson("/api/pedidos/{$pedido->id_publico}/calificacion", [
+                'estrellas' => 5,
+                'estado' => EstadoPedido::CONFIRMADO,
+                'pagado' => true,
+            ])
+            ->assertConflict();
 
         $this->assertNull($pedido->fresh()->folio);
         $this->assertSame(EstadoPedido::POR_PAGAR, $pedido->fresh()->estado->codigo);
