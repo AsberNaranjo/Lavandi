@@ -15,6 +15,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { cerrarSesionEnServidor, consultarCuentaConEstado } from '../acceso/api';
 import { cerrarSesionDeGoogle } from '../acceso/google';
 import { MENSAJES } from '../acceso/mensajes';
+import { tokenRegistradoCon } from '../avisos/telefono';
 import { comprobarInstalacion } from '../instalacion/marca';
 import { borrarRol, borrarToken, guardarRol, guardarToken, leerRol, leerToken } from './almacen';
 import { moduloDelRol, ROL_SIN_GUARDAR, type Modulo } from './modulos';
@@ -28,12 +29,13 @@ interface SesionAbierta {
 /** Lo que encontró la app al abrirse: la sesión que sigue, ninguna, o una de una cuenta que no usa la app. */
 type Lectura = SesionAbierta | 'sin-sesion' | 'sin-acceso';
 
-// Lo que hace "Cerrar sesión" fuera del teléfono: pide al servidor revocar el token, y a Google cerrar su sesión, para
-// que la siguiente entrada con Google deje elegir la cuenta. No espera a ninguno de los dos: si el servidor no
-// contesta, la petición se corta sola al vencer su plazo, y Google nunca falla.
+// Lo que hace "Cerrar sesión" fuera del teléfono: pide al servidor revocar el token, con el token de Firebase que la app
+// registró con la sesión para que lo borre (avisos-E05), y a Google cerrar su sesión, para que la siguiente entrada con
+// Google deje elegir la cuenta. No espera a ninguno de los dos: si el servidor no contesta, la petición se corta sola al
+// vencer su plazo, y Google nunca falla.
 function cerrarFueraDelTelefono(token: string | null) {
   if (token) {
-    void cerrarSesionEnServidor(token);
+    void cerrarSesionEnServidor(token, tokenRegistradoCon(token));
   }
   void cerrarSesionDeGoogle();
 }

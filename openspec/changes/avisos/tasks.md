@@ -17,7 +17,7 @@
 
 ## 4. App: recibir los avisos
 
-- [ ] 4.1 avisos-E03 y avisos-E17: módulo de mensajería de Firebase en el development build; el token va a la api, con la plataforma del teléfono, al iniciar sesión y al renovarse; el manejador de segundo plano se registra al arrancar; la captura del aviso en Android va a `vault/evidencias/avisos/` — test: `movil/__tests__/avisos/telefono.test.ts` — tamaño M
+- [x] 4.1 avisos-E03 y avisos-E17: módulo de mensajería de Firebase en el development build; el token va a la api, con la plataforma del teléfono, al iniciar sesión y al renovarse; el manejador de segundo plano se registra al arrancar; la captura del aviso en Android va a `vault/evidencias/avisos/` — test: `movil/__tests__/avisos/telefono.test.ts` — tamaño M. Hecha sin la captura, que espera las llaves de Firebase (DD-072); Firebase entra solo con `GOOGLE_SERVICES_JSON` y solo en Android (`design.md`, "Decisiones de la implementación de la app")
 - [ ] 4.2 avisos-E07 y avisos-E08: petición del permiso de avisos, y la app sin errores si el usuario lo niega — test: `movil/__tests__/avisos/permiso.test.tsx` — tamaño S
 - [ ] 4.3 avisos-E15: el mensaje de cambio de estado adelanta la consulta del seguimiento abierto — test: `movil/__tests__/avisos/adelanta-la-consulta.test.tsx` — tamaño S
 

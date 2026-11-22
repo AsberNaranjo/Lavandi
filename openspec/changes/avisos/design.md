@@ -82,6 +82,69 @@ Las tomó Claude por delegación de Arthur (C-236) al implementar las tareas 0.1
 - Mientras tanto, las pruebas lo publican igual que lo harán ellos (`servidor/tests/Feature/Avisos/Soporte/CambiosDeEstadoDePrueba.php`).
 - La confirmación por el pago no lo publica: ya tiene `PedidoConfirmado`.
 
+## Decisiones de la implementación de la app
+
+Las tomó Claude por delegación de Arthur (C-236) al implementar las tareas 4.1 a 4.3, el 2026-11-22, en la rama
+`feat/avisos-y-publicacion-movil`. Ninguna sale del contrato ni de la spec.
+
+### 1. Firebase entra a la compilación solo con su archivo, y solo en Android
+
+- **La llave es el archivo.** `app.config.ts` lee `GOOGLE_SERVICES_JSON`, la ruta al `google-services.json` del proyecto
+  de Firebase del entorno (ADR-0012): en local, una ruta fuera del repositorio en el `.env`; en la nube, la variable de
+  archivo de EAS. Solo con ella entran `android.googleServicesFile`, el permiso `POST_NOTIFICATIONS` y
+  `extra.firebaseEnAndroid: true`. Sin ella, la configuración sale como antes y sin avisos en la salida de Expo
+  (avisos-E03, `movil/__tests__/avisos/telefono.test.ts`). Si la variable apunta a un archivo que no existe, la
+  configuración falla y lo dice: no se compila en silencio sin avisos.
+- **No se lista el complemento de `@react-native-firebase/app`.** En Android hace exactamente lo que Expo ya hace con
+  `android.googleServicesFile`: copiar el archivo a `android/app/` y aplicar el complemento de Gradle de Google. Su parte
+  de iPhone exige el `GoogleService-Info.plist` y agrega `FirebaseApp.configure()`, y con el archivo de Android solo
+  rompería una compilación de iPhone. Entra con la tarea 5.2.
+- **Tampoco el de `@react-native-firebase/messaging`.** Solo agrega el ícono y el color del aviso en Android, y sin ícono
+  deja una advertencia. Sin él, el aviso lleva el ícono de la app. **Pendiente:** el ícono de aviso, una silueta blanca,
+  cuando exista el ícono de la marca (`vault/marca/visual/icono-app/`).
+- **Los módulos nativos se enlazan solo si la compilación trae el archivo** (`movil/react-native.config.js` y
+  `movil/firebase-nativo.js`). Android los enlaza si su proyecto nativo tiene `android/app/google-services.json`, el que
+  copia Expo; se decide por el archivo y no por la variable porque el enlace corre dentro de Gradle, que no lee el `.env`.
+  Sin el archivo, el APK sale sin el código nativo de Firebase, que sin configuración cerraría la app en cuanto alguien
+  pidiera la mensajería (`getConstants()` llama a `FirebaseMessaging.getInstance()`). iPhone no los enlaza todavía: desde
+  la versión 27, Firebase en iPhone solo se instala con Swift Package Manager y frameworks dinámicos, y sin eso fallaría
+  la instalación de los pods. Eso también es de la tarea 5.2.
+- **Versión:** `@react-native-firebase/app` y `@react-native-firebase/messaging` 27.1.1, exactas, como dice ADR-0008
+  (grado E). La 27.1.1 salió el 2026-11-10 (`npm view`, 2026-11-22). Trae el SDK web de Firebase, que pide Node 24.12 o
+  mayor: con el Node 22 de la integración continua, `npm ci` lo advierte y no falla. La app no lo usa en el teléfono.
+
+### 2. La mensajería se carga diferida, como Google
+
+`src/avisos/firebase.ts` es el único lugar que la carga, con `require` y solo si `avisosDisponibles()`: fuera de Expo Go
+(`enExpoGo()`, C-240), en Android y con `extra.firebaseEnAndroid`. En Expo Go, en iPhone o en un APK sin el archivo, la
+app no la pide y sigue sin avisos (base-E11, `movil/__tests__/base/expo-go.test.tsx`).
+
+### 3. Cuándo se registra el teléfono
+
+- **Cada vez que se abre la sesión de una cuenta de usuario:** al iniciarla y al abrir la app con ella. El registro es
+  idempotente (204) y así se repone un token que la api borró o que no llegó por falta de conexión.
+- **Solo con el permiso concedido** (avisos-E03), y cada vez que Firebase renueva el token.
+- **Solo la cuenta de usuario.** La api solo registra teléfonos de usuarios, y los avisos a los socios esperan DD-054.
+- **Si algo falla,** Firebase sin token o la api sin conexión, la app sigue sin error y lo vuelve a intentar en la
+  siguiente apertura o renovación.
+
+### 4. Al cerrar la sesión, la app manda el token que registró
+
+El contrato de la api ya lo pedía (avisos-E05): `DELETE /api/sesion` lleva `{ "token_fcm": … }` con el token que la app
+registró con esa sesión, y sin cuerpo si no registró ninguno. La app deja de escuchar las renovaciones del token.
+
+### 5. El manejador de segundo plano y la entrada propia
+
+`@react-native-firebase/messaging` pide registrar el manejador de los mensajes con la app al fondo o cerrada fuera de las
+pantallas y antes de montarlas. Por eso la entrada de la app pasa de `expo-router/entry` a `movil/index.ts`, que importa
+primero `src/avisos/arranque.ts` y después `expo-router/entry`, la forma que documenta expo-router. La prueba de ADR-0017
+se ajustó a eso. El manejador no hace nada: el sistema muestra solo el aviso visible de un momento, y al volver la app al
+frente el seguimiento consulta de inmediato (ADR-0007).
+
+### Lo que no se comprobó en un teléfono
+
+La captura del aviso en Android (avisos-E17) espera las llaves de Firebase (DD-072).
+
 ## Contrato de la API para la app
 
 Las dos rutas llevan sesión y pasan por el componente de autorización (`auth:sanctum` y `autorizar:usuario`):

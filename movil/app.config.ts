@@ -1,7 +1,10 @@
 // Configuración de Expo: una sola app para iPhone y Android (ADR-0002).
 // Lo que identifica a la app sale del entorno: en local, de .env (copia de .env.example); al compilar en la nube,
 // de las variables de EAS. Ni la marca, ni el dominio, ni el identificador se escriben aquí (CLAUDE.md §5).
-import type { ExpoConfig } from 'expo/config';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+
+import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 // El texto de para qué se usa la ubicación (cercanas-E03): el mismo en el diálogo de iPhone y en la pantalla. Es JSON
 // porque la configuración no puede importar TypeScript de src/.
@@ -56,10 +59,33 @@ function llaveDeGoogleMapsParaAndroid(): string | undefined {
   return process.env.GOOGLE_MAPS_ANDROID_API_KEY?.trim() || undefined;
 }
 
-export default (): ExpoConfig => {
+// Los avisos en Android (ADR-0008 y su adenda; ADR-0012; avisos-E03): el google-services.json del proyecto de Firebase
+// del entorno, fuera del repositorio. En local, su ruta en GOOGLE_SERVICES_JSON del .env; al compilar en la nube, la
+// variable de archivo de EAS. Es opcional mientras no existan las llaves (DD-072): sin ella, la configuración sale igual
+// que antes, sin el archivo ni el permiso de avisos, y extra.firebaseEnAndroid le dice a la app que no cargue la
+// mensajería (src/avisos/firebase.ts). Con ella, Expo copia el archivo al proyecto de Android y aplica el complemento de
+// Gradle de Google, y entonces react-native.config.js enlaza los módulos nativos de Firebase (firebase-nativo.js).
+// El complemento de @react-native-firebase/app no se lista: en Android hace lo mismo que Expo ya hace con
+// googleServicesFile, y su parte de iPhone exige el GoogleService-Info.plist, que espera avisos-E18 (tarea 5.2).
+const PERMISO_DE_AVISOS = 'android.permission.POST_NOTIFICATIONS';
+
+function archivoDeFirebaseParaAndroid(raizDelProyecto: string): string | undefined {
+  const ruta = process.env.GOOGLE_SERVICES_JSON?.trim();
+  if (!ruta) {
+    return undefined;
+  }
+  const completa = path.resolve(raizDelProyecto, ruta);
+  if (!existsSync(completa)) {
+    throw new Error(`La variable GOOGLE_SERVICES_JSON apunta a ${completa}, que no existe.`);
+  }
+  return ruta;
+}
+
+export default ({ projectRoot }: ConfigContext): ExpoConfig => {
   const entorno = leerEntorno();
   const google = complementoDeGoogle();
   const llaveDeMapas = llaveDeGoogleMapsParaAndroid();
+  const firebase = archivoDeFirebaseParaAndroid(projectRoot);
 
   return {
     name: entorno.EXPO_PUBLIC_NOMBRE_APP,
@@ -93,6 +119,9 @@ export default (): ExpoConfig => {
       // La ubicación en segundo plano no se declara (cercanas-E03): se quita del manifiesto final aunque una librería
       // la traiga.
       blockedPermissions: ['android.permission.ACCESS_BACKGROUND_LOCATION'],
+      // Con Firebase, el archivo del entorno y el permiso de avisos que Android 13 o superior pide al usuario
+      // (avisos-E07); sin él, nada de los dos.
+      ...(firebase ? { googleServicesFile: firebase, permissions: [PERMISO_DE_AVISOS] } : {}),
     },
     plugins: [
       // La navegación entre pantallas (ADR-0017).
@@ -143,6 +172,7 @@ export default (): ExpoConfig => {
     ],
     extra: {
       mapaDeGoogleEnAndroid: llaveDeMapas !== undefined,
+      firebaseEnAndroid: firebase !== undefined,
     },
   };
 };

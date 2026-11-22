@@ -1,0 +1,81 @@
+// El teléfono del usuario en la api, para que le lleguen los avisos de sus pedidos (avisos-E03 y E05; ADR-0008).
+//
+// Mientras la sesión del usuario está abierta, la app manda a la api el token de Firebase del teléfono, con su
+// plataforma: al abrirse la sesión, al iniciarla o al abrir la app con ella, y cada vez que Firebase lo renueva
+// (POST /api/dispositivos). Solo si el usuario concedió el permiso de avisos (avisos-E03): sin él, el teléfono no se
+// registra y el seguimiento se pone al día con la consulta (avisos-E08, ADR-0007). Al cerrar la sesión, la app manda el
+// token registrado con DELETE /api/sesion para que la api lo borre (avisos-E05; src/sesion/ProveedorDeSesion.tsx).
+//
+// Si algo falla (Firebase no da el token, o la api no contesta), la app sigue sin error: lo vuelve a intentar al abrirse
+// otra vez o cuando Firebase renueve el token. Solo se usa con los avisos disponibles (src/avisos/firebase.ts).
+import { Platform } from 'react-native';
+
+import { registrarDispositivo, type Plataforma } from './api';
+import { mensajeria } from './firebase';
+
+/** El token que la app mandó con la sesión abierta. Uno a la vez: la app tiene una sola sesión. */
+let registrado: { sesion: string; tokenDelTelefono: string } | null = null;
+
+/** El token del teléfono que la app mandó con esa sesión, para mandarlo al cerrarla (avisos-E05). */
+export function tokenRegistradoCon(tokenDeSesion: string): string | undefined {
+  return registrado?.sesion === tokenDeSesion ? registrado.tokenDelTelefono : undefined;
+}
+
+function plataforma(): Plataforma {
+  return Platform.OS === 'ios' ? 'ios' : 'android';
+}
+
+/**
+ * Deja el teléfono registrado con esa sesión mientras dure: lo registra ya y cada vez que Firebase renueva el token.
+ * Devuelve la función que deja de vigilarlo, que la app llama al cerrar la sesión. Nunca lanza.
+ */
+export function vigilarElTelefono(tokenDeSesion: string): () => void {
+  let vigente = true;
+  let libreria: ReturnType<typeof mensajeria>;
+  let instancia: ReturnType<ReturnType<typeof mensajeria>['getMessaging']>;
+  try {
+    libreria = mensajeria();
+    instancia = libreria.getMessaging();
+  } catch {
+    // La librería no cargó: la app sigue sin avisos.
+    return () => undefined;
+  }
+
+  async function permisoConcedido(): Promise<boolean> {
+    const estado = await libreria.hasPermission(instancia);
+    return estado === libreria.AuthorizationStatus.AUTHORIZED || estado === libreria.AuthorizationStatus.PROVISIONAL;
+  }
+
+  // Manda el token a la api: el que dio Firebase al renovarlo, o el vigente.
+  async function registrar(renovado?: string): Promise<void> {
+    if (!(await permisoConcedido()) || !vigente) {
+      return;
+    }
+    const tokenDelTelefono = renovado ?? (await libreria.getToken(instancia));
+    if (!vigente) {
+      return;
+    }
+    registrado = { sesion: tokenDeSesion, tokenDelTelefono };
+    await registrarDispositivo(tokenDeSesion, tokenDelTelefono, plataforma());
+  }
+
+  const sinFallar = (renovado?: string) => {
+    registrar(renovado).catch(() => undefined);
+  };
+
+  let dejarDeEscuchar: () => void = () => undefined;
+  try {
+    dejarDeEscuchar = libreria.onTokenRefresh(instancia, (renovado) => sinFallar(renovado));
+  } catch {
+    // Sin la escucha de la renovación, el token se vuelve a mandar al abrir la app.
+  }
+  sinFallar();
+
+  return () => {
+    vigente = false;
+    dejarDeEscuchar();
+    if (registrado?.sesion === tokenDeSesion) {
+      registrado = null;
+    }
+  };
+}

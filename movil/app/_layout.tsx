@@ -20,10 +20,14 @@
 //
 // Tampoco se muestra ninguna mientras carga la letra de la marca (adenda del 2026-11-21 de ADR-0013): la carga empieza
 // junto con la lectura de la sesión, y si falla, la app sigue con la letra del sistema.
+//
+// Con la sesión de una cuenta de usuario, el teléfono queda registrado para los avisos (avisos-E03;
+// src/avisos/AvisosDelTelefono.tsx).
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 
+import { AvisosDelTelefono } from '../src/avisos/AvisosDelTelefono';
 import { ProveedorDeSesion, useSesion } from '../src/sesion/ProveedorDeSesion';
 import { useLetraLista } from '../src/tema/letra';
 import { color } from '../src/tema/theme';
@@ -32,6 +36,7 @@ export default function Raiz() {
   const letraLista = useLetraLista();
   return (
     <ProveedorDeSesion>
+      <AvisosDelTelefono />
       <Pantallas letraLista={letraLista} />
       <StatusBar style="dark" />
     </ProveedorDeSesion>

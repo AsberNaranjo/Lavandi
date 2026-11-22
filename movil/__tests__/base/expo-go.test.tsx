@@ -1,10 +1,12 @@
 // Spec: openspec/changes/base-tecnica/specs/base/spec.md, escenario base-E11 (C-240): la app abre en Expo Go para
-// probarla en un iPhone sin cuenta de Apple, y ahí no ofrece Google.
+// probarla en un iPhone sin cuenta de Apple, y ahí no ofrece Google. Con avisos-E03 (openspec/changes/avisos), tampoco
+// pide la mensajería de Firebase.
 //
 // Expo Go no trae react-native-nitro-modules ni react-native-nitro-google-signin. En Expo Go, cargar la librería de Google
 // cierra la app: al importarse crea su objeto nativo (GoogleOneTapSignIn.ts) y Nitro lanza "NitroModules are not
-// supported in Expo Go!" (ModuleNotFoundError.ts). Aquí los dos módulos fallan igual si alguien los pide, y cada
-// petición queda anotada para comprobar que la app no los pidió.
+// supported in Expo Go!" (ModuleNotFoundError.ts). Tampoco trae el módulo nativo de @react-native-firebase/messaging.
+// Aquí los tres módulos fallan igual si alguien los pide, y cada petición queda anotada para comprobar que la app no los
+// pidió.
 import path from 'node:path';
 
 import Constants, { ExecutionEnvironment } from 'expo-constants';
@@ -14,6 +16,7 @@ import { renderRouter, screen } from 'expo-router/testing-library';
 import { Platform } from 'react-native';
 
 import { cerrarSesionDeGoogle, googleDisponible, pedirIdTokenDeGoogle } from '../../src/acceso/google';
+import { registrarManejadorDeSegundoPlano } from '../../src/avisos/segundoPlano';
 import { marcarBienvenidaVista } from '../../src/bienvenida/vista';
 import { enExpoGo } from '../../src/configuracion/entorno';
 import { comprobarInstalacion } from '../../src/instalacion/marca';
@@ -35,6 +38,7 @@ function mockFallarComoEnExpoGo(modulo: string): never {
 
 jest.mock('react-native-nitro-modules', () => mockFallarComoEnExpoGo('react-native-nitro-modules'));
 jest.mock('react-native-nitro-google-signin', () => mockFallarComoEnExpoGo('react-native-nitro-google-signin'));
+jest.mock('@react-native-firebase/messaging', () => mockFallarComoEnExpoGo('@react-native-firebase/messaging'));
 
 const APP = path.resolve(__dirname, '..', '..', 'app');
 
@@ -70,6 +74,10 @@ const entornoOriginal = Object.fromEntries(Object.keys(ENTORNO).map((nombre) => 
 const fetchOriginal = global.fetch;
 let fetchFalso: jest.Mock;
 
+// Lo que app.config.ts le dice a la app sobre la compilación. En Jest, Constants.expoConfig es un objeto vacío que se
+// puede completar.
+const configuracionDeLaApp = Constants.expoConfig as { extra?: Record<string, unknown> };
+
 function respuesta(status: number, cuerpo: unknown) {
   return { ok: status >= 200 && status < 300, status, json: async () => cuerpo };
 }
@@ -96,6 +104,7 @@ afterEach(() => {
     }
   }
   global.fetch = fetchOriginal;
+  delete configuracionDeLaApp.extra;
   jest.restoreAllMocks();
 });
 
@@ -112,6 +121,8 @@ describe.each(PLATAFORMAS)('base-E11: en Expo Go, en %s, la app abre y no ofrece
   beforeEach(() => {
     jest.replaceProperty(Platform, 'OS', plataforma);
     jest.replaceProperty(Constants, 'executionEnvironment', ExecutionEnvironment.StoreClient);
+    // Con el archivo de Firebase en la configuración de Metro: si la app no pide la mensajería, es por Expo Go.
+    configuracionDeLaApp.extra = { firebaseEnAndroid: true };
   });
 
   test('base-E11 — la app reconoce que corre en Expo Go', () => {
@@ -168,6 +179,12 @@ describe.each(PLATAFORMAS)('base-E11: en Expo Go, en %s, la app abre y no ofrece
 
   test('base-E11 — con el cliente de Google en la configuración, Google no está disponible', () => {
     expect(googleDisponible()).toBe(false);
+    expect(mockModulosPedidos()).toEqual([]);
+  });
+
+  test('avisos-E03 — al arrancar, la app no registra el manejador de los avisos ni pide la mensajería', () => {
+    registrarManejadorDeSegundoPlano();
+
     expect(mockModulosPedidos()).toEqual([]);
   });
 
