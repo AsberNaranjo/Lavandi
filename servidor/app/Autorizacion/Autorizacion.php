@@ -2,6 +2,7 @@
 
 namespace App\Autorizacion;
 
+use App\Models\AvisoMasivo;
 use App\Models\Direccion;
 use App\Models\Dispositivo;
 use App\Models\EstadoPedido;
@@ -381,5 +382,55 @@ final class Autorizacion
     public function telefonosDeLaCuenta(Usuario $usuario): Builder
     {
         return Dispositivo::query()->where('id_usuarios', $usuario->getKey());
+    }
+
+    /**
+     * Si la cuenta escribe y manda avisos masivos desde el panel: solo la administración (administracion-E23;
+     * NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #7).
+     */
+    public function puedeMandarAvisosMasivos(Usuario $usuario): bool
+    {
+        return $this->puedeEntrarAlPanel($usuario);
+    }
+
+    /**
+     * Los avisos masivos que la cuenta ve en el panel: todos, si los puede mandar; ninguno si no. La lista de avisos del
+     * panel parte de aquí.
+     *
+     * @return Builder<AvisoMasivo>
+     */
+    public function avisosMasivosDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = AvisoMasivo::query();
+
+        return $this->puedeMandarAvisosMasivos($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
+     * Los teléfonos que reciben un aviso masivo (administracion-E23; ADR-0008). Todo envío del aviso parte de aquí,
+     * también al correr en la cola.
+     *
+     * - El aviso global, sin plaza ni segmento, va a los teléfonos registrados de todas las cuentas de la app que pueden
+     *   usarla: no a una bloqueada desde el panel ni a la de un repartidor dado de baja (puedeIniciarSesion()), ni a una
+     *   borrada. Una cuenta sin teléfono no tiene a dónde recibirlo.
+     * - Un aviso con plaza o con segmento no va a ningún teléfono mientras DD-113 no defina los segmentos
+     *   (administracion-E24).
+     *
+     * @return Builder<Dispositivo>
+     */
+    public function telefonosQueRecibenElAvisoMasivo(AvisoMasivo $aviso): Builder
+    {
+        $consulta = Dispositivo::query();
+
+        if ($aviso->id_plazas !== null || $aviso->segmento !== null) {
+            return $consulta->whereRaw('false');
+        }
+
+        return $consulta
+            ->whereHas('usuario', fn (Builder $cuenta) => $cuenta->where('usuarios.estado', '<>', Usuario::BLOQUEADO))
+            ->whereNotExists(fn ($deBaja) => $deBaja->selectRaw('1')
+                ->from('repartidores')
+                ->whereColumn('repartidores.id_usuarios', 'dispositivos.id_usuarios')
+                ->where('repartidores.estado', Repartidor::BAJA));
     }
 }
