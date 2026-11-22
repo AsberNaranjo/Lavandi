@@ -33,7 +33,7 @@ M = 5 h.
 - [ ] 4.2 administracion-E18: reembolsos y ajustes en los ingresos — test: `servidor/tests/Feature/Administracion/ReportesFinancierosTest.php` — tamaño S — bloqueada: DD-012, DD-016
 - [ ] 4.3 administracion-E19: comisiones del periodo por socio y en total — test: `servidor/tests/Feature/Administracion/ReportesFinancierosTest.php` — tamaño S — bloqueada: DD-020
 - [x] 4.4 administracion-E20: lectura de los movimientos de la pasarela del periodo, por la operación nueva de la interfaz neutral del cobro, y marca de los conciliados (pasarela simulada), según la segunda adenda del 2026-11-22 de ADR-0010 (decisiones 6 y 7, que cierran DD-112) — test: `servidor/tests/Feature/Administracion/ConciliacionTest.php` — tamaño M
-- [ ] 4.5 administracion-E21: los tres tipos de diferencia en el reporte — test: `servidor/tests/Feature/Administracion/ConciliacionTest.php` — tamaño S — bloqueada: DD-112
+- [x] 4.5 administracion-E21: los tres tipos de diferencia en el reporte, según la segunda adenda del 2026-11-22 de ADR-0010 (que cierra DD-112) — test: `servidor/tests/Feature/Administracion/ConciliacionTest.php` — tamaño S
 - [ ] 4.6 administracion-E22: comisión que retiene la pasarela — test: `servidor/tests/Feature/Administracion/ConciliacionTest.php` — tamaño S — bloqueada: DD-013
 
 ## 5. Avisos masivos (servidor/)
@@ -43,8 +43,10 @@ M = 5 h.
 
 ## Horas
 
-- **Este archivo:** 36 h sin bloqueo y 30 h bloqueadas, 66 h en total.
-- **Contra la versión anterior (62 h; 41 sin bloqueo y 21 bloqueadas):** 4 h más. Entran la migración de `comisiones` y
-  `avisos_masivos` (0.1, S, sin bloqueo) y la de `movimientos_pasarela` (0.2, S, bloqueada por DD-112). Además, 4.4 (M)
-  y 4.5 (S) pasan a bloqueadas: 7 h que antes contaban como listas.
+- **Este archivo:** 45 h sin bloqueo y 21 h bloqueadas, 66 h en total. La decisión 34 (segunda adenda del 2026-11-22 de
+  ADR-0010) cerró DD-112: 0.2 (S), 4.4 (M) y 4.5 (S), 9 h, dejan de estar bloqueadas.
+- **Contra la versión anterior (66 h; 36 sin bloqueo y 30 bloqueadas):** el total no cambia; 9 h pasan de bloqueadas a
+  sin bloqueo.
+- **Antes (62 h; 41 sin bloqueo y 21 bloqueadas):** entraron la migración de `comisiones` y `avisos_masivos` (0.1, S) y
+  la de `movimientos_pasarela` (0.2, S), y 4.4 y 4.5 se bloquearon por DD-112 hasta la decisión 34.
 - **Contra el plan:** el plan de sprints le da 39 h (F-D03 a F-D07). La diferencia pasa de 23 h a 27 h.

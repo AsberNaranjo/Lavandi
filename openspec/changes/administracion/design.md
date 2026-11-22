@@ -267,8 +267,21 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
   (administracion-E22).
 - **El cruce:** por la orden de la pasarela, `(pasarela, id_pasarela_orden)`, entre los pagos que la plataforma tiene
   como pagados en el periodo, los mismos que cuentan como ingreso (`App\Finanzas\Ingresos`, por el día de su
-  confirmación en la hora de su plaza), y los movimientos ya guardados. Uno con su movimiento y el mismo monto queda
-  **Conciliado**. La plaza de un movimiento es la del pedido con el que cuadra.
+  confirmación en la hora de su plaza), y los movimientos ya guardados. La plaza de un movimiento es la del pedido con el
+  que cuadra. Cada fila queda con uno de cuatro resultados (`App\Finanzas\ResultadoDeConciliacion`):
+  - **Conciliado** (E20): el pago tiene su movimiento, con el mismo monto. Los montos se comparan como los guarda la
+    base, con dos decimales.
+  - **Monto que no coincide** (E21): la misma orden, con un monto en la plataforma y otro en la pasarela; van los dos.
+  - **Pedido pagado sin movimiento** (E21): la plataforma lo tiene pagado y la pasarela no tiene su movimiento.
+  - **Movimiento sin pedido** (E21): un movimiento del periodo que no cuadra con ningún pago pagado de la plataforma; sin
+    folio ni plaza. **Lectura del implementador:** también lo es el de una orden cuyo cobro la plataforma no tiene como
+    pagado, porque su aviso no llegó: no hay pedido pagado con el que cuadre. La spec nombra solo tres diferencias, y
+    este caso es el primero.
+- **El día de cada fila** (lectura del implementador): el de un pago, el de su confirmación en la hora de su plaza, como
+  en los ingresos. Un pago y su movimiento cuadran aunque la pasarela feche el pago unos segundos antes de que llegue su
+  aviso, y cuentan en el periodo del pago, sin diferencia en ninguno de los dos. Un movimiento sin pedido no tiene plaza,
+  así que su día es el de su fecha en la zona horaria de la aplicación, como el "hoy" de los indicadores
+  (`openspec/changes/indicadores/design.md`, pregunta 8).
 - **La tabla:** una fila por pago o movimiento, de la más antigua a la más nueva, con el resultado (una insignia con su
   texto), la orden en la pasarela, el folio, la plaza, la fecha del pago (en la hora de la plaza) y los dos montos, el
   de la plataforma y el de la pasarela; arriba, el periodo y cuántos hay de cada resultado. Es de solo lectura.

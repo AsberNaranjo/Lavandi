@@ -219,7 +219,7 @@ Criterio: A43-6
 - **CUANDO** la administración concilia el periodo
 - **ENTONCES** el reporte señala cada uno con su tipo de diferencia
 
-SIN RESPUESTA — bloquea: administracion-E21 (DD-112)
+Cita: D → `ADR-0010`, segunda adenda del 2026-11-22: un movimiento sin pedido es justo una diferencia, y la plaza de un movimiento es la del pedido con el que cuadra (decisión 34 de `acta-2026-11-20-modelo-y-pasarela.md`; cierra DD-112)
 
 #### Scenario: administracion-E22 — La comisión que retiene la pasarela
 

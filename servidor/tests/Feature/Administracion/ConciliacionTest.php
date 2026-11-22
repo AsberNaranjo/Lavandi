@@ -8,6 +8,7 @@ use App\Finanzas\ResultadoDeConciliacion;
 use App\Models\MovimientoPasarela;
 use App\Models\Rol;
 use App\Models\Usuario;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
@@ -211,6 +212,108 @@ class ConciliacionTest extends TestCase
 
         $this->assertSame([], $this->lecturasDeLaPasarela());
         $this->assertSame(0, MovimientoPasarela::query()->count());
+    }
+
+    #[TestDox('administracion-E21: con un movimiento de la pasarela sin pedido, un pedido pagado sin movimiento y un pedido cuyo monto no coincide con su movimiento (simulado), la administración concilia el periodo y el reporte señala cada uno con su tipo de diferencia')]
+    public function test_administracion_e21_periodo_con_diferencias(): void
+    {
+        $conciliado = $this->cobroDe($this->pagadoEl('2027-03-05 10:00:00', '100.00'));
+
+        // La pasarela acreditó un pago cuya orden no es de ningún pedido de la plataforma.
+        $this->simulada()->acreditar('orden-de-otro-sistema', '80.00', CarbonImmutable::parse('2027-03-10 16:00:00', 'UTC'));
+
+        // La plataforma tiene el pedido pagado y la pasarela no tiene su movimiento.
+        $sinMovimiento = $this->cobroDe($this->pagadoEl('2027-03-12 10:00:00', '120.00'));
+        $this->simulada()->quitarPago($sinMovimiento->id_pasarela_orden);
+
+        // La misma orden, con 150 en la plataforma y 175 en la pasarela.
+        $otroMonto = $this->cobroDe($this->pagadoEl('2027-03-20 10:00:00', '150.00'));
+        $this->simulada()->acreditar($otroMonto->id_pasarela_orden, '175.00', $otroMonto->pagado_en);
+
+        $this->comoAdministracion();
+        $pagina = $this->conciliar(self::MARZO);
+        $filas = $this->filas($pagina);
+
+        $this->assertCount(4, $filas);
+        $this->assertSame(ResultadoDeConciliacion::Conciliado, $filas["simulada|{$conciliado->id_pasarela_orden}"]['resultado']);
+
+        $this->assertSame([
+            'resultado' => ResultadoDeConciliacion::MovimientoSinPedido,
+            'orden' => 'orden-de-otro-sistema',
+            'folio' => null,
+            'plaza' => null,
+            'fecha' => '10/03/2027 16:00',
+            'monto_plataforma' => null,
+            'monto_pasarela' => '80.00',
+        ], $filas['simulada|orden-de-otro-sistema']);
+
+        $this->assertSame([
+            'resultado' => ResultadoDeConciliacion::PedidoSinMovimiento,
+            'orden' => $sinMovimiento->id_pasarela_orden,
+            'folio' => $sinMovimiento->pedido->folio,
+            'plaza' => $this->plaza->nombre,
+            'fecha' => '12/03/2027 10:00',
+            'monto_plataforma' => '120.00',
+            'monto_pasarela' => null,
+        ], $filas["simulada|{$sinMovimiento->id_pasarela_orden}"]);
+
+        $this->assertSame([
+            'resultado' => ResultadoDeConciliacion::MontoDistinto,
+            'orden' => $otroMonto->id_pasarela_orden,
+            'folio' => $otroMonto->pedido->folio,
+            'plaza' => $this->plaza->nombre,
+            'fecha' => '20/03/2027 10:00',
+            'monto_plataforma' => '150.00',
+            'monto_pasarela' => '175.00',
+        ], $filas["simulada|{$otroMonto->id_pasarela_orden}"]);
+
+        // Cada diferencia con su texto, no solo con su color, y el resumen del periodo.
+        $pagina->assertSee('Conciliado: 1. Movimiento sin pedido: 1. Pedido pagado sin movimiento: 1. Monto que no coincide: 1.')
+            ->assertTableColumnFormattedStateSet('resultado', 'Movimiento sin pedido', 'simulada|orden-de-otro-sistema')
+            ->assertTableColumnFormattedStateSet('resultado', 'Pedido pagado sin movimiento', "simulada|{$sinMovimiento->id_pasarela_orden}")
+            ->assertTableColumnFormattedStateSet('resultado', 'Monto que no coincide', "simulada|{$otroMonto->id_pasarela_orden}")
+            ->assertSee(['$150.00', '$175.00', '$80.00', 'Sin pedido']);
+    }
+
+    #[TestDox('administracion-E21: un movimiento cuya orden es de un cobro que la plataforma no tiene como pagado, porque su aviso no llegó, es un movimiento sin pedido: no hay pedido pagado con el que cuadre')]
+    public function test_administracion_e21_el_movimiento_de_un_cobro_sin_pagar_es_un_movimiento_sin_pedido(): void
+    {
+        $sinAviso = $this->ordenSinConfirmarEl('2027-03-08 10:00:00', '90.00');
+        $this->simulada()->acreditar($sinAviso->id_pasarela_orden, '90.00', CarbonImmutable::parse('2027-03-08 16:05:00', 'UTC'));
+        $this->comoAdministracion();
+
+        $fila = $this->filas($this->conciliar(self::MARZO))["simulada|{$sinAviso->id_pasarela_orden}"];
+
+        $this->assertSame(ResultadoDeConciliacion::MovimientoSinPedido, $fila['resultado']);
+        $this->assertNull($fila['folio']);
+        $this->assertNull($fila['plaza']);
+        $this->assertSame('90.00', $fila['monto_pasarela']);
+    }
+
+    #[TestDox('administracion-E21: lo de fuera del periodo no se señala: ni un pago de abril, ni un movimiento sin pedido de abril')]
+    public function test_administracion_e21_lo_de_fuera_del_periodo_no_aparece(): void
+    {
+        $marzo = $this->cobroDe($this->pagadoEl('2027-03-05 10:00:00', '100.00'));
+        $abril = $this->cobroDe($this->pagadoEl('2027-04-02 10:00:00', '100.00'));
+        $this->simulada()->quitarPago($abril->id_pasarela_orden);
+        $this->simulada()->acreditar('orden-de-abril', '80.00', CarbonImmutable::parse('2027-04-02 12:00:00', 'UTC'));
+        $this->comoAdministracion();
+
+        $this->assertSame(["simulada|{$marzo->id_pasarela_orden}"], array_keys($this->filas($this->conciliar(self::MARZO))));
+    }
+
+    #[TestDox('administracion-E21: un pago cuadra con su movimiento aunque la pasarela lo fechara un poco antes de que llegara su aviso: cuenta en el periodo del pago, sin diferencias en ninguno de los dos')]
+    public function test_administracion_e21_un_pago_cuadra_aunque_la_pasarela_lo_feche_antes(): void
+    {
+        // El aviso llega a las 00:00:30 del 1 de abril en la hora de la plaza; la pasarela fechó el pago 40 s antes.
+        $cobro = $this->cobroDe($this->pagadoEl('2027-04-01 00:00:30', '100.00'));
+        $this->simulada()->acreditar($cobro->id_pasarela_orden, '100.00', CarbonImmutable::parse('2027-03-31 23:59:50', self::ZONA_HORARIA));
+        $this->comoAdministracion();
+
+        $this->assertSame([], $this->filas($this->conciliar(self::MARZO)));
+
+        $abril = $this->filas($this->conciliar(['desde' => '2027-04-01', 'hasta' => '2027-04-30']));
+        $this->assertSame([ResultadoDeConciliacion::Conciliado], array_column(array_values($abril), 'resultado'));
     }
 
     /**
