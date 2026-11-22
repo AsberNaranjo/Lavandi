@@ -1,0 +1,14 @@
+{
+  "build": {
+    "preview": {
+      "env": {
+        "PERFIL_DE_COMPILACION": "preview"
+      }
+    },
+    "production": {
+      "env": {
+        "PERFIL_DE_COMPILACION": "production"
+      }
+    }
+  }
+}

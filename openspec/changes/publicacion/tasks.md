@@ -19,7 +19,7 @@ bloqueadas por sus otras filas.
 ## 2. Comunicaciones cifradas
 
 - [ ] 2.1 publicacion-E04, publicacion-E05: con la configuración de producción, el panel redirige a https y la API no atiende por http — test: `servidor/tests/Feature/Publicacion/SoloHttpsTest.php` — tamaño S
-- [ ] 2.2 publicacion-E06: los perfiles `preview` y `production` solo hablan con direcciones https y no permiten tráfico sin cifrar — test: `movil/__tests__/publicacion/solo-https.test.ts` — tamaño S
+- [x] 2.2 publicacion-E06: los perfiles `preview` y `production` solo hablan con direcciones https y no permiten tráfico sin cifrar — test: `movil/__tests__/publicacion/solo-https.test.ts` — tamaño S
 
 ## 3. Compilaciones
 

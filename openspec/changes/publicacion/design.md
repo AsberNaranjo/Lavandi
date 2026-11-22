@@ -38,6 +38,29 @@
 No hay decisión técnica nueva: el cambio aplica ADR-0002, ADR-0004, ADR-0008, ADR-0009, ADR-0010 y ADR-0012, sin
 repetirlos.
 
+## Decisiones de la implementación de la app
+
+Las tomó Claude por delegación de Arthur (C-236) al implementar las tareas 2.2, 3.1, 3.2, 3.3 y 4.2, el 2026-11-22, en
+la rama `feat/avisos-y-publicacion-movil`. Ninguna sale del contrato ni de la spec, y ninguna necesitó una cuenta.
+
+### 1. Cada perfil de EAS se nombra a sí mismo (tarea 2.2)
+
+- `movil/eas.json` tiene los perfiles `preview` y `production`. Cada uno deja su nombre en `PERFIL_DE_COMPILACION`, con
+  su `env`, que EAS aplica al leer `app.config.ts` en la máquina y en la nube. Es la forma que documenta Expo para las
+  variantes de una app; no depende de una variable propia de EAS.
+- Sin `PERFIL_DE_COMPILACION`, la compilación es la de la máquina: el APK local (`herramientas/apk-local/compilar.ps1`) y
+  Expo Go siguen como estaban. Un nombre que no es de `eas.json` detiene la configuración.
+
+### 2. Solo https en `preview` y `production` (tarea 2.2, publicacion-E06)
+
+- **La API:** con perfil, `EXPO_PUBLIC_API_URL` tiene que ser https o la configuración se detiene y lo dice. La
+  dirección no va en `eas.json`: es la variable del entorno de EAS de cada perfil (punto 3).
+- **Android:** `usesCleartextTraffic` en `false`, con `expo-build-properties`. Sin perfil no se toca: el APK local lo
+  pone en `true` para hablar con el servidor de la máquina, como antes.
+- **iPhone:** `NSAppTransportSecurity` sin cargas arbitrarias ni a la red local. Hacía falta: la plantilla de Expo
+  deja `NSAllowsArbitraryLoads` en `true` y una excepción para la máquina local, y con eso una compilación de las tiendas
+  habría permitido el tráfico sin cifrar.
+
 ## Tablas y migración
 
 No crea tablas: ninguna tabla de `vault/arquitectura/modelo-de-datos.md` nace aquí (ADR-0016). En prueba y en producción

@@ -81,8 +81,54 @@ function archivoDeFirebaseParaAndroid(raizDelProyecto: string): string | undefin
   return ruta;
 }
 
+// Los perfiles de compilación de EAS (eas.json; ADR-0002 y ADR-0012): `preview` para el entorno de prueba y `production`
+// para las tiendas. Cada uno deja su nombre en PERFIL_DE_COMPILACION, con el "env" de eas.json, que EAS aplica al leer
+// esta configuración en la máquina y en la nube. Sin él, la compilación es la de la máquina: el APK local
+// (herramientas/apk-local/compilar.ps1) o Expo Go. Un nombre que no es de eas.json detiene la configuración, en vez de
+// tratarse como local.
+const PERFILES_DE_EAS = ['preview', 'production'] as const;
+type PerfilDeEas = (typeof PERFILES_DE_EAS)[number];
+
+function perfilDeCompilacion(): PerfilDeEas | null {
+  const perfil = process.env.PERFIL_DE_COMPILACION?.trim();
+  if (!perfil) {
+    return null;
+  }
+  const conocido = PERFILES_DE_EAS.find((nombre) => nombre === perfil);
+  if (!conocido) {
+    throw new Error(
+      `PERFIL_DE_COMPILACION vale "${perfil}", que no es un perfil de eas.json: ${PERFILES_DE_EAS.join(' o ')}.`,
+    );
+  }
+  return conocido;
+}
+
+// Las compilaciones de prueba y de producción solo hablan por https (publicacion-E06; SEG-1;
+// NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3): la API del entorno tiene que ser https, o la configuración se detiene. En
+// local no se revisa: el servidor de la máquina responde por http.
+function exigirApiCifrada(perfil: PerfilDeEas, direccion: string): void {
+  let protocolo = '';
+  try {
+    protocolo = new URL(direccion).protocol;
+  } catch {
+    // Una dirección que no se puede leer tampoco es https.
+  }
+  if (protocolo !== 'https:') {
+    throw new Error(`El perfil ${perfil} solo habla por https: EXPO_PUBLIC_API_URL tiene que ser una dirección https.`);
+  }
+}
+
+// Sin tráfico sin cifrar en las compilaciones de EAS (publicacion-E06): en Android, usesCleartextTraffic en false; en
+// iPhone, la seguridad de transporte sin cargas arbitrarias ni a la red local, y sin la excepción que la plantilla de
+// Expo deja para la máquina local.
+const TRANSPORTE_CIFRADO_EN_IPHONE = { NSAllowsArbitraryLoads: false, NSAllowsLocalNetworking: false };
+
 export default ({ projectRoot }: ConfigContext): ExpoConfig => {
   const entorno = leerEntorno();
+  const perfil = perfilDeCompilacion();
+  if (perfil) {
+    exigirApiCifrada(perfil, entorno.EXPO_PUBLIC_API_URL);
+  }
   const google = complementoDeGoogle();
   const llaveDeMapas = llaveDeGoogleMapsParaAndroid();
   const firebase = archivoDeFirebaseParaAndroid(projectRoot);
@@ -106,6 +152,7 @@ export default ({ projectRoot }: ConfigContext): ExpoConfig => {
       // Sin iPad: el contrato pide la app para iPhone y Android (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3), y el
       // true era un resto de la plantilla de Expo. Un iPad la puede abrir como app de iPhone.
       supportsTablet: false,
+      ...(perfil ? { infoPlist: { NSAppTransportSecurity: TRANSPORTE_CIFRADO_EN_IPHONE } } : {}),
     },
     android: {
       package: entorno.APP_IDENTIFIER,
@@ -133,7 +180,10 @@ export default ({ projectRoot }: ConfigContext): ExpoConfig => {
         'expo-build-properties',
         {
           ios: { deploymentTarget: IOS_MINIMO },
-          android: { minSdkVersion: ANDROID_API_MINIMA },
+          android: {
+            minSdkVersion: ANDROID_API_MINIMA,
+            ...(perfil ? { usesCleartextTraffic: false } : {}),
+          },
         },
       ],
       ...(google ? [google] : []),
