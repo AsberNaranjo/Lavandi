@@ -70,6 +70,7 @@ function Pantallas({ letraLista }: { letraLista: boolean }) {
         <Stack.Screen name="perfil/index" />
         <Stack.Screen name="ayuda" />
         <Stack.Screen name="pedidos/index" />
+        <Stack.Screen name="pedido/calificacion/[id]" />
       </Stack.Protected>
       <Stack.Protected guard={modulo === 'lavanderia'} redirectTo="/">
         <Stack.Screen name="lavanderia" />
