@@ -30,4 +30,12 @@ interface Pasarela
      * @throws PasarelaNoDisponible si falta la llave o la pasarela no responde
      */
     public function crearOrden(Pago $cobro): OrdenDePasarela;
+
+    /**
+     * La URL del checkout de una orden si todavía se puede pagar en él, o null si ya venció o la pasarela ya no lo
+     * acepta (pago-E01: un solo checkout vigente por cobro).
+     *
+     * @throws PasarelaNoDisponible si falta la llave o la pasarela no responde
+     */
+    public function checkoutVigente(string $idOrden): ?string;
 }

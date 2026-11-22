@@ -29,4 +29,13 @@ return [
         'llave' => env('PASARELA_SIMULADA_LLAVE'),
     ],
 
+    /*
+     * La dirección de regreso a la app desde el checkout: el esquema de la app, el mismo identificador de la app que
+     * usa movil/app.config.ts, seguido de la ruta de regreso, como "<identificador>://pago". Sale del entorno, nunca
+     * del código, porque lleva el identificador de la app (CLAUDE.md §5). La app la usa para abrir el checkout dentro
+     * de ella y saber cuándo volvió (adenda del 2026-11-22 de ADR-0010); volver no confirma ningún pago (pago-E07).
+     * Vacía, la página de checkout de desarrollo le dice a la persona que regrese a la app.
+     */
+    'regreso' => env('PASARELA_REGRESO'),
+
 ];

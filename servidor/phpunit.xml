@@ -34,6 +34,7 @@
              sirve fuera de local y de las pruebas (openspec/changes/pago/, pago-E17). -->
         <env name="PASARELA" value="simulada"/>
         <env name="PASARELA_SIMULADA_LLAVE" value="llave-de-prueba-de-la-pasarela-simulada"/>
+        <env name="PASARELA_REGRESO" value="app.de.prueba://pago"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>

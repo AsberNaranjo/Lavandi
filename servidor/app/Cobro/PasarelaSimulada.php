@@ -35,6 +35,13 @@ final class PasarelaSimulada implements Pasarela
      */
     private array $peticiones = [];
 
+    /**
+     * Las órdenes cuyo checkout ya venció.
+     *
+     * @var array<string, true>
+     */
+    private array $vencidas = [];
+
     public function codigo(): string
     {
         return self::CODIGO;
@@ -54,6 +61,28 @@ final class PasarelaSimulada implements Pasarela
         ];
 
         return new OrdenDePasarela($orden, $this->urlDelCheckout($orden));
+    }
+
+    /**
+     * El checkout de la orden sigue vigente mientras una prueba no lo venza con vencer().
+     */
+    public function checkoutVigente(string $idOrden): ?string
+    {
+        $this->peticiones[] = [
+            'operacion' => 'consultar_orden',
+            'autorizacion' => $this->autorizacion(),
+            'orden' => $idOrden,
+        ];
+
+        return isset($this->vencidas[$idOrden]) ? null : $this->urlDelCheckout($idOrden);
+    }
+
+    /**
+     * Vence el checkout de la orden, como cuando una pasarela real lo da por caducado. Solo para las pruebas.
+     */
+    public function vencer(string $idOrden): void
+    {
+        $this->vencidas[$idOrden] = true;
     }
 
     /**

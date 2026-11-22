@@ -212,3 +212,13 @@ el sistema ni toca otro cambio.
    configurada y tenga llave, y el pago responde 503. Así un aviso simulado nunca vale como pago fuera de la máquina de
    desarrollo. La simulada autentica cada petición con su llave, `PASARELA_SIMULADA_LLAVE`, y sin ella no crea órdenes,
    como una pasarela real. En las pruebas, la llave es la de prueba de `phpunit.xml`.
+4. **El checkout se pide en `POST /api/pagos/checkout`** (tarea 1.3), con el pedido y el método en el cuerpo, como dice
+   pago-E02. Va bajo `/api/pagos` y no bajo `/api/pedidos/{pedido}` para no abrir otra ruta de pedidos: confirmacion-E07
+   prueba que bajo `/api/pedidos` solo hay crear y consultar. La tenencia la decide `Autorizacion::pedidosVisibles()`: un
+   pedido de otra cuenta responde el mismo 404 que uno que no existe.
+5. **Un solo checkout vigente por cobro** (tarea 1.3). `App\Cobro\CheckoutDelCobro` bloquea el cobro, pregunta a la
+   pasarela configurada si la orden que ya tiene sigue vigente (`Pasarela::checkoutVigente()`) y solo si no, crea otra
+   para el mismo cobro y reemplaza su `id_pasarela_orden`. No se guarda la URL del checkout: el modelo de datos no la
+   tiene y la pasarela la da. La app recibe además `checkout.regreso`, la dirección de regreso de
+   `PASARELA_REGRESO`, para abrir el checkout con ella (adenda de ADR-0010). Un pedido sin cobro responde 409: el cobro lo
+   crea pago-E14, bloqueado por DD-012. Solo se acepta `tarjeta`; el efectivo responde 422 hasta DD-056.

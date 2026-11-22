@@ -9,7 +9,7 @@ y 4 llama a un proveedor real: todas usan la pasarela simulada. La sección 3 ll
 
 - [x] 1.1 Migración de `pagos`, `reembolsos` y `eventos_pasarela`, con sus llaves compuestas de plaza, sus únicos, sus `CHECK` y el trigger `impedir_cambio()` en `pagos` y `reembolsos`; modelos `Pago`, `Reembolso` y `EventoPasarela`; cierra pago-E05 junto con la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17, sobre todo modelo-E13 y modelo-E14) — test: `servidor/tests/Feature/Pago/MigracionTest.php` — tamaño M
 - [x] 1.2 pago-E17: configuración de la pasarela tomada del entorno, con una llave de prueba y la pasarela simulada — test: `servidor/tests/Feature/Pago/LlavesPorEntornoTest.php` — tamaño S
-- [ ] 1.3 pago-E01: la interfaz de la pasarela en el componente `cobro` y su versión simulada; crear la orden y el checkout por el monto del servidor, con un solo checkout vigente por cobro — test: `servidor/tests/Feature/Pago/CrearCheckoutTest.php` — tamaño M
+- [x] 1.3 pago-E01: la interfaz de la pasarela en el componente `cobro` y su versión simulada; crear la orden y el checkout por el monto del servidor, con un solo checkout vigente por cobro — test: `servidor/tests/Feature/Pago/CrearCheckoutTest.php` — tamaño M
 
 ## 2. Servidor: los avisos de la pasarela, sin proveedor
 

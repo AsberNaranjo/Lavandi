@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\HistorialDeLaLavanderiaController;
 use App\Http\Controllers\Api\HistorialDelRepartidorController;
 use App\Http\Controllers\Api\LavanderiaDelSocioController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
+use App\Http\Controllers\Api\PagosController;
 use App\Http\Controllers\Api\PedidosController;
 use App\Http\Controllers\Api\PedidosDeLaLavanderiaController;
 use App\Http\Controllers\Api\PedidosDelRepartidorController;
@@ -112,6 +113,10 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     // El token de Firebase del teléfono que recibe los avisos de la cuenta (avisos). El contrato está en el
     // controlador; se borra al cerrar la sesión, con DELETE sesion.
     Route::post('dispositivos', [DispositivosController::class, 'registrar'])->name('dispositivos.registrar');
+
+    // El cobro del pedido (pago). El contrato está en el controlador y en openspec/changes/pago/design.md. Ninguna de
+    // estas rutas da un cobro por pagado: solo el aviso auténtico de la pasarela (pago-E07).
+    Route::post('pagos/checkout', [PagosController::class, 'checkout'])->name('pagos.checkout');
 });
 
 // El Módulo B del socio lavandería: su lavandería (alta-de-lavanderias). Con sesión y por el componente único de
