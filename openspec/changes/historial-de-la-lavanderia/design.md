@@ -94,6 +94,24 @@ misma plaza y con el pago acreditado (C-188).
 - **Todavía sin monto ni calificación:** esperan DD-013, DD-020, DD-012 y DD-052 (E03 y E04). Cuando se respondan,
   entran como campos nuevos del mismo objeto, sin cambiar los que ya están.
 
+**Las estadísticas**, `GET /api/lavanderia/estadisticas` (historial-lavanderia-E05 y E06):
+
+```json
+{ "pedidos_del_dia": 2, "pedidos_de_la_semana": 5 }
+```
+
+| Campo | Qué es |
+|---|---|
+| `pedidos_del_dia` | Los pedidos del historial cuyo paso a Entregado cae en el día de hoy de su plaza |
+| `pedidos_de_la_semana` | Los que caen en la semana de hoy de su plaza, de lunes a domingo; incluye los de hoy |
+
+- Cuentan los mismos pedidos del historial: solo los entregados, solo los de la cuenta y de su plaza.
+- "Hoy" y "esta semana" se leen en la zona horaria de la plaza de cada pedido (decisión 3), con el reloj del servidor:
+  el lunes a las 00:30 de la plaza empieza otra semana, aunque en UTC todavía sea domingo por la noche.
+- Sin entregados, los dos en `0`.
+- **Todavía sin ingreso total ni calificación promedio:** esperan DD-013, DD-020, DD-012 y DD-052 (E07 y E08). Cuando
+  se respondan, entran como campos nuevos del mismo objeto.
+
 ## Risks / Trade-offs
 
 - [Se usa el historial antes de cerrar DD-013 y DD-052] → la lavandería ve folio y fecha, pero no monto ni

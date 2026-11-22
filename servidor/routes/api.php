@@ -136,4 +136,7 @@ Route::middleware(['auth:sanctum', 'autorizar:lavanderia'])->prefix('lavanderia'
         ->name('lavanderia.pedidos.estado');
     // Sus pedidos completados (historial-de-la-lavanderia). El contrato está en el controlador.
     Route::get('historial', [HistorialDeLaLavanderiaController::class, 'historial'])->name('lavanderia.historial');
+    // Sus pedidos completados del día y de la semana, en la hora de la plaza (historial-de-la-lavanderia).
+    Route::get('estadisticas', [HistorialDeLaLavanderiaController::class, 'estadisticas'])
+        ->name('lavanderia.estadisticas');
 });

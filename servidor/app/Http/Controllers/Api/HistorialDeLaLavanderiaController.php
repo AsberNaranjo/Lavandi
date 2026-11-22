@@ -6,14 +6,16 @@ use App\Autorizacion\Autorizacion;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PedidoEntregadoResource;
 use App\Models\Usuario;
+use App\Pedidos\EstadisticasDeLaLavanderia;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * El historial de la lavandería, en la app del Módulo B: sus pedidos completados (NSV-2026-001-v8.pdf:17:ANEXO A,
- * Sección A.3, Módulo B #4; openspec/changes/historial-de-la-lavanderia/).
+ * El historial y las estadísticas de la lavandería, en la app del Módulo B: sus pedidos completados, y cuántos completó
+ * en el día y en la semana (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #4 y #5;
+ * openspec/changes/historial-de-la-lavanderia/).
  *
- * Contrato para la app. La ruta lleva sesión y pasa por el componente de autorización:
+ * Contrato para la app. Las dos rutas llevan sesión y pasan por el componente de autorización:
  *
  *     Authorization: Bearer <token de la sesión>        (auth:sanctum y autorizar:lavanderia)
  *
@@ -43,6 +45,21 @@ use Illuminate\Http\Request;
  *
  *          Todavía no lleva el monto ni la calificación recibida: esperan DD-013, DD-020, DD-012 y DD-052
  *          (historial-lavanderia-E03 y E04). Cuando se respondan, se agregan como campos nuevos.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
+ *     GET /api/lavanderia/estadisticas               Los pedidos completados del día y de la semana
+ *                                                    (historial-lavanderia-E05 y E06)
+ *
+ *     200  { "pedidos_del_dia": 2, "pedidos_de_la_semana": 5 }
+ *          Cuenta los mismos pedidos del historial, por el instante de su paso a Entregado. "Del día" es el día de hoy
+ *          y "de la semana", de lunes a domingo, los dos en la zona horaria de la plaza de cada pedido: una entrega a las
+ *          19:30 del jueves en la plaza es del jueves, aunque en UTC ya sea el viernes (design.md, decisión 3). La semana
+ *          incluye el día de hoy. Solo los pedidos de la cuenta, de su plaza (historial-lavanderia-E06). Sin entregados,
+ *          los dos en 0.
+ *
+ *          Todavía no lleva el ingreso total ni la calificación promedio: esperan DD-013, DD-020, DD-012 y DD-052
+ *          (historial-lavanderia-E07 y E08). Cuando se respondan, se agregan como campos nuevos.
  */
 class HistorialDeLaLavanderiaController extends Controller
 {
@@ -61,6 +78,14 @@ class HistorialDeLaLavanderiaController extends Controller
             ->get();
 
         return response()->json(['pedidos' => PedidoEntregadoResource::collection($pedidos)]);
+    }
+
+    /**
+     * Las estadísticas: los conteos del día y de la semana. Cómo se cuentan lo dice App\Pedidos\EstadisticasDeLaLavanderia.
+     */
+    public function estadisticas(Request $peticion, EstadisticasDeLaLavanderia $estadisticas): JsonResponse
+    {
+        return response()->json($estadisticas->de($this->cuenta($peticion)));
     }
 
     private function cuenta(Request $peticion): Usuario
