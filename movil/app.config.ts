@@ -6,6 +6,8 @@ import type { ExpoConfig } from 'expo/config';
 // El texto de para qué se usa la ubicación (cercanas-E03): el mismo en el diálogo de iPhone y en la pantalla. Es JSON
 // porque la configuración no puede importar TypeScript de src/.
 import permisoDeUbicacion from './src/cercanas/permiso-de-ubicacion.json';
+// Los textos de para qué se usan la cámara y las fotos (alta-lavanderias-E03), en JSON por la misma razón.
+import permisosDeLaFoto from './src/alta-lavanderias/permisos-de-la-foto.json';
 
 // Versiones mínimas (ADR-0009): iOS 18 y Android 11, que es la API 30. El SDK 58 pide menos, así que mandan estas.
 const IOS_MINIMO = '18.0';
@@ -123,6 +125,17 @@ export default (): ExpoConfig => {
           isAndroidForegroundServiceEnabled: false,
           motionUsagePermission: false,
           locationFullAccuracyPermission: false,
+        },
+      ],
+      // La foto de la lavandería, tomada o elegida (alta-lavanderias-E03; ADR-0006). Sin esta entrada, Expo aplica
+      // expo-image-picker con sus valores por omisión: textos en inglés y el micrófono, que la app no usa porque no graba
+      // video. Aquí: el texto propio de la cámara y de las fotos, y el micrófono quitado en las dos plataformas.
+      [
+        'expo-image-picker',
+        {
+          cameraPermission: permisosDeLaFoto.camara,
+          photosPermission: permisosDeLaFoto.fotos,
+          microphonePermission: false,
         },
       ],
     ],
