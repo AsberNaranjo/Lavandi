@@ -176,8 +176,17 @@ primero):
 
 Las lavanderías de prueba salen del sembrado: `php artisan db:seed` en `servidor\`, y nunca en producción.
 
+**Los avisos al teléfono (Firebase)** solo entran al APK si el entorno trae el archivo de Firebase de Android:
+- **La variable:** `GOOGLE_SERVICES_JSON` en `movil\.env`, con la ruta absoluta al `google-services.json`.
+- **El paquete:** el del archivo tiene que ser el mismo `APP_IDENTIFIER` de `movil\.env`.
+- **Sin la variable:** el APK sale como siempre, sin avisos, y el perfil no muestra la sección de notificaciones.
+- **Al ponerla o quitarla:** hay que compilar completo con `compilar.ps1`, porque cambia el proyecto nativo.
+
+El archivo nunca se sube a git (ADR-0012); lo da la cuenta de Firebase de prueba (DD-072).
+
 **Lo que no funciona todavía en el APK:**
 - Google, porque falta el cliente OAuth de prueba (DD-072): el botón no aparece.
+- Los avisos al teléfono, mientras no exista la cuenta de Firebase de prueba (DD-072).
 - Apple solo existirá en iPhone (DD-069).
 - El correo de recuperación no sale: el enlace queda en `servidor\storage\logs\laravel.log`, como en la sección 4.
 

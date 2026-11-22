@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-06 y RN-30 (A); brecha-ejecutivo-tecnico.md BR-49 (B); deuda-de-decision.md DD-011 y DD-054 (B); verificaciones-fase-6.md, filas 7 y sección del 2026-11-12 (E); ADR-0002 y ADR-0003 (D)
+fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-06 y RN-30 (A); brecha-ejecutivo-tecnico.md BR-49 (B); deuda-de-decision.md DD-011 y DD-054 (B); verificaciones-fase-6.md, filas 7 y sección del 2026-11-12 (E); ADR-0002 y ADR-0003 (D); adenda del 2026-11-22: decisión 36, por delegación de C-236 (C), y openspec/changes/avisos/design.md (B)
 fecha: 2026-11-13
 dueño: Arthur Naranjo
 adr: ADR-0008
@@ -99,3 +99,26 @@ puede instalar aquí (`composer require --dry-run`, 2026-11-21):
 dependencias, se puede volver a él: el canal es la única pieza que cambia.
 
 La aprobó Arthur Naranjo el 2026-11-21 (C-239), con la recomendación de Claude.
+
+## Adenda del 2026-11-22: Firebase en la app solo cuando el entorno trae su archivo
+
+**Contexto.**
+- La app recibe los avisos con `@react-native-firebase/app` y `messaging` (avisos 4.1).
+- Las cuentas de Firebase de prueba todavía no existen (DD-072). Sin su archivo, el complemento de Gradle de Google
+  rompe la compilación.
+- La app se prueba hoy con el APK local y con Expo Go en iPhone (C-240), que no trae el módulo nativo.
+
+**Decisión.**
+- **4, precisión.** Firebase se enlaza en la app solo cuando el entorno trae el archivo de Android
+  (`GOOGLE_SERVICES_JSON`, ADR-0012):
+  - **Sin el archivo:** el proyecto nativo sale como antes, sin los dos módulos, y la app no pide el permiso de avisos.
+  - **Con el archivo:** entran el `googleServicesFile`, el complemento de Gradle de Google y `POST_NOTIFICATIONS`.
+  - **En Expo Go:** el módulo se carga de forma diferida, como el inicio de sesión de Google, y no se pide.
+- **Los complementos de configuración de las dos librerías no se listan.** El de `app` duplica en Android lo que Expo
+  ya hace con `googleServicesFile`, y su parte de iPhone rompería esa compilación. El de `messaging` solo pone el ícono
+  del aviso, que espera la marca.
+- **iPhone** no enlaza Firebase todavía: la versión 27 pide paquetes de Swift y frameworks dinámicos. Entra con la
+  tarea 5.2 de `avisos` (DD-069).
+
+**La tomó** Claude, por delegación de Arthur (C-236), en la decisión 36 de `acta-2026-11-20-modelo-y-pasarela.md`. El
+detalle está en `openspec/changes/avisos/design.md`.
