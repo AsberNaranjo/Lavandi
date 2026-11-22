@@ -46,6 +46,9 @@ final class PasarelaConekta implements Pasarela
     /** El concepto de la orden y la razón del pago que muestra el checkout. No lleva la marca (CLAUDE.md §5). */
     private const CONCEPTO = 'Pedido de lavandería';
 
+    /** Cuántas órdenes se piden por página para conciliar: el máximo que acepta Conekta (grado E, /reference/getorders). */
+    private const ORDENES_POR_PAGINA = 250;
+
     /** Los estados de la orden en que su checkout ya no se puede pagar. */
     private const ORDEN_SIN_CHECKOUT = ['expired', 'canceled', 'voided'];
 
@@ -147,9 +150,86 @@ final class PasarelaConekta implements Pasarela
         return new AvisoDePasarela($contenido['id'], $tipo, $this->ordenDelAviso($contenido), $contenido);
     }
 
+    /**
+     * GET /orders?payment_status=paid, por cursor: Conekta no filtra por la fecha del pago, así que se piden sus órdenes
+     * pagadas de la más nueva hacia atrás, de 250 en 250, y el corte por fecha lo hace el servidor (segunda adenda del
+     * 2026-11-22 de ADR-0010, decisión 6). El cursor de la página siguiente es el id de la última orden de la página
+     * (grado E, /reference/next).
+     *
+     * Se para cuando Conekta no tiene más, o cuando la última orden de la página se creó antes del inicio del periodo
+     * menos la vigencia de su checkout: una orden con tarjeta se paga en su checkout, así que una creada antes ya no
+     * puede tener su pago en el periodo. El movimiento de cada orden es la suma de sus cargos pagados, con su comisión
+     * si la trae y la fecha del último pago.
+     */
     public function pagosDelPeriodo(CarbonImmutable $desde, CarbonImmutable $hasta): array
     {
-        throw new PasarelaNoDisponible('La lectura de los pagos de Conekta llega con la tarea 3.2.');
+        $limite = $desde->subMinutes(self::VIGENCIA_DEL_CHECKOUT_EN_MINUTOS)->getTimestamp();
+        $movimientos = [];
+        $cursor = null;
+
+        do {
+            $consulta = ['payment_status' => 'paid', 'limit' => self::ORDENES_POR_PAGINA, ...($cursor === null ? [] : ['next' => $cursor])];
+            $pagina = $this->enviar('leer las órdenes pagadas', fn (PendingRequest $api): Response => $api->get('/orders', $consulta));
+            $ordenes = array_values(array_filter((array) $pagina->json('data'), is_array(...)));
+
+            foreach ($ordenes as $orden) {
+                $movimiento = $this->movimientoDe($orden);
+
+                if ($movimiento !== null && $movimiento->pagadoEn->betweenIncluded($desde, $hasta)) {
+                    $movimientos[] = $movimiento;
+                }
+            }
+
+            $ultima = $ordenes === [] ? null : $ordenes[array_key_last($ordenes)];
+            $siguiente = is_string($ultima['id'] ?? null) ? $ultima['id'] : null;
+            $creadaEn = $ultima['created_at'] ?? null;
+
+            if ($pagina->json('has_more') === true && $siguiente !== null && $siguiente === $cursor) {
+                throw new PasarelaNoDisponible('Conekta devolvió dos veces la misma página de órdenes pagadas.');
+            }
+
+            $cursor = $siguiente;
+        } while ($pagina->json('has_more') === true && $cursor !== null && ! (is_int($creadaEn) && $creadaEn < $limite));
+
+        usort($movimientos, fn (MovimientoDePasarela $uno, MovimientoDePasarela $otro): int => $otro->pagadoEn <=> $uno->pagadoEn);
+
+        return $movimientos;
+    }
+
+    /**
+     * El pago de una orden de la lista: sus cargos pagados, con su monto, su comisión si la traen y la fecha del último.
+     * Una orden sin un cargo pagado con su fecha no tiene movimiento: si la plataforma la tiene pagada, la conciliación lo
+     * muestra como un pago sin movimiento (administracion-E21).
+     *
+     * @param  array<array-key, mixed>  $orden
+     */
+    private function movimientoDe(array $orden): ?MovimientoDePasarela
+    {
+        $cargos = $orden['charges']['data'] ?? [];
+        $centavos = 0;
+        $comision = null;
+        $pagadoEn = null;
+
+        foreach (is_array($cargos) ? $cargos : [] as $cargo) {
+            if (! is_array($cargo) || ($cargo['status'] ?? null) !== 'paid' || ! is_int($cargo['paid_at'] ?? null) || ! is_int($cargo['amount'] ?? null)) {
+                continue;
+            }
+
+            $centavos += $cargo['amount'];
+            $comision = is_int($cargo['fee'] ?? null) ? ($comision ?? 0) + $cargo['fee'] : $comision;
+            $pagadoEn = max($pagadoEn ?? $cargo['paid_at'], $cargo['paid_at']);
+        }
+
+        if ($pagadoEn === null || ! is_string($orden['id'] ?? null)) {
+            return null;
+        }
+
+        return new MovimientoDePasarela(
+            $orden['id'],
+            self::pesos($centavos),
+            $comision === null ? null : self::pesos($comision),
+            CarbonImmutable::createFromTimestamp($pagadoEn, 'UTC'),
+        );
     }
 
     /**
@@ -287,5 +367,13 @@ final class PasarelaConekta implements Pasarela
         }
 
         return (int) $partes[1] * 100 + (int) $partes[2];
+    }
+
+    /**
+     * Los pesos con dos decimales de un monto en centavos, "180.00", sin pasar por un flotante.
+     */
+    private static function pesos(int $centavos): string
+    {
+        return sprintf('%d.%02d', intdiv($centavos, 100), $centavos % 100);
     }
 }

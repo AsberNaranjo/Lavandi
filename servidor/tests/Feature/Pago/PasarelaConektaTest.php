@@ -5,11 +5,15 @@ namespace Tests\Feature\Pago;
 use App\Cobro\AvisoDePasarela;
 use App\Cobro\AvisoNoReconocido;
 use App\Cobro\EfectoDelAviso;
+use App\Cobro\MovimientoDePasarela;
 use App\Cobro\PasarelaConekta;
 use App\Cobro\PasarelaNoDisponible;
 use App\Cobro\Pasarelas;
 use App\Cobro\SinDatosDeTarjeta;
+use App\Finanzas\ConciliacionConLaPasarela;
+use App\Indicadores\Rango;
 use App\Models\EventoPasarela;
+use App\Models\MovimientoPasarela;
 use App\Models\Pago;
 use App\Models\Pedido;
 use App\Models\Usuario;
@@ -452,6 +456,141 @@ class PasarelaConektaTest extends TestCase
         $this->assertSame(0, EventoPasarela::count());
         $this->assertSame(Pago::PENDIENTE, $cobro->fresh()->estado);
         $this->assertNull($pedido->fresh()->folio);
+    }
+
+    #[TestDox('administracion-E20: los pagos del periodo se piden a Conekta como órdenes pagadas, por cursor, de la más nueva hacia atrás, hasta pasar el inicio del periodo, y el corte por fecha lo hace el servidor: solo vuelven los pagados en el periodo, con su monto y su comisión en pesos')]
+    public function test_administracion_e20_los_pagos_del_periodo_salen_de_las_ordenes_pagadas_de_conekta(): void
+    {
+        [$desde, $hasta] = $this->periodo();
+        Http::fake([self::ORDENES.'?*' => Http::sequence([
+            Http::response(CargasDeConekta::paginaDeOrdenes([
+                $this->ordenPagada('ord_2tN73UdUSNrYRPD9a', 18000, 708, '2026-12-14 10:05', '2026-12-14 10:00'),
+                $this->ordenPagada('ord_2tN73UdUSNrYRPD9b', 18000, 708, '2026-12-13 20:10', '2026-12-13 20:00'),
+                $this->ordenPagada('ord_2tN73UdUSNrYRPD9c', 25050, null, '2026-12-10 12:30', '2026-12-10 12:00'),
+                // Pagada según la lista, pero sin un cargo pagado con su fecha: no hay movimiento que leer.
+                [...$this->ordenPagada('ord_2tN73UdUSNrYRPD9f', 9900, 392, '2026-12-09 09:00', '2026-12-09 08:55'), 'charges' => ['object' => 'list', 'has_more' => false, 'data' => []]],
+            ], hayMas: true)),
+            Http::response(CargasDeConekta::paginaDeOrdenes([
+                // Creada antes del periodo, dentro de la vigencia de su checkout, y pagada ya en él.
+                $this->ordenPagada('ord_2tN73UdUSNrYRPD9d', 12000, 450, '2026-12-07 00:10', '2026-12-06 23:30'),
+                // Creada y pagada antes: la primera que pasa el inicio del periodo, con la vigencia de su checkout.
+                $this->ordenPagada('ord_2tN73UdUSNrYRPD9e', 15000, 520, '2026-12-06 22:30', '2026-12-06 22:00'),
+            ], hayMas: true)),
+        ])]);
+
+        $movimientos = $this->conekta()->pagosDelPeriodo($desde, $hasta);
+
+        $this->assertSame(
+            [
+                ['ord_2tN73UdUSNrYRPD9b', '180.00', '7.08', '2026-12-13T20:10:00Z'],
+                ['ord_2tN73UdUSNrYRPD9c', '250.50', null, '2026-12-10T12:30:00Z'],
+                ['ord_2tN73UdUSNrYRPD9d', '120.00', '4.50', '2026-12-07T00:10:00Z'],
+            ],
+            array_map(fn (MovimientoDePasarela $m): array => [$m->idOrden, $m->monto, $m->comision, $m->pagadoEn->utc()->toIso8601ZuluString()], $movimientos),
+        );
+
+        // Dos páginas y ni una más, aunque Conekta diga que hay más: la segunda ya pasó el inicio del periodo.
+        $paginas = Http::recorded()->map(function (array $par): array {
+            parse_str((string) parse_url($par[0]->url(), PHP_URL_QUERY), $consulta);
+
+            return $consulta;
+        })->all();
+        $this->assertSame([
+            ['payment_status' => 'paid', 'limit' => '250'],
+            ['payment_status' => 'paid', 'limit' => '250', 'next' => 'ord_2tN73UdUSNrYRPD9f'],
+        ], $paginas);
+        Http::assertSent(fn (Request $peticion): bool => $peticion->method() === 'GET'
+            && str_starts_with($peticion->url(), self::ORDENES.'?')
+            && $peticion->hasHeader('Authorization', 'Bearer '.self::LLAVE)
+            && $peticion->hasHeader('Accept', 'application/vnd.conekta-v2.3.0+json'));
+    }
+
+    #[TestDox('administracion-E20: cuando Conekta dice que no hay más órdenes pagadas, no se le pide otra página, y sin órdenes no hay pagos del periodo')]
+    public function test_administracion_e20_sin_mas_paginas_no_se_pide_otra(): void
+    {
+        [$desde, $hasta] = $this->periodo();
+        Http::fake([self::ORDENES.'?*' => Http::sequence([
+            Http::response(CargasDeConekta::paginaDeOrdenes([
+                $this->ordenPagada('ord_2tN73UdUSNrYRPD9b', 18000, 708, '2026-12-13 20:10', '2026-12-13 20:00'),
+            ], hayMas: false)),
+            Http::response(CargasDeConekta::paginaDeOrdenes([], hayMas: false)),
+        ])]);
+
+        $this->assertCount(1, $this->conekta()->pagosDelPeriodo($desde, $hasta));
+        $this->assertSame([], $this->conekta()->pagosDelPeriodo($desde, $hasta));
+        Http::assertSentCount(2);
+    }
+
+    #[TestDox('administracion-E20: si Conekta responde con un error, no responde o repite el cursor, no hay pagos del periodo: la pasarela no está disponible')]
+    public function test_administracion_e20_si_conekta_falla_no_hay_pagos_del_periodo(): void
+    {
+        [$desde, $hasta] = $this->periodo();
+        $pagina = CargasDeConekta::paginaDeOrdenes([
+            $this->ordenPagada('ord_2tN73UdUSNrYRPD9b', 18000, 708, '2026-12-13 20:10', '2026-12-13 20:00'),
+        ], hayMas: true);
+        Http::fake([self::ORDENES.'?*' => Http::sequence([
+            Http::response(CargasDeConekta::error(), 401),
+            Http::failedConnection(),
+            // El mismo cursor dos veces: sin esto, se pediría la misma página para siempre.
+            Http::response($pagina),
+            Http::response($pagina),
+        ])]);
+
+        foreach (['llave rechazada', 'sin respuesta', 'cursor repetido'] as $caso) {
+            try {
+                $this->conekta()->pagosDelPeriodo($desde, $hasta);
+                $this->fail("No debió haber pagos del periodo: {$caso}.");
+            } catch (PasarelaNoDisponible $error) {
+                $this->assertSame(503, $error->render()->getStatusCode(), $caso);
+            }
+        }
+    }
+
+    #[TestDox('administracion-E20: con Conekta configurada, conciliar un periodo guarda sus pagos del periodo en movimientos_pasarela, uno por orden y con la pasarela conekta')]
+    public function test_administracion_e20_conciliar_con_conekta_guarda_sus_movimientos(): void
+    {
+        Http::fake([self::ORDENES.'?*' => Http::response(CargasDeConekta::paginaDeOrdenes([
+            $this->ordenPagada('ord_2tN73UdUSNrYRPD9b', 18000, 708, '2026-12-13 20:10', '2026-12-13 20:00'),
+            $this->ordenPagada('ord_2tN73UdUSNrYRPD9c', 25050, null, '2026-12-10 12:30', '2026-12-10 12:00'),
+        ], hayMas: false))]);
+
+        app(ConciliacionConLaPasarela::class)->conciliar(Rango::deLosFiltros(['desde' => '2026-12-07', 'hasta' => '2026-12-13', 'granularidad' => 'dia']));
+
+        $this->assertSame(
+            [
+                ['conekta', 'ord_2tN73UdUSNrYRPD9b', '180.00', '7.08'],
+                ['conekta', 'ord_2tN73UdUSNrYRPD9c', '250.50', null],
+            ],
+            MovimientoPasarela::query()->orderBy('id_pasarela_orden')->get()
+                ->map(fn (MovimientoPasarela $m): array => [$m->pasarela, $m->id_pasarela_orden, $m->monto, $m->comision])
+                ->all(),
+        );
+    }
+
+    /**
+     * El periodo de las pruebas de la conciliación: la semana del 7 al 13 de diciembre de 2026, en UTC.
+     *
+     * @return array{CarbonImmutable, CarbonImmutable}
+     */
+    private function periodo(): array
+    {
+        return [CarbonImmutable::parse('2026-12-07 00:00:00', 'UTC'), CarbonImmutable::parse('2026-12-13 23:59:59', 'UTC')];
+    }
+
+    /**
+     * Una orden pagada de la lista de Conekta, con su monto y su comisión en centavos y sus fechas en UTC.
+     *
+     * @return array<string, mixed>
+     */
+    private function ordenPagada(string $idOrden, int $centavos, ?int $comision, string $pagadaEn, string $creadaEn): array
+    {
+        return CargasDeConekta::ordenPagadaDeLaLista(
+            $idOrden,
+            $centavos,
+            $comision,
+            CarbonImmutable::parse($pagadaEn, 'UTC')->getTimestamp(),
+            CarbonImmutable::parse($creadaEn, 'UTC')->getTimestamp(),
+        );
     }
 
     /**
