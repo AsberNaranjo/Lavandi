@@ -4,6 +4,7 @@ namespace App\Autorizacion;
 
 use App\Models\Direccion;
 use App\Models\Dispositivo;
+use App\Models\EstadoPedido;
 use App\Models\Lavanderia;
 use App\Models\Pedido;
 use App\Models\PedidoAsignacion;
@@ -216,6 +217,26 @@ final class Autorizacion
                 ->whereColumn('pedido_asignaciones.id_plazas', 'pedidos.id_plazas')
                 ->where('pedido_asignaciones.id_repartidores', $repartidor->getKey())
                 ->whereIn('pedido_asignaciones.estado', [PedidoAsignacion::OFRECIDO, PedidoAsignacion::ACEPTADO]));
+    }
+
+    /**
+     * Las entregas completadas del repartidor que opera: sus pedidos (pedidosDelRepartidor()) cuyo paso a Entregado marcó
+     * él (openspec/changes/repartidor/design.md, lectura 5: "una entrega es completada cuando el repartidor marca
+     * Entregado"). Su historial y sus estadísticas parten de aquí (repartidor-E25 y E28); la entrega de otro repartidor no
+     * aparece (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, Separación por tipo de usuario).
+     *
+     * @return Builder<Pedido>
+     */
+    public function entregasDelRepartidor(Repartidor $repartidor): Builder
+    {
+        return $this->pedidosDelRepartidor($repartidor)
+            ->where('pedidos.id_repartidores', $repartidor->getKey())
+            ->whereExists(fn ($eventos) => $eventos->selectRaw('1')
+                ->from('pedido_eventos')
+                ->join('estados_pedido', 'estados_pedido.id_estados_pedido', '=', 'pedido_eventos.id_estados_pedido')
+                ->whereColumn('pedido_eventos.id_pedidos', 'pedidos.id_pedidos')
+                ->where('estados_pedido.codigo', EstadoPedido::ENTREGADO)
+                ->where('pedido_eventos.id_usuarios', $repartidor->id_usuarios));
     }
 
     /**

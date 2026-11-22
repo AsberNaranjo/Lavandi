@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CuentaController;
 use App\Http\Controllers\Api\DireccionesController;
 use App\Http\Controllers\Api\DispositivosController;
 use App\Http\Controllers\Api\HistorialDeLaLavanderiaController;
+use App\Http\Controllers\Api\HistorialDelRepartidorController;
 use App\Http\Controllers\Api\LavanderiaDelSocioController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
 use App\Http\Controllers\Api\PedidosController;
@@ -168,5 +169,7 @@ Route::middleware(['auth:sanctum', 'autorizar:repartidor'])->prefix('repartidor'
         // Los botones Recolectado, En tránsito y Entregado.
         Route::post('pedidos/{pedido}/estado', [PedidosDelRepartidorController::class, 'marcar'])
             ->name('repartidor.pedidos.estado');
+        // Sus entregas completadas (repartidor-E25).
+        Route::get('historial', [HistorialDelRepartidorController::class, 'historial'])->name('repartidor.historial');
     });
 });

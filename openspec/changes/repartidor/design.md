@@ -286,6 +286,16 @@ El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/
   422. Si es obligatoria, si también se toma al recolectar y si es foto o firma espera BR-29 y DD-110 (E24); la tabla ya
   admite `tipo = 'recoleccion'` para cuando responda.
 
+### El historial (tarea 1.7)
+
+- **Qué es una entrega suya** lo decide `Autorizacion::entregasDelRepartidor()`: un pedido suyo
+  (`pedidosDelRepartidor()`, con `pedidos.id_repartidores` en él) en Entregado, cuyo paso a Entregado marcó él (el
+  evento de Entregado con su cuenta). Es la lectura 5: "una entrega es completada cuando el repartidor marca Entregado".
+  Si DD-022 deja que la lavandería marque Entregado con su gente, esa entrega no cuenta para el repartidor.
+- **Cada entrega** lleva su folio y la fecha en que la entregó, en la zona horaria de la plaza, con la misma forma que el
+  historial de la lavandería (`App\Http\Resources\PedidoEntregadoResource`). De la más reciente a la más antigua.
+- **Sin monto ni calificación recibida:** esperan DD-019 y DD-013 (E26) y DD-052 (E27). Entran como campos nuevos.
+
 ### Adenda propuesta a ADR-0021: las transiciones del repartidor
 
 Propuesta por Claude por delegación de Arthur (C-236), con la tarea 1.5. No edita el ADR: Arthur la asienta o la cambia
@@ -502,6 +512,22 @@ ser una imagen: jpg, jpeg, png, webp." y "La foto pesa más de 5120 KB.". Con cu
 **`siguiente`** en el pedido: `{ "estado": "recolectado", "boton": "Recolectado" }`, `{ "estado": "en_entrega", "boton":
 "En tránsito" }` o `{ "estado": "entregado", "boton": "Entregado" }`; `null` si no aceptó la oferta, si la lavandería
 todavía no acepta el pedido, entre Recolectado y Listo (le toca a la lavandería) y después de Entregado.
+
+### `GET /api/repartidor/historial` (E25)
+
+**200**:
+
+```json
+{
+  "pedidos": [
+    { "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z", "folio": "7KQ2M9XA", "entregado_en": "2026-12-04T01:30:00Z", "fecha": "2026-12-03" }
+  ]
+}
+```
+
+Sus entregas completadas, las que él marcó Entregado: ni una en curso ni la de otro repartidor. `entregado_en` es el
+instante en UTC; `fecha`, ese instante en la fecha de la plaza. De la más reciente a la más antigua; sin paginación; vacía
+si no hay. El detalle de cada una es `GET /api/repartidor/pedidos/{id_publico}`. Sin monto ni calificación (E26, E27).
 
 ## Risks / Trade-offs
 

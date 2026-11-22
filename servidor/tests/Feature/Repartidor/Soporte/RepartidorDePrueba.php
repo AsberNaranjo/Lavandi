@@ -8,6 +8,7 @@ use App\Models\PedidoAsignacion;
 use App\Models\Plaza;
 use App\Models\Repartidor;
 use App\Models\Usuario;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\TestResponse;
 
@@ -108,6 +109,31 @@ trait RepartidorDePrueba
     protected function idsDeLaListaDelRepartidor(TestResponse $respuesta): array
     {
         return array_column($respuesta->json('pedidos') ?? [], 'id_publico');
+    }
+
+    /**
+     * El repartidor entrega el pedido confirmado en ese instante, escrito en la hora de la plaza del pedido
+     * ("2026-12-03 19:30"): la lavandería lo acepta, se le ofrece al repartidor y él lo acepta, la lavandería lo lleva
+     * hasta En proceso de entrega y él marca Entregado, todo con las operaciones reales y en ese instante. Usa
+     * EstadosDePrueba.
+     */
+    protected function entregaDe(Repartidor $repartidor, Pedido $pedido, string $instante): Pedido
+    {
+        $this->travelTo(CarbonImmutable::parse($instante, $pedido->plaza->zona_horaria));
+        $this->aceptarComoLaLavanderia($pedido);
+        $this->repartidorQueLoAcepta($pedido, $repartidor);
+
+        return $this->llevarHastaEntregado($pedido);
+    }
+
+    protected function historialDelRepartidor(Repartidor $repartidor): TestResponse
+    {
+        return $this->comoRepartidor($repartidor)->getJson('/api/repartidor/historial');
+    }
+
+    protected function estadisticasDelRepartidor(Repartidor $repartidor): TestResponse
+    {
+        return $this->comoRepartidor($repartidor)->getJson('/api/repartidor/estadisticas');
     }
 
     /**
