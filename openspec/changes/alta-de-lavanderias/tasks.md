@@ -15,7 +15,7 @@ M = 5 h, L = 12 h.
 ## 2. Perfil y ventanas en el servidor
 
 - [x] 2.1 alta-lavanderias-E18, alta-lavanderias-E20: la lavandería edita su información y no puede editar la de otra — test: `servidor/tests/Feature/AltaLavanderias/PerfilTest.php` — tamaño S
-- [ ] 2.2 alta-lavanderias-E21, alta-lavanderias-E22: ventanas de una hora por día de la semana y rechazo de las que no duran una hora — test: `servidor/tests/Feature/AltaLavanderias/VentanasTest.php` — tamaño S
+- [x] 2.2 alta-lavanderias-E21, alta-lavanderias-E22: ventanas de una hora por día de la semana y rechazo de las que no duran una hora — test: `servidor/tests/Feature/AltaLavanderias/VentanasTest.php` — tamaño S
 
 ## 3. Gestión de lavanderías en el panel de Filament
 

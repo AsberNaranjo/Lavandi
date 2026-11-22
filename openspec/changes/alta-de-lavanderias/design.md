@@ -127,6 +127,14 @@ decisión agrega una librería ni un servicio externo.
 - **La edición** (`App\Lavanderias\EdicionDeLavanderia`) es la misma para la app y el panel. Cambia solo lo que viene,
   con las reglas del registro; los servicios y las ventanas, si vienen, son la lista completa. Una lavandería ajena
   responde 404 antes de validar (E20).
+- **Las ventanas** (E21, E22) son el mismo campo `ventanas` en el registro y en la edición: el horario completo de la
+  semana, una fila de `lavanderia_horarios` por ventana. Cada una dura exactamente una hora
+  (`App\Lavanderias\VentanaDeUnaHora`), con horas `HH:MM` en la zona horaria de la plaza; la última del día puede
+  terminar a las `24:00`, que la agenda ya lee como la medianoche siguiente. El error queda en la ventana
+  (`ventanas.N`). No se revisa si dos ventanas se enciman ni si una empieza en punto: ningún escenario lo pide, y la
+  agenda ya ofrece una sola vez la ventana repetida. Con esta lectura, las franjas largas sembradas en las lavanderías
+  de prueba (de 9:00 a 14:00) se ven en la app, pero la edición pide reemplazarlas por ventanas de una hora (pregunta
+  abierta 11).
 - **El cambio de plaza no se hace todavía** (pregunta abierta 5). Una dirección nueva que cae en una zona de otra plaza
   se rechaza en `direccion` con el motivo `en_otra_plaza`, en la app y en el panel: las hijas de la lavandería y sus
   pedidos van atados a su plaza por las llaves compuestas (modelo-E06), y moverla no es una edición. Si Arthur decide

@@ -71,7 +71,8 @@ final class ReglasDeLaLavanderia
             ],
             'ventanas' => [
                 'ventanas' => ['required', 'array', 'list', 'min:1', 'max:168'],
-                'ventanas.*' => ['array'],
+                // Cada una dura exactamente una hora (alta-lavanderias-E22).
+                'ventanas.*' => ['array', new VentanaDeUnaHora],
                 'ventanas.*.dia_semana' => ['bail', 'required', 'integer', 'between:1,7'],
                 'ventanas.*.hora_inicio' => ['bail', 'required', 'string', 'regex:'.self::HORA],
                 'ventanas.*.hora_fin' => ['bail', 'required', 'string', 'regex:'.self::HORA_DE_FIN],
