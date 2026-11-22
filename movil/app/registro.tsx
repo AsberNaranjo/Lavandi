@@ -1,5 +1,6 @@
 // Pantalla de registro (registro-E04, E19, E20 y E28): solo el correo y la contraseña (C-225), "Continuar con
-// Google" si el entorno trae el cliente de Google, y los enlaces a los documentos legales que dé la configuración.
+// Google" si el entorno trae el cliente de Google y la app no corre en Expo Go (base-E11), y los enlaces a los
+// documentos legales que dé la configuración.
 // En iPhone, "Continuar con Apple" es la tarea 4.3, bloqueada por DD-069; en Android no se ofrece (ADR-0005).
 //
 // El aspecto es el de la imagen a02-registro de la Propuesta 04 de los mocks (tarea 2.3, C-230): encabezado con

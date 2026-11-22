@@ -17,7 +17,7 @@ en su worktree, y terminan con su trabajo de la integración continua en verde.
   development build, Jest, `jest-expo` y React Native Testing Library; mínimos iOS 18 y Android 11; dirección de la API,
   identificador de la app y nombre desde configuración — test: `movil/__tests__/base/arranque.test.tsx` y
   `movil/__tests__/base/configuracion.test.ts` — tamaño S
-- [ ] 2.2 base-E11: la app abre en Expo Go; el módulo de Google se carga solo fuera de Expo Go y su botón no aparece
+- [x] 2.2 base-E11: la app abre en Expo Go; el módulo de Google se carga solo fuera de Expo Go y su botón no aparece
   ahí (C-240) — test: `movil/__tests__/base/expo-go.test.tsx` — tamaño S
 
 ## Horas
