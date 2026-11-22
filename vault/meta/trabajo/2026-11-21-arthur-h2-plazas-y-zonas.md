@@ -87,4 +87,30 @@ Cada rama la hizo un agente en su propio worktree, con su base de pruebas en el 
 Firebase, DD-072). Lo demás del Módulo A espera respuestas del cliente: el pago (DD-079), los precios (DD-012) y la
 foto del perfil (el disco privado).
 
+**Por la noche y la madrugada del 22, unido a `feat/h2-lavanderias`, cada rama con sus tests:**
+- **El PR a Nadir:** la rama se subió al fork. Antes se limpió la atribución de 12 commits viejos; el contenido no
+  cambió. La liga está en `notas-locales/PR-feat-h2-lavanderias.md` y el PR lo abre Arthur.
+- **La dirección asistida (C-238):**
+  - el municipio de la lista del territorio;
+  - las colonias por código postal, con el catálogo de SEPOMEX (41 municipios y 7,918 colonias);
+  - el autocompletado de la calle, apagado (DD-137).
+  - Decisión 29, adenda de ADR-0009 y DD-137 a DD-139.
+- **Los avisos en el servidor,** con FCM simulado (adenda de ADR-0008, C-239).
+- **El ícono de Lavandi en el APK local:** las capas viven en `vault/marca/visual/icono-app/`.
+- **Expo Go para un iPhone sin cuenta de Apple** (base-E11, C-240): la guía está en `correr-la-app-en-local.md`, 5-bis.
+- **El Módulo B:**
+  - la lavandería ve sus pedidos, acepta o rechaza con motivo y marca los pasos, con el estado `aceptado` (adenda de
+    ADR-0021, decisión 30);
+  - cada cuenta entra a su módulo por su rol (registro-E33, decisión 31);
+  - la administración no recibe token de la app.
+- **El alta de lavanderías y el panel:** suspender y dar de baja.
+- **La administración en el panel:** usuarios con ficha y bloqueo, monitoreo de pedidos y comisiones.
+- **El historial de la lavandería en el servidor.**
+- **Los indicadores** en `/admin/indicadores`.
+- **Probado en el emulador:** el usuario pidió; la lavandería aceptó y marcó Recolectado; el usuario vio el cambio.
+
+**Sigue.**
+- En curso: la app de la lavandería (historial, registro y perfil), las fotos y la landing.
+- Después, el repartidor (H8), en lo que no espera DD-014.
+
 **Al terminar.** `situacion: terminada`, con el enlace al PR, que va después del del H1.
