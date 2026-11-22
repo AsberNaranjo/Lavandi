@@ -13,6 +13,12 @@ export const TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA = {
   aceptar: 'Aceptar',
   rechazar: 'Rechazar',
   notaDelRechazo: 'Si rechazas, se te pedirá el motivo.',
+  // El rechazo (pedidos-lavanderia-E12 y E13), con los textos de la imagen b02-rechazo de la Propuesta 04. Sin motivo,
+  // el botón no se puede tocar y dice qué falta, como "Elige una ventana" en la agenda (agenda-E08).
+  tituloDelRechazo: 'Rechazar pedido',
+  motivo: 'Motivo del rechazo',
+  rechazarPedido: 'Rechazar pedido',
+  escribeElMotivo: 'Escribe el motivo',
   // El 409 sin mensaje del servidor: el pedido ya cambió (pedidos-lavanderia-E08; estados-E05 y E09). El servidor manda
   // el suyo: "El pedido ya fue respondido." o "Ese no es el paso siguiente del pedido.".
   yaCambio: 'El pedido ya cambió. Revisa cómo está.',

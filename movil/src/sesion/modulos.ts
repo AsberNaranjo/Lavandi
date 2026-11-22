@@ -7,6 +7,8 @@
 // H8; hasta entonces, como cualquier rol sin módulo, la app no abre su sesión.
 import type { Href } from 'expo-router';
 
+import { RUTA_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA } from '../pedidos-lavanderia/rutas';
+
 /**
  * Los módulos de la app, cada uno con el código de su rol en el catálogo de roles del servidor
  * (servidor/app/Models/Rol.php): la cuenta de usuario entra al Módulo A y la de socio lavandería al Módulo B.
@@ -29,5 +31,5 @@ export function moduloDelRol(rol: string | null | undefined): Modulo | null {
 /** La primera pantalla de cada módulo: el inicio del usuario (lavanderias-cercanas) y los pedidos de la lavandería. */
 export const INICIO_DEL_MODULO: Readonly<Record<Modulo, Href>> = {
   usuario: '/inicio',
-  lavanderia: '/lavanderia/pedidos',
+  lavanderia: RUTA_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA,
 };

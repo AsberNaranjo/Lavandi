@@ -6,13 +6,16 @@
 //
 // El pedido que espera respuesta se acepta desde su tarjeta (pedidos-lavanderia-E07): la tarjeta se bloquea mientras se
 // manda y se pone al día con la respuesta. Si el pedido ya fue respondido (409), el mensaje del servidor va arriba de la
-// lista y la lista se vuelve a consultar (pedidos-lavanderia-E08).
+// lista y la lista se vuelve a consultar (pedidos-lavanderia-E08). "Rechazar" abre el rechazo, que pide el motivo
+// (pedidos-lavanderia-E12 y E13).
 //
 // "Cerrar sesión" va abajo, con la confirmación de la app (registro-E13). La composición sigue las imágenes del Módulo B
 // de la Propuesta 04 (mocks/Lavandi - Propuesta 04/Lavandería/): el título a la izquierda y las tarjetas debajo.
+import { useRouter } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { mensajeDeLaFalla } from '../../../src/cercanas/textos';
+import { rutaDelRechazo } from '../../../src/pedidos-lavanderia/rutas';
 import { TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA as TEXTOS } from '../../../src/pedidos-lavanderia/textos';
 import { useAccionesDeLaLavanderia } from '../../../src/pedidos-lavanderia/useAccionesDeLaLavanderia';
 import { usePedidosDeLaLavanderia } from '../../../src/pedidos-lavanderia/usePedidosDeLaLavanderia';
@@ -26,6 +29,7 @@ import { letra } from '../../../src/tema/letra';
 import { color, espaciado, tipografia } from '../../../src/tema/theme';
 
 export default function PedidosDeLaLavanderia() {
+  const router = useRouter();
   const lista = usePedidosDeLaLavanderia();
   const { pedidos, falla } = lista;
   const acciones = useAccionesDeLaLavanderia(lista);
@@ -49,6 +53,7 @@ export default function PedidosDeLaLavanderia() {
           pedido={pedido}
           enviando={acciones.enviandoEl(pedido)}
           alAceptar={() => void acciones.aceptar(pedido)}
+          alRechazar={() => router.push(rutaDelRechazo(pedido.id_publico))}
         />
       ))}
       <MensajeDeError texto={mensajeDeLaLista && mensajeDeLaLista !== acciones.aviso ? mensajeDeLaLista : undefined} />

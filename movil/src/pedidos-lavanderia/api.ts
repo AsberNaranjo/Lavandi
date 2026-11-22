@@ -21,6 +21,9 @@ export const CONTRATO_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA = {
   pedido: 'pedido',
   /** POST <ruta>/<id_publico>/<aceptar>, sin cuerpo (pedidos-lavanderia-E07). */
   aceptar: 'aceptar',
+  /** POST <ruta>/<id_publico>/<rechazar>, con { "<motivo>": "…" }; 422 con errors.<motivo> (E12 y E13). */
+  rechazar: 'rechazar',
+  motivo: 'motivo',
 } as const;
 
 /** El estado operativo del pedido (ADR-0021 y su adenda), con el nombre que le da la app de la lavandería. */
@@ -78,6 +81,16 @@ export type ResultadoDeLaAccion = { ok: true; datos: PedidoDeLaLavanderia } | Fa
 /** POST de aceptar el pedido que espera respuesta, con la sesión (pedidos-lavanderia-E07). */
 export function aceptarPedido(token: string, idPublico: string): Promise<ResultadoDeLaAccion> {
   return mandarAccion(token, idPublico, CONTRATO_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA.aceptar);
+}
+
+/**
+ * POST de rechazar el pedido que espera respuesta, con su motivo, sin los espacios de las orillas (pedidos-lavanderia-E12).
+ * El servidor exige el motivo y su largo máximo vive en su configuración: lo que no acepta lo dice con 422 en el campo
+ * (pedidos-lavanderia-E13).
+ */
+export function rechazarPedido(token: string, idPublico: string, motivo: string): Promise<ResultadoDeLaAccion> {
+  const { rechazar, motivo: campo } = CONTRATO_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA;
+  return mandarAccion(token, idPublico, rechazar, { [campo]: motivo.trim() });
 }
 
 async function mandarAccion(

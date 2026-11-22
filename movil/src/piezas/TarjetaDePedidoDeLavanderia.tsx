@@ -2,7 +2,8 @@
 // canvas/PedidoLavanderia.dc.html), para los pedidos activos del Módulo B (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3,
 // Módulo B #2): arriba, "Pedido <folio>" y la insignia cuadrada de su estado operativo, con el nombre que le da el
 // servidor; debajo, la fecha y la ventana de recolección en la hora de la plaza y el servicio (pedidos-lavanderia-E03).
-// El pedido que espera respuesta ofrece Rechazar y Aceptar, con la nota de que el rechazo pide el motivo.
+// El pedido que espera respuesta ofrece Rechazar y Aceptar, con la nota de que el rechazo pide el motivo. Sin las dos
+// respuestas, como en la pantalla del rechazo, la tarjeta solo muestra el pedido.
 //
 // Del componente no entran: el monto y la calificación del pedido cerrado (historial-de-la-lavanderia, F-B04), ni el
 // peso (sin escenario). La tarjeta no tiene datos del usuario: la API no los manda (pedidos-lavanderia-E04, DD-022 y
@@ -58,16 +59,16 @@ export function TarjetaDePedidoDeLavanderia({ pedido, alAceptar, alRechazar, env
         />
       </View>
       <Text style={[estilos.suave, letra('cuerpo', 'regular')]}>{recoleccionYServicio(pedido)}</Text>
-      {porResponder ? (
+      {porResponder && alAceptar && alRechazar ? (
         <>
           <View style={estilos.respuestas}>
             <View>
-              <Boton variante="secundario" deshabilitado={enviando || !alRechazar} onPress={() => alRechazar?.()}>
+              <Boton variante="secundario" deshabilitado={enviando} onPress={alRechazar}>
                 {TEXTOS.rechazar}
               </Boton>
             </View>
             <View style={estilos.crece}>
-              <Boton ocupado={enviando} deshabilitado={!alAceptar} onPress={() => alAceptar?.()}>
+              <Boton ocupado={enviando} onPress={alAceptar}>
                 {TEXTOS.aceptar}
               </Boton>
             </View>
