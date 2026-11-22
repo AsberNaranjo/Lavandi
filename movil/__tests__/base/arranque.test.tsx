@@ -1,6 +1,7 @@
 // Spec: openspec/changes/base-tecnica/specs/base/spec.md, escenarios base-E04 y base-E09.
 // Desde ADR-0017 la app arranca con expo-router: el componente raíz es app/_layout.tsx, y la primera pantalla de una
 // app recién instalada y sin sesión es la bienvenida (bienvenida-E01).
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import * as SecureStore from 'expo-secure-store';
 import { renderRouter, screen, waitFor } from 'expo-router/testing-library';
@@ -50,9 +51,14 @@ describe('base: arranque de la app', () => {
     expect(await screen.findByText(NOMBRE_DE_PRUEBA)).toBeOnTheScreen();
   });
 
-  test('ADR-0017 — la entrada de la app es la de expo-router', () => {
+  // Desde avisos-E17, index.ts registra primero el manejador de los mensajes de Firebase con la app al fondo, y luego
+  // carga la entrada de expo-router, que monta las pantallas.
+  test('ADR-0017 — la entrada de la app es la de expo-router, después de lo que corre al arrancar', () => {
     const paquete = jest.requireActual<{ main?: string }>('../../package.json');
+    const entrada = readFileSync(path.resolve(__dirname, '..', '..', 'index.ts'), 'utf8');
+    const importados = [...entrada.matchAll(/^import '([^']+)';$/gm)].map(([, modulo]) => modulo);
 
-    expect(paquete.main).toBe('expo-router/entry');
+    expect(paquete.main).toBe('index.ts');
+    expect(importados.at(-1)).toBe('expo-router/entry');
   });
 });

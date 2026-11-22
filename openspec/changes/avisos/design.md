@@ -82,6 +82,102 @@ Las tomó Claude por delegación de Arthur (C-236) al implementar las tareas 0.1
 - Mientras tanto, las pruebas lo publican igual que lo harán ellos (`servidor/tests/Feature/Avisos/Soporte/CambiosDeEstadoDePrueba.php`).
 - La confirmación por el pago no lo publica: ya tiene `PedidoConfirmado`.
 
+## Decisiones de la implementación de la app
+
+Las tomó Claude por delegación de Arthur (C-236) al implementar las tareas 4.1 a 4.3, el 2026-11-22, en la rama
+`feat/avisos-y-publicacion-movil`. Ninguna sale del contrato ni de la spec.
+
+### 1. Firebase entra a la compilación solo con su archivo, y solo en Android
+
+- **La llave es el archivo.** `app.config.ts` lee `GOOGLE_SERVICES_JSON`, la ruta al `google-services.json` del proyecto
+  de Firebase del entorno (ADR-0012): en local, una ruta fuera del repositorio en el `.env`; en la nube, la variable de
+  archivo de EAS. Solo con ella entran `android.googleServicesFile`, el permiso `POST_NOTIFICATIONS` y
+  `extra.firebaseEnAndroid: true`. Sin ella, la configuración sale como antes y sin avisos en la salida de Expo
+  (avisos-E03, `movil/__tests__/avisos/telefono.test.ts`). Si la variable apunta a un archivo que no existe, la
+  configuración falla y lo dice: no se compila en silencio sin avisos.
+- **No se lista el complemento de `@react-native-firebase/app`.** En Android hace exactamente lo que Expo ya hace con
+  `android.googleServicesFile`: copiar el archivo a `android/app/` y aplicar el complemento de Gradle de Google. Su parte
+  de iPhone exige el `GoogleService-Info.plist` y agrega `FirebaseApp.configure()`, y con el archivo de Android solo
+  rompería una compilación de iPhone. Entra con la tarea 5.2.
+- **Tampoco el de `@react-native-firebase/messaging`.** Solo agrega el ícono y el color del aviso en Android, y sin ícono
+  deja una advertencia. Sin él, el aviso lleva el ícono de la app. **Pendiente:** el ícono de aviso, una silueta blanca,
+  cuando exista el ícono de la marca (`vault/marca/visual/icono-app/`).
+- **Los módulos nativos se enlazan solo si la compilación trae el archivo** (`movil/react-native.config.js` y
+  `movil/firebase-nativo.js`). Android los enlaza si su proyecto nativo tiene `android/app/google-services.json`, el que
+  copia Expo; se decide por el archivo y no por la variable porque el enlace corre dentro de Gradle, que no lee el `.env`.
+  Sin el archivo, el APK sale sin el código nativo de Firebase, que sin configuración cerraría la app en cuanto alguien
+  pidiera la mensajería (`getConstants()` llama a `FirebaseMessaging.getInstance()`). iPhone no los enlaza todavía: desde
+  la versión 27, Firebase en iPhone solo se instala con Swift Package Manager y frameworks dinámicos, y sin eso fallaría
+  la instalación de los pods. Eso también es de la tarea 5.2.
+- **Versión:** `@react-native-firebase/app` y `@react-native-firebase/messaging` 27.1.1, exactas, como dice ADR-0008
+  (grado E). La 27.1.1 salió el 2026-11-10 (`npm view`, 2026-11-22). Trae el SDK web de Firebase, que pide Node 24.12 o
+  mayor: con el Node 22 de la integración continua, `npm ci` lo advierte y no falla. La app no lo usa en el teléfono.
+
+### 2. La mensajería se carga diferida, como Google
+
+`src/avisos/firebase.ts` es el único lugar que la carga, con `require` y solo si `avisosDisponibles()`: fuera de Expo Go
+(`enExpoGo()`, C-240), en Android y con `extra.firebaseEnAndroid`. En Expo Go, en iPhone o en un APK sin el archivo, la
+app no la pide y sigue sin avisos (base-E11, `movil/__tests__/base/expo-go.test.tsx`).
+
+### 3. Cuándo se registra el teléfono
+
+- **Cada vez que se abre la sesión de una cuenta de usuario:** al iniciarla y al abrir la app con ella. El registro es
+  idempotente (204) y así se repone un token que la api borró o que no llegó por falta de conexión.
+- **Solo con el permiso concedido** (avisos-E03), y cada vez que Firebase renueva el token.
+- **Solo la cuenta de usuario.** La api solo registra teléfonos de usuarios, y los avisos a los socios esperan DD-054.
+- **Si algo falla,** Firebase sin token o la api sin conexión, la app sigue sin error y lo vuelve a intentar en la
+  siguiente apertura o renovación.
+
+### 4. Al cerrar la sesión, la app manda el token que registró
+
+El contrato de la api ya lo pedía (avisos-E05): `DELETE /api/sesion` lleva `{ "token_fcm": … }` con el token que la app
+registró con esa sesión, y sin cuerpo si no registró ninguno. La app deja de escuchar las renovaciones del token.
+
+### 5. El manejador de segundo plano y la entrada propia
+
+`@react-native-firebase/messaging` pide registrar el manejador de los mensajes con la app al fondo o cerrada fuera de las
+pantallas y antes de montarlas. Por eso la entrada de la app pasa de `expo-router/entry` a `movil/index.ts`, que importa
+primero `src/avisos/arranque.ts` y después `expo-router/entry`, la forma que documenta expo-router. La prueba de ADR-0017
+se ajustó a eso. El manejador no hace nada: el sistema muestra solo el aviso visible de un momento, y al volver la app al
+frente el seguimiento consulta de inmediato (ADR-0007).
+
+### 6. Dónde y cuándo se pide el permiso (cierra la pregunta abierta de la pantalla)
+
+- **Al abrirse la sesión de una cuenta de usuario que nunca respondió,** con la petición del sistema y sin pantalla
+  propia (avisos-E07, `src/avisos/permiso.ts`). Es lo mínimo que cumple el escenario. La pantalla "Activa los avisos" del
+  mock A17 es una explicación previa que el contrato no pide; si se quiere, entra como escenario nuevo.
+- **No choca con el permiso de ubicación:** la pantalla principal no lo pide sola, solo al tocar "Continuar"
+  (cercanas-E03), y Android no deja tocar nada con la petición de avisos abierta.
+- **Una sola vez.** Android no distingue "nunca respondió" de "lo negó", así que la app anota en el almacenamiento del
+  teléfono, cuando la persona contesta, que ya le mostró la petición (`avisos.permiso-pedido`); si la petición no llegó a
+  mostrarse, sigue sin responder. Android borra la nota al desinstalar. Si la persona la niega, la app no la vuelve a
+  mostrar sola: la sección de notificaciones del perfil ofrece activarlos (perfil-usuario-E08).
+- **Android 12 o anterior no tiene petición:** los avisos vienen permitidos, y solo se apagan en los ajustes.
+- **Android pide con `PermissionsAndroid`** de React Native, sin dependencias nuevas, porque
+  `requestPermission()` de `@react-native-firebase/messaging` contesta que sí en Android sin preguntar. **iPhone pide con
+  la librería de Firebase:** `requestPermission()` y `hasPermission()`, que la versión 27 marca como obsoletos a favor
+  de `expo-notifications` o `react-native-permissions`. No se agregó ninguno de los dos: serían una dependencia nativa
+  más solo para el permiso, y `expo-notifications` trae además su propio servicio de mensajes en Android, que compite
+  con el de Firebase por los mismos mensajes. Ese camino de iPhone corre con la tarea 5.2.
+- **Si la petición falla,** la app sigue sin avisos y sin error (avisos-E08).
+
+### 7. El mensaje de cambio de estado adelanta la consulta del seguimiento abierto
+
+- Con la sesión del usuario, la app escucha los mensajes que llegan con ella al frente (`onMessage`). El que trae
+  `data.tipo = "cambio_de_estado"` se entrega al seguimiento abierto de ese pedido (`src/avisos/cambiosDeEstado.ts`), que
+  consulta `GET /api/pedidos/{id_publico}` de inmediato con el "consultar de nuevo" de la consulta periódica, y vuelve a
+  contar los 30 segundos desde ahí (avisos-E15). El aviso visible de un momento trae los mismos datos y hace lo mismo.
+- La app no toma el estado del mensaje: lo pide a la api, que es la que lo sabe. Un mensaje de otro pedido, o que no es
+  de cambio de estado, no hace nada.
+- Con la app al frente, Android no muestra el aviso visible de un momento: lo entrega a la app. El seguimiento abierto
+  lo refleja al instante; mostrar además un aviso dentro de la app no lo pide ningún escenario.
+
+### Lo que no se comprobó en un teléfono
+
+- La captura del aviso en Android (avisos-E17) espera las llaves de Firebase (DD-072).
+- El diálogo real del permiso en Android 13 o superior: con el APK sin el archivo de Firebase no se pide, porque sin
+  avisos no hay qué permitir.
+
 ## Contrato de la API para la app
 
 Las dos rutas llevan sesión y pasan por el componente de autorización (`auth:sanctum` y `autorizar:usuario`):
@@ -187,4 +283,6 @@ Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cam
 - **El mensaje de cambio de estado sin aviso visible.** ADR-0008 separa los avisos "al usuario, en los momentos" del mensaje "al cambiar de estado, para el refresco". Este cambio lee que, en los cambios que no son momento, el mensaje no se muestra como aviso. Conviene asentarlo en ADR-0008.
   - **Implementada así** (punto 3): un solo mensaje por cambio, visible solo en los momentos. Sigue faltando asentarlo en ADR-0008.
 - **En qué pantalla se pide el permiso.** El mock A17 lo explica con una pantalla propia; el contrato no lo dice. Es decisión de pantalla de Arthur.
+  - **Resuelta en la implementación de la app, por delegación (C-236):** sin pantalla propia, con la petición del
+    sistema al abrirse la sesión del usuario que nunca respondió ("Decisiones de la implementación de la app", punto 6).
 - **Quién escribe y aprueba los textos de los avisos** (BR-24): fila propuesta en el reporte.

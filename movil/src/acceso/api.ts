@@ -47,9 +47,17 @@ export function consultarCuentaConEstado(token: string): Promise<ResultadoConEst
   return pedirConEstado<{ usuario: Usuario }>('cuenta', { metodo: 'GET', token });
 }
 
-/** DELETE /sesion: el servidor revoca el token (registro-E12 y E13). */
-export function cerrarSesionEnServidor(token: string): Promise<Resultado<void>> {
-  return pedir<void>('sesion', { metodo: 'DELETE', token });
+/**
+ * DELETE /sesion: el servidor revoca el token (registro-E12 y E13). Con el token de Firebase que la app registró con la
+ * sesión, el servidor además lo borra, y los avisos de la cuenta ya no van a ese teléfono (avisos-E05). Sin él, solo
+ * cierra la sesión: es el teléfono sin permiso de avisos.
+ */
+export function cerrarSesionEnServidor(token: string, tokenDelTelefono?: string): Promise<Resultado<void>> {
+  return pedir<void>('sesion', {
+    metodo: 'DELETE',
+    token,
+    ...(tokenDelTelefono ? { cuerpo: { token_fcm: tokenDelTelefono } } : {}),
+  });
 }
 
 /** POST /sesion/google: el servidor valida el idToken y abre la sesión (registro-E16 y E19). */
