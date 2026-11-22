@@ -51,6 +51,8 @@ class Pedido extends Modelo
             'comision_porcentaje' => 'decimal:2',
             'confirmado_en' => 'immutable_datetime',
             'cancelado_en' => 'immutable_datetime',
+            // No es columna: la trae entregados(), de pedido_eventos.
+            'entregado_en' => 'immutable_datetime',
         ];
     }
 
@@ -82,6 +84,35 @@ class Pedido extends Modelo
             EstadoPedido::LISTO,
             EstadoPedido::EN_ENTREGA,
         ]));
+    }
+
+    /**
+     * Los pedidos completados: los que están en Entregado, el último de los cinco estados (Módulo A #12), con el instante
+     * de su paso a Entregado en entregado_en, leído de su historial en pedido_eventos
+     * (openspec/changes/historial-de-la-lavanderia/design.md, decisión 1). Entregado no tiene salida (ADR-0021).
+     *
+     * @param  Builder<Pedido>  $consulta
+     */
+    public function scopeEntregados(Builder $consulta): void
+    {
+        $consulta->whereHas('estado', fn (Builder $estado) => $estado->where('codigo', EstadoPedido::ENTREGADO))
+            ->addSelect([
+                'entregado_en' => PedidoEvento::query()
+                    ->selectRaw('max(pedido_eventos.ocurrido_en)')
+                    ->whereColumn('pedido_eventos.id_pedidos', $consulta->qualifyColumn('id_pedidos'))
+                    ->whereHas('estado', fn (Builder $estado) => $estado->where('codigo', EstadoPedido::ENTREGADO)),
+            ]);
+    }
+
+    /**
+     * De la entrega más reciente a la más antigua; con la misma, del pedido más nuevo al más viejo. Va después de
+     * entregados(), que trae entregado_en.
+     *
+     * @param  Builder<Pedido>  $consulta
+     */
+    public function scopeDeLaEntregaMasReciente(Builder $consulta): void
+    {
+        $consulta->orderByDesc('entregado_en')->orderByDesc($consulta->qualifyColumn('id_pedidos'));
     }
 
     /**

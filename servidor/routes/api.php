@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CatalogoDelTerritorioController;
 use App\Http\Controllers\Api\CuentaController;
 use App\Http\Controllers\Api\DireccionesController;
 use App\Http\Controllers\Api\DispositivosController;
+use App\Http\Controllers\Api\HistorialDeLaLavanderiaController;
 use App\Http\Controllers\Api\LavanderiaDelSocioController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
 use App\Http\Controllers\Api\PedidosController;
@@ -133,4 +134,6 @@ Route::middleware(['auth:sanctum', 'autorizar:lavanderia'])->prefix('lavanderia'
     // Los botones Recolectado, En proceso, Listo y En proceso de entrega (estados-del-pedido).
     Route::post('pedidos/{pedido}/estado', [PedidosDeLaLavanderiaController::class, 'marcar'])
         ->name('lavanderia.pedidos.estado');
+    // Sus pedidos completados (historial-de-la-lavanderia). El contrato está en el controlador.
+    Route::get('historial', [HistorialDeLaLavanderiaController::class, 'historial'])->name('lavanderia.historial');
 });
