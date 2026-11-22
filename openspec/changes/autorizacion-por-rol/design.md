@@ -142,6 +142,18 @@ un servicio externo, ni decide una fila abierta.
 - **E13 junta las dos plazas** en el componente (`*DelPanel()`), en las listas del panel, en el monitoreo y en la ficha
   del usuario; el detalle de cada pantalla lo prueban `alta-de-lavanderias`, `repartidor` y `administracion`.
 
+### El barrido contra fugas en la integración continua (tarea 4.1)
+
+- **Cada rol entra con la cuenta de la cadena UnoA,** y la administración con la suya, y pide lo de las otras tres
+  cadenas. Lo ajeno depende del rol: al usuario, el perfil de las lavanderías es público y la otra plaza no le es ajena
+  (E08); a los socios, una lavandería ajena y la otra plaza sí lo son (E12); a la administración, que no tiene módulo en
+  la app, todo lo de la app le es ajeno.
+- **Corre en su propio paso** de `.github/workflows/ci.yml`, "Barrido contra fugas", con las pruebas del grupo
+  `barrido-contra-fugas` de PHPUnit: `CoberturaDeReglasTest` (E01) y `BarridoContraFugasTest` (E14). El paso "Tests"
+  corre las demás con `--exclude-group`, así que no se repiten. En local, `php artisan test` corre todas.
+  Recomendación de Claude: el paso propio, para que una fuga o una ruta sin regla se vea sola en la integración
+  continua, y no entre las casi mil pruebas.
+
 ## Risks / Trade-offs
 
 - [Una ruta nueva sin regla expone datos] → autorizacion-E01 y autorizacion-E14 corren en cada pull request.

@@ -24,7 +24,7 @@ fijado.
 
 ## 4. Barrido contra fugas
 
-- [ ] 4.1 autorizacion-E14: sembrado de dos plazas y barrido de todas las rutas con la sesión de cada rol, en la integración continua — test: `servidor/tests/Feature/Autorizacion/BarridoContraFugasTest.php` — tamaño M
+- [x] 4.1 autorizacion-E14: sembrado de dos plazas y barrido de todas las rutas con la sesión de cada rol, en la integración continua — test: `servidor/tests/Feature/Autorizacion/BarridoContraFugasTest.php` — tamaño M. Con el sembrado de dos plazas (cuatro cadenas que no se cruzan) y el barrido de tests/Feature/Autorizacion/Soporte/BarridoDeRutas.php: la sesión del usuario, de la lavandería, del repartidor y de la administración recorre todas las rutas de la API pidiendo, en la ruta y en el cuerpo, los pedidos, las direcciones y las lavanderías de las otras cadenas, y ninguna respuesta trae un dato ajeno; una ruta de prueba con fuga hace fallar el barrido, que nombra la ruta, el rol y el dato. No encontró fugas. Su rojo se comprobó quitando la tenencia de los pedidos de la lavandería: nombró 84 fugas. Corre en su propio paso de .github/workflows/ci.yml, "Barrido contra fugas", con el grupo barrido-contra-fugas, junto con autorizacion-E01
 
 ## 5. Bloqueados: no tienen tarea hasta que cierre su fila
 
