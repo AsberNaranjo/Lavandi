@@ -3,6 +3,7 @@
 namespace Tests\Feature\Direcciones;
 
 use App\Models\Colonia;
+use App\Models\Rol;
 use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -202,5 +203,25 @@ class CatalogoTest extends TestCase
     private function colonias(string $codigoPostal): string
     {
         return "/api/codigos-postales/{$codigoPostal}/colonias";
+    }
+
+    #[TestDox('alta-lavanderias-E01: la cuenta de una lavandería consulta el catálogo para registrar su dirección; la administración no')]
+    public function test_alta_lavanderias_e01_la_lavanderia_consulta_el_catalogo(): void
+    {
+        CatalogoDePrueba::territorio();
+        $lavanderia = Usuario::factory()->conRol(Rol::LAVANDERIA)->create();
+        $token = $lavanderia->createToken('app')->plainTextToken;
+
+        $this->withToken($token)->getJson('/api/catalogos/municipios')
+            ->assertOk()
+            ->assertJsonPath('municipios.0.codigo', CatalogoDePrueba::MATAMOROS);
+        $this->app['auth']->forgetGuards();
+        $this->withToken($token)->getJson('/api/codigos-postales/34000/colonias')->assertOk();
+
+        $this->app['auth']->forgetGuards();
+        $administracion = Usuario::factory()->conRol(Rol::ADMINISTRACION)->create();
+        $this->withToken($administracion->createToken('app')->plainTextToken)
+            ->getJson('/api/catalogos/municipios')
+            ->assertForbidden();
     }
 }

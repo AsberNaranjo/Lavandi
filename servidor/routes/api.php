@@ -45,6 +45,14 @@ Route::post('contrasena/olvido', RecuperacionController::class)
 Route::middleware(['auth:sanctum', 'autorizar:usuario,lavanderia'])->group(function () {
     Route::get('cuenta', CuentaController::class)->name('cuenta');
     Route::delete('sesion', [SesionController::class, 'cerrar'])->name('sesion.cerrar');
+
+    // El catálogo del territorio para la dirección asistida (direcciones, C-238): la del usuario y la de la lavandería
+    // que se registra (alta-lavanderias-E01). El contrato está en el controlador.
+    // Sin where en el código postal a propósito: uno que no son cinco números responde 422, no 404 (direcciones-E20).
+    Route::get('catalogos/municipios', [CatalogoDelTerritorioController::class, 'municipios'])
+        ->name('catalogos.municipios');
+    Route::get('codigos-postales/{codigo_postal}/colonias', [CatalogoDelTerritorioController::class, 'colonias'])
+        ->name('codigos-postales.colonias');
 });
 
 Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
@@ -71,13 +79,6 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
     Route::get('direcciones/{direccion}', [DireccionesController::class, 'mostrar'])
         ->whereUlid('direccion')
         ->name('direcciones.mostrar');
-
-    // El catálogo del territorio para la dirección asistida (direcciones, C-238). El contrato está en el controlador.
-    // Sin where en el código postal a propósito: uno que no son cinco números responde 422, no 404 (direcciones-E20).
-    Route::get('catalogos/municipios', [CatalogoDelTerritorioController::class, 'municipios'])
-        ->name('catalogos.municipios');
-    Route::get('codigos-postales/{codigo_postal}/colonias', [CatalogoDelTerritorioController::class, 'colonias'])
-        ->name('codigos-postales.colonias');
 
     // Los pedidos de la cuenta (resumen-y-confirmacion). El contrato está en el controlador. Ninguna ruta confirma un
     // pedido: lo confirma el cobro cuando la pasarela confirma el pago (C-188; confirmacion-E07).
