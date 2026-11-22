@@ -1,7 +1,7 @@
 // Cliente de la API de acceso: registro, sesión, Google y recuperación de la contraseña
 // (openspec/changes/registro-e-inicio-de-sesion). Toda consulta sale de la dirección base del entorno (base-E07).
 // Ninguna función lanza: cada una devuelve un Resultado que la pantalla lee.
-import { pedir, type Resultado } from '../configuracion/api';
+import { pedir, pedirConEstado, type Resultado, type ResultadoConEstado } from '../configuracion/api';
 
 export type { ErroresPorCampo, Falla, Resultado } from '../configuracion/api';
 
@@ -9,7 +9,8 @@ export type { ErroresPorCampo, Falla, Resultado } from '../configuracion/api';
 export interface Usuario {
   id_publico: string;
   correo: string;
-  rol: string;
+  /** El rol de la cuenta, que dice a qué módulo de la app entra (registro-E33): "usuario", "lavanderia"… */
+  rol: string | null;
 }
 
 /** Lo que devuelven el registro, el inicio de sesión y Google. */
@@ -34,8 +35,16 @@ export function iniciarSesion(credenciales: Credenciales): Promise<Resultado<Ses
 }
 
 /** GET /cuenta: la propia cuenta, con el token (registro-E10 y E11). */
-export function consultarCuenta(token: string): Promise<Resultado<{ usuario: Usuario }>> {
-  return pedir<{ usuario: Usuario }>('cuenta', { metodo: 'GET', token });
+export async function consultarCuenta(token: string): Promise<Resultado<{ usuario: Usuario }>> {
+  return (await consultarCuentaConEstado(token)).resultado;
+}
+
+/**
+ * GET /cuenta, con el código HTTP de la respuesta: el 403 dice que la cuenta no tiene acceso a la app, como la de
+ * administración, que entra por el panel (registro-E33).
+ */
+export function consultarCuentaConEstado(token: string): Promise<ResultadoConEstado<{ usuario: Usuario }>> {
+  return pedirConEstado<{ usuario: Usuario }>('cuenta', { metodo: 'GET', token });
 }
 
 /** DELETE /sesion: el servidor revoca el token (registro-E12 y E13). */

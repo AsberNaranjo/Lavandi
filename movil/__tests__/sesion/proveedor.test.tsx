@@ -102,7 +102,7 @@ describe('ADR-0018: la sesión de la app sale del almacenamiento cifrado', () =>
   test('registro-E04 y registro-E09 (en parte) — iniciar guarda el token y abre la sesión', async () => {
     const { result } = await montar();
 
-    await act(() => result.current.iniciar('token-nuevo'));
+    await act(() => result.current.iniciar('token-nuevo', 'usuario'));
 
     expect(result.current.estado).toBe('con-sesion');
     expect(result.current.token).toBe('token-nuevo');

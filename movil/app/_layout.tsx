@@ -9,6 +9,11 @@
 // entre la bienvenida y el inicio de sesión (bienvenida-E01, E02 y E04; C-237).
 // Mientras se lee la sesión no se muestra ninguna pantalla. La bienvenida y las informativas no dependen de la sesión.
 //
+// Con sesión, las pantallas se ven además según el módulo de la cuenta, por su rol (registro-E33): las del usuario, solo
+// con una cuenta de usuario; las de la lavandería (pedidos-de-la-lavanderia y estados-del-pedido, en app/lavanderia/),
+// solo con una de socio lavandería. Las de un módulo que no es el suyo, y las de la entrada con la sesión abierta, llevan
+// al arranque, que abre la primera del módulo de la cuenta.
+//
 // Tampoco se muestra ninguna mientras carga la letra de la marca (adenda del 2026-11-21 de ADR-0013): la carga empieza
 // junto con la lectura de la sesión, y si falla, la app sigue con la letra del sistema.
 import { Stack } from 'expo-router';
@@ -30,7 +35,7 @@ export default function Raiz() {
 }
 
 function Pantallas({ letraLista }: { letraLista: boolean }) {
-  const { estado } = useSesion();
+  const { estado, modulo } = useSesion();
 
   // Hasta saber si hay sesión no se muestra ninguna pantalla, ni el inicio sin sesión ni el inicio de sesión con ella
   // (registro-E11): solo el fondo de la app.
@@ -45,7 +50,7 @@ function Pantallas({ letraLista }: { letraLista: boolean }) {
 
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: estilos.fondo }}>
-      <Stack.Protected guard={conSesion} redirectTo="/">
+      <Stack.Protected guard={modulo === 'usuario'} redirectTo="/">
         <Stack.Screen name="inicio" />
         <Stack.Screen name="lavanderias/index" />
         <Stack.Screen name="lavanderias/[id]" />
@@ -61,7 +66,10 @@ function Pantallas({ letraLista }: { letraLista: boolean }) {
         <Stack.Screen name="ayuda" />
         <Stack.Screen name="pedidos/index" />
       </Stack.Protected>
-      <Stack.Protected guard={!conSesion} redirectTo="/inicio">
+      <Stack.Protected guard={modulo === 'lavanderia'} redirectTo="/">
+        <Stack.Screen name="lavanderia" />
+      </Stack.Protected>
+      <Stack.Protected guard={!conSesion} redirectTo="/">
         <Stack.Screen name="registro" />
         <Stack.Screen name="inicio-de-sesion" />
         <Stack.Screen name="recuperar-contrasena" />

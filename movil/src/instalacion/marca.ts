@@ -5,7 +5,7 @@
 import { File, Paths } from 'expo-file-system';
 
 import { borrarMarcaDeBienvenida } from '../bienvenida/almacen';
-import { borrarToken } from '../sesion/almacen';
+import { borrarRol, borrarToken } from '../sesion/almacen';
 
 const NOMBRE_DE_LA_MARCA = 'instalacion';
 
@@ -23,6 +23,7 @@ async function comprobar(): Promise<void> {
 
   try {
     await borrarToken();
+    await borrarRol();
     await borrarMarcaDeBienvenida();
   } catch {
     // No se escribe la marca: el siguiente arranque lo vuelve a intentar.
@@ -40,8 +41,8 @@ async function comprobar(): Promise<void> {
 let enCurso: Promise<void> | null = null;
 
 /**
- * Comprueba si esta es la primera apertura de la instalación. Si lo es, borra del almacén cifrado el token y la marca
- * de la bienvenida, y luego escribe la marca de instalación. Se llama antes de leer la sesión o la marca de la
+ * Comprueba si esta es la primera apertura de la instalación. Si lo es, borra del almacén cifrado el token, su rol y la
+ * marca de la bienvenida, y luego escribe la marca de instalación. Se llama antes de leer la sesión o la marca de la
  * bienvenida. Nunca falla: si algo no se puede leer o escribir, la app sigue.
  */
 export function comprobarInstalacion(): Promise<void> {
