@@ -14,7 +14,7 @@
 
 ## 3. Servidor: quién mueve y quién consulta
 
-- [ ] 3.1 estados-E07, estados-E08, estados-E09 y estados-E10: reglas en el componente de autorización: otra lavandería, de su plaza o de otra, el usuario y un pedido no aceptado o rechazado no se mueven; un usuario no consulta el pedido de otro — test: `servidor/tests/Feature/Estados/QuienMueveElPedidoTest.php` — tamaño S
+- [x] 3.1 estados-E07, estados-E08, estados-E09 y estados-E10: reglas en el componente de autorización: otra lavandería, de su plaza o de otra, el usuario y un pedido no aceptado o rechazado no se mueven; un usuario no consulta el pedido de otro — test: `servidor/tests/Feature/Estados/QuienMueveElPedidoTest.php` — tamaño S. Otra lavandería (E07) y el usuario que no consulta el pedido de otro (E10) los decide el componente de autorización; el usuario (E08), su rol en el mismo componente. El pedido no aceptado o rechazado (E09) lo rechaza la tabla de App\Pedidos\CambioDeEstado (ADR-0021, decisión 4), porque la tenencia es la misma y lo que cambia es el estado. Las reglas nacieron con las tareas 1.2 de pedidos-de-la-lavanderia y 2.1: la prueba pasó desde su primera corrida, y su rojo se comprobó con una mutación por regla
 - [x] 3.2 estados-E23: un pedido con `confirmado_en` vacío no se le devuelve a la lavandería ni lo puede mover (C-188) — test: `servidor/tests/Feature/Estados/SinPagoTest.php` — tamaño S. La consulta es GET /api/lavanderia/pedidos/{id_publico}, que nace aquí. Que no lo mueva ya lo cumplía la regla de pedidos-de-la-lavanderia (tarea 1.2): esa prueba pasó desde su primera corrida
 
 ## 4. App: el seguimiento del usuario
