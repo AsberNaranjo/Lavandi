@@ -71,6 +71,14 @@ Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cam
 - **Sin trigger:** `impedir_cambio()` es solo para `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`. Si una
   calificación se puede cambiar es BR-25 (historial-E10).
 - **Prueba de esquema:** la migración pasa la de `modelo-de-datos` (modelo-E01 a modelo-E17).
+- **Cómo quedó (tarea 0.1, 2026-11-22):** `perfil-de-lavanderia` ya había traído `id_lavanderias` opcional, el `CHECK`
+  de exactamente uno y los dos únicos, así que no se repiten (Risks). La migración
+  `servidor/database/migrations/2026_11_24_100000_completar_calificaciones.php` agrega solo la llave compuesta
+  `(id_pedidos, id_plazas)` hacia `pedidos`, con su índice y `ON DELETE RESTRICT`. `id_pedidos` sigue opcional: las
+  calificaciones de prueba del perfil de la lavandería (`LavanderiasDePruebaSeeder`) no tienen pedido, y con la columna
+  vacía la llave no se revisa. El modelo `Calificacion` llega a su pedido (`pedido()`) y `Pedido` a sus calificaciones
+  (`calificaciones()`). La prueba de `perfil-de-lavanderia` que usaba un `id_pedidos` inventado ahora crea el pedido
+  (`servidor/tests/Feature/PerfilLavanderia/MigracionTest.php`, modelo-E07).
 
 **Tablas de otros cambios que este usa:**
 

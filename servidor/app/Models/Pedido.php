@@ -300,4 +300,15 @@ class Pedido extends Modelo
     {
         return $this->hasMany(PedidoEvento::class, 'id_pedidos');
     }
+
+    /**
+     * Las calificaciones del pedido, una por calificado: la de su lavandería y, si DD-052 lo pide, la de su repartidor
+     * (historial-E13).
+     *
+     * @return HasMany<Calificacion, $this>
+     */
+    public function calificaciones(): HasMany
+    {
+        return $this->hasMany(Calificacion::class, 'id_pedidos');
+    }
 }
