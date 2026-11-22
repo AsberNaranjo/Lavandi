@@ -287,6 +287,31 @@ export function marcarPasoDelRepartidor(
   return mandarAccion(rutaDeLaAccion(idPublico, estado), { metodo: 'POST', token, cuerpo: { [estado]: paso.estado } });
 }
 
+/** El estado del botón Entregado, el único que lleva la foto de evidencia (repartidor-E23). */
+export const ESTADO_ENTREGADO = 'entregado';
+
+/**
+ * POST de Entregado con la foto de evidencia, si la hay (repartidor-E23): con foto, en multipart, estado y foto juntos,
+ * y el servidor la guarda en el almacenamiento privado, ligada al pedido y sin URL pública; sin foto, en JSON, como los
+ * demás botones. Si la evidencia es obligatoria espera BR-29 y DD-110 (repartidor-E24). Lo que el servidor no acepta de
+ * la foto lo dice con 422 en el campo, y entonces no guarda nada.
+ */
+export function entregarPedidoDelRepartidor(
+  token: string,
+  idPublico: string,
+  foto: { uri: string } | null,
+): Promise<ResultadoDelRepartidor<PedidoDelRepartidor>> {
+  if (!foto) {
+    return marcarPasoDelRepartidor(token, idPublico, { estado: ESTADO_ENTREGADO });
+  }
+  const { estado, foto: campoDeLaFoto, nombreDeLaFoto, tipoDeLaFoto } = CONTRATO_DEL_REPARTIDOR;
+  const formulario = new FormData();
+  formulario.append(estado, ESTADO_ENTREGADO);
+  // React Native lee la foto del teléfono por su dirección; el tipo de FormData de la web no lo describe.
+  formulario.append(campoDeLaFoto, { uri: foto.uri, name: nombreDeLaFoto, type: tipoDeLaFoto } as unknown as Blob);
+  return mandarAccion(rutaDeLaAccion(idPublico, estado), { metodo: 'POST', token, formulario });
+}
+
 function rutaDeLaAccion(idPublico: string, accion: string): string {
   return `${CONTRATO_DEL_REPARTIDOR.pedidos}/${encodeURIComponent(idPublico)}/${accion}`;
 }

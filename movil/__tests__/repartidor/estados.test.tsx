@@ -76,9 +76,15 @@ async function tocar(pedido: DatosDelPedido, boton: string) {
   await fireEvent.press(tarjeta(pedido).getByRole('button', { name: boton }));
 }
 
-/** Marca Entregado desde la tarjeta. */
+/**
+ * Marca Entregado: el botón de la tarjeta abre la entrega, que deja tomar la foto de evidencia (repartidor-E23, tarea
+ * 2.5); aquí se marca sin foto, que el servidor acepta mientras BR-29 y DD-110 no digan otra cosa (repartidor-E24).
+ */
 async function marcarEntregado(pedido: DatosDelPedido) {
   await tocar(pedido, 'Entregado');
+  await waitFor(() => expect(screen).toHavePathname(`${RUTA_DE_LOS_PEDIDOS}/entrega/${pedido.id_publico}`));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Marcar entregado' }));
+  await waitFor(() => expect(screen).toHavePathname(RUTA_DE_LOS_PEDIDOS));
 }
 
 describe('repartidor-E19: el repartidor avanza el pedido en orden', () => {

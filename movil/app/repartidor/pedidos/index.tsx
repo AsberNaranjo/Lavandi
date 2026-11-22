@@ -10,7 +10,8 @@
 // y se pone al día con la respuesta. "Rechazar" abre el rechazo, que pide el motivo (repartidor-E16 y E17). El pedido
 // aceptado ofrece solo el botón de su paso siguiente, que se manda igual que Aceptar (repartidor-E19); si ya no es el
 // paso siguiente o la oferta ya se respondió (409), el mensaje del servidor va arriba de la lista y la lista se vuelve a
-// consultar (repartidor-E20).
+// consultar (repartidor-E20). "Entregado" no se manda desde la tarjeta: abre la entrega, que deja tomar la foto de
+// evidencia antes de marcarlo (repartidor-E23).
 //
 // "Cerrar sesión" va abajo, con la confirmación de la app (registro-E13). La composición sigue la imagen c02-asignados
 // de la Propuesta 04: el título a la izquierda y las tarjetas debajo.
@@ -22,7 +23,8 @@ import { Pantalla } from '../../../src/piezas/Pantalla';
 import { Parrafo } from '../../../src/piezas/Parrafo';
 import { TarjetaDePedidoDeRepartidor } from '../../../src/piezas/TarjetaDePedidoDeRepartidor';
 import { Titulo } from '../../../src/piezas/Titulo';
-import { rutaDelRechazoDelRepartidor } from '../../../src/repartidor/rutas';
+import { ESTADO_ENTREGADO } from '../../../src/repartidor/api';
+import { rutaDeLaEntrega, rutaDelRechazoDelRepartidor } from '../../../src/repartidor/rutas';
 import { mensajeDelRepartidor, TEXTOS_DEL_REPARTIDOR as TEXTOS } from '../../../src/repartidor/textos';
 import { useAccionesDelRepartidor } from '../../../src/repartidor/useAccionesDelRepartidor';
 import { usePedidosDelRepartidor } from '../../../src/repartidor/usePedidosDelRepartidor';
@@ -56,7 +58,11 @@ export default function PedidosDelRepartidor() {
           enviando={acciones.enviandoEl(pedido)}
           alAceptar={() => void acciones.aceptar(pedido)}
           alRechazar={() => router.push(rutaDelRechazoDelRepartidor(pedido.id_publico))}
-          alAvanzar={() => void acciones.avanzar(pedido)}
+          alAvanzar={() =>
+            pedido.siguiente?.estado === ESTADO_ENTREGADO
+              ? router.push(rutaDeLaEntrega(pedido.id_publico))
+              : void acciones.avanzar(pedido)
+          }
         />
       ))}
       <MensajeDeError texto={mensajeDeLaLista && mensajeDeLaLista !== acciones.aviso ? mensajeDeLaLista : undefined} />

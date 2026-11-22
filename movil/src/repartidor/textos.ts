@@ -64,6 +64,14 @@ export const TEXTOS_DEL_REPARTIDOR = {
   motivo: TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA.motivo,
   rechazarPedido: TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA.rechazarPedido,
   escribeElMotivo: TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA.escribeElMotivo,
+  // La entrega con la foto de evidencia (repartidor-E23), con la composición del rechazo. La foto solo se toma con la
+  // cámara. Sin escenario propio: sin permiso de la cámara, el permiso se da en los ajustes del teléfono.
+  tituloDeLaEntrega: 'Entregar pedido',
+  paraLaEvidencia: 'Toma una foto de la entrega como evidencia.',
+  fotoDeEvidencia: 'Foto de evidencia',
+  laFotoDeLaEvidencia: 'La foto de la evidencia',
+  sinPermisoParaLaEvidencia: 'Sin permiso de la cámara no podemos tomar la foto. Puedes darlo en los ajustes del teléfono.',
+  marcarEntregado: 'Marcar entregado',
   // El 409 sin mensaje del servidor: el pedido ya cambió. El servidor manda el suyo: "La oferta ya fue respondida.",
   // "Primero acepta el pedido." o "Ese no es el paso siguiente del pedido.".
   yaCambio: 'El pedido ya cambió. Revisa cómo está.',

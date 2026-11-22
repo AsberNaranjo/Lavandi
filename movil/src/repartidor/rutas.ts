@@ -13,6 +13,11 @@ export const RUTA_DE_LA_ESPERA_DEL_REPARTIDOR: Href = '/repartidor/espera';
 /** Sus pedidos asignados, la primera pantalla del módulo. */
 export const RUTA_DE_LOS_PEDIDOS_DEL_REPARTIDOR: Href = '/repartidor/pedidos';
 
+/** La entrega de un pedido, con su foto de evidencia (repartidor-E23). */
+export function rutaDeLaEntrega(idPublico: string): Href {
+  return { pathname: '/repartidor/pedidos/entrega/[id]', params: { id: idPublico } };
+}
+
 /** El rechazo de un pedido asignado, con su motivo obligatorio (repartidor-E16 y E17). */
 export function rutaDelRechazoDelRepartidor(idPublico: string): Href {
   return { pathname: '/repartidor/pedidos/rechazo/[id]', params: { id: idPublico } };
