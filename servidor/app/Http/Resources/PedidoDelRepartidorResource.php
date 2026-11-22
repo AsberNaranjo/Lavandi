@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\EstadoPedido;
+use App\Models\Evidencia;
 use App\Models\Pedido;
 use App\Models\PedidoAsignacion;
 use App\Models\PedidoDireccion;
@@ -57,6 +58,7 @@ class PedidoDelRepartidorResource extends JsonResource
             'plaza',
             'estado',
             'lavanderia',
+            'evidencias' => fn (HasMany $evidencias) => $evidencias->orderBy('id_evidencias'),
             'direcciones' => fn (HasMany $direcciones) => $direcciones->conCoordenadas(),
             'asignaciones' => fn (HasMany $asignaciones) => $asignaciones
                 ->where('id_repartidores', $repartidor->getKey())
@@ -165,6 +167,11 @@ class PedidoDelRepartidorResource extends JsonResource
                 'colonia' => $this->lavanderia->colonia,
                 'codigo_postal' => $this->lavanderia->codigo_postal,
             ],
+            // Las fotos de evidencia del pedido, sin su ruta ni ninguna URL: la foto no es pública (repartidor-E23).
+            'evidencias' => $this->evidencias->map(fn (Evidencia $evidencia): array => [
+                'tipo' => $evidencia->tipo,
+                'tomada_en' => $evidencia->tomada_en->utc()->toIso8601ZuluString(),
+            ])->values()->all(),
         ];
     }
 }

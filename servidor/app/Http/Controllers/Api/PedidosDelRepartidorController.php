@@ -12,6 +12,7 @@ use App\Models\Pedido;
 use App\Models\Repartidor;
 use App\Pedidos\CambioDeEstado;
 use App\Pedidos\PedidoNoVisible;
+use App\Repartidores\EvidenciaDeEntrega;
 use App\Repartidores\RespuestaDelRepartidor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -67,6 +68,8 @@ use Illuminate\Support\Str;
  *                                                             "recolectado"   Recolectado
  *                                                             "en_entrega"    En tránsito
  *                                                             "entregado"     Entregado
+ *     foto                                                  opcional, solo con "entregado" y en multipart: la foto de
+ *                                                           evidencia, con las reglas de config/fotos.php (repartidor-E23)
  *
  *     Solo se puede marcar el paso siguiente, el de "siguiente", en un pedido que aceptó: Recolectado desde "aceptado"
  *     (la lavandería ya lo aceptó); En tránsito desde "listo"; Entregado desde "en_entrega".
@@ -74,7 +77,9 @@ use Illuminate\Support\Str;
  *     200  { "pedido": { ...el pedido en su estado nuevo, con su "siguiente"... } }
  *          Se guarda el evento con su hora y la cuenta del repartidor.
  *     422  { "message": "Ese no es un botón del repartidor.", "errors": { "estado": ["Ese no es un botón del repartidor."] } }
- *          Sin estado, o uno que no es de los tres. Se valida antes de buscar el pedido.
+ *          Sin estado, o uno que no es de los tres. Se valida antes de buscar el pedido. Con la foto: "La foto de
+ *          evidencia se toma al marcar Entregado.", "La foto debe ser una imagen: jpg, jpeg, png, webp." o "La foto pesa
+ *          más de 5120 KB.", sin guardar nada.
  *     409  { "message": "Ese no es el paso siguiente del pedido." | "Primero acepta el pedido.", "pedido": { ... } }
  *          Un salto, un regreso, el mismo botón otra vez, o un pedido que no ha aceptado. No cambia.
  */
@@ -131,15 +136,22 @@ class PedidosDelRepartidorController extends Controller
         ]]);
     }
 
-    public function marcar(MarcarPedidoDelRepartidorRequest $peticion, string $pedido, CambioDeEstado $cambio): JsonResponse
-    {
+    /**
+     * Un botón; con Entregado, la foto de evidencia si la mandó (repartidor-E23).
+     */
+    public function marcar(
+        MarcarPedidoDelRepartidorRequest $peticion,
+        string $pedido,
+        CambioDeEstado $cambio,
+        EvidenciaDeEntrega $evidencia,
+    ): JsonResponse {
         $repartidor = RepartidorQueOpera::de($peticion);
+        $visible = $this->pedidoVisible($repartidor, $pedido);
+        $foto = $peticion->foto();
 
-        $marcado = $cambio->marcarComoRepartidor(
-            $this->pedidoVisible($repartidor, $pedido),
-            $repartidor,
-            $peticion->validated('estado'),
-        );
+        $marcado = $foto === null
+            ? $cambio->marcarComoRepartidor($visible, $repartidor, $peticion->validated('estado'))
+            : $evidencia->entregar($visible, $repartidor, $foto);
 
         return $this->respuesta($marcado, $repartidor);
     }

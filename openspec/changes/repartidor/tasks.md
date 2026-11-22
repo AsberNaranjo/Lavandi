@@ -14,7 +14,7 @@ fábrica.
 - [x] 1.3 repartidor-E10, repartidor-E12 y repartidor-E30: API de pedidos asignados, solo los suyos, de su plaza y con el pago acreditado (`pedidos.confirmado_en`), en el componente de autorización — test: `servidor/tests/Feature/Repartidor/PedidosAsignadosTest.php` — tamaño S
 - [x] 1.4 repartidor-E15, repartidor-E16 y repartidor-E17: aceptar, y rechazar con motivo obligatorio, en `pedido_asignaciones` — test: `servidor/tests/Feature/Repartidor/AceptarORechazarTest.php` — tamaño S
 - [x] 1.5 repartidor-E19, repartidor-E20 y repartidor-E21: transiciones Recolectado, En tránsito y Entregado, sin saltos, retrocesos ni cambios de otro repartidor — test: `servidor/tests/Feature/Repartidor/EstadosDelRepartidorTest.php` — tamaño S
-- [ ] 1.6 repartidor-E23: guardar la foto de evidencia en el bucket privado, ligada al pedido en `evidencias` — test: `servidor/tests/Feature/Repartidor/EvidenciaDeEntregaTest.php` — tamaño S
+- [x] 1.6 repartidor-E23: guardar la foto de evidencia en el bucket privado, ligada al pedido en `evidencias` — test: `servidor/tests/Feature/Repartidor/EvidenciaDeEntregaTest.php` — tamaño S
 - [ ] 1.7 repartidor-E25: historial de entregas completadas, solo las suyas — test: `servidor/tests/Feature/Repartidor/HistorialDeEntregasTest.php` — tamaño S
 - [ ] 1.8 repartidor-E28: entregas del día y de la semana en la zona horaria de la plaza — test: `servidor/tests/Feature/Repartidor/EstadisticasTest.php` — tamaño S
 

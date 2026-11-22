@@ -270,6 +270,22 @@ El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/
   con `RespuestaDelRepartidor`. El evento de Entregado queda con la cuenta de ese repartidor en lugar de vacío. La suite
   completa sigue en verde con el cambio.
 
+### La evidencia de entrega (tarea 1.6)
+
+- **Va con el botón Entregado,** en la misma petición `POST …/estado`, en multipart: `estado=entregado` y `foto`. Un solo
+  paso para la app, y el cambio a Entregado y la evidencia quedan juntos: `App\Repartidores\EvidenciaDeEntrega` guarda la
+  foto, marca Entregado y crea la fila de `evidencias` en una transacción; si Entregado no es el paso siguiente (409) o
+  algo falla, borra el archivo y no queda la fila.
+- **Dónde queda:** en el almacenamiento privado de fotos del entorno (`config/fotos.php`, ADR-0006), en la carpeta del
+  pedido, `evidencias/<id_publico>/`; en la base, solo la ruta, con `tipo = 'entrega'`, quién la tomó (`id_usuarios`, la
+  cuenta del repartidor) y cuándo (`tomada_en`). Las reglas de la foto son las de toda foto (`App\Fotos\ReglasDeLaFoto`).
+- **Sin URL pública:** ninguna respuesta trae la ruta ni una URL; el pedido del repartidor solo dice que tiene evidencia
+  (`evidencias`, con su tipo y su hora). El disco de fotos no sirve un archivo sin URL firmada. Quién puede ver la foto, y
+  desde dónde, no lo fija la spec.
+- **Opcional y solo al entregar:** sin foto, Entregado pasa igual; con Recolectado o En tránsito, la foto se rechaza con
+  422. Si es obligatoria, si también se toma al recolectar y si es foto o firma espera BR-29 y DD-110 (E24); la tabla ya
+  admite `tipo = 'recoleccion'` para cuando responda.
+
 ### Adenda propuesta a ADR-0021: las transiciones del repartidor
 
 Propuesta por Claude por delegación de Arthur (C-236), con la tarea 1.5. No edita el ADR: Arthur la asienta o la cambia
@@ -419,7 +435,8 @@ Como sale en la lista, en el pedido y en las respuestas de aceptar, rechazar y l
   "entrega": { "…": "la misma forma que recogida" },
   "lavanderia": {
     "id_publico": "01jd…", "nombre": "Lavandería …", "calle": "…", "numero": "…", "colonia": "…", "codigo_postal": "…"
-  }
+  },
+  "evidencias": [ { "tipo": "entrega", "tomada_en": "2026-12-03T22:45:00Z" } ]
 }
 ```
 
@@ -467,6 +484,11 @@ caracteres (`pedidos.motivo_de_rechazo_maximo`).
 `en_entrega` (En tránsito) o `entregado` (Entregado). Solo se marca el paso siguiente, el que trae `siguiente`, en un
 pedido que aceptó: Recolectado desde `aceptado` (la lavandería ya lo aceptó), En tránsito desde `listo` y Entregado
 desde `en_entrega`.
+
+**Con la foto de evidencia (E23):** solo con `entregado`, en multipart, `estado=entregado` y `foto` (opcional; imagen de
+los tipos y del peso de `config/fotos.php`). La respuesta trae `evidencias: [{ "tipo": "entrega", "tomada_en": "…Z" }]`,
+sin ruta ni URL. Los 422 de la foto: "La foto de evidencia se toma al marcar Entregado." (con otro botón), "La foto debe
+ser una imagen: jpg, jpeg, png, webp." y "La foto pesa más de 5120 KB.". Con cualquier error no se guarda nada.
 
 - **200** `{ "pedido": { … } }`, en su estado nuevo y con su `siguiente`. Se guarda el evento con su hora y la cuenta
   del repartidor.
