@@ -5,7 +5,7 @@
 //
 // Al entrar, el módulo lee la lavandería de la cuenta (src/alta-lavanderias/ProveedorDeLaLavanderia.tsx): sin ella, la
 // única pantalla es el registro (alta-lavanderias-E03); con ella, sus pedidos, su historial y sus estadísticas
-// (historial-de-la-lavanderia), y el registro ya no se abre. Las pantallas de una y otra llevan a la que corresponde.
+// (historial-de-la-lavanderia) y su perfil y horarios (alta-lavanderias-E19), y el registro ya no se abre. Las pantallas de una y otra llevan a la que corresponde.
 // Mientras se lee no se muestra ninguna; si no llega, sin escenario propio, lo dice con los mensajes generales de la
 // app, deja intentarlo de nuevo y cerrar la sesión. Cómo llega la persona a tener la cuenta es DD-053
 // (alta-lavanderias-E04).
@@ -75,6 +75,7 @@ function PantallasDelModulo() {
         <Stack.Screen name="pedidos/rechazo/[id]" />
         <Stack.Screen name="historial" />
         <Stack.Screen name="estadisticas" />
+        <Stack.Screen name="perfil" />
       </Stack.Protected>
       <Stack.Protected guard={!registrada} redirectTo={RUTA_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA}>
         <Stack.Screen name="registro" />

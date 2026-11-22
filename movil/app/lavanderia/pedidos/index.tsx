@@ -12,14 +12,16 @@
 // Aceptar (estados-E06); si ya no es el paso siguiente (409), el mensaje va arriba y la lista se vuelve a consultar.
 //
 // Bajo el título, las entradas a lo demás del Módulo B, como enlaces, igual que en el inicio del usuario mientras no
-// exista una barra inferior: el historial de pedidos (historial-lavanderia-E01) y las estadísticas
-// (historial-lavanderia-E05).
+// exista una barra inferior: el historial de pedidos (historial-lavanderia-E01), las estadísticas
+// (historial-lavanderia-E05) y el perfil y horarios (alta-lavanderias-E19).
 //
 // "Cerrar sesión" va abajo, con la confirmación de la app (registro-E13). La composición sigue las imágenes del Módulo
 // B de la Propuesta 04: el título a la izquierda y las tarjetas debajo.
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
+import { RUTA_DEL_PERFIL_DE_LA_LAVANDERIA } from '../../../src/alta-lavanderias/rutas';
+import { TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO } from '../../../src/alta-lavanderias/textos';
 import { mensajeDeLaFalla } from '../../../src/cercanas/textos';
 import {
   RUTA_DE_LAS_ESTADISTICAS_DE_LA_LAVANDERIA,
@@ -59,6 +61,10 @@ export default function PedidosDeLaLavanderia() {
         <Enlace
           texto={TEXTOS_DEL_HISTORIAL_DE_LA_LAVANDERIA.estadisticas}
           alTocar={() => router.push(RUTA_DE_LAS_ESTADISTICAS_DE_LA_LAVANDERIA)}
+        />
+        <Enlace
+          texto={TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO.perfilYHorarios}
+          alTocar={() => router.push(RUTA_DEL_PERFIL_DE_LA_LAVANDERIA)}
         />
       </View>
       <MensajeDeError texto={acciones.aviso ?? undefined} />
