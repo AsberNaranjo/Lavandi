@@ -141,9 +141,31 @@ primero `src/avisos/arranque.ts` y después `expo-router/entry`, la forma que do
 se ajustó a eso. El manejador no hace nada: el sistema muestra solo el aviso visible de un momento, y al volver la app al
 frente el seguimiento consulta de inmediato (ADR-0007).
 
+### 6. Dónde y cuándo se pide el permiso (cierra la pregunta abierta de la pantalla)
+
+- **Al abrirse la sesión de una cuenta de usuario que nunca respondió,** con la petición del sistema y sin pantalla
+  propia (avisos-E07, `src/avisos/permiso.ts`). Es lo mínimo que cumple el escenario. La pantalla "Activa los avisos" del
+  mock A17 es una explicación previa que el contrato no pide; si se quiere, entra como escenario nuevo.
+- **No choca con el permiso de ubicación:** la pantalla principal no lo pide sola, solo al tocar "Continuar"
+  (cercanas-E03), y Android no deja tocar nada con la petición de avisos abierta.
+- **Una sola vez.** Android no distingue "nunca respondió" de "lo negó", así que la app anota en el almacenamiento del
+  teléfono que ya mostró la petición (`avisos.permiso-pedido`), y Android la borra al desinstalar. Si la persona la
+  niega, la app no la vuelve a mostrar sola: la sección de notificaciones del perfil ofrece activarlos
+  (perfil-usuario-E08).
+- **Android 12 o anterior no tiene petición:** los avisos vienen permitidos, y solo se apagan en los ajustes.
+- **Android pide con `PermissionsAndroid`** de React Native, sin dependencias nuevas, porque
+  `requestPermission()` de `@react-native-firebase/messaging` contesta que sí en Android sin preguntar. **iPhone pide con
+  la librería de Firebase:** `requestPermission()` y `hasPermission()`, que la versión 27 marca como obsoletos a favor
+  de `expo-notifications` o `react-native-permissions`. No se agregó ninguno de los dos: serían una dependencia nativa
+  más solo para el permiso, y `expo-notifications` trae además su propio servicio de mensajes en Android, que compite
+  con el de Firebase por los mismos mensajes. Ese camino de iPhone corre con la tarea 5.2.
+- **Si la petición falla,** la app sigue sin avisos y sin error (avisos-E08).
+
 ### Lo que no se comprobó en un teléfono
 
-La captura del aviso en Android (avisos-E17) espera las llaves de Firebase (DD-072).
+- La captura del aviso en Android (avisos-E17) espera las llaves de Firebase (DD-072).
+- El diálogo real del permiso en Android 13 o superior: con el APK sin el archivo de Firebase no se pide, porque sin
+  avisos no hay qué permitir.
 
 ## Contrato de la API para la app
 
@@ -250,4 +272,6 @@ Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cam
 - **El mensaje de cambio de estado sin aviso visible.** ADR-0008 separa los avisos "al usuario, en los momentos" del mensaje "al cambiar de estado, para el refresco". Este cambio lee que, en los cambios que no son momento, el mensaje no se muestra como aviso. Conviene asentarlo en ADR-0008.
   - **Implementada así** (punto 3): un solo mensaje por cambio, visible solo en los momentos. Sigue faltando asentarlo en ADR-0008.
 - **En qué pantalla se pide el permiso.** El mock A17 lo explica con una pantalla propia; el contrato no lo dice. Es decisión de pantalla de Arthur.
+  - **Resuelta en la implementación de la app, por delegación (C-236):** sin pantalla propia, con la petición del
+    sistema al abrirse la sesión del usuario que nunca respondió ("Decisiones de la implementación de la app", punto 6).
 - **Quién escribe y aprueba los textos de los avisos** (BR-24): fila propuesta en el reporte.
