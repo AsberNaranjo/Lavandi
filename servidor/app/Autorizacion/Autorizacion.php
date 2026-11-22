@@ -179,6 +179,18 @@ final class Autorizacion
     }
 
     /**
+     * Los pedidos activos que la cuenta ve en el monitoreo del panel: los de todas las plazas, si es de administración
+     * (administracion-E06; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #4); ninguno si no lo es. Cuáles están
+     * activos lo dice el modelo del pedido (Pedido::activosDelMonitoreo()).
+     *
+     * @return Builder<Pedido>
+     */
+    public function pedidosActivosDelPanel(Usuario $usuario): Builder
+    {
+        return $this->pedidosDelPanel($usuario)->activosDelMonitoreo();
+    }
+
+    /**
      * Los teléfonos que la cuenta puede borrar: solo los suyos (avisos-E05). Al cerrar la sesión, el token de otra
      * cuenta no se toca aunque la app lo mande.
      *

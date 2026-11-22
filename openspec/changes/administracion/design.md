@@ -163,6 +163,20 @@ una bloqueada.
   (`Autorizacion::puedeBloquear()`). Las de los socios se suspenden con su lavandería o su repartidor (Módulo D #1 y
   #2).
 
+**Monitoreo de pedidos** (`/admin/monitoreo`; tarea 2.1, administracion-E06): una tabla con los pedidos activos de
+todas las plazas, con su folio (con búsqueda), su estado y su plaza, de la recolección más próxima a la más lejana. Es
+de solo lectura. Los pedidos los da `Autorizacion::pedidosActivosDelPanel()`, y cuáles están activos,
+`Pedido::activosDelMonitoreo()`:
+
+- **Activos** (lectura 1): los confirmados que no se han entregado ni cancelado, en `confirmado`, `aceptado`,
+  `recolectado`, `en_proceso`, `listo`, `en_entrega` o `rechazado`. El estado sale con su nombre operativo, como en la
+  ficha del usuario.
+- **El rechazado se queda** mientras DD-103 y DD-016 no digan qué pasa con él: está pagado y no se entregó ni se canceló.
+  Si esas filas lo llevan a un estado de cancelación, sale por E08.
+- **No entran** el entregado, el que espera su pago (C-188) ni un estado que se agregue después, como `cancelado`,
+  mientras no se nombre en el modelo (E08 espera DD-016 y BR-22).
+- **El mapa** (E09 y E10) espera la llave de Google Maps JavaScript (DD-072).
+
 ## Risks / Trade-offs
 
 - [El plugin de mapas de Filament está en beta] → se hace como componente propio (ADR-0009). Si el mapa sin código a

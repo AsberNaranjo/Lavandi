@@ -87,6 +87,28 @@ class Pedido extends Modelo
     }
 
     /**
+     * Los pedidos activos del monitoreo del panel: los que entraron al flujo y todavía no se entregan ni se cancelan
+     * (openspec/changes/administracion/design.md, lectura 1; administracion-E06). Además de los activos de la
+     * lavandería, entra el rechazado: está pagado y no se entregó ni se canceló, y lo que pasa con él esperan DD-103 y
+     * DD-016. Nunca uno entregado ni uno que espera su pago; tampoco uno de un estado que se agregue después, como
+     * cancelado, mientras no se nombre aquí (administracion-E08).
+     *
+     * @param  Builder<Pedido>  $consulta
+     */
+    public function scopeActivosDelMonitoreo(Builder $consulta): void
+    {
+        $consulta->whereHas('estado', fn (Builder $estado) => $estado->whereIn('codigo', [
+            EstadoPedido::CONFIRMADO,
+            EstadoPedido::ACEPTADO,
+            EstadoPedido::RECHAZADO,
+            EstadoPedido::RECOLECTADO,
+            EstadoPedido::EN_PROCESO,
+            EstadoPedido::LISTO,
+            EstadoPedido::EN_ENTREGA,
+        ]));
+    }
+
+    /**
      * Los pedidos completados: los que están en Entregado, el último de los cinco estados (Módulo A #12), con el instante
      * de su paso a Entregado en entregado_en, leído de su historial en pedido_eventos
      * (openspec/changes/historial-de-la-lavanderia/design.md, decisión 1). Entregado no tiene salida (ADR-0021).
