@@ -21,4 +21,11 @@ return [
      */
     'estado_previo_al_pago' => 'por_pagar',
 
+    /*
+     * El largo máximo, en caracteres, del motivo con que la lavandería rechaza un pedido. El contrato pide el motivo y
+     * no le pone largo (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #2): es un límite técnico, configurable
+     * (openspec/changes/pedidos-de-la-lavanderia/design.md, pregunta 3).
+     */
+    'motivo_de_rechazo_maximo' => 500,
+
 ];

@@ -51,6 +51,7 @@ class ListaDePedidosTest extends TestCase
         $primero = $this->entregar($this->pedidoConfirmadoEl($cuenta, '2026-12-03'));
         $segundo = $this->entregar($this->pedidoConfirmadoEl($cuenta, '2026-12-05'));
         $enProceso = $this->pedidoConfirmadoEl($cuenta, '2026-12-08');
+        $this->aceptarComoLaLavanderia($enProceso);
         $this->marcarComoLaLavanderia($enProceso, EstadoPedido::RECOLECTADO);
         $this->marcarComoLaLavanderia($enProceso, EstadoPedido::EN_PROCESO);
 

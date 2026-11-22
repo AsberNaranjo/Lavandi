@@ -24,9 +24,9 @@ use Tests\TestCase;
  * Es un solo mensaje por cambio: si el estado es un momento, el mensaje es además el aviso visible (avisos-E09 a E12);
  * si no, solo lleva los datos y el teléfono no muestra nada (design.md, "Preguntas abiertas").
  *
- * Los botones de la lavandería llegan con estados-del-pedido, tarea 2.1: aquí el cambio y su publicación los hace
- * CambiosDeEstadoDePrueba, igual que ellos. "En proceso de entrega" (en_entrega) se siembra con
- * pedidos-de-la-lavanderia (ADR-0021, decisión 3) y le toca el mismo mensaje sin cambiar nada aquí.
+ * Los botones de la lavandería son los de estados-del-pedido, tarea 2.1, sobre el pedido que la lavandería aceptó: aquí
+ * los toca CambiosDeEstadoDePrueba con la operación real. "En proceso de entrega" (en_entrega) ya está sembrado y le
+ * toca el mismo mensaje, solo con los datos.
  *
  * Escenario: avisos-E14 · Spec: openspec/changes/avisos/specs/avisos/spec.md · Tarea 3.2
  */
@@ -46,6 +46,7 @@ class CambioDeEstadoTest extends TestCase
         EstadoPedido::RECOLECTADO,
         EstadoPedido::EN_PROCESO,
         EstadoPedido::LISTO,
+        EstadoPedido::EN_ENTREGA,
     ];
 
     private Usuario $cuenta;
@@ -59,7 +60,7 @@ class CambioDeEstadoTest extends TestCase
         $this->prepararPedido();
         $this->simularFcm();
         $this->cuenta = $this->cuentaDeUsuario();
-        $this->pedido = $this->pedidoConfirmadoDe($this->cuenta);
+        $this->pedido = $this->pedidoAceptadoDe($this->cuenta);
     }
 
     #[TestDox('avisos-E14: con cada botón de la lavandería, la api manda al teléfono del usuario un mensaje con el pedido y su estado nuevo')]

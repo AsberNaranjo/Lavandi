@@ -25,7 +25,8 @@ use Tests\TestCase;
  *
  * La confirmación la publica la operación de confirmar, cuando la pasarela confirma el pago (C-188): aquí la llama la
  * prueba, como lo hará el cobro. Los demás cambios los publica la lavandería con sus botones (estados-del-pedido,
- * tarea 2.1): aquí, CambiosDeEstadoDePrueba. FCM está simulado (FcmSimulado).
+ * tarea 2.1), sobre el pedido que aceptó (CambiosDeEstadoDePrueba), y Entregado, el repartidor, cuyo botón llega con
+ * repartidor (EstadosDePrueba::entregarComoElRepartidor()). FCM está simulado (FcmSimulado).
  *
  * El quinto momento espera DD-011 (avisos-E13, tarea 5.1).
  *
@@ -83,7 +84,7 @@ class MomentosDelPedidoTest extends TestCase
     #[TestDox('avisos-E10: un pedido en Confirmado pasa a Recolectado y la api le manda al usuario el aviso de recolección')]
     public function test_avisos_e10_al_pasar_a_recolectado_llega_el_aviso_de_recoleccion(): void
     {
-        $pedido = $this->pedidoConfirmadoDe($this->cuenta);
+        $pedido = $this->pedidoAceptadoDe($this->cuenta);
         $telefono = $this->telefonoDe($this->cuenta);
 
         $this->cambiarComoLaLavanderia($pedido, EstadoPedido::RECOLECTADO);
@@ -94,7 +95,7 @@ class MomentosDelPedidoTest extends TestCase
     #[TestDox('avisos-E11: un pedido en En proceso pasa a Listo y la api le manda al usuario el aviso de listo para entrega')]
     public function test_avisos_e11_al_pasar_a_listo_llega_el_aviso_de_listo_para_entrega(): void
     {
-        $pedido = $this->pedidoConfirmadoDe($this->cuenta);
+        $pedido = $this->pedidoAceptadoDe($this->cuenta);
         $telefono = $this->telefonoDe($this->cuenta);
         $this->llevarComoLaLavanderia($pedido, EstadoPedido::RECOLECTADO, EstadoPedido::EN_PROCESO);
 
@@ -108,11 +109,18 @@ class MomentosDelPedidoTest extends TestCase
     {
         $otraCuenta = $this->cuentaDeUsuario();
         $telefonoAjeno = $this->telefonoDe($otraCuenta);
-        $pedido = $this->pedidoConfirmadoDe($this->cuenta);
+        $pedido = $this->pedidoAceptadoDe($this->cuenta);
         $telefono = $this->telefonoDe($this->cuenta);
-        $this->llevarComoLaLavanderia($pedido, EstadoPedido::RECOLECTADO, EstadoPedido::EN_PROCESO, EstadoPedido::LISTO);
+        $this->llevarComoLaLavanderia(
+            $pedido,
+            EstadoPedido::RECOLECTADO,
+            EstadoPedido::EN_PROCESO,
+            EstadoPedido::LISTO,
+            EstadoPedido::EN_ENTREGA,
+        );
 
-        $this->cambiarComoLaLavanderia($pedido, EstadoPedido::ENTREGADO);
+        // Entregado es del repartidor (DD-022): su botón llega con repartidor (H8).
+        $this->entregarComoElRepartidor($pedido);
 
         $this->assertAvisoDelMomento($telefono, $pedido, EstadoPedido::ENTREGADO);
         $this->assertSame([], $this->mensajesAlToken($telefonoAjeno->token_fcm));
@@ -125,8 +133,8 @@ class MomentosDelPedidoTest extends TestCase
         $iphone = $this->telefonoDe($this->cuenta, Dispositivo::IOS);
         $otraCuenta = $this->cuentaDeUsuario();
         $ajenos = [$this->telefonoDe($otraCuenta)];
-        $pedidoAjeno = $this->pedidoConfirmadoDe($otraCuenta);
-        $pedido = $this->pedidoConfirmadoDe($this->cuenta);
+        $pedidoAjeno = $this->pedidoAceptadoDe($otraCuenta);
+        $pedido = $this->pedidoAceptadoDe($this->cuenta);
         $ajenos[] = $this->telefonoDe($this->cuentaDeLaLavanderia($pedido));
 
         $this->cambiarComoLaLavanderia($pedido, EstadoPedido::RECOLECTADO);
@@ -148,7 +156,7 @@ class MomentosDelPedidoTest extends TestCase
     #[TestDox('avisos-E09 a avisos-E12: un pedido de una cuenta sin teléfono registrado no manda nada')]
     public function test_avisos_e09_a_e12_sin_telefono_registrado_no_se_manda_nada(): void
     {
-        $pedido = $this->pedidoConfirmadoDe($this->cuenta);
+        $pedido = $this->pedidoAceptadoDe($this->cuenta);
 
         $this->cambiarComoLaLavanderia($pedido, EstadoPedido::RECOLECTADO);
 
@@ -167,7 +175,7 @@ class MomentosDelPedidoTest extends TestCase
     #[TestDox('avisos-E09 a avisos-E12: el paso a En proceso no es un momento y no lleva aviso visible')]
     public function test_avisos_e09_a_e12_el_paso_a_en_proceso_no_lleva_aviso_visible(): void
     {
-        $pedido = $this->pedidoConfirmadoDe($this->cuenta);
+        $pedido = $this->pedidoAceptadoDe($this->cuenta);
         $this->cambiarComoLaLavanderia($pedido, EstadoPedido::RECOLECTADO);
         $telefono = $this->telefonoDe($this->cuenta);
 
@@ -183,7 +191,7 @@ class MomentosDelPedidoTest extends TestCase
     public function test_avisos_e09_a_e12_un_momento_que_se_agrega_a_la_lista_avisa(): void
     {
         config(['avisos.momentos.en_proceso' => ['titulo' => 'Momento de prueba', 'texto' => 'Texto de prueba :folio']]);
-        $pedido = $this->pedidoConfirmadoDe($this->cuenta);
+        $pedido = $this->pedidoAceptadoDe($this->cuenta);
         $this->cambiarComoLaLavanderia($pedido, EstadoPedido::RECOLECTADO);
         $telefono = $this->telefonoDe($this->cuenta);
 

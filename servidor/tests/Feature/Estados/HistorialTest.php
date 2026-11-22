@@ -25,8 +25,8 @@ use Tests\TestCase;
  *
  * La protección es de resumen-y-confirmacion: los triggers BEFORE UPDATE y BEFORE DELETE de pedido_eventos, con la
  * función impedir_cambio(). Esta prueba la comprueba sobre el historial de un pedido que la lavandería movió, con el
- * modelo PedidoEvento, que solo crea. Los botones de la lavandería son de la tarea 2.1: aquí los hace
- * EstadosDePrueba::marcarComoLaLavanderia().
+ * modelo PedidoEvento, que solo crea. La lavandería acepta el pedido y lo mueve con sus botones, la operación real de la
+ * tarea 2.1 (EstadosDePrueba::aceptarComoLaLavanderia() y marcarComoLaLavanderia()).
  *
  * El estado anterior de un cambio no se guarda: es el del evento previo del mismo pedido, en el orden de ocurrido_en y
  * de id_pedido_eventos (design.md, "Tablas y migración").
@@ -53,8 +53,11 @@ class HistorialTest extends TestCase
 
         $this->prepararPedido();
 
-        // El pedido se confirma a las 09:30; la lavandería lo pasa a Recolectado a las 10:00 y a En proceso a las 10:30.
+        // El pedido se confirma a las 09:30; la lavandería lo acepta a las 09:45, lo pasa a Recolectado a las 10:00 y a
+        // En proceso a las 10:30.
         $this->pedido = $this->pedidoConfirmadoDe($this->cuentaDeUsuario());
+        $this->elJuevesALas('09:45:00');
+        $this->aceptarComoLaLavanderia($this->pedido);
         $this->elJuevesALas('10:00:00');
         $this->marcarComoLaLavanderia($this->pedido, EstadoPedido::RECOLECTADO);
         $this->elJuevesALas('10:30:00');
@@ -66,16 +69,27 @@ class HistorialTest extends TestCase
     {
         $historial = $this->historial();
 
-        // Los dos de antes, del pedido al nacer y al confirmarse, y después los dos de la lavandería.
+        // Los dos de antes, del pedido al nacer y al confirmarse, y después los tres de la lavandería: su aceptación y
+        // sus dos botones.
         $this->assertSame(
-            [EstadoPedido::POR_PAGAR, EstadoPedido::CONFIRMADO, EstadoPedido::RECOLECTADO, EstadoPedido::EN_PROCESO],
+            [
+                EstadoPedido::POR_PAGAR,
+                EstadoPedido::CONFIRMADO,
+                EstadoPedido::ACEPTADO,
+                EstadoPedido::RECOLECTADO,
+                EstadoPedido::EN_PROCESO,
+            ],
             $historial->map(fn (PedidoEvento $evento): string => $evento->estado->codigo)->all(),
         );
 
-        [, $confirmacion, $recolectado, $enProceso] = $historial->all();
+        [, $confirmacion, $aceptacion, $recolectado, $enProceso] = $historial->all();
         $lavanderia = $this->cuentaDeLaLavanderia($this->pedido);
 
-        foreach ([[$recolectado, '10:00:00', $confirmacion], [$enProceso, '10:30:00', $recolectado]] as [$evento, $hora, $previo]) {
+        foreach ([
+            [$aceptacion, '09:45:00', $confirmacion],
+            [$recolectado, '10:00:00', $aceptacion],
+            [$enProceso, '10:30:00', $recolectado],
+        ] as [$evento, $hora, $previo]) {
             $this->assertSame($this->pedido->id_plazas, $evento->id_plazas);
             $this->assertSame($lavanderia->getKey(), $evento->id_usuarios);
             $this->assertTrue(

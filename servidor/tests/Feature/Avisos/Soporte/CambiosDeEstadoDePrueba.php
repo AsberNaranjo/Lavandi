@@ -4,28 +4,21 @@ namespace Tests\Feature\Avisos\Soporte;
 
 use App\Models\Pedido;
 use App\Models\PedidoEvento;
-use App\Pedidos\EstadoDelPedidoCambiado;
-use Illuminate\Support\Facades\DB;
 
 /**
- * El cambio de estado del pedido como lo hará el botón de la lavandería (estados-del-pedido, tarea 2.1), con su
- * publicación: el estado actual y su evento con EstadosDePrueba::marcarComoLaLavanderia(), y en la misma transacción
- * el evento EstadoDelPedidoCambiado, que se entrega ya guardado el cambio. Se usa junto con EstadosDePrueba.
+ * El cambio de estado del pedido por el botón de la lavandería, con su publicación, para las pruebas de avisos. Se usa
+ * junto con EstadosDePrueba.
  *
- * Mientras los botones no existan, las pruebas de avisos publican el evento aquí, igual que lo hará la tarea 2.1. No
- * valida el orden ni quién lo pide: eso es de las tareas 2.1 y 3.1 de estados-del-pedido.
+ * Desde la tarea 2.1 de estados-del-pedido el botón existe: App\Pedidos\CambioDeEstado guarda el estado actual y su
+ * evento en una transacción y publica EstadoDelPedidoCambiado, que se entrega ya guardado el cambio. Este trait ya no
+ * publica a mano: llama a EstadosDePrueba::marcarComoLaLavanderia(), que usa la operación real. Por eso valida el orden
+ * de ADR-0021: el pedido que se mueve tiene que estar aceptado (EstadosDePrueba::pedidoAceptadoDe()).
  */
 trait CambiosDeEstadoDePrueba
 {
     protected function cambiarComoLaLavanderia(Pedido $pedido, string $codigo): PedidoEvento
     {
-        return DB::transaction(function () use ($pedido, $codigo): PedidoEvento {
-            $evento = $this->marcarComoLaLavanderia($pedido, $codigo);
-
-            EstadoDelPedidoCambiado::dispatch($pedido, $evento);
-
-            return $evento;
-        });
+        return $this->marcarComoLaLavanderia($pedido, $codigo);
     }
 
     /**

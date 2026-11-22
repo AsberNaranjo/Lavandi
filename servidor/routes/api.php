@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\DispositivosController;
 use App\Http\Controllers\Api\LavanderiaDelSocioController;
 use App\Http\Controllers\Api\LavanderiasCercanasController;
 use App\Http\Controllers\Api\PedidosController;
+use App\Http\Controllers\Api\PedidosDeLaLavanderiaController;
 use App\Http\Controllers\Api\PerfilController;
 use App\Http\Controllers\Api\PerfilDeLavanderiaController;
 use App\Http\Controllers\Api\RecuperacionController;
@@ -112,4 +113,19 @@ Route::middleware(['auth:sanctum', 'autorizar:lavanderia'])->prefix('socio')->gr
     Route::patch('lavanderias/{lavanderia}', [LavanderiaDelSocioController::class, 'editar'])
         ->whereUlid('lavanderia')
         ->name('socio.lavanderias.editar');
+});
+
+// Con sesión de socio lavandería, el Módulo B (pedidos-de-la-lavanderia y estados-del-pedido). El contrato está en el
+// controlador. Sin whereUlid a propósito: un valor que no es ULID responde el mismo 404 que un pedido ajeno.
+Route::middleware(['auth:sanctum', 'autorizar:lavanderia'])->prefix('lavanderia')->group(function () {
+    // La lista en tiempo real de sus pedidos activos; la app la consulta cada 30 s (ADR-0007).
+    Route::get('pedidos', [PedidosDeLaLavanderiaController::class, 'lista'])->name('lavanderia.pedidos.lista');
+    Route::get('pedidos/{pedido}', [PedidosDeLaLavanderiaController::class, 'mostrar'])->name('lavanderia.pedidos.mostrar');
+    Route::post('pedidos/{pedido}/aceptar', [PedidosDeLaLavanderiaController::class, 'aceptar'])
+        ->name('lavanderia.pedidos.aceptar');
+    Route::post('pedidos/{pedido}/rechazar', [PedidosDeLaLavanderiaController::class, 'rechazar'])
+        ->name('lavanderia.pedidos.rechazar');
+    // Los botones Recolectado, En proceso, Listo y En proceso de entrega (estados-del-pedido).
+    Route::post('pedidos/{pedido}/estado', [PedidosDeLaLavanderiaController::class, 'marcar'])
+        ->name('lavanderia.pedidos.estado');
 });

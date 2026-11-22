@@ -188,6 +188,7 @@ class MigracionTest extends TestCase
                 ['entregado', 'Entregado', 5, true],
             ],
             DB::table('estados_pedido')
+                ->whereIn('codigo', ['por_pagar', 'confirmado', 'recolectado', 'en_proceso', 'listo', 'entregado'])
                 ->orderBy('orden')
                 ->get()
                 ->map(fn (object $estado): array => [
@@ -199,8 +200,12 @@ class MigracionTest extends TestCase
                 ->all(),
         );
 
-        // Los demás internos los siembra el cambio que los usa (ADR-0021, decisión 3).
-        $this->assertSame(6, DB::table('estados_pedido')->count());
+        // Los demás internos los siembra el cambio que los usa (ADR-0021, decisión 3), y ninguno es un paso más del
+        // seguimiento: los visibles siguen siendo exactamente los cinco.
+        $this->assertSame(
+            ['confirmado', 'recolectado', 'en_proceso', 'listo', 'entregado'],
+            DB::table('estados_pedido')->where('visible_usuario', true)->orderBy('orden')->pluck('codigo')->all(),
+        );
         $this->assertSame(1, EstadoPedido::where('codigo', EstadoPedido::CONFIRMADO)->count());
     }
 

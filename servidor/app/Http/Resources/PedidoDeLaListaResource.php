@@ -15,7 +15,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * (App\Http\Resources\PedidoResource; design.md, decisión 1). El estado se nombra como en el resumen. No lleva la llave
  * interna, ni la cuenta, ni la plaza.
  *
- * Espera cargados plaza, lavanderia y estado.
+ * Espera cargados plaza, lavanderia y estado.paso.
  *
  * @mixin Pedido
  */
@@ -34,11 +34,7 @@ class PedidoDeLaListaResource extends JsonResource
                 'id_publico' => $this->lavanderia->id_publico,
                 'nombre' => $this->lavanderia->nombre,
             ],
-            'estado' => [
-                'codigo' => $this->estado->codigo,
-                'nombre' => $this->estado->nombre_usuario,
-                'visible_usuario' => $this->estado->visible_usuario,
-            ],
+            'estado' => PedidoResource::estadoParaElUsuario($this->estado),
         ];
     }
 }

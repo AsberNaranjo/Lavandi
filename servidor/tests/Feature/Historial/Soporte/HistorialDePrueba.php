@@ -3,7 +3,6 @@
 namespace Tests\Feature\Historial\Soporte;
 
 use App\Models\Direccion;
-use App\Models\EstadoPedido;
 use App\Models\Lavanderia;
 use App\Models\Pedido;
 use App\Models\Usuario;
@@ -69,15 +68,14 @@ trait HistorialDePrueba
     }
 
     /**
-     * La lavandería lleva el pedido de Confirmado a Entregado, un estado tras otro.
+     * El pedido va de Confirmado a Entregado, un estado tras otro: la lavandería lo acepta y lo lleva con sus botones
+     * hasta En proceso de entrega, y el repartidor lo entrega (EstadosDePrueba::llevarHastaEntregado()).
      */
     protected function entregar(Pedido $pedido): Pedido
     {
-        foreach ([EstadoPedido::RECOLECTADO, EstadoPedido::EN_PROCESO, EstadoPedido::LISTO, EstadoPedido::ENTREGADO] as $codigo) {
-            $this->marcarComoLaLavanderia($pedido, $codigo);
-        }
+        $this->aceptarComoLaLavanderia($pedido);
 
-        return $pedido->fresh();
+        return $this->llevarHastaEntregado($pedido);
     }
 
     /**

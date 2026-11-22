@@ -109,16 +109,17 @@ class PanelBajaTest extends TestCase
     }
 
     /**
-     * Un pedido de la cuenta con la lavandería de prepararPedido(), confirmado y llevado por la lavandería hasta
-     * Entregado.
+     * Un pedido de la cuenta con la lavandería de prepararPedido(), confirmado, aceptado y llevado por la lavandería
+     * hasta En proceso de entrega; "Entregado" lo pone el repartidor (H8), aquí con su ayuda de prueba.
      */
     private function pedidoEntregadoDe(Usuario $cuenta): Pedido
     {
-        $pedido = $this->pedidoConfirmadoDe($cuenta);
+        $pedido = $this->pedidoAceptadoDe($cuenta);
 
-        foreach ([EstadoPedido::RECOLECTADO, EstadoPedido::EN_PROCESO, EstadoPedido::LISTO, EstadoPedido::ENTREGADO] as $codigo) {
+        foreach ([EstadoPedido::RECOLECTADO, EstadoPedido::EN_PROCESO, EstadoPedido::LISTO, EstadoPedido::EN_ENTREGA] as $codigo) {
             $this->marcarComoLaLavanderia($pedido, $codigo);
         }
+        $this->entregarComoElRepartidor($pedido);
 
         return $pedido->fresh();
     }
