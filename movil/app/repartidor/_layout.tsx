@@ -1,6 +1,8 @@
 // El Módulo C de la app, lo que ve y hace el socio repartidor (NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3, Módulo C;
 // openspec/changes/repartidor). Sus pantallas solo se ven con la sesión de una cuenta de repartidor (app/_layout.tsx;
-// registro-E33). Una pila sin encabezado nativo, como la raíz: cada pantalla lleva el suyo.
+// registro-E33). Una pila sin encabezado nativo, como la raíz: cada pantalla lleva el suyo. La lista de pedidos se
+// comparte entre la pantalla de pedidos y las de una acción con su propia pantalla
+// (src/repartidor/ProveedorDePedidos.tsx), y se va con la sesión.
 //
 // Al entrar, el módulo lee el perfil del repartidor de la cuenta (src/repartidor/ProveedorDelRepartidor.tsx): si opera,
 // activo y con su plaza, ve sus pedidos asignados; si no, pendiente de alta o suspendido, la única pantalla es la espera
@@ -14,6 +16,7 @@ import { mensajeDeLaFalla } from '../../src/cercanas/textos';
 import { Boton } from '../../src/piezas/Boton';
 import { MensajeDeError } from '../../src/piezas/MensajeDeError';
 import { Pantalla } from '../../src/piezas/Pantalla';
+import { ProveedorDePedidosDelRepartidor } from '../../src/repartidor/ProveedorDePedidos';
 import { ProveedorDelRepartidor, useRepartidorDeLaCuenta } from '../../src/repartidor/ProveedorDelRepartidor';
 import {
   RUTA_DE_LA_ESPERA_DEL_REPARTIDOR,
@@ -27,7 +30,9 @@ import { color, espaciado, tipografia } from '../../src/tema/theme';
 export default function ModuloDelRepartidor() {
   return (
     <ProveedorDelRepartidor>
-      <PantallasDelModulo />
+      <ProveedorDePedidosDelRepartidor>
+        <PantallasDelModulo />
+      </ProveedorDePedidosDelRepartidor>
     </ProveedorDelRepartidor>
   );
 }
