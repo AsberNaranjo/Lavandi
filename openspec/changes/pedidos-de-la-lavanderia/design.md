@@ -120,6 +120,109 @@ repartidor), DD-016 (cancelación) y DD-103 (plazo y consecuencias del rechazo) 
    actual, y el aviso de solo datos deja que la app del usuario consulte de inmediato (ADR-0007; avisos-E14). Ninguno de
    los dos es un momento de aviso visible (`config/avisos.php`).
 
+## Contrato de la API
+
+Lo implementó el implementador del servidor con las tareas 1.1 a 1.5 de este cambio y 2.1, 3.1 y 3.2 de
+`estados-del-pedido`. Es el mismo que está en el comentario de
+`servidor/app/Http/Controllers/Api/PedidosDeLaLavanderiaController.php`.
+
+**Sesión y autorización.** Todas las rutas van con `Authorization: Bearer <token>`, el que da `POST /api/sesion` con el
+correo y la contraseña de la cuenta (su respuesta trae `usuario.rol` en `"lavanderia"`). Pasan por `auth:sanctum` y por
+`autorizar:lavanderia`, y la tenencia la decide `App\Autorizacion\Autorizacion::pedidosDeLaLavanderia()`: los pedidos de
+las lavanderías que administra la cuenta, de su misma plaza y con el pago acreditado (C-188).
+
+| Respuesta | Cuándo |
+|---|---|
+| `401 { "message": "Unauthenticated." }` | Sin sesión |
+| `403 { "message": "Esta cuenta no tiene acceso." }` | La cuenta no tiene el rol de lavandería, como una de usuario |
+| `404 { "message": "No existe el pedido." }` | El pedido no existe, es de otra lavandería o de otra plaza, su pago no está acreditado, o el valor no es un ULID (un folio, por ejemplo). Todos responden igual y sin ningún dato (ADR-0019, decisión 3) |
+
+**El pedido**, como sale en todas las respuestas:
+
+```json
+{
+  "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",
+  "folio": "7KQ2M9XA",
+  "confirmado_en": "2026-12-03T15:30:00Z",
+  "estado": { "codigo": "confirmado", "nombre": "Por aceptar" },
+  "por_responder": true,
+  "siguiente": null,
+  "servicios": [
+    { "codigo": "estandar", "nombre": "Lavado estándar", "unidad": { "codigo": "kg", "nombre": "kilo" } }
+  ],
+  "zona_horaria": "America/Mexico_City",
+  "ventana": {
+    "inicio": "2026-12-03T11:00:00-06:00",
+    "fin": "2026-12-03T12:00:00-06:00",
+    "fecha": "2026-12-03",
+    "hora_inicio": "11:00",
+    "hora_fin": "12:00"
+  }
+}
+```
+
+| Campo | Qué es |
+|---|---|
+| `id_publico` | El ULID del pedido, el único identificador de la API. Se acepta en mayúsculas o minúsculas |
+| `folio` | Siempre lleno: la lavandería solo ve pedidos pagados (ADR-0020) |
+| `confirmado_en` | El instante en que se acreditó el pago, en UTC |
+| `estado.codigo` | El estado operativo (ADR-0021 y su adenda): `confirmado` (espera respuesta), `aceptado`, `recolectado`, `en_proceso`, `listo`, `en_entrega`, `rechazado` o `entregado` |
+| `estado.nombre` | Cómo lo nombra la app de la lavandería: "Por aceptar", "Aceptado", "Recolectado", "En proceso", "Listo", "En proceso de entrega", "Rechazado" o "Entregado" |
+| `por_responder` | `true` solo en `confirmado`: la app ofrece Aceptar y Rechazar (pedidos-lavanderia-E03) |
+| `siguiente` | El único botón que puede tocar (estados-E06): `{ "estado": "recolectado", "boton": "Recolectado" }`, o `null` si espera respuesta, si está rechazado o entregado, o si ya está en `en_entrega` |
+| `servicios` | El servicio del pedido, como en el perfil de la lavandería; sin precio |
+| `zona_horaria`, `ventana` | La recolección, como en el pedido del usuario: instantes con el desfase de la plaza, y la fecha y las horas en su hora |
+
+No lleva ningún dato del usuario ni las direcciones: cuáles ve la lavandería lo fijan DD-022 y DD-014
+(pedidos-lavanderia-E04). Tampoco montos.
+
+**Las rutas:**
+
+| Ruta | Cuerpo | Éxito | Errores propios |
+|---|---|---|---|
+| `GET /api/lavanderia/pedidos` | — | `200 { "pedidos": [ {pedido}, … ] }` | — |
+| `GET /api/lavanderia/pedidos/{id_publico}` | — | `200 { "pedido": {pedido} }` | — |
+| `POST /api/lavanderia/pedidos/{id_publico}/aceptar` | — | `200 { "pedido": {pedido} }`, en `aceptado` | `409` ya respondido |
+| `POST /api/lavanderia/pedidos/{id_publico}/rechazar` | `{ "motivo": "…" }` | `200 { "pedido": {pedido} }`, en `rechazado` | `422` motivo; `409` ya respondido |
+| `POST /api/lavanderia/pedidos/{id_publico}/estado` | `{ "estado": "recolectado" }` | `200 { "pedido": {pedido} }`, en el estado nuevo | `422` no es un botón; `409` no es el paso siguiente |
+
+- **La lista** trae los pedidos activos: los que esperan su respuesta y los que aceptó y aún no llegan a Entregado, de
+  `aceptado` a `en_entrega`. Nunca uno entregado, rechazado o sin pago. Van de la recolección más próxima a la más
+  lejana; con la misma, del pedido más viejo al más nuevo. Sin paginación; sin pedidos activos, `"pedidos": []`. La app
+  la consulta cada 30 segundos con la pantalla visible (ADR-0007; tarea 2.2).
+- **Un pedido** sale en cualquier estado, también uno que ya salió de la lista, como uno rechazado: es suyo.
+- **Aceptar** no lleva cuerpo. Guarda la hora en su evento. El usuario lo sigue viendo en Confirmado.
+- **Rechazar** exige `motivo`: texto, sin los espacios de las orillas, de hasta `pedidos.motivo_de_rechazo_maximo`
+  caracteres (500 por omisión). Guarda el motivo y la hora en su evento, y el pedido sale de la lista. Qué pasa después
+  con el pedido, el cobro y lo que ve el usuario espera DD-016, DD-012 y DD-103 (pedidos-lavanderia-E14).
+- **El botón** lleva en `estado` el estado al que pasa: `recolectado` (Recolectado), `en_proceso` (En proceso), `listo`
+  (Listo) o `en_entrega` (En proceso de entrega). Solo el de `siguiente` se acepta.
+- Cada acción que cambia el pedido agrega su evento a `pedido_eventos` con la hora y la cuenta, cambia el estado actual
+  en la misma transacción y publica `App\Pedidos\EstadoDelPedidoCambiado` (avisos-E14).
+
+**Los errores, con su cuerpo exacto:**
+
+```json
+409 { "message": "El pedido ya fue respondido.", "pedido": { ...el pedido como está... } }
+409 { "message": "Ese no es el paso siguiente del pedido.", "pedido": { ...el pedido como está... } }
+422 { "message": "Escribe el motivo del rechazo.", "errors": { "motivo": ["Escribe el motivo del rechazo."] } }
+422 { "message": "El motivo no puede pasar de 500 caracteres.", "errors": { "motivo": ["El motivo no puede pasar de 500 caracteres."] } }
+422 { "message": "Ese no es un botón de la lavandería.", "errors": { "estado": ["Ese no es un botón de la lavandería."] } }
+```
+
+- `409 ya respondido`: aceptar o rechazar un pedido ya aceptado o rechazado (pedidos-lavanderia-E08).
+- `409 no es el paso siguiente`: un salto, un regreso a un botón anterior, el mismo botón otra vez, o un botón sobre un
+  pedido que no se ha aceptado, que se rechazó o que ya está en `en_entrega` (estados-E05 y E09). El `pedido` del 409
+  deja a la app ponerlo al día.
+- `422`: el motivo falta, está vacío, es de puros espacios, no es texto o pasa del máximo; o `estado` falta o no es uno
+  de los cuatro botones, como `confirmado`, `entregado`, `aceptado` o `rechazado`. La validación va antes de buscar el
+  pedido, así que su respuesta es la misma para cualquier pedido.
+- En ningún error cambia el pedido ni se agrega un evento.
+
+**Lo que la app todavía no tiene en el servidor:** cerrar la sesión (`DELETE /api/sesion`) y la cuenta
+(`GET /api/cuenta`) son hoy del rol de usuario (`autorizar:usuario`, de `registro-e-inicio-de-sesion`), así que una
+cuenta de lavandería recibe 403 en las dos. Ver el reporte de la tarea: no se cambió aquí.
+
 ## Risks / Trade-offs
 
 - [La máquina de estados, DD-123] → La cerró ADR-0021 (2026-11-21). "Espera su respuesta" es `confirmado`;

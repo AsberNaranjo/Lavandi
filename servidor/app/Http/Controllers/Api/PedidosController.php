@@ -34,9 +34,13 @@ use Illuminate\Support\Str;
  *       "folio": null | "…",                          vacío hasta Confirmado; su formato, ADR-0020
  *       "confirmado_en": null | "2026-12-03T15:30:00Z",  el instante en que pasó a Confirmado, en UTC
  *       "estado": {
- *         "codigo": "confirmado",                     el código del estado actual en estados_pedido
+ *         "codigo": "confirmado",                     el paso del seguimiento en que el usuario ve el estado actual:
+ *                                                     con la lavandería en "aceptado" sale "confirmado", y en
+ *                                                     "en_entrega", "listo" (ADR-0021 y su adenda propuesta). Fuera
+ *                                                     del flujo, el código del estado: "por_pagar" o "rechazado"
  *         "nombre": "Confirmado",                     el nombre para el usuario
- *         "visible_usuario": true                     false en el estado previo al pago (DD-123): la app no lo nombra
+ *         "visible_usuario": true                     false fuera del flujo, como en el estado previo al pago (DD-123)
+ *                                                     o en "rechazado" (estados-E19 espera DD-103): la app no lo nombra
  *       },
  *       "seguimiento": [                              los cinco estados que ve el usuario, en el orden del contrato
  *         { "codigo": "confirmado", "nombre": "Confirmado" },     (estados-E01). Siempre los cinco, también antes

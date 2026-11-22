@@ -95,6 +95,43 @@ y el orden del paso en que los ve el usuario (Listo y Confirmado), así que `seg
 paso actual igual que antes, por `estado.codigo`. La regla está en la adenda propuesta a ADR-0021, en el `design.md` de
 `pedidos-de-la-lavanderia`.
 
+### Los botones de la lavandería
+
+Lo agregó el implementador del servidor con las tareas 2.1, 3.1 y 3.2. Las rutas de la lavandería, su sesión, su
+autorización, la forma del pedido y sus errores comunes están en el `design.md` de `pedidos-de-la-lavanderia`, "Contrato
+de la API", y en el comentario de `servidor/app/Http/Controllers/Api/PedidosDeLaLavanderiaController.php`. Lo propio de
+este cambio:
+
+```
+POST /api/lavanderia/pedidos/{id_publico}/estado
+{ "estado": "recolectado" }          uno de: "recolectado", "en_proceso", "listo", "en_entrega"
+
+200  { "pedido": { ...el pedido de la lavandería, en su estado nuevo, con su "siguiente"... } }
+409  { "message": "Ese no es el paso siguiente del pedido.", "pedido": { ...el pedido como está... } }
+422  { "message": "Ese no es un botón de la lavandería.", "errors": { "estado": ["Ese no es un botón de la lavandería."] } }
+404  { "message": "No existe el pedido." }
+
+GET /api/lavanderia/pedidos/{id_publico}
+200  { "pedido": { ... } }            el pedido de la lavandería, en cualquier estado
+404  { "message": "No existe el pedido." }
+```
+
+| Botón (Módulo B #3) | `estado` | Desde | El usuario lo ve como |
+|---|---|---|---|
+| Recolectado | `recolectado` | `aceptado` | Recolectado (estados-E11) |
+| En proceso | `en_proceso` | `recolectado` | En proceso (estados-E11) |
+| Listo | `listo` | `en_proceso` | Listo (estados-E11) |
+| En proceso de entrega | `en_entrega` | `listo` | Listo (ADR-0021) |
+
+- **El paso siguiente.** El pedido de la lavandería trae `siguiente`, `{ "estado": "…", "boton": "…" }` o `null`: es el
+  único botón que la app habilita (estados-E06). Desde `en_entrega` es `null`: Entregado espera DD-022 (estados-E13).
+- **Quién lo mueve.** Otra lavandería, de la misma plaza o de otra, recibe 404 (estados-E07); una cuenta de usuario,
+  403 (estados-E08), y ninguna ruta suya cambia el estado; un pedido no aceptado o rechazado responde 409 (estados-E09);
+  uno sin pago acreditado, 404, y no se agrega ningún evento (estados-E23).
+- **El historial.** Cada botón agrega un evento a `pedido_eventos` con el estado nuevo, `ocurrido_en` y la cuenta de la
+  lavandería en `id_usuarios`, en la misma transacción que `pedidos.id_estados_pedido`, y publica
+  `App\Pedidos\EstadoDelPedidoCambiado` ya guardado (estados-E14; avisos-E14).
+
 ## Risks / Trade-offs
 
 - **[Entregado no tiene quién lo marque en este hito]** → Los botones de la lavandería terminan en "En proceso de entrega"; "Entregado" es un botón del repartidor (cambio `repartidor`, hito H8), o de la lavandería si DD-022 lo resuelve así. Al cerrar H6, el recorrido en local llega hasta Listo o En proceso de entrega, no hasta Entregado. Hay que decirlo antes de prometer el recorrido completo.
