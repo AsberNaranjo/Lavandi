@@ -10,7 +10,7 @@
 
 ## 2. Servidor: los botones de la lavandería y el historial
 
-- [ ] 2.1 estados-E03, estados-E04, estados-E05 y estados-E14: transiciones de la lavandería en el orden del contrato, rechazo de saltos y regresos, y un evento en `pedido_eventos` por cambio, con su hora y quién lo hizo, junto con `pedidos.id_estados_pedido` en la misma transacción — test: `servidor/tests/Feature/Estados/BotonesDeLaLavanderiaTest.php` — tamaño M
+- [x] 2.1 estados-E03, estados-E04, estados-E05 y estados-E14: transiciones de la lavandería en el orden del contrato, rechazo de saltos y regresos, y un evento en `pedido_eventos` por cambio, con su hora y quién lo hizo, junto con `pedidos.id_estados_pedido` en la misma transacción — test: `servidor/tests/Feature/Estados/BotonesDeLaLavanderiaTest.php` — tamaño M. `POST /api/lavanderia/pedidos/{id_publico}/estado` con `App\Pedidos\CambioDeEstado`, que publica `EstadoDelPedidoCambiado`; siembra `en_entrega`, que el usuario ve como Listo. `EstadosDePrueba::marcarComoLaLavanderia()` ya usa la operación real, y las pruebas que movían un pedido sin aceptarlo lo aceptan primero; Entregado, del repartidor, lo hace en las pruebas `entregarComoElRepartidor()` hasta H8
 
 ## 3. Servidor: quién mueve y quién consulta
 

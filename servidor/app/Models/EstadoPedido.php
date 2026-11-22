@@ -37,6 +37,9 @@ class EstadoPedido extends Modelo
 
     public const LISTO = 'listo';
 
+    /** La lavandería marcó "En proceso de entrega" (Módulo B #3). El usuario lo sigue viendo en Listo (ADR-0021). */
+    public const EN_ENTREGA = 'en_entrega';
+
     public const ENTREGADO = 'entregado';
 
     /** La lavandería rechazó el pedido con su motivo (Módulo B #2). Fuera de los cinco: la banda de excepción (C-201). */

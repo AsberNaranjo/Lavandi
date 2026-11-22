@@ -63,7 +63,8 @@ class CanalDeAvisosTest extends TestCase
 
         $this->prepararPedido();
         $this->cuenta = $this->cuentaDeUsuario();
-        $this->pedido = $this->pedidoConfirmadoDe($this->cuenta);
+        // Aceptado por su lavandería, para que sus botones lo muevan.
+        $this->pedido = $this->pedidoAceptadoDe($this->cuenta);
     }
 
     #[TestDox('avisos-E01: un aviso sale por Firebase Cloud Messaging, dirigido al token de ese teléfono, con el servicio simulado')]
@@ -153,7 +154,7 @@ class CanalDeAvisosTest extends TestCase
         $this->assertSame(EstadoPedido::RECOLECTADO, $this->pedido->fresh()->estado->codigo);
         $this->assertTrue($evento->exists);
         $this->assertSame(
-            [EstadoPedido::POR_PAGAR, EstadoPedido::CONFIRMADO, EstadoPedido::RECOLECTADO],
+            [EstadoPedido::POR_PAGAR, EstadoPedido::CONFIRMADO, EstadoPedido::ACEPTADO, EstadoPedido::RECOLECTADO],
             $this->pedido->eventos()->with('estado')->orderBy('id_pedido_eventos')->get()->pluck('estado.codigo')->all(),
         );
         $this->assertFalloEnLaBitacora(EstadoPedido::RECOLECTADO, 'no se pudo llegar a FCM');

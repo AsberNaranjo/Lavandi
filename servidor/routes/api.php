@@ -105,4 +105,7 @@ Route::middleware(['auth:sanctum', 'autorizar:lavanderia'])->prefix('lavanderia'
         ->name('lavanderia.pedidos.aceptar');
     Route::post('pedidos/{pedido}/rechazar', [PedidosDeLaLavanderiaController::class, 'rechazar'])
         ->name('lavanderia.pedidos.rechazar');
+    // Los botones Recolectado, En proceso, Listo y En proceso de entrega (estados-del-pedido).
+    Route::post('pedidos/{pedido}/estado', [PedidosDeLaLavanderiaController::class, 'marcar'])
+        ->name('lavanderia.pedidos.estado');
 });

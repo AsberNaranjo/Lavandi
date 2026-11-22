@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\EstadoPedido;
 use App\Models\Pedido;
 use App\Models\PedidoServicio;
+use App\Pedidos\CambioDeEstado;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,15 +22,34 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class PedidoDeLaLavanderiaResource extends JsonResource
 {
     /**
-     * Cómo nombra la app de la lavandería cada estado operativo: "Por aceptar" es el de la tarjeta de pedido de socio
-     * lavandería (vault/design-system/componentes.md, componente 4); "Aceptado" y "Rechazado", los de su respuesta
-     * (Módulo B #2; pedidos-lavanderia-E07 y E12).
+     * Cómo nombra la app de la lavandería cada estado operativo, y cada botón por el estado al que lleva: "Por aceptar"
+     * es el de la tarjeta de pedido de socio lavandería (vault/design-system/componentes.md, componente 4); "Aceptado"
+     * y "Rechazado", los de su respuesta (Módulo B #2; pedidos-lavanderia-E07 y E12); los cuatro botones, con sus
+     * nombres del contrato (Módulo B #3), y Entregado, con el del Módulo A #12. Un estado que no está aquí se nombra como
+     * lo ve el usuario.
      */
     private const NOMBRES = [
         EstadoPedido::CONFIRMADO => 'Por aceptar',
         EstadoPedido::ACEPTADO => 'Aceptado',
         EstadoPedido::RECHAZADO => 'Rechazado',
+        EstadoPedido::RECOLECTADO => 'Recolectado',
+        EstadoPedido::EN_PROCESO => 'En proceso',
+        EstadoPedido::LISTO => 'Listo',
+        EstadoPedido::EN_ENTREGA => 'En proceso de entrega',
+        EstadoPedido::ENTREGADO => 'Entregado',
     ];
+
+    /**
+     * El botón del paso siguiente, con su nombre, o null si la lavandería no tiene ninguno que tocar.
+     *
+     * @return array{estado: string, boton: string}|null
+     */
+    private function siguiente(string $codigo): ?array
+    {
+        $siguiente = CambioDeEstado::botonSiguiente($codigo);
+
+        return $siguiente === null ? null : ['estado' => $siguiente, 'boton' => self::NOMBRES[$siguiente]];
+    }
 
     /**
      * El pedido con lo que muestra la respuesta, ya cargado.
@@ -66,6 +86,8 @@ class PedidoDeLaLavanderiaResource extends JsonResource
             ],
             // Solo el pedido que espera la respuesta de la lavandería ofrece Aceptar y Rechazar (pedidos-lavanderia-E03).
             'por_responder' => $codigo === EstadoPedido::CONFIRMADO,
+            // El único botón que puede tocar: el paso siguiente, o ninguno (estados-E06).
+            'siguiente' => $this->siguiente($codigo),
             'servicios' => $this->servicios->sortBy('id_pedido_servicios')->map(fn (PedidoServicio $servicio): array => [
                 'codigo' => $servicio->tipo->codigo,
                 'nombre' => $servicio->tipo->nombre,

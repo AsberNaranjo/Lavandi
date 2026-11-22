@@ -88,10 +88,12 @@ una sola llave, `seguimiento`:
 anteriores son los cumplidos y los siguientes, los pendientes. Con `estado.visible_usuario` en `false` (`por_pagar`), el
 pedido todavía no entra al flujo y ningún paso es el actual.
 
-**Pendiente para el cambio que siembre `en_entrega`.** ADR-0021 dice que el usuario lo ve como Listo. Si se siembra con
-`visible_usuario` verdadero, aparecería un sexto paso en `seguimiento`, y su `estado.codigo` no sería ninguno de los
-cinco. La prueba de estados-E01 lo detecta, porque exige exactamente los cinco. Ese cambio decide cómo queda la lista y
-cómo ubica la app el paso actual.
+**`en_entrega` y `aceptado`: resuelto con la tarea 2.1.** Los dos se siembran con `visible_usuario` falso, el nombre
+y el orden del paso en que los ve el usuario (Listo y Confirmado), así que `seguimiento` sigue con exactamente los cinco
+(estados-E01). La API del usuario presenta el paso: con el pedido en `en_entrega`, `estado` sale como
+`{ "codigo": "listo", "nombre": "Listo", "visible_usuario": true }`, y con `aceptado`, como Confirmado. La app ubica el
+paso actual igual que antes, por `estado.codigo`. La regla está en la adenda propuesta a ADR-0021, en el `design.md` de
+`pedidos-de-la-lavanderia`.
 
 ## Risks / Trade-offs
 

@@ -71,7 +71,7 @@ class TelefonosRegistradosTest extends TestCase
     #[TestDox('avisos-E04: los avisos de los pedidos de esa cuenta van al token registrado')]
     public function test_avisos_e04_los_avisos_de_la_cuenta_van_al_token_registrado(): void
     {
-        $pedido = $this->pedidoConfirmadoDe($this->cuenta);
+        $pedido = $this->pedidoAceptadoDe($this->cuenta);
         $this->registrarTelefono($this->cuenta, 'token-del-telefono')->assertNoContent();
 
         $this->cambiarComoLaLavanderia($pedido, EstadoPedido::RECOLECTADO);
@@ -148,8 +148,8 @@ class TelefonosRegistradosTest extends TestCase
     public function test_avisos_e21_el_telefono_que_pasa_a_otra_cuenta_queda_ligado_solo_a_ella(): void
     {
         $cuentaB = $this->cuentaDeUsuario();
-        $pedidoA = $this->pedidoConfirmadoDe($this->cuenta);
-        $pedidoB = $this->pedidoConfirmadoDe($cuentaB);
+        $pedidoA = $this->pedidoAceptadoDe($this->cuenta);
+        $pedidoB = $this->pedidoAceptadoDe($cuentaB);
         $this->registrarTelefono($this->cuenta, 'token-compartido')->assertNoContent();
 
         $this->registrarTelefono($cuentaB, 'token-compartido', Dispositivo::IOS)->assertNoContent();
@@ -181,7 +181,7 @@ class TelefonosRegistradosTest extends TestCase
     #[TestDox('avisos-E05: al cerrar la sesión en ese teléfono, la api borra su token y los avisos de la cuenta ya no se le mandan')]
     public function test_avisos_e05_al_cerrar_la_sesion_se_borra_el_token(): void
     {
-        $pedido = $this->pedidoConfirmadoDe($this->cuenta);
+        $pedido = $this->pedidoAceptadoDe($this->cuenta);
         $sesion = $this->cuenta->createToken('app')->plainTextToken;
         $this->registrarTelefono($this->cuenta, 'token-del-telefono', sesion: $sesion)->assertNoContent();
         $this->registrarTelefono($this->cuenta, 'token-de-otro-telefono')->assertNoContent();
@@ -277,7 +277,7 @@ class TelefonosRegistradosTest extends TestCase
     #[TestDox('avisos-E06: el token que FCM rechaza al cambiar el estado se borra, el cambio se guarda y los otros teléfonos de la cuenta siguen')]
     public function test_avisos_e06_el_token_rechazado_se_borra_y_los_otros_telefonos_siguen(): void
     {
-        $pedido = $this->pedidoConfirmadoDe($this->cuenta);
+        $pedido = $this->pedidoAceptadoDe($this->cuenta);
         $rechazado = $this->telefonoDe($this->cuenta);
         $vigente = $this->telefonoDe($this->cuenta, Dispositivo::IOS);
         $this->simularFcm(function ($peticion) use ($rechazado) {

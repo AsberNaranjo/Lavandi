@@ -64,6 +64,10 @@ class HoraDelSeguimientoTest extends TestCase
     #[TestDox('estados-E24: cada estado al que llega el pedido trae la hora en que llegó, y los anteriores conservan la suya')]
     public function test_estados_e24_cada_estado_cumplido_conserva_su_hora(): void
     {
+        // La lavandería lo acepta a las 09:45: el usuario lo sigue viendo en Confirmado, con la hora de la confirmación.
+        $this->elJuevesALas('09:45:00');
+        $this->aceptarComoLaLavanderia($this->pedido);
+
         $this->elJuevesALas('10:05:00');
         $this->marcarComoLaLavanderia($this->pedido, EstadoPedido::RECOLECTADO);
 

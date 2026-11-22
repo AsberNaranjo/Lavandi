@@ -21,8 +21,8 @@ use Tests\TestCase;
  * Listo y Entregado (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo A #12; ADR-0021).
  *
  * El pedido entra al flujo en Confirmado cuando la pasarela confirma su pago (C-188): aquí lo confirma la operación de
- * confirmar, como lo hará el cobro. La lavandería lo mueve con EstadosDePrueba::marcarComoLaLavanderia() hasta que
- * existan sus botones (tarea 2.1) y la aceptación del pedido (pedidos-de-la-lavanderia).
+ * confirmar, como lo hará el cobro. La lavandería lo acepta y lo mueve con sus botones, la operación real
+ * (EstadosDePrueba::aceptarComoLaLavanderia() y marcarComoLaLavanderia(); estados-del-pedido, tarea 2.1).
  *
  * Escenarios: estados-E01 y estados-E11 · Spec: openspec/changes/estados-del-pedido/specs/estados/spec.md · Tarea 1.1
  */
@@ -103,6 +103,8 @@ class EstadoVisibleTest extends TestCase
             'Listo' => [EstadoPedido::LISTO, 3],
         ];
 
+        $this->aceptarComoLaLavanderia($this->pedido);
+
         foreach ($botones as $boton => [$codigo, $paso]) {
             $this->marcarComoLaLavanderia($this->pedido, $codigo);
 
@@ -123,6 +125,7 @@ class EstadoVisibleTest extends TestCase
     #[TestDox('estados-E01 y estados-E11: el estado y los cinco estados solo los recibe la cuenta que hizo el pedido; otra cuenta o la lavandería no reciben ningún dato')]
     public function test_estados_e01_y_e11_el_seguimiento_solo_lo_recibe_la_cuenta_que_hizo_el_pedido(): void
     {
+        $this->aceptarComoLaLavanderia($this->pedido);
         $this->marcarComoLaLavanderia($this->pedido, EstadoPedido::RECOLECTADO);
 
         $otra = $this->consultarPedido($this->cuentaDeUsuario(), $this->pedido->id_publico);

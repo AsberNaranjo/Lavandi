@@ -23,18 +23,48 @@ use Illuminate\Support\Facades\DB;
  */
 final class CambioDeEstado
 {
+    /**
+     * Los botones de la lavandería, en el orden del contrato: "Recolectado → En proceso → Listo → En proceso de entrega"
+     * (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #3). Cada uno es el estado al que lleva el pedido.
+     */
+    public const BOTONES = [
+        EstadoPedido::RECOLECTADO,
+        EstadoPedido::EN_PROCESO,
+        EstadoPedido::LISTO,
+        EstadoPedido::EN_ENTREGA,
+    ];
+
     private const YA_RESPONDIDO = 'El pedido ya fue respondido.';
+
+    private const NO_ES_EL_SIGUIENTE = 'Ese no es el paso siguiente del pedido.';
 
     /**
      * Lo que la lavandería puede hacer desde cada estado: el estado al que llega (ADR-0021, decisión 2, y su adenda
-     * propuesta en openspec/changes/pedidos-de-la-lavanderia/design.md).
+     * propuesta en openspec/changes/pedidos-de-la-lavanderia/design.md). Desde un estado que no está aquí, como
+     * por_pagar, rechazado, en_entrega o entregado, la lavandería no puede hacer nada.
      *
      * @var array<string, list<string>>
      */
     private const DE_LA_LAVANDERIA = [
         // Aceptar o rechazar con motivo (Módulo B #2).
         EstadoPedido::CONFIRMADO => [EstadoPedido::ACEPTADO, EstadoPedido::RECHAZADO],
+        // Los botones, uno tras otro (Módulo B #3). Sin aceptar no hay botones (estados-E09).
+        EstadoPedido::ACEPTADO => [EstadoPedido::RECOLECTADO],
+        EstadoPedido::RECOLECTADO => [EstadoPedido::EN_PROCESO],
+        EstadoPedido::EN_PROCESO => [EstadoPedido::LISTO],
+        EstadoPedido::LISTO => [EstadoPedido::EN_ENTREGA],
+        // Desde en_entrega, Entregado espera DD-022 (estados-E13).
     ];
+
+    /**
+     * El botón que la lavandería puede tocar en un pedido en ese estado: el paso siguiente, o ninguno (estados-E06).
+     */
+    public static function botonSiguiente(string $estado): ?string
+    {
+        $siguientes = array_values(array_intersect(self::DE_LA_LAVANDERIA[$estado] ?? [], self::BOTONES));
+
+        return $siguientes[0] ?? null;
+    }
 
     /**
      * La lavandería acepta el pedido que espera su respuesta (pedidos-lavanderia-E07). Uno ya respondido no cambia
@@ -57,6 +87,23 @@ final class CambioDeEstado
     public function rechazar(Pedido $pedido, Usuario $lavanderia, string $motivo): Pedido
     {
         return $this->cambiar($pedido, $lavanderia, EstadoPedido::RECHAZADO, self::YA_RESPONDIDO, $motivo);
+    }
+
+    /**
+     * La lavandería toca un botón: el pedido pasa al estado de ese botón si es el paso siguiente (estados-E03 y E04). Un
+     * salto, un regreso o un botón en un pedido que no aceptó o que rechazó no cambian nada (estados-E05 y E09).
+     *
+     * @param  string  $estado  Uno de BOTONES.
+     *
+     * @throws CambioDeEstadoNoPermitido
+     */
+    public function marcar(Pedido $pedido, Usuario $lavanderia, string $estado): Pedido
+    {
+        if (! in_array($estado, self::BOTONES, true)) {
+            throw new CambioDeEstadoNoPermitido($pedido, self::NO_ES_EL_SIGUIENTE);
+        }
+
+        return $this->cambiar($pedido, $lavanderia, $estado, self::NO_ES_EL_SIGUIENTE);
     }
 
     /**

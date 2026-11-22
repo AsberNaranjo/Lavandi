@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Autorizacion\Autorizacion;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\MarcarPedidoRequest;
 use App\Http\Requests\RechazarPedidoRequest;
 use App\Http\Resources\PedidoDeLaLavanderiaResource;
 use App\Models\Pedido;
@@ -16,7 +17,8 @@ use Illuminate\Support\Str;
 
 /**
  * Los pedidos de la lavandería, en la app del Módulo B: aceptar o rechazar con motivo
- * (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #2; openspec/changes/pedidos-de-la-lavanderia/).
+ * (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #2; openspec/changes/pedidos-de-la-lavanderia/) y los botones
+ * "Recolectado → En proceso → Listo → En proceso de entrega" (Módulo B #3; openspec/changes/estados-del-pedido/).
  *
  * Contrato para la app. Todas las rutas llevan sesión y pasan por el componente de autorización:
  *
@@ -39,6 +41,10 @@ use Illuminate\Support\Str;
  *         "nombre": "Por aceptar"                     cómo lo nombra la app de la lavandería
  *       },
  *       "por_responder": true,                        true solo en "confirmado": la app ofrece Aceptar y Rechazar
+ *       "siguiente": null | {                         el único botón que la lavandería puede tocar (estados-E06)
+ *         "estado": "recolectado",                    el código que se manda a POST .../estado
+ *         "boton": "Recolectado"                      su nombre
+ *       },                                            null si espera respuesta, rechazado o en "en_entrega"
  *       "servicios": [
  *         { "codigo": "estandar", "nombre": "Lavado estándar", "unidad": { "codigo": "kg", "nombre": "kilo" } }
  *       ],
@@ -83,6 +89,29 @@ use Illuminate\Support\Str;
  *          El pedido no cambia. Se valida antes de buscar el pedido: la respuesta es la misma para cualquier pedido.
  *     409  { "message": "El pedido ya fue respondido.", "pedido": { ...el pedido como está... } }
  *          El pedido ya se aceptó o se rechazó (pedidos-lavanderia-E08). No cambia.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
+ *     POST /api/lavanderia/pedidos/{id_publico}/estado         Un botón de la lavandería (estados-E03 a E05)
+ *
+ *     { "estado": "recolectado" }                              obligatorio: el estado al que lleva el botón, uno de
+ *                                                                "recolectado"   Recolectado
+ *                                                                "en_proceso"    En proceso
+ *                                                                "listo"         Listo
+ *                                                                "en_entrega"    En proceso de entrega
+ *
+ *     Solo se puede marcar el paso siguiente, el de "siguiente": desde "aceptado", Recolectado; y así hasta En proceso
+ *     de entrega, después de la cual la lavandería no marca nada (Entregado espera DD-022, estados-E13).
+ *
+ *     200  { "pedido": { ...el pedido en su estado nuevo, con su "siguiente"... } }
+ *          Se guarda el evento con su hora y la cuenta de la lavandería. El usuario lo ve con el mismo nombre en
+ *          Recolectado, En proceso y Listo (estados-E11), y "En proceso de entrega" como Listo (ADR-0021).
+ *     422  { "message": "Ese no es un botón de la lavandería.", "errors": { "estado": ["Ese no es un botón de la lavandería."] } }
+ *          Sin estado, o uno que no es de los cuatro: "confirmado", "entregado", "aceptado", "rechazado"... El pedido no
+ *          cambia. Se valida antes de buscar el pedido.
+ *     409  { "message": "Ese no es el paso siguiente del pedido.", "pedido": { ...el pedido como está... } }
+ *          Un salto, un regreso, el mismo botón otra vez, o un pedido que no se ha aceptado, que se rechazó o que ya
+ *          está en "en_entrega" (estados-E05 y E09). No cambia.
  */
 class PedidosDeLaLavanderiaController extends Controller
 {
@@ -111,6 +140,19 @@ class PedidosDeLaLavanderiaController extends Controller
         );
 
         return response()->json(['pedido' => PedidoDeLaLavanderiaResource::delPedido($rechazado)]);
+    }
+
+    public function marcar(MarcarPedidoRequest $peticion, string $pedido): JsonResponse
+    {
+        $cuenta = $this->cuenta($peticion);
+
+        $marcado = $this->cambio->marcar(
+            $this->pedidoVisible($cuenta, $pedido),
+            $cuenta,
+            $peticion->validated('estado'),
+        );
+
+        return response()->json(['pedido' => PedidoDeLaLavanderiaResource::delPedido($marcado)]);
     }
 
     private function cuenta(Request $peticion): Usuario
