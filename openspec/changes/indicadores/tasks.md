@@ -32,7 +32,7 @@ M = 5 h.
 
 ## 4. Financiero (servidor/)
 
-- [ ] 4.1 indicadores-E16: ingresos brutos por periodo, con el mismo cálculo del reporte financiero — test: `servidor/tests/Feature/Indicadores/IngresosYComisionesTest.php` — tamaño M
+- [x] 4.1 indicadores-E16: ingresos brutos por periodo, con el mismo cálculo del reporte financiero — test: `servidor/tests/Feature/Indicadores/IngresosYComisionesTest.php` — tamaño M
 - [ ] 4.2 indicadores-E17: agrupación de las barras — test: `servidor/tests/Feature/Indicadores/IngresosYComisionesTest.php` — tamaño S — bloqueada: BR-31, DD-115
 - [ ] 4.3 indicadores-E18: comisiones por socio y en total — test: `servidor/tests/Feature/Indicadores/IngresosYComisionesTest.php` — tamaño S — bloqueada: DD-020, DD-013
 

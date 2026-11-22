@@ -11,6 +11,7 @@ use App\Exportacion\Exportadores\RetencionExportador;
 use App\Exportacion\Exportadores\UsuariosActivosExportador;
 use App\Filament\Actions\DescargarReporte;
 use App\Filament\Widgets\Indicadores\EntregasPorRepartidorTabla;
+use App\Filament\Widgets\Indicadores\IngresosBrutosGrafica;
 use App\Filament\Widgets\Indicadores\MapaDeCalor;
 use App\Filament\Widgets\Indicadores\MontoPromedioIndicador;
 use App\Filament\Widgets\Indicadores\PedidosPorEstadoGrafica;
@@ -138,6 +139,7 @@ class Indicadores extends Dashboard
             MontoPromedioIndicador::class,
             RankingDeLavanderiasTabla::class,
             EntregasPorRepartidorTabla::class,
+            IngresosBrutosGrafica::class,
             MapaDeCalor::class,
         ];
     }
