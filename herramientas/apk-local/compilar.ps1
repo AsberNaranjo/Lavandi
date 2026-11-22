@@ -4,7 +4,8 @@
 # modo release, firmado con la llave de depuración: se instala a mano, no va a ninguna tienda. Lo que necesita la
 # prueba local y no va en el producto vive solo en esa copia, nunca en movil/ de la rama de trabajo:
 # - el tráfico HTTP sin cifrar, para hablar con el servidor local (en producción todo va por HTTPS, RN-07);
-# - el logotipo del cliente en assets/marca/logotipo.png, que en el repositorio es el marcador neutro (CLAUDE.md §5).
+# - el logotipo del cliente en assets/marca/logotipo.png, que en el repositorio es el marcador neutro (CLAUDE.md §5);
+# - el ícono de la app, con las capas de vault/marca/visual/icono-app/ en lugar de los marcadores de assets/.
 #
 # Dos formas de llegar al servidor local (php artisan serve):
 # - usb  (por omisión): el teléfono, conectado por USB con la depuración activa, ve el servidor en 127.0.0.1 gracias
@@ -26,6 +27,7 @@ param(
     [ValidateSet('usb', 'wifi')][string]$Modo = 'usb',
     [string]$Ip = '',
     [string]$Logotipo = 'vault\marca\visual\logotipo\lavandi-logotipo-color.png',
+    [string]$IconoApp = 'vault\marca\visual\icono-app',
     [string]$Jdk = "$env:LOCALAPPDATA\ittob-android\jdk17",
     [string]$Sdk = "$env:LOCALAPPDATA\lavandi-android\sdk",
     # El CMake con ninja 1.12 o más nuevo: el 3.22 que pide React Native trae un ninja que no sabe de rutas largas y
@@ -39,6 +41,7 @@ $aqui = (git rev-parse --show-toplevel).Trim()
 $principal = Split-Path -Parent ((git rev-parse --path-format=absolute --git-common-dir).Trim())
 $envOrigen = if ([System.IO.Path]::IsPathRooted($EnvDeLaApp)) { $EnvDeLaApp } else { Join-Path (Get-Location) $EnvDeLaApp }
 $logoOrigen = if ([System.IO.Path]::IsPathRooted($Logotipo)) { $Logotipo } else { Join-Path $aqui $Logotipo }
+$iconoOrigen = if ([System.IO.Path]::IsPathRooted($IconoApp)) { $IconoApp } else { Join-Path $aqui $IconoApp }
 $destinoCompleto = if ([System.IO.Path]::IsPathRooted($Destino)) { $Destino } else { Join-Path $principal $Destino }
 
 foreach ($necesario in @($envOrigen, (Join-Path $Jdk 'bin\java.exe'), (Join-Path $Sdk 'platforms'))) {
@@ -76,12 +79,22 @@ try {
     npm ci --no-audit --no-fund
     if ($LASTEXITCODE -ne 0) { throw 'npm ci falló.' }
 
-    Write-Host '3/6 Logotipo del cliente en la copia'
+    Write-Host '3/6 Logotipo y ícono del cliente en la copia'
     $logoDestino = Join-Path $movil 'assets\marca\logotipo.png'
     if ((Test-Path $logoOrigen) -and (Test-Path (Split-Path -Parent $logoDestino))) {
         Copy-Item $logoOrigen $logoDestino -Force
     } else {
         Write-Host '   Sin logotipo o sin assets\marca en esta rama: se queda el marcador neutro.'
+    }
+    # Las capas del ícono (vault/marca/visual/icono-app/README.md) reemplazan a los marcadores de movil\assets con el
+    # mismo nombre; el prebuild genera con ellas los íconos de Android.
+    if (Test-Path $iconoOrigen) {
+        foreach ($capa in @('icon.png', 'android-icon-foreground.png', 'android-icon-background.png', 'android-icon-monochrome.png')) {
+            $origenCapa = Join-Path $iconoOrigen $capa
+            if (Test-Path $origenCapa) { Copy-Item $origenCapa (Join-Path $movil "assets\$capa") -Force }
+        }
+    } else {
+        Write-Host '   Sin las capas del ícono en esta rama: se queda el ícono de Expo.'
     }
 
     Write-Host '4/6 Proyecto nativo de Android (expo prebuild)'
