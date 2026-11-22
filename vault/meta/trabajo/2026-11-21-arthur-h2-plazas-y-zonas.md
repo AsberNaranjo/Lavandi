@@ -109,8 +109,18 @@ foto del perfil (el disco privado).
 - **Los indicadores** en `/admin/indicadores`.
 - **Probado en el emulador:** el usuario pidió; la lavandería aceptó y marcó Recolectado; el usuario vio el cambio.
 
+**La mañana del 22, unido a `feat/h2-lavanderias`, cada rama con sus tests (970 en verde tras el último merge):**
+- **La app de la lavandería:** su historial, su registro y su perfil.
+- **Las fotos:** la del perfil del usuario, comprimida en el teléfono, y las de la lavandería.
+- **La landing:** las 12 secciones, los testimonios administrables y el mapa de cobertura.
+- **El repartidor (H8) en el servidor y el panel:**
+  - registro, alta, suspensión y baja;
+  - pedidos asignados, aceptar o rechazar, Recolectado, En tránsito y Entregado;
+  - la foto de evidencia, el historial y las entregas del día y de la semana.
+  La asignación espera DD-014 y la entrada en la app, DD-053, que es de Nadir (decisión 19).
+
 **Sigue.**
-- En curso: la app de la lavandería (historial, registro y perfil), las fotos y la landing.
-- Después, el repartidor (H8), en lo que no espera DD-014.
+- En curso: la app del repartidor, el cobro con la pasarela simulada, la calificación con los textos legales y las
+  pruebas de autorización por rol.
 
 **Al terminar.** `situacion: terminada`, con el enlace al PR, que va después del del H1.
