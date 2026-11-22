@@ -18,10 +18,33 @@ luego el código mínimo; luego la limpieza.
 ## 3. Bloqueadas: no entran al sprint mientras su fila siga abierta
 
 - [ ] 3.1 direcciones-E13: radio de servicio de la lavandería dentro de su plaza (DD-083) — test: `servidor/tests/Feature/Direcciones/RadioDeServicioTest.php` — tamaño S
+- [ ] 3.2 direcciones-E21, direcciones-E23: `GET /api/direcciones/sugerencias` con Google Places detrás de una interfaz simulada en el test; el interruptor `GOOGLE_PLACES_ACTIVO` con `GOOGLE_PLACES_LLAVE` (ADR-0012), que apagado o sin llave responde `"activo": false` sin consultar; solo México, con el municipio y el estado; `throttle:sugerencias` de 30 por minuto por cuenta (DD-072, la llave; costo, fila propuesta en `design.md`) — test: `servidor/tests/Feature/Direcciones/SugerenciasDeCalleTest.php` — tamaño M — vive en `servidor/`
+- [ ] 3.3 direcciones-E22, direcciones-E23: `lugar` en `POST /api/direcciones`: con el autocompletado encendido, una sola consulta de detalle con el mismo token y la máscara `location`, en lugar de la geocodificación; apagado, se ignora y se geocodifica (DD-072; costo, fila propuesta) — test: `servidor/tests/Feature/Direcciones/SesionDeSugerenciasTest.php` — tamaño S — vive en `servidor/`
+- [ ] 3.4 direcciones-E21, direcciones-E22, direcciones-E23: las sugerencias bajo la calle, con un token UUID v4 por dirección, tres caracteres y 300 ms de espera, la atribución de Google, y sin mandar `lugar` si la persona cambió la calle; con `"activo": false` deja de pedir y la calle queda como texto libre (DD-072; costo, fila propuesta) — test: `movil/__tests__/direcciones/sugerencias-de-calle.test.tsx` — tamaño M — vive en `movil/`
+
+## 4. Servidor: la dirección asistida (C-238)
+
+Empiezan cuando Arthur asiente la adenda del ADR-0009 que propone `design.md` y responda dos de sus Open Questions: si
+`municipio` sale de `direcciones` (tarea 4.1) y si el código postal es obligatorio (tarea 4.4). Mismo orden: rojo,
+verde, refactor.
+
+- [ ] 4.1 Migración del catálogo: `entidades_federativas`, `municipios` y `colonias` con sus llaves, sus únicos de `codigo` y el índice de `colonias.codigo_postal`, en la lista `sin_plaza` de `servidor/config/modelo.php`; en `direcciones`, `id_municipios` opcional con su llave, su índice y `ON DELETE RESTRICT`, y sin `municipio`; los modelos `EntidadFederativa`, `Municipio` y `Colonia` con `$table` y `$primaryKey`; pasa la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — test: `servidor/tests/Feature/Direcciones/MigracionDelCatalogoTest.php` — tamaño S — vive en `servidor/`
+- [ ] 4.2 direcciones-E16: el comando `direcciones:cargar-catalogo` con el territorio de `servidor/config/territorio.php`: busca las columnas por nombre, convierte de ISO-8859-1, compara el nombre de cada municipio con la configuración y carga todo en una transacción, que se puede repetir; archivos de prueba inventados en `servidor/tests/Fixtures/sepomex/`. Cargar el archivo real en producción espera la licencia (fila propuesta en `design.md`) — test: `servidor/tests/Feature/Direcciones/CargaDelCatalogoTest.php` — tamaño M — vive en `servidor/`
+- [ ] 4.3 direcciones-E17, direcciones-E19, direcciones-E20: `GET /api/catalogos/municipios` y `GET /api/codigos-postales/{codigo_postal}/colonias`, con el contrato exacto de `design.md` y dentro del grupo de `auth:sanctum` y `autorizar:usuario` — test: `servidor/tests/Feature/Direcciones/CatalogoTest.php` — tamaño S — vive en `servidor/`
+- [ ] 4.4 direcciones-E17, direcciones-E18, direcciones-E20: en `POST /api/direcciones`, `municipio` por el `codigo` del catálogo, guardado como `id_municipios`, también en la del mapa si viene; `codigo_postal` de cinco números; la colonia sin compararla con el catálogo; todo antes de geocodificar; la respuesta con `municipio` y `estado` del catálogo — test: `servidor/tests/Feature/Direcciones/MunicipioYCodigoPostalTest.php` — tamaño M — vive en `servidor/`
+- [ ] 4.5 direcciones-E01, direcciones-E02, direcciones-E15: el texto que se geocodifica con el municipio y el estado del catálogo; el geocodificador de prueba decide por el municipio del catálogo, no por la palabra "durango"; `CreacionDePedido` copia el nombre del municipio en `pedido_direcciones`; se ajustan las ayudas de prueba que escriben `municipio` (`DireccionesDePrueba`, `PedidosDePrueba`) y las pruebas de migración y de copia que lo nombran — test: `servidor/tests/Feature/Direcciones/DireccionEscritaTest.php`, `servidor/tests/Feature/Direcciones/GeocodificadorDePruebaTest.php` y `servidor/tests/Feature/Confirmacion/CrearPedidoTest.php` — tamaño S — vive en `servidor/`
+
+## 5. App: la dirección asistida (C-238)
+
+Empiezan con la 4.3 y la 4.4 en verde, y con la pieza de lista que decida Arthur (Open Questions de `design.md`).
+
+- [ ] 5.1 direcciones-E01, direcciones-E17, direcciones-E18: el municipio se elige de la lista de `GET /api/catalogos/municipios`, pedida una vez por sesión de la app; manda el `codigo`; el error del campo va junto a él; sin lista, lo dice y la forma del mapa sigue sirviendo; `consultarMunicipios` en `movil/src/direcciones/api.ts` — test: `movil/__tests__/direcciones/municipio.test.tsx` y `movil/__tests__/direcciones/formulario.test.tsx` — tamaño M — vive en `movil/`
+- [ ] 5.2 direcciones-E02, direcciones-E19, direcciones-E20: el campo de código postal de cinco números; con los cinco, las colonias de `GET /api/codigos-postales/{codigo_postal}/colonias` en una lista, que al elegir escribe la colonia y, sin municipio elegido, elige el suyo; sin colonias, lo dice y deja escribirla; la colonia sigue obligatoria aunque haya código postal; `consultarColonias` en `movil/src/direcciones/api.ts` — test: `movil/__tests__/direcciones/codigo-postal-y-colonia.test.tsx` — tamaño M — vive en `movil/`
 
 ## Horas
 
 - **Banda media de S-006:** S = 2 h, M = 5 h.
-- **Listas:** 25 h (3 M y 5 S). Antes eran 23 h; la migración (tarea 1.1, S) suma 2 h.
-- **Bloqueadas:** 2 h (1 S), sin cambio.
-- **El plan:** le da 12 h a F-A08. Las listas quedan 13 h por encima (antes, 11).
+- **Listas:** 51 h (7 M y 8 S). Antes eran 25 h; la dirección asistida (tareas 4.1 a 5.2: 4 M y 3 S) suma 26 h.
+- **Bloqueadas:** 14 h (2 M y 2 S). Antes eran 2 h; el autocompletado (tareas 3.2 a 3.4) suma 12 h.
+- **El plan:** le da 12 h a F-A08. Las listas quedan 39 h por encima (antes, 13). El plan de sprints no tenía la
+  dirección asistida, que llegó con C-238.
