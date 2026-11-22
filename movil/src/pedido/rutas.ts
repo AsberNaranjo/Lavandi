@@ -1,7 +1,8 @@
 // Las rutas de los pasos del pedido nuevo (ADR-0017): la selección de servicio (perfil-lavanderia-E11), el paso de
 // fecha y hora (agenda-E04 y E08), el de la dirección, con la dirección nueva (direcciones-E01 a E11), y el resumen
-// (confirmacion-E01 y E07). Después, el pago del pedido creado, provisional mientras pago-E02 espera DD-055 y DD-079.
-// La confirmación con su folio (confirmacion-E09) es /pedido/confirmacion/[id]; la abrirá el pago.
+// (confirmacion-E01 y E07). Después, el pago del pedido creado (pago-E02), y la confirmación con su folio
+// (confirmacion-E09), /pedido/confirmacion/[id], que abre la espera del cobro cuando el servidor lo da por pagado
+// (pago-E08). La espera es de src/pago/rutas.ts.
 import type { Href } from 'expo-router';
 
 import type { ParaQueEsLaDireccion } from './pedidoEnCurso';

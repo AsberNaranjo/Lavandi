@@ -64,6 +64,7 @@ function Pantallas({ letraLista }: { letraLista: boolean }) {
         <Stack.Screen name="pedido/direccion-nueva" />
         <Stack.Screen name="pedido/resumen" />
         <Stack.Screen name="pedido/pago/[id]" />
+        <Stack.Screen name="pedido/pago/procesando/[cobro]" />
         <Stack.Screen name="pedido/confirmacion/[id]" />
         <Stack.Screen name="pedido/seguimiento/[id]" />
         <Stack.Screen name="perfil/index" />

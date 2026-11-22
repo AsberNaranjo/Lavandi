@@ -286,6 +286,49 @@ la spec ni un ADR. La 9 ajusta pruebas de otros cambios para que paguen por el c
     - Los dos comandos se niegan a correr fuera de `local` y `testing`, y todo esto necesita la pasarela simulada, que
       tampoco existe en otro entorno (punto 3).
 
+### La app (tareas 4.1 y 4.2)
+
+Las tomó Claude por delegación de Arthur (C-236), el 2026-11-22, dentro de la decisión 32 y la adenda del 2026-11-22 de
+ADR-0010. Ninguna cambia la spec ni un ADR.
+
+15. **`expo-web-browser` entra a `movil/`** (tarea 4.1), en la versión del SDK (`npx expo install expo-web-browser`,
+    `~58.1.0`). Es un módulo nativo: **el development build de las dos plataformas se tiene que compilar de nuevo**
+    antes de probar el pago en un teléfono. Expo Go ya lo trae (C-240). Su complemento de configuración solo hace algo
+    con la opción `experimentalLauncherActivity` de Android, que la app no usa, así que `app.config.ts` no cambia.
+16. **Cómo se abre el checkout** (tarea 4.1, `movil/src/pago/checkout.ts`): con la dirección de regreso,
+    `openAuthSessionAsync(checkout.url, checkout.regreso)`; en iPhone, con `{ preferEphemeralSession: true }`, y en
+    Android sin opciones, porque la de iPhone no aplica ahí. Si el servidor no tiene `PASARELA_REGRESO`
+    (`checkout.regreso` en `null`), `openBrowserAsync(checkout.url)`, la alternativa de la adenda: la persona cierra la
+    vista al terminar. La app nunca usa `Linking.openURL` para el checkout: saldría a Safari o a Chrome.
+17. **Cualquier regreso lleva a la espera del cobro** (tarea 4.1). Según el código de `expo-web-browser` 58.1.0 (grado
+    B, `movil/node_modules/expo-web-browser/src/WebBrowser.ts`), en iPhone la sesión termina con `success` y la URL de
+    regreso, o con `cancel` si la persona cierra la vista; en Android, con `success` y la URL si llega el enlace, o con
+    `dismiss` cuando la app vuelve al frente. Cómo se comporta cada sistema en un teléfono real es grado E, `SIN
+    VERIFICAR`. La app no lee el resultado ni la URL: con los cuatro pasa a "Procesando pago", que pregunta al servidor
+    (pago-E07). Por qué también al cerrar la vista: la persona pudo pagar y cerrarla antes del regreso, y el servidor es
+    el que sabe.
+18. **La espera tiene su propia ruta, por el cobro: `/pedido/pago/procesando/[cobro]`** (tarea 4.1). La pantalla de pago
+    la abre con `replace` al volver la persona del checkout. Va por el `id_publico` del cobro, que es lo único que trae el
+    enlace de regreso, para que ese enlace pueda abrirla.
+19. **El enlace de regreso, en `movil/app/+native-intent.tsx`** (tarea 4.1). En Android, al terminar el checkout el
+    sistema abre la app con `<esquema>://pago?…` y lo reciben `expo-web-browser`, que cierra la sesión, y `expo-router`,
+    que abriría la ruta `/pago`: no existe, así que caería en `+not-found` y de ahí al arranque, y la persona perdería la
+    espera. Con la app abierta, el regreso no navega (`redirectSystemPath` devuelve `null`). Si el enlace abre la app,
+    porque el sistema la cerró mientras se veía el checkout, lleva a la espera de su cobro; sin cobro, al arranque. Los
+    demás enlaces siguen igual. En iPhone el regreso no llega ahí: lo recibe `ASWebAuthenticationSession`.
+20. **Los textos no nombran a la pasarela** (tarea 4.1, `movil/src/pago/textos.ts`): "la página segura de pago", no
+    "Conekta", para que un cambio de pasarela (DD-079) no toque la app. El encabezado "Pago" es el del mock A10; del
+    mock no entran el total (DD-012), la tarjeta guardada (DD-055 y DD-079) ni el efectivo (DD-056).
+21. **Cuando el checkout no se da** (tarea 4.1): el 404 dice "No encontramos este pedido."; los 409 y el 503, el mensaje
+    del servidor; sin conexión, una falla del servidor o una respuesta fuera del contrato, los mensajes generales de la
+    app, como el resumen. Si la vista del sistema no se puede abrir, sin escenario propio, el mensaje general; el cobro
+    sigue pendiente y el botón lo vuelve a intentar. Mientras pide y mientras el checkout está abierto, un segundo
+    toque no pide otro.
+22. **Ninguna pantalla tiene campos de tarjeta, con prueba** (pago-E02, SEG-4): la pantalla de pago y la espera no
+    tienen ningún campo de texto, y una prueba recorre `movil/app/` y `movil/src/` y falla si algún archivo declara el
+    autocompletado de tarjeta del sistema (`cc-…`) o su tipo de contenido (`creditCard…`)
+    (`movil/__tests__/pago/abrir-checkout.test.tsx`).
+
 ## Contrato de la API
 
 El contrato con que se harán las tareas 4.1 (pago-E02) y 4.2 (pago-E08) de la app. Todo va bajo `/api`, en JSON. Los
