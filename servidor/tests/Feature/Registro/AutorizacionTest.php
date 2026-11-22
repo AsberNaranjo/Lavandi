@@ -4,7 +4,6 @@ namespace Tests\Feature\Registro;
 
 use App\Autorizacion\Autorizacion;
 use App\Filament\Auth\IniciarSesion;
-use App\Http\Middleware\Autorizar;
 use App\Models\Rol;
 use App\Models\Usuario;
 use Database\Factories\UsuarioFactory;
@@ -18,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\Autorizacion\Soporte\TablaDeRutas;
 use Tests\TestCase;
 
 /**
@@ -25,27 +25,16 @@ use Tests\TestCase;
  * exige sesión y pasa por él, y una cuenta de usuario no entra al panel (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3,
  * Separación por tipo de usuario; vault/arquitectura/c3-api.md; CLAUDE.md §9.5).
  *
+ * Las rutas de la API que no piden sesión las declara el componente, en Autorizacion::rutasSinSesion(), con su razón
+ * (autorizacion-E01): las que abren una sesión o recuperan la contraseña, también el registro del repartidor
+ * (repartidor-E01). Esta prueba recorre la API; la de autorizacion-E01, todas las rutas.
+ *
  * Escenarios: registro-E14 y registro-E15 · Spec: openspec/changes/registro-e-inicio-de-sesion/specs/registro/spec.md
  */
 class AutorizacionTest extends TestCase
 {
     use RefreshDatabase;
-
-    /**
-     * Las únicas rutas de la API que no piden sesión: las que abren una sesión o recuperan la contraseña (registro-E14).
-     * Algunas llegan con otras tareas (Google, 3.1; recuperación, 3.3) y ya están permitidas. El registro del
-     * repartidor también abre una sesión, con su cuenta pendiente de alta (repartidor-E01).
-     *
-     * Fuera de /api también son públicas la de salud (up) y la página web para crear la contraseña nueva
-     * (contrasena/restablecer, ADR-0018). Esta prueba recorre la API.
-     */
-    private const PUBLICAS = [
-        'POST api/registro',
-        'POST api/sesion',
-        'POST api/sesion/google',
-        'POST api/contrasena/olvido',
-        'POST api/repartidor/registro',
-    ];
+    use TablaDeRutas;
 
     /** Las rutas protegidas que ya existen: la prueba no pasa en vacío. */
     private const PROTEGIDAS_DE_ESTE_CAMBIO = [
@@ -56,9 +45,9 @@ class AutorizacionTest extends TestCase
     #[TestDox('registro-E14: toda ruta de la API que no es pública exige sesión y pasa por el componente de autorización')]
     public function test_registro_e14_toda_ruta_de_la_api_que_no_es_publica_exige_sesion_y_pasa_por_el_componente(): void
     {
-        $this->assertSame([], $this->rutasSinRegla());
+        $this->assertSame([], $this->rutasDeLaApiSinRegla());
 
-        $protegidas = array_keys(array_diff_key($this->rutasDeLaApi(), array_flip(self::PUBLICAS)));
+        $protegidas = array_keys($this->rutasProtegidas());
         $this->assertSame([], array_values(array_diff(self::PROTEGIDAS_DE_ESTE_CAMBIO, $protegidas)));
     }
 
@@ -90,14 +79,14 @@ class AutorizacionTest extends TestCase
             'GET api/prueba/solo-componente',
             'GET api/prueba/solo-sesion',
             'PUT api/sesion',
-        ], $this->rutasSinRegla());
+        ], $this->rutasDeLaApiSinRegla());
     }
 
     #[TestDox('registro-E14: sin sesión, toda ruta protegida de la API responde que no hay sesión')]
     public function test_registro_e14_sin_sesion_toda_ruta_protegida_de_la_api_responde_que_no_hay_sesion(): void
     {
         foreach ($this->rutasProtegidas() as $nombre => $ruta) {
-            $this->json($this->metodoDe($nombre), $this->direccionDe($ruta))
+            $this->json($this->metodoDe($nombre), $this->urlDe($ruta))
                 ->assertUnauthorized();
         }
     }
@@ -111,7 +100,7 @@ class AutorizacionTest extends TestCase
         foreach ($this->rutasProtegidas() as $nombre => $ruta) {
             $this->app['auth']->forgetGuards();
 
-            $respuesta = $this->withToken($token)->json($this->metodoDe($nombre), $this->direccionDe($ruta));
+            $respuesta = $this->withToken($token)->json($this->metodoDe($nombre), $this->urlDe($ruta));
 
             $respuesta->assertForbidden();
             $respuesta->assertJsonMissingPath('usuario');
@@ -179,35 +168,13 @@ class AutorizacionTest extends TestCase
     }
 
     /**
-     * Las rutas de la API, por "MÉTODO uri", sin HEAD.
+     * Las rutas de la API que no son públicas: las que el componente no declara sin sesión.
      *
-     * @return array<string, Ruta>
-     */
-    private function rutasDeLaApi(): array
-    {
-        $rutas = [];
-
-        foreach (Route::getRoutes()->getRoutes() as $ruta) {
-            if (! Str::startsWith($ruta->uri(), 'api/')) {
-                continue;
-            }
-
-            foreach (array_diff($ruta->methods(), ['HEAD']) as $metodo) {
-                $rutas["{$metodo} {$ruta->uri()}"] = $ruta;
-            }
-        }
-
-        ksort($rutas);
-
-        return $rutas;
-    }
-
-    /**
      * @return array<string, Ruta>
      */
     private function rutasProtegidas(): array
     {
-        $protegidas = array_diff_key($this->rutasDeLaApi(), array_flip(self::PUBLICAS));
+        $protegidas = array_diff_key($this->rutasDeLaApi(), app(Autorizacion::class)->rutasSinSesion());
         $this->assertNotEmpty($protegidas);
 
         return $protegidas;
@@ -218,50 +185,11 @@ class AutorizacionTest extends TestCase
      *
      * @return list<string>
      */
-    private function rutasSinRegla(): array
-    {
-        $sinRegla = [];
-
-        foreach ($this->rutasDeLaApi() as $nombre => $ruta) {
-            if (in_array($nombre, self::PUBLICAS, true)) {
-                continue;
-            }
-
-            $middleware = $this->middlewareDe($ruta);
-            $conSesion = in_array(Authenticate::class.':sanctum', $middleware, true);
-            $conComponente = collect($middleware)->contains(fn (string $nombre): bool => Str::startsWith($nombre, Autorizar::class.':'));
-
-            if (! $conSesion || ! $conComponente) {
-                $sinRegla[] = $nombre;
-            }
-        }
-
-        return $sinRegla;
-    }
-
-    /**
-     * El middleware de la ruta, con los alias y los grupos resueltos a sus clases.
-     *
-     * @return list<string>
-     */
-    private function middlewareDe(Ruta $ruta): array
+    private function rutasDeLaApiSinRegla(): array
     {
         return array_values(array_filter(
-            app('router')->gatherRouteMiddleware($ruta),
-            fn (mixed $middleware): bool => is_string($middleware),
+            $this->rutasSinRegla(),
+            fn (string $nombre): bool => Str::startsWith(Str::after($nombre, ' '), 'api/'),
         ));
-    }
-
-    private function metodoDe(string $nombre): string
-    {
-        return Str::before($nombre, ' ');
-    }
-
-    /**
-     * La dirección de la ruta, con un ULID cualquiera en cada parámetro.
-     */
-    private function direccionDe(Ruta $ruta): string
-    {
-        return '/'.preg_replace('/\{[^}]+\}/', (string) Str::ulid(), $ruta->uri());
     }
 }

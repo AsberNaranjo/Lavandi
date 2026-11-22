@@ -185,8 +185,10 @@ use Illuminate\Support\Str;
  *                "folio": "X4TCWWR5",                          siempre lleno: solo vienen pedidos confirmados
  *                "fecha": "2026-12-03",                        la de la recolección, en la hora de la plaza
  *                "lavanderia": { "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1u", "nombre": "Lavandería de prueba 1" },
- *                "estado": { "codigo": "entregado", "nombre": "Entregado", "visible_usuario": true }
- *              }
+ *                "estado": { "codigo": "entregado", "nombre": "Entregado", "visible_usuario": true },
+ *                "calificacion": null | { "estrellas": 4, "comentario": "La ropa llegó limpia." | null }
+ *              }                                             la calificación del servicio, si ya la hizo
+ *                                                            (historial-E06; POST /api/pedidos/{id_publico}/calificacion)
  *            ]
  *          }
  *          Solo los pedidos de la cuenta (historial-E02) y solo los confirmados, con "confirmado_en" lleno: uno que
@@ -278,7 +280,7 @@ class PedidosController extends Controller
             ->confirmados()
             ->recolectadosEntre($peticion->validated('desde'), $peticion->validated('hasta'))
             ->delMasRecienteAlMasAntiguo()
-            ->with(['plaza', 'lavanderia', 'estado.paso'])
+            ->with(['plaza', 'lavanderia', 'estado.paso', 'calificacionDelServicio'])
             ->get();
 
         return response()->json(['pedidos' => PedidoDeLaListaResource::collection($pedidos)]);
