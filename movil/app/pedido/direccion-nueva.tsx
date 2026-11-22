@@ -6,6 +6,11 @@
 //   4); la app no manda punto. Si falta la colonia, el servidor lo dice y la app lo señala junto al campo. Si el
 //   servidor no la encuentra, o el servicio que la busca no responde, la app lo dice y ofrece marcarla en el mapa, sin
 //   perder lo escrito.
+// - El municipio, en las dos formas, se elige de la lista del territorio (direcciones-E17; C-238), que la app pide una
+//   vez por sesión, con la pieza Selector (decisión 29 del acta del 2026-11-20). La app manda su código. No hay campo
+//   de texto libre: el servidor rechaza un municipio que no es del catálogo, y su error va junto al campo
+//   (direcciones-E18). Sin lista, lo dice junto al campo y deja intentarlo de nuevo; la forma del mapa sigue sirviendo,
+//   porque ahí el municipio es opcional.
 // - En el mapa (direcciones-E04 y E05): el mapa nativo de cada plataforma se abre en la ubicación del teléfono, la
 //   persona lo mueve bajo el pin y escribe la colonia, obligatoria, y las demás señas, opcionales. Se guarda con el
 //   punto del pin, sin geocodificar. Sin ubicación, o en un Android sin la llave de Google Maps, no hay mapa: lo dice y
@@ -17,7 +22,8 @@
 //
 // La composición es la del tablero "Dirección nueva" de la Propuesta 5 corregida (C-233) y las imágenes
 // a08-direccion-nueva y a08-direccion-mapa de la Propuesta 04. Del mock no entran el código postal (DD-135, punto 6), el
-// autocompletado ni la calle sugerida desde el pin (BR-12 y ADR-0009: sin geocodificación inversa).
+// autocompletado de la calle (direcciones-E21 a E23, bloqueados por DD-137) ni la calle sugerida desde el pin (BR-12 y
+// ADR-0009: sin geocodificación inversa).
 //
 // Sin conexión o con el servidor caído, sin escenario propio: los mensajes generales de la app.
 import { Redirect, useLocalSearchParams } from 'expo-router';
@@ -33,7 +39,13 @@ import {
   type SenasDeLaDireccion,
 } from '../../src/direcciones/api';
 import { MapaParaMarcar } from '../../src/direcciones/MapaParaMarcar';
-import { mensajeDelAlta, ofreceElMapa, TEXTOS_DE_DIRECCIONES } from '../../src/direcciones/textos';
+import {
+  mensajeDelAlta,
+  municipioEnTexto,
+  ofreceElMapa,
+  TEXTOS_DE_DIRECCIONES,
+} from '../../src/direcciones/textos';
+import { useMunicipios } from '../../src/direcciones/useMunicipios';
 import { usePuntoDeInicio } from '../../src/direcciones/usePuntoDeInicio';
 import { useRegresar } from '../../src/navegacion/regresar';
 import { agregarDireccion, usePedidoEnCurso, type ParaQueEsLaDireccion } from '../../src/pedido/pedidoEnCurso';
@@ -44,6 +56,7 @@ import { Interruptor } from '../../src/piezas/Interruptor';
 import { MensajeDeError } from '../../src/piezas/MensajeDeError';
 import { Pantalla } from '../../src/piezas/Pantalla';
 import { Pestanas } from '../../src/piezas/Pestanas';
+import { Selector, type OpcionDelSelector } from '../../src/piezas/Selector';
 import { useSesion } from '../../src/sesion/ProveedorDeSesion';
 import { color, espaciado, tipografia } from '../../src/tema/theme';
 
@@ -54,18 +67,26 @@ const FORMAS = [
   { clave: 'mapa', texto: TEXTOS_DE_DIRECCIONES.enElMapa },
 ] as const;
 
-const SIN_SENAS: SenasDeLaDireccion = {
+// Las señas que se escriben. El municipio se elige de la lista: se guarda aparte, con el texto que muestra el campo.
+type SenasEscritas = Omit<SenasDeLaDireccion, 'municipio'>;
+
+const SIN_SENAS: SenasEscritas = {
   calle: '',
   numero_exterior: '',
   numero_interior: '',
   colonia: '',
-  municipio: '',
   referencias: '',
 };
 
-// Los campos que la pantalla muestra, con el nombre de la favorita: el error de cualquiera de ellos va junto a él, no
-// arriba del botón.
-const CAMPOS_VISIBLES = [...Object.keys(SIN_SENAS), 'alias'];
+/** El municipio elegido de la lista: el código que viaja y el texto que muestra el campo. */
+interface MunicipioElegido {
+  codigo: string;
+  texto: string;
+}
+
+// Los campos que la pantalla muestra, con el municipio y el nombre de la favorita: el error de cualquiera de ellos va
+// junto a él, no arriba del botón.
+const CAMPOS_VISIBLES = [...Object.keys(SIN_SENAS), 'municipio', 'alias'];
 
 // La etiqueta de cada seña en cada forma: en el mapa, solo la colonia es obligatoria (direcciones-E04).
 const ETIQUETAS: Record<Forma, Record<keyof SenasDeLaDireccion, string>> = {
@@ -95,7 +116,9 @@ export default function PantallaDeDireccionNueva() {
   const para: ParaQueEsLaDireccion = paraDelEnlace === 'entrega' ? 'entrega' : 'recogida';
 
   const [forma, setForma] = useState<Forma>('escrita');
-  const [senas, setSenas] = useState<SenasDeLaDireccion>(SIN_SENAS);
+  const [senas, setSenas] = useState<SenasEscritas>(SIN_SENAS);
+  const [municipio, setMunicipio] = useState<MunicipioElegido | null>(null);
+  const municipios = useMunicipios();
   const [esFavorita, setEsFavorita] = useState(false);
   const [alias, setAlias] = useState('');
   const [falla, setFalla] = useState<FallaDelAlta | null>(null);
@@ -123,7 +146,7 @@ export default function PantallaDeDireccionNueva() {
     }
   }
 
-  function campo(nombre: keyof SenasDeLaDireccion, multilinea = false) {
+  function campo(nombre: keyof SenasEscritas, multilinea = false) {
     return (
       <CampoDeTexto
         nombre={nombre}
@@ -136,12 +159,51 @@ export default function PantallaDeDireccionNueva() {
     );
   }
 
+  // El municipio de la lista, o lo que se ve mientras llega o si no llegó (direcciones-E17).
+  function campoDelMunicipio() {
+    const { estado, reintentar } = municipios;
+    const opciones: OpcionDelSelector[] =
+      estado.fase === 'listos'
+        ? estado.municipios.map((uno) => ({ clave: uno.codigo, texto: municipioEnTexto(uno) }))
+        : [];
+    const sinLista = estado.fase === 'no-disponibles';
+    const aviso =
+      forma === 'escrita'
+        ? TEXTOS_DE_DIRECCIONES.municipiosNoDisponibles
+        : TEXTOS_DE_DIRECCIONES.municipiosNoDisponiblesEnElMapa;
+    return (
+      <>
+        <Selector
+          nombre="municipio"
+          etiqueta={ETIQUETAS[forma].municipio}
+          valor={municipio?.texto ?? ''}
+          marcador={
+            estado.fase === 'cargando' ? TEXTOS_DE_DIRECCIONES.cargandoMunicipios : TEXTOS_DE_DIRECCIONES.elegirMunicipio
+          }
+          etiquetaDeLaBusqueda={TEXTOS_DE_DIRECCIONES.buscarMunicipio}
+          opciones={opciones}
+          elegida={municipio?.codigo ?? null}
+          alElegir={({ clave, texto }) => setMunicipio({ codigo: clave, texto })}
+          // El error del servidor manda; sin él, el aviso de la lista que no llegó.
+          error={errores.municipio?.[0] ?? (sinLista ? aviso : undefined)}
+          deshabilitado={estado.fase !== 'listos'}
+        />
+        {sinLista ? (
+          <Boton variante="secundario" onPress={reintentar}>
+            {TEXTOS_DE_DIRECCIONES.intentarDeNuevo}
+          </Boton>
+        ) : null}
+      </>
+    );
+  }
+
   function nuevaDireccion(): DireccionNueva | null {
     const favorita = { es_favorita: esFavorita, alias };
+    const todas = { ...senas, municipio: municipio?.codigo ?? '' };
     if (forma === 'escrita') {
-      return { origen: 'escrita', ...senas, ...favorita };
+      return { origen: 'escrita', ...todas, ...favorita };
     }
-    return pin ? { origen: 'mapa', latitud: pin.latitud, longitud: pin.longitud, ...senas, ...favorita } : null;
+    return pin ? { origen: 'mapa', latitud: pin.latitud, longitud: pin.longitud, ...todas, ...favorita } : null;
   }
 
   async function guardar() {
@@ -180,7 +242,7 @@ export default function PantallaDeDireccionNueva() {
         {campo('numero_exterior')}
         {campo('numero_interior')}
         {campo('colonia')}
-        {campo('municipio')}
+        {campoDelMunicipio()}
         {campo('referencias', true)}
         <Interruptor
           etiqueta={TEXTOS_DE_DIRECCIONES.guardarComoFavorita}

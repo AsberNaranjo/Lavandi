@@ -84,6 +84,7 @@ const CASA: Direccion = {
   colonia: 'Colonia de prueba',
   codigo_postal: null,
   municipio: 'Municipio de prueba',
+  estado: 'Estado de prueba',
   referencias: 'Portón gris',
   latitud: 24.0277,
   longitud: -104.6532,
@@ -98,6 +99,7 @@ const OFICINA: Direccion = {
   colonia: 'Otra colonia de prueba',
   codigo_postal: null,
   municipio: 'Municipio de prueba',
+  estado: 'Estado de prueba',
   referencias: null,
   latitud: 24.0311,
   longitud: -104.6612,
@@ -204,6 +206,12 @@ function servidor({
     }
     if (ruta === '/direcciones/favoritas') {
       return respuesta(200, { direcciones: [CASA, OFICINA] });
+    }
+    // La lista del territorio, que la dirección nueva pide al abrirse (direcciones-E17).
+    if (ruta === '/catalogos/municipios') {
+      return respuesta(200, {
+        municipios: [{ codigo: '00001', nombre: 'Municipio de prueba', estado: { codigo: '00', nombre: 'Estado de prueba' } }],
+      });
     }
     if (ruta === '/direcciones/recogida-y-entrega' && metodo === 'POST') {
       const { recogida, entrega } = JSON.parse(String(opciones.body));
@@ -684,7 +692,14 @@ describe('confirmacion-E15: la dirección ya se usó con su plaza anterior', () 
       await fireEvent.changeText(screen.getByLabelText('Calle'), 'Calle de prueba');
       await fireEvent.changeText(screen.getByLabelText('Número'), '123');
       await fireEvent.changeText(screen.getByLabelText('Colonia'), 'Colonia de prueba');
-      await fireEvent.changeText(screen.getByLabelText('Municipio'), 'Municipio de prueba');
+      // El municipio, de la lista del territorio (direcciones-E17).
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Municipio' })).toBeEnabled());
+      await fireEvent.press(screen.getByRole('button', { name: 'Municipio' }));
+      await fireEvent.press(
+        within(screen.getByTestId('hoja-municipio')).getByRole('radio', {
+          name: 'Municipio de prueba, Estado de prueba',
+        }),
+      );
       await fireEvent.press(within(screen.getByTestId('acciones')).getByRole('button', { name: 'Guardar dirección' }));
       await waitFor(() => expect(screen).toHavePathname('/pedido/direccion'));
       expect(peticionesA('/direcciones')).toHaveLength(1);

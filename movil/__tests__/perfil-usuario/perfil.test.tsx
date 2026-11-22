@@ -46,6 +46,7 @@ const CASA = {
   colonia: 'Colonia de prueba',
   codigo_postal: null,
   municipio: 'Municipio de prueba',
+  estado: 'Estado de prueba',
   referencias: 'Portón gris',
   latitud: 24.0277,
   longitud: -104.6532,

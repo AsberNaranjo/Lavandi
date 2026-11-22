@@ -52,6 +52,7 @@ const GUARDADA = {
   colonia: 'Colonia de prueba',
   codigo_postal: null,
   municipio: null,
+  estado: null,
   referencias: 'Portón de prueba',
   latitud: PUERTA.latitude,
   longitud: PUERTA.longitude,
@@ -77,6 +78,12 @@ function servidor(alGuardar: () => ReturnType<typeof respuesta>) {
     const ruta = url.slice(BASE.length);
     if (ruta === '/cuenta') {
       return respuesta(200, { usuario: USUARIO });
+    }
+    // La lista del territorio, que la dirección nueva pide al abrirse (direcciones-E17).
+    if (ruta === '/catalogos/municipios') {
+      return respuesta(200, {
+        municipios: [{ codigo: '00001', nombre: 'Municipio de prueba', estado: { codigo: '00', nombre: 'Estado de prueba' } }],
+      });
     }
     if (ruta === '/direcciones' && opciones.method === 'POST') {
       return alGuardar();
@@ -173,11 +180,14 @@ describe('direcciones-E04: marcar la dirección en el mapa', () => {
         'Número (opcional)',
         'Número interior (opcional)',
         'Colonia',
-        'Municipio (opcional)',
         'Referencias (opcional)',
       ]) {
         expect(screen.getByLabelText(etiqueta)).toHaveDisplayValue('');
       }
+      // El municipio, opcional, se elige de la lista del territorio (direcciones-E17).
+      const municipio = screen.getByRole('button', { name: 'Municipio (opcional)' });
+      await waitFor(() => expect(municipio).toBeEnabled());
+      expect(municipio).toHaveAccessibilityValue({ text: 'Elige tu municipio' });
     },
   );
 
@@ -233,6 +243,8 @@ describe('direcciones-E04: marcar la dirección en el mapa', () => {
   test('direcciones-E04 — mover el mapa no consulta nada: la calle no se sugiere desde el pin', async () => {
     await abrirElMapa('android');
     await screen.findByTestId('mapa-para-marcar');
+    // Ya llegó la lista de municipios, que se pide al abrir la dirección nueva (direcciones-E17).
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Municipio (opcional)' })).toBeEnabled());
     const antes = fetchFalso.mock.calls.length;
 
     await moverElMapaA(PUERTA);

@@ -1,6 +1,7 @@
-// Spec: openspec/changes/direcciones/specs/direcciones/spec.md, direcciones-E01, E02 y E03 (tarea 2.1). La dirección
-// nueva, escrita: calle, número, colonia y municipio, con el número interior y las referencias opcionales (DD-135,
-// punto 6). La colonia es obligatoria. El servidor convierte la dirección en un punto una sola vez, al guardarla
+// Spec: openspec/changes/direcciones/specs/direcciones/spec.md, direcciones-E01, E02 y E03 (tareas 2.1 y 5.1). La
+// dirección nueva, escrita: calle, número, colonia y municipio, con el número interior y las referencias opcionales
+// (DD-135, punto 6). La colonia es obligatoria y el municipio se elige de la lista del territorio (direcciones-E17, que
+// prueba municipio.test.tsx). El servidor convierte la dirección en un punto una sola vez, al guardarla
 // (ADR-0009, decisión 4); si no la encuentra, la app ofrece marcarla en el mapa. Se abre la app real, con las rutas de
 // movil/app/ (ADR-0017), en iPhone y en Android, con el servidor simulado: la geocodificación vive en el servidor, así
 // que aquí ninguna prueba la consulta.
@@ -15,6 +16,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
 import { marcarBienvenidaVista } from '../../src/bienvenida/vista';
+import { olvidarMunicipios } from '../../src/direcciones/useMunicipios';
 import { comprobarInstalacion } from '../../src/instalacion/marca';
 import { elegirServicio, empezarPedido, leerPedidoEnCurso, vaciarPedidoEnCurso } from '../../src/pedido/pedidoEnCurso';
 import { guardarToken } from '../../src/sesion/almacen';
@@ -37,6 +39,9 @@ const LAVANDERIA = {
   ],
 };
 
+// La lista del territorio de prueba: un solo municipio, con su estado (direcciones-E17).
+const MUNICIPIO = { codigo: '00001', nombre: 'Municipio de prueba', estado: { codigo: '00', nombre: 'Estado de prueba' } };
+
 // La dirección como la devuelve el servidor al guardarla: con el punto que le dio la geocodificación (direcciones-E01).
 const GUARDADA = {
   id_publico: '01jd00000000000000000000d1',
@@ -48,6 +53,7 @@ const GUARDADA = {
   colonia: 'Colonia de prueba',
   codigo_postal: null,
   municipio: 'Municipio de prueba',
+  estado: 'Estado de prueba',
   referencias: null,
   latitud: 24.0277,
   longitud: -104.6532,
@@ -65,12 +71,16 @@ function respuesta(status: number, cuerpo: unknown) {
   return { ok: status >= 200 && status < 300, status, json: async () => cuerpo };
 }
 
-// El servidor falso: reconoce el token y contesta el alta de la dirección con lo que se le dé.
+// El servidor falso: reconoce el token, da la lista de municipios y contesta el alta de la dirección con lo que se le
+// dé.
 function servidor(alGuardar: () => ReturnType<typeof respuesta> | Promise<never>) {
   fetchFalso.mockImplementation(async (url: string, opciones: RequestInit = {}) => {
     const ruta = url.slice(BASE.length);
     if (ruta === '/cuenta') {
       return respuesta(200, { usuario: USUARIO });
+    }
+    if (ruta === '/catalogos/municipios') {
+      return respuesta(200, { municipios: [MUNICIPIO] });
     }
     if (ruta === '/direcciones' && opciones.method === 'POST') {
       return alGuardar();
@@ -110,6 +120,16 @@ async function escribir(etiqueta: string, texto: string) {
   await fireEvent.changeText(screen.getByLabelText(etiqueta), texto);
 }
 
+// El municipio de la lista, cuando llega (direcciones-E17).
+async function elegirElMunicipio() {
+  const campo = () => screen.getByRole('button', { name: 'Municipio' });
+  await waitFor(() => expect(campo()).toBeEnabled());
+  await fireEvent.press(campo());
+  await fireEvent.press(
+    within(screen.getByTestId('hoja-municipio')).getByRole('radio', { name: 'Municipio de prueba, Estado de prueba' }),
+  );
+}
+
 // La dirección de prueba, escrita completa salvo lo que se pida dejar vacío.
 async function escribirLaDireccion({ sinColonia = false } = {}) {
   await escribir('Calle', GUARDADA.calle);
@@ -117,7 +137,7 @@ async function escribirLaDireccion({ sinColonia = false } = {}) {
   if (!sinColonia) {
     await escribir('Colonia', GUARDADA.colonia);
   }
-  await escribir('Municipio', GUARDADA.municipio);
+  await elegirElMunicipio();
 }
 
 async function guardar() {
@@ -127,6 +147,7 @@ async function guardar() {
 beforeEach(() => {
   almacen.__vaciar();
   vaciarPedidoEnCurso();
+  olvidarMunicipios();
   process.env.EXPO_PUBLIC_API_URL = BASE;
   // El inicio de sesión lleva el nombre de la app en su logotipo.
   process.env.EXPO_PUBLIC_NOMBRE_APP = 'Nombre de prueba direcciones-formulario';
@@ -174,7 +195,7 @@ describe('direcciones-E01: una dirección escrita se guarda con su punto', () =>
   );
 
   test.each(PLATAFORMAS)(
-    'direcciones-E01 — (%s) al escribir calle y número, colonia y municipio y guardar, la app manda la dirección escrita al servidor una sola vez, con la sesión y sin punto',
+    'direcciones-E01 — (%s) al escribir calle y número y colonia, elegir el municipio de la lista y guardar, la app manda la dirección escrita al servidor una sola vez, con la sesión y sin punto',
     async (plataforma) => {
       await abrirElFormulario(plataforma);
       await escribirLaDireccion();
@@ -189,7 +210,8 @@ describe('direcciones-E01: una dirección escrita se guarda con su punto', () =>
         calle: GUARDADA.calle,
         numero_exterior: GUARDADA.numero_exterior,
         colonia: GUARDADA.colonia,
-        municipio: GUARDADA.municipio,
+        // El código del municipio elegido, no su nombre (direcciones-E17).
+        municipio: MUNICIPIO.codigo,
         es_favorita: false,
       });
       // El punto lo pone el servidor con la geocodificación: la app no manda ninguno (ADR-0009, decisión 4).
