@@ -206,3 +206,9 @@ el sistema ni toca otro cambio.
    - `eventos_pasarela.tipo` es el evento ya traducido, sin proveedor: `aprobado`, `rechazado`, `vencido` u `otro`;
    - `reembolsos.estado`, con los tres valores del modelo de datos; `reembolsos.motivo` es opcional hasta que DD-016 y
      DD-103 digan si siempre hay uno.
+3. **La pasarela sale de la configuración** (tarea 1.2): `config/pasarela.php` lee `PASARELA`, el código de la que
+   cobra, y la llave de cada una del `.env` de su entorno (ADR-0012). `App\Cobro\Pasarelas` la elige. **La simulada solo
+   existe en local y en las pruebas:** en el entorno de prueba en internet y en producción no se usa aunque esté
+   configurada y tenga llave, y el pago responde 503. Así un aviso simulado nunca vale como pago fuera de la máquina de
+   desarrollo. La simulada autentica cada petición con su llave, `PASARELA_SIMULADA_LLAVE`, y sin ella no crea órdenes,
+   como una pasarela real. En las pruebas, la llave es la de prueba de `phpunit.xml`.
