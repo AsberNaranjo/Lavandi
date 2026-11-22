@@ -122,6 +122,8 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
 - **La retención** pone una fila por cada mes del rango, aunque ese mes nadie se haya registrado. El mes de registro se
   lee en la zona horaria de la aplicación (pregunta 8). Cuentan también las cuentas borradas después, porque su
   registro y sus pedidos son historial. El porcentaje lleva un decimal.
+- **El ranking** promedia todas las calificaciones de cada lavandería, sin el rango de la página, con un decimal, como
+  su perfil. Entran todas las lavanderías no borradas, de todas las plazas; con el mismo promedio, van por nombre.
 
 ## Open Questions
 

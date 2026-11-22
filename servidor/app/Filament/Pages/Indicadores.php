@@ -6,6 +6,7 @@ use App\Autorizacion\Autorizacion;
 use App\Filament\Widgets\Indicadores\PedidosPorEstadoGrafica;
 use App\Filament\Widgets\Indicadores\PedidosTotalesGrafica;
 use App\Filament\Widgets\Indicadores\PedidosTotalesTabla;
+use App\Filament\Widgets\Indicadores\RankingDeLavanderiasTabla;
 use App\Filament\Widgets\Indicadores\RetencionTabla;
 use App\Filament\Widgets\Indicadores\UsuariosActivosGrafica;
 use App\Indicadores\Granularidad;
@@ -90,6 +91,7 @@ class Indicadores extends Dashboard
             PedidosPorEstadoGrafica::class,
             UsuariosActivosGrafica::class,
             RetencionTabla::class,
+            RankingDeLavanderiasTabla::class,
         ];
     }
 }
