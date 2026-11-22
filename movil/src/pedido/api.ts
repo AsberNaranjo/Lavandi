@@ -151,8 +151,8 @@ function leerPedido(fila: unknown): Pedido | null {
   const lavanderia = esObjeto(fila.lavanderia) ? fila.lavanderia : null;
   const servicios = Array.isArray(fila.servicios) ? fila.servicios.map(leerServicio) : null;
   const ventana = leerVentana(fila.ventana);
-  const recogida = leerDireccion(fila.recogida);
-  const entrega = leerDireccion(fila.entrega);
+  const recogida = leerDireccionDelPedido(fila.recogida);
+  const entrega = leerDireccionDelPedido(fila.entrega);
   if (
     folio === undefined ||
     confirmadoEn === undefined ||
@@ -211,7 +211,11 @@ const SENAS_OPCIONALES = [
   'referencias',
 ] as const;
 
-function leerDireccion(fila: unknown): DireccionDelPedido | null {
+/**
+ * La copia de una dirección que guardó el pedido, leída campo por campo; null si no es del contrato. La leen también los
+ * pedidos del repartidor, que traen la recogida y la entrega con la misma forma (src/repartidor/api.ts).
+ */
+export function leerDireccionDelPedido(fila: unknown): DireccionDelPedido | null {
   if (!esObjeto(fila) || typeof fila.colonia !== 'string') {
     return null;
   }

@@ -70,7 +70,11 @@ export async function consultarEstadisticasDeLaLavanderia(
   return { ok: true, datos: { pedidos_del_dia: datos.pedidos_del_dia, pedidos_de_la_semana: datos.pedidos_de_la_semana } };
 }
 
-function leerPedidoEntregado(datos: unknown): PedidoEntregado | null {
+/**
+ * Un pedido entregado leído campo por campo; null si no es del contrato. Lo leen también las entregas del repartidor,
+ * con la misma forma (GET /api/repartidor/historial, src/repartidor/api.ts).
+ */
+export function leerPedidoEntregado(datos: unknown): PedidoEntregado | null {
   if (
     !esObjeto(datos) ||
     typeof datos.id_publico !== 'string' ||

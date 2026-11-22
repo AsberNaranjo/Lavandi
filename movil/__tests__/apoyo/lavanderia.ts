@@ -532,7 +532,12 @@ function anidar(formulario: FormularioDeReactNative): Record<string, unknown> {
   return raiz;
 }
 
-function leer(base: string, url: string, opciones: RequestInit = {}): Peticion {
+/**
+ * La petición que hizo la app, leída como la lee el servidor: su método, su ruta sin la dirección base, su cuerpo (el
+ * JSON o los campos del formulario multipart ya anidados), si fue multipart y su autorización. La usa también el servidor
+ * simulado del repartidor (__tests__/apoyo/repartidor.ts).
+ */
+export function leer(base: string, url: string, opciones: RequestInit = {}): Peticion {
   const cabeceras = (opciones.headers ?? {}) as Record<string, string>;
   const multipart = esFormulario(opciones.body);
   let cuerpo: unknown;
@@ -621,10 +626,13 @@ export async function abrirLaAppConSesion(plataforma: Plataforma, ruta = '/'): P
   await renderRouter(APP, { initialUrl: ruta });
 }
 
-/** Abre la app sin sesión, ya vista la bienvenida: llega al inicio de sesión (bienvenida-E04). */
-export async function abrirLaAppSinSesion(plataforma: Plataforma): Promise<void> {
+/**
+ * Abre la app sin sesión, ya vista la bienvenida: llega al inicio de sesión (bienvenida-E04), o a la ruta que diga la
+ * prueba, como el registro del repartidor, que todavía no tiene entrada desde la app (DD-053).
+ */
+export async function abrirLaAppSinSesion(plataforma: Plataforma, ruta = '/'): Promise<void> {
   jest.replaceProperty(Platform, 'OS', plataforma);
   await comprobarInstalacion();
   await marcarBienvenidaVista();
-  await renderRouter(APP, { initialUrl: '/' });
+  await renderRouter(APP, { initialUrl: ruta });
 }

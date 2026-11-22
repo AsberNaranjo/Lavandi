@@ -10,7 +10,15 @@ import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-na
 import { letra } from '../tema/letra';
 import { tema } from '../tema/theme';
 
-export type TipoDeCampo = 'texto' | 'correo' | 'contrasena' | 'contrasena-nueva' | 'fecha' | 'codigo-postal' | 'precio';
+export type TipoDeCampo =
+  | 'texto'
+  | 'correo'
+  | 'contrasena'
+  | 'contrasena-nueva'
+  | 'fecha'
+  | 'codigo-postal'
+  | 'precio'
+  | 'telefono';
 
 interface Propiedades {
   /** El nombre del campo en la API: une el campo con su error (`campo-<nombre>`). */
@@ -69,6 +77,13 @@ const POR_TIPO: Record<TipoDeCampo, TextInputProps> = {
   precio: {
     keyboardType: 'decimal-pad',
     autoCorrect: false,
+  },
+  // El teléfono del repartidor (repartidor-E01): el teclado de teléfono de las dos plataformas y el autocompletado del
+  // sistema con el de la persona. Se guarda como se escribe; su formato lo revisa el servidor.
+  telefono: {
+    keyboardType: 'phone-pad',
+    autoComplete: 'tel',
+    textContentType: 'telephoneNumber',
   },
 };
 
