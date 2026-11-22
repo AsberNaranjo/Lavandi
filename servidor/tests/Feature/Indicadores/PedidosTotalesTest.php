@@ -128,6 +128,77 @@ class PedidosTotalesTest extends TestCase
             ->assertSeeLivewire(PedidosTotalesTabla::class);
     }
 
+    #[TestDox('indicadores-E02: por semana, cada semana suma sus pedidos, de lunes a domingo, y la tabla la pone junto a la anterior')]
+    public function test_indicadores_e02_por_semana_cada_semana_suma_sus_pedidos_junto_a_la_anterior(): void
+    {
+        $this->sembrarEneroYFebrero();
+        $this->comoAdministracion();
+        // Del miércoles 7 al miércoles 14 de enero: el rango se ajusta a las semanas completas, del lunes 5 al domingo 18.
+        $filtros = $this->filtros('2026-01-07', '2026-01-14', 'semana');
+
+        $datos = $this->datosDeLaGrafica($this->widget(PedidosTotalesGrafica::class, $filtros));
+        $this->assertSame([2, 1], $datos['datasets'][0]['data']);
+        $this->assertSame(['Semana del 05/01/2026', 'Semana del 12/01/2026'], $datos['labels']);
+
+        $tabla = $this->widget(PedidosTotalesTabla::class, $filtros);
+        $this->assertSame(['2026-01-05', '2026-01-12'], $this->clavesDeLaTabla($tabla));
+        $tabla->assertTableColumnStateSet('pedidos', 2, '2026-01-05')
+            ->assertTableColumnStateSet('pedidos', 1, '2026-01-12')
+            // La semana anterior a la primera, la del 29 de diciembre, no tuvo pedidos.
+            ->assertTableColumnStateSet('periodo_anterior', 'Semana del 29/12/2025', '2026-01-05')
+            ->assertTableColumnStateSet('pedidos_anterior', 0, '2026-01-05')
+            ->assertTableColumnStateSet('periodo_anterior', 'Semana del 05/01/2026', '2026-01-12')
+            ->assertTableColumnStateSet('pedidos_anterior', 2, '2026-01-12');
+    }
+
+    #[TestDox('indicadores-E02: por mes, cada mes suma sus pedidos, y la tabla pone febrero junto a enero')]
+    public function test_indicadores_e02_por_mes_cada_mes_suma_sus_pedidos_junto_al_anterior(): void
+    {
+        $this->sembrarEneroYFebrero();
+        $this->comoAdministracion();
+        // Del 15 de enero al 10 de febrero: el rango se ajusta a los meses completos.
+        $filtros = $this->filtros('2026-01-15', '2026-02-10', 'mes');
+
+        $datos = $this->datosDeLaGrafica($this->widget(PedidosTotalesGrafica::class, $filtros));
+        $this->assertSame([3, 3], $datos['datasets'][0]['data']);
+        $this->assertSame(['enero 2026', 'febrero 2026'], $datos['labels']);
+
+        $tabla = $this->widget(PedidosTotalesTabla::class, $filtros);
+        $this->assertSame(['2026-01-01', '2026-02-01'], $this->clavesDeLaTabla($tabla));
+        $tabla->assertTableColumnStateSet('pedidos', 3, '2026-01-01')
+            ->assertTableColumnStateSet('pedidos', 3, '2026-02-01')
+            ->assertTableColumnStateSet('periodo_anterior', 'diciembre 2025', '2026-01-01')
+            ->assertTableColumnStateSet('pedidos_anterior', 0, '2026-01-01')
+            ->assertTableColumnStateSet('periodo_anterior', 'enero 2026', '2026-02-01')
+            ->assertTableColumnStateSet('pedidos_anterior', 3, '2026-02-01');
+    }
+
+    #[TestDox('indicadores-E02: al cambiar la vista a semanal y a mensual, la misma base da los mismos pedidos en total')]
+    public function test_indicadores_e02_las_tres_vistas_suman_los_mismos_pedidos(): void
+    {
+        $this->sembrarEneroYFebrero();
+        $this->comoAdministracion();
+
+        foreach (['dia', 'semana', 'mes'] as $granularidad) {
+            $datos = $this->datosDeLaGrafica(
+                $this->widget(PedidosTotalesGrafica::class, $this->filtros('2026-01-01', '2026-02-28', $granularidad)),
+            );
+
+            $this->assertSame(6, array_sum($datos['datasets'][0]['data']), $granularidad);
+        }
+    }
+
+    /**
+     * Dos pedidos en la semana del lunes 5 de enero de 2026 (el martes y el jueves), uno en la del lunes 12 (el
+     * miércoles) y tres en febrero, en tres semanas distintas.
+     */
+    private function sembrarEneroYFebrero(): void
+    {
+        foreach (['2026-01-06', '2026-01-08', '2026-01-14', '2026-02-03', '2026-02-10', '2026-02-17'] as $dia) {
+            $this->pedidoConfirmadoEl($dia.' 10:00:00');
+        }
+    }
+
     /**
      * Tres pedidos confirmados el lunes de la semana de prueba y dos el miércoles, a horas distintas del día.
      */
