@@ -103,4 +103,6 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
 Route::middleware(['auth:sanctum', 'autorizar:lavanderia'])->prefix('lavanderia')->group(function () {
     Route::post('pedidos/{pedido}/aceptar', [PedidosDeLaLavanderiaController::class, 'aceptar'])
         ->name('lavanderia.pedidos.aceptar');
+    Route::post('pedidos/{pedido}/rechazar', [PedidosDeLaLavanderiaController::class, 'rechazar'])
+        ->name('lavanderia.pedidos.rechazar');
 });

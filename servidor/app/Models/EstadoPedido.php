@@ -39,6 +39,9 @@ class EstadoPedido extends Modelo
 
     public const ENTREGADO = 'entregado';
 
+    /** La lavandería rechazó el pedido con su motivo (Módulo B #2). Fuera de los cinco: la banda de excepción (C-201). */
+    public const RECHAZADO = 'rechazado';
+
     protected $table = 'estados_pedido';
 
     protected $primaryKey = 'id_estados_pedido';

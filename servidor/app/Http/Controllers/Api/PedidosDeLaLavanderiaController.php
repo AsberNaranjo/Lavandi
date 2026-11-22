@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Autorizacion\Autorizacion;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RechazarPedidoRequest;
 use App\Http\Resources\PedidoDeLaLavanderiaResource;
 use App\Models\Pedido;
 use App\Models\Usuario;
@@ -63,6 +64,25 @@ use Illuminate\Support\Str;
  *          Se guarda la hora de la aceptación. El usuario lo sigue viendo en Confirmado.
  *     409  { "message": "El pedido ya fue respondido.", "pedido": { ...el pedido como está... } }
  *          El pedido ya se aceptó o se rechazó (pedidos-lavanderia-E08). No cambia.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
+ *     POST /api/lavanderia/pedidos/{id_publico}/rechazar       La lavandería rechaza el pedido con su motivo
+ *                                                              (pedidos-lavanderia-E12 y E13)
+ *
+ *     { "motivo": "No tenemos lugar para más ropa hoy." }      obligatorio: texto, sin los espacios de las orillas,
+ *                                                              de hasta pedidos.motivo_de_rechazo_maximo caracteres
+ *                                                              (500 por omisión)
+ *
+ *     200  { "pedido": { ...el pedido, con "estado.codigo" en "rechazado" y "por_responder" en false... } }
+ *          Se guardan el motivo y la hora. El pedido sale de la lista de activos. Lo que pasa después con el pedido y
+ *          con el cobro, y lo que ve el usuario, esperan DD-016, DD-012 y DD-103 (pedidos-lavanderia-E14).
+ *     422  { "message": "Escribe el motivo del rechazo.", "errors": { "motivo": ["Escribe el motivo del rechazo."] } }
+ *          Sin motivo, vacío, de puros espacios o que no es texto. O, si pasa del máximo:
+ *            "El motivo no puede pasar de 500 caracteres."
+ *          El pedido no cambia. Se valida antes de buscar el pedido: la respuesta es la misma para cualquier pedido.
+ *     409  { "message": "El pedido ya fue respondido.", "pedido": { ...el pedido como está... } }
+ *          El pedido ya se aceptó o se rechazó (pedidos-lavanderia-E08). No cambia.
  */
 class PedidosDeLaLavanderiaController extends Controller
 {
@@ -78,6 +98,19 @@ class PedidosDeLaLavanderiaController extends Controller
         $aceptado = $this->cambio->aceptar($this->pedidoVisible($cuenta, $pedido), $cuenta);
 
         return response()->json(['pedido' => PedidoDeLaLavanderiaResource::delPedido($aceptado)]);
+    }
+
+    public function rechazar(RechazarPedidoRequest $peticion, string $pedido): JsonResponse
+    {
+        $cuenta = $this->cuenta($peticion);
+
+        $rechazado = $this->cambio->rechazar(
+            $this->pedidoVisible($cuenta, $pedido),
+            $cuenta,
+            $peticion->validated('motivo'),
+        );
+
+        return response()->json(['pedido' => PedidoDeLaLavanderiaResource::delPedido($rechazado)]);
     }
 
     private function cuenta(Request $peticion): Usuario

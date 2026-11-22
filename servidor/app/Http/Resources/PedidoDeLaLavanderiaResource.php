@@ -22,12 +22,13 @@ class PedidoDeLaLavanderiaResource extends JsonResource
 {
     /**
      * Cómo nombra la app de la lavandería cada estado operativo: "Por aceptar" es el de la tarjeta de pedido de socio
-     * lavandería (vault/design-system/componentes.md, componente 4) y "Aceptado", el del pedido que aceptó
-     * (pedidos-lavanderia-E07).
+     * lavandería (vault/design-system/componentes.md, componente 4); "Aceptado" y "Rechazado", los de su respuesta
+     * (Módulo B #2; pedidos-lavanderia-E07 y E12).
      */
     private const NOMBRES = [
         EstadoPedido::CONFIRMADO => 'Por aceptar',
         EstadoPedido::ACEPTADO => 'Aceptado',
+        EstadoPedido::RECHAZADO => 'Rechazado',
     ];
 
     /**

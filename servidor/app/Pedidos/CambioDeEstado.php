@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\DB;
  */
 final class CambioDeEstado
 {
+    private const YA_RESPONDIDO = 'El pedido ya fue respondido.';
+
     /**
      * Lo que la lavandería puede hacer desde cada estado: el estado al que llega (ADR-0021, decisión 2, y su adenda
      * propuesta en openspec/changes/pedidos-de-la-lavanderia/design.md).
@@ -30,8 +32,8 @@ final class CambioDeEstado
      * @var array<string, list<string>>
      */
     private const DE_LA_LAVANDERIA = [
-        // Aceptar (Módulo B #2).
-        EstadoPedido::CONFIRMADO => [EstadoPedido::ACEPTADO],
+        // Aceptar o rechazar con motivo (Módulo B #2).
+        EstadoPedido::CONFIRMADO => [EstadoPedido::ACEPTADO, EstadoPedido::RECHAZADO],
     ];
 
     /**
@@ -42,15 +44,34 @@ final class CambioDeEstado
      */
     public function aceptar(Pedido $pedido, Usuario $lavanderia): Pedido
     {
-        return $this->cambiar($pedido, $lavanderia, EstadoPedido::ACEPTADO, 'El pedido ya fue respondido.');
+        return $this->cambiar($pedido, $lavanderia, EstadoPedido::ACEPTADO, self::YA_RESPONDIDO);
     }
 
     /**
+     * La lavandería rechaza con su motivo el pedido que espera su respuesta (pedidos-lavanderia-E12). El motivo queda en
+     * el evento. Uno ya respondido no cambia (pedidos-lavanderia-E08). Qué pasa después con el pedido y el cobro espera
+     * DD-103 (pedidos-lavanderia-E14).
+     *
      * @throws CambioDeEstadoNoPermitido
      */
-    private function cambiar(Pedido $pedido, Usuario $quien, string $nuevo, string $siNoSePuede): Pedido
+    public function rechazar(Pedido $pedido, Usuario $lavanderia, string $motivo): Pedido
     {
-        return DB::transaction(function () use ($pedido, $quien, $nuevo, $siNoSePuede): Pedido {
+        return $this->cambiar($pedido, $lavanderia, EstadoPedido::RECHAZADO, self::YA_RESPONDIDO, $motivo);
+    }
+
+    /**
+     * @param  string  $siNoSePuede  El mensaje de CambioDeEstadoNoPermitido si el cambio no está en la tabla.
+     *
+     * @throws CambioDeEstadoNoPermitido
+     */
+    private function cambiar(
+        Pedido $pedido,
+        Usuario $quien,
+        string $nuevo,
+        string $siNoSePuede,
+        ?string $motivo = null,
+    ): Pedido {
+        return DB::transaction(function () use ($pedido, $quien, $nuevo, $siNoSePuede, $motivo): Pedido {
             // Bloquea el pedido: dos toques a la vez no lo mueven dos veces.
             $bloqueado = Pedido::query()->whereKey($pedido->getKey())->lockForUpdate()->with('estado')->sole();
 
@@ -65,6 +86,7 @@ final class CambioDeEstado
             $evento = $bloqueado->eventos()->create([
                 'id_estados_pedido' => $estado->getKey(),
                 'id_usuarios' => $quien->getKey(),
+                'motivo' => $motivo,
                 // En UTC, como toda fecha que se guarda (App\Agenda\Ventana).
                 'ocurrido_en' => CarbonImmutable::now()->utc(),
             ]);
