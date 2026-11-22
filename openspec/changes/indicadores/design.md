@@ -144,6 +144,15 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
   - **La tendencia** va con su texto, su flecha y su color: "Subió $50.00 frente al periodo anterior ($200.00)", "Bajó
     …" o "Igual que en el periodo anterior (…)". Sin pedidos con monto en el periodo anterior, dice que no hay con qué
     comparar.
+- **Las entregas por repartidor** (tarea 3.5, E15) son una tabla, `EntregasPorRepartidorTabla`, que lee
+  `App\Indicadores\EntregasPorRepartidor`:
+  - **Una entrega es del repartidor que marcó Entregado:** el evento de `pedido_eventos` con su cuenta, la regla de
+    `repartidor` (su `design.md`, lectura 5). Cuenta cada pedido una vez, si el pedido llegó a Confirmado.
+  - **Su día** es el del paso a Entregado en la hora de la plaza del pedido, como en las estadísticas del repartidor.
+  - **"Lado a lado"** (lectura 5) es una fila por repartidor, de más a menos entregas y, con las mismas, por nombre, con
+    su plaza.
+  - **Quién sale:** los repartidores dados de alta que no se dieron de baja, también con 0; uno pendiente o de baja,
+    solo si tiene entregas en el rango, porque sus entregas se conservan (repartidor-E07).
 - **El refresco** es el sondeo de Livewire de cada widget (`wire:poll`), la consulta periódica de ADR-0007: la gráfica
   llama a `updateChartData` y la tabla se vuelve a dibujar, sin recargar la página. El intervalo es
   `INDICADORES_REFRESCO` en `config/indicadores.php`, como "30s" o "1500ms". Mientras DD-116 no tenga su ADR va

@@ -28,7 +28,7 @@ M = 5 h.
 - [x] 3.2 indicadores-E12: ranking por calificación promedio, con las que no tienen calificaciones al final — test: `servidor/tests/Feature/Indicadores/IndicadoresDeSociosTest.php` — tamaño S
 - [x] 3.3 indicadores-E13: semáforo con dos cortes de configuración y su texto — test: `servidor/tests/Feature/Indicadores/IndicadoresDeSociosTest.php` — tamaño S
 - [ ] 3.4 indicadores-E14: cargar los valores de los cortes — test: `servidor/tests/Feature/Indicadores/IndicadoresDeSociosTest.php` — tamaño S — bloqueada: BR-33, DD-114
-- [ ] 3.5 indicadores-E15: entregas completadas por repartidor — test: `servidor/tests/Feature/Indicadores/IndicadoresDeSociosTest.php` — tamaño S
+- [x] 3.5 indicadores-E15: entregas completadas por repartidor — test: `servidor/tests/Feature/Indicadores/IndicadoresDeSociosTest.php` — tamaño S
 
 ## 4. Financiero (servidor/)
 
