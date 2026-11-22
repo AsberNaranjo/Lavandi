@@ -9,6 +9,7 @@
 // multipart por POST con _method=PATCH, porque PHP solo lee los archivos de un POST. Los servicios y las ventanas
 // siempre van completos: los que no vienen dejan de ofrecerse.
 import { pedir, pedirConEstado, type Falla, type Resultado } from '../configuracion/api';
+import { agregarFoto } from '../configuracion/foto-del-formulario';
 import { esObjeto } from '../configuracion/lectura';
 
 /** El contrato con el servidor, en un solo lugar para ajustarlo. */
@@ -20,9 +21,11 @@ export const CONTRATO_DE_LA_LAVANDERIA_DEL_SOCIO = {
   clave: 'lavanderia',
   /** El campo con que la edición con foto dice que es un PATCH. */
   metodo: '_method',
-  /** La foto en el formulario: JPEG, porque así la deja la compresión (src/alta-lavanderias/foto.ts). */
-  nombreDeLaFoto: 'foto.jpg',
-  tipoDeLaFoto: 'image/jpeg',
+  /**
+   * El campo de la foto. Su nombre y su tipo son los de toda foto que sube la app
+   * (src/configuracion/foto-del-formulario.ts).
+   */
+  foto: 'foto',
 } as const;
 
 /** Un municipio del catálogo, como lo trae la dirección de la lavandería; el estado es su nombre. */
@@ -173,11 +176,11 @@ function limpio(datos: Partial<DatosDeLaLavanderia>): Record<string, unknown> {
 
 /**
  * Los datos en un formulario multipart, con los nombres que lee Laravel: "direccion[calle]", "servicios[0][tipo]",
- * "ventanas[0][dia_semana]". La foto va como la arma React Native: su dirección en el teléfono, su nombre y su tipo.
+ * "ventanas[0][dia_semana]". La foto va con sus bytes, como la arma src/configuracion/foto-del-formulario.ts.
  */
 function formularioDe(datos: Partial<DatosDeLaLavanderia>, metodo?: 'PATCH'): FormData {
   const formulario = new FormData();
-  const { nombreDeLaFoto, tipoDeLaFoto, metodo: campoDelMetodo } = CONTRATO_DE_LA_LAVANDERIA_DEL_SOCIO;
+  const { foto: campoDeLaFoto, metodo: campoDelMetodo } = CONTRATO_DE_LA_LAVANDERIA_DEL_SOCIO;
   if (metodo) {
     formulario.append(campoDelMetodo, metodo);
   }
@@ -185,8 +188,7 @@ function formularioDe(datos: Partial<DatosDeLaLavanderia>, metodo?: 'PATCH'): Fo
     agregar(formulario, campo, valor);
   }
   if (datos.foto) {
-    // React Native lee la foto del teléfono por su dirección; el tipo de FormData de la web no lo describe.
-    formulario.append('foto', { uri: datos.foto.uri, name: nombreDeLaFoto, type: tipoDeLaFoto } as unknown as Blob);
+    agregarFoto(formulario, campoDeLaFoto, datos.foto);
   }
   return formulario;
 }

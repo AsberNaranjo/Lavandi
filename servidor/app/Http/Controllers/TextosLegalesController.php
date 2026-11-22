@@ -25,6 +25,8 @@ class TextosLegalesController extends Controller
     public function __invoke(DocumentosLegales $documentos, string $documento): View
     {
         return view('textos-legales.documento', [
+            // La página, para su descripción para buscadores (medicion-E07).
+            'pagina' => $documento,
             'titulo' => $documentos->titulo($documento),
             'texto' => $documentos->vigente($documento),
             'enProduccion' => app()->isProduction(),

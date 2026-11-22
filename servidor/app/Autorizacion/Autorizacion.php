@@ -81,6 +81,9 @@ final class Autorizacion
             // Los textos legales, públicos como la portada (textos-legales-E01).
             'GET aviso-de-privacidad' => 'El aviso de privacidad, sin datos de ninguna cuenta (textos-legales-E01).',
             'GET terminos' => 'Los términos y condiciones, sin datos de ninguna cuenta (textos-legales-E01).',
+            // Lo que leen los buscadores: las direcciones de las páginas públicas, sin datos (medicion-E08).
+            'GET sitemap.xml' => 'El mapa del sitio, con las direcciones de las páginas públicas (medicion-E08).',
+            'GET robots.txt' => 'El archivo de robots, que declara el mapa del sitio (medicion-E08).',
 
             // La página para crear la contraseña nueva: la llave es el token del enlace del correo (ADR-0018, decisión 4).
             'GET contrasena/restablecer/{token}' => 'Muestra el formulario; la llave es el token del enlace del correo.',

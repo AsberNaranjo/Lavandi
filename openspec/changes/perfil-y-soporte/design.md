@@ -261,6 +261,35 @@ no sale nunca como campo.
 **Quitar la foto no tiene ruta.** Ningún escenario lo pide (E03 pone una foto y E04 rechaza un archivo): ver Open
 Questions.
 
+#### Cómo sale la foto del teléfono (corrección, Claude por delegación de Arthur, C-236)
+
+- **El defecto.** En el teléfono no se subía ninguna foto: la app decía "No se pudo conectar con el servidor" y la
+  petición no salía. Se comprobó en el emulador con el APK local: un servidor anotador no recibió nada, y el servidor sí
+  guarda la foto que le llega con `curl`. En Expo SDK 58, `expo/src/winter/runtime.native.ts` reemplaza el `fetch`
+  global por `expo/fetch`, salvo que exista `EXPO_PUBLIC_USE_RN_FETCH`. `expo/fetch` arma el multipart con
+  `convertFormDataAsync` (`expo/src/winter/fetch/convertFormData.ts`), que solo sabe mandar un texto, un `Blob` o un
+  objeto con `bytes()`: la parte `{ uri, name, type }` de React Native la rechaza con "Unsupported FormDataPart
+  implementation", y `pedirConEstado` (`movil/src/configuracion/api.ts`) lo da por sin conexión. Las pruebas de Jest no
+  lo veían porque simulan `fetch`.
+- **La corrección.** Una sola pieza arma la parte de la foto: `movil/src/configuracion/foto-del-formulario.ts`. La
+  parte lleva `bytes()`, que lee la foto con `File` de `expo-file-system` al mandarla, el nombre `foto.jpg` y el tipo
+  `image/jpeg`, que es como la deja la compresión.
+  - **El nombre va en la parte,** además del tercer argumento de `append()`, porque el `FormData` del teléfono
+    (`expo/src/winter/FormData.ts`) solo toma ese argumento para un `Blob`, y `File` no lo es: con el `File` solo, el
+    archivo llegaría con el nombre al azar que le pone la compresión.
+  - **El tipo.** `File` sí lo da por la extensión (UTType en iPhone, MimeTypeMap en Android), y la compresión guarda el
+    JPEG con `.jpg`. La parte lo fija de todos modos, para no depender de la extensión.
+  - **El `File` se abre al mandar,** no al armar el formulario: si la foto no se puede leer, la petición falla como sin
+    conexión y la consulta sigue sin lanzar.
+- **No se usa `EXPO_PUBLIC_USE_RN_FETCH`.** Dependería de que cada perfil de compilación la trajera, y en uno que la
+  olvidara las fotos fallarían sin aviso.
+- **Las demás subidas usan la misma pieza:** el registro y la edición de la lavandería (alta-lavanderias-E03 y
+  E19, `movil/src/alta-lavanderias/api.ts`), el registro del repartidor (repartidor-E01) y la evidencia de entrega
+  (repartidor-E23), estas dos en `movil/src/repartidor/api.ts`. La app no sube ningún otro archivo.
+- **Las pruebas.** `movil/__tests__/fotos/subida-desde-el-telefono.test.ts` pasa el formulario de cada subida, armado
+  con el `FormData` del teléfono, por el `convertFormDataAsync` real. Los servidores simulados de las pantallas leen el
+  multipart de la misma forma (`movil/__tests__/apoyo/formulario.ts`). El envío real se prueba en un teléfono.
+
 ### El número de soporte (tarea 1.3: perfil-usuario-E09 y E10)
 
 ```

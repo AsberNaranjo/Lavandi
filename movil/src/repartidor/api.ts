@@ -9,6 +9,7 @@
 import type { SesionNueva } from '../acceso/api';
 import { leerVentana, type Ventana } from '../agenda/api';
 import { pedir, pedirConEstado, type Falla, type Resultado } from '../configuracion/api';
+import { agregarFoto } from '../configuracion/foto-del-formulario';
 import { esObjeto, fotoFirmada, type FotoFirmada } from '../configuracion/lectura';
 import { leerPedidoEntregado, type PedidoEntregado } from '../historial-lavanderia/api';
 import { leerDireccionDelPedido, type DireccionDelPedido } from '../pedido/api';
@@ -37,9 +38,6 @@ export const CONTRATO_DEL_REPARTIDOR = {
   historial: 'repartidor/historial',
   /** GET: { "entregas_del_dia": n, "entregas_de_la_semana": n } (E28). */
   estadisticas: 'repartidor/estadisticas',
-  /** La foto en el formulario: JPEG, porque así la deja la compresión (src/alta-lavanderias/foto.ts). */
-  nombreDeLaFoto: 'foto.jpg',
-  tipoDeLaFoto: 'image/jpeg',
 } as const;
 
 /** Los campos del registro, con sus nombres en la API: los cinco datos del Módulo C #1 y la contraseña (ADR-0005). */
@@ -111,17 +109,15 @@ export async function registrarRepartidor(datos: DatosDelRegistro): Promise<Resu
   };
 }
 
-// Los datos en un formulario multipart. Los textos van como se escribieron; la foto, como la arma React Native: su
-// dirección en el teléfono, su nombre y su tipo. Sin foto, no va: el servidor dice que falta.
+// Los datos en un formulario multipart. Los textos van como se escribieron; la foto, con sus bytes, como la arma
+// src/configuracion/foto-del-formulario.ts. Sin foto, no va: el servidor dice que falta.
 function formularioDelRegistro({ foto, ...textos }: DatosDelRegistro): FormData {
   const formulario = new FormData();
   for (const [campo, valor] of Object.entries(textos)) {
     formulario.append(campo, valor);
   }
   if (foto) {
-    const { nombreDeLaFoto, tipoDeLaFoto } = CONTRATO_DEL_REPARTIDOR;
-    // React Native lee la foto del teléfono por su dirección; el tipo de FormData de la web no lo describe.
-    formulario.append('foto', { uri: foto.uri, name: nombreDeLaFoto, type: tipoDeLaFoto } as unknown as Blob);
+    agregarFoto(formulario, 'foto', foto);
   }
   return formulario;
 }
@@ -361,11 +357,10 @@ export function entregarPedidoDelRepartidor(
   if (!foto) {
     return marcarPasoDelRepartidor(token, idPublico, { estado: ESTADO_ENTREGADO });
   }
-  const { estado, foto: campoDeLaFoto, nombreDeLaFoto, tipoDeLaFoto } = CONTRATO_DEL_REPARTIDOR;
+  const { estado, foto: campoDeLaFoto } = CONTRATO_DEL_REPARTIDOR;
   const formulario = new FormData();
   formulario.append(estado, ESTADO_ENTREGADO);
-  // React Native lee la foto del teléfono por su dirección; el tipo de FormData de la web no lo describe.
-  formulario.append(campoDeLaFoto, { uri: foto.uri, name: nombreDeLaFoto, type: tipoDeLaFoto } as unknown as Blob);
+  agregarFoto(formulario, campoDeLaFoto, foto);
   return mandarAccion(rutaDeLaAccion(idPublico, estado), { metodo: 'POST', token, formulario });
 }
 

@@ -56,6 +56,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Solo https
+    |--------------------------------------------------------------------------
+    |
+    | En prueba y en producción, el servidor atiende solo por https: toda petición por http se redirige a https, en el
+    | dominio de APP_URL (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3; medicion-E13; App\Http\Middleware\SoloHttps).
+    | Se enciende en todo entorno que no sea el local ni las pruebas, sin variable que lo apague.
+    |
+    */
+
+    'solo_https' => ! in_array(env('APP_ENV', 'production'), ['local', 'testing'], true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

@@ -13,16 +13,8 @@ import * as Location from 'expo-location';
 import * as SecureStore from 'expo-secure-store';
 import { AccessibilityInfo } from 'react-native';
 
-import {
-  CUENTAS,
-  leer,
-  respuesta,
-  TOKEN,
-  type ArchivoDelFormulario,
-  type Cuenta,
-  type Interceptor,
-  type Peticion,
-} from './lavanderia';
+import { FormDataDelTelefono, type ArchivoDelFormulario } from './formulario';
+import { CUENTAS, leer, recibir, respuesta, TOKEN, type Cuenta, type Interceptor, type Peticion } from './lavanderia';
 
 export {
   abrirLaAppConSesion,
@@ -398,7 +390,7 @@ export class ServidorDelRepartidor {
   }
 
   private async contestar(url: string, opciones: RequestInit) {
-    const peticion = leer(this.base, url, opciones);
+    const peticion = await recibir(this.base, url, opciones);
     const interceptada = this.interceptar?.(peticion);
     if (interceptada !== undefined) {
       return interceptada;
@@ -532,7 +524,7 @@ export class ServidorDelRepartidor {
       nombre: String(cuerpo.nombre),
       telefono: String(cuerpo.telefono),
       correo: String(cuerpo.correo),
-      foto: { url: `https://fotos.prueba.invalid/${encodeURIComponent(foto.uri)}?firma=2`, vence_en: '2026-12-03T19:00:00Z' },
+      foto: { url: `https://fotos.prueba.invalid/${encodeURIComponent(foto.contenido)}?firma=2`, vence_en: '2026-12-03T19:00:00Z' },
       tipo_vehiculo: String(cuerpo.tipo_vehiculo),
     };
     return respuesta(201, { token: TOKEN, usuario: this.cuenta, repartidor: this.perfil() });
@@ -571,10 +563,6 @@ const gps = Location as unknown as { __reiniciar(): void };
 const camara = ImagePicker as unknown as { __reiniciar(): void };
 const manipulador = ImageManipulator as unknown as { __reiniciar(): void };
 
-// El FormData del teléfono: en Jest, el global es el de Node, que convierte en texto la foto ({ uri, name, type }).
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const FormDataDeReactNative = require('react-native/Libraries/Network/FormData').default as typeof FormData;
-
 /**
  * Prepara cada prueba del archivo con la app recién abierta en esta instalación y el servidor simulado en la dirección
  * base, y deja todo como estaba al terminar. Devuelve el servidor de la prueba en curso.
@@ -597,7 +585,8 @@ export function usarElServidorDelRepartidor(nombre: string): () => ServidorDelRe
     process.env.EXPO_PUBLIC_NOMBRE_APP = `Nombre de prueba ${nombre}`;
     servidor = new ServidorDelRepartidor(base);
     global.fetch = servidor.fetch as unknown as typeof fetch;
-    global.FormData = FormDataDeReactNative;
+    // El FormData del teléfono: en Jest, el global es el de Node.
+    global.FormData = FormDataDelTelefono;
     jest.spyOn(AccessibilityInfo, 'announceForAccessibilityWithOptions').mockImplementation(() => {});
   });
 

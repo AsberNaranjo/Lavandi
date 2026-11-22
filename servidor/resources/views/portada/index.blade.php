@@ -8,6 +8,11 @@
 --}}
 @extends('publico.layout')
 
+{{-- La información estructurada del negocio y su zona de servicio, solo en la portada (medicion-E10). --}}
+@push('cabecera')
+    <script type="application/ld+json">{!! app(\App\Medicion\InformacionEstructurada::class)->json() !!}</script>
+@endpush
+
 @section('contenido')
     @include('portada.secciones.encabezado')
 

@@ -32,6 +32,7 @@ import {
   usarElServidorDelRepartidor,
   type Plataforma,
 } from '../apoyo/repartidor';
+import { contenidoDelArchivo } from '../apoyo/formulario';
 
 // La primera pantalla tarda más mientras Jest prepara el entorno.
 jest.setTimeout(60_000);
@@ -109,7 +110,11 @@ describe('repartidor-E01: el repartidor se registra y queda pendiente', () => {
           autorizacion: null,
           cuerpo: {
             ...DATOS,
-            foto: { uri: manipulador.__preparada(FOTO_DE_LA_CAMARA.uri), name: 'foto.jpg', type: 'image/jpeg' },
+            foto: {
+              nombre: 'foto.jpg',
+              tipo: 'image/jpeg',
+              contenido: contenidoDelArchivo(manipulador.__preparada(FOTO_DE_LA_CAMARA.uri)),
+            },
           },
         },
       ]);
@@ -147,7 +152,11 @@ describe('repartidor-E01: el repartidor se registra y queda pendiente', () => {
 
     await waitFor(() => expect(screen).toHavePathname(RUTA_DE_LA_ESPERA));
     expect(servidor().registros()[0].cuerpo).toMatchObject({
-      foto: { uri: manipulador.__preparada(FOTO_DE_LA_GALERIA.uri), name: 'foto.jpg', type: 'image/jpeg' },
+      foto: {
+        nombre: 'foto.jpg',
+        tipo: 'image/jpeg',
+        contenido: contenidoDelArchivo(manipulador.__preparada(FOTO_DE_LA_GALERIA.uri)),
+      },
     });
   });
 

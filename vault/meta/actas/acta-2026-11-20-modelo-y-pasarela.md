@@ -106,6 +106,17 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
   Sin la cuenta de Apple del cliente (DD-069) no hay compilación para iPhone; la vía es Expo Go (base-E11). En la misma
   sesión: "el icono de la app debe ser el de LAVANDI que tenemos" y "el pull request es en GitHub, recuerda, para que lo
   acepte Nadir".
+- C-241 (Arthur Naranjo, 2026-11-22, al revisar el emulador). "Cuando recolectas no te pide que tomes foto a la
+  recolección, y eso es sumamente necesario, debe ser tomar foto sin la posibilidad de que use una imagen de la
+  galería, debe ser tomada al momento."
+  - El contrato solo guarda "las evidencias de entrega" (`NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3`). Si la
+    evidencia es obligatoria y si también se toma al recolectar es DD-110, que decide EL CLIENTE vía Nadir. Por eso no
+    se construye todavía (`CLAUDE.md` §2-bis).
+  - Queda como la propuesta de Arthur para responder DD-110: foto obligatoria al recolectar y al entregar, tomada en el
+    momento con la cámara, sin galería.
+  - La foto de entrega del repartidor ya se toma solo con la cámara (repartidor-E23).
+  - En la misma sesión: hacer otro recorrido en video, narrado con la voz de Jorge o la de Dalia, cuando haya avances
+    concretos.
 
 ## Decisiones tomadas en la sesión
 

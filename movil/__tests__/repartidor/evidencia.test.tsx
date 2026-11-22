@@ -28,6 +28,7 @@ import {
   usarElServidorDelRepartidor,
   type Plataforma,
 } from '../apoyo/repartidor';
+import { contenidoDelArchivo } from '../apoyo/formulario';
 
 // La primera pantalla tarda más mientras Jest prepara el entorno.
 jest.setTimeout(60_000);
@@ -85,7 +86,11 @@ describe('repartidor-E23: el repartidor toma la evidencia al entregar', () => {
           multipart: true,
           cuerpo: {
             estado: 'entregado',
-            foto: { uri: manipulador.__preparada(FOTO_DE_LA_ENTREGA.uri), name: 'foto.jpg', type: 'image/jpeg' },
+            foto: {
+              nombre: 'foto.jpg',
+              tipo: 'image/jpeg',
+              contenido: contenidoDelArchivo(manipulador.__preparada(FOTO_DE_LA_ENTREGA.uri)),
+            },
           },
         },
       ]);

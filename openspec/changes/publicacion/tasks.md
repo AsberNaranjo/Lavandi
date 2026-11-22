@@ -12,13 +12,13 @@ bloqueadas por sus otras filas.
 
 ## 1. Entornos
 
-- [ ] 1.1 publicacion-E01: configuración por entorno de la pasarela, Firebase, llaves de Google y correo, leída de las variables del entorno y nunca del código; la pasarela es Conekta, o la elegida si se firma el cambio (DD-079) — test: `servidor/tests/Feature/Publicacion/ConfiguracionPorEntornoTest.php` — tamaño S
+- [x] 1.1 publicacion-E01: configuración por entorno de la pasarela, Firebase, llaves de Google y correo, leída de las variables del entorno y nunca del código; la pasarela es Conekta, o la elegida si se firma el cambio (DD-079) — test: `servidor/tests/Feature/Publicacion/ConfiguracionPorEntornoTest.php` — tamaño S
 - [ ] 1.2 publicacion-E02: despliegue al entorno de prueba, con migraciones sobre PostgreSQL con PostGIS (bloqueada: DD-070) — test: `servidor/tests/Feature/Publicacion/SaludDelEntornoTest.php` contra la dirección de prueba — tamaño M
 - [ ] 1.3 publicacion-E03: despliegue a producción en las cuentas de EL CLIENTE, con el mapa de cuentas en `vault/evidencias/publicacion/` (bloqueada: DD-070, DD-084) — test: `servidor/tests/Feature/Publicacion/SaludDelEntornoTest.php` contra producción — tamaño S
 
 ## 2. Comunicaciones cifradas
 
-- [ ] 2.1 publicacion-E04, publicacion-E05: con la configuración de producción, el panel redirige a https y la API no atiende por http — test: `servidor/tests/Feature/Publicacion/SoloHttpsTest.php` — tamaño S
+- [x] 2.1 publicacion-E04, publicacion-E05: con la configuración de producción, el panel redirige a https y la API no atiende por http — test: `servidor/tests/Feature/Publicacion/SoloHttpsTest.php` — tamaño S
 - [x] 2.2 publicacion-E06: los perfiles `preview` y `production` solo hablan con direcciones https y no permiten tráfico sin cifrar — test: `movil/__tests__/publicacion/solo-https.test.ts` — tamaño S
 
 ## 3. Compilaciones

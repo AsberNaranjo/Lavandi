@@ -23,6 +23,7 @@ import {
   usarElServidorDeLaLavanderia,
   type Plataforma,
 } from '../apoyo/lavanderia';
+import { contenidoDelArchivo } from '../apoyo/formulario';
 
 // La primera pantalla tarda más mientras Jest prepara el entorno.
 jest.setTimeout(60_000);
@@ -236,7 +237,11 @@ describe('alta-lavanderias-E19: la pantalla de perfil y horarios', () => {
           multipart: true,
           cuerpo: {
             _method: 'PATCH',
-            foto: { uri: manipulador.__preparada(FOTO_NUEVA.uri), name: 'foto.jpg', type: 'image/jpeg' },
+            foto: {
+              nombre: 'foto.jpg',
+              tipo: 'image/jpeg',
+              contenido: contenidoDelArchivo(manipulador.__preparada(FOTO_NUEVA.uri)),
+            },
           },
         });
         // Al guardar, la foto es la que devolvió el servidor, con su URL firmada.

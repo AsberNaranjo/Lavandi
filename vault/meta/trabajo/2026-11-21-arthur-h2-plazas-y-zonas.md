@@ -144,10 +144,22 @@ foto del perfil (el disco privado).
 - **El push:** Arthur pidió subir la rama (`65731ed`) y preparar el PR #3 hacia Nadir. El PR lo abre Arthur: no hay
   `gh` en la máquina y no hubo permiso de usar su credencial.
 
+**Al mediodía del 22, unido a `feat/h2-lavanderias`, cada rama con sus tests:**
+- **En la app:** el pago, que abre el checkout dentro de la app y espera la confirmación; la calificación con
+  estrellas; y los enlaces al aviso y a los términos.
+- **Lo financiero del panel:** ingresos, conciliación por la API de la pasarela y seis exportadores más.
+- **La medición de la landing** (GTM, buscadores, Lighthouse CI) y el https de la publicación. Con todo junto, el
+  servidor pasa 1240 tests.
+- **Un defecto del teléfono, corregido.** Ninguna foto se subía: en Expo SDK 58 el `fetch` global es `expo/fetch`,
+  que no manda una parte `{ uri }`. Las pruebas simulaban `fetch` y no lo vieron. Ahora una sola pieza manda los
+  bytes, y una prueba pasa cada formulario por el `expo/fetch` real. La app pasa 1153 tests.
+- **Probado en el emulador de punta a punta**, con el APK del commit `7fc16ac`: pedido, pago, la lavandería acepta, el
+  repartidor recoge, en proceso y listo, el repartidor entrega con foto, y el usuario ve el seguimiento y califica.
+- **El PR #3 hacia Nadir** está abierto, con su descripción y la sección "Cómo probarlo".
+- **C-241:** Arthur pide la foto al recolectar, tomada en el momento. Queda como su propuesta para DD-110, que es de
+  EL CLIENTE.
+
 **Sigue.**
-- En curso:
-  - la app del pago, la calificación y los enlaces legales;
-  - lo financiero del panel: ingresos, conciliación y los exportadores que faltan;
-  - la medición de la landing y la publicación en el servidor.
+- En curso: el segundo video del recorrido y la app de los avisos con la publicación en `movil/`.
 
 **Al terminar.** `situacion: terminada`, con el enlace al PR, que va después del del H1.

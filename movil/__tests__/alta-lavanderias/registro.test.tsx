@@ -35,6 +35,7 @@ import {
   type Peticion,
   type Plataforma,
 } from '../apoyo/lavanderia';
+import { contenidoDelArchivo } from '../apoyo/formulario';
 
 // La primera pantalla tarda más mientras Jest prepara el entorno.
 jest.setTimeout(60_000);
@@ -209,7 +210,11 @@ describe('alta-lavanderias-E03: el registro en la app', () => {
               codigo_postal: '34000',
               municipio: '10005',
             },
-            foto: { uri: manipulador.__preparada(FOTO_DE_LA_CAMARA.uri), name: 'foto.jpg', type: 'image/jpeg' },
+            foto: {
+              nombre: 'foto.jpg',
+              tipo: 'image/jpeg',
+              contenido: contenidoDelArchivo(manipulador.__preparada(FOTO_DE_LA_CAMARA.uri)),
+            },
             servicios: [
               { tipo: 'estandar', precio: '18.50' },
               { tipo: 'planchado', precio: '22' },
@@ -262,9 +267,9 @@ describe('alta-lavanderias-E03: el registro en la app', () => {
 
         await waitFor(() => expect(registros()).toHaveLength(1));
         expect((registros()[0].cuerpo as Record<string, unknown>).foto).toEqual({
-          uri: manipulador.__preparada(FOTO_DE_LA_GALERIA.uri),
-          name: 'foto.jpg',
-          type: 'image/jpeg',
+          nombre: 'foto.jpg',
+          tipo: 'image/jpeg',
+          contenido: contenidoDelArchivo(manipulador.__preparada(FOTO_DE_LA_GALERIA.uri)),
         });
         // Vertical: el lado mayor es el alto.
         expect(manipulador.__preparaciones()[0].redimension).toEqual({ height: COMPRESION_DE_FOTOS.ladoMaximoPx });
