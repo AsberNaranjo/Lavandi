@@ -2,15 +2,21 @@
 
 namespace Tests\Feature\Pago;
 
+use App\Cobro\AvisoDePasarela;
+use App\Cobro\AvisoNoReconocido;
+use App\Cobro\EfectoDelAviso;
 use App\Cobro\PasarelaConekta;
 use App\Cobro\PasarelaNoDisponible;
 use App\Cobro\Pasarelas;
+use App\Cobro\SinDatosDeTarjeta;
+use App\Models\EventoPasarela;
 use App\Models\Pago;
 use App\Models\Pedido;
 use App\Models\Usuario;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -317,6 +323,152 @@ class PasarelaConektaTest extends TestCase
             $this->assertStringContainsString('authentication_error', $error->getMessage());
             $this->assertStringNotContainsString(self::LLAVE, $error->getMessage());
         }
+    }
+
+    #[TestDox('pago-E03: el aviso order.paid de Conekta se traduce a aprobado de su orden, con el id del evento, y aplicado deja el cobro pagado, con su pagado_en, y el pedido Confirmado con su folio')]
+    public function test_pago_e03_el_aviso_order_paid_se_traduce_a_aprobado_y_paga_el_cobro(): void
+    {
+        $pedido = $this->pedidoPorPagar();
+        $cobro = $this->cobroDeConekta($pedido);
+
+        $aviso = $this->conekta()->traducir(CargasDeConekta::avisoOrdenPagada());
+
+        $this->assertSame('58740be5dba34d123c027a70', $aviso->idEvento);
+        $this->assertSame(EventoPasarela::APROBADO, $aviso->tipo);
+        $this->assertSame(CargasDeConekta::ORDEN, $aviso->idOrden);
+        $this->assertSame('order.paid', $aviso->contenido['type']);
+
+        $this->elJuevesALas('10:00:00');
+        $this->assertNull($this->aplicar($aviso));
+
+        $pagado = $cobro->fresh();
+        $this->assertSame(Pago::PAGADO, $pagado->estado);
+        $this->assertTrue($pagado->pagado_en->eq(CarbonImmutable::now()));
+        $this->assertNotNull($pedido->fresh()->folio);
+        $this->assertNotNull($pedido->fresh()->confirmado_en);
+    }
+
+    #[TestDox('pago-E04: el aviso order.declined de Conekta se traduce a rechazado de su orden; aplicado, el cobro queda sin pagar y el pedido sin folio, y pedir otra vez el checkout reabre el mismo cobro con el mismo checkout')]
+    public function test_pago_e04_el_aviso_order_declined_se_traduce_a_rechazado_y_se_puede_reintentar(): void
+    {
+        $pedido = $this->pedidoPorPagar();
+        $cobro = $this->cobroDeConekta($pedido);
+
+        $aviso = $this->conekta()->traducir(CargasDeConekta::avisoOrdenDeclinada());
+
+        $this->assertSame('637306fb5eeaad00015eeb6f', $aviso->idEvento);
+        $this->assertSame(EventoPasarela::RECHAZADO, $aviso->tipo);
+        $this->assertSame(CargasDeConekta::ORDEN, $aviso->idOrden);
+
+        $this->assertNull($this->aplicar($aviso));
+
+        $this->assertSame(Pago::FALLIDO, $cobro->fresh()->estado);
+        $this->assertNull($cobro->fresh()->pagado_en);
+        $this->assertNull($pedido->fresh()->folio);
+
+        $venceEn = CarbonImmutable::now()->addMinutes(30)->getTimestamp();
+        Http::fake([self::ORDENES.'/'.CargasDeConekta::ORDEN => Http::response(CargasDeConekta::orden(venceEn: $venceEn, estado: 'declined'))]);
+
+        $this->pedirCheckout($pedido)
+            ->assertOk()
+            ->assertJsonPath('checkout.url', CargasDeConekta::URL_DEL_CHECKOUT)
+            ->assertJsonPath('pago.id_publico', $cobro->id_publico)
+            ->assertJsonPath('pago.estado', Pago::PENDIENTE);
+
+        $this->assertSame(CargasDeConekta::ORDEN, $cobro->fresh()->id_pasarela_orden);
+        $this->assertSame(1, Pago::query()->where('id_pedidos', $pedido->getKey())->count());
+    }
+
+    #[TestDox('pago-E03, pago-E04: solo order.paid paga y solo order.declined rechaza; order.expired se traduce a vencido y los demás avisos de Conekta, como order.created, order.pending_payment, charge.paid y charge.declined, a otro, y ninguno cambia el cobro')]
+    public function test_pago_e03_e04_los_demas_avisos_de_conekta_no_cambian_el_cobro(): void
+    {
+        $pedido = $this->pedidoPorPagar();
+        $cobro = $this->cobroDeConekta($pedido);
+
+        $avisos = [
+            'order.expired' => [CargasDeConekta::avisoOrdenExpirada(), EventoPasarela::VENCIDO],
+            'order.created' => [CargasDeConekta::avisoDeLaOrden('order.created'), EventoPasarela::OTRO],
+            'order.pending_payment' => [CargasDeConekta::avisoDeLaOrden('order.pending_payment'), EventoPasarela::OTRO],
+            'charge.paid' => [CargasDeConekta::avisoDelCargo('charge.paid'), EventoPasarela::OTRO],
+            'charge.declined' => [CargasDeConekta::avisoDelCargo('charge.declined'), EventoPasarela::OTRO],
+        ];
+
+        foreach ($avisos as $tipo => [$cuerpo, $traducido]) {
+            $aviso = $this->conekta()->traducir($cuerpo);
+
+            $this->assertSame($traducido, $aviso->tipo, $tipo);
+            $this->assertSame(CargasDeConekta::ORDEN, $aviso->idOrden, $tipo);
+            $this->assertNull($this->aplicar($aviso), $tipo);
+            $this->assertSame(Pago::PENDIENTE, $cobro->fresh()->estado, $tipo);
+        }
+
+        $this->assertNull($pedido->fresh()->folio);
+    }
+
+    #[TestDox('pago-E05: lo que se guarda de un aviso de Conekta no lleva el vencimiento de la tarjeta que trae su cargo: solo su marca y sus últimos cuatro dígitos')]
+    public function test_pago_e05_lo_que_se_guarda_del_aviso_de_conekta_no_lleva_datos_de_tarjeta(): void
+    {
+        $aviso = $this->conekta()->traducir(CargasDeConekta::avisoOrdenPagada());
+        $this->assertSame('02', $aviso->contenido['data']['object']['charges']['data'][0]['payment_method']['exp_month']);
+
+        $guardado = SinDatosDeTarjeta::limpiar($aviso->contenido);
+
+        $metodo = $guardado['data']['object']['charges']['data'][0]['payment_method'];
+        $this->assertSame('5589', $metodo['last4']);
+        $this->assertSame('mc', $metodo['brand']);
+        $this->assertArrayNotHasKey('exp_month', $metodo);
+        $this->assertArrayNotHasKey('exp_year', $metodo);
+        $this->assertDoesNotMatchRegularExpression('/exp_|"cvc"|"number"/', (string) json_encode($guardado));
+    }
+
+    #[TestDox('pago-E10: un cuerpo que no es un evento de Conekta, sin JSON, sin su id o sin su type, no se reconoce y no se guarda')]
+    public function test_pago_e10_un_cuerpo_que_no_es_un_evento_de_conekta_no_se_reconoce(): void
+    {
+        $cuerpos = ['no es JSON', '[]', '"order.paid"', '{"type":"order.paid"}', '{"id":"","type":"order.paid"}', '{"id":5,"type":"order.paid"}', '{"id":"58740be5dba34d123c027a70"}'];
+
+        foreach ($cuerpos as $cuerpo) {
+            try {
+                $this->conekta()->traducir($cuerpo);
+                $this->fail("No debió reconocerse: {$cuerpo}");
+            } catch (AvisoNoReconocido $error) {
+                $this->assertSame(400, $error->render()->getStatusCode(), $cuerpo);
+            }
+        }
+    }
+
+    #[TestDox('pago-E09, guarda de la tarea 3.2: con Conekta, mientras la tarea 3.1 no confirme cómo firma sus avisos, ninguno cambia nada: el webhook no responde 200, no guarda el aviso y el cobro sigue pendiente')]
+    public function test_pago_e09_mientras_no_se_confirme_la_firma_ningun_aviso_de_conekta_cambia_nada(): void
+    {
+        $pedido = $this->pedidoPorPagar();
+        $cobro = $this->cobroDeConekta($pedido);
+
+        // Con la cabecera con que la documentación dice que firma Conekta (grado E), y sin ella.
+        foreach ([['Digest' => 'PY0lEriF5Tt4T0ZVqwEQtS5+skbqUpCWwwDs5EtBEX5vriK15KuLCuTndttDR4jvlSvDsDVSUOCx'], []] as $cabeceras) {
+            $this->avisoCrudo(CargasDeConekta::avisoOrdenPagada(), $cabeceras)
+                ->assertStatus(503)
+                ->assertExactJson(['message' => 'El pago no está disponible por ahora.']);
+        }
+
+        $this->assertSame(0, EventoPasarela::count());
+        $this->assertSame(Pago::PENDIENTE, $cobro->fresh()->estado);
+        $this->assertNull($pedido->fresh()->folio);
+    }
+
+    /**
+     * El cobro pendiente del pedido, ya con su orden en Conekta, la de las cargas de prueba.
+     */
+    private function cobroDeConekta(Pedido $pedido): Pago
+    {
+        return $this->cobroPendiente($pedido, datos: ['pasarela' => Pago::PASARELA_CONEKTA, 'id_pasarela_orden' => CargasDeConekta::ORDEN]);
+    }
+
+    /**
+     * Lo que el aviso le hace al cobro de su orden, en una transacción, como lo procesa App\Cobro\RecepcionDeAvisos
+     * después de comprobar que es auténtico (tarea 3.1).
+     */
+    private function aplicar(AvisoDePasarela $aviso): ?string
+    {
+        return DB::transaction(fn (): ?string => app(EfectoDelAviso::class)->aplicar($this->conekta(), $aviso));
     }
 
     private function conekta(): PasarelaConekta

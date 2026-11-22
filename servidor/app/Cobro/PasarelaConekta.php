@@ -2,6 +2,7 @@
 
 namespace App\Cobro;
 
+use App\Models\EventoPasarela;
 use App\Models\Pago;
 use App\Models\Usuario;
 use Carbon\CarbonImmutable;
@@ -121,14 +122,52 @@ final class PasarelaConekta implements Pasarela
         throw new PasarelaNoDisponible('La autenticidad de los avisos de Conekta espera la tarea 3.1 (pago-E09; DD-102, punto 2).');
     }
 
+    /**
+     * El aviso de Conekta es un evento, { "id": …, "type": …, "data": { "object": … } } (grado E, /docs/order y
+     * /docs/charge). Se traducen los de la orden, los que su guía del checkout pide escuchar (/docs/componente-de-pago):
+     * order.paid es aprobado, order.declined es rechazado y order.expired es vencido. Cualquier otro, también los de sus
+     * cargos (charge.paid, charge.declined), es otro: se guarda y no cambia el cobro, porque el checkout permite volver a
+     * intentar y la orden es la que dice si se pagó. La orden es la del objeto si es una orden, o la de su order_id.
+     */
     public function traducir(string $cuerpo): AvisoDePasarela
     {
-        throw new AvisoNoReconocido('La traducción de los avisos de Conekta llega con la tarea 3.2.');
+        $contenido = json_decode($cuerpo, true);
+
+        if (! is_array($contenido) || ! is_string($contenido['id'] ?? null) || $contenido['id'] === '' || ! is_string($contenido['type'] ?? null)) {
+            throw new AvisoNoReconocido('El aviso de Conekta no es JSON o no trae su id y su type.');
+        }
+
+        $tipo = match ($contenido['type']) {
+            'order.paid' => EventoPasarela::APROBADO,
+            'order.declined' => EventoPasarela::RECHAZADO,
+            'order.expired' => EventoPasarela::VENCIDO,
+            default => EventoPasarela::OTRO,
+        };
+
+        return new AvisoDePasarela($contenido['id'], $tipo, $this->ordenDelAviso($contenido), $contenido);
     }
 
     public function pagosDelPeriodo(CarbonImmutable $desde, CarbonImmutable $hasta): array
     {
         throw new PasarelaNoDisponible('La lectura de los pagos de Conekta llega con la tarea 3.2.');
+    }
+
+    /**
+     * La orden a la que se refiere el aviso: la del objeto si es una orden, la de su order_id si es un cargo, o ninguna.
+     *
+     * @param  array<array-key, mixed>  $contenido
+     */
+    private function ordenDelAviso(array $contenido): ?string
+    {
+        $objeto = $contenido['data']['object'] ?? null;
+
+        if (! is_array($objeto)) {
+            return null;
+        }
+
+        $orden = ($objeto['object'] ?? null) === 'order' ? ($objeto['id'] ?? null) : ($objeto['order_id'] ?? null);
+
+        return is_string($orden) && $orden !== '' ? $orden : null;
     }
 
     /**
