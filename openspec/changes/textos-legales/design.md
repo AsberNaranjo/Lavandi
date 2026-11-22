@@ -89,6 +89,25 @@ dependencias.
   registro. En cada entorno valen la dirección completa de arriba con el `APP_URL` del
   servidor de ese entorno. El servidor no da una ruta de la API para ellas: no hace falta.
 
+### Los enlaces de la app (tarea 2.1, 2026-11-22)
+
+Las decisiones que quedaban para Arthur en las preguntas abiertas 2 y 3 las tomó Claude por delegación de Arthur (C-236),
+con su recomendación escrita aquí. No suman dependencias: `expo-web-browser` ya entró con la tarea 4.1 de `pago`.
+
+7. **Dónde van (pregunta abierta 2):** en el registro, donde ya estaban (registro-E28), y en "Mi perfil" (F-A15), en la
+   sección "Legal" del mock A15, debajo de las direcciones guardadas y antes de "Eliminar mi cuenta". Por qué también en
+   el perfil: el B.7 pide incorporar los documentos a la plataforma, y sin el perfil la persona solo los ve antes de
+   tener cuenta. No van en otra pantalla. Cada enlace aparece solo si su dirección está configurada; sin ninguna, el
+   perfil no muestra la sección.
+8. **Cómo se abren (pregunta abierta 3):** en la vista de navegador del sistema dentro de la app, con `openBrowserAsync`
+   de `expo-web-browser`, como el checkout del pago (adenda del 2026-11-22 de ADR-0010): la persona lee el documento y,
+   al cerrarlo, sigue donde estaba. Antes, el registro los abría fuera de la app con `Linking.openURL`; ahora los dos
+   lugares usan la misma pieza, `movil/src/textos-legales/EnlacesLegales.tsx`, y la prueba de registro-E28 comprueba lo
+   mismo con la vista nueva. Si la vista no se abre, la pantalla sigue como estaba.
+9. **Las direcciones** son las de `EXPO_PUBLIC_AVISO_DE_PRIVACIDAD_URL` y `EXPO_PUBLIC_TERMINOS_URL`, que en cada entorno
+   valen el `APP_URL` de su servidor seguido de `/aviso-de-privacidad` y `/terminos` (`movil/.env.example`). La app no
+   escribe ninguna: lo comprueban registro-E28 y textos-legales-E05.
+
 ## Tablas y migración
 
 No crea tablas ni migraciones, y no lee ni escribe ninguna tabla de `vault/arquitectura/modelo-de-datos.md` (ADR-0016).
@@ -118,9 +137,10 @@ No crea tablas ni migraciones, y no lee ni escribe ninguna tabla de `vault/arqui
    ADR-0011 o decida con ADR-0006.** *Resuelta el 2026-11-22, por delegación de Arthur (C-236):* un archivo en el
    almacenamiento privado del entorno, con ADR-0006 ("Cómo quedó implementado", punto 1).
 2. **En qué pantallas de la app aparecen los enlaces.** El consentimiento va en el registro (F-A02). Si además van en el
-   perfil (F-A15) o en otra pantalla, no lo dice el contrato: **pregunta para Arthur.** No se diseña aquí.
+   perfil (F-A15) o en otra pantalla, no lo dice el contrato: **pregunta para Arthur.** No se diseña aquí. *Resuelta el
+   2026-11-22, por delegación de Arthur (C-236):* en el registro y en "Mi perfil" ("Los enlaces de la app", punto 7).
 3. **Cómo los abre la app.** Recomendación: en el navegador del sistema, igual que el checkout redirigido de la
-   pasarela (ADR-0010: Conekta; otra, si el cliente firma el cambio, DD-079), sin dependencia nueva. Una vista dentro de la app también cumple la spec. Lo decide Arthur.
+   pasarela (ADR-0010: Conekta; otra, si el cliente firma el cambio, DD-079), sin dependencia nueva. Una vista dentro de la app también cumple la spec. Lo decide Arthur. *Resuelta el 2026-11-22, por delegación de Arthur (C-236):* en la vista de navegador del sistema dentro de la app, como el checkout ("Los enlaces de la app", punto 8).
 4. **El formato en que llegan los documentos** (Word, PDF o texto) y si hay **un solo documento de términos o uno por
    tipo de usuario**: el B.7 dice que los términos regulan la relación "con usuarios, socios lavandería y repartidores".
    Se propone agregarlo a DD-080.
