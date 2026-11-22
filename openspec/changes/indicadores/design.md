@@ -124,6 +124,12 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
   registro y sus pedidos son historial. El porcentaje lleva un decimal.
 - **El ranking** promedia todas las calificaciones de cada lavandería, sin el rango de la página, con un decimal, como
   su perfil. Entran todas las lavanderías no borradas, de todas las plazas; con el mismo promedio, van por nombre.
+- **El semáforo** lee sus dos cortes de `config/indicadores.php` (`INDICADORES_SEMAFORO_CORTE_ALTO` y `_BAJO`): verde
+  desde el corte alto, amarillo desde el bajo y por debajo del alto, rojo por debajo del bajo. Un promedio igual a un
+  corte alcanza el color de ese corte, y el color se toma del promedio con un decimal, el que se ve. Cada color va en
+  una insignia con su texto (Verde, Amarillo, Rojo). Mientras DD-114 no dé los valores, los cortes van vacíos y la
+  columna dice "Sin cortes configurados"; unos cortes fuera de 1 a 5, o con el bajo arriba del alto, cuentan como
+  vacíos.
 
 ## Open Questions
 

@@ -14,17 +14,21 @@ use Illuminate\Support\Facades\DB;
  *   sin lugar ni promedio.
  * - Entran todas las lavanderías que no se borraron, de todas las plazas: qué lavandería cuenta como activa es DD-083
  *   (indicadores-E11).
+ * - Cada promedio lleva el color del semáforo, con los dos cortes de la configuración (indicadores-E13).
  */
 final class RankingDeLavanderias
 {
     /**
-     * Una fila por lavandería, con la clave de su id_publico, en el orden del ranking: su lugar, su nombre y su promedio,
-     * o null en los dos si no tiene calificaciones.
+     * Una fila por lavandería, con la clave de su id_publico, en el orden del ranking: su lugar, su nombre, su promedio y
+     * el color de su semáforo. El lugar y el promedio son null si no tiene calificaciones; el semáforo, también si los
+     * cortes de la configuración no sirven (CortesDelSemaforo).
      *
-     * @return array<string, array{lugar: int|null, lavanderia: string, promedio: float|null}>
+     * @return array<string, array{lugar: int|null, lavanderia: string, promedio: float|null, semaforo: Semaforo|null}>
      */
     public function calcular(): array
     {
+        $cortes = CortesDelSemaforo::deLaConfiguracion();
+
         $calificaciones = DB::table('calificaciones')
             ->select('id_lavanderias')
             ->selectRaw('avg(estrellas) as promedio')
@@ -51,6 +55,8 @@ final class RankingDeLavanderias
                 'lugar' => $promedio === null ? null : ++$lugar,
                 'lavanderia' => $fila->nombre,
                 'promedio' => $promedio,
+                // El color se toma del promedio con un decimal: el mismo número que ve la administración.
+                'semaforo' => $promedio === null ? null : $cortes?->color($promedio),
             ];
         }
 

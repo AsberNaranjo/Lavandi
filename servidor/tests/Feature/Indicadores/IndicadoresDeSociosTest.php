@@ -4,6 +4,8 @@ namespace Tests\Feature\Indicadores;
 
 use App\Filament\Pages\Indicadores;
 use App\Filament\Widgets\Indicadores\RankingDeLavanderiasTabla;
+use App\Indicadores\CortesDelSemaforo;
+use App\Indicadores\Semaforo;
 use App\Models\Calificacion;
 use App\Models\Lavanderia;
 use App\Models\Rol;
@@ -22,10 +24,14 @@ use Tests\TestCase;
  * con un decimal, como lo ve su perfil. Entran todas las lavanderías que no se borraron, de todas las plazas; las que no
  * tienen calificaciones van al final.
  *
+ * Los dos cortes del semáforo son datos de configuración (config/indicadores.php). Sus valores los da EL CLIENTE
+ * (indicadores-E14; DD-114): aquí la prueba carga los suyos, ficticios.
+ *
  * Las lavanderías activas frente a las registradas esperan DD-083 (indicadores-E11) y las entregas por repartidor, el
  * cambio repartidor (indicadores-E15, H8).
  *
- * Escenarios: indicadores-E12 · Spec: openspec/changes/indicadores/specs/indicadores/spec.md · Tarea 3.2
+ * Escenarios: indicadores-E12 e indicadores-E13 · Spec: openspec/changes/indicadores/specs/indicadores/spec.md · Tareas
+ * 3.2 y 3.3
  */
 class IndicadoresDeSociosTest extends TestCase
 {
@@ -82,6 +88,70 @@ class IndicadoresDeSociosTest extends TestCase
             ->assertTableColumnStateSet('lugar', 4, $otra->id_publico);
 
         $this->assertContains(RankingDeLavanderiasTabla::class, (new Indicadores)->getWidgets());
+    }
+
+    #[TestDox('indicadores-E13: con dos cortes cargados, la que está arriba del alto se marca verde, la de en medio amarillo y la de abajo del bajo rojo, cada una con su texto')]
+    public function test_indicadores_e13_el_semaforo_marca_verde_amarillo_y_rojo_con_su_texto(): void
+    {
+        $this->cortes('4.5', '4.0');
+        $lavanderias = $this->sembrarElRanking();
+        $this->comoAdministracion();
+
+        $this->widget(RankingDeLavanderiasTabla::class)
+            ->assertTableColumnStateSet('semaforo', Semaforo::Verde, $lavanderias['alta']->id_publico)
+            ->assertTableColumnStateSet('semaforo', Semaforo::Amarillo, $lavanderias['media']->id_publico)
+            ->assertTableColumnStateSet('semaforo', Semaforo::Rojo, $lavanderias['baja']->id_publico)
+            ->assertTableColumnStateSet('semaforo', null, $lavanderias['sin']->id_publico)
+            // Cada color con su texto, no solo con el color.
+            ->assertSeeInOrder([
+                'Lavandería de cuatro ocho', 'Verde',
+                'Lavandería de cuatro dos', 'Amarillo',
+                'Lavandería de tres nueve', 'Rojo',
+            ]);
+
+        $this->assertSame(['Verde', 'Amarillo', 'Rojo'], array_map(fn (Semaforo $color): string => $color->getLabel(), Semaforo::cases()));
+        $this->assertSame(['success', 'warning', 'danger'], array_map(fn (Semaforo $color): string => $color->getColor(), Semaforo::cases()));
+    }
+
+    #[TestDox('indicadores-E13: los cortes salen de la configuración: con otros cortes, la misma lavandería cambia de color sin cambiar el código')]
+    public function test_indicadores_e13_los_cortes_salen_de_la_configuracion(): void
+    {
+        $lavanderias = $this->sembrarElRanking();
+        $this->comoAdministracion();
+
+        $this->cortes('4.9', '4.0');
+        $this->widget(RankingDeLavanderiasTabla::class)
+            ->assertTableColumnStateSet('semaforo', Semaforo::Amarillo, $lavanderias['alta']->id_publico);
+
+        // Un promedio igual al corte alto alcanza el verde; uno igual al corte bajo, el amarillo.
+        $this->cortes('4.8', '4.2');
+        $this->widget(RankingDeLavanderiasTabla::class)
+            ->assertTableColumnStateSet('semaforo', Semaforo::Verde, $lavanderias['alta']->id_publico)
+            ->assertTableColumnStateSet('semaforo', Semaforo::Amarillo, $lavanderias['media']->id_publico)
+            ->assertTableColumnStateSet('semaforo', Semaforo::Rojo, $lavanderias['baja']->id_publico);
+    }
+
+    #[TestDox('indicadores-E13: sin los dos cortes, o con cortes que no sirven, el ranking no pinta semáforo y lo dice')]
+    public function test_indicadores_e13_sin_cortes_validos_no_hay_semaforo_y_lo_dice(): void
+    {
+        $lavanderias = $this->sembrarElRanking();
+        $this->comoAdministracion();
+
+        foreach ([[null, null], ['4.5', null], ['4.0', '4.5'], ['alto', 'bajo'], ['6', '4'], ['4', '0']] as [$alto, $bajo]) {
+            $this->cortes($alto, $bajo);
+
+            $this->widget(RankingDeLavanderiasTabla::class)
+                ->assertTableColumnStateSet('semaforo', null, $lavanderias['alta']->id_publico)
+                ->assertSee('Sin cortes configurados')
+                ->assertDontSee('Verde');
+        }
+
+        $this->assertNull(CortesDelSemaforo::deLaConfiguracion());
+    }
+
+    private function cortes(?string $alto, ?string $bajo): void
+    {
+        config(['indicadores.semaforo.corte_alto' => $alto, 'indicadores.semaforo.corte_bajo' => $bajo]);
     }
 
     /**
