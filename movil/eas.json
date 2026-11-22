@@ -24,5 +24,13 @@
         "PERFIL_DE_COMPILACION": "production"
       }
     }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "track": "production",
+        "releaseStatus": "draft"
+      }
+    }
   }
 }

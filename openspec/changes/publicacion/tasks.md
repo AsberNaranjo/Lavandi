@@ -31,7 +31,7 @@ bloqueadas por sus otras filas.
 ## 4. Envío a las tiendas
 
 - [ ] 4.1 publicacion-E11: envío con EAS Submit a App Store Connect y a Google Play Console del cliente (bloqueada: DD-017, DD-084, DD-121, DD-109) — test: `movil/__tests__/publicacion/envio.test.ts`, más el registro del envío — tamaño M
-- [ ] 4.2 publicacion-E12: el perfil de envío de Android deja la compilación en borrador, para liberar a la vez en las dos tiendas — test: `movil/__tests__/publicacion/envio.test.ts` — tamaño S
+- [x] 4.2 publicacion-E12: el perfil de envío de Android deja la compilación en borrador, para liberar a la vez en las dos tiendas — test: `movil/__tests__/publicacion/envio.test.ts` — tamaño S
 - [ ] 4.3 publicacion-E13: la ficha de cada tienda declara la dirección del aviso de privacidad, con capturas (bloqueada: DD-080, DD-121) — test: `movil/__tests__/publicacion/envio.test.ts` (la dirección sale de la configuración) — tamaño S
 
 ## 5. La pasarela en producción

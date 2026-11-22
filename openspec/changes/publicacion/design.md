@@ -115,6 +115,17 @@ en la cuenta de cada entorno (ADR-0012): la de prueba puede ser la de EL PRESTAD
 - **Lo que no se comprobó:** el registro de una compilación real de EAS, que espera la cuenta de Expo del entorno
   (ADR-0012) y, para `production`, el identificador definitivo (DD-088, punto 4).
 
+### 6. El envío de Android queda en borrador (tarea 4.2, publicacion-E12)
+
+- El perfil de envío `production` de EAS Submit, con el mismo nombre que el de la compilación, manda la compilación a la
+  pista de producción de Google Play Console con `releaseStatus: draft`: no se publica sola, y se libera a mano el mismo
+  día que en App Store, cuando las dos revisiones estén aprobadas.
+- La llave de la cuenta de servicio de Google Play no va en `eas.json` (`serviceAccountKeyPath`): se sube a las
+  credenciales de EAS de la cuenta del cliente cuando exista.
+- **Puede cambiar con DD-017:** si la cuenta de Google Play es personal, la primera publicación pide antes la prueba
+  cerrada de 14 días con 12 personas (R-029, grado E), y el primer envío iría a esa pista. El borrador se queda igual.
+- El envío de iPhone no se configura: es publicacion-E11, bloqueado.
+
 ## Tablas y migración
 
 No crea tablas: ninguna tabla de `vault/arquitectura/modelo-de-datos.md` nace aquí (ADR-0016). En prueba y en producción
