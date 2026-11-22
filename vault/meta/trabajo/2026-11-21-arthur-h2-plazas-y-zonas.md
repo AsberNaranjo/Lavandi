@@ -181,4 +181,12 @@ foto del perfil (el disco privado).
   - las decisiones de Nadir: DD-053, DD-070 y DD-023.
 - Pendiente el visto bueno de Arthur para subir lo nuevo al PR #3.
 
+**2026-11-22, por la noche (C-242).**
+- **El push.** Arthur pidió subir la rama: los 59 commits ya están en el PR #3, hasta `7d09b67`.
+- **La auditoría.** Nadir preguntó si se siguió todo sin desviarse. La auditoría del PR #3 contra el contrato
+  ([[auditoria-pr-3-contra-el-contrato-2026-11-22]]) no encontró funciones sin cita, pero sí citas estiradas.
+- **La corrección.** Lo que no depende de nadie se corrige en `fix/alineacion-al-contrato` (decisión 39).
+- **Lo que espera.** La visibilidad de las lavanderías pendientes espera DD-053, de Nadir. El catálogo de colonias y
+  la hora de cada estado esperan a Arthur.
+
 **Al terminar.** `situacion: terminada`, con el enlace al PR, que va después del del H1.

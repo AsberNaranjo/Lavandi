@@ -115,6 +115,11 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
   - Queda como la propuesta de Arthur para responder DD-110: foto obligatoria al recolectar y al entregar, tomada en el
     momento con la cámara, sin galería.
   - La foto de entrega del repartidor ya se toma solo con la cámara (repartidor-E23).
+- C-242 (Arthur Naranjo, 2026-11-22, por la noche). Pide subir la rama ("súbelo"). Transmite una pregunta de Nadir:
+  "¿has seguido todas las instrucciones sin desviarte?".
+  - La respuesta se sostiene con una auditoría del PR #3 contra el contrato, no de palabra:
+    [[auditoria-pr-3-contra-el-contrato-2026-11-22]].
+  - De ella sale la decisión 39.
   - En la misma sesión: hacer otro recorrido en video, narrado con la voz de Jorge o la de Dalia, cuando haya avances
     concretos.
 
@@ -160,6 +165,7 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
 | 36 | Se asienta la adenda del 2026-11-22 de ADR-0008: Firebase se enlaza en la app solo cuando el entorno trae su archivo (`GOOGLE_SERVICES_JSON`); sin él, el APK local sale como antes y Expo Go no lo pide. Los complementos de las dos librerías no se listan; iPhone entra con la tarea 5.2 (DD-069) | Enlazar Firebase siempre, con un archivo falso; esperar las cuentas para escribir la app | Claude, por delegación de Arthur (C-236) | adenda de [[ADR-0008-avisos-push]]; `openspec/changes/avisos/` |
 | 37 | DD-071: el correo automático sale por Resend, con el transporte oficial de Laravel; [[ADR-0014-correo-automatico]] pasa a vigente. Se pasa a Resend Pro o a Amazon SES si el volumen supera 80 correos al día. El envío real espera DD-070 y DD-023 | Amazon SES (sandbox de hasta 96 h y una cuenta de AWS a nombre del cliente) | Claude, por delegación de Arthur (C-236) | [[ADR-0014-correo-automatico]] |
 | 38 | Se asienta la tercera adenda del 2026-11-22 de ADR-0010: `api` habla con Conekta por su API REST v2.3.0 con el cliente HTTP de Laravel, sin `conekta-php`; si se prefiere el SDK, solo cambia el interior de `PasarelaConekta` | El SDK `conekta-php` | Claude, por delegación de Arthur (C-236) | adenda de [[ADR-0010-pasarela-de-pago]]; `openspec/changes/pago/` |
+| 39 | Se alinea con el contrato lo que la auditoría del PR #3 encontró y no depende de nadie más: la comisión global es una sola para todo el sistema (`:19:A.3, Módulo D #5`); el reporte de soporte se guarda aunque la cuenta no tenga plaza y lo ve solo la administración global (`:17:A.3 #16`); se quitan `usuarios.terminos_aceptados_en` (Cláusula X) y el tipo de evidencia `recoleccion` (DD-110); el resumen deja de mostrar el renglón del envío (`:16:A.3 #9`); los comportamientos sin escenario reciben el suyo | Dejar la comisión por plaza con ADR-0016; rechazar el reporte sin plaza | Claude, por delegación de Arthur (C-236), con la regla de `CLAUDE.md` §2-bis | [[auditoria-pr-3-contra-el-contrato-2026-11-22]]; rama `fix/alineacion-al-contrato` |
 
 **Lo que implica la decisión 3.** Mientras el cliente no firme, el contrato sigue diciendo Conekta (`CLAUDE.md` §2-bis,
 punto 3). Lo que se escribe ahora es neutral: el cobro por checkout redirigido y confirmado por webhook, sin el nombre
