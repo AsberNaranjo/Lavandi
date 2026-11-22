@@ -2,18 +2,33 @@
 
 namespace Tests\Feature\Exportacion;
 
+use App\Cobro\PasarelaSimulada;
 use App\Exportacion\Exportacion;
+use App\Filament\Pages\Conciliacion;
+use App\Filament\Pages\Indicadores;
+use App\Filament\Pages\ReporteDeIngresos;
+use App\Filament\Widgets\Finanzas\IngresosDelPeriodo;
+use App\Filament\Widgets\Finanzas\IngresosPorPeriodoTabla;
+use App\Filament\Widgets\Indicadores\EntregasPorRepartidorTabla;
+use App\Filament\Widgets\Indicadores\IngresosBrutosGrafica;
+use App\Filament\Widgets\Indicadores\MapaDeCalor;
 use App\Filament\Widgets\Indicadores\MontoPromedioIndicador;
 use App\Filament\Widgets\Indicadores\PedidosPorEstadoGrafica;
 use App\Filament\Widgets\Indicadores\PedidosTotalesTabla;
+use App\Filament\Widgets\Indicadores\RankingDeLavanderiasTabla;
 use App\Filament\Widgets\Indicadores\RetencionTabla;
 use App\Filament\Widgets\Indicadores\UsuariosActivosGrafica;
+use App\Finanzas\Ingresos;
 use App\Indicadores\MontoPromedio;
 use App\Indicadores\Rango;
+use App\Models\Lavanderia;
 use App\Models\Pedido;
 use App\Models\Usuario;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Livewire\Features\SupportTesting\Testable;
+use Livewire\Livewire;
 use OpenSpout\Common\Entity\Cell\EmptyCell;
 use OpenSpout\Common\Entity\Cell\NumericCell;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -28,18 +43,25 @@ use Tests\Feature\Plazas\Soporte\PlazasDePrueba;
 use Tests\TestCase;
 
 /**
- * Cada reporte de los indicadores de operaciones y de usuarios (F-I01 a F-I05) se descarga en CSV y en Excel, y sus
- * cifras coinciden con las del panel para el mismo rango (NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5;
- * NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.4, A44-2): pedidos totales, pedidos por estado, usuarios activos,
- * usuarios que vuelven a pedir por mes de registro y monto promedio por pedido.
+ * Cada reporte del panel se descarga en CSV y en Excel, y sus cifras coinciden con las del panel para el mismo rango
+ * (NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #6;
+ * NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.4, A44-2):
  *
- * Las cifras del panel se leen de cada widget con los mismos filtros, y el archivo sale de la misma consulta: si alguna
- * difiere, el reporte no es el del panel. Los demás reportes (F-I06 a F-I11 y los financieros) son la tarea 1.3.
+ * - tarea 1.2, operaciones y usuarios (F-I01 a F-I05): pedidos totales, pedidos por estado, usuarios activos, usuarios
+ *   que vuelven a pedir por mes de registro y monto promedio por pedido;
+ * - tarea 1.3, socios, dinero y geografía (F-I07 a F-I09 y F-I11 por zona; F-I11 por colonia está en
+ *   EscrituraDelArchivoTest) y los reportes financieros de ingresos y de conciliación con la pasarela.
+ *
+ * Siguen bloqueados, y no tienen descarga porque el panel todavía no tiene su cifra: las lavanderías activas frente a
+ * registradas (F-I06, DD-083), las comisiones (F-I10 y el reporte de comisiones, DD-020 y DD-013).
+ *
+ * Las cifras del panel se leen de cada widget o página con los mismos filtros, y el archivo sale de la misma consulta: si
+ * alguna difiere, el reporte no es el del panel.
  *
  * El rango de prueba es la semana del lunes 7 al domingo 13 de diciembre de 2026, por día; las cuentas se registran el
  * jueves 3 de diciembre. Todo es ficticio.
  *
- * Escenario: exportacion-E03 · Spec: openspec/changes/exportacion/specs/exportacion/spec.md · Tarea 1.2
+ * Escenario: exportacion-E03 · Spec: openspec/changes/exportacion/specs/exportacion/spec.md · Tareas 1.2 y 1.3
  */
 class TodosLosReportesTest extends TestCase
 {
@@ -151,6 +173,122 @@ class TodosLosReportesTest extends TestCase
         }
     }
 
+    #[TestDox('exportacion-E03: el ranking de calificación por lavandería se descarga en CSV y en Excel con las cifras de la tabla del panel, y el semáforo por su texto')]
+    public function test_exportacion_e03_ranking_coincide_con_el_panel(): void
+    {
+        config(['indicadores.semaforo.corte_alto' => '4.5', 'indicadores.semaforo.corte_bajo' => '4.0']);
+        $this->calificar($this->lavanderia, [5, 4]);
+        $sinCalificar = Lavanderia::factory()->en($this->plaza)->create(['nombre' => 'Lavandería sin calificar']);
+
+        $registros = $this->comoElPanel(fn () => $this->widget(RankingDeLavanderiasTabla::class, self::SEMANA)->instance()->getTableRecords());
+        $panel = array_values($registros->map(fn (array $fila): array => [
+            $fila['lugar'],
+            $fila['lavanderia'],
+            $fila['promedio'] === null ? null : number_format($fila['promedio'], 1, '.', ''),
+            $fila['semaforo']?->getLabel(),
+        ])->all());
+
+        $exportacion = $this->descargar('descargarCalificacionPorLavanderia');
+
+        $this->assertReporte($exportacion, ['Lugar', 'Lavandería', 'Calificación promedio', 'Semáforo'], $panel);
+        $this->assertSame([[1, $this->lavanderia->nombre, '4.5', 'Verde'], [null, $sinCalificar->nombre, null, null]], $panel);
+    }
+
+    #[TestDox('exportacion-E03: las entregas completadas por repartidor se descargan en CSV y en Excel con las cifras de la tabla del panel')]
+    public function test_exportacion_e03_entregas_por_repartidor_coinciden_con_el_panel(): void
+    {
+        $registros = $this->comoElPanel(fn () => $this->widget(EntregasPorRepartidorTabla::class, self::SEMANA)->instance()->getTableRecords());
+        $panel = array_values($registros->map(fn (array $fila): array => [$fila['repartidor'], $fila['plaza'], $fila['entregas']])->all());
+
+        $exportacion = $this->descargar('descargarEntregasPorRepartidor');
+
+        $this->assertReporte($exportacion, ['Repartidor', 'Plaza', 'Entregas completadas'], $panel);
+        // El pedido entregado del lunes 7.
+        $this->assertSame([1], array_column($panel, 2));
+    }
+
+    #[TestDox('exportacion-E03: el mapa de calor por zona de servicio se descarga en CSV y en Excel con las cifras de la tabla del mapa')]
+    public function test_exportacion_e03_pedidos_por_zona_coinciden_con_el_panel(): void
+    {
+        $zonas = $this->comoElPanel(fn () => $this->datosDelMapa($this->widget(MapaDeCalor::class, self::SEMANA)->set('agrupacion', MapaDeCalor::POR_ZONA))['zonas']);
+        $panel = array_map(fn (array $zona): array => [$zona['nombre'], $zona['detalle'], $zona['pedidos']], $zonas);
+
+        $exportacion = $this->descargar('descargarPedidosPorZona');
+
+        $this->assertReporte($exportacion, ['Zona de servicio', 'Plaza', 'Pedidos'], $panel);
+        $this->assertSame([[$this->zona->nombre, $this->plaza->nombre, 3]], $panel);
+    }
+
+    #[TestDox('exportacion-E03: los ingresos brutos se descargan en CSV y en Excel con las cifras de las barras del panel, en pesos con dos decimales')]
+    public function test_exportacion_e03_ingresos_brutos_coinciden_con_el_panel(): void
+    {
+        $barras = $this->comoElPanel(fn () => $this->datosDeLaGrafica($this->widget(IngresosBrutosGrafica::class, self::SEMANA)));
+        $panel = array_map(
+            fn (string $periodo, float $ingresos): array => [$periodo, number_format($ingresos, 2, '.', '')],
+            $barras['labels'],
+            $barras['datasets'][0]['data'],
+        );
+
+        $exportacion = $this->descargar('descargarIngresosBrutos');
+
+        $this->assertReporte($exportacion, ['Periodo', 'Ingresos brutos'], $panel);
+        // Los pagos del lunes 7 y del martes 8, de 100 cada uno.
+        $this->assertSame(['100.00', '200.00', '0.00', '0.00', '0.00', '0.00', '0.00'], array_column($panel, 1));
+    }
+
+    #[TestDox('exportacion-E03: el reporte financiero de ingresos se descarga en CSV y en Excel desde su página, con las cifras de su tabla y el total del periodo')]
+    public function test_exportacion_e03_ingresos_por_periodo_coinciden_con_el_reporte_financiero(): void
+    {
+        $registros = $this->comoElPanel(fn () => $this->widget(IngresosPorPeriodoTabla::class, self::SEMANA)->instance()->getTableRecords());
+        $this->comoElPanel(fn () => $this->widget(IngresosDelPeriodo::class, self::SEMANA)->assertSee(['$300.00', '3 pagos confirmados']));
+        $total = app(Ingresos::class)->delRango(Rango::deLosFiltros(self::SEMANA));
+        $panel = [
+            ...array_values($registros->map(fn (array $fila): array => [$fila['periodo'], $fila['pagos'], $fila['ingresos']])->all()),
+            ['Total del periodo', $total['pagos'], $total['ingresos']],
+        ];
+
+        $exportacion = $this->descargar('descargarIngresosPorPeriodo', pagina: ReporteDeIngresos::class);
+
+        $this->assertReporte($exportacion, ['Periodo', 'Pagos confirmados', 'Ingresos'], $panel);
+        $this->assertSame(['Total del periodo', 3, '300.00'], $panel[7]);
+    }
+
+    #[TestDox('exportacion-E03: la conciliación con la pasarela se descarga en CSV y en Excel desde su página, después de conciliar, con el periodo conciliado y las filas de su tabla')]
+    public function test_exportacion_e03_conciliacion_coincide_con_la_pagina(): void
+    {
+        $periodo = ['desde' => self::SEMANA['desde'], 'hasta' => self::SEMANA['hasta']];
+        // Un pago de la pasarela que no es de ningún pedido: una diferencia en el reporte.
+        app(PasarelaSimulada::class)->acreditar('orden-de-otro-sistema', '80.00', CarbonImmutable::parse('2026-12-09 16:00:00', 'UTC'));
+        $this->entrarComoAdministracion();
+
+        $pagina = Livewire::test(Conciliacion::class)
+            ->assertActionHidden('descargarConciliacionConLaPasarela')
+            ->callAction('conciliar', data: $periodo)
+            ->assertHasNoActionErrors()
+            ->assertActionVisible('descargarConciliacionConLaPasarela');
+        $panel = array_values($pagina->instance()->getTableRecords()->map(fn (array $fila): array => [
+            $fila['resultado']->getLabel(),
+            $fila['orden'],
+            $fila['folio'],
+            $fila['plaza'],
+            $fila['fecha'],
+            $fila['monto_plataforma'],
+            $fila['monto_pasarela'],
+        ])->all());
+
+        $pagina->callAction('descargarConciliacionConLaPasarela')->assertHasNoActionErrors();
+        $exportacion = $this->ultimaExportacion();
+
+        $this->assertReporte(
+            $exportacion,
+            ['Resultado', 'Orden en la pasarela', 'Folio', 'Plaza', 'Fecha del pago', 'Monto en la plataforma', 'Monto en la pasarela'],
+            $panel,
+        );
+        $this->assertSame(['Conciliado', 'Conciliado', 'Conciliado', 'Movimiento sin pedido'], array_column($panel, 0));
+        // El archivo es del periodo conciliado: lo dice su nombre.
+        $this->assertSame('conciliacion-con-la-pasarela-2026-12-07-al-2026-12-13', $exportacion->file_name);
+    }
+
     /**
      * Dos cuentas registradas el jueves 3 de diciembre. La primera hizo dos pedidos en la semana, el lunes 7 de 200 y
      * el martes 8 de 300, y el primero se entregó; la segunda, uno el martes 8 de 250. En la semana anterior hubo un
@@ -197,16 +335,30 @@ class TodosLosReportesTest extends TestCase
     }
 
     /**
-     * La administración pide la descarga con esos filtros, o con los de la semana.
+     * La administración pide la descarga con esos filtros, o con los de la semana, en la página de indicadores o en la
+     * que se pase.
      *
      * @param  array<string, string>|null  $filtros
+     * @param  class-string  $pagina
      */
-    private function descargar(string $accion, ?array $filtros = null): Exportacion
+    private function descargar(string $accion, ?array $filtros = null, string $pagina = Indicadores::class): Exportacion
     {
         $this->entrarComoAdministracion();
-        $this->pedirDescarga($accion, $filtros ?? self::SEMANA)->assertHasNoActionErrors();
+        $this->pedirDescarga($accion, $filtros ?? self::SEMANA, $pagina)->assertHasNoActionErrors();
 
         return $this->ultimaExportacion();
+    }
+
+    /**
+     * Lo que el widget del mapa de calor le da al mapa: los datos en JSON del atributo data-mapa-datos.
+     *
+     * @return array{agrupacion: string, puntos: list<array<string, mixed>>, zonas: list<array<string, mixed>>}
+     */
+    private function datosDelMapa(Testable $mapa): array
+    {
+        $this->assertSame(1, preg_match('/data-mapa-datos="([^"]*)"/', $mapa->html(), $coincidencia), 'El widget no trae los datos del mapa.');
+
+        return json_decode(html_entity_decode($coincidencia[1], ENT_QUOTES | ENT_HTML5), true, 512, JSON_THROW_ON_ERROR);
     }
 
     private function entrarComoAdministracion(): void

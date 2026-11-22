@@ -3,10 +3,14 @@
 namespace App\Filament\Pages;
 
 use App\Autorizacion\Autorizacion;
+use App\Exportacion\Exportadores\EntregasPorRepartidorExportador;
+use App\Exportacion\Exportadores\IngresosBrutosExportador;
 use App\Exportacion\Exportadores\MontoPromedioExportador;
 use App\Exportacion\Exportadores\PedidosPorColoniaExportador;
 use App\Exportacion\Exportadores\PedidosPorEstadoExportador;
+use App\Exportacion\Exportadores\PedidosPorZonaExportador;
 use App\Exportacion\Exportadores\PedidosTotalesExportador;
+use App\Exportacion\Exportadores\RankingDeLavanderiasExportador;
 use App\Exportacion\Exportadores\RetencionExportador;
 use App\Exportacion\Exportadores\UsuariosActivosExportador;
 use App\Filament\Actions\DescargarReporte;
@@ -114,7 +118,11 @@ class Indicadores extends Dashboard
                 DescargarReporte::de(UsuariosActivosExportador::class),
                 DescargarReporte::de(RetencionExportador::class),
                 DescargarReporte::de(MontoPromedioExportador::class),
+                DescargarReporte::de(RankingDeLavanderiasExportador::class),
+                DescargarReporte::de(EntregasPorRepartidorExportador::class),
+                DescargarReporte::de(IngresosBrutosExportador::class),
                 DescargarReporte::de(PedidosPorColoniaExportador::class),
+                DescargarReporte::de(PedidosPorZonaExportador::class),
             ])
                 ->label('Descargar')
                 ->icon(Heroicon::OutlinedArrowDownTray)

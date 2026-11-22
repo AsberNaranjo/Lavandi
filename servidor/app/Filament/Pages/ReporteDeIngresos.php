@@ -3,6 +3,8 @@
 namespace App\Filament\Pages;
 
 use App\Autorizacion\Autorizacion;
+use App\Exportacion\Exportadores\IngresosExportador;
+use App\Filament\Actions\DescargarReporte;
 use App\Filament\Widgets\Finanzas\IngresosDelPeriodo;
 use App\Filament\Widgets\Finanzas\IngresosPorPeriodoTabla;
 use App\Indicadores\Granularidad;
@@ -76,6 +78,22 @@ class ReporteDeIngresos extends Dashboard
                 ->columns(3)
                 ->columnSpanFull(),
         ]);
+    }
+
+    /**
+     * El botón "Descargar", con el reporte de ingresos en CSV y en Excel, con las cifras de la página para el rango que
+     * se elija (NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5; openspec/changes/exportacion/).
+     *
+     * @return array<DescargarReporte>
+     */
+    protected function getHeaderActions(): array
+    {
+        return [
+            DescargarReporte::de(IngresosExportador::class)
+                ->label('Descargar')
+                ->icon(Heroicon::OutlinedArrowDownTray)
+                ->color('gray'),
+        ];
     }
 
     /**

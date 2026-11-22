@@ -245,6 +245,8 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
   le preguntan, y un widget montado por otra cuenta responde 403. Cuentan los pagos de todas las plazas.
 - Las comisiones del periodo esperan la base de cálculo (administracion-E19, DD-020) y la conciliación vive en su propia
   página.
+- **La descarga:** el botón "Descargar" de la página baja la tabla en CSV y en Excel, con el total del periodo al final
+  (`exportacion`, tarea 1.3).
 
 **Conciliación con la pasarela** (`/admin/conciliacion`; tareas 4.4 y 4.5, administracion-E20 y E21), en el grupo
 "Reportes financieros" (`App\Filament\Pages\Conciliacion`), con la segunda adenda del 2026-11-22 de ADR-0010
@@ -287,6 +289,8 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
   de la plataforma y el de la pasarela; arriba, el periodo y cuántos hay de cada resultado. Es de solo lectura.
 - **Sin pasarela** (sin llave, o en un entorno sin pasarela): la página dice "No se pudo leer la pasarela" y no guarda
   nada.
+- **La descarga:** después de conciliar aparece "Descargar", que baja en CSV y en Excel las filas de la tabla del periodo
+  conciliado, sin volver a leer la pasarela (`exportacion`, tarea 1.3).
 - **Quién concilia:** `Autorizacion::puedeVerLosReportesFinancieros()`, solo la administración; la página y el botón le
   preguntan.
 - **La pasarela simulada lleva sus libros:** cada aviso de aprobado que manda es un pago que acreditó, con el monto de su

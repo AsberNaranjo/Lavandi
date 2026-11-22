@@ -4,6 +4,8 @@ namespace App\Filament\Pages;
 
 use App\Autorizacion\Autorizacion;
 use App\Cobro\PasarelaNoDisponible;
+use App\Exportacion\Exportadores\ConciliacionExportador;
+use App\Filament\Actions\DescargarReporte;
 use App\Finanzas\ConciliacionConLaPasarela;
 use App\Finanzas\Pesos;
 use App\Finanzas\ResultadoDeConciliacion;
@@ -90,6 +92,15 @@ class Conciliacion extends Page implements HasTable
                 ])
                 ->authorize(fn (): bool => self::canAccess())
                 ->action(fn (array $data) => $this->conciliar($data)),
+            // La descarga del periodo conciliado, con las filas de la tabla: solo después de conciliar
+            // (openspec/changes/exportacion/, exportacion-E03).
+            DescargarReporte::de(ConciliacionExportador::class)
+                ->label('Descargar')
+                ->icon(Heroicon::OutlinedArrowDownTray)
+                ->color('gray')
+                ->modalDescription(fn (): string => 'El archivo sale en CSV y en Excel (XLSX), con la conciliación '.mb_lcfirst($this->rango()->dias()).', como la muestra la tabla.')
+                ->options(fn (): array => $this->filters ?? [])
+                ->visible(fn (): bool => $this->filters !== null),
         ];
     }
 

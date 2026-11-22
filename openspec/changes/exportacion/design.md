@@ -42,7 +42,8 @@ No hay decisión técnica nueva. Se aplica el ADR-0003:
 No crea tablas del negocio ni migración propia (`vault/arquitectura/modelo-de-datos.md`, ADR-0016). Cada archivo sale de
 la consulta de `indicadores` o de `administracion`, que leen las tablas que nombra el `design.md` de cada uno. De las
 que crean esos dos cambios, entran a un archivo `actividad_usuarios` (`indicadores`) y `comisiones` (`administracion`).
-La descarga de la conciliación espera `movimientos_pasarela`, que nace con DD-112.
+La descarga de la conciliación lee también `movimientos_pasarela`, que creó `administracion` (tarea 0.2) cuando la segunda
+adenda del 2026-11-22 de ADR-0010 cerró DD-112.
 
 La exportación usa además tablas del framework:
 
@@ -91,6 +92,30 @@ técnicas las decidió por delegación de Arthur (C-236); cada una dice su recom
   - monto promedio por pedido: una fila con el periodo y su promedio, el periodo anterior y el suyo, la diferencia con
     su signo y la tendencia, como los dice el indicador destacado. Los montos van con dos decimales; qué monto cuenta
     espera DD-012 (indicadores-E10).
+- **Los reportes de socios, dinero y geografía y los financieros** (tarea 1.3), cada uno con las columnas de su tabla o
+  su gráfica:
+  - calificación promedio por lavandería (F-I07): lugar, lavandería, calificación promedio con un decimal, como la ve el
+    panel, y el semáforo por su texto. Una lavandería sin calificaciones, o sin cortes en la configuración (DD-114), deja
+    vacías las celdas que el panel llena con un texto ("Sin calificaciones", "Sin cortes configurados"). Como el panel,
+    no depende del rango: el rango solo nombra el archivo;
+  - entregas completadas por repartidor (F-I08): repartidor, plaza y entregas;
+  - ingresos brutos (F-I09): periodo e ingresos brutos, en pesos con dos decimales, de `App\Finanzas\Ingresos`, la
+    consulta de las barras y del reporte financiero. Cuando DD-115 diga cómo se agrupan las barras (indicadores-E17),
+    cada grupo será otra columna;
+  - mapa de calor por zona de servicio (F-I11, la otra vista del mapa): zona, plaza y pedidos, sin el polígono ni la
+    intensidad, que son para dibujar;
+  - ingresos por periodo (reporte financiero, administracion-E17), desde su página, `/admin/ingresos`, con su botón
+    "Descargar": periodo, pagos confirmados e ingresos, de la misma consulta, y un último renglón "Total del periodo" con
+    la cifra que la página muestra arriba;
+  - conciliación con la pasarela (reporte financiero, administracion-E20 y E21), desde su página, `/admin/conciliacion`:
+    el botón "Descargar" aparece solo después de conciliar, sin formulario, con el periodo conciliado
+    (`ConciliacionExportador` no pide rango). Trae las filas de la tabla: resultado por su texto, orden en la pasarela,
+    folio, plaza, fecha del pago y los dos montos. No vuelve a leer la pasarela: escribe lo que se leyó al conciliar
+    (segunda adenda de ADR-0010, decisión 7).
+  - **Siguen bloqueados** y no tienen descarga, porque el panel todavía no tiene su cifra: las lavanderías activas
+    frente a registradas (F-I06, indicadores-E11, DD-083) y las comisiones, el indicador (F-I10, indicadores-E18) y el
+    reporte financiero (administracion-E19), por DD-020 y DD-013.
+  - La página de indicadores ofrece sus diez descargas en el orden del A.5; la de ingresos y la de conciliación, la suya.
 - **El rango** (tarea 2.1, E04 a E06): las dos fechas van incluidas y no hay tope de duración, ni en el formulario ni
   en la consulta; un rango de dos años por día son 731 filas (lectura 3). Una fecha de fin anterior a la de inicio se
   rechaza en el formulario con "La fecha de fin no puede ser anterior a la de inicio." y no se genera nada (el panel,
