@@ -25,11 +25,15 @@ trait IndicadoresDePrueba
 {
     /**
      * Un pedido de la cuenta, creado y confirmado a esa fecha y hora en la hora de la plaza de prueba. Sin cuenta, crea
-     * una cuenta de usuario nueva.
+     * una cuenta de usuario nueva. La recogida es una dirección nueva de la cuenta con lo que se pase encima
+     * (PedidosDePrueba::direccionDe()); la entrega, otra si se pasa, o la misma.
+     *
+     * @param  array<string, mixed>  $recogida
+     * @param  array<string, mixed>|null  $entrega
      */
-    protected function pedidoConfirmadoEl(string $fechaYHora, ?Usuario $cuenta = null): Pedido
+    protected function pedidoConfirmadoEl(string $fechaYHora, ?Usuario $cuenta = null, array $recogida = [], ?array $entrega = null): Pedido
     {
-        $pedido = $this->pedidoSinPagarEl($fechaYHora, $cuenta);
+        $pedido = $this->pedidoSinPagarEl($fechaYHora, $cuenta, $recogida, $entrega);
 
         // En la prueba, la llamada directa a la operación de confirmar hace de aviso del cobro.
         return app(ConfirmacionDePedido::class)->confirmar($pedido)->fresh();
@@ -37,9 +41,12 @@ trait IndicadoresDePrueba
 
     /**
      * Un pedido de la cuenta, creado a esa fecha y hora al aceptar el resumen, que nunca se paga: queda en por_pagar,
-     * sin confirmado_en.
+     * sin confirmado_en. Las direcciones, como en pedidoConfirmadoEl().
+     *
+     * @param  array<string, mixed>  $recogida
+     * @param  array<string, mixed>|null  $entrega
      */
-    protected function pedidoSinPagarEl(string $fechaYHora, ?Usuario $cuenta = null): Pedido
+    protected function pedidoSinPagarEl(string $fechaYHora, ?Usuario $cuenta = null, array $recogida = [], ?array $entrega = null): Pedido
     {
         $instante = CarbonImmutable::parse($fechaYHora, self::ZONA_HORARIA);
         $this->travelTo($instante);
@@ -47,12 +54,15 @@ trait IndicadoresDePrueba
         $cuenta ??= $this->cuentaDeUsuario();
         $inicio = $instante->addDay()->setTime(11, 0);
 
-        $id = $this->aceptarResumen($cuenta, $this->resumen($this->direccionDe($cuenta), datos: [
-            'ventana' => [
-                'inicio' => $inicio->toIso8601String(),
-                'fin' => $inicio->addHour()->toIso8601String(),
-            ],
-        ]))->assertCreated()->json('pedido.id_publico');
+        $id = $this->aceptarResumen($cuenta, $this->resumen(
+            $this->direccionDe($cuenta, $recogida),
+            $entrega === null ? null : $this->direccionDe($cuenta, $entrega),
+            datos: [
+                'ventana' => [
+                    'inicio' => $inicio->toIso8601String(),
+                    'fin' => $inicio->addHour()->toIso8601String(),
+                ],
+            ]))->assertCreated()->json('pedido.id_publico');
 
         return Pedido::query()->where('id_publico', $id)->sole();
     }

@@ -153,6 +153,26 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
     su plaza.
   - **Quién sale:** los repartidores dados de alta que no se dieron de baja, también con 0; uno pendiente o de baja,
     solo si tiene entregas en el rango, porque sus entregas se conservan (repartidor-E07).
+- **El mapa de calor** (tareas 5.1 y 5.2, E19 y E20) es el widget `MapaDeCalor`, con su vista
+  `resources/views/filament/widgets/indicadores/mapa-de-calor.blade.php`:
+  - **Por colonia** (E19) lee `App\Indicadores\PedidosPorColonia`: la colonia de la **dirección de recolección** del
+    pedido (pregunta 4, la recomendación), como se capturó en `pedido_direcciones`, sin espacios a los lados, en su
+    municipio y su plaza. El punto de cada colonia es el centro de las recolecciones de sus pedidos (`ST_Centroid` de
+    PostGIS); no hay geocodificación inversa ni ninguna petición a Google desde el servidor.
+  - **La intensidad** es el número de pedidos frente al de la colonia (o zona) con más, de 0 a 1 con dos decimales.
+    El color sale de una rampa secuencial de un solo tono, el azul de la paleta validada de las gráficas, de claro a
+    oscuro (`App\Indicadores\Intensidad`); el punto crece con la intensidad. Cada figura dice su nombre y su número al
+    elegirla, y una tabla debajo trae las mismas cifras: la intensidad nunca va solo con el color.
+  - **El mapa** es Google Maps JavaScript (ADR-0009, decisión 3), con círculos y polígonos propios, sin la capa de
+    calor del proveedor. Se monta **una vez** en un contenedor que Livewire no toca (`wire:ignore`); el refresco y los
+    filtros solo cambian el atributo `data-mapa-datos`, y el script redibuja las figuras sobre el mismo mapa. Así una
+    página abierta cuenta como una carga de mapa, aunque sondee (`presupuesto-de-mapas.md`).
+  - **La llave** es de navegador y sale de la configuración: `GOOGLE_MAPS_PANEL_LLAVE`, en
+    `services.google_maps_panel.llave`, de cada entorno (ADR-0012). Sin ella, el widget no monta el mapa ni carga el
+    script, y dice "El mapa no está disponible porque falta la llave de Google Maps del panel", como la app sin la llave
+    de Android; la tabla se ve igual. La llave de producción va a nombre de EL CLIENTE (RN-20) y espera DD-072.
+  - El dibujo del mapa en el navegador no tiene prueba automática: las pruebas revisan los datos que le llegan, la
+    llave y el aviso. Se revisa a mano con una llave de prueba.
 - **El refresco** es el sondeo de Livewire de cada widget (`wire:poll`), la consulta periódica de ADR-0007: la gráfica
   llama a `updateChartData` y la tabla se vuelve a dibujar, sin recargar la página. El intervalo es
   `INDICADORES_REFRESCO` en `config/indicadores.php`, como "30s" o "1500ms". Mientras DD-116 no tenga su ADR va
