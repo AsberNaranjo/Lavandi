@@ -62,6 +62,18 @@ use Illuminate\Support\Str;
  *
  * ---------------------------------------------------------------------------------------------------------------------
  *
+ *     GET /api/lavanderia/pedidos                    La lista en tiempo real de los pedidos activos (pedidos-lavanderia-E01
+ *                                                    y E02). La app la consulta cada 30 s con la pantalla visible
+ *                                                    (ADR-0007)
+ *
+ *     200  { "pedidos": [ { ...el pedido... } ] }
+ *          Los pedidos activos de las lavanderías de la cuenta: los que esperan su respuesta ("por_responder" en true)
+ *          y los que aceptó y aún no llegan a Entregado, de "aceptado" a "en_entrega". Nunca uno entregado, rechazado o
+ *          sin pago acreditado. De la recolección más próxima a la más lejana; con la misma, del más viejo al más
+ *          nuevo. Sin paginación. Sin pedidos activos, "pedidos" llega vacía.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
  *     POST /api/lavanderia/pedidos/{id_publico}/aceptar        La lavandería acepta el pedido (pedidos-lavanderia-E07)
  *
  *     Sin cuerpo.
@@ -119,6 +131,21 @@ class PedidosDeLaLavanderiaController extends Controller
         private readonly Autorizacion $autorizacion,
         private readonly CambioDeEstado $cambio,
     ) {}
+
+    /**
+     * La lista de pedidos activos. De quién son lo dice el componente de autorización; cuáles están activos y en qué
+     * orden, el modelo del pedido.
+     */
+    public function lista(Request $peticion): JsonResponse
+    {
+        $pedidos = $this->autorizacion->pedidosDeLaLavanderia($this->cuenta($peticion))
+            ->activosDeLaLavanderia()
+            ->deLaRecoleccionMasProxima()
+            ->with(PedidoDeLaLavanderiaResource::RELACIONES)
+            ->get();
+
+        return response()->json(['pedidos' => PedidoDeLaLavanderiaResource::collection($pedidos)]);
+    }
 
     public function aceptar(Request $peticion, string $pedido): JsonResponse
     {

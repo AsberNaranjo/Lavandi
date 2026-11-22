@@ -2,8 +2,12 @@
 
 namespace Tests\Feature\PedidosLavanderia\Soporte;
 
+use App\Models\Lavanderia;
 use App\Models\Pedido;
+use App\Models\Plaza;
 use App\Models\Usuario;
+use App\Pedidos\ConfirmacionDePedido;
+use Carbon\CarbonImmutable;
 use Illuminate\Testing\TestResponse;
 
 /**
@@ -48,6 +52,72 @@ trait PedidosDeLaLavanderiaDePrueba
     protected function marcarPedido(Usuario $cuenta, string $pedido, mixed $estado): TestResponse
     {
         return $this->conLaSesionDe($cuenta)->postJson("/api/lavanderia/pedidos/{$pedido}/estado", ['estado' => $estado]);
+    }
+
+    /**
+     * Otra lavandería activa, con su propia cuenta de socio: en la plaza de prueba de prepararPedido(), o en la que se
+     * pase. Abre todos los días de 9:00 a 13:00, con el lavado estándar por kilo, como la de prepararPedido().
+     */
+    protected function otraLavanderia(?Plaza $plaza = null): Lavanderia
+    {
+        $lavanderia = $this->lavanderiaConHorario(
+            $plaza ?? $this->plaza,
+            array_map(fn (int $dia): array => [$dia, '09:00', '13:00'], range(self::LUNES, self::DOMINGO)),
+        );
+        $this->servicioDePrueba($lavanderia, 'estandar', self::PRECIO_POR_KILO);
+
+        return $lavanderia;
+    }
+
+    /**
+     * Un pedido de la cuenta a esa lavandería, con la recolección de una hora a esa hora del jueves de prueba, que espera
+     * su pago. La recogida es una dirección nueva de la cuenta, en la plaza de la lavandería y en el punto que se pase,
+     * que tiene que caer en una zona de esa plaza.
+     */
+    protected function pedidoPorPagarEn(
+        Lavanderia $lavanderia,
+        Usuario $cuenta,
+        string $hora = '11:00',
+        float $latitud = 10.5,
+        float $longitud = -119.5,
+    ): Pedido {
+        $inicio = CarbonImmutable::parse(self::JUEVES_DE_PRUEBA.' '.$hora, $lavanderia->plaza->zona_horaria);
+        $recogida = $this->direccionDe($cuenta, [
+            'id_plazas' => $lavanderia->id_plazas,
+            'ubicacion' => ['latitud' => $latitud, 'longitud' => $longitud],
+        ]);
+
+        $id = $this->aceptarResumen($cuenta, $this->resumen($recogida, datos: [
+            'lavanderia' => $lavanderia->id_publico,
+            'ventana' => ['inicio' => $inicio->toIso8601String(), 'fin' => $inicio->addHour()->toIso8601String()],
+        ]))->assertCreated()->json('pedido.id_publico');
+
+        return Pedido::query()->where('id_publico', $id)->sole();
+    }
+
+    /**
+     * El mismo pedido, ya confirmado como lo confirmará el cobro (C-188).
+     */
+    protected function pedidoConfirmadoEn(
+        Lavanderia $lavanderia,
+        Usuario $cuenta,
+        string $hora = '11:00',
+        float $latitud = 10.5,
+        float $longitud = -119.5,
+    ): Pedido {
+        $pedido = $this->pedidoPorPagarEn($lavanderia, $cuenta, $hora, $latitud, $longitud);
+
+        return app(ConfirmacionDePedido::class)->confirmar($pedido)->fresh();
+    }
+
+    /**
+     * Los id_publico de la lista de la lavandería, en el orden en que llegaron.
+     *
+     * @return list<string>
+     */
+    protected function idsDeLaLista(TestResponse $respuesta): array
+    {
+        return array_column($respuesta->json('pedidos') ?? [], 'id_publico');
     }
 
     /**

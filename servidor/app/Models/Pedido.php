@@ -66,6 +66,36 @@ class Pedido extends Modelo
     }
 
     /**
+     * Los pedidos activos de la lavandería: los confirmados que esperan su respuesta y los que aceptó y aún no llegan a
+     * Entregado (pedidos-lavanderia-E01). Nunca uno entregado, rechazado o que espera su pago; tampoco uno de un estado
+     * que se agregue después, como cancelado, mientras no se nombre aquí.
+     *
+     * @param  Builder<Pedido>  $consulta
+     */
+    public function scopeActivosDeLaLavanderia(Builder $consulta): void
+    {
+        $consulta->whereHas('estado', fn (Builder $estado) => $estado->whereIn('codigo', [
+            EstadoPedido::CONFIRMADO,
+            EstadoPedido::ACEPTADO,
+            EstadoPedido::RECOLECTADO,
+            EstadoPedido::EN_PROCESO,
+            EstadoPedido::LISTO,
+            EstadoPedido::EN_ENTREGA,
+        ]));
+    }
+
+    /**
+     * De la recolección más próxima a la más lejana; con la misma recolección, del pedido más viejo al más nuevo.
+     *
+     * @param  Builder<Pedido>  $consulta
+     */
+    public function scopeDeLaRecoleccionMasProxima(Builder $consulta): void
+    {
+        $consulta->orderBy($consulta->qualifyColumn('ventana_inicio'))
+            ->orderBy($consulta->qualifyColumn('id_pedidos'));
+    }
+
+    /**
      * Los pedidos con la recolección entre esos dos días, los dos incluidos, contados en la hora de la plaza de cada
      * pedido: la fecha que muestra su resumen (historial-E03; openspec/changes/historial-y-calificacion/design.md,
      * decisión 1). Sin uno de los dos, el rango queda abierto de ese lado.

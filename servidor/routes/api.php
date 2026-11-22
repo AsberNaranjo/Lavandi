@@ -101,6 +101,8 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
 // Con sesión de socio lavandería, el Módulo B (pedidos-de-la-lavanderia y estados-del-pedido). El contrato está en el
 // controlador. Sin whereUlid a propósito: un valor que no es ULID responde el mismo 404 que un pedido ajeno.
 Route::middleware(['auth:sanctum', 'autorizar:lavanderia'])->prefix('lavanderia')->group(function () {
+    // La lista en tiempo real de sus pedidos activos; la app la consulta cada 30 s (ADR-0007).
+    Route::get('pedidos', [PedidosDeLaLavanderiaController::class, 'lista'])->name('lavanderia.pedidos.lista');
     Route::post('pedidos/{pedido}/aceptar', [PedidosDeLaLavanderiaController::class, 'aceptar'])
         ->name('lavanderia.pedidos.aceptar');
     Route::post('pedidos/{pedido}/rechazar', [PedidosDeLaLavanderiaController::class, 'rechazar'])
