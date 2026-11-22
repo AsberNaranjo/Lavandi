@@ -10,9 +10,9 @@ use Carbon\CarbonImmutable;
  * pasarela"; openspec/changes/pago/design.md, decisión 2). La llamada a la pasarela vive solo detrás de esta interfaz:
  * ni la base ni la API nombran al proveedor (C-192; ADR-0016, regla 10).
  *
- * Hoy la implementa la pasarela simulada de local y las pruebas (App\Cobro\PasarelaSimulada). La de Conekta, la del
- * contrato, llega con la sección 3 de tasks.md (ADR-0010). Si el cliente firma el cambio de pasarela (DD-079), la
- * elegida es otra implementación, con su ADR. Cuál cobra en cada entorno lo dice App\Cobro\Pasarelas.
+ * La implementan la de Conekta, la del contrato (App\Cobro\PasarelaConekta; ADR-0010), y la simulada de local y las
+ * pruebas (App\Cobro\PasarelaSimulada). Si el cliente firma el cambio de pasarela (DD-079), la elegida es otra
+ * implementación, con su ADR. Cuál cobra en cada entorno lo dice App\Cobro\Pasarelas.
  *
  * Ninguna implementación recibe ni devuelve datos de tarjeta: la tarjeta la captura y la resguarda la pasarela
  * (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3).

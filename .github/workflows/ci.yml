@@ -34,9 +34,12 @@ jobs:
       # Falla si la marca o el dominio aparecen escritos a mano en movil/ o servidor/ (CLAUDE.md §5).
       - name: Sin marca ni dominio en el código
         run: python herramientas/ci/verificar_marca.py
-      # Falla si se sube un .env, una llave privada o un archivo de firma (ADR-0012).
+      # Falla si se sube un .env, una llave privada, una llave de Conekta o un archivo de firma (ADR-0012; DD-102).
       - name: Sin secretos en el repositorio
         run: python herramientas/ci/verificar_secretos.py
+      # Falla si el verificador de secretos deja de detectar lo que debe, como las llaves de Conekta (DD-102, punto 3).
+      - name: Pruebas de los verificadores
+        run: python -m unittest discover -s herramientas/ci -p "test_*.py"
 
   servidor:
     needs: detectar
