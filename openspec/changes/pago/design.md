@@ -248,3 +248,6 @@ el sistema ni toca otro cambio.
    `pedidos-de-la-lavanderia`, `avisos` y `repartidor`, y `RepartidorDeDesarrolloSeeder`. Su monto,
    `CobroSimulado::MONTO_DE_PRUEBA`, es ficticio. Solo sirve con la pasarela simulada, así que fuera de local y de las
    pruebas no hace nada.
+10. **El registro para la conciliación es la fila del cobro** (tarea 2.4): `pasarela`, `id_pasarela_orden`, `monto`,
+    `metodo`, `pagado_en`, `id_pedidos` e `id_plazas`, que toma la de su pedido. No hay otra tabla ni otra copia: la
+    conciliación y sus reportes viven en `administracion` (DD-112).
