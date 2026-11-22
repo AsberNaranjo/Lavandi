@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Fotos\AlmacenDeFotos;
 use App\Models\Lavanderia;
 use App\Models\LavanderiaServicio;
 use App\Models\Rol;
@@ -11,6 +12,7 @@ use App\Models\Usuario;
 use App\Plazas\ResolucionDePunto;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Las lavanderías de prueba del hito H2: ficticias, con nombres que lo dicen, cada una con su plaza, su ubicación, su
@@ -28,6 +30,11 @@ use Illuminate\Support\Facades\DB;
  * lavandería, sin pedido, cada una de una cuenta de prueba de usuario: dejan los promedios 4.8, 4.2 y 3.5 para probar el
  * filtro de calificación (cercanas-E17), y la lavandería de prueba 4 sin ninguna. Solo se siembran si la lavandería
  * todavía no tiene calificaciones.
+ *
+ * Cada una lleva tres fotos de prueba, en orden (perfil-lavanderia-E03, tarea 2.1): imágenes neutras, sin marca, hechas
+ * en el momento con GD, de un gris liso con el nombre de la lavandería y su número. Van al almacenamiento de fotos del
+ * entorno (config/fotos.php), como las reales; no se descarga ni se versiona ninguna imagen. Solo se siembran si la
+ * lavandería todavía no tiene fotos: así no se pisa la que el socio haya subido desde la app.
  *
  * Las tres de Durango, en local, las administra una cuenta de socio lavandería que sí entra a la app, con su correo de
  * CUENTA y la contraseña CONTRASENA_DE_PRUEBA, para probar el Módulo B en un teléfono (pedidos-de-la-lavanderia y
@@ -133,6 +140,17 @@ class LavanderiasDePruebaSeeder extends Seeder
         [6, '09:00', '13:30'],
     ];
 
+    /**
+     * Los colores de las fotos de prueba, uno por foto y en su orden: grises lisos, sin la paleta de ninguna marca
+     * (CLAUDE.md §5).
+     *
+     * @var list<array{int, int, int}>
+     */
+    private const COLORES_DE_LAS_FOTOS = [[0xD9, 0xDC, 0xDF], [0xC4, 0xC8, 0xCC], [0xAE, 0xB3, 0xB8]];
+
+    /** El ancho y el alto de las fotos de prueba, en píxeles. */
+    private const TAMANO_DE_LAS_FOTOS = [800, 600];
+
     /** El dominio reservado para pruebas (RFC 2606): ningún correo de estas cuentas llega a nadie. */
     private const DOMINIO_DE_PRUEBA = 'prueba.test';
 
@@ -142,7 +160,7 @@ class LavanderiasDePruebaSeeder extends Seeder
      */
     public const CONTRASENA_DE_PRUEBA = 'lavanderia-de-prueba';
 
-    public function run(ResolucionDePunto $resolucion): void
+    public function run(ResolucionDePunto $resolucion, AlmacenDeFotos $almacen): void
     {
         // Aunque alguien fuerce el sembrado, y aunque ya haya plazas que cubran los puntos (cercanas-E22).
         if (app()->isProduction()) {
@@ -151,7 +169,7 @@ class LavanderiasDePruebaSeeder extends Seeder
             return;
         }
 
-        DB::transaction(function () use ($resolucion): void {
+        DB::transaction(function () use ($resolucion, $almacen): void {
             foreach (self::LAVANDERIAS as $numero => $datos) {
                 $punto = $resolucion->resolver($datos['latitud'], $datos['longitud']);
 
@@ -183,6 +201,7 @@ class LavanderiasDePruebaSeeder extends Seeder
                 $this->sembrarServicios($lavanderia, $datos['servicios']);
                 $this->sembrarHorario($lavanderia);
                 $this->sembrarCalificaciones($lavanderia, $datos['estrellas']);
+                $this->sembrarFotos($lavanderia, $almacen);
             }
         });
     }
@@ -234,8 +253,52 @@ class LavanderiasDePruebaSeeder extends Seeder
     }
 
     /**
-     * Una cuenta de prueba con su rol, sin contraseña: no sirve para entrar, solo para ser dueña de los datos.
+     * Las tres fotos de prueba, con orden 1, 2 y 3, en la carpeta de la lavandería en el almacenamiento del entorno.
      */
+    private function sembrarFotos(Lavanderia $lavanderia, AlmacenDeFotos $almacen): void
+    {
+        if ($lavanderia->fotos()->exists()) {
+            return;
+        }
+
+        foreach (self::COLORES_DE_LAS_FOTOS as $indice => $color) {
+            $orden = $indice + 1;
+            $ruta = "lavanderias/{$lavanderia->id_publico}/prueba-{$orden}.png";
+
+            $almacen->guardarContenido($ruta, $this->fotoDePrueba("{$lavanderia->nombre} - foto {$orden}", $color));
+            $lavanderia->fotos()->create(['ruta' => $ruta, 'orden' => $orden]);
+        }
+    }
+
+    /**
+     * Una imagen PNG de un color liso con el texto al centro. La fuente de GD solo tiene letras sin acento: el texto va
+     * sin ellos.
+     *
+     * @param  array{int, int, int}  $color
+     */
+    private function fotoDePrueba(string $texto, array $color): string
+    {
+        [$ancho, $alto] = self::TAMANO_DE_LAS_FOTOS;
+        $fuente = 5;
+        $texto = Str::ascii($texto);
+
+        $imagen = imagecreatetruecolor($ancho, $alto);
+        imagefill($imagen, 0, 0, (int) imagecolorallocate($imagen, ...$color));
+        imagestring(
+            $imagen,
+            $fuente,
+            max(0, intdiv($ancho - imagefontwidth($fuente) * strlen($texto), 2)),
+            intdiv($alto - imagefontheight($fuente), 2),
+            $texto,
+            (int) imagecolorallocate($imagen, 0x33, 0x33, 0x33),
+        );
+
+        ob_start();
+        imagepng($imagen);
+
+        return (string) ob_get_clean();
+    }
+
     /**
      * La cuenta de socio lavandería que administra la lavandería de prueba: en local, la que entra a la app, si tiene
      * una en CUENTA; si no, una sin contraseña del dominio reservado para pruebas.
@@ -256,6 +319,9 @@ class LavanderiasDePruebaSeeder extends Seeder
         return $cuenta;
     }
 
+    /**
+     * Una cuenta de prueba con su rol, sin contraseña: no sirve para entrar, solo para ser dueña de los datos.
+     */
     private function cuenta(string $nombre, string $rol): Usuario
     {
         $cuenta = Usuario::withTrashed()->firstOrCreate(['correo' => "{$nombre}@".self::DOMINIO_DE_PRUEBA]);

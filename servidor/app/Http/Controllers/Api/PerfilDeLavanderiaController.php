@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 /**
  * El perfil de una lavandería activa (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #5;
- * openspec/changes/perfil-de-lavanderia/, tarea 1.2).
+ * openspec/changes/perfil-de-lavanderia/, tareas 1.2 y 2.1).
  *
  * Contrato para la app:
  *
@@ -27,6 +27,13 @@ use Illuminate\Support\Str;
  *         "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1u",
  *         "nombre": "Lavandería de prueba 1",
  *         "descripcion": "Texto de la lavandería" | null,
+ *         "fotos": [
+ *           { "url": "https://…firmada…", "vence_en": "2026-11-22T18:00:00Z" }
+ *         ],                                             todas, por su orden; la primera es la principal, la del
+ *                                                        registro. Vacía si no tiene. Cada URL vence en vence_en, UTC,
+ *                                                        a los FOTOS_VIGENCIA_MINUTOS de la configuración; después, y
+ *                                                        sin la firma, el almacenamiento responde 403 y no entrega la
+ *                                                        foto. Al volver a pedir el perfil llegan URLs nuevas
  *         "servicios": [
  *           {
  *             "codigo": "estandar" | "planchado" | "seco",
@@ -48,9 +55,10 @@ use Illuminate\Support\Str;
  *     404  { "message": "No existe la lavandería." }      no existe, está suspendida o dada de baja, borrada, o su
  *                                                        plaza no está activa (Lavanderia::visiblesParaElUsuario())
  *
- * Las fotos no vienen todavía: llegan con su URL firmada en la tarea 2.1 (perfil-lavanderia-E03), como una clave
- * "fotos" nueva. Las reseñas no traen nada de quien calificó (perfil-lavanderia-E08). El orden y la cantidad de reseñas
- * siguen abiertos en design.md (Open Questions); hoy van todas.
+ * Las fotos viven en el almacenamiento privado del entorno (App\Fotos\AlmacenDeFotos; ADR-0006) y solo salen como URL
+ * firmada: ni su ruta ni su llave salen como campo (perfil-lavanderia-E03 y E04). Las reseñas no traen nada de quien
+ * calificó (perfil-lavanderia-E08). El orden y la cantidad de reseñas siguen abiertos en design.md (Open Questions);
+ * hoy van todas.
  */
 class PerfilDeLavanderiaController extends Controller
 {
@@ -69,6 +77,9 @@ class PerfilDeLavanderiaController extends Controller
                 'calificaciones' => fn (HasMany $calificaciones) => $calificaciones
                     ->orderByDesc('created_at')
                     ->orderByDesc('id_calificaciones'),
+                'fotos' => fn (HasMany $fotos) => $fotos
+                    ->orderBy('orden')
+                    ->orderBy('id_lavanderia_fotos'),
             ])
             ->first();
 

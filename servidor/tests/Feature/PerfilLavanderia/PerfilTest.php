@@ -18,13 +18,13 @@ use Tests\Feature\Plazas\Soporte\PlazasDePrueba;
 use Tests\TestCase;
 
 /**
- * El perfil de una lavandería activa: nombre, descripción, servicios con su precio y su unidad, calificación promedio,
- * número de calificaciones y reseñas sin datos de quien calificó, por GET /api/lavanderias/{id_publico}, con sesión
- * y por el componente de autorización (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #5;
+ * El perfil de una lavandería activa: nombre, descripción, fotos, servicios con su precio y su unidad, calificación
+ * promedio, número de calificaciones y reseñas sin datos de quien calificó, por GET /api/lavanderias/{id_publico}, con
+ * sesión y por el componente de autorización (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #5;
  * NSV-2026-001-v8.pdf:10:Cláusula X; ADR-0003).
  *
- * Las fotos con su URL firmada son la tarea 2.1 (perfil-lavanderia-E03 y E04): mientras tanto el perfil no trae fotos,
- * y ninguna ruta del almacenamiento sale por la API.
+ * Que cada foto llegue con su URL firmada que vence, y que sin firma no se lea, lo prueba FotosTest (tarea 2.1,
+ * perfil-lavanderia-E03 y E04). Aquí solo se cuentan: ninguna ruta del almacenamiento sale como campo de la API.
  *
  * Escenarios: perfil-lavanderia-E01, E02, E05, E07 y E08 · Spec:
  * openspec/changes/perfil-de-lavanderia/specs/perfil-lavanderia/spec.md
@@ -69,8 +69,16 @@ class PerfilTest extends TestCase
         $respuesta->assertJsonCount(4, 'lavanderia.resenas');
         $this->assertEqualsCanonicalizing([5, 5, 4, 3], array_column($respuesta->json('lavanderia.resenas'), 'estrellas'));
 
-        // Las fotos llegan con su URL firmada en la tarea 2.1; su ruta no sale nunca.
-        $this->assertStringNotContainsString('lavanderias/prueba/foto-', $respuesta->getContent());
+        // Sus tres fotos, cada una solo con su URL firmada y su vencimiento (perfil-lavanderia-E03, FotosTest). La
+        // ruta no sale como campo: fuera de las URLs firmadas, la respuesta no la nombra.
+        $fotos = $respuesta->json('lavanderia.fotos');
+        $this->assertCount(3, $fotos);
+        foreach ($fotos as $foto) {
+            $this->assertSame(['url', 'vence_en'], array_keys($foto));
+        }
+        $sinFotos = $respuesta->json('lavanderia');
+        unset($sinFotos['fotos']);
+        $this->assertStringNotContainsString('lavanderias/prueba/foto-', json_encode($sinFotos, JSON_UNESCAPED_SLASHES));
         // Ni la llave interna.
         $this->assertArrayNotHasKey('id_lavanderias', $respuesta->json('lavanderia'));
     }
