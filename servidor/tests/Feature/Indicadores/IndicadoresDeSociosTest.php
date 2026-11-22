@@ -3,17 +3,29 @@
 namespace Tests\Feature\Indicadores;
 
 use App\Filament\Pages\Indicadores;
+use App\Filament\Widgets\Indicadores\EntregasPorRepartidorTabla;
 use App\Filament\Widgets\Indicadores\RankingDeLavanderiasTabla;
 use App\Indicadores\CortesDelSemaforo;
+use App\Indicadores\EntregasPorRepartidor;
+use App\Indicadores\Rango;
 use App\Indicadores\Semaforo;
 use App\Models\Calificacion;
+use App\Models\EstadoPedido;
 use App\Models\Lavanderia;
+use App\Models\Repartidor;
 use App\Models\Rol;
 use App\Models\Usuario;
+use Database\Factories\RepartidorFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
 use Tests\Feature\AltaLavanderias\Soporte\PanelDePrueba;
+use Tests\Feature\Confirmacion\Soporte\PedidosDePrueba;
+use Tests\Feature\Estados\Soporte\EstadosDePrueba;
 use Tests\Feature\Indicadores\Soporte\IndicadoresDePrueba;
+use Tests\Feature\PerfilLavanderia\Soporte\LavanderiasDePrueba;
+use Tests\Feature\Plazas\Soporte\PlazasDePrueba;
+use Tests\Feature\Repartidor\Soporte\RepartidorDePrueba;
 use Tests\TestCase;
 
 /**
@@ -27,17 +39,29 @@ use Tests\TestCase;
  * Los dos cortes del semáforo son datos de configuración (config/indicadores.php). Sus valores los da EL CLIENTE
  * (indicadores-E14; DD-114): aquí la prueba carga los suyos, ficticios.
  *
- * Las lavanderías activas frente a las registradas esperan DD-083 (indicadores-E11) y las entregas por repartidor, el
- * cambio repartidor (indicadores-E15, H8).
+ * Las entregas completadas por repartidor van en una tabla que los pone lado a lado (indicadores-E15; design.md,
+ * lectura 5). Una entrega es del repartidor que marcó su paso a Entregado (openspec/changes/repartidor/design.md,
+ * lectura 5), y cuenta en el rango por el día de ese paso, en la hora de la plaza del pedido.
  *
- * Escenarios: indicadores-E12 e indicadores-E13 · Spec: openspec/changes/indicadores/specs/indicadores/spec.md · Tareas
- * 3.2 y 3.3
+ * Las lavanderías activas frente a las registradas esperan DD-083 (indicadores-E11).
+ *
+ * Escenarios: indicadores-E12, indicadores-E13 e indicadores-E15 · Spec: openspec/changes/indicadores/specs/indicadores/
+ * spec.md · Tareas 3.2, 3.3 y 3.5
  */
 class IndicadoresDeSociosTest extends TestCase
 {
+    use AgendaDePrueba;
+    use EstadosDePrueba;
     use IndicadoresDePrueba;
+    use LavanderiasDePrueba;
     use PanelDePrueba;
+    use PedidosDePrueba;
+    use PlazasDePrueba;
     use RefreshDatabase;
+    use RepartidorDePrueba;
+
+    /** La semana del lunes 30 de noviembre al domingo 6 de diciembre de 2026, por día. */
+    private const SEMANA = ['desde' => '2026-11-30', 'hasta' => '2026-12-06', 'granularidad' => 'dia'];
 
     #[TestDox('indicadores-E12: con promedios de 4.8, 3.9 y 4.2, y una sin calificaciones, el ranking las pone en orden 4.8, 4.2 y 3.9, y la que no tiene al final')]
     public function test_indicadores_e12_el_ranking_ordena_por_promedio_y_deja_al_final_la_que_no_tiene(): void
@@ -149,6 +173,89 @@ class IndicadoresDeSociosTest extends TestCase
         $this->assertNull(CortesDelSemaforo::deLaConfiguracion());
     }
 
+    #[TestDox('indicadores-E15: con dos repartidores, uno con cuatro entregas marcadas Entregado en el rango y otro con dos, la tabla los pone lado a lado con 4 y 2')]
+    public function test_indicadores_e15_la_tabla_pone_lado_a_lado_las_entregas_de_cada_repartidor(): void
+    {
+        $this->prepararPedido();
+        $cuatro = $this->repartidorLlamado('Repartidor de prueba con cuatro');
+        $dos = $this->repartidorLlamado('Repartidor de prueba con dos');
+
+        foreach (['2026-11-30', '2026-12-01', '2026-12-03', '2026-12-05'] as $dia) {
+            $this->entregaDe($cuatro, $this->pedidoConfirmadoEl("{$dia} 08:00:00"), "{$dia} 12:00");
+        }
+        foreach (['2026-12-02', '2026-12-04'] as $dia) {
+            $this->entregaDe($dos, $this->pedidoConfirmadoEl("{$dia} 08:00:00"), "{$dia} 12:00");
+        }
+        $this->comoAdministracion();
+
+        $tabla = $this->widget(EntregasPorRepartidorTabla::class, self::SEMANA);
+
+        $this->assertSame([$cuatro->id_publico, $dos->id_publico], $this->clavesDeLaTabla($tabla));
+        $tabla->assertTableColumnStateSet('entregas', 4, $cuatro->id_publico)
+            ->assertTableColumnStateSet('entregas', 2, $dos->id_publico)
+            ->assertTableColumnStateSet('repartidor', 'Repartidor de prueba con cuatro', $cuatro->id_publico)
+            ->assertTableColumnStateSet('plaza', $this->plaza->nombre, $dos->id_publico)
+            ->assertSee('Entregas completadas por repartidor')
+            ->assertSeeInOrder(['Repartidor de prueba con cuatro', '4', 'Repartidor de prueba con dos', '2']);
+
+        $this->assertContains(EntregasPorRepartidorTabla::class, (new Indicadores)->getWidgets());
+    }
+
+    #[TestDox('indicadores-E15: solo cuenta las entregas marcadas Entregado en el rango, en el día de la plaza: ni las de fuera, ni el pedido que el repartidor sigue llevando')]
+    public function test_indicadores_e15_solo_cuenta_las_entregas_del_rango_en_el_dia_de_la_plaza(): void
+    {
+        $this->prepararPedido();
+        $repartidor = $this->repartidorLlamado('Repartidor de prueba');
+
+        // Dentro: el domingo 6 a las 23:30 de la plaza, que en UTC ya es el lunes 7.
+        $this->entregaDe($repartidor, $this->pedidoConfirmadoEl('2026-12-06 08:00:00'), '2026-12-06 23:30');
+        // Fuera: el domingo 29 a las 23:30 de la plaza, aunque en UTC ya sea el lunes 30; y el lunes 7.
+        $this->entregaDe($repartidor, $this->pedidoConfirmadoEl('2026-11-29 08:00:00'), '2026-11-29 23:30');
+        $this->entregaDe($repartidor, $this->pedidoConfirmadoEl('2026-12-07 08:00:00'), '2026-12-07 12:00');
+        // El que sigue llevando: aceptado por él y recolectado, sin Entregado.
+        $enCurso = $this->pedidoConfirmadoEl('2026-12-03 08:00:00');
+        $this->aceptarComoLaLavanderia($enCurso);
+        $this->repartidorQueLoAcepta($enCurso, $repartidor);
+        $this->marcarComoLaLavanderia($enCurso, EstadoPedido::RECOLECTADO);
+
+        $filas = app(EntregasPorRepartidor::class)->delRango(Rango::deLosFiltros(self::SEMANA));
+
+        $this->assertSame(1, $filas[$repartidor->id_publico]['entregas']);
+    }
+
+    #[TestDox('indicadores-E15: un repartidor sin entregas en el rango sale con 0, y uno dado de baja conserva las suyas')]
+    public function test_indicadores_e15_sin_entregas_sale_con_cero_y_el_de_baja_conserva_las_suyas(): void
+    {
+        $this->prepararPedido();
+        $sinEntregas = $this->repartidorLlamado('Repartidor de prueba sin entregas');
+        $deBaja = $this->repartidorLlamado('Repartidor de prueba de baja');
+        $this->entregaDe($deBaja, $this->pedidoConfirmadoEl('2026-12-01 08:00:00'), '2026-12-01 12:00');
+        $deBaja->forceFill(['estado' => Repartidor::BAJA])->save();
+        $deBaja->delete();
+        // Uno de baja sin entregas en el rango ya no sale.
+        $otroDeBaja = $this->repartidorLlamado('Repartidor de prueba de baja sin entregas');
+        $otroDeBaja->forceFill(['estado' => Repartidor::BAJA])->save();
+        $otroDeBaja->delete();
+        $this->comoAdministracion();
+
+        $tabla = $this->widget(EntregasPorRepartidorTabla::class, self::SEMANA);
+
+        $this->assertSame([$deBaja->id_publico, $sinEntregas->id_publico], $this->clavesDeLaTabla($tabla));
+        $tabla->assertTableColumnStateSet('entregas', 1, $deBaja->id_publico)
+            ->assertTableColumnStateSet('entregas', 0, $sinEntregas->id_publico);
+    }
+
+    #[TestDox('indicadores-E15: una cuenta que no es de administración no ve la tabla de entregas por repartidor')]
+    public function test_indicadores_e15_otra_cuenta_no_ve_las_entregas_por_repartidor(): void
+    {
+        foreach ([Rol::USUARIO, Rol::LAVANDERIA, Rol::REPARTIDOR] as $rol) {
+            $this->actingAs(Usuario::factory()->conRol($rol)->create(), 'web');
+
+            $this->assertFalse(EntregasPorRepartidorTabla::canView(), $rol);
+            $this->widget(EntregasPorRepartidorTabla::class, self::SEMANA)->assertForbidden();
+        }
+    }
+
     private function cortes(?string $alto, ?string $bajo): void
     {
         config(['indicadores.semaforo.corte_alto' => $alto, 'indicadores.semaforo.corte_bajo' => $bajo]);
@@ -189,5 +296,16 @@ class IndicadoresDeSociosTest extends TestCase
                 'estrellas' => $numero,
             ]);
         }
+    }
+
+    /**
+     * Un repartidor activo de la plaza de prueba, con ese nombre en su cuenta.
+     */
+    private function repartidorLlamado(string $nombre): Repartidor
+    {
+        return Repartidor::factory()
+            ->en($this->plaza)
+            ->deLaCuenta(RepartidorFactory::cuentaDeRepartidor(['nombre' => $nombre]))
+            ->create();
     }
 }

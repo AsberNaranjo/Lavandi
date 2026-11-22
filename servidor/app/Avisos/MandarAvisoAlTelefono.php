@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Log;
 final class MandarAvisoAlTelefono implements ShouldQueue
 {
     use Dispatchable;
+    use EsperasDeReintento;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
@@ -45,14 +46,6 @@ final class MandarAvisoAlTelefono implements ShouldQueue
         public readonly string $estado,
         public readonly int $telefono,
     ) {}
-
-    /**
-     * Los intentos antes de dejar el envío en failed_jobs: el primero y uno por cada espera.
-     */
-    public function tries(): int
-    {
-        return count($this->esperas()) + 1;
-    }
 
     public function handle(Autorizacion $autorizacion, CanalDeFcm $canal): void
     {
@@ -88,28 +81,5 @@ final class MandarAvisoAlTelefono implements ShouldQueue
                 $this->release($this->espera());
             }
         }
-    }
-
-    /** La espera, en segundos, si avisos.esperas viene vacía. */
-    private const ESPERA_POR_OMISION = 60;
-
-    /**
-     * La espera, en segundos, antes del siguiente intento: la de este intento en avisos.esperas, o la última.
-     */
-    private function espera(): int
-    {
-        $esperas = $this->esperas();
-
-        return $esperas === []
-            ? self::ESPERA_POR_OMISION
-            : $esperas[min(max($this->attempts(), 1), count($esperas)) - 1];
-    }
-
-    /**
-     * @return list<int>
-     */
-    private function esperas(): array
-    {
-        return array_values(array_map('intval', (array) config('avisos.esperas', [])));
     }
 }

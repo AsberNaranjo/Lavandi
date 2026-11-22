@@ -89,6 +89,17 @@ final readonly class Rango
     }
 
     /**
+     * Los mismos días del rango, justo antes de que empiece: el periodo anterior de la misma duración, para la tendencia
+     * del indicador destacado (design.md, lectura 4; indicadores-E09). Lleva la misma granularidad.
+     */
+    public function anteriorDeLaMismaDuracion(): self
+    {
+        $dias = (int) $this->desde->diffInDays($this->hasta) + 1;
+
+        return new self($this->desde->subDays($dias), $this->desde->subDay(), $this->granularidad);
+    }
+
+    /**
      * Cómo se lee el rango con su granularidad: "Del 30/11/2026 al 06/12/2026, por día".
      */
     public function descripcion(): string

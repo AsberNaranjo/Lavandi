@@ -51,6 +51,15 @@ return [
         'direccion' => env('GOOGLE_GEOCODIFICACION_DIRECCION', 'https://maps.googleapis.com/maps/api/geocode/json'),
     ],
 
+    /*
+    | Google Maps JavaScript en el panel de administración, para el mapa de calor de los indicadores (ADR-0009,
+    | decisión 3). La llave es de navegador, de cada entorno, restringida a la dirección del panel, y va solo en su .env
+    | (ADR-0012). Sin ella, el panel no monta el mapa y dice por qué; las cifras se ven en la tabla.
+    */
+    'google_maps_panel' => [
+        'llave' => env('GOOGLE_MAPS_PANEL_LLAVE'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

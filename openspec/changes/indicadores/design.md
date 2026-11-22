@@ -130,16 +130,68 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
   una insignia con su texto (Verde, Amarillo, Rojo). Mientras DD-114 no dé los valores, los cortes van vacíos y la
   columna dice "Sin cortes configurados"; unos cortes fuera de 1 a 5, o con el bajo arriba del alto, cuentan como
   vacíos.
+- **El monto promedio** (tarea 2.4, E09) es un indicador destacado, `MontoPromedioIndicador`, que lee
+  `App\Indicadores\MontoPromedio`:
+  - **El periodo** es el rango de la página, ya ajustado a periodos completos; **el anterior** son los mismos días justo
+    antes (`Rango::anteriorDeLaMismaDuracion()`, lectura 4). Pedido del periodo es el confirmado en él, en el día de su
+    plaza, como en los pedidos totales.
+  - **Qué monto cuenta** espera DD-012 (E10, bloqueado). Mientras, la consulta usa la misma lectura que la ficha del
+    usuario en el panel (`administracion`): el final si ya se pesó y, si no, el estimado
+    (`coalesce(monto_final, monto_estimado)`). Es una lectura provisional, no una respuesta: cambia en una sola línea
+    de `MontoPromedio` cuando se responda DD-012, y la prueba de E09 no la afirma (cada pedido de prueba lleva el mismo
+    monto en los dos campos). Hoy nada escribe esos montos, así que en producción el indicador dice "Sin monto".
+  - Un pedido sin ningún monto no entra al promedio. El promedio va con dos decimales, en pesos, como texto.
+  - **La tendencia** va con su texto, su flecha y su color: "Subió $50.00 frente al periodo anterior ($200.00)", "Bajó
+    …" o "Igual que en el periodo anterior (…)". Sin pedidos con monto en el periodo anterior, dice que no hay con qué
+    comparar.
+- **Las entregas por repartidor** (tarea 3.5, E15) son una tabla, `EntregasPorRepartidorTabla`, que lee
+  `App\Indicadores\EntregasPorRepartidor`:
+  - **Una entrega es del repartidor que marcó Entregado:** el evento de `pedido_eventos` con su cuenta, la regla de
+    `repartidor` (su `design.md`, lectura 5). Cuenta cada pedido una vez, si el pedido llegó a Confirmado.
+  - **Su día** es el del paso a Entregado en la hora de la plaza del pedido, como en las estadísticas del repartidor.
+  - **"Lado a lado"** (lectura 5) es una fila por repartidor, de más a menos entregas y, con las mismas, por nombre, con
+    su plaza.
+  - **Quién sale:** los repartidores dados de alta que no se dieron de baja, también con 0; uno pendiente o de baja,
+    solo si tiene entregas en el rango, porque sus entregas se conservan (repartidor-E07).
+- **El mapa de calor** (tareas 5.1 y 5.2, E19 y E20) es el widget `MapaDeCalor`, con su vista
+  `resources/views/filament/widgets/indicadores/mapa-de-calor.blade.php`:
+  - **Por colonia** (E19) lee `App\Indicadores\PedidosPorColonia`: la colonia de la **dirección de recolección** del
+    pedido (pregunta 4, la recomendación), como se capturó en `pedido_direcciones`, sin espacios a los lados, en su
+    municipio y su plaza. El punto de cada colonia es el centro de las recolecciones de sus pedidos (`ST_Centroid` de
+    PostGIS); no hay geocodificación inversa ni ninguna petición a Google desde el servidor.
+  - **Por zona de servicio** (E20) lee `App\Indicadores\PedidosPorZona`: un pedido cuenta en la zona de su plaza que
+    cubre el punto de su recolección (`ST_Covers` de PostGIS, con el borde dentro, como la zona de servicio de las
+    direcciones), no en la de su entrega. Salen las zonas activas, también con 0, y una inactiva solo si tuvo pedidos
+    en el rango. Cada zona lleva su polígono simplificado (`INDICADORES_MAPA_SIMPLIFICACION`, 0.0005 grados, como la
+    cobertura de la portada) para pintarla. La administración cambia entre colonia y zona con el selector "Ver por"
+    del widget.
+  - **La intensidad** es el número de pedidos frente al de la colonia (o zona) con más, de 0 a 1 con dos decimales.
+    El color sale de una rampa secuencial de un solo tono, el azul de la paleta validada de las gráficas, de claro a
+    oscuro (`App\Indicadores\Intensidad`); el punto crece con la intensidad. Cada figura dice su nombre y su número al
+    elegirla, y una tabla debajo trae las mismas cifras: la intensidad nunca va solo con el color.
+  - **El mapa** es Google Maps JavaScript (ADR-0009, decisión 3), con círculos y polígonos propios, sin la capa de
+    calor del proveedor. Se monta **una vez** en un contenedor que Livewire no toca (`wire:ignore`); el refresco y los
+    filtros solo cambian el atributo `data-mapa-datos`, y el script redibuja las figuras sobre el mismo mapa. Así una
+    página abierta cuenta como una carga de mapa, aunque sondee (`presupuesto-de-mapas.md`).
+  - **La llave** es de navegador y sale de la configuración: `GOOGLE_MAPS_PANEL_LLAVE`, en
+    `services.google_maps_panel.llave`, de cada entorno (ADR-0012). Sin ella, el widget no monta el mapa ni carga el
+    script, y dice "El mapa no está disponible porque falta la llave de Google Maps del panel", como la app sin la llave
+    de Android; la tabla se ve igual. La llave de producción va a nombre de EL CLIENTE (RN-20) y espera DD-072.
+  - El dibujo del mapa en el navegador no tiene prueba automática: las pruebas revisan los datos que le llegan, la
+    llave y el aviso. Se revisa a mano con una llave de prueba.
 - **El refresco** es el sondeo de Livewire de cada widget (`wire:poll`), la consulta periódica de ADR-0007: la gráfica
   llama a `updateChartData` y la tabla se vuelve a dibujar, sin recargar la página. El intervalo es
-  `INDICADORES_REFRESCO` en `config/indicadores.php`, como "30s" o "1500ms". Mientras DD-116 no tenga su ADR va
-  vacío: ningún widget sondea (también se quitan los 5 s que trae la gráfica de Filament) y la página dice que las
-  cifras se actualizan al abrir o recargar. Con intervalo, la página dice cada cuánto.
+  `INDICADORES_REFRESCO` en `config/indicadores.php`, como "30s" o "1500ms". **Por omisión son 30 s** (tarea 6.2,
+  E22), como fija la adenda del 2026-11-22 de ADR-0007, que cierra DD-116; un valor vacío en el entorno también toma
+  los 30 s, y cada entorno lo cambia sin tocar el código. Con un valor que no sirve, ningún widget sondea (también se
+  quitan los 5 s que trae la gráfica de Filament) y la página dice que las cifras se actualizan al abrir o recargar.
+  Con intervalo, la página dice cada cuánto.
 
 ## Open Questions
 
 1. **Cuánto es "en tiempo real" para los indicadores.** El ADR-0007 fija 30 s para los pedidos activos, no para los
-   indicadores. Necesita ADR, o ampliar el ADR-0007. Recomendación de Claude: los mismos 30 s. DD-116.
+   indicadores. Necesita ADR, o ampliar el ADR-0007. Recomendación de Claude: los mismos 30 s. DD-116. **Resuelta** por
+   la adenda del 2026-11-22 de ADR-0007 (decisión 33, C-236): 30 s; cierra DD-116.
 2. **Qué fecha cuenta para un pedido:** la de su confirmación, que es la que usan los escenarios, o la de su
    creación. Arthur la confirma al aprobar. Con C-188 la diferencia importa: el pedido se crea al aceptar el resumen y
    se confirma cuando se paga.

@@ -7,8 +7,9 @@ namespace App\Indicadores;
  * A.4.4; indicadores-E21): el intervalo de config/indicadores.php, en el formato del sondeo de Livewire, como "30s" o
  * "1500ms".
  *
- * Cuánto es "en tiempo real" para los indicadores es DD-116 y necesita ADR (indicadores-E22). Sin intervalo, o con uno
- * que no sirve, los widgets no sondean y las cifras se actualizan al abrir o recargar la página.
+ * Cuánto es "en tiempo real" para los indicadores lo fija la adenda del 2026-11-22 de ADR-0007: 30 s, el valor por
+ * omisión de la configuración (indicadores-E22). Con un intervalo que no sirve, los widgets no sondean y las cifras se
+ * actualizan al abrir o recargar la página.
  */
 final class Refresco
 {

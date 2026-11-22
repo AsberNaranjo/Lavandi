@@ -119,8 +119,35 @@ foto del perfil (el disco privado).
   - la foto de evidencia, el historial y las entregas del día y de la semana.
   La asignación espera DD-014 y la entrada en la app, DD-053, que es de Nadir (decisión 19).
 
+**A media mañana del 22, unido a `feat/h2-lavanderias`, cada rama con sus tests:**
+- **La calificación y los textos legales:** calificar de 1 a 5 un pedido entregado, `/aviso-de-privacidad` y
+  `/terminos`, y el pie legal de la landing.
+- **Las pruebas de autorización por rol:**
+  - cobertura de reglas sobre todas las rutas y el panel;
+  - matriz de rol por módulo;
+  - barrido contra fugas con dos plazas.
+
+  No encontraron fugas. Al unirlas con la calificación, el barrido encontró que un pedido ajeno respondía 422 en vez
+  de 404; se corrigió.
+- **La app del repartidor (Módulo C):** probada en el emulador con el APK del commit `65731ed`.
+- **El cobro con la pasarela simulada:** checkout, webhook y confirmación del pedido al pagar, con el checkout simulado
+  y sus comandos para probar en local.
+- **El panel:** avisos masivos, monto promedio, entregas por repartidor, mapa de calor, refresco cada 30 s y la
+  exportación en CSV y Excel. Con todo junto, el servidor pasa 1156 tests.
+- **Las decisiones 32 a 35, por delegación:**
+  - el checkout dentro de la app;
+  - los indicadores cada 30 s;
+  - la conciliación por la API de la pasarela;
+  - la Policy adaptadora de la descarga.
+
+  Cierran DD-112 y DD-116, la segunda parte de DD-055 y el punto 1 de DD-102.
+- **El push:** Arthur pidió subir la rama (`65731ed`) y preparar el PR #3 hacia Nadir. El PR lo abre Arthur: no hay
+  `gh` en la máquina y no hubo permiso de usar su credencial.
+
 **Sigue.**
-- En curso: la app del repartidor, el cobro con la pasarela simulada, la calificación con los textos legales y las
-  pruebas de autorización por rol.
+- En curso:
+  - la app del pago, la calificación y los enlaces legales;
+  - lo financiero del panel: ingresos, conciliación y los exportadores que faltan;
+  - la medición de la landing y la publicación en el servidor.
 
 **Al terminar.** `situacion: terminada`, con el enlace al PR, que va después del del H1.

@@ -2,6 +2,8 @@
 
 namespace App\Autorizacion;
 
+use App\Exportacion\Exportacion;
+use App\Models\AvisoMasivo;
 use App\Models\Direccion;
 use App\Models\Dispositivo;
 use App\Models\EstadoPedido;
@@ -95,7 +97,7 @@ final class Autorizacion
             // Las fotos privadas en local y en las pruebas; en producción viven en el bucket privado (ADR-0006).
             'GET archivos/fotos/{path}' => $firmada,
             'PUT archivos/fotos/{path}' => $firmada,
-            'GET filament/exports/{export}/download' => 'De Filament: el panel no exporta; su controlador exige sesión y que el archivo sea de la cuenta.',
+            'GET filament/exports/{export}/download' => 'De Filament: la descarga de un reporte del panel. Su controlador exige sesión (401 sin ella) y PoliticaDeExportacion le pregunta a puedeDescargarLaExportacion(): solo la baja la cuenta que la pidió; a otra le responde 404 (exportacion-E11).',
             'GET filament/imports/{import}/failed-rows/download' => 'De Filament: el panel no importa; su controlador exige sesión y que el archivo sea de la cuenta.',
 
             // Livewire, con el que corre el panel.
@@ -509,5 +511,75 @@ final class Autorizacion
     public function telefonosDeLaCuenta(Usuario $usuario): Builder
     {
         return Dispositivo::query()->where('id_usuarios', $usuario->getKey());
+    }
+
+    /**
+     * Si la cuenta descarga los reportes del panel en CSV y en Excel: solo la administración, porque son los indicadores
+     * y los reportes financieros que ve en el panel (NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5; exportacion-E01). El
+     * botón de descarga y el trabajo de la cola que escribe el archivo preguntan aquí.
+     */
+    public function puedeDescargarReportes(Usuario $usuario): bool
+    {
+        return $this->puedeVerLosIndicadores($usuario);
+    }
+
+    /**
+     * Si la cuenta baja el archivo de una descarga: solo la que la pidió, mientras siga pudiendo bajar reportes
+     * (exportacion-E11). Para cualquier otra, el archivo responde como si no existiera (ADR-0019, decisión 3). La ruta
+     * de descarga de Filament pregunta aquí a través de App\Exportacion\PoliticaDeExportacion.
+     */
+    public function puedeDescargarLaExportacion(Usuario $usuario, Exportacion $exportacion): bool
+    {
+        return (int) $exportacion->id_usuarios === (int) $usuario->getKey() && $this->puedeDescargarReportes($usuario);
+    }
+
+    /**
+     * Si la cuenta escribe y manda avisos masivos desde el panel: solo la administración (administracion-E23;
+     * NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #7).
+     */
+    public function puedeMandarAvisosMasivos(Usuario $usuario): bool
+    {
+        return $this->puedeEntrarAlPanel($usuario);
+    }
+
+    /**
+     * Los avisos masivos que la cuenta ve en el panel: todos, si los puede mandar; ninguno si no. La lista de avisos del
+     * panel parte de aquí.
+     *
+     * @return Builder<AvisoMasivo>
+     */
+    public function avisosMasivosDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = AvisoMasivo::query();
+
+        return $this->puedeMandarAvisosMasivos($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
+     * Los teléfonos que reciben un aviso masivo (administracion-E23; ADR-0008). Todo envío del aviso parte de aquí,
+     * también al correr en la cola.
+     *
+     * - El aviso global, sin plaza ni segmento, va a los teléfonos registrados de todas las cuentas de la app que pueden
+     *   usarla: no a una bloqueada desde el panel ni a la de un repartidor dado de baja (puedeIniciarSesion()), ni a una
+     *   borrada. Una cuenta sin teléfono no tiene a dónde recibirlo.
+     * - Un aviso con plaza o con segmento no va a ningún teléfono mientras DD-113 no defina los segmentos
+     *   (administracion-E24).
+     *
+     * @return Builder<Dispositivo>
+     */
+    public function telefonosQueRecibenElAvisoMasivo(AvisoMasivo $aviso): Builder
+    {
+        $consulta = Dispositivo::query();
+
+        if ($aviso->id_plazas !== null || $aviso->segmento !== null) {
+            return $consulta->whereRaw('false');
+        }
+
+        return $consulta
+            ->whereHas('usuario', fn (Builder $cuenta) => $cuenta->where('usuarios.estado', '<>', Usuario::BLOQUEADO))
+            ->whereNotExists(fn ($deBaja) => $deBaja->selectRaw('1')
+                ->from('repartidores')
+                ->whereColumn('repartidores.id_usuarios', 'dispositivos.id_usuarios')
+                ->where('repartidores.estado', Repartidor::BAJA));
     }
 }
