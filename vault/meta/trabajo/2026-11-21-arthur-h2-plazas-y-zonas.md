@@ -159,7 +159,26 @@ foto del perfil (el disco privado).
 - **C-241:** Arthur pide la foto al recolectar, tomada en el momento. Queda como su propuesta para DD-110, que es de
   EL CLIENTE.
 
+**Por la tarde del 22, unido a `feat/h2-lavanderias`:**
+- **El segundo video narrado** del recorrido completo: `notas-locales/lavandi-recorrido-narrado-2026-11-22.mp4`.
+- **Avisos y publicación en la app:**
+  - Firebase entra solo con su archivo (decisión 36);
+  - el permiso de avisos, el seguimiento que se adelanta y su estado en el perfil;
+  - los perfiles de EAS solo con https.
+  
+  El APK local sigue compilando y abriendo sin Firebase.
+- **El mapa de los pedidos activos** en el monitoreo del panel.
+- **La pasarela Conekta** detrás de la interfaz del cobro (decisión 38). Las cargas salen de su documentación; el sandbox espera las llaves de Arthur (C-170). El servidor pasa 1268 tests.
+- **El flujo de Maestro de estados-E17:** Recolectado en 27.5, 27.0 y 26.8 s, contra un tope de 60 s. Es evidencia en emulador; A43-3 pide teléfonos reales.
+- **La página de pendientes** para hablar con Nadir: https://claude.ai/artifact/T7epbtrNYMjLmeVqq7NxPM, con su PDF en `notas-locales`.
+- **Decisiones 37 y 38:** el correo por Resend (DD-071) y Conekta sin el SDK.
+- **DD-086, DD-087 y DD-090,** cerradas por lo ya construido.
+
 **Sigue.**
-- En curso: el segundo video del recorrido y la app de los avisos con la publicación en `movil/`.
+- El código que no depende de nadie más está hecho. Lo que queda espera:
+  - las cuentas de prueba de Arthur (C-170);
+  - las respuestas de EL CLIENTE, con DD-012 al frente;
+  - las decisiones de Nadir: DD-053, DD-070 y DD-023.
+- Pendiente el visto bueno de Arthur para subir lo nuevo al PR #3.
 
 **Al terminar.** `situacion: terminada`, con el enlace al PR, que va después del del H1.
