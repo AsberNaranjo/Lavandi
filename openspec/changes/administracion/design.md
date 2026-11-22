@@ -8,7 +8,8 @@
   dispositivos registrados para avisos (ADR-0008) y las direcciones con coordenadas (ADR-0009).
 - Lo que más falta es del cliente: el modelo del dinero (DD-013) y la comisión (DD-020).
 - La pasarela es Conekta, la del contrato, mientras el cliente no firme el cambio (DD-079, C-192, C-216). Las tablas
-  de este cambio no nombran proveedor; la conciliación es con Conekta y espera DD-112, no la firma.
+  de este cambio no nombran proveedor; la conciliación es con Conekta, por la interfaz neutral del cobro (segunda
+  adenda del 2026-11-22 de ADR-0010, que cerró DD-112), y no espera la firma.
 - Las tablas siguen `vault/arquitectura/modelo-de-datos.md` y ADR-0016 (C-193).
 
 ## Goals / Non-Goals
@@ -93,8 +94,25 @@ solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`. Todas las llaves fo
 
 Las dos tablas llevan `created_at` y `updated_at` en `timestamptz`, como todas las tablas del negocio con llave propia.
 
-**En espera (⛔):** `movimientos_pasarela` (E20 a E22) toma la forma que fije DD-112, según de dónde salgan los datos
-de Conekta (de la elegida, si se firma el cambio, DD-079). Es la tarea 0.2, bloqueada por DD-112. No nombra a ningún proveedor (modelo-E14).
+**Crea, en la tarea 0.2,** con su propia migración hacia adelante (`2026_11_25_100000_crear_movimientos_pasarela`):
+
+3. `movimientos_pasarela` (E20 a E22), con la forma que fija la segunda adenda del 2026-11-22 de ADR-0010 (decisiones 6
+   y 7, que cierran DD-112): los pagos que acreditó la pasarela, leídos de su API por la interfaz neutral del cobro.
+   - Columnas: `id_movimientos_pasarela`, `pasarela`, `id_pasarela_orden`, `monto`, `comision`, `pagado_en`, y
+     `created_at` y `updated_at` en `timestamptz`.
+   - Una fila por orden: único `(pasarela, id_pasarela_orden)`. Leer dos veces el mismo periodo actualiza la fila, no la
+     repite.
+   - `pasarela` lleva el mismo `CHECK` que `pagos` (`conekta` o `simulada`); `monto` es `numeric(12,2)` mayor que cero;
+     `comision` es `numeric(12,2)` opcional, no negativa: la que retiene la pasarela, si la trae (E22, DD-013);
+     `pagado_en` es `timestamptz` no nulo, la fecha del pago en la pasarela.
+   - **Sin plaza propia y sin llave foránea:** la cuenta de la pasarela es una para todas las plazas y la plaza de un
+     movimiento es la del pedido con el que cuadra, por `(pasarela, id_pasarela_orden)` con `pagos`. Un movimiento sin
+     pedido es justo una diferencia (E21), así que no puede apuntar a `pagos`. Ya estaba en la lista `sin_plaza` de
+     `servidor/config/modelo.php`; ahora lleva escrita esa razón (pregunta abierta 10, resuelta).
+   - Sin el trigger `impedir_cambio()`: no es historial del pedido ni del dinero de la plataforma; es la copia de lo que
+     dice la pasarela.
+   - No nombra a ningún proveedor ni guarda datos de tarjeta (modelo-E13 y modelo-E14). Su modelo es
+     `App\Models\MovimientoPasarela`.
 
 **Los modelos de Eloquent** (`Comision` y `AvisoMasivo`) heredan de `App\Models\Modelo` y declaran su `$table` y su
 `$primaryKey` (modelo-E16).
@@ -259,7 +277,8 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
 - [El plugin de mapas de Filament está en beta] → se hace como componente propio (ADR-0009). Si el mapa sin código a
   la medida pasa de 8 h, se reabre el ADR-0003, según su criterio de reversión.
 - [DD-079: el cliente firma el cambio de Conekta por Stripe o Mercado Pago (C-192, C-216)] → la conciliación se hace
-  con Conekta y espera DD-112; si se firma el cambio, la lectura de la elegida entra con su ADR. No se construye nada
+  con Conekta, por la interfaz neutral del cobro (DD-112, cerrada); si se firma el cambio, la lectura de la elegida
+  entra como otra implementación de la misma interfaz, con su ADR. No se construye nada
   de Stripe ni de Mercado Pago mientras tanto. El
   resto del cambio no depende del proveedor: lee `pagos`, que no lo nombra.
 - [DD-056: el efectivo sin OXXO] → la conciliación de los pagos en efectivo espera a que se cierre.
@@ -273,10 +292,11 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
 ## Open Questions
 
 1. **Qué entra en la vista reducida de administración de la app** (C-140). Pregunta para Arthur; no se diseña aquí.
-2. **De dónde salen los movimientos de la pasarela para conciliar:** su API o el reporte que se descarga de su panel.
-   Necesita ADR. Es DD-112, con Conekta (con la elegida, si se firma el cambio, DD-079). Con el modelo de datos,
-   `movimientos_pasarela` no nace hasta que se responda DD-112, así que E20 y E21 quedan bloqueados, como ya dice la
-   fila DD-112.
+2. **De dónde salen los movimientos de la pasarela para conciliar: resuelta** por la segunda adenda del 2026-11-22 de
+   ADR-0010 (decisiones 6 y 7, asentada en la decisión 34 de `acta-2026-11-20-modelo-y-pasarela.md`, que cierra
+   DD-112): de la API de la pasarela, por la misma interfaz neutral del cobro, cuando la administración concilia un
+   periodo; se guardan en `movimientos_pasarela`, una fila por orden. Desbloquea E20 y E21 (tareas 0.2, 4.4 y 4.5). E22
+   sigue esperando DD-013. Con Conekta, la lectura real se comprueba en su sandbox con la sección 3 de `pago`.
 3. **Avisos masivos: temas de FCM o lista de tokens.** Condiciona cómo se arman los segmentos. Necesita ADR, o
    ampliar el ADR-0008. **Para el aviso global, la tarea 5.1 usa la lista de tokens** de `dispositivos`, un envío por
    teléfono, con el canal de FCM HTTP v1 que ya está en la adenda de ADR-0008 (sección "El panel", "Avisos masivos").
@@ -295,6 +315,6 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
 9. **La comisión del repartidor (E14).** `comisiones` solo tiene `id_lavanderias`. Si DD-019 dice que la plataforma le
    retiene algo al repartidor, falta una columna en el modelo; entraría como opcional, hacia adelante (ADR-0016,
    regla 9).
-10. **La plaza de `movimientos_pasarela`.** No está en la lista de tablas sin plaza de `servidor/config/modelo.php`.
-    Si los movimientos de la pasarela no traen plaza, como `eventos_pasarela`, hay que agregarla a esa lista al
-    responder DD-112.
+10. **La plaza de `movimientos_pasarela`: resuelta** por la segunda adenda del 2026-11-22 de ADR-0010 (decisión 7): la
+    tabla no lleva plaza propia, y la de un movimiento es la del pedido con el que cuadra. Ya estaba en la lista de
+    tablas sin plaza de `servidor/config/modelo.php`; la tarea 0.2 le escribió la razón.
