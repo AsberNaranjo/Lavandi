@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-10 y RN-28 (A); brecha-ejecutivo-tecnico.md BR-50 (B); deuda-de-decision.md DD-012, DD-055 y DD-056 (B); verificaciones-fase-6.md, fila 5b y sección del 2026-11-12 (E); ADR-0002 y ADR-0003 (D); adenda del 2026-11-22: acta-2026-11-20-modelo-y-pasarela.md, decisión 32, por delegación de C-236 (C); NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (A); registro de npm de conekta-elements-react-native, consultado el 2026-11-22 (E); adenda de la conciliación: decisión 34, por delegación de C-236 (C), y la referencia de la API de órdenes de Conekta, consultada el 2026-11-22 (E)
+fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-10 y RN-28 (A); brecha-ejecutivo-tecnico.md BR-50 (B); deuda-de-decision.md DD-012, DD-055 y DD-056 (B); verificaciones-fase-6.md, fila 5b y sección del 2026-11-12 (E); ADR-0002 y ADR-0003 (D); adenda del 2026-11-22: acta-2026-11-20-modelo-y-pasarela.md, decisión 32, por delegación de C-236 (C); NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (A); registro de npm de conekta-elements-react-native, consultado el 2026-11-22 (E); adenda de la conciliación: decisión 34, por delegación de C-236 (C), y la referencia de la API de órdenes de Conekta, consultada el 2026-11-22 (E); tercera adenda: decisión 38, por delegación de C-236 (C), y la documentación de developers.conekta.com consultada el 2026-11-22 (E)
 fecha: 2026-11-13
 dueño: Arthur Naranjo
 adr: ADR-0010
@@ -172,3 +172,29 @@ Cierra la segunda parte de DD-055 y el punto 1 de DD-102. Lo que no cierra:
 **La tomó** Claude, por delegación de Arthur (C-236), en la decisión 34 de `acta-2026-11-20-modelo-y-pasarela.md`.
 Cierra DD-112 y desbloquea administracion-E20 y E21. administracion-E22 sigue esperando DD-013: quién absorbe la
 comisión de la pasarela.
+
+## Adenda del 2026-11-22 (3): el cliente HTTP de Laravel en lugar de `conekta-php`
+
+**Contexto.**
+- La decisión 1 dice que `api` crea la orden "con `conekta-php`".
+- Al implementar la pasarela (`pago`, tarea 3.2), la integración resultó ser cuatro llamadas REST:
+  - crear la orden;
+  - consultarla;
+  - listar las órdenes pagadas por cursor;
+  - leer los avisos.
+- **El SDK (Packagist, consultado el 2026-11-22, grado E, `SIN VERIFICAR`):** la 9.0.0 es del 2026-07-10 y la 7.2.0
+  del 2026-07-14.
+- **La referencia vigente de `GET /orders`** sí lista filtros por `created_at` y `updated_at`. La segunda adenda decía
+  que no mostraba filtro por fecha; su decisión 6 no cambia, porque lo que cuenta es la fecha del pago, que no se
+  filtra.
+
+**Decisión.**
+- **1, precisión.** `api` habla con la API REST v2.3.0 de Conekta por el cliente HTTP de Laravel (`App\Cobro\PasarelaConekta`),
+  sin el SDK.
+  - Son las mismas llamadas, sin otra dependencia que vigilar.
+  - Las pruebas las simulan con `Http::fake` y `Http::preventStrayRequests()`.
+- **Si se prefiere el SDK más adelante,** solo cambia el interior de esa clase: la interfaz del cobro, la base y la API
+  no se tocan.
+
+**La tomó** Claude, por delegación de Arthur (C-236), en la decisión 38 de `acta-2026-11-20-modelo-y-pasarela.md`. El
+detalle y las diez preguntas para el sandbox están en `openspec/changes/pago/design.md`.
