@@ -35,4 +35,13 @@ return [
         'corte_bajo' => env('INDICADORES_SEMAFORO_CORTE_BAJO'),
     ],
 
+    /*
+     * El mapa de calor por zona (indicadores-E20): cuánto se simplifica el polígono de cada zona antes de mandarlo al
+     * panel, en grados, como la cobertura de la portada (config/landing.php). 0.0005 grados son unos 55 metros: no
+     * cambia la forma a la escala del mapa y quita los vértices de más.
+     */
+    'mapa' => [
+        'simplificacion' => (float) env('INDICADORES_MAPA_SIMPLIFICACION', 0.0005),
+    ],
+
 ];

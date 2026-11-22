@@ -5,6 +5,7 @@ namespace Tests\Feature\Indicadores;
 use App\Filament\Pages\Indicadores;
 use App\Filament\Widgets\Indicadores\MapaDeCalor;
 use App\Indicadores\PedidosPorColonia;
+use App\Indicadores\PedidosPorZona;
 use App\Indicadores\Rango;
 use App\Models\Rol;
 use App\Models\Usuario;
@@ -168,7 +169,66 @@ class MapaDeCalorTest extends TestCase
         $this->assertSame([3], array_column($puntos, 'pedidos'));
     }
 
-    #[TestDox('indicadores-E19: una cuenta que no es de administración no ve el mapa de calor')]
+    #[TestDox('indicadores-E20: con pedidos dentro de dos zonas de servicio, el mapa por zona pinta cada zona con su número de pedidos')]
+    public function test_indicadores_e20_cada_zona_se_pinta_con_su_numero_de_pedidos(): void
+    {
+        $this->sembrarLasZonas();
+
+        $zonas = app(PedidosPorZona::class)->delRango(Rango::deLosFiltros(self::SEMANA));
+
+        $this->assertSame(['Centro', 'Norte'], array_column(array_values($zonas), 'zona'));
+        $this->assertSame([3, 1], array_column(array_values($zonas), 'pedidos'));
+        $this->assertSame([1.0, 0.33], array_column(array_values($zonas), 'intensidad'));
+        $this->assertSame([$this->plaza->nombre, $this->plaza->nombre], array_column(array_values($zonas), 'plaza'));
+
+        // Cada zona lleva su polígono para pintarla, en GeoJSON.
+        foreach ($zonas as $zona) {
+            $this->assertSame('MultiPolygon', $zona['geometria']['type']);
+        }
+    }
+
+    #[TestDox('indicadores-E20: la administración elige ver el mapa por zona: el widget pinta las zonas con su número de pedidos, y una zona activa sin pedidos sale con 0')]
+    public function test_indicadores_e20_la_administracion_elige_ver_el_mapa_por_zona(): void
+    {
+        $this->sembrarLasZonas();
+        $this->zonaDePrueba($this->plaza, 'Sur', $this->cuadrado(-120.0, 9.0));
+        // Una zona inactiva sin pedidos no se pinta.
+        $this->zonaDePrueba($this->plaza, 'Oeste', $this->cuadrado(-121.0, 10.0), activa: false);
+        config(['services.google_maps_panel.llave' => self::LLAVE_DE_PRUEBA]);
+        $this->comoAdministracion();
+
+        $mapa = $this->mapa()->set('agrupacion', 'zona');
+
+        $datos = $this->datosDelMapa($mapa);
+        $this->assertSame('zona', $datos['agrupacion']);
+        $this->assertSame(['Centro', 'Norte', 'Sur'], array_column($datos['zonas'], 'nombre'));
+        $this->assertSame([3, 1, 0], array_column($datos['zonas'], 'pedidos'));
+        $this->assertSame([], $datos['puntos']);
+        $mapa->assertSeeInOrder(['Centro', '3', 'Norte', '1', 'Sur', '0'])->assertDontSee('Oeste');
+
+        // Una agrupación que no existe vuelve a la de colonia.
+        $this->assertSame('colonia', $this->datosDelMapa($this->mapa()->set('agrupacion', 'otra'))['agrupacion']);
+    }
+
+    #[TestDox('indicadores-E20: un pedido cuenta en la zona que cubre su punto de recolección, con PostGIS, y no en la de su entrega; solo los pedidos confirmados del rango')]
+    public function test_indicadores_e20_el_pedido_cuenta_en_la_zona_que_cubre_su_recoleccion(): void
+    {
+        $centro = ['ubicacion' => ['latitud' => 10.5, 'longitud' => -119.5]];
+        $norte = ['ubicacion' => ['latitud' => 11.5, 'longitud' => -119.5]];
+        // La recolección en Centro y la entrega en Norte: cuenta en Centro.
+        $this->pedidoConfirmadoEl('2026-12-02 10:00:00', recogida: $centro, entrega: $norte);
+        $this->pedidoConfirmadoEl('2026-12-03 10:00:00', recogida: $norte);
+        // Fuera del rango, y uno que nunca se pagó.
+        $this->pedidoConfirmadoEl('2026-12-07 10:00:00', recogida: $norte);
+        $this->pedidoSinPagarEl('2026-12-04 10:00:00', recogida: $norte);
+
+        $zonas = array_values(app(PedidosPorZona::class)->delRango(Rango::deLosFiltros(self::SEMANA)));
+
+        $this->assertSame(['Centro', 'Norte'], array_column($zonas, 'zona'));
+        $this->assertSame([1, 1], array_column($zonas, 'pedidos'));
+    }
+
+    #[TestDox('indicadores-E19 e indicadores-E20: una cuenta que no es de administración no ve el mapa de calor')]
     public function test_indicadores_e19_otra_cuenta_no_ve_el_mapa_de_calor(): void
     {
         foreach ([Rol::USUARIO, Rol::LAVANDERIA, Rol::REPARTIDOR] as $rol) {
@@ -197,6 +257,18 @@ class MapaDeCalorTest extends TestCase
                 'ubicacion' => ['latitud' => $latitud, 'longitud' => $longitud],
             ]);
         }
+    }
+
+    /**
+     * Tres pedidos con la recolección en Centro y uno en Norte, en el rango.
+     */
+    private function sembrarLasZonas(): void
+    {
+        foreach (['2026-11-30', '2026-12-02', '2026-12-04'] as $dia) {
+            $this->pedidoConfirmadoEl("{$dia} 10:00:00", recogida: ['ubicacion' => ['latitud' => 10.5, 'longitud' => -119.5]]);
+        }
+
+        $this->pedidoConfirmadoEl('2026-12-03 10:00:00', recogida: ['ubicacion' => ['latitud' => 11.5, 'longitud' => -119.5]]);
     }
 
     private function mapa(): Testable

@@ -39,7 +39,7 @@ M = 5 h.
 ## 5. Geográfico (servidor/)
 
 - [x] 5.1 indicadores-E19: agregados por colonia en el servidor y su componente de mapa, sin geocodificación inversa — test: `servidor/tests/Feature/Indicadores/MapaDeCalorTest.php` — tamaño M
-- [ ] 5.2 indicadores-E20: zonas de servicio pintadas con su número de pedidos (PostGIS) — test: `servidor/tests/Feature/Indicadores/MapaDeCalorTest.php` — tamaño M
+- [x] 5.2 indicadores-E20: zonas de servicio pintadas con su número de pedidos (PostGIS) — test: `servidor/tests/Feature/Indicadores/MapaDeCalorTest.php` — tamaño M
 
 ## 6. El panel (servidor/)
 

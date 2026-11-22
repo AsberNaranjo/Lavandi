@@ -159,6 +159,12 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
     pedido (pregunta 4, la recomendación), como se capturó en `pedido_direcciones`, sin espacios a los lados, en su
     municipio y su plaza. El punto de cada colonia es el centro de las recolecciones de sus pedidos (`ST_Centroid` de
     PostGIS); no hay geocodificación inversa ni ninguna petición a Google desde el servidor.
+  - **Por zona de servicio** (E20) lee `App\Indicadores\PedidosPorZona`: un pedido cuenta en la zona de su plaza que
+    cubre el punto de su recolección (`ST_Covers` de PostGIS, con el borde dentro, como la zona de servicio de las
+    direcciones), no en la de su entrega. Salen las zonas activas, también con 0, y una inactiva solo si tuvo pedidos
+    en el rango. Cada zona lleva su polígono simplificado (`INDICADORES_MAPA_SIMPLIFICACION`, 0.0005 grados, como la
+    cobertura de la portada) para pintarla. La administración cambia entre colonia y zona con el selector "Ver por"
+    del widget.
   - **La intensidad** es el número de pedidos frente al de la colonia (o zona) con más, de 0 a 1 con dos decimales.
     El color sale de una rampa secuencial de un solo tono, el azul de la paleta validada de las gráficas, de claro a
     oscuro (`App\Indicadores\Intensidad`); el punto crece con la intensidad. Cada figura dice su nombre y su número al
