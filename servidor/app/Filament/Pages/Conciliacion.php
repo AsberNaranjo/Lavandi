@@ -105,11 +105,12 @@ class Conciliacion extends Page implements HasTable
     }
 
     /**
-     * Lee la pasarela para el periodo y deja la tabla con su conciliación.
+     * Lee la pasarela para el periodo y deja la tabla con su conciliación. Es privada: Livewire no deja llamarla desde el
+     * navegador, y solo se llega a ella por la acción "conciliar", que pregunta antes al componente de autorización.
      *
      * @param  array<string, mixed>  $datos
      */
-    public function conciliar(array $datos): void
+    private function conciliar(array $datos): void
     {
         $periodo = ['desde' => (string) $datos['desde'], 'hasta' => (string) $datos['hasta']];
 
@@ -166,7 +167,7 @@ class Conciliacion extends Page implements HasTable
     /**
      * El periodo conciliado.
      */
-    public function rango(): Rango
+    private function rango(): Rango
     {
         return Rango::deLosFiltros($this->filters);
     }

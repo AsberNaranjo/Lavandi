@@ -10,6 +10,7 @@ use App\Models\Rol;
 use App\Models\Usuario;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Exceptions\MethodNotFoundException;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -193,6 +194,21 @@ class ConciliacionTest extends TestCase
             ->assertHasActionErrors(['hasta' => 'after_or_equal']);
 
         $this->assertSame([], $this->lecturasDeLaPasarela());
+    }
+
+    #[TestDox('administracion-E20: solo se concilia con la acción, que pregunta al componente de autorización: el navegador no puede llamar directo al método que lee la pasarela')]
+    public function test_administracion_e20_solo_se_concilia_con_la_accion(): void
+    {
+        $this->pagadoEl('2027-03-05 10:00:00', '150.00');
+        $this->comoAdministracion();
+
+        try {
+            Livewire::test(Conciliacion::class)->call('conciliar', self::MARZO);
+            $this->fail('El método que lee la pasarela no debe poder llamarse desde el navegador.');
+        } catch (MethodNotFoundException) {
+            $this->assertSame([], $this->lecturasDeLaPasarela());
+            $this->assertSame(0, MovimientoPasarela::query()->count());
+        }
     }
 
     #[TestDox('administracion-E20: una cuenta de usuario, de socio lavandería o de socio repartidor no abre la conciliación ni puede conciliar, y no ve ningún pago')]
