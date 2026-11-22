@@ -114,3 +114,19 @@ function iniciarMapa(mapa) {
 for (const mapa of document.querySelectorAll('[data-mapa]')) {
     iniciarMapa(mapa);
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// La medición del toque en un botón de descarga (medicion-E04): pone en la capa de datos del contenedor de etiquetas el
+// evento descarga, con la tienda que dice el botón (data-tienda), y nada más. Solo si la página cargó el contenedor
+// (resources/views/publico/medicion.blade.php): sin él no existe la capa de datos y no se mide nada (medicion-E02).
+// ---------------------------------------------------------------------------------------------------------------
+
+if (Array.isArray(window.dataLayer)) {
+    document.addEventListener('click', (evento) => {
+        const boton = evento.target instanceof Element ? evento.target.closest('[data-tienda]') : null;
+
+        if (boton !== null) {
+            window.dataLayer.push({ event: 'descarga', tienda: boton.getAttribute('data-tienda') });
+        }
+    });
+}

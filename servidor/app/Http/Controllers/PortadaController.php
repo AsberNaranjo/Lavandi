@@ -14,6 +14,7 @@ class PortadaController extends Controller
 {
     public function __invoke(): View
     {
-        return view('portada.index');
+        // La página, para su descripción para buscadores (medicion-E07).
+        return view('portada.index', ['pagina' => 'portada']);
     }
 }

@@ -39,7 +39,8 @@
         </div>
 
         @if (filled($imagen))
-            <img class="encabezado__imagen" src="{{ asset($imagen) }}" alt="{{ config('landing.descarga.imagen_texto') }}" data-imagen-descarga>
+            {{-- Más abajo en un teléfono: se pide al acercarse a ella (medicion-E11). --}}
+            <img class="encabezado__imagen" src="{{ asset($imagen) }}" alt="{{ config('landing.descarga.imagen_texto') }}" loading="lazy" decoding="async" data-imagen-descarga>
         @else
             <x-portada.de-prueba como="div" class="imagen-de-prueba" data-imagen-descarga-de-prueba>mockup de pantalla de la app.</x-portada.de-prueba>
         @endif

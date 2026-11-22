@@ -39,6 +39,7 @@ continua existe desde el primer commit, como pide el método.
 |---|---|---|
 | **reglas** | Siempre | La marca o el dominio aparecen escritos a mano en `movil/` o en `servidor/` (CLAUDE.md §5), o se versiona un `.env`, una llave privada, un almacén de firma o la configuración de Firebase (ADR-0012) |
 | **servidor** | Existe `servidor/composer.json` | `composer.json` no es válido; el estilo no sigue Pint; el análisis estático encuentra errores (cuando exista `phpstan.neon`); las migraciones no corren desde cero sobre PostgreSQL con PostGIS (ADR-0004); una ruta no declara su regla de autorización o una respuesta trae datos de otro socio, de otro usuario o de otra plaza (el paso "Barrido contra fugas", con las pruebas del grupo `barrido-contra-fugas`: autorizacion-E01 y E14, SEG-3); o falla otro test |
+| **landing-velocidad** | Existe `servidor/composer.json` | La portada, con su contenido de prueba y el contenedor de medición de prueba de la variable del repositorio `MEDICION_GTM_PRUEBA` si existe, baja de 0.70 en rendimiento en Lighthouse CI con perfil de teléfono, por la mediana de tres corridas (`servidor/lighthouserc.json`; medicion-E11, alerta temprana de A42-4) |
 | **movil** | Existe `movil/package.json` | Hay un error de tipos de TypeScript, un error de ESLint o un test que falla, o las dependencias no son compatibles con la versión de Expo (`expo-doctor`) |
 | **tokens** | Existe `herramientas/tokens/package.json` | `theme.ts` o las variables CSS no coinciden con lo que genera `tokens.json` (ADR-0013) |
 

@@ -21,9 +21,10 @@ return [
 
     /*
      * El logo, como ruta dentro de public/. Por omisión, el símbolo aprobado por EL CLIENTE (C-63), en un archivo de
-     * nombre neutro, como en la app (C-237).
+     * nombre neutro, como en la app (C-237): su versión de 192 píxeles, el triple de lo más que se muestra (64), que es
+     * lo que pide la pantalla de un teléfono (medicion-E11). El original, de 1024, sigue en marca/logotipo.png.
      */
-    'logo' => env('LANDING_LOGO', 'marca/logotipo.png'),
+    'logo' => env('LANDING_LOGO', 'marca/logotipo-192.png'),
 
     /*
      * Sección 1, "Hero / Encabezado": el tagline y la imagen con el mockup de la app, como ruta dentro de public/, con
@@ -139,6 +140,19 @@ return [
     'derechos' => [
         'titular' => env('LANDING_DERECHOS_TITULAR'),
         'anio' => env('LANDING_DERECHOS_ANIO'),
+    ],
+
+    /*
+     * La descripción para buscadores de cada página pública, por su nombre (medicion-E07;
+     * openspec/changes/medicion-de-la-landing/). Los textos los aprueba EL CLIENTE (DD-117). Mientras no lleguen, fuera de
+     * producción cada página lleva un marcador de contenido de prueba como descripción; en producción no lleva ninguna,
+     * porque no se inventa (App\Medicion\DescripcionParaBuscadores). El título de cada página es el nombre del producto,
+     * y el de los documentos legales lleva además el nombre del documento.
+     */
+    'descripciones' => [
+        'portada' => env('LANDING_DESCRIPCION_PORTADA'),
+        'aviso-de-privacidad' => env('LANDING_DESCRIPCION_AVISO_DE_PRIVACIDAD'),
+        'terminos' => env('LANDING_DESCRIPCION_TERMINOS'),
     ],
 
 ];

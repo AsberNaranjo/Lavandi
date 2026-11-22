@@ -9,6 +9,7 @@
 // Escenarios: landing-E12, landing-E13 y landing-E14 · Spec: openspec/changes/landing/specs/landing/spec.md · Tarea 3.2
 import { expect, test } from '@playwright/test';
 
+import { CONFIGURACION_DE_PRUEBA } from '../Soporte/configuracion.js';
 import { ANCHOS } from '../Soporte/portada.js';
 
 const ZONAS_DIBUJADAS = ['Zona de prueba Centro', 'Zona de prueba Norte'];
@@ -25,6 +26,12 @@ const SERVICIOS_DE_MAPAS = [
     /here\.com|hereapi/i,
     /tile\.|tiles\.|openstreetmap|mapquest|tomtom|geocod/i,
 ];
+
+/**
+ * El contenedor de medición de prueba que la portada pide por medicion-E01 (openspec/changes/medicion-de-la-landing/):
+ * no es un servicio de mapas. La prueba lo sirve vacío, sin salir a internet, y lo deja fuera de los otros servidores.
+ */
+const CONTENEDOR_DE_MEDICION = `https://www.googletagmanager.com/gtm.js?id=${CONFIGURACION_DE_PRUEBA.MEDICION_GTM}`;
 
 async function viewBox(page) {
     const valor = await page.locator('[data-mapa-lienzo]').getAttribute('viewBox');
@@ -104,6 +111,7 @@ for (const [ancho, viewport] of Object.entries(ANCHOS)) {
 test('landing-E13: al abrir la portada y usar el mapa, el navegador no pide nada a un servicio de mapas ni a otro servidor', async ({ page, baseURL }) => {
     const peticiones = [];
     page.on('request', (peticion) => peticiones.push(peticion.url()));
+    await page.route(CONTENEDOR_DE_MEDICION, (ruta) => ruta.fulfill({ contentType: 'application/javascript', body: '' }));
 
     await page.goto('/');
     await page.waitForLoadState('networkidle');
@@ -121,6 +129,8 @@ test('landing-E13: al abrir la portada y usar el mapa, el navegador no pide nada
     expect(aServiciosDeMapas).toEqual([]);
 
     const origen = new URL(baseURL).origin;
-    const aOtrosServidores = peticiones.filter((url) => !url.startsWith('data:') && new URL(url).origin !== origen);
+    const aOtrosServidores = peticiones.filter(
+        (url) => !url.startsWith('data:') && url !== CONTENEDOR_DE_MEDICION && new URL(url).origin !== origen,
+    );
     expect(aOtrosServidores).toEqual([]);
 });
