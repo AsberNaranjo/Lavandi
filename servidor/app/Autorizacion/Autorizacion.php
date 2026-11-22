@@ -42,6 +42,17 @@ final class Autorizacion
     }
 
     /**
+     * Si la cuenta ve el panel de indicadores: solo la administración, porque vive dentro del panel de administración
+     * (NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5; indicadores-E01). La página y cada uno de sus widgets preguntan
+     * aquí. Los indicadores cuentan los datos de todas las plazas: filtrarlos por plaza está fuera del contrato
+     * (openspec/changes/indicadores/proposal.md).
+     */
+    public function puedeVerLosIndicadores(Usuario $usuario): bool
+    {
+        return $this->puedeEntrarAlPanel($usuario);
+    }
+
+    /**
      * Las direcciones que la cuenta ve y usa: solo las suyas (direcciones-E14). Toda consulta de direcciones de la API
      * parte de aquí.
      *

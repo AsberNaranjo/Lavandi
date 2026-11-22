@@ -98,6 +98,22 @@ cambios, sin escribirlas; si una consulta resulta lenta, se agrega una vista mat
   capture `direcciones`.
 - [El plugin de mapas de Filament está en beta] → componente propio (ADR-0009).
 
+## Implementación en el servidor
+
+Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión técnica nueva:
+
+- **La página** es un segundo tablero de Filament, `App\Filament\Pages\Indicadores`, en `/admin/indicadores`; el
+  tablero de inicio no cambia. Sus widgets viven en `app/Filament/Widgets/Indicadores/`: Filament los registra como
+  componentes de Livewire, pero no los pone en el tablero de inicio. Se dibujan al abrir la página, sin carga diferida.
+- **La autorización** es `Autorizacion::puedeVerLosIndicadores()`, en el componente único (ADR-0019): la página y cada
+  widget le preguntan, y un widget montado por otra cuenta responde 403.
+- **Una consulta por indicador** en `app/Indicadores/`, que la gráfica, la tabla y después `exportacion` leen.
+- **El rango se ajusta a periodos completos:** por semana, del lunes de la semana del primer día al domingo de la del
+  último; por mes, del día 1 al último día. Así cada periodo se compara entero con el anterior. Sin filtros, es el mes
+  en curso hasta hoy, por día.
+- **"Hoy"** (el rango sin filtros) se lee en la zona horaria de la aplicación, porque la cuenta no tiene plaza; es la
+  misma pregunta 8.
+
 ## Open Questions
 
 1. **Cuánto es "en tiempo real" para los indicadores.** El ADR-0007 fija 30 s para los pedidos activos, no para los
