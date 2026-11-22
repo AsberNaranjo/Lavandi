@@ -46,6 +46,12 @@ class Usuario extends Modelo implements AuthenticatableContract, AuthorizableCon
     use SoftDeletes;
     use TieneIdPublico;
 
+    /** La cuenta entra y usa la app: el valor por omisión de usuarios.estado. */
+    public const ACTIVO = 'activo';
+
+    /** La administración bloqueó la cuenta desde el panel (NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #3). */
+    public const BLOQUEADO = 'bloqueado';
+
     protected $table = 'usuarios';
 
     protected $primaryKey = 'id_usuarios';

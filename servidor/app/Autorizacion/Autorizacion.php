@@ -6,6 +6,7 @@ use App\Models\Direccion;
 use App\Models\Dispositivo;
 use App\Models\Lavanderia;
 use App\Models\Pedido;
+use App\Models\Plaza;
 use App\Models\Rol;
 use App\Models\Usuario;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,18 +19,41 @@ use Illuminate\Database\Eloquent\Builder;
  * panel de Filament le pregunta a través de Usuario::canAccessPanel(). Ninguna otra clase decide accesos.
  *
  * Conoce el rol (registro-E14 y registro-E15), la tenencia de las direcciones (direcciones-E14), de los pedidos del
- * usuario (confirmacion-E12) y de los de la lavandería, con su plaza (pedidos-lavanderia-E02 y E09), y qué teléfonos
- * reciben los avisos de un pedido (avisos-E04 y avisos-E12). La tenencia del repartidor llega aquí mismo con
- * repartidor (hito H8; ADR-0019, decisión 1).
+ * usuario (confirmacion-E12) y de los de la lavandería, con su plaza (pedidos-lavanderia-E02 y E09), qué teléfonos
+ * reciben los avisos de un pedido (avisos-E04 y avisos-E12), qué ve la administración en el panel (las plazas, las
+ * lavanderías, los usuarios y los pedidos de todas las plazas: autorizacion-E03, administracion-E01, E06 y E11) y quién
+ * abre sesión o bloquea (administracion-E03). La tenencia del repartidor llega aquí mismo con repartidor (hito H8;
+ * ADR-0019, decisión 1).
  */
 final class Autorizacion
 {
     /**
-     * Si la cuenta tiene el rol que pide la ruta.
+     * Si la cuenta tiene el rol que pide la ruta. Una cuenta bloqueada no pasa ninguna (administracion-E03): al
+     * bloquearla se revocan sus tokens, y si le quedara uno, tampoco serviría.
      */
     public function permite(Usuario $usuario, string $rol): bool
     {
-        return $usuario->roles->contains('codigo', $rol);
+        return $this->puedeIniciarSesion($usuario) && $usuario->roles->contains('codigo', $rol);
+    }
+
+    /**
+     * Si la cuenta puede abrir una sesión, por cualquier vía: con correo y contraseña, con Google y, cuando exista, con
+     * Apple (DD-069). Una cuenta bloqueada desde el panel no puede hasta que se levante el bloqueo (administracion-E03 y
+     * E04; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #3). Toda entrada pregunta aquí.
+     */
+    public function puedeIniciarSesion(Usuario $usuario): bool
+    {
+        return $usuario->estado !== Usuario::BLOQUEADO;
+    }
+
+    /**
+     * Si la cuenta puede bloquear a otra o levantar su bloqueo desde el panel: solo la administración, y solo a una
+     * cuenta de usuario, de las que ve en la gestión de usuarios (administracion-E03 y E04). Las cuentas de los socios se
+     * suspenden con su lavandería y su repartidor (Módulo D #1 y #2).
+     */
+    public function puedeBloquear(Usuario $quien, Usuario $cuenta): bool
+    {
+        return $this->usuariosDelPanel($quien)->whereKey($cuenta->getKey())->exists();
     }
 
     /**
@@ -133,6 +157,61 @@ final class Autorizacion
         $consulta = Lavanderia::query();
 
         return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
+     * Las plazas que la cuenta ve en el panel, para fijar su porcentaje de comisión global: todas, si es de
+     * administración (administracion-E11; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #5); ninguna si no lo es.
+     *
+     * @return Builder<Plaza>
+     */
+    public function plazasDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = Plaza::query();
+
+        return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
+     * Las cuentas de usuario que la cuenta ve en la gestión de usuarios del panel: todas las que tienen el rol de usuario,
+     * si es de administración (administracion-E01; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #3); ninguna si
+     * no lo es. Las de los socios se gestionan con su lavandería y su repartidor (Módulo D #1 y #2), y las de la
+     * administración no se listan.
+     *
+     * @return Builder<Usuario>
+     */
+    public function usuariosDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = Usuario::query()->whereHas('roles', fn (Builder $roles) => $roles->where('codigo', Rol::USUARIO));
+
+        return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
+     * Los pedidos que la cuenta ve en el panel: todos los confirmados, de todas las plazas, si es de administración
+     * (administracion-E01 y E06; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #3 y #4); ninguno si no lo es. Uno
+     * que espera su pago no entró al flujo y no tiene folio (C-188). El historial de la ficha del usuario y el monitoreo
+     * parten de aquí.
+     *
+     * @return Builder<Pedido>
+     */
+    public function pedidosDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = Pedido::query()->confirmados();
+
+        return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
+     * Los pedidos activos que la cuenta ve en el monitoreo del panel: los de todas las plazas, si es de administración
+     * (administracion-E06; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #4); ninguno si no lo es. Cuáles están
+     * activos lo dice el modelo del pedido (Pedido::activosDelMonitoreo()).
+     *
+     * @return Builder<Pedido>
+     */
+    public function pedidosActivosDelPanel(Usuario $usuario): Builder
+    {
+        return $this->pedidosDelPanel($usuario)->activosDelMonitoreo();
     }
 
     /**

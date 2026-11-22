@@ -17,4 +17,13 @@ final class EntradaConGoogleRechazada extends RuntimeException
     {
         return new self('No se pudo entrar con tu cuenta de Google.');
     }
+
+    /**
+     * La cuenta está bloqueada desde el panel (administracion-E03). Se dice solo después de verificar el idToken: quien
+     * lo manda ya probó que el correo es suyo.
+     */
+    public static function bloqueada(): self
+    {
+        return new self('Esta cuenta está bloqueada.');
+    }
 }

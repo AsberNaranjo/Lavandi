@@ -22,8 +22,8 @@ use Tests\TestCase;
  * (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3). Se prueba con las primeras rutas del Módulo B, las de sus pedidos
  * (pedidos-de-la-lavanderia y estados-del-pedido), recorridas desde la tabla de rutas.
  *
- * El historial y las estadísticas de la lavandería todavía no tienen ruta: llegan con historial-de-la-lavanderia
- * (F-B04 y F-B05), y su prueba se agrega aquí entonces. El perfil público de una lavandería es del Módulo A.
+ * El historial y las estadísticas de la lavandería (historial-de-la-lavanderia, F-B04 y F-B05) tampoco traen ni cuentan
+ * los pedidos de la otra. El perfil público de una lavandería es del Módulo A.
  *
  * Escenario: autorizacion-E09 · Spec: openspec/changes/autorizacion-por-rol/specs/autorizacion/spec.md · Tarea 2.3
  */
@@ -100,6 +100,36 @@ class LavanderiaAisladaTest extends TestCase
             array_map(fn (Pedido $pedido): string => $pedido->fresh()->estado->codigo, $this->deLaSegunda),
         );
         $this->assertSame([EstadoPedido::CONFIRMADO, EstadoPedido::ACEPTADO], $estados);
+    }
+
+    #[TestDox('autorizacion-E09: el historial y las estadísticas de la primera lavandería no traen ni cuentan los pedidos entregados de la segunda, y los de la segunda sí')]
+    public function test_autorizacion_e09_el_historial_y_las_estadisticas_no_traen_pedidos_de_la_segunda(): void
+    {
+        foreach ($this->deLaSegunda as $pedido) {
+            if ($pedido->fresh()->estado->codigo === EstadoPedido::CONFIRMADO) {
+                $this->aceptarComoLaLavanderia($pedido);
+            }
+
+            $this->llevarHastaEntregado($pedido);
+        }
+
+        $this->app['auth']->forgetGuards();
+        $token = $this->lavanderia->administrador->createToken('app')->plainTextToken;
+        $historial = $this->withToken($token)->getJson('/api/lavanderia/historial')->assertOk()->assertExactJson(['pedidos' => []]);
+        $estadisticas = $this->withToken($token)->getJson('/api/lavanderia/estadisticas')
+            ->assertOk()
+            ->assertExactJson(['pedidos_del_dia' => 0, 'pedidos_de_la_semana' => 0]);
+
+        $this->assertSinDatosDeLaSegunda($historial->getContent());
+        $this->assertSinDatosDeLaSegunda($estadisticas->getContent());
+
+        // La segunda sí los ve y los cuenta: la prueba no pasa en vacío.
+        $this->app['auth']->forgetGuards();
+        $deLaSegunda = $this->segunda->administrador->createToken('app')->plainTextToken;
+        $this->assertCount(2, $this->withToken($deLaSegunda)->getJson('/api/lavanderia/historial')->assertOk()->json('pedidos'));
+        $this->withToken($deLaSegunda)->getJson('/api/lavanderia/estadisticas')
+            ->assertOk()
+            ->assertExactJson(['pedidos_del_dia' => 2, 'pedidos_de_la_semana' => 2]);
     }
 
     #[TestDox('autorizacion-E09: la primera lavandería no pide el perfil ni las ventanas de la segunda por las rutas del Módulo A: responden 403 sin datos')]

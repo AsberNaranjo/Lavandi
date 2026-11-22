@@ -73,6 +73,9 @@ solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`. Todas las llaves fo
      Un cambio de porcentaje es una fila nueva y la anterior queda como historial (`modelo-de-datos.md`); qué pasa con
      los pedidos ya cobrados es DD-020 (E16).
    - La migración no siembra ningún porcentaje: los captura EL CLIENTE.
+   - A lo más una fila abierta (sin `vigente_hasta`) por plaza para la global y por lavandería para la propia, con
+     dos índices únicos parciales (`comisiones_global_abierta_unique` y `comisiones_propia_abierta_unique`). Lo agregó
+     el implementador con la tarea 0.1: sin él, dos cambios a la vez dejarían dos porcentajes vigentes.
 2. `avisos_masivos` (E23 y E24):
    - Columnas: `id_avisos_masivos`, `id_plazas`, `segmento`, `titulo`, `mensaje`, `id_usuarios`, `enviado_en`,
      `destinatarios`.
@@ -84,6 +87,9 @@ solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`. Todas las llaves fo
    - `segmento` es `jsonb`; sus criterios son DD-113 (E24).
    - `enviado_en` es `timestamptz`. `destinatarios` guarda a cuántos dispositivos se mandó (propuesta: el modelo no
      dice su tipo).
+   - **Cómo quedó en la tarea 0.1:** `titulo` es `varchar(255)` y `mensaje` es `text`, los dos no nulos; `id_usuarios`
+     y `enviado_en` (cuándo lo envió la administración) son no nulos; `destinatarios` es `integer`, vacío hasta que el
+     envío lo cuente (tarea 5.1), con `CHECK` de no negativo; `segmento` es `jsonb` opcional, vacío sin segmento.
 
 Las dos tablas llevan `created_at` y `updated_at` en `timestamptz`, como todas las tablas del negocio con llave propia.
 
@@ -110,6 +116,91 @@ de Conekta (de la elegida, si se firma el cambio, DD-079). Es la tarea 0.2, bloq
 | `reembolsos` | Los reembolsos en los ingresos (E18, bloqueado) | `pago` |
 | `dispositivos` | Los `token_fcm` a los que va un aviso masivo (E23) | `avisos` |
 | `repartidores` | La comisión de un repartidor (E14, bloqueado por DD-019) | `repartidor` |
+
+## El panel
+
+Lo implementó el implementador del servidor, tarea por tarea. Todo vive en el panel de Filament, `/admin`, solo con el
+rol de administración (ADR-0005; autorizacion-E03). Cada página pregunta al componente único de autorización
+(`App\Autorizacion\Autorizacion`, ADR-0019) qué filas ve la cuenta, y una cuenta de otro rol recibe 403.
+
+**Usuarios** (`/admin/usuarios`; tarea 1.1, administracion-E01):
+
+- **La lista:** las cuentas con el rol de usuario, con su correo, su nombre y su estado (Activo o Bloqueado), con
+  búsqueda por correo y por nombre. No trae las cuentas de las lavanderías (se gestionan con su lavandería, Módulo D #1)
+  ni las de la administración. La da `Autorizacion::usuariosDelPanel()`.
+- **La ficha** (`/admin/usuarios/{id_publico}`): la cuenta (correo, nombre, teléfono y estado) y su historial de
+  pedidos, una tabla con folio, fecha, lavandería, estado y monto, del más reciente al más antiguo. Los pedidos los da
+  `Autorizacion::pedidosDelPanel()`: los confirmados; uno que espera su pago no tiene folio y no entra (C-188).
+  - **Fecha:** la de la recolección en la hora de la plaza, como en el historial del usuario
+    (`historial-y-calificacion`, decisión 1), escrita DD/MM/AAAA.
+  - **Estado:** el operativo (ADR-0021 y su adenda): Confirmado, Aceptado, Recolectado, En proceso, Listo, En proceso
+    de entrega, Entregado o Rechazado. La administración distingue lo que el usuario ve igual.
+  - **Monto:** el final si ya se pesó y, si no, el estimado, en pesos. Hoy los dos nacen vacíos (DD-012 y DD-010), y la
+    ficha dice "Sin monto" hasta que se respondan. No es el cobro: lo cobrado vive en `pagos` y llega con `pago`.
+- **Solo lectura:** sin alta, edición ni borrado (fuera del contrato). El filtro de usuarios activos del periodo espera
+  DD-111 (E02).
+
+**Bloquear y levantar el bloqueo** (tarea 1.3, administracion-E03 y E04), con un botón en cada fila de la lista y en
+la cabecera de la ficha, con confirmación. "Bloquear" solo aparece en una cuenta activa y "Levantar el bloqueo" solo en
+una bloqueada.
+
+- **Bloquear** (`App\Identidad\BloqueoDeCuenta`) escribe `usuarios.estado = 'bloqueado'` con la hora en `bloqueado_en`
+  y revoca todos los tokens de Sanctum de la cuenta: la siguiente petición de la app con cualquiera de sus sesiones
+  responde `401`. No toca sus teléfonos registrados, sus direcciones ni sus pedidos (E05 espera DD-016).
+- **Mientras esté bloqueada**, el componente no le abre sesión por ninguna vía (`Autorizacion::puedeIniciarSesion()`):
+  - `POST /api/sesion` con la contraseña correcta responde
+    `422 { "message": "Esta cuenta está bloqueada.", "errors": { "correo": ["Esta cuenta está bloqueada."] } }`, sin
+    token. Con otra contraseña, la respuesta de siempre ("Las credenciales no son válidas."): no se dice que la cuenta
+    existe a quien no sabe su contraseña.
+  - `POST /api/sesion/google` responde el mismo mensaje en `errors.id_token`, ya ligada la cuenta de Google o por su
+    correo, y no liga nada ni anula la contraseña.
+  - La entrada con Apple no existe todavía (DD-069): cuando llegue, pregunta al mismo método.
+  - Si le quedara un token, `Autorizacion::permite()` lo rechaza con `403` en toda ruta, y una cuenta de administración
+    bloqueada tampoco entra al panel.
+- **Levantar el bloqueo** la deja en `activo`, con `bloqueado_en` vacío, y la persona vuelve a entrar con su contraseña
+  o con Google.
+- **Quién bloquea a quién:** solo la administración, y solo a las cuentas de usuario de la lista
+  (`Autorizacion::puedeBloquear()`). Las de los socios se suspenden con su lavandería o su repartidor (Módulo D #1 y
+  #2).
+
+**Monitoreo de pedidos** (`/admin/monitoreo`; tarea 2.1, administracion-E06): una tabla con los pedidos activos de
+todas las plazas, con su folio (con búsqueda), su estado y su plaza, de la recolección más próxima a la más lejana. Es
+de solo lectura. Los pedidos los da `Autorizacion::pedidosActivosDelPanel()`, y cuáles están activos,
+`Pedido::activosDelMonitoreo()`:
+
+- **Activos** (lectura 1): los confirmados que no se han entregado ni cancelado, en `confirmado`, `aceptado`,
+  `recolectado`, `en_proceso`, `listo`, `en_entrega` o `rechazado`. El estado sale con su nombre operativo, como en la
+  ficha del usuario.
+- **El rechazado se queda** mientras DD-103 y DD-016 no digan qué pasa con él: está pagado y no se entregó ni se canceló.
+  Si esas filas lo llevan a un estado de cancelación, sale por E08.
+- **No entran** el entregado, el que espera su pago (C-188) ni un estado que se agregue después, como `cancelado`,
+  mientras no se nombre en el modelo (E08 espera DD-016 y BR-22).
+- **El mapa** (E09 y E10) espera la llave de Google Maps JavaScript (DD-072).
+- **El refresco** (tarea 2.2, administracion-E07): la tabla se vuelve a consultar sola cada 30 segundos mientras la
+  página está abierta (`wire:poll.30s` de Livewire, con `poll()` de Filament; ADR-0007), sin recargar la página. Un
+  cambio de estado que hace la lavandería, un pedido que se entrega o uno que se confirma se ven en el siguiente
+  refresco, a lo más 30 segundos después.
+
+**Comisiones** (tarea 3.1, administracion-E11 a E13), dos páginas en el grupo "Comisiones" del menú. Las reglas y la
+vigencia viven en `App\Comisiones\PorcentajesDeComision`, no en las páginas:
+
+- **Comisión global** (`/admin/comision-global`): una fila por plaza (`Autorizacion::plazasDelPanel()`), con su
+  porcentaje global vigente ("Sin porcentaje" si no hay), desde cuándo rige en la hora de la plaza y el botón "Fijar
+  porcentaje". Aplica a toda lavandería de esa plaza sin porcentaje propio. Es global de la plaza, como dice el modelo
+  de datos (Open Questions 4): si EL CLIENTE quiere uno solo para todo el territorio, se captura la misma cifra en cada
+  plaza.
+- **Comisión por lavandería** (`/admin/comision-por-lavanderia`): una fila por lavandería de todas las plazas
+  (`Autorizacion::lavanderiasDelPanel()`), con su porcentaje propio ("Sin porcentaje propio") y el que le aplica, con
+  de dónde sale: "7.25 % (propio)", "10.00 % (global de la plaza)" o "Sin porcentaje". Los botones "Fijar porcentaje
+  propio" y "Quitar porcentaje propio" (solo si tiene uno; al quitarlo le vuelve a aplicar el global).
+- **Sin valores de fábrica** (E11): la tabla nace vacía; sin porcentaje guardado no aplica ninguno.
+- **El rango** (E13): de 0 a 100, con a lo más dos decimales. El formulario lo rechaza con su mensaje ("El porcentaje va
+  de 0 a 100.") y el vigente no cambia; `PorcentajesDeComision` valida lo mismo, y la base tiene su `CHECK`.
+- **La vigencia:** fijar un porcentaje cierra el vigente en ese instante (`vigente_hasta`) y abre una fila nueva; el
+  anterior queda como historial y `queAplica()` responde para cualquier instante. Quitar el propio lo cierra igual. Un
+  cambio en el mismo segundo que el anterior lo reemplaza, porque ese no llegó a regir. Cuál se usa para un pedido ya
+  cobrado lo decide DD-020 (E15 y E16).
+- El porcentaje de un socio repartidor espera DD-019 (E14).
 
 ## Risks / Trade-offs
 

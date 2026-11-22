@@ -51,6 +51,8 @@ class Pedido extends Modelo
             'comision_porcentaje' => 'decimal:2',
             'confirmado_en' => 'immutable_datetime',
             'cancelado_en' => 'immutable_datetime',
+            // No es columna: la trae entregados(), de pedido_eventos.
+            'entregado_en' => 'immutable_datetime',
         ];
     }
 
@@ -82,6 +84,57 @@ class Pedido extends Modelo
             EstadoPedido::LISTO,
             EstadoPedido::EN_ENTREGA,
         ]));
+    }
+
+    /**
+     * Los pedidos activos del monitoreo del panel: los que entraron al flujo y todavía no se entregan ni se cancelan
+     * (openspec/changes/administracion/design.md, lectura 1; administracion-E06). Además de los activos de la
+     * lavandería, entra el rechazado: está pagado y no se entregó ni se canceló, y lo que pasa con él esperan DD-103 y
+     * DD-016. Nunca uno entregado ni uno que espera su pago; tampoco uno de un estado que se agregue después, como
+     * cancelado, mientras no se nombre aquí (administracion-E08).
+     *
+     * @param  Builder<Pedido>  $consulta
+     */
+    public function scopeActivosDelMonitoreo(Builder $consulta): void
+    {
+        $consulta->whereHas('estado', fn (Builder $estado) => $estado->whereIn('codigo', [
+            EstadoPedido::CONFIRMADO,
+            EstadoPedido::ACEPTADO,
+            EstadoPedido::RECHAZADO,
+            EstadoPedido::RECOLECTADO,
+            EstadoPedido::EN_PROCESO,
+            EstadoPedido::LISTO,
+            EstadoPedido::EN_ENTREGA,
+        ]));
+    }
+
+    /**
+     * Los pedidos completados: los que están en Entregado, el último de los cinco estados (Módulo A #12), con el instante
+     * de su paso a Entregado en entregado_en, leído de su historial en pedido_eventos
+     * (openspec/changes/historial-de-la-lavanderia/design.md, decisión 1). Entregado no tiene salida (ADR-0021).
+     *
+     * @param  Builder<Pedido>  $consulta
+     */
+    public function scopeEntregados(Builder $consulta): void
+    {
+        $consulta->whereHas('estado', fn (Builder $estado) => $estado->where('codigo', EstadoPedido::ENTREGADO))
+            ->addSelect([
+                'entregado_en' => PedidoEvento::query()
+                    ->selectRaw('max(pedido_eventos.ocurrido_en)')
+                    ->whereColumn('pedido_eventos.id_pedidos', $consulta->qualifyColumn('id_pedidos'))
+                    ->whereHas('estado', fn (Builder $estado) => $estado->where('codigo', EstadoPedido::ENTREGADO)),
+            ]);
+    }
+
+    /**
+     * De la entrega más reciente a la más antigua; con la misma, del pedido más nuevo al más viejo. Va después de
+     * entregados(), que trae entregado_en.
+     *
+     * @param  Builder<Pedido>  $consulta
+     */
+    public function scopeDeLaEntregaMasReciente(Builder $consulta): void
+    {
+        $consulta->orderByDesc('entregado_en')->orderByDesc($consulta->qualifyColumn('id_pedidos'));
     }
 
     /**

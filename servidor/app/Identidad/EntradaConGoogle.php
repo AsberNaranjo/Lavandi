@@ -5,6 +5,7 @@ namespace App\Identidad;
 use App\Acceso\Google\IdentidadDeGoogle;
 use App\Acceso\Google\IdTokenDeGoogleNoValido;
 use App\Acceso\Google\VerificadorDeGoogle;
+use App\Autorizacion\Autorizacion;
 use App\Models\CuentaExterna;
 use App\Models\Usuario;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,9 @@ use Illuminate\Support\Facades\Log;
  * - un correo sin cuenta crea la cuenta con el rol de usuario, sin contraseña, y la liga (registro-E16);
  * - un correo que ya tiene cuenta se liga a ella, y antes se cierran sus sesiones y se anula su contraseña
  *   (registro-E18; C-224, DD-091 cerrada; DD-132);
- * - una cuenta borrada no vuelve a entrar, y tampoco se crea otra con su correo, que sigue ocupado.
+ * - una cuenta borrada no vuelve a entrar, y tampoco se crea otra con su correo, que sigue ocupado;
+ * - una cuenta bloqueada desde el panel no entra, ya ligada o por su correo, y no se le liga nada ni se le cierra nada
+ *   (administracion-E03): lo decide Autorizacion::puedeIniciarSesion().
  */
 final class EntradaConGoogle
 {
@@ -30,6 +33,7 @@ final class EntradaConGoogle
     public function __construct(
         private readonly VerificadorDeGoogle $verificador,
         private readonly AltaDeCuenta $alta,
+        private readonly Autorizacion $autorizacion,
     ) {}
 
     /**
@@ -60,7 +64,7 @@ final class EntradaConGoogle
 
         if ($ligada !== null) {
             // La relación no trae las cuentas borradas.
-            return $ligada->usuario ?? throw EntradaConGoogleRechazada::noValida();
+            return $this->siPuedeEntrar($ligada->usuario ?? throw EntradaConGoogleRechazada::noValida());
         }
 
         $usuario = Usuario::withTrashed()->conCorreo($identidad->correo)->first();
@@ -70,7 +74,8 @@ final class EntradaConGoogle
         } elseif ($usuario->trashed()) {
             throw EntradaConGoogleRechazada::noValida();
         } else {
-            $this->cerrarElAccesoAnterior($usuario);
+            // Antes de ligar: a una cuenta bloqueada no se le cierra nada ni se le liga Google.
+            $this->cerrarElAccesoAnterior($this->siPuedeEntrar($usuario));
         }
 
         $usuario->cuentasExternas()->create([
@@ -80,6 +85,17 @@ final class EntradaConGoogle
         ]);
 
         return $usuario;
+    }
+
+    /**
+     * La misma cuenta, si el componente de autorización la deja abrir sesión: una bloqueada desde el panel no entra
+     * (administracion-E03).
+     *
+     * @throws EntradaConGoogleRechazada
+     */
+    private function siPuedeEntrar(Usuario $usuario): Usuario
+    {
+        return $this->autorizacion->puedeIniciarSesion($usuario) ? $usuario : throw EntradaConGoogleRechazada::bloqueada();
     }
 
     /**
