@@ -3,7 +3,11 @@
 namespace App\Filament\Pages;
 
 use App\Autorizacion\Autorizacion;
+use App\Exportacion\Exportadores\MontoPromedioExportador;
+use App\Exportacion\Exportadores\PedidosPorEstadoExportador;
 use App\Exportacion\Exportadores\PedidosTotalesExportador;
+use App\Exportacion\Exportadores\RetencionExportador;
+use App\Exportacion\Exportadores\UsuariosActivosExportador;
 use App\Filament\Actions\DescargarReporte;
 use App\Filament\Widgets\Indicadores\EntregasPorRepartidorTabla;
 use App\Filament\Widgets\Indicadores\MapaDeCalor;
@@ -104,6 +108,10 @@ class Indicadores extends Dashboard
         return [
             ActionGroup::make([
                 DescargarReporte::de(PedidosTotalesExportador::class),
+                DescargarReporte::de(PedidosPorEstadoExportador::class),
+                DescargarReporte::de(UsuariosActivosExportador::class),
+                DescargarReporte::de(RetencionExportador::class),
+                DescargarReporte::de(MontoPromedioExportador::class),
             ])
                 ->label('Descargar')
                 ->icon(Heroicon::OutlinedArrowDownTray)

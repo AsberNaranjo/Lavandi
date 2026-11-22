@@ -81,6 +81,15 @@ técnicas las decidió por delegación de Arthur (C-236); cada una dice su recom
   y el primer trabajo de la cola es `App\Exportacion\EscribirArchivoDelReporte` en lugar del de Filament: escribe el
   encabezado y las filas del CSV y las cuenta. Lo demás es de Filament sin cambios: el lote y la cadena de la cola, el
   XLSX que arma a partir del CSV, el aviso con un enlace por formato y la ruta de descarga.
+- **Los reportes de operaciones y de usuarios** (tarea 1.2, F-I01 a F-I05), con las columnas de su widget:
+  - pedidos totales: periodo, pedidos, periodo anterior y sus pedidos;
+  - pedidos por estado: una fila por estado, Activos y Completados, con sus pedidos;
+  - usuarios activos: periodo y usuarios activos;
+  - usuarios que vuelven a pedir: mes de registro, cuentas con primer pedido y porcentaje que volvió a pedir, como
+    número con su decimal, vacío si nadie pidió ese mes;
+  - monto promedio por pedido: una fila con el periodo y su promedio, el periodo anterior y el suyo, la diferencia con
+    su signo y la tendencia, como los dice el indicador destacado. Los montos van con dos decimales; qué monto cuenta
+    espera DD-012 (indicadores-E10).
 - **Los dos formatos en cada descarga:** el aviso trae "Descargar .csv" y "Descargar .xlsx" (lectura 2).
 - **El XLSX lleva las cifras como números** (`ExportadorDeIndicador::makeXlsxRow()`): Filament lo arma leyendo el CSV,
   donde todo es texto, y el exportador vuelve número cada celda de una columna de números.
