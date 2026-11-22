@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Autorizacion\Autorizacion;
 use App\Direcciones\GeocodificacionNoDisponible;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegistroDeLavanderiaRequest;
 use App\Http\Resources\LavanderiaDelSocioResource;
+use App\Lavanderias\EdicionDeLavanderia;
 use App\Lavanderias\RegistroDeLavanderia;
+use App\Lavanderias\ReglasDeLaLavanderia;
+use App\Models\Lavanderia;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 /**
  * La lavandería del socio en el Módulo B: su registro (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #1;
@@ -82,9 +88,96 @@ use Illuminate\Support\Arr;
  *          nada (alta-lavanderias-E10).
  *     503  { "message": "No pudimos ubicar la dirección. Inténtalo más tarde.", "motivo": "geocodificacion_no_disponible" }
  *          El servicio de geocodificación no respondió. No se guardó nada.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
+ *     GET /api/socio/lavanderias                 Las lavanderías de la cuenta (alta-lavanderias-E18 y E19)
+ *
+ *     200  { "lavanderias": [ { ...la lavandería... } ] }
+ *          Solo las de la cuenta: hoy, a lo más una. Vacía si todavía no registra la suya. Así la app sabe, al entrar,
+ *          si abre el registro o el perfil, y con qué id_publico.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
+ *     GET /api/socio/lavanderias/{id_publico}    Su lavandería, con su información y sus ventanas actuales
+ *                                                (alta-lavanderias-E18, E19 y E20)
+ *
+ *     200  { "lavanderia": { ...la lavandería... } }
+ *     404  { "message": "No existe la lavandería." }
+ *          No existe, está borrada o es de otra cuenta: las tres responden igual y sin ningún dato. Un valor que no es
+ *          ULID también responde 404.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
+ *     PATCH /api/socio/lavanderias/{id_publico}  Edita su información y sus ventanas (alta-lavanderias-E18, E20, E21 y
+ *                                                E22)
+ *
+ *     Los mismos campos del registro, con las mismas reglas; solo van los que cambian:
+ *       - nombre;
+ *       - direccion, completa: calle, numero, colonia, codigo_postal y municipio;
+ *       - foto, que reemplaza a la anterior;
+ *       - servicios, la lista completa: un tipo que no viene deja de ofrecerse;
+ *       - ventanas, el horario completo de la semana: reemplaza a todas las anteriores.
+ *     Sin foto, en JSON. Con foto, en multipart/form-data por POST con el campo _method=PATCH, porque PHP solo lee los
+ *     archivos de un POST.
+ *
+ *     La dirección nueva se geocodifica una vez; la misma que ya tiene no se vuelve a consultar.
+ *
+ *     200  { "lavanderia": { ...la lavandería, ya con los cambios... } }
+ *     404  { "message": "No existe la lavandería." }
+ *          Como en GET: una ajena no se edita ni se nombra, y sus datos no cambian (alta-lavanderias-E20). La búsqueda
+ *          va antes de validar.
+ *     422  Como en el registro, cada error en su campo; si algo se rechaza, no cambia nada. Además:
+ *     422  { "message": "La dirección nueva queda en otra plaza de servicio. Ese cambio todavía no se puede hacer.",
+ *            "errors": { "direccion": ["..."] }, "motivo": "en_otra_plaza" }
+ *          La dirección cae en una zona de otra plaza. El cambio de plaza espera la pregunta abierta 5 de design.md.
+ *     503  Como en el registro.
  */
 class LavanderiaDelSocioController extends Controller
 {
+    public function __construct(private readonly Autorizacion $autorizacion) {}
+
+    public function lista(Request $peticion): JsonResponse
+    {
+        /** @var Usuario $cuenta */
+        $cuenta = $peticion->user();
+
+        $lavanderias = $this->autorizacion->lavanderiasDeLaCuenta($cuenta)->orderBy('id_lavanderias')->get()
+            ->map(fn (Lavanderia $lavanderia): LavanderiaDelSocioResource => new LavanderiaDelSocioResource(
+                LavanderiaDelSocioResource::cargar($lavanderia),
+            ));
+
+        return response()->json(['lavanderias' => $lavanderias]);
+    }
+
+    public function mostrar(Request $peticion, string $lavanderia): JsonResponse
+    {
+        return response()->json([
+            'lavanderia' => new LavanderiaDelSocioResource(LavanderiaDelSocioResource::cargar($this->deLaCuenta($peticion, $lavanderia))),
+        ]);
+    }
+
+    /**
+     * La lavandería se busca antes de validar: una ajena responde 404 aunque lo que se mande no sea válido.
+     */
+    public function editar(Request $peticion, EdicionDeLavanderia $edicion, string $lavanderia): JsonResponse
+    {
+        $propia = $this->deLaCuenta($peticion, $lavanderia);
+
+        $campos = array_values(array_intersect(ReglasDeLaLavanderia::CAMPOS, array_keys($peticion->all())));
+        $datos = $peticion->validate(ReglasDeLaLavanderia::para($campos), ReglasDeLaLavanderia::mensajes());
+
+        try {
+            $edicion->editar($propia, Arr::except($datos, ['foto']), $peticion->file('foto'));
+        } catch (GeocodificacionNoDisponible $error) {
+            return $this->geocodificacionNoDisponible($error);
+        }
+
+        return response()->json([
+            'lavanderia' => new LavanderiaDelSocioResource(LavanderiaDelSocioResource::cargar($propia->refresh())),
+        ]);
+    }
+
     public function registrar(RegistroDeLavanderiaRequest $peticion, RegistroDeLavanderia $registro): JsonResponse
     {
         /** @var Usuario $cuenta */
@@ -99,6 +192,25 @@ class LavanderiaDelSocioController extends Controller
         return response()->json([
             'lavanderia' => new LavanderiaDelSocioResource(LavanderiaDelSocioResource::cargar($lavanderia)),
         ], 201);
+    }
+
+    /**
+     * La lavandería de la cuenta con ese ULID. Una de otra cuenta, borrada o que no existe responde el mismo 404, sin
+     * ningún dato (alta-lavanderias-E20; ADR-0019, decisión 3).
+     */
+    private function deLaCuenta(Request $peticion, string $lavanderia): Lavanderia
+    {
+        /** @var Usuario $cuenta */
+        $cuenta = $peticion->user();
+
+        $encontrada = $this->autorizacion->lavanderiasDeLaCuenta($cuenta)
+            // HasUlids guarda el ULID en minúsculas.
+            ->where('id_publico', Str::lower($lavanderia))
+            ->first();
+
+        abort_if($encontrada === null, 404, 'No existe la lavandería.');
+
+        return $encontrada;
     }
 
     /**

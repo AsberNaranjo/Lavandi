@@ -124,6 +124,13 @@ decisión agrega una librería ni un servicio externo.
   E07 en silencio. Cuando DD-010 responda, entra como una línea de ese mapa (y una fila de `unidades_medida` si es por
   prenda). Un tipo que ya no viene en la lista queda `activo = false`, sin borrarse. El precio va en pesos, sin signo y
   con hasta dos decimales; el piso, el techo y quién lo fija son E08 (DD-010).
+- **La edición** (`App\Lavanderias\EdicionDeLavanderia`) es la misma para la app y el panel. Cambia solo lo que viene,
+  con las reglas del registro; los servicios y las ventanas, si vienen, son la lista completa. Una lavandería ajena
+  responde 404 antes de validar (E20).
+- **El cambio de plaza no se hace todavía** (pregunta abierta 5). Una dirección nueva que cae en una zona de otra plaza
+  se rechaza en `direccion` con el motivo `en_otra_plaza`, en la app y en el panel: las hijas de la lavandería y sus
+  pedidos van atados a su plaza por las llaves compuestas (modelo-E06), y moverla no es una edición. Si Arthur decide
+  que cambie, es una operación aparte, con su escenario.
 - **Una cuenta, una lavandería.** El modelo dice `usuarios ||--o| lavanderias`: el registro de una cuenta que ya tiene
   la suya responde 409 y no guarda nada. La base no lo exige con un único; si DD-053 lo confirma, entra como índice.
 - **La foto.** Va al disco privado de fotos del entorno, que elige `config/fotos.php` (`FOTOS_DISCO`): `fotos_s3` en
@@ -196,6 +203,32 @@ la foto:
   no la ubica (E10). No se guardó nada.
 - **503** `{ "message": "No pudimos ubicar la dirección. Inténtalo más tarde.", "motivo": "geocodificacion_no_disponible" }`:
   el servicio de geocodificación no respondió. No se guardó nada.
+
+**`GET /api/socio/lavanderias`**: las lavanderías de la cuenta (E18, E19). **200** `{ "lavanderias": [ { … } ] }`,
+solo las suyas: hoy, a lo más una; vacía si todavía no registra la suya. Así la app sabe, al entrar, si abre el
+registro o el perfil, y con qué `id_publico`.
+
+**`GET /api/socio/lavanderias/{id_publico}`**: su lavandería, con su información y sus ventanas actuales (E19).
+**200** `{ "lavanderia": { … } }`. **404** `{ "message": "No existe la lavandería." }` si no existe, está borrada o es
+de otra cuenta: las tres responden igual (E20).
+
+**`PATCH /api/socio/lavanderias/{id_publico}`**: edita su información y sus ventanas (E18, E20, E21, E22). Los mismos
+campos del registro, con las mismas reglas; solo van los que cambian:
+
+- `nombre`;
+- `direccion`, completa (las cinco partes);
+- `foto`, que reemplaza a la anterior;
+- `servicios`, la lista completa: un tipo que no viene deja de ofrecerse;
+- `ventanas`, el horario completo de la semana: reemplaza a todas las anteriores.
+
+Sin foto va en JSON. **Con foto, en `multipart/form-data` por `POST` con el campo `_method=PATCH`**, porque PHP solo lee
+los archivos de un `POST`. La dirección nueva se geocodifica una vez; la misma que ya tiene no se vuelve a consultar.
+
+- **200** `{ "lavanderia": { … } }`, ya con los cambios.
+- **404** como en `GET`: una ajena no se edita y sus datos no cambian. La búsqueda va antes de validar.
+- **422** como en el registro; si algo se rechaza, no cambia nada. Además, `"motivo": "en_otra_plaza"` en `direccion`
+  si la dirección nueva cae en una zona de otra plaza (ver la decisión del cambio de plaza).
+- **503** como en el registro.
 
 ## Risks / Trade-offs
 

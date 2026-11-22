@@ -18,10 +18,18 @@ final class DireccionNoUbicable extends RuntimeException
 
     public const FUERA_DE_LA_ZONA = 'fuera_de_la_zona_de_servicio';
 
+    /**
+     * Al editar: la dirección nueva cae en una zona de otra plaza. Si la lavandería cambia de plaza es la pregunta
+     * abierta 5 de design.md; mientras no se responda, no cambia, porque su historial y sus hijas van atados a su plaza
+     * por las llaves compuestas (modelo-E06).
+     */
+    public const EN_OTRA_PLAZA = 'en_otra_plaza';
+
     /** El mensaje para la persona de cada motivo. */
     public const MENSAJES = [
         self::NO_ENCONTRADA => 'No encontramos la dirección. Revisa la calle, el número, la colonia y el código postal.',
         self::FUERA_DE_LA_ZONA => 'La dirección está fuera de las zonas de servicio.',
+        self::EN_OTRA_PLAZA => 'La dirección nueva queda en otra plaza de servicio. Ese cambio todavía no se puede hacer.',
     ];
 
     public function __construct(public readonly string $motivo)

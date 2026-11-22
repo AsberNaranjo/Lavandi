@@ -103,4 +103,13 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario'])->group(function () {
 // está en el controlador.
 Route::middleware(['auth:sanctum', 'autorizar:lavanderia'])->prefix('socio')->group(function () {
     Route::post('lavanderias', [LavanderiaDelSocioController::class, 'registrar'])->name('socio.lavanderias.registrar');
+    Route::get('lavanderias', [LavanderiaDelSocioController::class, 'lista'])->name('socio.lavanderias.lista');
+    // Su lavandería, por su ULID. Una ajena responde igual que una que no existe (alta-lavanderias-E20).
+    Route::get('lavanderias/{lavanderia}', [LavanderiaDelSocioController::class, 'mostrar'])
+        ->whereUlid('lavanderia')
+        ->name('socio.lavanderias.mostrar');
+    // Con foto, la app la manda en multipart por POST con _method=PATCH.
+    Route::patch('lavanderias/{lavanderia}', [LavanderiaDelSocioController::class, 'editar'])
+        ->whereUlid('lavanderia')
+        ->name('socio.lavanderias.editar');
 });

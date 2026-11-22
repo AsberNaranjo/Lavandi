@@ -123,6 +123,57 @@ trait AltaDePrueba
     }
 
     /**
+     * La cuenta registra su lavandería completa y la devuelve.
+     *
+     * @param  array<string, mixed>  $datos
+     */
+    protected function registrada(?Usuario $cuenta = null, array $datos = []): Lavanderia
+    {
+        $cuenta ??= $this->cuentaDeLavanderia();
+        $this->registrar($cuenta, $this->registroCompleto($datos))->assertCreated();
+
+        return $this->lavanderiaDe($cuenta);
+    }
+
+    /**
+     * La app edita la lavandería con la sesión de la cuenta, en JSON.
+     *
+     * @param  array<string, mixed>  $datos
+     */
+    protected function editar(Usuario $cuenta, string $lavanderia, array $datos): TestResponse
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withToken($cuenta->createToken('app')->plainTextToken)
+            ->patchJson("/api/socio/lavanderias/{$lavanderia}", $datos);
+    }
+
+    /**
+     * La app edita la lavandería con una foto nueva: multipart por POST, con _method=PATCH, porque PHP solo lee los
+     * archivos de un POST.
+     *
+     * @param  array<string, mixed>  $datos
+     */
+    protected function editarConFoto(Usuario $cuenta, string $lavanderia, array $datos): TestResponse
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withToken($cuenta->createToken('app')->plainTextToken)
+            ->post("/api/socio/lavanderias/{$lavanderia}", ['_method' => 'PATCH', ...$datos]);
+    }
+
+    /**
+     * La app pide la lavandería con la sesión de la cuenta.
+     */
+    protected function consultar(Usuario $cuenta, string $lavanderia): TestResponse
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withToken($cuenta->createToken('app')->plainTextToken)
+            ->getJson("/api/socio/lavanderias/{$lavanderia}");
+    }
+
+    /**
      * La lavandería que quedó registrada a nombre de la cuenta.
      */
     protected function lavanderiaDe(Usuario $cuenta): Lavanderia
