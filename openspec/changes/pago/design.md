@@ -158,9 +158,59 @@ DD-079) y `movimientos_pasarela`
 ## Open Questions
 
 - **Lo que ADR-0010 deja por confirmar en el sandbox de Conekta:** cómo autentica sus avisos (pago-E09; ADR-0010,
-  punto 2; DD-102, punto 2), cómo se llaman sus eventos de aprobado, rechazado y vencido (tarea 3.2) y si permite
-  reutilizar la tarjeta (pago-E06; ADR-0010, punto 5). Si deja fijar el vencimiento del efectivo (pago-E20) espera
-  DD-012 y DD-056, y cómo hace ajustes y reembolsos (pago-E15 y E16; ADR-0010, punto 3) espera DD-012 y DD-016.
+  punto 2; DD-102, punto 2: ver la pregunta siguiente) y si permite reutilizar la tarjeta (pago-E06; ADR-0010, punto 5).
+  Cómo se llaman sus eventos de aprobado, rechazado y vencido ya tiene respuesta de la documentación, grado E: la tarea
+  3.2 traduce `order.paid`, `order.declined` y `order.expired` (decisión 33), y la tarea 3.3 lo comprueba. Si deja fijar
+  el vencimiento del efectivo (pago-E20) espera DD-012 y DD-056, y cómo hace ajustes y reembolsos (pago-E15 y E16;
+  ADR-0010, punto 3) espera DD-012 y DD-016.
+- **Cómo firma Conekta sus avisos (pago-E09, tarea 3.1; DD-102, punto 2). Sigue abierta.** Lo que dice su documentación,
+  grado E, `SIN VERIFICAR` (`developers.conekta.com/docs/autenticación-webhooks`, "Verificar firmas", consultada el
+  2026-11-22):
+  - la cuenta crea una sola vez un par de llaves RSA con `POST /webhook_keys` y `{"active": true}`; Conekta se queda con
+    la privada y devuelve la pública en `public_key`, en PEM. El ejemplo trae `livemode: false`;
+  - cada aviso trae la cabecera `DIGEST`: la firma RSA con SHA-256 del cuerpo exacto, en UTF-8, en base64;
+  - el ejemplo de la página (su carga, su firma y su llave pública) verifica con `openssl dgst -sha256 -verify` y con
+    `openssl_verify($cuerpo, base64_decode($digest), $llavePublica, OPENSSL_ALGO_SHA256)` de PHP, que da 1, y 0 si se
+    cambia un byte del cuerpo (comprobado aquí el 2026-11-22, sobre el ejemplo de la documentación, no sobre el sandbox).
+
+  Lo que la tarea 3.1 tiene que confirmar en el sandbox: que la cabecera llega como `Digest`; si la llave de avisos es
+  una por modo (sandbox y producción); qué pasa con varias llaves activas; y dónde vive la pública. Recomendación: en el
+  `.env`, como `PASARELA_CONEKTA_LLAVE_AVISOS`, con la misma red de `verificar_secretos.py`. Si Conekta no firmara, la
+  alternativa de DD-102 sigue en pie: consultar la orden (`GET /orders/{id}`) antes de darla por pagada. **Mientras
+  tanto ningún aviso de Conekta es auténtico** (decisión 34): el webhook responde 503 y no guarda nada.
+- **Lo que la tarea 3.2 deja para el sandbox de Conekta (tarea 3.3).** Todo sale de su documentación, grado E, `SIN
+  VERIFICAR` (fuentes en "La pasarela de Conekta (tarea 3.2)"), y nada de esto se puede saber sin las llaves (C-170):
+  1. **El regreso a la app.** Si `checkout.success_url` y `failure_url` aceptan el esquema de la app
+     (`<identificador>://pago?resultado=…&pago=…`). El esquema las marca `format: uri` y todos sus ejemplos son
+     `https://`. Si no las acepta, hace falta una página del servidor que redirija al esquema: es otra ruta sin sesión,
+     con su regla en `Autorizacion::rutasSinSesion()`, y se decide al verlo.
+  2. **El teléfono.** `customer_info` marca `phone` como obligatorio, y el teléfono de la cuenta es opcional. Hoy la
+     orden va sin él cuando la cuenta no lo tiene (decisión 29). Si Conekta la rechaza, el pago responde 503 a esa
+     cuenta, y qué se hace se decide con la captura en la mano: no se inventa un teléfono.
+  3. **Los avisos del checkout con tarjeta.** Si llega `order.paid` (su guía lo recomienda y su página de eventos trae
+     el ejemplo con tarjeta); si `order.declined` llega con cada intento declinado o solo cuando el checkout ya no admite
+     más (`max_failed_retries`); y si `order.expired` llega cuando vence el checkout de una orden con tarjeta (el ejemplo
+     es de SPEI).
+  4. **El checkout después de un rechazo y al vencer.** Qué `checkout.status` y qué `payment_status` quedan (la
+     documentación solo muestra `Issued`), y si una orden declinada se puede pagar en el mismo checkout, como supone la
+     decisión 31.
+  5. **La lista de órdenes.** Que `GET /orders` va de la más nueva a la más antigua por `created_at` (la documentación no
+     lo dice); que `next` con el id de la última orden da la página siguiente, la más antigua (la página "Next" lo
+     describe como "Get the previous page" y "Last id on the page"); y que `payment_status=paid` deja solo las pagadas.
+  6. **Los filtros por fecha.** La referencia de `GET /orders` consultada el 2026-11-22 sí lista `created_at.gte`,
+     `created_at.lte`, `updated_at.gte` y `updated_at.lte`; la segunda adenda de ADR-0010 dice que no muestra un filtro
+     por fecha. No cambia la decisión 6 de esa adenda: lo que cuenta es la fecha del pago, que no se filtra, y el corte lo
+     hace el servidor. Si en el sandbox `updated_at.gte` acorta la lectura sin perder pagos, se puede usar, con su nota
+     en la adenda.
+  7. **La comisión.** Si `fee` del cargo incluye el IVA de la comisión. Se guarda tal cual (`movimientos_pasarela`);
+     mostrarla espera a DD-013 (administracion-E22).
+  8. **Los datos de tarjeta del aviso real.** La documentación trae en `payment_method` el nombre del titular,
+     `exp_month`, `exp_year`, `last4`, `brand`, `issuer`, `account_type`, `country` y `auth_code`. `SinDatosDeTarjeta`
+     ya quita el vencimiento; con la captura se ve si trae algo más que quitar (pago-E05).
+  9. **La versión de la API.** Que el sandbox responde con `application/vnd.conekta-v2.3.0+json`, la vigente de la
+     documentación.
+  10. **La tarjeta guardada (pago-E06; DD-055).** El checkout tiene `force_save_card`, "si la tarjeta del pago se guarda
+      para compras futuras". No se usa: pago-E06 sigue bloqueado. Es el dato que ADR-0010, punto 5, pide verificar.
 - **DD-079: el cambio de pasarela.** EL CLIENTE dio un OK expreso y la firma sigue pendiente (C-216). Si se firma, el
   ADR de la elegida (Stripe o Mercado Pago, C-192) reemplaza a ADR-0010 y responde lo mismo para ella.
 - **El `CHECK` de `pasarela` y la pasarela simulada.** Resuelta en la tarea 1.1 (ver "Decisiones de la
@@ -175,8 +225,9 @@ DD-079) y `movimientos_pasarela`
   `preferEphemeralSession`), y ninguna pantalla de la app tiene campos de tarjeta. Cierra la segunda parte de DD-055 y
   el punto 1 de DD-102, y desbloquea pago-E02. Si Nadir confirma que C-198 pide los campos de la tarjeta en la app, se
   pasa al formulario nativo de la pasarela, como dice el criterio de reversión de la adenda.
-- **Las llaves de Conekta en `verificar_secretos.py`** (DD-102, punto 3): hoy no las detecta. Recomendación: agregarlas
-  antes de que existan llaves de su sandbox en la máquina local (tarea 3.3). Las de la elegida, si se firma el cambio.
+- **Las llaves de Conekta en `verificar_secretos.py`** (DD-102, punto 3). Resuelta el 2026-11-22, antes de que existan
+  llaves de su sandbox en la máquina (decisión 38): las detecta, con su prueba en la integración continua. Las de la
+  elegida, si se firma el cambio.
 - **Cada cuánto consulta la app en "Procesando pago".** Resuelta por la decisión 32: cada 5 s, hasta 3 minutos. A los 3
   minutos sin respuesta deja de esperar, muestra que el pago sigue en revisión y ofrece volver a consultar (adenda del
   2026-11-22 de ADR-0010). ADR-0007 sigue fijando 30 s para la pantalla del pedido.
@@ -350,6 +401,98 @@ ADR-0010. Ninguna cambia la spec ni un ADR.
     pedido, la falla se dice con los mensajes generales de la app y la consulta sigue cada 5 s; la siguiente respuesta
     la quita. No es un estado nuevo del pago: es la misma lectura que ya hacen las demás consultas periódicas.
 
+### La pasarela de Conekta (tarea 3.2)
+
+Las tomó Claude por delegación de Arthur (C-236), el 2026-11-22, dentro de ADR-0010 y su segunda adenda. Ninguna
+cambia la spec. La 27 se aparta del texto de ADR-0010, decisión 1, y por eso va con su propuesta de adenda al final de
+esta sección. La implementación es `App\Cobro\PasarelaConekta`; la prueba, `servidor/tests/Feature/Pago/PasarelaConektaTest.php`,
+con las cargas de `servidor/tests/Feature/Pago/Soporte/CargasDeConekta.php`.
+
+**Lo que salió de la documentación de Conekta.** Todo es grado E, `SIN VERIFICAR`, consultado el 2026-11-22 en
+`developers.conekta.com`, en las páginas en Markdown que lista su índice `llms.txt`. Lo comprueba la tarea 3.3 en el
+sandbox; cada carga de prueba lo dice en su comentario.
+
+| Qué | Página |
+|---|---|
+| Autenticación: `Authorization: Bearer <llave privada>`; una llave pública y una privada por modo, sandbox o producción | `/reference/autenticación` |
+| Versión: `Accept: application/vnd.conekta-v2.3.0+json`; la vigente es la 2.3.0, y hay 2.1.0 y 2.2.0 | `/reference/autenticación`, `/reference` |
+| Forma de las llaves: empiezan con `key_`, con `prefix`, `role` (`private` o `public`) y `livemode` aparte | `/reference/createapikey`, `/reference/getapikeys` |
+| Crear la orden: `POST /orders`, con `currency`, `customer_info` (`name`, `email` y `phone`, obligatorios), `line_items` (`unit_price` en centavos) y `checkout` (`type: HostedPayment`, `allowed_payment_methods`, `expires_at` de 5 minutos a 365 días, `success_url`, `failure_url`, `monthly_installments_enabled`, `force_save_card`, `max_failed_retries`); responde `id` y `checkout.url` | `/reference/createorder`, `/docs/componente-de-pago` |
+| Consultar la orden: `GET /orders/{id}`, con `payment_status` y `checkout.expires_at` | `/reference/getorderbyid` |
+| Listar órdenes: `GET /orders`, `limit` de 1 a 250, `payment_status`, `next` y `previous`; responde `data`, `has_more`, `next_page_url` y `previous_page_url`; cada cargo trae `status`, `amount`, `fee` y `paid_at` | `/reference/getorders`, `/reference/next` |
+| Errores: `type`, `log_id` y `details[]` con `code` y `message` | `/reference/createorder` (esquema `error`) |
+| Los avisos: un evento con `id`, `type` y `data.object`; los de la orden (`order.paid`, `order.declined`, `order.expired`, `order.pending_payment`…) y los del cargo (`charge.paid`, `charge.declined`…); la guía del checkout pide escuchar `order.paid`, `order.pending_payment` y `order.declined` | `/docs/order`, `/docs/charge`, `/docs/componente-de-pago` |
+| Reintentos: cualquier respuesta fuera de 2xx se reintenta, 13 veces en 24 horas | `/docs/reintentos-de-notificación`, `/docs/códigos-de-error-http` |
+| La firma de los avisos | `/docs/autenticación-webhooks` (ver "Open Questions") |
+| `conekta/conekta-php`: la 9.0.0, del 2026-07-10, y la 7.2.0, del 2026-07-14; las dos piden `guzzlehttp/guzzle` ^7.3 | Packagist, `repo.packagist.org/p2/conekta/conekta-php.json` |
+
+27. **La API se llama con el cliente HTTP de Laravel, no con `conekta-php`.** ADR-0010, decisión 1, dice que `api` crea
+    la orden "con `conekta-php`". Por qué no:
+    - las pruebas simulan el cliente con `Http::fake` y `Http::preventStrayRequests()`, así que ninguna puede llamar a
+      Conekta por descuido; el SDK trae su propio Guzzle y habría que inyectarle un manejador falso;
+    - el SDK solo envuelve las mismas llamadas REST: los avisos y la lista por cursor se leen del JSON de todos modos;
+    - es una dependencia menos que ceder al cliente (`NSV-2026-001-v8.pdf:10:Cláusula IX`).
+
+    Lo que no cambia: la orden, el checkout redirigido y el webhook de ADR-0010. Si Arthur prefiere el SDK, se cambia
+    solo el interior de `PasarelaConekta`; la interfaz y las pruebas siguen. Va con su propuesta de adenda (abajo).
+28. **La petición** (`PasarelaConekta::api()`): `https://api.conekta.io`, la misma para el sandbox y para producción;
+    `Bearer` con `PASARELA_CONEKTA_LLAVE`; `Accept` de la versión 2.3.0; `Accept-Language: es`; 5 s para conectar y 20 s
+    para la respuesta; sin reintentos: quien pide el checkout lo vuelve a pedir.
+29. **La orden** (pago-E01): el monto del cobro en centavos, sacados del texto `"180.00"` sin pasar por un flotante; un
+    solo concepto, "Pedido de lavandería", sin marca (`CLAUDE.md` §5); `metadata.pago` con el `id_publico` del cobro,
+    para encontrarla en el panel de Conekta; `customer_info` con el nombre de la cuenta o, sin nombre, su correo (como lo
+    muestra el panel), su correo y su teléfono si lo tiene; y el checkout `HostedPayment` solo con `card` (el efectivo
+    espera DD-056), sin meses sin intereses (el contrato pide tarjeta de crédito o débito, `NSV-2026-001-v8.pdf:16:ANEXO
+    A, Sección A.3`), con las direcciones de regreso de `DireccionDeRegreso`. Sin `PASARELA_REGRESO`, la orden va sin
+    ellas.
+30. **El checkout dura una hora** (`VIGENCIA_DEL_CHECKOUT_EN_MINUTOS`). La persona lo abre al pagar; si vence, pedirlo
+    otra vez crea otra orden para el mismo cobro (pago-E01). Corto, porque un checkout que sigue abierto se puede pagar
+    aunque el cobro ya no lo espere (DD-016). La misma hora acota cuánto lee la conciliación (decisión 35).
+31. **Cuándo sigue vigente el checkout** (`checkoutVigente()`, `GET /orders/{id}`): mientras trae su URL, no venció su
+    `expires_at` y la orden no está `expired`, `canceled` ni `voided`. Una orden pagada, o con un intento declinado,
+    conserva su checkout: crear otra dejaría dos órdenes pagables del mismo cobro, y el pago de la vieja ya no encontraría
+    su cobro. Una orden que Conekta no tiene (404), por ejemplo de otra cuenta, no está vigente.
+32. **Cuando Conekta falla:** cualquier respuesta fuera de 2xx, una conexión que no responde o una respuesta sin `id` o
+    sin `checkout.url` es `PasarelaNoDisponible`: el pago responde 503 y el cobro no cambia. El motivo va al registro
+    con el código, el `type` y el `log_id` de Conekta, nunca con la llave.
+33. **Cómo se traducen sus avisos** (`traducir()`; pago-E03 y E04): `order.paid` es aprobado, `order.declined` es
+    rechazado y `order.expired` es vencido, los de la orden que pide escuchar su guía del checkout. Cualquier otro,
+    también `charge.paid` y `charge.declined`, es `otro`: se guarda y no cambia el cobro. Por qué no los del cargo: el
+    checkout deja reintentar, así que un cargo declinado es un intento y no el pago; y con los dos, cada pago llegaría dos
+    veces. El id del evento es el `id` de arriba; la orden, el `id` del objeto si es una orden o su `order_id` si es un
+    cargo. Un cuerpo sin JSON, sin `id` o sin `type` no se reconoce (400).
+34. **Ningún aviso de Conekta es auténtico hasta la tarea 3.1** (`esAutentico()`; pago-E09). Lanza
+    `PasarelaNoDisponible`: el webhook responde 503, no guarda el aviso y el cobro no cambia. 503 y no 401 porque no es
+    que el aviso sea falso: falta con qué comprobarlo. Conekta lo reintenta durante 24 horas, así que los avisos de un
+    sandbox recién conectado no se pierden si la 3.1 llega a tiempo.
+35. **Los pagos del periodo** (`pagosDelPeriodo()`; administracion-E20): `GET /orders?payment_status=paid&limit=250`,
+    con `next` igual al id de la última orden de la página anterior. Se para cuando `has_more` es falso o cuando la
+    última orden de la página se creó antes del inicio del periodo menos la vigencia del checkout (decisión 30): una
+    orden con tarjeta se paga en su checkout, así que una creada antes ya no tiene su pago en el periodo. El movimiento de
+    cada orden suma sus cargos `paid`, con su `fee` si lo traen, y lleva el `paid_at` del último; una orden sin cargo
+    pagado con fecha no da movimiento, y la conciliación lo muestra como pago sin movimiento (administracion-E21). Un
+    cursor repetido es `PasarelaNoDisponible`, para no pedir la misma página para siempre. Una orden creada a mano en el
+    panel de Conekta mucho antes del periodo y pagada en él no se leería: no es un pago de la plataforma.
+36. **Conekta existe en todos los entornos** (`App\Cobro\Pasarelas`): si cobra en su sandbox o en producción lo dice su
+    llave, no el código. La simulada sigue solo en local y en las pruebas.
+37. **Las variables del entorno:** `PASARELA=conekta` la elige y `PASARELA_CONEKTA_LLAVE` es su llave privada (en
+    `config/pasarela.php`, `pasarela.conekta.llave`, con el mismo patrón que `PASARELA_SIMULADA_LLAVE`). La llave pública
+    no se usa: la tarjeta se escribe en el checkout de Conekta. La de los avisos llega con la tarea 3.1. En las pruebas,
+    `PASARELA` sigue en `simulada` (`phpunit.xml`); las de Conekta ponen su configuración.
+38. **`verificar_secretos.py` detecta las llaves de Conekta** (DD-102, punto 3), las cuatro con un solo patrón, porque
+    comparten la forma (`key_` y 16 o más letras y números), salvo un marcador de la documentación hecho de una sola
+    letra. Su prueba, `herramientas/ci/test_verificar_secretos.py`, arma las llaves al correr y la corre la integración
+    continua.
+
+**Propuesta de adenda a ADR-0010** (para que Arthur la acepte o la rechace; no se editó el ADR):
+
+> **Adenda: el cliente de la API de Conekta.** La decisión 1 dice "`api` crea la orden con `conekta-php`". Se precisa:
+> `api` crea la orden y lee las de la conciliación con la API REST v2 de Conekta por el cliente HTTP de Laravel, detrás
+> de la interfaz neutral del cobro (`App\Cobro\PasarelaConekta`). El mecanismo no cambia: checkout redirigido y pago
+> confirmado por webhook. Por qué: las pruebas simulan el cliente y no pueden llamar a Conekta por descuido, el SDK solo
+> envuelve las mismas llamadas, y es una dependencia menos que ceder. Criterio de reversión: si la tarea 3.3 encuentra en
+> el sandbox algo que solo resuelve el SDK, se usa el SDK dentro de la misma clase. Costo de revertir: bajo, una clase.
+
 ## Contrato de la API
 
 El contrato con que se harán las tareas 4.1 (pago-E02) y 4.2 (pago-E08) de la app. Todo va bajo `/api`, en JSON. Los
@@ -465,3 +608,8 @@ de `://pago`) en `servidor/.env`:
 La página y los dos comandos solo existen en local y en las pruebas; en el entorno de prueba en internet y en
 producción, la página no está registrada y los comandos se niegan a correr. La URL del checkout usa `APP_URL`, que debe
 ser una dirección a la que llegue el teléfono, como la del túnel de ADR-0012.
+
+**Con Conekta (tarea 3.3).** Con `PASARELA=conekta` y `PASARELA_CONEKTA_LLAVE` (la llave privada del sandbox, solo
+en `servidor/.env`), los pasos 1 a 3 son los mismos, y la URL del checkout es la de Conekta. Su aviso llega por el
+túnel a `/api/pasarela/avisos`, pero hasta la tarea 3.1 ningún aviso de Conekta es auténtico: el webhook responde
+503 y el cobro no cambia (decisión 34). La página de desarrollo y los dos comandos no sirven con Conekta.
