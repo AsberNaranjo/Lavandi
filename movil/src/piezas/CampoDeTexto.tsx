@@ -10,7 +10,7 @@ import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-na
 import { letra } from '../tema/letra';
 import { tema } from '../tema/theme';
 
-export type TipoDeCampo = 'texto' | 'correo' | 'contrasena' | 'contrasena-nueva' | 'fecha' | 'codigo-postal';
+export type TipoDeCampo = 'texto' | 'correo' | 'contrasena' | 'contrasena-nueva' | 'fecha' | 'codigo-postal' | 'precio';
 
 interface Propiedades {
   /** El nombre del campo en la API: une el campo con su error (`campo-<nombre>`). */
@@ -63,6 +63,12 @@ const POR_TIPO: Record<TipoDeCampo, TextInputProps> = {
     maxLength: 5,
     autoComplete: 'postal-code',
     textContentType: 'postalCode',
+  },
+  // Un precio en pesos con decimales, como el precio por kilo de cada servicio de la lavandería (alta-lavanderias-E05):
+  // el teclado de números con el punto decimal de las dos plataformas.
+  precio: {
+    keyboardType: 'decimal-pad',
+    autoCorrect: false,
   },
 };
 

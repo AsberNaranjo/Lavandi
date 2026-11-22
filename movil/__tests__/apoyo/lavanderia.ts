@@ -1,17 +1,22 @@
-// Apoyo de las pruebas del Módulo B, lo que ve y hace el socio lavandería con sus pedidos
-// (openspec/changes/pedidos-de-la-lavanderia y openspec/changes/estados-del-pedido). No es una prueba: Jest no lo corre
-// como tal (testPathIgnorePatterns en package.json). Abre la app real, con las rutas de movil/app/ (ADR-0017), y simula
-// el servidor con el contrato de la API: "Contrato de la API" del design.md de pedidos-de-la-lavanderia y "Los botones
-// de la lavandería" del de estados-del-pedido, el mismo del comentario de
-// servidor/app/Http/Controllers/Api/PedidosDeLaLavanderiaController.php.
+// Apoyo de las pruebas del Módulo B, lo que ve y hace el socio lavandería: sus pedidos
+// (openspec/changes/pedidos-de-la-lavanderia y openspec/changes/estados-del-pedido), su historial y sus estadísticas
+// (openspec/changes/historial-de-la-lavanderia) y su lavandería, con el registro y el perfil y horarios
+// (openspec/changes/alta-de-lavanderias). No es una prueba: Jest no lo corre como tal (testPathIgnorePatterns en
+// package.json). Abre la app real, con las rutas de movil/app/ (ADR-0017), y simula el servidor con el contrato de la
+// API de cada cambio: el "Contrato de la API" de sus design.md, el mismo de los comentarios de
+// servidor/app/Http/Controllers/Api/PedidosDeLaLavanderiaController.php, HistorialDeLaLavanderiaController.php y
+// LavanderiaDelSocioController.php.
 import path from 'node:path';
 
+import * as ImageManipulator from 'expo-image-manipulator';
+import * as ImagePicker from 'expo-image-picker';
 import { renderRouter } from 'expo-router/testing-library';
 import * as Location from 'expo-location';
 import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
+import { AccessibilityInfo, Platform } from 'react-native';
 
 import { marcarBienvenidaVista } from '../../src/bienvenida/vista';
+import { olvidarMunicipios } from '../../src/direcciones/useMunicipios';
 import { comprobarInstalacion } from '../../src/instalacion/marca';
 import { guardarToken } from '../../src/sesion/almacen';
 
@@ -134,6 +139,79 @@ export function pedidoEn(codigo: CodigoOperativo, datos: DatosDelPedido) {
   };
 }
 
+/**
+ * Cuándo se entregó un pedido, como lo da GET /api/lavanderia/historial: el instante en UTC y su fecha en la hora de la
+ * plaza (historial-de-la-lavanderia, design.md, "Contrato de la API").
+ */
+export interface Entrega {
+  entregado_en: string;
+  fecha: string;
+}
+
+/** Los municipios del territorio como los da GET /api/catalogos/municipios (direcciones-E17). Códigos de prueba. */
+export const MUNICIPIOS = [
+  { codigo: '05017', nombre: 'Matamoros', estado: { codigo: '05', nombre: 'Coahuila de Zaragoza' } },
+  { codigo: '05035', nombre: 'Torreón', estado: { codigo: '05', nombre: 'Coahuila de Zaragoza' } },
+  { codigo: '10005', nombre: 'Durango', estado: { codigo: '10', nombre: 'Durango' } },
+];
+
+/** Los nombres de los tipos de servicio del catálogo del servidor (tipos_servicio). */
+const NOMBRES_DE_SERVICIO: Record<string, string> = {
+  estandar: 'Lavado estándar',
+  planchado: 'Lavado con planchado',
+  seco: 'Lavado en seco',
+};
+
+/** Una ventana de una hora de la lavandería, como sale en la API: día del 1, el lunes, al 7, y horas de la plaza. */
+export interface VentanaDelSocio {
+  dia_semana: number;
+  hora_inicio: string;
+  hora_fin: string;
+}
+
+/** La lavandería del socio, como sale en todas las respuestas de /api/socio/lavanderias. */
+export interface LavanderiaDelSocio {
+  id_publico: string;
+  nombre: string;
+  direccion: {
+    calle: string;
+    numero: string;
+    colonia: string;
+    codigo_postal: string;
+    municipio: { codigo: string; nombre: string; estado: string } | null;
+  };
+  foto: { url: string; vence_en: string } | null;
+  servicios: { tipo: string; nombre: string; precio: string; unidad: { codigo: string; nombre: string } }[];
+  ventanas: VentanaDelSocio[];
+}
+
+/**
+ * La lavandería ya registrada de la cuenta: en Durango, con su foto, el lavado estándar a 18.50 por kilo y los jueves
+ * de 10:00 a 11:00.
+ */
+export const LAVANDERIA_DEL_SOCIO: LavanderiaDelSocio = {
+  id_publico: '01jd8x6m3v2c9q4w5e7r8t0la1',
+  nombre: 'Lavandería de prueba del socio',
+  direccion: {
+    calle: 'Calle de prueba',
+    numero: '123',
+    colonia: 'Centro',
+    codigo_postal: '34000',
+    municipio: { codigo: '10005', nombre: 'Durango', estado: 'Durango' },
+  },
+  foto: { url: 'https://fotos.prueba.invalid/lavanderia.jpg?firma=1', vence_en: '2026-12-03T18:00:00Z' },
+  servicios: [{ tipo: 'estandar', nombre: 'Lavado estándar', precio: '18.50', unidad: { codigo: 'kg', nombre: 'kilo' } }],
+  ventanas: [{ dia_semana: 4, hora_inicio: '10:00', hora_fin: '11:00' }],
+};
+
+/** El id_publico que el servidor simulado le da a la lavandería que se registra. */
+export const ID_DE_LA_REGISTRADA = '01jd8x6m3v2c9q4w5e7r8t0la2';
+
+/** Una copia que la prueba puede cambiar sin tocar la de las demás. */
+export function copia<T>(valor: T): T {
+  return JSON.parse(JSON.stringify(valor)) as T;
+}
+
 export function respuesta(status: number, cuerpo?: unknown) {
   return {
     ok: status >= 200 && status < 300,
@@ -147,10 +225,23 @@ export function respuesta(status: number, cuerpo?: unknown) {
   };
 }
 
+/** Un archivo de un formulario multipart, como lo arma React Native: su dirección en el teléfono, nombre y tipo. */
+export interface ArchivoDelFormulario {
+  uri: string;
+  name?: string;
+  type?: string;
+}
+
 export interface Peticion {
   metodo: string;
   ruta: string;
+  /**
+   * El cuerpo leído: el JSON, o los campos del formulario multipart ya anidados como los lee Laravel
+   * ("direccion[calle]" queda en direccion.calle y "servicios[0][tipo]" en servicios[0].tipo).
+   */
   cuerpo: unknown;
+  /** Si el cuerpo fue un formulario multipart (FormData), como el registro con su foto. */
+  multipart: boolean;
   autorizacion: string | null;
 }
 
@@ -160,13 +251,20 @@ export interface Peticion {
  */
 export type Interceptor = (peticion: Peticion) => unknown;
 
-/** El servidor simulado, con los pedidos de la lavandería y lo que la app le pidió. */
+const RUTA_DEL_SOCIO = '/socio/lavanderias';
+
+/** El servidor simulado, con los pedidos y la lavandería de la cuenta, y lo que la app le pidió. */
 export class ServidorDeLaLavanderia {
   /** La cuenta de la sesión: la de la lavandería, salvo que la prueba diga otra. */
   cuenta: Cuenta = CUENTAS.lavanderia;
   interceptar: Interceptor | null = null;
+  /** Las lavanderías de la cuenta (GET /api/socio/lavanderias): por omisión, la suya ya registrada. */
+  lavanderias: LavanderiaDelSocio[] = [copia(LAVANDERIA_DEL_SOCIO)];
+  /** Lo que da GET /api/lavanderia/estadisticas. */
+  estadisticas = { pedidos_del_dia: 0, pedidos_de_la_semana: 0 };
   readonly fetch: jest.Mock;
   private readonly estados = new Map<string, { codigo: CodigoOperativo; datos: DatosDelPedido }>();
+  private readonly entregas = new Map<string, Entrega>();
 
   constructor(private readonly base: string) {
     this.fetch = jest.fn((url: string, opciones: RequestInit = {}) => this.contestar(url, opciones));
@@ -175,6 +273,12 @@ export class ServidorDeLaLavanderia {
   /** Pone un pedido de la lavandería en ese estado; la lista los da en el orden en que se pusieron. */
   poner(codigo: CodigoOperativo, datos: DatosDelPedido): void {
     this.estados.set(datos.id_publico, { codigo, datos });
+  }
+
+  /** Pone un pedido de la lavandería en Entregado, con el momento de su entrega (historial-lavanderia-E01). */
+  entregar(datos: DatosDelPedido, entrega: Entrega): void {
+    this.poner('entregado', datos);
+    this.entregas.set(datos.id_publico, entrega);
   }
 
   /** El estado del pedido en el servidor. */
@@ -199,6 +303,13 @@ export class ServidorDeLaLavanderia {
     return this.peticiones()
       .filter(({ metodo, ruta }) => metodo === 'POST' && ruta.startsWith('/lavanderia/pedidos/'))
       .map(({ ruta, cuerpo }) => ({ ruta, cuerpo }));
+  }
+
+  /** Lo que la app mandó a la lavandería de la cuenta: el registro y sus cambios, con su método y su cuerpo. */
+  envios(): Pick<Peticion, 'metodo' | 'ruta' | 'cuerpo' | 'multipart'>[] {
+    return this.peticiones()
+      .filter(({ metodo, ruta }) => metodo !== 'GET' && ruta.startsWith(RUTA_DEL_SOCIO))
+      .map(({ metodo, ruta, cuerpo, multipart }) => ({ metodo, ruta, cuerpo, multipart }));
   }
 
   private async contestar(url: string, opciones: RequestInit) {
@@ -226,12 +337,25 @@ export class ServidorDeLaLavanderia {
     if (metodo === 'GET' && ruta.startsWith('/lavanderias/cercanas')) {
       return respuesta(200, { lavanderias: [] });
     }
+    // El catálogo del territorio para la dirección (direcciones-E17).
+    if (metodo === 'GET' && ruta === '/catalogos/municipios') {
+      return respuesta(200, { municipios: MUNICIPIOS });
+    }
     if (this.cuenta.rol !== 'lavanderia') {
       return respuesta(403, { message: 'Esta cuenta no tiene acceso.' });
+    }
+    if (ruta.startsWith(RUTA_DEL_SOCIO)) {
+      return this.lavanderiaDelSocio(metodo, ruta, cuerpo);
     }
     if (metodo === 'GET' && ruta === '/lavanderia/pedidos') {
       const activos = [...this.estados.values()].filter(({ codigo }) => ACTIVOS.includes(codigo));
       return respuesta(200, { pedidos: activos.map(({ codigo, datos }) => pedidoEn(codigo, datos)) });
+    }
+    if (metodo === 'GET' && ruta === '/lavanderia/historial') {
+      return respuesta(200, { pedidos: this.historial() });
+    }
+    if (metodo === 'GET' && ruta === '/lavanderia/estadisticas') {
+      return respuesta(200, this.estadisticas);
     }
     const partes = /^\/lavanderia\/pedidos\/([^/]+)(?:\/(aceptar|rechazar|estado))?$/.exec(ruta);
     const guardado = partes ? this.estados.get(partes[1]) : undefined;
@@ -246,6 +370,14 @@ export class ServidorDeLaLavanderia {
       throw new Error(`El servidor falso no esperaba ${metodo} ${ruta}`);
     }
     return this.responder(accion, guardado, cuerpo);
+  }
+
+  // Solo los Entregados, de la entrega más reciente a la más antigua (historial-lavanderia-E01).
+  private historial() {
+    return [...this.estados.values()]
+      .filter(({ codigo, datos }) => codigo === 'entregado' && this.entregas.has(datos.id_publico))
+      .map(({ datos }) => ({ id_publico: datos.id_publico, folio: datos.folio, ...this.entregas.get(datos.id_publico)! }))
+      .sort((una, otra) => otra.entregado_en.localeCompare(una.entregado_en));
   }
 
   private responder(
@@ -283,25 +415,150 @@ export class ServidorDeLaLavanderia {
     guardado.codigo = accion === 'aceptar' ? 'aceptado' : 'rechazado';
     return respuesta(200, { pedido: pedidoEn(guardado.codigo, guardado.datos) });
   }
+
+  // /api/socio/lavanderias (alta-de-lavanderias, design.md, "El contrato de la API"). Las validaciones las prueba el
+  // servidor; aquí, cada prueba pone con interceptar el 422 que necesita.
+  private lavanderiaDelSocio(metodo: string, ruta: string, cuerpo: unknown) {
+    if (ruta === RUTA_DEL_SOCIO) {
+      if (metodo === 'GET') {
+        return respuesta(200, { lavanderias: this.lavanderias });
+      }
+      if (metodo === 'POST') {
+        return this.registrar(esObjeto(cuerpo) ? cuerpo : {});
+      }
+    }
+    const id = ruta.slice(RUTA_DEL_SOCIO.length + 1);
+    const propia = this.lavanderias.find((lavanderia) => lavanderia.id_publico === id);
+    if (!propia) {
+      return respuesta(404, { message: 'No existe la lavandería.' });
+    }
+    // Con foto, la edición llega por POST con _method=PATCH, porque PHP solo lee los archivos de un POST.
+    const edicion = metodo === 'PATCH' || (metodo === 'POST' && esObjeto(cuerpo) && cuerpo._method === 'PATCH');
+    if (metodo === 'GET') {
+      return respuesta(200, { lavanderia: propia });
+    }
+    if (!edicion || !esObjeto(cuerpo)) {
+      throw new Error(`El servidor falso no esperaba ${metodo} ${ruta}`);
+    }
+    aplicar(propia, cuerpo);
+    return respuesta(200, { lavanderia: propia });
+  }
+
+  private registrar(cuerpo: Record<string, unknown>) {
+    if (this.lavanderias.length > 0) {
+      return respuesta(409, { message: 'Esta cuenta ya tiene una lavandería registrada.' });
+    }
+    const nueva: LavanderiaDelSocio = {
+      id_publico: ID_DE_LA_REGISTRADA,
+      nombre: '',
+      direccion: { calle: '', numero: '', colonia: '', codigo_postal: '', municipio: null },
+      foto: null,
+      servicios: [],
+      ventanas: [],
+    };
+    aplicar(nueva, cuerpo);
+    this.lavanderias = [nueva];
+    return respuesta(201, { lavanderia: nueva });
+  }
+}
+
+// Pone en la lavandería lo que llegó, como lo guardaría el servidor: el municipio con su nombre, la foto con su URL
+// firmada, cada servicio con su nombre y su unidad, y los días como números.
+function aplicar(lavanderia: LavanderiaDelSocio, cuerpo: Record<string, unknown>) {
+  if (typeof cuerpo.nombre === 'string') {
+    lavanderia.nombre = cuerpo.nombre;
+  }
+  if (esObjeto(cuerpo.direccion)) {
+    const direccion = cuerpo.direccion as Record<string, string>;
+    const municipio = MUNICIPIOS.find(({ codigo }) => codigo === direccion.municipio);
+    lavanderia.direccion = {
+      calle: direccion.calle,
+      numero: direccion.numero,
+      colonia: direccion.colonia,
+      codigo_postal: direccion.codigo_postal,
+      municipio: municipio ? { codigo: municipio.codigo, nombre: municipio.nombre, estado: municipio.estado.nombre } : null,
+    };
+  }
+  if (esObjeto(cuerpo.foto)) {
+    const foto = cuerpo.foto as unknown as ArchivoDelFormulario;
+    lavanderia.foto = { url: `https://fotos.prueba.invalid/${encodeURIComponent(foto.uri)}?firma=2`, vence_en: '2026-12-03T19:00:00Z' };
+  }
+  if (Array.isArray(cuerpo.servicios)) {
+    lavanderia.servicios = (cuerpo.servicios as { tipo: string; precio: string }[]).map(({ tipo, precio }) => ({
+      tipo,
+      nombre: NOMBRES_DE_SERVICIO[tipo] ?? tipo,
+      precio: Number(precio).toFixed(2),
+      unidad: { codigo: 'kg', nombre: 'kilo' },
+    }));
+  }
+  if (Array.isArray(cuerpo.ventanas)) {
+    lavanderia.ventanas = (cuerpo.ventanas as { dia_semana: string | number; hora_inicio: string; hora_fin: string }[])
+      .map(({ dia_semana, hora_inicio, hora_fin }) => ({ dia_semana: Number(dia_semana), hora_inicio, hora_fin }))
+      .sort((una, otra) => una.dia_semana - otra.dia_semana || una.hora_inicio.localeCompare(otra.hora_inicio));
+  }
 }
 
 function esObjeto(valor: unknown): valor is Record<string, unknown> {
   return typeof valor === 'object' && valor !== null;
 }
 
+/** Un FormData de React Native: el teléfono arma así el cuerpo multipart, con cada parte de texto o de archivo. */
+interface FormularioDeReactNative {
+  getParts(): ({ fieldName: string; string: string } | ({ fieldName: string } & ArchivoDelFormulario))[];
+}
+
+function esFormulario(cuerpo: unknown): cuerpo is FormularioDeReactNative {
+  return esObjeto(cuerpo) && typeof (cuerpo as Partial<FormularioDeReactNative>).getParts === 'function';
+}
+
+// Los campos del formulario anidados como los lee Laravel: "servicios[0][tipo]" queda en servicios[0].tipo.
+function anidar(formulario: FormularioDeReactNative): Record<string, unknown> {
+  const raiz: Record<string, unknown> = {};
+  for (const parte of formulario.getParts()) {
+    const valor = 'string' in parte ? parte.string : { uri: parte.uri, name: parte.name, type: parte.type };
+    const claves = parte.fieldName.replace(/\]/g, '').split('[');
+    let nodo: Record<string, unknown> = raiz;
+    claves.forEach((clave, indice) => {
+      if (indice === claves.length - 1) {
+        nodo[clave] = valor;
+        return;
+      }
+      if (nodo[clave] === undefined) {
+        nodo[clave] = /^\d+$/.test(claves[indice + 1]) ? [] : {};
+      }
+      nodo = nodo[clave] as Record<string, unknown>;
+    });
+  }
+  return raiz;
+}
+
 function leer(base: string, url: string, opciones: RequestInit = {}): Peticion {
   const cabeceras = (opciones.headers ?? {}) as Record<string, string>;
+  const multipart = esFormulario(opciones.body);
+  let cuerpo: unknown;
+  if (typeof opciones.body === 'string') {
+    cuerpo = JSON.parse(opciones.body);
+  } else if (esFormulario(opciones.body)) {
+    cuerpo = anidar(opciones.body);
+  }
   return {
     metodo: opciones.method ?? 'GET',
     ruta: url.slice(base.length),
-    cuerpo: typeof opciones.body === 'string' ? JSON.parse(opciones.body) : undefined,
+    cuerpo,
+    multipart,
     autorizacion: cabeceras.Authorization ?? null,
   };
 }
 
-// La simulación de __mocks__/, la misma instancia que importa la app.
+// Las simulaciones de __mocks__/, la misma instancia que importa la app.
 const almacen = SecureStore as unknown as { __vaciar(): void };
 const gps = Location as unknown as { __reiniciar(): void };
+const camara = ImagePicker as unknown as { __reiniciar(): void };
+const manipulador = ImageManipulator as unknown as { __reiniciar(): void };
+
+// El FormData del teléfono: en Jest, el global es el de Node, que convierte en texto la foto ({ uri, name, type }).
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const FormDataDeReactNative = require('react-native/Libraries/Network/FormData').default as typeof FormData;
 
 /**
  * Prepara cada prueba del archivo con la app recién abierta en esta instalación y el servidor simulado en la dirección
@@ -312,16 +569,24 @@ export function usarElServidorDeLaLavanderia(nombre: string): () => ServidorDeLa
   const direccionOriginal = process.env.EXPO_PUBLIC_API_URL;
   const nombreOriginal = process.env.EXPO_PUBLIC_NOMBRE_APP;
   const fetchOriginal = global.fetch;
+  const formDataOriginal = global.FormData;
   let servidor: ServidorDeLaLavanderia;
 
   beforeEach(() => {
     almacen.__vaciar();
     gps.__reiniciar();
+    camara.__reiniciar();
+    manipulador.__reiniciar();
+    // La lista de municipios se pide una vez por sesión de la app: cada prueba abre la app de nuevo.
+    olvidarMunicipios();
     process.env.EXPO_PUBLIC_API_URL = base;
     // El inicio de sesión muestra el nombre de la app, que sale de la configuración (base-E09).
     process.env.EXPO_PUBLIC_NOMBRE_APP = `Nombre de prueba ${nombre}`;
     servidor = new ServidorDeLaLavanderia(base);
     global.fetch = servidor.fetch as unknown as typeof fetch;
+    global.FormData = FormDataDeReactNative;
+    // El selector anuncia la elección al lector de pantalla; en Jest no hay lector.
+    jest.spyOn(AccessibilityInfo, 'announceForAccessibilityWithOptions').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -336,6 +601,7 @@ export function usarElServidorDeLaLavanderia(nombre: string): () => ServidorDeLa
       }
     }
     global.fetch = fetchOriginal;
+    global.FormData = formDataOriginal;
     jest.restoreAllMocks();
   });
 

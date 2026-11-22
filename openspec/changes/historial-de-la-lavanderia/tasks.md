@@ -11,8 +11,8 @@ M = 5 h, L = 12 h.
 
 ## 2. App (`movil/`)
 
-- [ ] 2.1 historial-lavanderia-E01: pantalla del historial de pedidos de la lavandería — test: `movil/__tests__/historial-lavanderia/historial.test.tsx` — tamaño S
-- [ ] 2.2 historial-lavanderia-E05: pantalla de estadísticas de la lavandería — test: `movil/__tests__/historial-lavanderia/estadisticas.test.tsx` — tamaño S
+- [x] 2.1 historial-lavanderia-E01: pantalla del historial de pedidos de la lavandería — test: `movil/__tests__/historial-lavanderia/historial.test.tsx` — tamaño S
+- [x] 2.2 historial-lavanderia-E05: pantalla de estadísticas de la lavandería — test: `movil/__tests__/historial-lavanderia/estadisticas.test.tsx` — tamaño S
 
 ## 3. Bloqueadas: no entran al sprint hasta cerrar su fila
 

@@ -29,6 +29,11 @@ export type Resultado<T> = { ok: true; datos: T } | Falla;
 export interface Peticion {
   metodo: 'GET' | 'POST' | 'PATCH' | 'DELETE';
   cuerpo?: unknown;
+  /**
+   * Un formulario multipart en lugar del cuerpo JSON, para las rutas que reciben un archivo, como la foto de la
+   * lavandería (alta-lavanderias-E03). El teléfono pone el Content-Type con su separador.
+   */
+  formulario?: FormData;
   token?: string;
 }
 
@@ -72,11 +77,11 @@ export interface ResultadoConEstado<T> {
  */
 export async function pedirConEstado<T>(
   ruta: string,
-  { metodo, cuerpo, token }: Peticion,
+  { metodo, cuerpo, formulario, token }: Peticion,
 ): Promise<ResultadoConEstado<T>> {
   // Accept: application/json hace que Laravel conteste los errores en JSON y no con una redirección.
   const headers: Record<string, string> = { Accept: 'application/json' };
-  if (cuerpo !== undefined) {
+  if (cuerpo !== undefined && formulario === undefined) {
     headers['Content-Type'] = 'application/json';
   }
   if (token) {
@@ -88,7 +93,7 @@ export async function pedirConEstado<T>(
     respuesta = await consultarApi(ruta, {
       method: metodo,
       headers,
-      body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo),
+      body: formulario ?? (cuerpo === undefined ? undefined : JSON.stringify(cuerpo)),
     });
   } catch {
     // Un error de red o el plazo vencido (consultarApi cancela la petición): para la persona, no hubo conexión.

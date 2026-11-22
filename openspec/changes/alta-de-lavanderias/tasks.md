@@ -25,8 +25,8 @@ M = 5 h, L = 12 h.
 
 ## 4. Pantallas del Módulo B en la app
 
-- [ ] 4.1 alta-lavanderias-E03: pantalla de registro, con la foto tomada o elegida y comprimida con los parámetros de configuración — test: `movil/__tests__/alta-lavanderias/registro.test.tsx` — tamaño M
-- [ ] 4.2 alta-lavanderias-E19: pantalla de perfil y horarios, con las ventanas de disponibilidad y los errores del servidor por campo — test: `movil/__tests__/alta-lavanderias/perfil-y-horarios.test.tsx` — tamaño M
+- [x] 4.1 alta-lavanderias-E03: pantalla de registro, con la foto tomada o elegida y comprimida con los parámetros de configuración — test: `movil/__tests__/alta-lavanderias/registro.test.tsx` — tamaño M
+- [x] 4.2 alta-lavanderias-E19: pantalla de perfil y horarios, con las ventanas de disponibilidad y los errores del servidor por campo — test: `movil/__tests__/alta-lavanderias/perfil-y-horarios.test.tsx` — tamaño M
 
 ## 5. Bloqueadas: no entran al sprint mientras su fila siga abierta
 
