@@ -17,7 +17,7 @@ M = 5 h.
 ## 2. Monitoreo de pedidos (servidor/)
 
 - [x] 2.1 administracion-E06: tabla de los pedidos activos de todas las plazas, con folio, estado y plaza — test: `servidor/tests/Feature/Administracion/MonitoreoDePedidosTest.php` — tamaño M
-- [ ] 2.2 administracion-E07: refresco cada 30 s sin recargar (ADR-0007) — test: `servidor/tests/Feature/Administracion/MonitoreoDePedidosTest.php` — tamaño S
+- [x] 2.2 administracion-E07: refresco cada 30 s sin recargar (ADR-0007) — test: `servidor/tests/Feature/Administracion/MonitoreoDePedidosTest.php` — tamaño S
 - [ ] 2.3 administracion-E08: el pedido cancelado sale del monitoreo — test: `servidor/tests/Feature/Administracion/MonitoreoDePedidosTest.php` — tamaño S — bloqueada: DD-016, BR-22
 - [ ] 2.4 administracion-E09 y administracion-E10: mapa con un marcador en la recolección y otro en la entrega si es distinta (Google Maps JavaScript, ADR-0009) — test: `servidor/tests/Feature/Administracion/MapaDelMonitoreoTest.php` — tamaño M
 

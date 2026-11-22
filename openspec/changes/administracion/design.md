@@ -176,6 +176,10 @@ de solo lectura. Los pedidos los da `Autorizacion::pedidosActivosDelPanel()`, y 
 - **No entran** el entregado, el que espera su pago (C-188) ni un estado que se agregue después, como `cancelado`,
   mientras no se nombre en el modelo (E08 espera DD-016 y BR-22).
 - **El mapa** (E09 y E10) espera la llave de Google Maps JavaScript (DD-072).
+- **El refresco** (tarea 2.2, administracion-E07): la tabla se vuelve a consultar sola cada 30 segundos mientras la
+  página está abierta (`wire:poll.30s` de Livewire, con `poll()` de Filament; ADR-0007), sin recargar la página. Un
+  cambio de estado que hace la lavandería, un pedido que se entrega o uno que se confirma se ven en el siguiente
+  refresco, a lo más 30 segundos después.
 
 ## Risks / Trade-offs
 

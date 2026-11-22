@@ -160,6 +160,45 @@ class MonitoreoDePedidosTest extends TestCase
         );
     }
 
+    #[TestDox('administracion-E07: con el monitoreo abierto y un pedido Recolectado, cuando la lavandería lo pasa a En proceso, el siguiente refresco de 30 segundos lo muestra En proceso sin recargar la página')]
+    public function test_administracion_e07_el_monitoreo_se_refresca_solo_cada_30_segundos(): void
+    {
+        $pedido = $this->pedidoHasta(EstadoPedido::RECOLECTADO);
+        $this->comoAdministracion();
+
+        $monitoreo = Livewire::test(MonitoreoDePedidos::class)
+            ->assertTableColumnFormattedStateSet('estado', 'Recolectado', $pedido);
+
+        // La vista se consulta sola cada 30 segundos (ADR-0007): Livewire la vuelve a pedir sin recargar la página.
+        $this->assertSame('30s', $monitoreo->instance()->getTable()->getPollingInterval());
+        $monitoreo->assertSeeHtml('wire:poll.30s');
+
+        // La lavandería toca su botón en la app, por la API.
+        $this->marcarPedido($this->cuentaDeLaLavanderia($pedido), $pedido->id_publico, EstadoPedido::EN_PROCESO)->assertOk();
+
+        // El refresco: la misma vista abierta vuelve a pedir sus filas.
+        $this->volverAlPanel();
+        $monitoreo->call('$refresh')
+            ->assertTableColumnFormattedStateSet('estado', 'En proceso', $pedido);
+    }
+
+    #[TestDox('administracion-E07: un pedido que se entrega sale del monitoreo en el siguiente refresco, y uno que se confirma entra')]
+    public function test_administracion_e07_en_el_refresco_sale_el_entregado_y_entra_el_nuevo(): void
+    {
+        $enEntrega = $this->pedidoHasta(EstadoPedido::EN_ENTREGA);
+        $this->comoAdministracion();
+
+        $monitoreo = Livewire::test(MonitoreoDePedidos::class)->assertCanSeeTableRecords([$enEntrega]);
+
+        $this->entregarComoElRepartidor($enEntrega);
+        $nuevo = $this->pedidoConfirmadoDe($this->cuentaDeUsuario());
+
+        $this->volverAlPanel();
+        $monitoreo->call('$refresh')
+            ->assertCanNotSeeTableRecords([$enEntrega])
+            ->assertCanSeeTableRecords([$nuevo]);
+    }
+
     /**
      * Un pedido nuevo de una cuenta nueva, llevado por la lavandería hasta ese estado, con sus botones.
      */
