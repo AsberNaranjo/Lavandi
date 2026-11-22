@@ -98,9 +98,12 @@ abstract class ExportadorDeIndicador extends Exporter
                 ->label('Desde')
                 ->required()
                 ->default(fn (mixed $livewire): string => self::filtroDeLaPagina($livewire, 'desde') ?? Rango::desdePorOmision()->toDateString()),
+            // Las dos fechas van incluidas y no hay tope de duración (exportacion-E04 y E05); al revés, no (E06).
             DatePicker::make('hasta')
                 ->label('Hasta')
                 ->required()
+                ->afterOrEqual('desde')
+                ->validationMessages(['after_or_equal' => 'La fecha de fin no puede ser anterior a la de inicio.'])
                 ->default(fn (mixed $livewire): string => self::filtroDeLaPagina($livewire, 'hasta') ?? Rango::hoy()->toDateString()),
             Select::make('granularidad')
                 ->label('Ver por')

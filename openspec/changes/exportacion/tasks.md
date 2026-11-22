@@ -13,7 +13,7 @@ modelo de datos no le suma horas: este cambio no crea tablas.
 
 ## 2. Rango de fechas (servidor/)
 
-- [ ] 2.1 exportacion-E04, exportacion-E05 y exportacion-E06: rango con los dos extremos incluidos, sin tope de duración y rechazo del rango al revés — test: `servidor/tests/Feature/Exportacion/RangoDeFechasTest.php` — tamaño S
+- [x] 2.1 exportacion-E04, exportacion-E05 y exportacion-E06: rango con los dos extremos incluidos, sin tope de duración y rechazo del rango al revés — test: `servidor/tests/Feature/Exportacion/RangoDeFechasTest.php` — tamaño S
 
 ## 3. Escritura del archivo (servidor/)
 

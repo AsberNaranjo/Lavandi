@@ -90,6 +90,14 @@ técnicas las decidió por delegación de Arthur (C-236); cada una dice su recom
   - monto promedio por pedido: una fila con el periodo y su promedio, el periodo anterior y el suyo, la diferencia con
     su signo y la tendencia, como los dice el indicador destacado. Los montos van con dos decimales; qué monto cuenta
     espera DD-012 (indicadores-E10).
+- **El rango** (tarea 2.1, E04 a E06): las dos fechas van incluidas y no hay tope de duración, ni en el formulario ni
+  en la consulta; un rango de dos años por día son 731 filas (lectura 3). Una fecha de fin anterior a la de inicio se
+  rechaza en el formulario con "La fecha de fin no puede ser anterior a la de inicio." y no se genera nada (el panel,
+  en cambio, voltea un rango al revés en sus filtros). **Por día**, el archivo trae exactamente los días del rango;
+  **por semana o por mes**, el rango se ajusta a periodos completos, como en el panel, para que el archivo y el panel
+  den las mismas cifras (E01). La columna "periodo anterior" de los pedidos totales es la comparación que muestra el
+  panel junto a cada periodo, no una fila de fuera del rango. Las pruebas de E04 y E05 pasaron desde su primera
+  corrida, porque el rango y la falta de tope ya venían de la tarea 1.1; quedan como guardas.
 - **Los dos formatos en cada descarga:** el aviso trae "Descargar .csv" y "Descargar .xlsx" (lectura 2).
 - **El XLSX lleva las cifras como números** (`ExportadorDeIndicador::makeXlsxRow()`): Filament lo arma leyendo el CSV,
   donde todo es texto, y el exportador vuelve número cada celda de una columna de números.
