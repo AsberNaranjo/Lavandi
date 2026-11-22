@@ -332,6 +332,12 @@ la prueba `tests/Feature/Registro/AutorizacionTest.php` rechaza una ruta sin los
 - Las colonias van ordenadas por nombre. Cada una trae su municipio, para que la app lo elija si la persona todavía no
   eligió uno (direcciones-E19).
 - Solo hay colonias de los municipios del territorio, porque son las únicas que se cargan.
+- **Precisiones del implementador (tarea 4.3), sin cambiar la forma:** con el mismo nombre, van por tipo y luego por el
+  nombre del municipio; un código postal puede traer colonias de dos municipios; y un asentamiento que el archivo
+  repite con el mismo nombre, tipo y municipio sale una sola vez (ver "Asentamientos repetidos" en "La carga del
+  catálogo"). La ruta no lleva restricción en `{codigo_postal}`, para que uno que no son cinco números responda 422 y
+  no 404. El contrato exacto quedó en el comentario de
+  `servidor/app/Http/Controllers/Api/CatalogoDelTerritorioController.php`.
 
 ### Qué cambia en `POST /api/direcciones` (direcciones-E01, E17, E18 y E20)
 
