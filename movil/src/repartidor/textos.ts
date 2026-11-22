@@ -7,6 +7,7 @@ import type { Ventana } from '../agenda/api';
 import { eleccionEnTexto } from '../agenda/textos';
 import { mensajeDeLaFalla } from '../cercanas/textos';
 import { TEXTOS_DEL_RESUMEN } from '../pedido/textos';
+import { TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA } from '../pedidos-lavanderia/textos';
 import type { FallaDelRepartidor, LavanderiaDelPedido, PedidoDelRepartidor } from './api';
 
 export const TEXTOS_DEL_REPARTIDOR = {
@@ -52,6 +53,17 @@ export const TEXTOS_DEL_REPARTIDOR = {
   lavanderia: 'Lavandería',
   // Sin entrega distinta, el servidor manda la misma dirección: no se repite (direcciones-E09).
   mismaDeLaRecogida: TEXTOS_DEL_RESUMEN.mismaDeLaRecogida,
+  // Las respuestas de la tarjeta (repartidor-E15 y E16), con la nota del componente 5, y el rechazo con motivo, con los
+  // textos de la imagen c02-rechazo: los mismos de la lavandería. Sin motivo, el botón no se puede tocar y dice qué
+  // falta (repartidor-E17).
+  aceptar: TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA.aceptar,
+  rechazar: TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA.rechazar,
+  notaDelRechazo: TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA.notaDelRechazo,
+  aceptaste: 'Aceptaste este pedido.',
+  tituloDelRechazo: TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA.tituloDelRechazo,
+  motivo: TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA.motivo,
+  rechazarPedido: TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA.rechazarPedido,
+  escribeElMotivo: TEXTOS_DE_LOS_PEDIDOS_DE_LA_LAVANDERIA.escribeElMotivo,
   // El 409 sin mensaje del servidor: el pedido ya cambió. El servidor manda el suyo: "La oferta ya fue respondida.",
   // "Primero acepta el pedido." o "Ese no es el paso siguiente del pedido.".
   yaCambio: 'El pedido ya cambió. Revisa cómo está.',

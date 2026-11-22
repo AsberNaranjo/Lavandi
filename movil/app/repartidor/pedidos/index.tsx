@@ -6,8 +6,15 @@
 // (repartidor-E11; ADR-0007). Sin pedidos, un mensaje neutro; si la lista no llega, sin escenario propio, los mensajes
 // generales de la app.
 //
+// La oferta que espera su respuesta se acepta desde su tarjeta (repartidor-E15): la tarjeta se bloquea mientras se manda
+// y se pone al día con la respuesta. "Rechazar" abre el rechazo, que pide el motivo (repartidor-E16 y E17). El pedido
+// aceptado ofrece solo el botón de su paso siguiente, que se manda igual que Aceptar (repartidor-E19); si ya no es el
+// paso siguiente o la oferta ya se respondió (409), el mensaje del servidor va arriba de la lista y la lista se vuelve a
+// consultar (repartidor-E20).
+//
 // "Cerrar sesión" va abajo, con la confirmación de la app (registro-E13). La composición sigue la imagen c02-asignados
 // de la Propuesta 04: el título a la izquierda y las tarjetas debajo.
+import { useRouter } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { MensajeDeError } from '../../../src/piezas/MensajeDeError';
@@ -15,18 +22,26 @@ import { Pantalla } from '../../../src/piezas/Pantalla';
 import { Parrafo } from '../../../src/piezas/Parrafo';
 import { TarjetaDePedidoDeRepartidor } from '../../../src/piezas/TarjetaDePedidoDeRepartidor';
 import { Titulo } from '../../../src/piezas/Titulo';
+import { rutaDelRechazoDelRepartidor } from '../../../src/repartidor/rutas';
 import { mensajeDelRepartidor, TEXTOS_DEL_REPARTIDOR as TEXTOS } from '../../../src/repartidor/textos';
+import { useAccionesDelRepartidor } from '../../../src/repartidor/useAccionesDelRepartidor';
 import { usePedidosDelRepartidor } from '../../../src/repartidor/usePedidosDelRepartidor';
 import { CerrarSesion } from '../../../src/sesion/CerrarSesion';
 import { letra } from '../../../src/tema/letra';
 import { color, espaciado, tipografia } from '../../../src/tema/theme';
 
 export default function PedidosDelRepartidor() {
-  const { pedidos, falla } = usePedidosDelRepartidor();
+  const router = useRouter();
+  const lista = usePedidosDelRepartidor();
+  const { pedidos, falla } = lista;
+  const acciones = useAccionesDelRepartidor(lista);
+  // El mensaje de la lista solo si no repite el de la última acción, como sin conexión en las dos.
+  const mensajeDeLaLista = falla ? mensajeDelRepartidor(falla) : null;
 
   return (
     <Pantalla desplazable acciones={<CerrarSesion />}>
       <Titulo alineacion="inicio">{TEXTOS.pedidosAsignados}</Titulo>
+      <MensajeDeError texto={acciones.aviso ?? undefined} />
       {pedidos === null && falla === null ? (
         <View style={estilos.cargando}>
           <ActivityIndicator color={color.semantico.accion} />
@@ -35,9 +50,16 @@ export default function PedidosDelRepartidor() {
       ) : null}
       {pedidos?.length === 0 ? <Parrafo alineacion="inicio">{TEXTOS.sinPedidos}</Parrafo> : null}
       {pedidos?.map((pedido) => (
-        <TarjetaDePedidoDeRepartidor key={pedido.id_publico} pedido={pedido} />
+        <TarjetaDePedidoDeRepartidor
+          key={pedido.id_publico}
+          pedido={pedido}
+          enviando={acciones.enviandoEl(pedido)}
+          alAceptar={() => void acciones.aceptar(pedido)}
+          alRechazar={() => router.push(rutaDelRechazoDelRepartidor(pedido.id_publico))}
+          alAvanzar={() => void acciones.avanzar(pedido)}
+        />
       ))}
-      <MensajeDeError texto={falla ? mensajeDelRepartidor(falla) : undefined} />
+      <MensajeDeError texto={mensajeDeLaLista && mensajeDeLaLista !== acciones.aviso ? mensajeDeLaLista : undefined} />
     </Pantalla>
   );
 }

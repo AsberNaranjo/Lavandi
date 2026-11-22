@@ -71,6 +71,7 @@ function PantallasDelModulo() {
     <Stack screenOptions={{ headerShown: false, contentStyle: estilos.fondo }}>
       <Stack.Protected guard={opera} redirectTo={RUTA_DE_LA_ESPERA_DEL_REPARTIDOR}>
         <Stack.Screen name="pedidos/index" />
+        <Stack.Screen name="pedidos/rechazo/[id]" />
       </Stack.Protected>
       <Stack.Protected guard={!opera} redirectTo={RUTA_DE_LOS_PEDIDOS_DEL_REPARTIDOR}>
         <Stack.Screen name="espera" />

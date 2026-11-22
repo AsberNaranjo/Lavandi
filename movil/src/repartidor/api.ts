@@ -24,6 +24,14 @@ export const CONTRATO_DEL_REPARTIDOR = {
   lista: 'pedidos',
   /** Lo que devuelven la lectura, aceptar y los botones: { "<pedido>": PedidoDelRepartidor }. */
   pedido: 'pedido',
+  /** POST pedidos/<id_publico>/<aceptar>, sin cuerpo (repartidor-E15). */
+  aceptar: 'aceptar',
+  /** POST pedidos/<id_publico>/<rechazar>, con { "<motivo>": "…" }; 422 con errors.<motivo> (E16 y E17). */
+  rechazar: 'rechazar',
+  motivo: 'motivo',
+  /** POST pedidos/<id_publico>/<estado>, con { "<estado>": siguiente.estado }; con Entregado, la <foto> (E19 y E23). */
+  estado: 'estado',
+  foto: 'foto',
   /** La foto en el formulario: JPEG, porque así la deja la compresión (src/alta-lavanderias/foto.ts). */
   nombreDeLaFoto: 'foto.jpg',
   tipoDeLaFoto: 'image/jpeg',
@@ -231,6 +239,70 @@ export async function consultarPedidosDelRepartidor(
     return { ok: false, motivo: 'servidor' };
   }
   return { ok: true, datos: pedidos as PedidoDelRepartidor[] };
+}
+
+/** POST de aceptar la oferta que espera su respuesta (repartidor-E15). El estado del pedido no cambia. */
+export function aceptarPedidoDelRepartidor(
+  token: string,
+  idPublico: string,
+): Promise<ResultadoDelRepartidor<PedidoDelRepartidor>> {
+  return mandarAccion(rutaDeLaAccion(idPublico, CONTRATO_DEL_REPARTIDOR.aceptar), { metodo: 'POST', token });
+}
+
+/**
+ * POST de rechazar la oferta con su motivo, sin los espacios de las orillas (repartidor-E16). El servidor exige el
+ * motivo y su largo máximo vive en su configuración: lo que no acepta lo dice con 422 en el campo (repartidor-E17). La
+ * respuesta es la oferta rechazada, no el pedido, que deja de estar asignado a él.
+ */
+export async function rechazarPedidoDelRepartidor(
+  token: string,
+  idPublico: string,
+  motivo: string,
+): Promise<ResultadoDelRepartidor<null>> {
+  const { rechazar, motivo: campo } = CONTRATO_DEL_REPARTIDOR;
+  const resultado = await pedirDelRepartidor(rutaDeLaAccion(idPublico, rechazar), {
+    metodo: 'POST',
+    token,
+    cuerpo: { [campo]: motivo.trim() },
+  });
+  if (!resultado.ok) {
+    return resultado;
+  }
+  return esObjeto(resultado.datos) && esObjeto(resultado.datos.asignacion)
+    ? { ok: true, datos: null }
+    : { ok: false, motivo: 'servidor' };
+}
+
+/**
+ * POST del botón del paso siguiente, con el estado al que lleva, tal como lo dio el servidor en "siguiente"
+ * (repartidor-E19). Si ese ya no es el paso siguiente, o la oferta sigue sin aceptar, el servidor responde 409 y el
+ * pedido no cambia (repartidor-E20).
+ */
+export function marcarPasoDelRepartidor(
+  token: string,
+  idPublico: string,
+  paso: Pick<PasoSiguiente, 'estado'>,
+): Promise<ResultadoDelRepartidor<PedidoDelRepartidor>> {
+  const { estado } = CONTRATO_DEL_REPARTIDOR;
+  return mandarAccion(rutaDeLaAccion(idPublico, estado), { metodo: 'POST', token, cuerpo: { [estado]: paso.estado } });
+}
+
+function rutaDeLaAccion(idPublico: string, accion: string): string {
+  return `${CONTRATO_DEL_REPARTIDOR.pedidos}/${encodeURIComponent(idPublico)}/${accion}`;
+}
+
+// Una acción sobre un pedido: el servidor responde con el pedido en su estado nuevo.
+async function mandarAccion(
+  ruta: string,
+  peticion: Parameters<typeof pedirConEstado>[1],
+): Promise<ResultadoDelRepartidor<PedidoDelRepartidor>> {
+  const resultado = await pedirDelRepartidor(ruta, peticion);
+  if (!resultado.ok) {
+    return resultado;
+  }
+  const pedido = esObjeto(resultado.datos) ? leerPedidoDelRepartidor(resultado.datos[CONTRATO_DEL_REPARTIDOR.pedido]) : null;
+  // Una respuesta fuera del contrato no se pinta a medias: cuenta como falla del servidor.
+  return pedido ? { ok: true, datos: pedido } : { ok: false, motivo: 'servidor' };
 }
 
 /**
