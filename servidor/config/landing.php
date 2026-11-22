@@ -107,6 +107,15 @@ return [
     ],
 
     /*
+     * Sección 8, "Testimonios": los testimonios se editan en el panel (ADR-0011). Aquí va solo el texto del marcador de
+     * posición que completa tres tarjetas mientras haya menos de tres activos (landing-E16); lo decide EL CLIENTE, para
+     * que no se lea como una opinión real (DD-117).
+     */
+    'testimonios' => [
+        'marcador' => env('LANDING_TESTIMONIO_MARCADOR'),
+    ],
+
+    /*
      * Sección 9, "Preguntas frecuentes": la ruta del archivo JSON con las preguntas y sus respuestas, absoluta o relativa
      * a la carpeta del servidor, como lista de {"pregunta": "…", "respuesta": "…"}. Se muestran a lo más ocho
      * (landing-E20; App\Landing\PreguntasFrecuentes).

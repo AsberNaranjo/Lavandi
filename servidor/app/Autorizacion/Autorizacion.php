@@ -8,6 +8,7 @@ use App\Models\Lavanderia;
 use App\Models\Pedido;
 use App\Models\Plaza;
 use App\Models\Rol;
+use App\Models\Testimonio;
 use App\Models\Usuario;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -22,8 +23,8 @@ use Illuminate\Database\Eloquent\Builder;
  * usuario (confirmacion-E12) y de los de la lavandería, con su plaza (pedidos-lavanderia-E02 y E09), qué teléfonos
  * reciben los avisos de un pedido (avisos-E04 y avisos-E12), qué ve la administración en el panel (las plazas, las
  * lavanderías, los usuarios y los pedidos de todas las plazas: autorizacion-E03, administracion-E01, E06 y E11) y quién
- * abre sesión o bloquea (administracion-E03). La tenencia del repartidor llega aquí mismo con repartidor (hito H8;
- * ADR-0019, decisión 1).
+ * abre sesión o bloquea (administracion-E03), y quién edita los testimonios de la portada (landing-E19). La tenencia del
+ * repartidor llega aquí mismo con repartidor (hito H8; ADR-0019, decisión 1).
  */
 final class Autorizacion
 {
@@ -223,6 +224,29 @@ final class Autorizacion
     public function pedidosActivosDelPanel(Usuario $usuario): Builder
     {
         return $this->pedidosDelPanel($usuario)->activosDelMonitoreo();
+    }
+
+    /**
+     * Si la cuenta edita el contenido de la portada que vive en el panel, los testimonios y su interruptor de activo:
+     * solo la administración (landing-E19; NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2, sección 8; ADR-0011). Ese
+     * contenido no es de una plaza: la portada es una para todo el sitio, así que no hay tenencia ni plaza que mirar.
+     */
+    public function puedeEditarLaPortada(Usuario $usuario): bool
+    {
+        return $this->puedeEntrarAlPanel($usuario);
+    }
+
+    /**
+     * Los testimonios que la cuenta ve y edita en el panel: todos, si puede editar la portada (landing-E15 y E19);
+     * ninguno si no. El recurso de testimonios del panel parte de aquí.
+     *
+     * @return Builder<Testimonio>
+     */
+    public function testimoniosDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = Testimonio::query();
+
+        return $this->puedeEditarLaPortada($usuario) ? $consulta : $consulta->whereRaw('false');
     }
 
     /**
