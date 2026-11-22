@@ -208,23 +208,48 @@ php artisan direcciones:cargar-catalogo storage/app/catalogos/Durango.txt storag
   ];
   ```
 
-  Las claves son grado E, `SIN VERIFICAR` (conocimiento de Claude del catálogo del INEGI). Por eso el comando compara
-  el nombre del archivo con el de la configuración, sin acentos ni mayúsculas, y falla si no coinciden: una clave
-  equivocada no carga otro municipio en silencio.
-- **El formato** (grado E, `SIN VERIFICAR`): texto separado por `|`; la primera línea es una nota legal y la segunda, los
-  nombres de las columnas (`d_codigo`, `d_asenta`, `d_tipo_asenta`, `D_mnpio`, `d_estado`, `c_estado`, `c_mnpio`, entre
-  otras); la codificación es ISO-8859-1. El comando busca cada columna por su nombre, no por su posición; convierte a
-  UTF-8; y si falta una de las que usa, no carga nada y dice cuál (direcciones-E16).
+  Las claves eran grado E, `SIN VERIFICAR` (conocimiento de Claude del catálogo del INEGI). **Verificadas el
+  2026-11-21** contra los archivos de Durango y de Coahuila de Zaragoza descargados ese día (grado E, con fecha):
+  Durango es `10`, con 39 municipios (`001` Canatlán a `039` Nuevo Ideal); Coahuila de Zaragoza es `05`, Torreón `035` y
+  Matamoros `017`. Coinciden con las de arriba, así que `servidor/config/territorio.php` queda así. El comando compara el
+  nombre del archivo con el de la configuración, sin acentos ni mayúsculas, y falla si no coinciden: una clave
+  equivocada no carga otro municipio en silencio. Compara también el nombre del estado, y falla si el archivo de un
+  estado con lista no trae alguno de sus municipios.
+- **El formato** (grado E, **verificado el 2026-11-21** en los dos archivos): texto separado por `|`, con fin de línea
+  CRLF; la primera línea es la nota legal y la segunda, los nombres de las quince columnas (`d_codigo`, `d_asenta`,
+  `d_tipo_asenta`, `D_mnpio`, `d_estado`, `d_ciudad`, `d_CP`, `c_estado`, `c_oficina`, `c_tipo_asenta`, `c_mnpio`,
+  `id_asenta_cpcons`, `d_zona`, `c_cve_ciudad`, `c_CP`); la codificación es ISO-8859-1. El comando busca cada columna
+  por su nombre, no por su posición; convierte a UTF-8 (un archivo que ya está en UTF-8 se lee como está, para no
+  convertirlo dos veces); y si falta una de las que usa, no carga nada y dice cuál (direcciones-E16). Una fila del
+  territorio con un código postal o un código de municipio que no son números, o con un nombre vacío, tampoco carga
+  nada, y el comando dice la línea.
 - **En una transacción:** actualiza o crea los estados y los municipios por su `codigo`; reemplaza las colonias de los
   municipios que cargó. Si algo falla, no cambia nada. Un municipio nunca se borra, porque `direcciones` lo apunta.
-- **Al terminar** dice cuántos municipios y colonias cargó de cada estado, y muestra la primera línea del archivo.
-- **La fuente** (grado E, `SIN VERIFICAR`): Correos de México, Catálogo Nacional de Códigos Postales, descarga por estado
-  en `https://www.correosdemexico.gob.mx/SSLServicios/ConsultaCP/CodigoPostal_Exportar.aspx`, en formato TXT. **Fecha de
-  consulta: ninguna en esta sesión,** que no tiene acceso a la web; la dirección y el formato son de memoria de Claude.
-  Quien descarga el archivo anota la fecha de descarga en la nota de trabajo de esa sesión (`vault/meta/trabajo/`), y
-  la carga se repite cuando SEPOMEX lo actualice.
-- **La licencia** (grado E, `SIN VERIFICAR`): de memoria, la primera línea del archivo dice que el catálogo se da gratis
-  "para uso particular", sin permitir su comercialización ni su distribución a terceros. Por eso:
+- **Al terminar** dice cuántos municipios y colonias cargó de cada estado, muestra la primera línea de cada archivo,
+  cuenta las filas que quedaron fuera del territorio y avisa si un estado del territorio no vino en ningún archivo.
+- **Asentamientos repetidos.** El archivo de Durango trae 11 asentamientos con el mismo nombre, tipo, código postal y
+  municipio, que solo cambian en `id_asenta_cpcons` (por ejemplo, "2 de Octubre", Colonia, 34143, Durango). La carga
+  deja una fila por asentamiento del archivo; la lista de colonias de la API no los repite (tarea 4.3).
+- **La fuente** (grado E): Correos de México, Catálogo Nacional de Códigos Postales, descarga por estado en
+  `https://www.correosdemexico.gob.mx/SSLServicios/ConsultaCP/CodigoPostal_Exportar.aspx`, en formato TXT. **Consultada
+  y descargada el 2026-11-21** por el implementador del servidor; la página decía "Última Actualización de
+  Información: Noviembre 20 de 2026". Cómo se consigue:
+  - **A mano:** en esa página se elige el estado, se marca "TXT" y se oprime "Descargar". Llega un archivo
+    `Durango.txt` o `Coahuila de Zaragoza.txt`.
+  - **Sin navegador:** la página es un formulario de ASP.NET. Se pide la página con GET y se guardan sus cookies y sus
+    campos ocultos `__VIEWSTATE`, `__VIEWSTATEGENERATOR` y `__EVENTVALIDATION`; luego se manda con POST a la misma
+    dirección con esos campos, `cboEdo` con la clave del estado (`10` o `05`), `rblTipo=txt`, y `btnDescarga.x` y
+    `btnDescarga.y` con cualquier número (es un botón de imagen). La respuesta es el archivo
+    (`Content-Disposition: attachment`).
+  - **Dónde vive:** fuera del repositorio, en la máquina de cada entorno, o en `servidor/storage/app/catalogos/`, que git
+    ignora. El comando recibe la ruta.
+  - Los archivos del 2026-11-21: Durango, 39 municipios y 7,149 asentamientos; Coahuila de Zaragoza, 38 municipios y
+    4,489 asentamientos, de los que entran Torreón (566) y Matamoros (203). La carga se repite cuando SEPOMEX lo
+    actualice.
+- **La licencia** (grado E, **verificada el 2026-11-21** en la primera línea de los dos archivos), literal: "El Catálogo
+  Nacional de Códigos Postales, es elaborado por Correos de México y se proporciona en forma gratuita para uso
+  particular, no estando permitida su comercialización, total o parcial, ni su distribución a terceros bajo ningún
+  concepto." Confirma lo que se temía. Por eso:
   - **No se versiona.** Vive en `servidor/storage/app/catalogos/`, que git ignora (`servidor/storage/app/.gitignore:1`).
   - **No entra en lo que se cede**, que es solo el código (`NSV-2026-001-v8.pdf:10:Cláusula IX`): cada entorno lo
     descarga.
