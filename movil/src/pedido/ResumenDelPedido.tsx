@@ -3,9 +3,9 @@
 // su ventana en la hora de la plaza, la recogida y la entrega. Lo usan el resumen antes del pago (confirmacion-E01) y la
 // confirmación con el folio (confirmacion-E09), que no lleva la entrega. Colores y medidas de theme.ts (ADR-0013).
 //
-// Abajo van los renglones que pase la pantalla: en el resumen, el precio estimado, el envío y la política de
-// cancelación, reservados sin cifra con RenglonReservado mientras esperan DD-012, DD-010, DD-019, DD-025 y DD-016
-// (confirmacion-E02, E03 y E04). Los íconos del mock no entran: la app no tiene una librería de íconos, y cada dato
+// Abajo van los renglones que pase la pantalla: en el resumen, el precio estimado y la política de cancelación,
+// reservados sin cifra con RenglonReservado mientras esperan DD-012, DD-010 y DD-016 (confirmacion-E02 y E04). El envío
+// no lleva renglón mientras DD-019 y DD-025 no digan si es un cargo aparte (confirmacion-E03). Los íconos del mock no entran: la app no tiene una librería de íconos, y cada dato
 // lleva su etiqueta escrita. Tampoco entran "Cambiar servicio", "Cambiar ventana" ni "Cambiar dirección": los pasos
 // anteriores se alcanzan con "Regresar".
 import type { ReactNode } from 'react';

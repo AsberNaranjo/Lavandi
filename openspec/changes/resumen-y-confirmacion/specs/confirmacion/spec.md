@@ -35,6 +35,11 @@ precio y en qué unidad va el lavado en seco). Mientras tanto, el renglón se re
 SIN RESPUESTA — bloquea: confirmacion-E03 (DD-019: si el envío es por pedido o por trayecto, fijo o por distancia;
 DD-025: si va aparte, incluido en un pedido mínimo o gratis desde un umbral).
 
+Mientras tanto, el resumen no lleva renglón de envío. El Módulo A #9 enumera "Servicio, fecha, dirección, precio
+estimado y política de cancelación" (`NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3`), y el envío como cargo aparte no
+aparece: si lo es, y cómo se muestra, es parte de DD-019 y DD-025. La prueba que lo fija lleva confirmacion-E03 en su
+nombre (`movil/__tests__/confirmacion/resumen.test.tsx`).
+
 #### Scenario: confirmacion-E04 — La política de cancelación
 
 - **DADO** la política de cancelación de la plaza

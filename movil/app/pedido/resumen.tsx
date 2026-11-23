@@ -3,8 +3,10 @@
 // curso completo: lavandería, servicio, ventana, recogida y entrega (direcciones-E09 y E10).
 //
 // - Muestra el componente 6 del design system con la lavandería, el servicio, la fecha con su ventana en la hora de la
-//   plaza, la recogida y la entrega (confirmacion-E01). El precio estimado, el envío y la política de cancelación van
-//   reservados, sin cifra ni texto inventado (confirmacion-E02, E03 y E04: DD-012, DD-010, DD-019, DD-025 y DD-016).
+//   plaza, la recogida y la entrega (confirmacion-E01). El precio estimado y la política de cancelación van reservados,
+//   sin cifra ni texto inventado (confirmacion-E02 y E04: DD-012, DD-010 y DD-016). El envío no lleva renglón: el
+//   contrato enumera servicio, fecha, dirección, precio estimado y política de cancelación (NSV-2026-001-v8.pdf:16:ANEXO
+//   A, Sección A.3, Módulo A #9), y si el envío es un cargo aparte lo dicen DD-019 y DD-025 (confirmacion-E03).
 // - "Confirmar y pagar" manda POST /api/pedidos solo con lo que pide CrearPedidoRequest. Con 201, el pedido nació en el
 //   estado previo al pago (C-188, ADR-0021): la app guarda su id_publico y abre el pago. El botón no confirma nada: lo
 //   confirma el cobro (confirmacion-E07). Mientras el servidor contesta, el botón no se puede volver a tocar, y si la
@@ -138,7 +140,6 @@ export default function Resumen() {
         entrega={mismaDireccion ? 'misma' : entrega}
       >
         <RenglonReservado testID="renglon-precio-estimado" etiqueta={TEXTOS_DEL_RESUMEN.precioEstimado} />
-        <RenglonReservado testID="renglon-envio" etiqueta={TEXTOS_DEL_RESUMEN.envio} />
         <RenglonReservado
           testID="renglon-politica-de-cancelacion"
           etiqueta={TEXTOS_DEL_RESUMEN.politicaDeCancelacion}
