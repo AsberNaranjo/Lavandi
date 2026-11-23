@@ -10,17 +10,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * evidencias de entrega"; ADR-0006; openspec/changes/repartidor/design.md, "Tablas y migración").
  *
  * La foto vive en el almacenamiento privado de fotos del entorno; aquí, solo su ruta, que nunca sale en JSON
- * (repartidor-E23). id_usuarios es quien la tomó y tomada_en, cuándo. Hoy solo se toma al marcar Entregado, y es
- * opcional; si es obligatoria, si también se toma al recolectar y si es foto o firma espera DD-110 (repartidor-E24).
+ * (repartidor-E23). id_usuarios es quien la tomó y tomada_en, cuándo. Solo se toma al marcar Entregado, y es opcional;
+ * la base solo admite ese tipo. Si es obligatoria, si también se toma al recolectar y si es foto o firma espera DD-110
+ * (repartidor-E24): si pide la de recolección, entra con su migración.
  *
  * Toma la plaza de su pedido, y la base rechaza otra (modelo-E06).
  */
 class Evidencia extends Modelo
 {
     use HeredaLaPlazaDelPedido;
-
-    /** Al recolectar. La base la admite; ninguna pantalla la toma mientras DD-110 siga abierta. */
-    public const RECOLECCION = 'recoleccion';
 
     /** Al marcar Entregado (repartidor-E23). */
     public const ENTREGA = 'entrega';

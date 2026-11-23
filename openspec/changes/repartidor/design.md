@@ -93,7 +93,9 @@ solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`. Todas las llaves fo
    - Columnas: `id_evidencias`, `id_pedidos`, `id_plazas`, `tipo`, `ruta`, `id_usuarios`, `tomada_en`.
    - Llaves foráneas: `(id_pedidos, id_plazas)` → `pedidos(id_pedidos, id_plazas)`; `id_usuarios` →
      `usuarios.id_usuarios`, quien la tomó.
-   - `CHECK` de `tipo`: `recoleccion`, `entrega`. `tomada_en` es `timestamptz`.
+   - `CHECK` de `tipo`: nació con `recoleccion` y `entrega`; la migración `2026_11_26_300000_quitar_del_esquema_lo_que_no_tiene_respaldo`, hacia adelante, deja solo
+     `entrega` (E23): la foto al recolectar es la propuesta de DD-110, sin respuesta (E24). `tomada_en` es
+     `timestamptz`.
    - En la base solo va `ruta`; la foto vive en S3 (ADR-0006). Si es obligatoria y en qué momentos: DD-110 (E24).
 
 **Agrega dos llaves foráneas a tablas que nacen antes**, cuando `repartidores` todavía no existe. Las dos son
@@ -283,8 +285,8 @@ El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/
   (`evidencias`, con su tipo y su hora). El disco de fotos no sirve un archivo sin URL firmada. Quién puede ver la foto, y
   desde dónde, no lo fija la spec.
 - **Opcional y solo al entregar:** sin foto, Entregado pasa igual; con Recolectado o En tránsito, la foto se rechaza con
-  422. Si es obligatoria, si también se toma al recolectar y si es foto o firma espera BR-29 y DD-110 (E24); la tabla ya
-  admite `tipo = 'recoleccion'` para cuando responda.
+  422. Si es obligatoria, si también se toma al recolectar y si es foto o firma espera BR-29 y DD-110 (E24). La tabla
+  solo admite `tipo = 'entrega'`: si DD-110 pide la de recolección, el valor entra con su migración.
 
 ### El historial (tarea 1.7)
 
