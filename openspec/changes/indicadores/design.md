@@ -137,9 +137,11 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
     plaza, como en los pedidos totales.
   - **Qué monto cuenta** espera DD-012 (E10, bloqueado). Mientras, la consulta usa la misma lectura que la ficha del
     usuario en el panel (`administracion`): el final si ya se pesó y, si no, el estimado
-    (`coalesce(monto_final, monto_estimado)`). Es una lectura provisional, no una respuesta: cambia en una sola línea
-    de `MontoPromedio` cuando se responda DD-012, y la prueba de E09 no la afirma (cada pedido de prueba lleva el mismo
-    monto en los dos campos). Hoy nada escribe esos montos, así que en producción el indicador dice "Sin monto".
+    (`coalesce(monto_final, monto_estimado)`, `servidor/app/Indicadores/MontoPromedio.php:24`). Es una lectura
+    provisional, no una respuesta: indicadores-E10 sigue `SIN RESPUESTA`, y la puede cambiar **DD-012**, que fija el
+    modelo de cobro. Cuando responda, cambia esa sola línea de `MontoPromedio`; la prueba de E09 no la afirma (cada
+    pedido de prueba lleva el mismo monto en los dos campos). Hoy nada escribe esos montos, así que en producción el
+    indicador dice "Sin monto".
   - Un pedido sin ningún monto no entra al promedio. El promedio va con dos decimales, en pesos, como texto.
   - **La tendencia** va con su texto, su flecha y su color: "Subió $50.00 frente al periodo anterior ($200.00)", "Bajó
     …" o "Igual que en el periodo anterior (…)". Sin pedidos con monto en el periodo anterior, dice que no hay con qué

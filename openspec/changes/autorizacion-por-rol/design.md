@@ -90,6 +90,16 @@ un servicio externo, ni decide una fila abierta.
   puerta, con su propio `canAccess()` o `canView()` hacia el componente. Los tres de Filament que no muestran datos de la
   operación (la página de inicio, el widget de la cuenta y el de la versión) se declaran en `Autorizacion::panelSinDatos()`.
 
+### El módulo de la app por rol: lectura provisional
+
+Lo que aplica hoy la app no resuelve autorizacion-E06, que sigue `SIN RESPUESTA` (DD-053). `movil/src/sesion/modulos.ts`
+abre el módulo del rol que da `servidor/` en la cuenta (`GET /api/cuenta` y `POST /api/sesion`): `usuario` al Módulo A,
+`lavanderia` al B y `repartidor` al C; un rol sin módulo, como la administración, no abre sesión en la app. Es una
+lectura provisional de "una sola app con los módulos" (`NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3`) con una cuenta de
+un solo rol, y se prueba como registro-E33 (`movil/__tests__/sesion/modulo-por-rol.test.tsx`), no como E06. La puede
+cambiar **DD-053**: si una cuenta puede tener dos roles, o cómo elige su módulo, cambia `moduloDelRol()` y esa prueba
+pasa a E06. La seguridad no depende de esta pantalla: la sostiene autorizacion-E02 en `servidor/`.
+
 ### La matriz de rol por módulo (tarea 1.2)
 
 - **El módulo de una ruta sale de su prefijo:** el B, `api/lavanderia/` y `api/socio/`; el C, `api/repartidor/`; el A, las
