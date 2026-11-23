@@ -6,6 +6,7 @@ use App\Autorizacion\Autorizacion;
 use App\Filament\Resources\Testimonios\Pages\CreateTestimonio;
 use App\Filament\Resources\Testimonios\Pages\EditTestimonio;
 use App\Filament\Resources\Testimonios\Pages\ListTestimonios;
+use App\Filament\Resources\Testimonios\TestimonioResource;
 use App\Models\Rol;
 use App\Models\Testimonio;
 use App\Models\Usuario;
@@ -26,7 +27,8 @@ use Tests\TestCase;
  * testimonios no son de una plaza. El texto del marcador lo decide EL CLIENTE (DD-117). Los testimonios de aquí son
  * inventados.
  *
- * Escenarios: landing-E15, landing-E16 y landing-E19 · Spec: openspec/changes/landing/specs/landing/spec.md · Tarea 4.1
+ * Escenarios: landing-E15, landing-E16, landing-E19 y landing-E26 · Spec: openspec/changes/landing/specs/landing/spec.md ·
+ * Tarea 4.1
  */
 class TestimoniosTest extends TestCase
 {
@@ -159,6 +161,52 @@ class TestimoniosTest extends TestCase
         Livewire::test(ListTestimonios::class)->call('updateTableColumnState', 'activo', (string) $otro->getKey(), false);
         $this->assertFalse($otro->refresh()->activo);
         $this->assertSame(['Persona de prueba editada', 'marcador', 'marcador'], $this->tarjetas());
+    }
+
+    #[TestDox('landing-E26: la administración borra un testimonio activo desde la lista y otro desde su edición: dejan de existir, la portada ya no los muestra y su lugar lo toma el siguiente activo o un marcador de posición')]
+    public function test_landing_e26_la_administracion_borra_un_testimonio_desde_el_panel(): void
+    {
+        $primero = Testimonio::factory()->activo()->create(['autor' => 'Persona de prueba uno', 'orden' => 1]);
+        $segundo = Testimonio::factory()->activo()->create(['autor' => 'Persona de prueba dos', 'orden' => 2]);
+        $tercero = Testimonio::factory()->activo()->create(['autor' => 'Persona de prueba tres', 'orden' => 3]);
+        $this->assertSame(['Persona de prueba uno', 'Persona de prueba dos', 'Persona de prueba tres'], $this->tarjetas());
+        $this->comoAdministracion();
+
+        Livewire::test(ListTestimonios::class)
+            ->assertTableActionVisible('delete', $primero)
+            ->callTableAction('delete', $primero)
+            ->assertHasNoTableActionErrors()
+            ->assertCanNotSeeTableRecords([$primero]);
+
+        $this->assertModelMissing($primero);
+        $this->assertSame(['Persona de prueba dos', 'Persona de prueba tres', 'marcador'], $this->tarjetas());
+
+        Livewire::test(EditTestimonio::class, ['record' => $segundo->getRouteKey()])
+            ->callAction('delete')
+            ->assertHasNoActionErrors();
+
+        $this->assertModelMissing($segundo);
+        $this->assertModelExists($tercero);
+        $this->assertSame(['Persona de prueba tres', 'marcador', 'marcador'], $this->tarjetas());
+    }
+
+    #[TestDox('landing-E26: sin permiso de administración no se borra ningún testimonio: el recurso no deja borrar y la portada no cambia')]
+    public function test_landing_e26_sin_permiso_no_se_borra_ningun_testimonio(): void
+    {
+        Filament::setCurrentPanel('admin');
+        $testimonio = Testimonio::factory()->activo()->create(['autor' => 'Persona de prueba activa', 'orden' => 1]);
+        $antes = $this->tarjetas();
+
+        foreach (self::OTROS_ROLES as $rol) {
+            $this->actingAs(Usuario::factory()->conRol($rol)->create(), 'web');
+
+            $this->assertFalse(TestimonioResource::canDelete($testimonio), $rol);
+            $this->assertFalse(TestimonioResource::canDeleteAny(), $rol);
+            Livewire::test(ListTestimonios::class)->assertForbidden();
+        }
+
+        $this->assertModelExists($testimonio);
+        $this->assertSame($antes, $this->tarjetas());
     }
 
     #[TestDox('landing-E16: el panel no deja guardar un testimonio sin autor o sin texto')]

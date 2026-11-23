@@ -31,10 +31,11 @@ use Tests\TestCase;
  * - El enlace es la ruta de descarga de Filament. Quién baja el archivo lo decide el componente único de autorización:
  *   la cuenta que lo pidió, si todavía es de administración. A cualquier otra cuenta el archivo le responde como si no
  *   existiera (ADR-0019, decisión 3); sin sesión, se le pide entrar.
- * - Los archivos viven unos días y después se borran con su fila (design.md, pregunta abierta 2).
+ * - Los archivos viven los días de la configuración, 7 por omisión, y después el borrado diario los quita con su fila
+ *   (design.md, pregunta abierta 2; exportacion-E12).
  *
- * Escenarios: exportacion-E10 y exportacion-E11 · Spec: openspec/changes/exportacion/specs/exportacion/spec.md · Tarea
- * 4.1
+ * Escenarios: exportacion-E10, exportacion-E11 y exportacion-E12 · Spec:
+ * openspec/changes/exportacion/specs/exportacion/spec.md · Tarea 4.1
  */
 class GeneracionEnSegundoPlanoTest extends TestCase
 {
@@ -158,9 +159,10 @@ class GeneracionEnSegundoPlanoTest extends TestCase
         $this->assertStringContainsString('exportacion-E11', $autorizacion->rutasSinSesion()['GET filament/exports/{export}/download']);
     }
 
-    #[TestDox('exportacion-E10: el archivo se puede bajar desde el aviso durante los días de la configuración, y después se borra con su fila')]
-    public function test_exportacion_e10_los_archivos_se_borran_despues_de_sus_dias(): void
+    #[TestDox('exportacion-E12: la descarga vive 7 días por omisión; pasados, el borrado programado una vez al día la quita con sus archivos y conserva la más reciente')]
+    public function test_exportacion_e12_la_descarga_caduca_y_el_borrado_diario_la_quita(): void
     {
+        // Los 7 días son el valor por omisión de la configuración (EXPORTACION_DIAS_DE_VIDA), no del contrato.
         config(['exportacion.dias_de_vida' => 7]);
         $this->comoAdministracion();
         $this->pedirDescarga('descargarPedidosTotales', self::RANGO)->assertHasNoActionErrors();
@@ -182,10 +184,11 @@ class GeneracionEnSegundoPlanoTest extends TestCase
         $this->assertModelExists($nueva);
         $this->assertTrue($disco->exists($nueva->getFileDirectory()));
 
-        // El borrado corre solo, una vez al día.
+        // El borrado corre solo, una vez al día, a medianoche.
         $programado = collect(app(Schedule::class)->events())
-            ->contains(fn (Event $evento): bool => str_contains((string) $evento->command, 'model:prune')
+            ->filter(fn (Event $evento): bool => str_contains((string) $evento->command, 'model:prune')
                 && str_contains((string) $evento->command, 'Exportacion'));
-        $this->assertTrue($programado, 'El borrado de las descargas viejas no está programado.');
+        $this->assertCount(1, $programado, 'El borrado de las descargas viejas no está programado.');
+        $this->assertSame('0 0 * * *', $programado->sole()->expression);
     }
 }
