@@ -63,6 +63,12 @@ historial-E10 sigue bloqueado y la tarea 3.2 la reemplaza. Tampoco DD-052: histo
    Alternativa descartada: no revisar el estado, que dejaría calificar un pedido sin pagar o sin entregar, y que la
    respuesta a BR-25 tendría que deshacer borrando calificaciones. Las dos pruebas que fijan esta lectura llevan
    "lectura provisional" en su nombre (`servidor/tests/Feature/Historial/CalificacionTest.php`).
+
+   **Así lo aplica hoy el código, y quién lo puede cambiar.** `App\Calificaciones\CalificacionDelServicio` solo
+   califica un pedido en `entregado` (`servidor/app/Calificaciones/CalificacionDelServicio.php:31`). Se prueba como
+   "historial-E06, lectura provisional mientras BR-25 no responda", no como historial-E10: E10 sigue `SIN RESPUESTA`
+   y lo puede cambiar **DD-107** (BR-25: desde qué estado, hasta cuándo y si una calificación se cambia). Cuando
+   responda, cambia esa línea y las dos pruebas pasan a E10.
 7. **El comentario se topa en 1000 caracteres** (`pedidos.comentario_de_calificacion_maximo`). El contrato no le pone
    largo: es un límite técnico, configurable, como el del motivo del rechazo (500) y el del reporte de soporte (5000).
    Se guarda tal como llega, sin los espacios de los extremos; vacío o solo con espacios es "sin comentario" (E06).

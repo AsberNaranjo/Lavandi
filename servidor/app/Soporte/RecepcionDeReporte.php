@@ -11,7 +11,8 @@ use Illuminate\Support\Str;
 
 /**
  * Guarda el reporte del formulario de Soporte, ligado a la cuenta y, si ella quiere, a uno de sus pedidos
- * (perfil-usuario-E11 y perfil-usuario-E13; openspec/changes/perfil-y-soporte/design.md, decisión 3).
+ * (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo A #16, "formulario de reporte"; perfil-usuario-E11, E13 y E17;
+ * openspec/changes/perfil-y-soporte/design.md, decisión 3).
  *
  * Qué pedidos y qué direcciones son de la cuenta lo dice el componente de autorización: un pedido de otra cuenta
  * responde igual que uno que no existe (ADR-0019, decisión 3).
@@ -22,7 +23,9 @@ use Illuminate\Support\Str;
  * 2. sin pedido, la del último pedido de la cuenta;
  * 3. sin pedidos, la de su dirección guardada más reciente que tiene plaza: una borrada ya no está guardada, y una
  *    fuera de toda zona no tiene plaza que dar;
- * 4. sin ninguna, se rechaza sin guardar nada (ReporteSinPlaza).
+ * 4. sin ninguna, se guarda igual, sin plaza: el contrato pide el formulario sin condiciones (perfil-usuario-E17). Ese
+ *    reporte no es de ninguna plaza, y del componente de autorización solo lo recibe la administración, que las ve
+ *    todas (Autorizacion::reportesDeSoporteDelPanel()).
  *
  * A quién le llega el reporte es DD-108 (perfil-usuario-E14): aquí solo se guarda.
  */
@@ -34,7 +37,6 @@ final class RecepcionDeReporte
      * @param  string|null  $pedido  El id_publico de un pedido de la cuenta, o null si no eligió ninguno.
      *
      * @throws PedidoNoVisible
-     * @throws ReporteSinPlaza
      */
     public function recibir(Usuario $usuario, string $descripcion, ?string $pedido): ReporteSoporte
     {
@@ -61,23 +63,20 @@ final class RecepcionDeReporte
     }
 
     /**
-     * La plaza del último pedido de la cuenta o, si no tiene, la de su dirección guardada más reciente con plaza.
-     *
-     * @throws ReporteSinPlaza
+     * La plaza del último pedido de la cuenta o, si no tiene, la de su dirección guardada más reciente con plaza; sin
+     * ninguna de las dos, null.
      */
-    private function plazaDeLaCuenta(Usuario $usuario): int
+    private function plazaDeLaCuenta(Usuario $usuario): ?int
     {
         $plaza = $this->autorizacion->pedidosVisibles($usuario)
             ->latest('created_at')
             ->latest('id_pedidos')
             ->value('id_plazas');
 
-        $plaza ??= $this->autorizacion->direccionesVisibles($usuario)
+        return $plaza ?? $this->autorizacion->direccionesVisibles($usuario)
             ->whereNotNull('id_plazas')
             ->latest('created_at')
             ->latest('id_direcciones')
             ->value('id_plazas');
-
-        return $plaza ?? throw new ReporteSinPlaza;
     }
 }

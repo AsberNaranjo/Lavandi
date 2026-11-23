@@ -23,7 +23,7 @@ M = 5 h.
 
 ## 3. Comisiones (servidor/)
 
-- [x] 3.1 administracion-E11, administracion-E12 y administracion-E13: porcentaje global de la plaza y propio por socio en `comisiones`, sin valores de fábrica y entre 0 y 100 — test: `servidor/tests/Feature/Administracion/ConfiguracionDeComisionesTest.php` — tamaño M
+- [x] 3.1 administracion-E11, administracion-E12 y administracion-E13: porcentaje global, uno para todas las plazas (migración `2026_11_26_100000_hacer_global_la_comision_global`), y propio por socio en `comisiones`, sin valores de fábrica y entre 0 y 100 — test: `servidor/tests/Feature/Administracion/ConfiguracionDeComisionesTest.php` — tamaño M
 - [ ] 3.2 administracion-E14: comisión de un socio repartidor — test: `servidor/tests/Feature/Administracion/ConfiguracionDeComisionesTest.php` — tamaño S — bloqueada: DD-019
 - [ ] 3.3 administracion-E15 y administracion-E16: cálculo de la comisión de cada pedido y efecto de un cambio de porcentaje — test: `servidor/tests/Feature/Administracion/ComisionDelPedidoTest.php` — tamaño S — bloqueada: DD-020, DD-013
 

@@ -328,6 +328,10 @@ Cita: A → `NSV-2026-001-v8.pdf:31:ANEXO B, Sección B.7` y `NSV-2026-001-v8.pd
 
 SIN RESPUESTA — bloquea: registro-E29 (DD-080)
 
+Mientras tanto, el servidor no guarda ninguna constancia: `usuarios` no tiene columna para ella, porque los
+consentimientos son de EL CLIENTE (`NSV-2026-001-v8.pdf:10:Cláusula X`). La prueba que lo fija lleva registro-E29 en
+su nombre (`servidor/tests/Feature/Registro/MigracionTest.php`).
+
 ### Requirement: Cada rol de la app consulta su cuenta y cierra su sesión
 
 La API DEBE (MUST) dejar que una cuenta con un rol de la app —usuario, socio lavandería o socio repartidor— consulte su

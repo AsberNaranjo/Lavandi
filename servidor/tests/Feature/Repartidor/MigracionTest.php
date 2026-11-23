@@ -286,7 +286,7 @@ class MigracionTest extends TestCase
         );
     }
 
-    #[TestDox('repartidor-E23 y modelo-E06: la evidencia es de recolección o de entrega, con su ruta, quien la tomó y cuándo; lleva la llave compuesta con la plaza hacia el pedido y la de la cuenta, ON DELETE RESTRICT')]
+    #[TestDox('repartidor-E23 y modelo-E06: la evidencia es de entrega, con su ruta, quien la tomó y cuándo; la de recolección se rechaza mientras DD-110 no la pida; lleva la llave compuesta con la plaza hacia el pedido y la de la cuenta, ON DELETE RESTRICT')]
     public function test_repartidor_e23_y_modelo_e06_la_tabla_de_evidencias(): void
     {
         $this->assertEqualsCanonicalizing([
@@ -300,7 +300,8 @@ class MigracionTest extends TestCase
         $pedido = $this->pedidoEn($plaza);
         $quien = $this->cuentaDeRepartidor();
 
-        foreach (['firma', 'otro', ''] as $tipo) {
+        // La foto al recolectar es la propuesta de DD-110, sin respuesta (repartidor-E24): la base no la admite.
+        foreach (['recoleccion', 'firma', 'otro', ''] as $tipo) {
             $this->assertRechazada(fn () => $this->insertarEvidencia($pedido, $quien, ['tipo' => $tipo]), self::CHECK_INCUMPLIDO);
         }
 
@@ -311,9 +312,8 @@ class MigracionTest extends TestCase
 
         $this->assertRechazada(fn () => $this->insertarEvidencia($pedido, $quien, ['id_plazas' => $otra->getKey()]), self::LLAVE_FORANEA_ROTA);
 
-        $this->insertarEvidencia($pedido, $quien, ['tipo' => Evidencia::RECOLECCION]);
         $this->insertarEvidencia($pedido, $quien);
-        $this->assertSame(2, DB::table('evidencias')->where('id_pedidos', $pedido->getKey())->count());
+        $this->assertSame([Evidencia::ENTREGA], DB::table('evidencias')->where('id_pedidos', $pedido->getKey())->pluck('tipo')->all());
         $this->assertRechazada(fn () => DB::table('usuarios')->where('id_usuarios', $quien->getKey())->delete(), self::LLAVE_FORANEA_ROTA);
     }
 

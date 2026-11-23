@@ -6,9 +6,9 @@ use App\Models\Concerns\HeredaLaPlazaDeLaLavanderia;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Un porcentaje de comisión con su vigencia: el global de una plaza, sin lavandería, o el propio de una lavandería
- * (NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #5; openspec/changes/administracion/design.md, "Tablas y
- * migración").
+ * Un porcentaje de comisión con su vigencia: el global, sin plaza ni lavandería, uno solo para todo el sistema, o el
+ * propio de una lavandería, con su plaza (NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #5;
+ * openspec/changes/administracion/design.md, "Tablas y migración").
  *
  * Un cambio de porcentaje es una fila nueva y la anterior queda como historial, con su fin de vigencia: no se edita una
  * vigencia que ya rigió. Quién fija, cambia y quita un porcentaje, y cuál le aplica a cada lavandería, lo dice
@@ -40,6 +40,8 @@ class Comision extends Modelo
     }
 
     /**
+     * La plaza de la comisión propia, la de su lavandería. Vacía en la global.
+     *
      * @return BelongsTo<Plaza, $this>
      */
     public function plaza(): BelongsTo
@@ -49,7 +51,7 @@ class Comision extends Modelo
 
     /**
      * La lavandería de la comisión propia, aunque después se borre en suave: la comisión es historial. Vacía en la
-     * global de la plaza.
+     * global.
      *
      * @return BelongsTo<Lavanderia, $this>
      */

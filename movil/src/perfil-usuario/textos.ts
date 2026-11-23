@@ -56,8 +56,6 @@ export const TEXTOS_DEL_PERFIL_DE_USUARIO = {
   enviarReporte: 'Enviar reporte',
   // La confirmación no promete un tiempo de respuesta (perfil-usuario-E11): a quién le llega es DD-108.
   reporteRecibido: 'Recibimos tu reporte. Gracias por avisarnos.',
-  // Sin plaza para el reporte (decisión 27), se ofrece el WhatsApp.
-  escribenosPorWhatsApp: 'Escríbenos por WhatsApp',
   // Borrar la cuenta (perfil-usuario-E15), con la confirmación de la imagen a15-perfil-eliminar.
   eliminarMiCuenta: 'Eliminar mi cuenta',
   confirmarEliminar: '¿Eliminar tu cuenta?',
@@ -101,13 +99,11 @@ export function mensajeDeLaFoto(falla: Falla): string {
 
 /**
  * El mensaje general de un reporte que no se guardó. El error de la descripción (422) va junto al campo
- * (perfil-usuario-E12). Sin plaza, el mensaje del servidor (decisión 27). Un pedido que no es de la cuenta (404), sin
- * conexión o con el servidor caído, sin escenario propio en la app: los mensajes generales.
+ * (perfil-usuario-E12). Un pedido que no es de la cuenta (404), sin conexión o con el servidor caído, sin escenario
+ * propio en la app: los mensajes generales.
  */
 export function mensajeDelReporte(falla: FallaDelReporte): string | undefined {
   switch (falla.motivo) {
-    case 'sin-plaza':
-      return falla.mensaje || MENSAJES.servidor;
     case 'invalido':
       return mensajeGeneral(falla, ['descripcion']);
     case 'sin-conexion':

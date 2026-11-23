@@ -13,6 +13,7 @@ S = 2 h, M = 5 h, L = 12 h.
 - [x] 1.3 perfil-usuario-E09 y perfil-usuario-E10: el número de soporte como dato de configuración que lee la app, vacío si no existe (depende de la pregunta abierta de `design.md`) — test: `servidor/tests/Feature/PerfilUsuario/NumeroDeSoporteTest.php` — tamaño S
 - [x] 1.4 perfil-usuario-E11, perfil-usuario-E12 y perfil-usuario-E13: guardar el reporte en `reportes_soporte` con descripción obligatoria y pedido propio opcional — test: `servidor/tests/Feature/PerfilUsuario/ReporteTest.php` — tamaño S
 - [x] 1.5 perfil-usuario-E15: borrar la cuenta, revocar todos sus tokens y rechazar su inicio de sesión por correo, Google y Apple — test: `servidor/tests/Feature/PerfilUsuario/BorrarCuentaTest.php` — tamaño S
+- [x] 1.6 perfil-usuario-E17: el reporte de una cuenta sin plaza se guarda sin ella (migración `2026_11_26_200000_admitir_reportes_soporte_sin_plaza`) y del componente solo lo recibe la administración — test: `servidor/tests/Feature/PerfilUsuario/ReporteTest.php`, `servidor/tests/Feature/PerfilUsuario/MigracionTest.php` y `servidor/tests/Feature/Autorizacion/BarridoContraFugasTest.php` — tamaño S
 
 ## 2. App (`movil/`)
 
@@ -20,7 +21,7 @@ S = 2 h, M = 5 h, L = 12 h.
 - [x] 2.2 perfil-usuario-E03 y perfil-usuario-E04: foto desde la cámara o la galería, comprimida antes de subirla — test: `movil/__tests__/perfil-usuario/foto-de-perfil.test.tsx` — tamaño M. Reusa la preparación de la foto de la lavandería (`movil/src/alta-lavanderias/foto.ts`) y sus parámetros de compresión, sin dependencias nuevas; se sube en cuanto se tiene, sin otro botón; el error de la API va junto a la foto y la anterior sigue (`movil/src/perfil-usuario/FotoDePerfil.tsx`). El texto del permiso de la cámara y de las fotos ahora nombra también la foto de perfil: en iPhone se ve con el siguiente development build
 - [x] 2.3 perfil-usuario-E08: estado del permiso de avisos y acceso a activarlo — test: `movil/__tests__/perfil-usuario/notificaciones.test.tsx` — tamaño S. "Activar avisos" si la persona nunca respondió y "Abrir ajustes" si ya lo negó; sin avisos en la compilación la sección no aparece (`design.md`, decisión 4)
 - [x] 2.4 perfil-usuario-E09 y perfil-usuario-E10: abrir el chat de WhatsApp con el número de la configuración, o mostrarlo como no disponible — test: `movil/__tests__/perfil-usuario/whatsapp.test.tsx` — tamaño S
-- [x] 2.5 perfil-usuario-E11 y perfil-usuario-E12: formulario de reporte con confirmación sin tiempo de respuesta — test: `movil/__tests__/perfil-usuario/reporte.test.tsx` — tamaño S
+- [x] 2.5 perfil-usuario-E11, perfil-usuario-E12 y perfil-usuario-E17: formulario de reporte con confirmación sin tiempo de respuesta, también para una cuenta sin plaza — test: `movil/__tests__/perfil-usuario/reporte.test.tsx` — tamaño S
 - [x] 2.6 perfil-usuario-E15: borrar la cuenta con confirmación previa y volver a la bienvenida — test: `movil/__tests__/perfil-usuario/borrar-cuenta.test.tsx` — tamaño S
 
 ## 3. Bloqueadas: no entran al sprint hasta cerrar su fila

@@ -72,7 +72,6 @@ class Usuario extends Modelo implements AuthenticatableContract, AuthorizableCon
         return [
             'password' => 'hashed',
             'bloqueado_en' => 'datetime',
-            'terminos_aceptados_en' => 'datetime',
         ];
     }
 

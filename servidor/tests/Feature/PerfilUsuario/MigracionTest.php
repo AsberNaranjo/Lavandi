@@ -20,14 +20,16 @@ use Tests\TestCase;
  * La tabla reportes_soporte y su modelo de Eloquent, ReporteSoporte (openspec/changes/perfil-y-soporte/design.md,
  * "Tablas y migración"; vault/arquitectura/modelo-de-datos.md; ADR-0016).
  *
- * La plaza es no nula (plazas-E09): con pedido, la del pedido; sin pedido, la que resuelve el servidor (decisión 27 de
- * acta-2026-11-20-modelo-y-pasarela). La llave compuesta (id_pedidos, id_plazas) hace que la base rechace un reporte
- * con otra plaza que la de su pedido.
+ * La plaza (plazas-E09): con pedido, la del pedido; sin pedido, la que resuelve el servidor (decisión 27 de
+ * acta-2026-11-20-modelo-y-pasarela), o ninguna si la cuenta no tiene de dónde tomarla: el reporte se guarda igual
+ * (perfil-usuario-E17; migración 2026_11_26_200000_admitir_reportes_soporte_sin_plaza). La llave compuesta
+ * (id_pedidos, id_plazas) hace que la base rechace un reporte con otra plaza que la de su pedido, y un CHECK, uno con
+ * pedido y sin plaza, que se la saltaría.
  *
  * Las filas se insertan con el constructor de consultas, sin pasar por el modelo, cuando la prueba pide que la base
  * rechace la fila aunque el código no la haya validado.
  *
- * Escenarios: modelo-E01 a modelo-E17 sobre la tabla nueva, y la base de perfil-usuario-E11 a E13 · Spec:
+ * Escenarios: modelo-E01 a modelo-E17 sobre la tabla nueva, y la base de perfil-usuario-E11 a E13 y E17 · Spec:
  * openspec/changes/perfil-y-soporte/specs/perfil-usuario/spec.md · Tarea 0.1 de
  * openspec/changes/perfil-y-soporte/tasks.md
  */
@@ -83,21 +85,34 @@ class MigracionTest extends TestCase
         }
     }
 
-    #[TestDox('plazas-E09 y perfil-usuario-E11: la plaza, la cuenta, la descripción y el estado son no nulos; el pedido y la atención nacen vacíos')]
-    public function test_plazas_e09_y_perfil_usuario_e11_lo_obligatorio_y_lo_que_nace_vacio(): void
+    #[TestDox('plazas-E09, perfil-usuario-E11 y perfil-usuario-E17: la cuenta, la descripción y el estado son no nulos; la plaza admite vacío, el reporte de una cuenta sin plaza, pero no con pedido; el pedido y la atención nacen vacíos')]
+    public function test_plazas_e09_y_perfil_usuario_e11_y_e17_lo_obligatorio_y_lo_que_nace_vacio(): void
     {
-        foreach (['id_usuarios', 'id_plazas', 'mensaje', 'estado'] as $columna) {
+        $this->assertContains('reportes_soporte', config('modelo.plaza_opcional'));
+
+        foreach (['id_usuarios', 'mensaje', 'estado'] as $columna) {
             $this->assertFalse($this->admiteVacio($columna), "{$columna} es no nula.");
         }
 
-        // El pedido va "si él quiere" (perfil-usuario-E11); la atención espera DD-108 (perfil-usuario-E14).
-        foreach (['id_pedidos', 'atendido_en'] as $columna) {
+        // El pedido va "si él quiere" (perfil-usuario-E11); la atención espera DD-108 (perfil-usuario-E14); la plaza
+        // falta cuando la cuenta no tiene de dónde tomarla (perfil-usuario-E17).
+        foreach (['id_pedidos', 'id_plazas', 'atendido_en'] as $columna) {
             $this->assertTrue($this->admiteVacio($columna), "{$columna} admite vacío.");
         }
 
-        $this->assertRechazada(fn () => $this->insertarReporte(['id_plazas' => null]), self::VALOR_VACIO);
         $this->assertRechazada(fn () => $this->insertarReporte(['mensaje' => null]), self::VALOR_VACIO);
         $this->assertSame(0, DB::table('reportes_soporte')->count());
+
+        // Con pedido, sin plaza no: la llave compuesta hacia el pedido no se revisaría.
+        $cuenta = $this->cuentaDeUsuario();
+        $pedido = $this->pedidoDe($cuenta, $this->plazaDePrueba());
+        $this->assertRechazada(
+            fn () => $this->insertarReporte(['id_usuarios' => $cuenta->getKey(), 'id_pedidos' => $pedido->getKey(), 'id_plazas' => null]),
+            self::CHECK_INCUMPLIDO,
+        );
+
+        $this->insertarReporte(['id_usuarios' => $cuenta->getKey(), 'id_plazas' => null]);
+        $this->assertSame(1, DB::table('reportes_soporte')->whereNull('id_plazas')->whereNull('id_pedidos')->count());
     }
 
     #[TestDox('modelo-E06 y modelo-E09: la llave a la cuenta, la compuesta con la plaza hacia el pedido y la de la plaza, todas ON DELETE RESTRICT; sin únicos')]

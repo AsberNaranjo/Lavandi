@@ -95,6 +95,15 @@ y el orden del paso en que los ve el usuario (Listo y Confirmado), así que `seg
 paso actual igual que antes, por `estado.codigo`. La regla está en la adenda propuesta a ADR-0021, en el `design.md` de
 `pedidos-de-la-lavanderia`.
 
+**"En proceso de entrega" se ve como Listo: lectura provisional, no respuesta.** Es lo que aplica hoy el código, por
+ADR-0021 (decisión 26 del acta del 2026-11-20, C-236): `en_entrega` se siembra con el nombre y el orden de Listo, y
+`App\Http\Resources\PedidoResource::estadoParaElUsuario()` lo presenta con el código de ese paso. No resuelve
+estados-E12, que sigue `SIN RESPUESTA` (DD-022 y DD-011): lo que ve el usuario con "En proceso de entrega" lo pueden
+cambiar esas dos. Por eso no se prueba como E12 sino bajo estados-E04
+(`servidor/tests/Feature/Estados/BotonesDeLaLavanderiaTest.php`, "estados-E04: en En proceso de entrega, el usuario
+sigue viendo uno de los cinco: Listo"). Si la respuesta pide otro de los cinco, cambian el nombre y el orden sembrados
+de `en_entrega`, en una migración hacia adelante, y esa prueba pasa a E12.
+
 ### Los botones de la lavandería
 
 Lo agregó el implementador del servidor con las tareas 2.1, 3.1 y 3.2. Las rutas de la lavandería, su sesión, su

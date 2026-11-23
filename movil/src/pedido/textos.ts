@@ -29,11 +29,10 @@ export const TEXTOS_DEL_RESUMEN = {
   entrega: 'Entrega',
   // La entrega en la misma dirección de la recogida (direcciones-E09).
   mismaDeLaRecogida: 'La misma de la recogida',
-  // Los renglones reservados: el precio se presenta como estimado (confirmacion-E02, DD-012 y DD-010), el envío
-  // (confirmacion-E03, DD-019 y DD-025) y la política de cancelación (confirmacion-E04, DD-016). Sin cifra ni texto
-  // inventado: solo el lugar, marcado.
+  // Los renglones reservados: el precio se presenta como estimado (confirmacion-E02, DD-012 y DD-010) y la política de
+  // cancelación (confirmacion-E04, DD-016). Sin cifra ni texto inventado: solo el lugar, marcado. El envío no lleva
+  // renglón: el Módulo A #9 no lo enumera, y si es un cargo aparte lo dicen DD-019 y DD-025 (confirmacion-E03).
   precioEstimado: 'Precio estimado',
-  envio: 'Envío',
   politicaDeCancelacion: 'Política de cancelación',
   porConfirmar: 'Por confirmar',
   // El botón lleva al pago (confirmacion-E07). Con C-188 y C-197 se cobra al estimar, antes de recolectar: es la

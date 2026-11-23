@@ -73,6 +73,17 @@ class MigracionTest extends TestCase
         $this->assertSame(['id_usuarios', 'id_roles'], $llave['columns'] ?? null);
     }
 
+    #[TestDox('registro-E29: usuarios no guarda una constancia de aceptación del aviso y los términos: los consentimientos son de EL CLIENTE, y si el servidor la guarda lo decide DD-080')]
+    public function test_registro_e29_usuarios_no_guarda_una_constancia_de_aceptacion(): void
+    {
+        $this->assertFalse(Schema::hasColumn('usuarios', 'terminos_aceptados_en'));
+        $this->assertSame([], array_values(array_filter(
+            Schema::getColumnListing('usuarios'),
+            fn (string $columna): bool => str_contains($columna, 'terminos') || str_contains($columna, 'acept'),
+        )));
+        $this->assertArrayNotHasKey('terminos_aceptados_en', (new Usuario)->getCasts());
+    }
+
     #[TestDox('registro-E01: la migración siembra los cuatro roles')]
     public function test_registro_e01_la_migracion_siembra_los_cuatro_roles(): void
     {

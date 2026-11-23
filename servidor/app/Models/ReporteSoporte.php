@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Un reporte del formulario de Soporte: la descripción de la persona, ligada a su cuenta y, si ella quiere, a uno de sus
  * pedidos (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo A #16; openspec/changes/perfil-y-soporte/design.md).
  *
- * La descripción se guarda en mensaje y la fecha es created_at (perfil-usuario-E11). La plaza es no nula: la resuelve
- * App\Soporte\RecepcionDeReporte (decisión 27 de acta-2026-11-20-modelo-y-pasarela). No tiene identificador público:
- * la API no lo expone.
+ * La descripción se guarda en mensaje y la fecha es created_at (perfil-usuario-E11). La plaza la resuelve
+ * App\Soporte\RecepcionDeReporte (decisión 27 de acta-2026-11-20-modelo-y-pasarela); queda vacía si la cuenta no tiene
+ * de dónde tomarla, y el reporte se guarda igual (perfil-usuario-E17). No tiene identificador público: la API no lo
+ * expone.
  *
  * A quién le llega y cómo se le responde a la persona es DD-108 (perfil-usuario-E14): mientras tanto, solo se guarda.
  */
@@ -66,6 +67,8 @@ class ReporteSoporte extends Modelo
     }
 
     /**
+     * La plaza del reporte; null si la cuenta no tenía de dónde tomarla (perfil-usuario-E17).
+     *
      * @return BelongsTo<Plaza, $this>
      */
     public function plaza(): BelongsTo

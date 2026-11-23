@@ -31,7 +31,7 @@ Las pruebas de navegador son de Playwright desde Node (`design.md`, pregunta abi
 ## 4. Contenido editable desde el panel
 
 - [x] 4.0 Migración de `testimonios`, como entró a `modelo-de-datos.md` (sección "Landing"), en la lista `sin_plaza` de `config/modelo.php`, con su modelo y su fábrica de datos de prueba; base de landing-E15, landing-E16 y landing-E19 — test: `servidor/tests/Feature/Landing/MigracionTest.php` (modelo-E01 a modelo-E17 sobre la tabla) — tamaño S
-- [x] 4.1 landing-E15, landing-E16, landing-E19: testimonios en Filament con interruptor de activo y orden; de 3 a 5 tarjetas con marcadores de posición; edición solo con permiso de administración — test: `servidor/tests/Feature/Landing/TestimoniosTest.php` — tamaño M
+- [x] 4.1 landing-E15, landing-E16, landing-E19 y landing-E26: testimonios en Filament con interruptor de activo, orden y borrado; de 3 a 5 tarjetas con marcadores de posición; edición solo con permiso de administración — test: `servidor/tests/Feature/Landing/TestimoniosTest.php` — tamaño M
 - [ ] 4.2 landing-E17, landing-E18: logos de prensa activables y la sección presente sin logos activos (espera: la tabla de logos de prensa en `modelo-de-datos.md` y los logos de EL CLIENTE) — test: `servidor/tests/Feature/Landing/PrensaTest.php` — tamaño S
 - [x] 4.3 landing-E20: preguntas frecuentes en acordeón, con toque y con teclado — test: `servidor/tests/Browser/Landing/PreguntasFrecuentes.spec.js` y `servidor/tests/Feature/Landing/PreguntasFrecuentesTest.php` — tamaño S
 

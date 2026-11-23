@@ -10,7 +10,6 @@ use App\Models\Comision;
 use App\Models\Lavanderia;
 use App\Models\MovimientoPasarela;
 use App\Models\Pago;
-use App\Models\Plaza;
 use App\Models\Rol;
 use App\Models\Usuario;
 use Illuminate\Database\QueryException;
@@ -27,9 +26,11 @@ use Tests\TestCase;
  * MovimientoPasarela (openspec/changes/administracion/design.md, "Tablas y migración"; vault/arquitectura/
  * modelo-de-datos.md; ADR-0016).
  *
- * - comisiones: el porcentaje global de cada plaza (sin lavandería) y el propio de cada lavandería, con su vigencia. La
- *   llave hacia la lavandería es compuesta con la plaza, el porcentaje va de 0 a 100 y la migración no siembra ninguno:
- *   los captura EL CLIENTE (administracion-E11 a E13).
+ * - comisiones: el porcentaje global, uno solo para todo el sistema (sin plaza ni lavandería), y el propio de cada
+ *   lavandería, con su plaza, cada uno con su vigencia. La llave hacia la lavandería es compuesta con la plaza, el
+ *   porcentaje va de 0 a 100 y la migración no siembra ninguno: los captura EL CLIENTE (administracion-E11 a E13). La
+ *   global era de cada plaza hasta la migración 2026_11_26_100000_hacer_global_la_comision_global, que convierte lo que
+ *   hubiera (NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #5, "por socio o global").
  * - avisos_masivos: el aviso al celular con su título, su texto, quién lo envió y a cuántos teléfonos salió. La plaza es
  *   opcional: vacía, el aviso es para todas (lista "plaza opcional" de config/modelo.php).
  * - movimientos_pasarela: los pagos que acreditó la pasarela, leídos de su API al conciliar un periodo, una fila por
@@ -115,25 +116,80 @@ class MigracionTest extends TestCase
         }
     }
 
-    #[TestDox('plazas-E09 y administracion-E11: en comisiones la plaza, el porcentaje y el inicio de vigencia son no nulos; la lavandería vacía es la comisión global de la plaza, y sin fin de vigencia sigue vigente')]
+    #[TestDox('plazas-E09 y administracion-E11: en comisiones el porcentaje y el inicio de vigencia son no nulos; la global, una para todo el sistema, no lleva plaza ni lavandería, la propia lleva las dos, y la tabla está en la lista de plaza opcional')]
     public function test_plazas_e09_y_administracion_e11_lo_obligatorio_y_lo_opcional_de_comisiones(): void
     {
-        foreach (['id_plazas', 'porcentaje', 'vigente_desde'] as $columna) {
+        $this->assertContains('comisiones', config('modelo.plaza_opcional'));
+
+        foreach (['porcentaje', 'vigente_desde'] as $columna) {
             $this->assertFalse($this->admiteVacio('comisiones', $columna), "{$columna} es no nula.");
+            $this->assertRechazada(fn () => $this->insertarComision([$columna => null]), self::VALOR_VACIO);
         }
 
-        foreach (['id_lavanderias', 'vigente_hasta'] as $columna) {
+        foreach (['id_plazas', 'id_lavanderias', 'vigente_hasta'] as $columna) {
             $this->assertTrue($this->admiteVacio('comisiones', $columna), "{$columna} admite vacío.");
         }
 
         $plaza = $this->plazaDePrueba();
-        $this->assertRechazada(fn () => $this->insertarComision($plaza, ['id_plazas' => null]), self::VALOR_VACIO);
-        $this->assertRechazada(fn () => $this->insertarComision($plaza, ['porcentaje' => null]), self::VALOR_VACIO);
-        $this->assertRechazada(fn () => $this->insertarComision($plaza, ['vigente_desde' => null]), self::VALOR_VACIO);
+        $lavanderia = Lavanderia::factory()->en($plaza)->create();
 
-        // La global de la plaza: sin lavandería y sin fin de vigencia.
-        $this->insertarComision($plaza);
-        $this->assertSame(1, DB::table('comisiones')->whereNull('id_lavanderias')->whereNull('vigente_hasta')->count());
+        // Una global con plaza, o una propia sin ella, que se saltaría la llave compuesta: ninguna de las dos.
+        $this->assertRechazada(fn () => $this->insertarComision(['id_plazas' => $plaza->getKey()]), self::CHECK_INCUMPLIDO);
+        $this->assertRechazada(fn () => $this->insertarComision(['id_lavanderias' => $lavanderia->getKey()]), self::CHECK_INCUMPLIDO);
+
+        // La global: sin plaza, sin lavandería y sin fin de vigencia. La propia, con su lavandería y su plaza.
+        $this->insertarComision();
+        $this->insertarPropia($lavanderia);
+        $this->assertSame(1, DB::table('comisiones')->whereNull('id_plazas')->whereNull('id_lavanderias')->whereNull('vigente_hasta')->count());
+        $this->assertSame(1, DB::table('comisiones')->where('id_plazas', $plaza->getKey())->where('id_lavanderias', $lavanderia->getKey())->count());
+    }
+
+    #[TestDox('administracion-E11: la migración que hace global la comisión convierte las globales de cada plaza en la del sistema, con su historial: queda abierta la que se fijó al último, las demás se cierran cuando empezó esa, y las propias no cambian')]
+    public function test_administracion_e11_la_migracion_convierte_las_globales_de_cada_plaza_en_la_del_sistema(): void
+    {
+        // La tabla como la dejó la migración que la creó: la plaza obligatoria y una global abierta por plaza.
+        DB::statement('alter table comisiones drop constraint comisiones_global_o_propia_check');
+        DB::statement('drop index comisiones_global_abierta_unique');
+        DB::statement('alter table comisiones alter column id_plazas set not null');
+        DB::statement('create unique index comisiones_global_abierta_unique on comisiones (id_plazas)
+            where id_lavanderias is null and vigente_hasta is null');
+
+        $plazaA = $this->plazaDePrueba('Plaza de prueba A');
+        $plazaB = $this->plazaDePrueba('Plaza de prueba B');
+        $plazaC = $this->plazaDePrueba('Plaza de prueba C');
+        $plazaD = $this->plazaDePrueba('Plaza de prueba D');
+        $deA = Lavanderia::factory()->en($plazaA)->create();
+
+        $historialDeA = $this->insertarComision(['id_plazas' => $plazaA->getKey(), 'porcentaje' => '8', 'vigente_desde' => '2025-06-01 00:00:00+00', 'vigente_hasta' => '2026-01-01 00:00:00+00']);
+        $abiertaDeA = $this->insertarComision(['id_plazas' => $plazaA->getKey(), 'porcentaje' => '10', 'vigente_desde' => '2026-01-01 00:00:00+00']);
+        $abiertaDeD = $this->insertarComision(['id_plazas' => $plazaD->getKey(), 'porcentaje' => '9', 'vigente_desde' => '2025-12-01 00:00:00+00']);
+        // C y B se fijaron en el mismo instante, el último: queda la de B, que se guardó después.
+        $abiertaDeC = $this->insertarComision(['id_plazas' => $plazaC->getKey(), 'porcentaje' => '11', 'vigente_desde' => '2026-02-01 00:00:00+00']);
+        $abiertaDeB = $this->insertarComision(['id_plazas' => $plazaB->getKey(), 'porcentaje' => '12', 'vigente_desde' => '2026-02-01 00:00:00+00']);
+        $propia = $this->insertarPropia($deA, ['porcentaje' => '7', 'vigente_desde' => '2026-01-15 00:00:00+00']);
+
+        $migracion = require database_path('migrations/2026_11_26_100000_hacer_global_la_comision_global.php');
+        $migracion->up();
+
+        $fila = fn (int $id): array => (array) DB::table('comisiones')
+            ->where('id_comisiones', $id)
+            ->selectRaw("id_plazas, id_lavanderias, porcentaje, to_char(vigente_desde at time zone 'UTC', 'YYYY-MM-DD') as desde, to_char(vigente_hasta at time zone 'UTC', 'YYYY-MM-DD') as hasta")
+            ->first();
+
+        $this->assertSame(['id_plazas' => null, 'id_lavanderias' => null, 'porcentaje' => '12.00', 'desde' => '2026-02-01', 'hasta' => null], $fila($abiertaDeB));
+        $this->assertSame(['id_plazas' => null, 'id_lavanderias' => null, 'porcentaje' => '10.00', 'desde' => '2026-01-01', 'hasta' => '2026-02-01'], $fila($abiertaDeA));
+        $this->assertSame(['id_plazas' => null, 'id_lavanderias' => null, 'porcentaje' => '9.00', 'desde' => '2025-12-01', 'hasta' => '2026-02-01'], $fila($abiertaDeD));
+        $this->assertSame(['id_plazas' => null, 'id_lavanderias' => null, 'porcentaje' => '8.00', 'desde' => '2025-06-01', 'hasta' => '2026-01-01'], $fila($historialDeA));
+        $this->assertSame(['id_plazas' => $plazaA->getKey(), 'id_lavanderias' => $deA->getKey(), 'porcentaje' => '7.00', 'desde' => '2026-01-15', 'hasta' => null], $fila($propia));
+        // La de C empezó en el mismo instante que la que quedó: nunca rigió sola.
+        $this->assertFalse(DB::table('comisiones')->where('id_comisiones', $abiertaDeC)->exists());
+
+        // La tabla queda como la nueva: una global abierta en todo el sistema, y ninguna global con plaza.
+        $this->assertRechazada(fn () => $this->insertarComision(['vigente_desde' => '2026-03-01 00:00:00+00']), self::UNICO_REPETIDO);
+        $this->assertRechazada(
+            fn () => $this->insertarComision(['id_plazas' => $plazaA->getKey(), 'vigente_hasta' => '2026-01-02 00:00:00+00']),
+            self::CHECK_INCUMPLIDO,
+        );
     }
 
     #[TestDox('administracion-E11: la migración no siembra ningún porcentaje: comisiones nace vacía')]
@@ -145,14 +201,12 @@ class MigracionTest extends TestCase
     #[TestDox('administracion-E13: la base rechaza un porcentaje menor que 0 o mayor que 100, y acepta 0 y 100')]
     public function test_administracion_e13_la_base_rechaza_un_porcentaje_fuera_de_rango(): void
     {
-        $plaza = $this->plazaDePrueba();
-
         foreach (['-0.01', '100.01', '-5', '150'] as $porcentaje) {
-            $this->assertRechazada(fn () => $this->insertarComision($plaza, ['porcentaje' => $porcentaje]), self::CHECK_INCUMPLIDO);
+            $this->assertRechazada(fn () => $this->insertarComision(['porcentaje' => $porcentaje]), self::CHECK_INCUMPLIDO);
         }
 
-        $this->insertarComision($plaza, ['porcentaje' => '0', 'vigente_hasta' => '2026-02-01 00:00:00+00']);
-        $this->insertarComision($plaza, ['porcentaje' => '100', 'vigente_desde' => '2026-02-01 00:00:00+00']);
+        $this->insertarComision(['porcentaje' => '0', 'vigente_hasta' => '2026-02-01 00:00:00+00']);
+        $this->insertarComision(['porcentaje' => '100', 'vigente_desde' => '2026-02-01 00:00:00+00']);
 
         $this->assertSame(['0.00', '100.00'], DB::table('comisiones')->orderBy('id_comisiones')->pluck('porcentaje')->all());
     }
@@ -160,41 +214,37 @@ class MigracionTest extends TestCase
     #[TestDox('modelo-E07: la vigencia de una comisión termina después de empezar, o no termina')]
     public function test_modelo_e07_la_vigencia_termina_despues_de_empezar(): void
     {
-        $plaza = $this->plazaDePrueba();
-
         foreach (['2026-01-01 00:00:00+00', '2025-12-31 23:59:59+00'] as $fin) {
-            $this->assertRechazada(fn () => $this->insertarComision($plaza, ['vigente_hasta' => $fin]), self::CHECK_INCUMPLIDO);
+            $this->assertRechazada(fn () => $this->insertarComision(['vigente_hasta' => $fin]), self::CHECK_INCUMPLIDO);
         }
 
-        $this->insertarComision($plaza, ['vigente_hasta' => '2026-01-01 00:00:01+00']);
+        $this->insertarComision(['vigente_hasta' => '2026-01-01 00:00:01+00']);
         $this->assertSame(1, DB::table('comisiones')->count());
     }
 
-    #[TestDox('administracion-E12: una plaza tiene a lo más una comisión global abierta y una lavandería a lo más una propia abierta; las cerradas quedan como historial')]
-    public function test_administracion_e12_a_lo_mas_una_comision_abierta_por_plaza_y_por_lavanderia(): void
+    #[TestDox('administracion-E11 y administracion-E12: hay a lo más una comisión global abierta en todo el sistema, con lavanderías en dos plazas, y una lavandería a lo más una propia abierta; las cerradas quedan como historial')]
+    public function test_administracion_e11_y_e12_a_lo_mas_una_global_abierta_y_una_propia_por_lavanderia(): void
     {
-        $plaza = $this->plazaDePrueba();
-        $lavanderia = Lavanderia::factory()->en($plaza)->create();
+        $lavanderia = Lavanderia::factory()->en($this->plazaDePrueba())->create();
+        $deOtraPlaza = Lavanderia::factory()->en($this->plazaDePrueba('Plaza de prueba 2'))->create();
 
-        $this->insertarComision($plaza);
-        $this->assertRechazada(fn () => $this->insertarComision($plaza, ['vigente_desde' => '2026-03-01 00:00:00+00']), self::UNICO_REPETIDO);
+        $this->insertarComision();
+        $this->assertRechazada(fn () => $this->insertarComision(['vigente_desde' => '2026-03-01 00:00:00+00']), self::UNICO_REPETIDO);
 
-        $this->insertarComision($plaza, ['id_lavanderias' => $lavanderia->getKey()]);
+        $this->insertarPropia($lavanderia);
         $this->assertRechazada(
-            fn () => $this->insertarComision($plaza, ['id_lavanderias' => $lavanderia->getKey(), 'vigente_desde' => '2026-03-01 00:00:00+00']),
+            fn () => $this->insertarPropia($lavanderia, ['vigente_desde' => '2026-03-01 00:00:00+00']),
             self::UNICO_REPETIDO,
         );
+        // La de otra lavandería, de otra plaza, es otra propia.
+        $this->insertarPropia($deOtraPlaza);
 
         // Las cerradas no cuentan: un cambio de porcentaje es una fila nueva y la anterior queda como historial.
-        $this->insertarComision($plaza, ['vigente_desde' => '2025-01-01 00:00:00+00', 'vigente_hasta' => '2026-01-01 00:00:00+00']);
-        $this->insertarComision($plaza, [
-            'id_lavanderias' => $lavanderia->getKey(),
+        $this->insertarComision(['vigente_desde' => '2025-01-01 00:00:00+00', 'vigente_hasta' => '2026-01-01 00:00:00+00']);
+        $this->insertarPropia($lavanderia, [
             'vigente_desde' => '2025-01-01 00:00:00+00',
             'vigente_hasta' => '2026-01-01 00:00:00+00',
         ]);
-
-        // Otra plaza tiene su propia global abierta.
-        $this->insertarComision($this->plazaDePrueba('Plaza de prueba 2'));
 
         $this->assertSame(5, DB::table('comisiones')->count());
     }
@@ -211,10 +261,10 @@ class MigracionTest extends TestCase
         $plazaB = $this->plazaDePrueba('Plaza de prueba B');
         $deA = Lavanderia::factory()->en($plazaA)->create();
 
-        $this->assertRechazada(fn () => $this->insertarComision($plazaB, ['id_lavanderias' => $deA->getKey()]), self::LLAVE_FORANEA_ROTA);
-        $this->assertRechazada(fn () => $this->insertarComision($plazaA, ['id_plazas' => 999_999]), self::LLAVE_FORANEA_ROTA);
+        $this->assertRechazada(fn () => $this->insertarPropia($deA, ['id_plazas' => $plazaB->getKey()]), self::LLAVE_FORANEA_ROTA);
+        $this->assertRechazada(fn () => $this->insertarPropia($deA, ['id_plazas' => 999_999]), self::LLAVE_FORANEA_ROTA);
 
-        $this->insertarComision($plazaA, ['id_lavanderias' => $deA->getKey()]);
+        $this->insertarPropia($deA);
 
         // La base no borra la plaza ni la lavandería de una comisión.
         $this->assertRechazada(fn () => DB::table('lavanderias')->where('id_lavanderias', $deA->getKey())->delete(), self::LLAVE_FORANEA_ROTA);
@@ -269,7 +319,7 @@ class MigracionTest extends TestCase
             ->count());
     }
 
-    #[TestDox('modelo-E16: Comision llega a su plaza y a su lavandería, y toma la plaza de su lavandería; AvisoMasivo llega a su plaza y a la cuenta que lo envió')]
+    #[TestDox('modelo-E16: Comision llega a su plaza y a su lavandería, y toma la plaza de su lavandería; la global no tiene ninguna de las dos; AvisoMasivo llega a su plaza y a la cuenta que lo envió')]
     public function test_modelo_e16_los_modelos_llegan_a_lo_suyo(): void
     {
         $plaza = $this->plazaDePrueba();
@@ -287,6 +337,11 @@ class MigracionTest extends TestCase
         $this->assertNull($propia->vigente_hasta);
         $this->assertTrue($plaza->is($propia->plaza));
         $this->assertTrue($lavanderia->is($propia->lavanderia));
+
+        $global = Comision::create(['porcentaje' => '10', 'vigente_desde' => '2026-01-01 00:00:00+00'])->fresh();
+        $this->assertSame([null, null, '10.00'], [$global->id_plazas, $global->id_lavanderias, $global->porcentaje]);
+        $this->assertNull($global->plaza);
+        $this->assertNull($global->lavanderia);
 
         $administracion = $this->administracion();
         $aviso = AvisoMasivo::create([
@@ -410,14 +465,14 @@ class MigracionTest extends TestCase
     }
 
     /**
-     * Una comisión global de la plaza, vigente desde el 1 de enero de 2026, con las columnas que se pasan.
+     * La comisión global, sin plaza ni lavandería, vigente desde el 1 de enero de 2026, con las columnas que se pasan.
      *
      * @param  array<string, mixed>  $datos
      */
-    private function insertarComision(Plaza $plaza, array $datos = []): int
+    private function insertarComision(array $datos = []): int
     {
         return DB::table('comisiones')->insertGetId([
-            'id_plazas' => $plaza->getKey(),
+            'id_plazas' => null,
             'id_lavanderias' => null,
             'porcentaje' => '10.00',
             'vigente_desde' => '2026-01-01 00:00:00+00',
@@ -426,6 +481,21 @@ class MigracionTest extends TestCase
             'updated_at' => now(),
             ...$datos,
         ], 'id_comisiones');
+    }
+
+    /**
+     * La comisión propia de la lavandería, con su plaza, vigente desde el 1 de enero de 2026, con las columnas que se
+     * pasan.
+     *
+     * @param  array<string, mixed>  $datos
+     */
+    private function insertarPropia(Lavanderia $lavanderia, array $datos = []): int
+    {
+        return $this->insertarComision([
+            'id_plazas' => $lavanderia->id_plazas,
+            'id_lavanderias' => $lavanderia->getKey(),
+            ...$datos,
+        ]);
     }
 
     /**

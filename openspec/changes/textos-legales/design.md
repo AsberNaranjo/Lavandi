@@ -112,9 +112,10 @@ con su recomendación escrita aquí. No suman dependencias: `expo-web-browser` y
 
 No crea tablas ni migraciones, y no lee ni escribe ninguna tabla de `vault/arquitectura/modelo-de-datos.md` (ADR-0016).
 
-- `usuarios.terminos_aceptados_en` nace en `registro-e-inicio-de-sesion`. La llena el registro si EL CLIENTE pide la
-  constancia de aceptación (registro-E29, bloqueado por DD-080). Este cambio no la toca, tampoco al cargar una versión
-  nueva (textos-legales-E04).
+- La constancia de aceptación no tiene columna: `usuarios.terminos_aceptados_en`, que nació en
+  `registro-e-inicio-de-sesion`, la quitó la migración `2026_11_26_300000_quitar_del_esquema_lo_que_no_tiene_respaldo`, porque llevar un registro de
+  consentimientos es de EL CLIENTE (Non-Goals; Cláusula X). Si DD-080 la pide (registro-E29), entra con su propia
+  migración. Este cambio no la toca, tampoco al cargar una versión nueva (textos-legales-E04).
 - El texto vigente de cada documento no tiene tabla en el modelo. Si la pregunta abierta 1 se resuelve con un archivo en
   el almacenamiento (ADR-0006), no hace falta ninguna. Si se resuelve con un recurso de Filament, la tabla tiene que
   entrar antes a `modelo-de-datos.md` y su migración pasará la prueba de esquema de `modelo-de-datos` (modelo-E01 a

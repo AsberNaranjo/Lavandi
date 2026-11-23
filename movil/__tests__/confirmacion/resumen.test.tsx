@@ -1,8 +1,10 @@
 // Spec: openspec/changes/resumen-y-confirmacion/specs/confirmacion/spec.md, confirmacion-E01 y E07, con lo que la app
 // hace en confirmacion-E08 y E15 (tarea 2.1). El resumen del pedido nuevo ("Pedido nuevo · 4 de 4") con el componente 6
 // del design system (vault/design-system/componentes.md): la lavandería, el servicio, la fecha con su ventana en la hora
-// de la plaza, la recogida y la entrega, y los renglones de precio estimado, envío y política de cancelación reservados
-// sin cifra (confirmacion-E02, E03 y E04 esperan DD-012, DD-010, DD-019, DD-025 y DD-016).
+// de la plaza, la recogida y la entrega, y los renglones de precio estimado y política de cancelación reservados sin
+// cifra (confirmacion-E02 y E04 esperan DD-012, DD-010 y DD-016). El envío no lleva renglón: el Módulo A #9 enumera
+// servicio, fecha, dirección, precio estimado y política de cancelación, y si el envío es un cargo aparte lo dicen DD-019
+// y DD-025 (confirmacion-E03).
 //
 // El botón dice que lleva al pago y manda POST /api/pedidos con lo del pedido en curso, como lo pide
 // servidor/app/Http/Requests/CrearPedidoRequest.php. Con 201, el pedido nació antes del pago (C-188): la app guarda su
@@ -347,13 +349,12 @@ describe('confirmacion-E01: el resumen muestra servicio, fecha y direcciones', (
   });
 
   test.each(PLATAFORMAS)(
-    'confirmacion-E01 — (%s) los renglones de precio estimado, envío y política de cancelación van reservados, sin cifra ni texto inventado (DD-012, DD-019, DD-016)',
+    'confirmacion-E01 — (%s) los renglones de precio estimado y política de cancelación van reservados, sin cifra ni texto inventado (DD-012, DD-016)',
     async (plataforma) => {
       await abrirElResumen(plataforma);
 
       for (const [testID, etiqueta] of [
         ['renglon-precio-estimado', 'Precio estimado'],
-        ['renglon-envio', 'Envío'],
         ['renglon-politica-de-cancelacion', 'Política de cancelación'],
       ] as const) {
         const renglon = within(resumen().getByTestId(testID));
@@ -361,8 +362,20 @@ describe('confirmacion-E01: el resumen muestra servicio, fecha y direcciones', (
         expect(renglon.getByText('Por confirmar')).toBeOnTheScreen();
         expect(renglon.queryByText(/\d/)).not.toBeOnTheScreen();
       }
-      // Ningún monto en todo el resumen: ni el precio por kilo del perfil ni el envío.
+      // Ningún monto en todo el resumen: ni el precio por kilo del perfil ni un envío.
       expect(screen.queryByText(/\$/)).not.toBeOnTheScreen();
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'confirmacion-E03 — (%s) el resumen no lleva renglón de envío: el Módulo A #9 no lo enumera, y si es un cargo aparte lo dicen DD-019 y DD-025',
+    async (plataforma) => {
+      await abrirElResumen(plataforma);
+
+      expect(resumen().queryByTestId('renglon-envio')).not.toBeOnTheScreen();
+      expect(resumen().queryByText(/env[ií]o/i)).not.toBeOnTheScreen();
+      // Los dos renglones reservados son los únicos que dicen "Por confirmar".
+      expect(resumen().getAllByText('Por confirmar')).toHaveLength(2);
     },
   );
 

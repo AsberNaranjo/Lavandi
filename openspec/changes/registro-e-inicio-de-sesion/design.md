@@ -60,17 +60,21 @@ Este cambio crea las cuatro primeras tablas del negocio, tal como las fija `vaul
 | Tabla | Columnas | Llaves, únicos y `CHECK` |
 |---|---|---|
 | `roles` | `id_roles`, `codigo`, `nombre` | Llave `id_roles`. `codigo` único. Semilla: `usuario`, `lavanderia`, `repartidor`, `administracion` |
-| `usuarios` | `id_usuarios`, `id_publico`, `nombre`, `correo`, `password`, `telefono`, `foto_ruta`, `estado`, `bloqueado_en`, `terminos_aceptados_en`, `deleted_at` | Llave `id_usuarios`. `id_publico` ULID único. `correo` único sin distinguir mayúsculas (índice único sobre `lower(correo)`). `password` opcional, porque quien entra con Google o con Apple no tiene; si existe, va con hash. `CHECK (estado IN ('activo', 'bloqueado'))`. Borrado suave con `deleted_at`. Sin `id_plazas` |
+| `usuarios` | `id_usuarios`, `id_publico`, `nombre`, `correo`, `password`, `telefono`, `foto_ruta`, `estado`, `bloqueado_en`, `deleted_at` | Llave `id_usuarios`. `id_publico` ULID único. `correo` único sin distinguir mayúsculas (índice único sobre `lower(correo)`). `password` opcional, porque quien entra con Google o con Apple no tiene; si existe, va con hash. `CHECK (estado IN ('activo', 'bloqueado'))`. Borrado suave con `deleted_at`. Sin `id_plazas` |
 | `rol_usuario` | `id_usuarios`, `id_roles` | Llave compuesta `(id_usuarios, id_roles)`. Llaves foráneas a `usuarios` y a `roles`, con `ON DELETE RESTRICT`; la de `id_roles` lleva su propio índice, porque la llave compuesta solo cubre `id_usuarios` |
 | `cuentas_externas` | `id_cuentas_externas`, `id_usuarios`, `proveedor`, `sujeto`, `correo` | Llave `id_cuentas_externas`. Llave foránea `id_usuarios` a `usuarios`, con índice. Único `(proveedor, sujeto)`. `CHECK (proveedor IN ('google', 'apple'))` |
 
-- **Tipos:** `bloqueado_en`, `terminos_aceptados_en` y `deleted_at` son `timestamptz` (ADR-0016, regla 7).
+- **Tipos:** `bloqueado_en` y `deleted_at` son `timestamptz` (ADR-0016, regla 7).
+- **`terminos_aceptados_en` ya no existe.** Nació en esta migración para la constancia de aceptación; la migración
+  `2026_11_26_300000_quitar_del_esquema_lo_que_no_tiene_respaldo` la quitó, hacia adelante: los consentimientos son de EL CLIENTE
+  (`NSV-2026-001-v8.pdf:10:Cláusula X`), `textos-legales` los deja fuera y nada la llenaba. Si DD-080 pide la
+  constancia (registro-E29), entra con su propia migración.
 - **Lo que llena este cambio:** `id_publico`, `correo`, `password` con hash y `estado = 'activo'`; la fila de
   `rol_usuario` con el rol `usuario` (registro-E01); la fila de `cuentas_externas` de Google (registro-E16) y, cuando
   DD-069 se cierre, la de Apple (registro-E21). La misma cuenta de Google vuelve a entrar por su `(proveedor, sujeto)`.
 - **Lo que queda vacío, para su cambio:** `nombre`, hasta que se responda la pregunta 7; `telefono` y `foto_ruta`,
-  para `perfil-y-soporte` (F-A15); `estado = 'bloqueado'` y `bloqueado_en`, para `administracion` (F-D03);
-  `terminos_aceptados_en`, solo si DD-080 pide la constancia (registro-E29).
+  para `perfil-y-soporte` (F-A15); `estado = 'bloqueado'` y `bloqueado_en`, para `administracion` (F-D03). La
+  constancia de aceptación no tiene columna mientras DD-080 no la pida (registro-E29).
 - **Un rol por cuenta en la v1** lo impone el código, no la tabla (DD-053): un segundo rol sería otra fila de
   `rol_usuario`.
 - **Tablas del framework que usa,** con su nombre de siempre y fuera de la prueba de esquema: `personal_access_tokens`
