@@ -74,10 +74,14 @@ nueva, nunca un cambio de lo existente:
   apunta: `pedidos.id_usuarios` apunta a `usuarios.id_usuarios`. `ON DELETE RESTRICT` por omisión: el historial no se
   borra en cascada.
 - **La plaza no puede diferir.** Toda tabla de operación lleva `id_plazas`, no nula (`modelo-multi-plaza.md`). Solo
-  cuatro la llevan opcional: `avisos_masivos` (vacía, el aviso es para todas las plazas), `reportes_soporte` (en la
-  lista, pero hoy no nula: sin pedido va a la plaza del último pedido o de la dirección más reciente, decisión 27 del
-  acta del 2026-11-20), `repartidores` (vacía solo mientras el repartidor está `pendiente`) y
-  `direcciones` (vacía si el punto no cae en ninguna zona). Cuando la tabla
+  cinco la llevan opcional:
+  - `avisos_masivos`: vacía, el aviso es para todas las plazas;
+  - `comisiones`: vacía, junto con la lavandería, en la comisión global, que es una para todo el sistema (decisión 39
+    del acta del 2026-11-20);
+  - `reportes_soporte`: vacía solo si la cuenta no tiene de dónde tomarla; el reporte se guarda igual
+    (perfil-usuario-E17, decisión 39);
+  - `repartidores`: vacía solo mientras el repartidor está `pendiente`;
+  - `direcciones`: vacía si el punto no cae en ninguna zona. Cuando la tabla
   es hija de otra que ya la lleva, la llave foránea es compuesta, `(id_lavanderias, id_plazas)` contra
   `lavanderias(id_lavanderias, id_plazas)`: así la base de datos impide un pedido de Durango con una lavandería de La Laguna.
 - **Borrado suave** (`deleted_at`) en cuentas, lavanderías, repartidores y direcciones. Pedidos, pagos y eventos no
@@ -174,7 +178,7 @@ deuda: no se crea hasta que se responda.
 
 | Tabla | Columnas | Reglas | Cita | Nace en |
 |---|---|---|---|---|
-| `usuarios` | `id_usuarios`, `id_publico`, `nombre`, `correo`, `password` (opcional si entra con Google o Apple), `telefono`, `foto_ruta`, `estado` (`activo`, `bloqueado`), `bloqueado_en`, `terminos_aceptados_en`, `deleted_at` | Toda cuenta, de cualquier rol. Correo único sin distinguir mayúsculas. La contraseña, con hash. Sin `id_plazas`: la persona no pertenece a una plaza, su dirección sí | `:16:A.3 #2`; `:17:A.3 #15`; `:18:Módulo C #1`; `:19:Módulo D #3`; `:20` | `registro-e-inicio-de-sesion` |
+| `usuarios` | `id_usuarios`, `id_publico`, `nombre`, `correo`, `password` (opcional si entra con Google o Apple), `telefono`, `foto_ruta`, `estado` (`activo`, `bloqueado`), `bloqueado_en`, `deleted_at` | Toda cuenta, de cualquier rol. Sin fecha de aceptación de términos: los consentimientos son de EL CLIENTE (Cláusula X; decisión 39). Correo único sin distinguir mayúsculas. La contraseña, con hash. Sin `id_plazas`: la persona no pertenece a una plaza, su dirección sí | `:16:A.3 #2`; `:17:A.3 #15`; `:18:Módulo C #1`; `:19:Módulo D #3`; `:20` | `registro-e-inicio-de-sesion` |
 | `rol_usuario` | `id_usuarios`, `id_roles` | Llave compuesta. En la v1, una cuenta tiene un rol (DD-053), y lo impone el código, no la tabla | `:20` | `registro-e-inicio-de-sesion` |
 | `cuentas_externas` | `id_cuentas_externas`, `id_usuarios`, `proveedor` (`google`, `apple`), `sujeto`, `correo` | Único `(proveedor, sujeto)`. Un proveedor nuevo es otra fila, no otra columna | `:16:A.3 #2`; ADR-0005 | `registro-e-inicio-de-sesion` |
 | `dispositivos` | `id_dispositivos`, `id_usuarios`, `token_fcm`, `plataforma` (`ios`, `android`), `ultimo_uso_en` | `token_fcm` único | `:19` (avisos); ADR-0008 | `avisos` |
@@ -199,7 +203,7 @@ deuda: no se crea hasta que se responda.
 | `pedido_direcciones` | `id_pedido_direcciones`, `id_pedidos`, `id_plazas`, `tipo` (`recoleccion`, `entrega`), `id_direcciones`, las columnas de la dirección y `ubicacion` | La dirección se copia al crear el pedido; `id_direcciones` guarda de cuál salió, con llave compuesta con la plaza. Único `(id_pedidos, tipo)`. `municipio` sigue siendo texto: la copia lleva el nombre que el municipio tenía en el catálogo, sin el estado | `:16:A.3 #8` | `resumen-y-confirmacion` |
 | `pedido_eventos` | `id_pedido_eventos`, `id_pedidos`, `id_plazas`, `id_estados_pedido`, `id_usuarios` (quien hizo el cambio), `motivo`, `ocurrido_en` | Solo se agrega, nunca se edita. Guarda el rechazo de la lavandería con su motivo. Mide los 60 s del A.4.3 y alimenta los indicadores | `:17:A.3 #12`; Módulo B #2 y #3; `:20` ("historial completo"); `:21:A.4.3` | `resumen-y-confirmacion` (base); `estados-del-pedido` |
 | `pedido_asignaciones` | `id_pedido_asignaciones`, `id_pedidos`, `id_plazas`, `id_repartidores`, `estado` (`ofrecido`, `aceptado`, `rechazado`), `motivo`, `respondido_en` | El repartidor acepta o rechaza con motivo; cada intento es una fila. `respondido_en` vacía solo si `estado` es `ofrecido`, y el rechazo lleva `motivo` no vacío (`CHECK`). La hora de la oferta es `created_at`. Quién asigna: DD-014 | `:18:Módulo C #2` | `repartidor` |
-| `evidencias` | `id_evidencias`, `id_pedidos`, `id_plazas`, `tipo` (`recoleccion`, `entrega`), `ruta`, `id_usuarios` (quien la tomó), `tomada_en` | La foto vive en S3. Si es obligatoria: DD-110 | `:20` ("evidencias de entrega"); ADR-0006 | `repartidor` |
+| `evidencias` | `id_evidencias`, `id_pedidos`, `id_plazas`, `tipo` (solo `entrega`), `ruta`, `id_usuarios` (quien la tomó), `tomada_en` | La foto vive en S3. Si es obligatoria, y si también se toma al recolectar (la propuesta de Arthur, C-241): DD-110. El tipo `recoleccion` se quitó por no tener respaldo (decisión 39) | `:20` ("evidencias de entrega"); ADR-0006 | `repartidor` |
 | `calificaciones` | `id_calificaciones`, `id_pedidos`, `id_plazas`, `id_usuarios`, `id_lavanderias`, `id_repartidores`, `estrellas`, `comentario` | `estrellas` de 1 a 5. Exactamente uno de `id_lavanderias` o `id_repartidores`. Única por pedido y calificado. La fecha de la reseña es `created_at` | `:17:A.3 #14`; Módulo B #4; Módulo C #4 | `perfil-de-lavanderia` (base, sin las llaves a `pedidos` ni a `repartidores`); `historial-y-calificacion` (la llave a `pedidos`, el `CHECK` de exactamente uno y los únicos); `repartidor` (la llave a `repartidores`) |
 
 ### Dinero
@@ -209,7 +213,7 @@ deuda: no se crea hasta que se responda.
 | `pagos` | `id_pagos`, `id_publico`, `id_pedidos`, `id_plazas`, `tipo` (`cobro`, `ajuste`), `metodo` (`tarjeta`, `efectivo`), `pasarela`, `monto`, `estado` (`pendiente`, `pagado`, `vencido`, `fallido`, `cancelado`), `id_pasarela_orden`, `referencia_efectivo`, `vence_en`, `pagado_en` | Ningún dato de tarjeta. `pasarela` dice cuál cobró: `conekta` mientras el cliente no firme el cambio; la elegida, si se firma (DD-079). Único `(pasarela, id_pasarela_orden)` y `(id_pagos, id_plazas)`. Un pedido puede tener un cobro y, si DD-012 lo pide, un ajuste | `:16:A.3 #10`; `:19`; `:20` | `pago` |
 | `reembolsos` | `id_reembolsos`, `id_pagos`, `id_plazas`, `monto`, `motivo`, `id_pasarela_reembolso`, `estado` (`pendiente`, `reembolsado`, `fallido`), `reembolsado_en` | `monto` no mayor que lo pagado. La pasarela es la de su pago. Cuándo se reembolsa: DD-012, DD-016 y DD-103 | `:16:A.3 #9` (cancelación); `:19:Módulo D #6` | `pago` |
 | `eventos_pasarela` | `id_eventos_pasarela`, `pasarela`, `id_pasarela_evento`, `tipo`, `contenido` (`jsonb`), `recibido_en`, `procesado_en`, `error` | Único `(pasarela, id_pasarela_evento)`: un aviso repetido no se procesa dos veces | `:19`; ADR-0010 (Conekta; se reemplaza si el cliente firma el cambio, DD-079) | `pago` |
-| `comisiones` | `id_comisiones`, `id_plazas`, `id_lavanderias`, `porcentaje`, `vigente_desde`, `vigente_hasta` | `id_lavanderias` vacío es la comisión global de la plaza; con valor, llave compuesta con la plaza hacia `lavanderias`. Porcentaje de 0 a 100. La vigencia termina después de empezar. A lo más una abierta (sin `vigente_hasta`) por plaza y por lavandería: un cambio cierra la anterior y agrega otra fila. Sin semilla | `:19:Módulo D #5` | `administracion` |
+| `comisiones` | `id_comisiones`, `id_plazas`, `id_lavanderias`, `porcentaje`, `vigente_desde`, `vigente_hasta` | La global va sin plaza ni lavandería y es una para todo el sistema ("por socio o global", decisión 39); la propia lleva las dos, con llave compuesta hacia `lavanderias` (`CHECK`). Porcentaje de 0 a 100. La vigencia termina después de empezar. A lo más una global abierta (sin `vigente_hasta`) en todo el sistema y una por lavandería: un cambio cierra la anterior y agrega otra fila. Sin semilla | `:19:Módulo D #5` | `administracion` |
 | ⛔ `metodos_pago_guardados` | `id_metodos_pago_guardados`, `id_usuarios`, `pasarela`, `id_pasarela_cliente`, `id_pasarela_fuente`, `marca`, `ultimos_4`, `deleted_at` | Solo la referencia que da la pasarela | `:17:A.3 #15`; `:20` | `perfil-y-soporte`: Nadir dijo que sí (C-198); espera saber si el checkout permite reutilizar la tarjeta (pago-E06, DD-079) |
 | `movimientos_pasarela` | `id_movimientos_pasarela`, `pasarela`, `id_pasarela_orden`, `monto`, `comision`, `pagado_en` | Los pagos que acreditó la pasarela, leídos de su API al conciliar un periodo. Una fila por orden: único `(pasarela, id_pasarela_orden)`; leer otra vez actualiza la fila. `pasarela` con los valores de `pagos`; `monto` mayor que cero; `comision` opcional, no negativa (quién la absorbe: DD-013). **Sin `id_plazas` ni llave a `pagos`:** la plaza es la del pedido con el que cuadra y un movimiento sin pedido es una diferencia; va en la lista `sin_plaza` de `config/modelo.php`. Ningún dato de tarjeta | `:19:Módulo D #6`; segunda adenda del 2026-11-22 de ADR-0010 | `administracion` |
 
@@ -217,7 +221,7 @@ deuda: no se crea hasta que se responda.
 
 | Tabla | Columnas | Reglas | Cita | Nace en |
 |---|---|---|---|---|
-| `reportes_soporte` | `id_reportes_soporte`, `id_usuarios`, `id_pedidos`, `id_plazas`, `mensaje`, `estado`, `atendido_en` | `id_plazas` sale del pedido; sin pedido, del último pedido de la cuenta o de su dirección guardada más reciente, y es no nula (decisión 27 del acta del 2026-11-20). A quién llega: DD-108 | `:17:A.3 #16` | `perfil-y-soporte` |
+| `reportes_soporte` | `id_reportes_soporte`, `id_usuarios`, `id_pedidos`, `id_plazas`, `mensaje`, `estado`, `atendido_en` | `id_plazas` sale del pedido; sin pedido, del último pedido de la cuenta o de su dirección guardada más reciente (decisión 27 del acta del 2026-11-20). Si la cuenta no tiene de dónde tomarla, queda vacía y el reporte se guarda igual; lo ve solo la administración. Un reporte con pedido siempre lleva plaza (`CHECK`) (decisión 39). A quién llega: DD-108 | `:17:A.3 #16` | `perfil-y-soporte` |
 | `avisos_masivos` | `id_avisos_masivos`, `id_plazas`, `segmento` (`jsonb`), `titulo`, `mensaje`, `id_usuarios` (quien lo envió), `enviado_en`, `destinatarios` | `id_plazas` vacía: el aviso es para todas las plazas. `segmento` vacío: sin segmento. `enviado_en` es cuándo lo envió la administración. `destinatarios` es el número de teléfonos a los que salió (`integer`, no negativo), vacío hasta que sale. Los segmentos: DD-113 | `:19:Módulo D #7` | `administracion` |
 
 ### Landing
