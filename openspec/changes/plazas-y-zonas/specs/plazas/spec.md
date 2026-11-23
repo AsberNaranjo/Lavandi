@@ -154,8 +154,8 @@ Cita: A → `NSV-2026-001-v8.pdf:4:Cláusula I`; D → ADR-0004 y ADR-0016
 - **CUANDO** la prueba revisa cada tabla que no está en la lista de tablas sin plaza de `modelo-de-datos`
   (`servidor/config/modelo.php`: las del framework, los catálogos, `plazas`, `usuarios`, `rol_usuario`,
   `cuentas_externas`, `dispositivos`, `actividad_usuarios`, `eventos_pasarela`, `metodos_pago_guardados` y `movimientos_pasarela`)
-- **ENTONCES** cada una tiene su columna `id_plazas` con llave foránea a `plazas`, no nula salvo en las cuatro de
-  plaza opcional (`avisos_masivos`, `reportes_soporte`, `repartidores` y `direcciones`)
+- **ENTONCES** cada una tiene su columna `id_plazas` con llave foránea a `plazas`, no nula salvo en las cinco de
+  plaza opcional (`avisos_masivos`, `comisiones`, `reportes_soporte`, `repartidores` y `direcciones`)
 - **Y** si una tabla nueva no la tiene ni está en la lista, la prueba falla
 
 ### Requirement: Territorio inicial cargado

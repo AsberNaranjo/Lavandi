@@ -35,7 +35,8 @@ use Livewire\Livewire;
  * usuario (confirmacion-E12) y de los de la lavandería, con su plaza (pedidos-lavanderia-E02 y E09), qué teléfonos
  * reciben los avisos de un pedido (avisos-E04 y avisos-E12), qué ve la administración en el panel (las plazas, las
  * lavanderías, los usuarios y los pedidos de todas las plazas: autorizacion-E03, administracion-E01, E06 y E11) y quién
- * abre sesión o bloquea (administracion-E03), y quién edita los testimonios de la portada (landing-E19). Del repartidor
+ * abre sesión o bloquea (administracion-E03), quién fija la comisión global (administracion-E11) y quién edita los
+ * testimonios de la portada (landing-E19). Del repartidor
  * (hito H8; ADR-0019, decisión 1), conoce su rol en la app, qué repartidor opera (repartidor-E03 y E06) y, con su tarea,
  * sus pedidos, de su plaza y con el pago acreditado.
  *
@@ -439,8 +440,8 @@ final class Autorizacion
     }
 
     /**
-     * Las plazas que la cuenta ve en el panel, para fijar su porcentaje de comisión global: todas, si es de
-     * administración (administracion-E11; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #5); ninguna si no lo es.
+     * Las plazas que la cuenta ve en el panel, para dar de alta a un repartidor en una de ellas: todas, si es de
+     * administración (repartidor-E05; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #2); ninguna si no lo es.
      *
      * @return Builder<Plaza>
      */
@@ -449,6 +450,18 @@ final class Autorizacion
         $consulta = Plaza::query();
 
         return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
+     * Si la cuenta fija el porcentaje de comisión global, el que aplica a toda lavandería sin porcentaje propio, de
+     * cualquier plaza (administracion-E11; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #5, "por socio o
+     * global"): solo la administración, que es una para todas las plazas. El contrato no nombra una administración por
+     * plaza (openspec/changes/autorizacion-por-rol/design.md, Non-Goals): si llegara, por Orden de Cambio, esta regla es
+     * la que le niega el global. La página y su acción preguntan aquí.
+     */
+    public function puedeFijarLaComisionGlobal(Usuario $usuario): bool
+    {
+        return $this->puedeEntrarAlPanel($usuario);
     }
 
     /**

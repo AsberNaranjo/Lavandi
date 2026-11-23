@@ -26,7 +26,7 @@ use UnitEnum;
  * E13).
  *
  * Una fila por lavandería, de todas las plazas, con su porcentaje propio y el que le aplica: el propio si tiene; si no,
- * el global de su plaza (design.md, lectura 2). Los botones fijan el propio o lo quitan, y entonces le vuelve a aplicar
+ * el global, que es uno para todas las plazas (design.md, lectura 2 y Open Questions 4). Los botones fijan el propio o lo quitan, y entonces le vuelve a aplicar
  * el global. Las lavanderías salen del componente de autorización; las reglas y la vigencia, de
  * App\Comisiones\PorcentajesDeComision.
  *
@@ -73,7 +73,7 @@ class ComisionesPorLavanderia extends Page implements HasTable
                     ->label('Fijar porcentaje propio')
                     ->icon(Heroicon::OutlinedPencilSquare)
                     ->modalHeading('Porcentaje propio de la lavandería')
-                    ->modalDescription('Le aplica a esta lavandería en lugar del global de su plaza. El anterior queda como historial.')
+                    ->modalDescription('Le aplica a esta lavandería en lugar del global. El anterior queda como historial.')
                     ->modalSubmitActionLabel('Guardar')
                     ->fillForm(fn (Lavanderia $record): array => ['porcentaje' => self::porcentajes()->propioVigente($record)?->porcentaje])
                     ->schema([ComisionGlobal::campoDelPorcentaje()])
@@ -89,7 +89,7 @@ class ComisionesPorLavanderia extends Page implements HasTable
                     ->color('gray')
                     ->requiresConfirmation()
                     ->modalHeading('Quitar el porcentaje propio')
-                    ->modalDescription('A la lavandería le vuelve a aplicar el porcentaje global de su plaza. El propio queda como historial.')
+                    ->modalDescription('A la lavandería le vuelve a aplicar el porcentaje global. El propio queda como historial.')
                     ->modalSubmitActionLabel('Quitar')
                     ->visible(fn (Lavanderia $record): bool => self::porcentajes()->propioVigente($record) !== null)
                     ->authorize(fn (): bool => self::canAccess())
@@ -117,7 +117,7 @@ class ComisionesPorLavanderia extends Page implements HasTable
         return match (true) {
             $aplica === null => 'Sin porcentaje',
             $aplica->id_lavanderias !== null => "{$aplica->porcentaje} % (propio)",
-            default => "{$aplica->porcentaje} % (global de la plaza)",
+            default => "{$aplica->porcentaje} % (global)",
         };
     }
 

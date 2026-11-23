@@ -4,7 +4,6 @@ namespace App\Comisiones;
 
 use App\Models\Comision;
 use App\Models\Lavanderia;
-use App\Models\Plaza;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -12,11 +11,12 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Los porcentajes de comisión: el global de cada plaza y el propio de cada lavandería, que prevalece sobre el global
+ * Los porcentajes de comisión: el global y el propio de cada lavandería, que prevalece sobre el global
  * (NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #5, "Porcentaje de comisión por socio o global";
  * openspec/changes/administracion/design.md, lectura 2; administracion-E11 a E13).
  *
- * - El global es de la plaza: comisiones con id_lavanderias vacío (modelo de datos; design.md, Open Questions 4).
+ * - El global es uno solo para todo el sistema: la comisión sin plaza ni lavandería (design.md, Open Questions 4). Le
+ *   aplica a toda lavandería sin porcentaje propio, de cualquier plaza. El propio lleva su lavandería y su plaza.
  * - Ninguno viene de fábrica: sin porcentaje guardado no aplica ninguno, y queAplica() da null (administracion-E11).
  * - Un porcentaje va de 0 a 100, con a lo más dos decimales. La regla vive aquí, además del CHECK de la base: el panel
  *   valida con las mismas reglas (administracion-E13).
@@ -54,19 +54,20 @@ final class PorcentajesDeComision
     }
 
     /**
-     * Fija el porcentaje global de la plaza, para toda lavandería de la plaza sin porcentaje propio (administracion-E11).
+     * Fija el porcentaje global, para toda lavandería sin porcentaje propio, de cualquier plaza (administracion-E11).
      *
      * @throws ValidationException
      */
-    public function fijarGlobal(Plaza $plaza, mixed $porcentaje): Comision
+    public function fijarGlobal(mixed $porcentaje): Comision
     {
         $this->validar($porcentaje);
 
-        return DB::transaction(function () use ($plaza, $porcentaje): Comision {
-            // Un cambio a la vez por plaza.
-            Plaza::query()->whereKey($plaza->getKey())->lockForUpdate()->sole();
+        return DB::transaction(function () use ($porcentaje): Comision {
+            // Un cambio del global a la vez: el candado vive lo que la transacción. El índice único de la global abierta
+            // rechaza además dos abiertas.
+            DB::statement('select pg_advisory_xact_lock(hashtext(?))', ['comisiones.global']);
 
-            return $this->abrir($this->delGlobal($plaza), ['id_plazas' => $plaza->getKey()], $porcentaje);
+            return $this->abrir($this->delGlobal(), [], $porcentaje);
         });
     }
 
@@ -91,8 +92,8 @@ final class PorcentajesDeComision
     }
 
     /**
-     * Quita el porcentaje propio de la lavandería: le vuelve a aplicar el global de su plaza (administracion-E12). Sin
-     * propio vigente, no hace nada.
+     * Quita el porcentaje propio de la lavandería: le vuelve a aplicar el global (administracion-E12). Sin propio
+     * vigente, no hace nada.
      */
     public function quitarPropio(Lavanderia $lavanderia): void
     {
@@ -115,11 +116,11 @@ final class PorcentajesDeComision
     }
 
     /**
-     * El porcentaje global de la plaza vigente en ese instante; sin instante, ahora.
+     * El porcentaje global vigente en ese instante; sin instante, ahora.
      */
-    public function globalVigente(Plaza $plaza, ?CarbonImmutable $en = null): ?Comision
+    public function globalVigente(?CarbonImmutable $en = null): ?Comision
     {
-        return $this->vigenteEn($this->delGlobal($plaza), $en)->first();
+        return $this->vigenteEn($this->delGlobal(), $en)->first();
     }
 
     /**
@@ -131,12 +132,12 @@ final class PorcentajesDeComision
     }
 
     /**
-     * El porcentaje que le aplica a la lavandería en ese instante: el propio si tiene; si no, el global de su plaza; si
-     * tampoco hay global, ninguno (administracion-E11 y E12).
+     * El porcentaje que le aplica a la lavandería en ese instante: el propio si tiene; si no, el global; si tampoco hay
+     * global, ninguno (administracion-E11 y E12).
      */
     public function queAplica(Lavanderia $lavanderia, ?CarbonImmutable $en = null): ?Comision
     {
-        return $this->propioVigente($lavanderia, $en) ?? $this->globalVigente($lavanderia->plaza, $en);
+        return $this->propioVigente($lavanderia, $en) ?? $this->globalVigente($en);
     }
 
     /**
@@ -164,9 +165,9 @@ final class PorcentajesDeComision
     /**
      * @return Builder<Comision>
      */
-    private function delGlobal(Plaza $plaza): Builder
+    private function delGlobal(): Builder
     {
-        return Comision::query()->where('id_plazas', $plaza->getKey())->whereNull('id_lavanderias');
+        return Comision::query()->whereNull('id_lavanderias')->whereNull('id_plazas');
     }
 
     /**

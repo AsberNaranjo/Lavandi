@@ -67,16 +67,24 @@ solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`. Todas las llaves fo
    - Columnas: `id_comisiones`, `id_plazas`, `id_lavanderias`, `porcentaje`, `vigente_desde`, `vigente_hasta`.
    - Llaves foráneas: `id_plazas` → `plazas.id_plazas`; `(id_lavanderias, id_plazas)` →
      `lavanderias(id_lavanderias, id_plazas)`, compuesta con la plaza.
-   - `id_lavanderias` vacío es la comisión global de la plaza (E11); con valor, la propia de esa lavandería (E12).
+   - `id_lavanderias` e `id_plazas` vacíos son la comisión global, una sola para todo el sistema (E11); con valor, la
+     propia de esa lavandería, con su plaza (E12). El `CHECK` `comisiones_global_o_propia_check` no deja otra
+     combinación. **Así quedó con la migración `2026_11_26_100000_hacer_global_la_comision_global`**, hacia adelante:
+     la tarea 0.1 la había hecho global de cada plaza (Open Questions 4, ya resuelta). Por eso `comisiones` está en la
+     lista de "plaza opcional" de la prueba de esquema de `modelo-de-datos`.
    - `porcentaje` es `numeric(5,2)`, con `CHECK` de 0 a 100 (E13).
    - `vigente_desde` y `vigente_hasta` son `timestamptz`, con `CHECK` de que la vigencia termina después de empezar
      (la regla general de integridad del modelo: "ventana que termina después de empezar").
      Un cambio de porcentaje es una fila nueva y la anterior queda como historial (`modelo-de-datos.md`); qué pasa con
      los pedidos ya cobrados es DD-020 (E16).
    - La migración no siembra ningún porcentaje: los captura EL CLIENTE.
-   - A lo más una fila abierta (sin `vigente_hasta`) por plaza para la global y por lavandería para la propia, con
+   - A lo más una fila abierta (sin `vigente_hasta`): una global en todo el sistema y una propia por lavandería, con
      dos índices únicos parciales (`comisiones_global_abierta_unique` y `comisiones_propia_abierta_unique`). Lo agregó
      el implementador con la tarea 0.1: sin él, dos cambios a la vez dejarían dos porcentajes vigentes.
+   - La migración que la hizo global convierte lo que hubiera sin inventar ningún porcentaje: las globales de cada
+     plaza pasan a la global del sistema con su historial; de las abiertas queda la que se fijó al último, y las demás
+     se cierran en el instante en que empezó esa (una que empezó en ese mismo instante se borra, porque nunca rigió
+     sola).
 2. `avisos_masivos` (E23 y E24):
    - Columnas: `id_avisos_masivos`, `id_plazas`, `segmento`, `titulo`, `mensaje`, `id_usuarios`, `enviado_en`,
      `destinatarios`.
@@ -237,14 +245,14 @@ página (`App\Filament\Pages\MonitoreoDePedidos`):
 **Comisiones** (tarea 3.1, administracion-E11 a E13), dos páginas en el grupo "Comisiones" del menú. Las reglas y la
 vigencia viven en `App\Comisiones\PorcentajesDeComision`, no en las páginas:
 
-- **Comisión global** (`/admin/comision-global`): una fila por plaza (`Autorizacion::plazasDelPanel()`), con su
-  porcentaje global vigente ("Sin porcentaje" si no hay), desde cuándo rige en la hora de la plaza y el botón "Fijar
-  porcentaje". Aplica a toda lavandería de esa plaza sin porcentaje propio. Es global de la plaza, como dice el modelo
-  de datos (Open Questions 4): si EL CLIENTE quiere uno solo para todo el territorio, se captura la misma cifra en cada
-  plaza.
+- **Comisión global** (`/admin/comision-global`): un solo porcentaje para todo el sistema, con su valor vigente ("Sin
+  porcentaje" si no hay), desde cuándo rige y el botón "Fijar porcentaje". Aplica a toda lavandería, de cualquier
+  plaza, sin porcentaje propio (Open Questions 4). Lo fija solo la administración
+  (`Autorizacion::puedeFijarLaComisionGlobal()`), que es una para todas las plazas: el contrato no nombra una
+  administración por plaza (`autorizacion-por-rol`, Non-Goals).
 - **Comisión por lavandería** (`/admin/comision-por-lavanderia`): una fila por lavandería de todas las plazas
   (`Autorizacion::lavanderiasDelPanel()`), con su porcentaje propio ("Sin porcentaje propio") y el que le aplica, con
-  de dónde sale: "7.25 % (propio)", "10.00 % (global de la plaza)" o "Sin porcentaje". Los botones "Fijar porcentaje
+  de dónde sale: "7.25 % (propio)", "10.00 % (global)" o "Sin porcentaje". Los botones "Fijar porcentaje
   propio" y "Quitar porcentaje propio" (solo si tiene uno; al quitarlo le vuelve a aplicar el global).
 - **Sin valores de fábrica** (E11): la tabla nace vacía; sin porcentaje guardado no aplica ninguno.
 - **El rango** (E13): de 0 a 100, con a lo más dos decimales. El formulario lo rechaza con su mensaje ("El porcentaje va
@@ -389,9 +397,12 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
    ampliar el ADR-0008. **Para el aviso global, la tarea 5.1 usa la lista de tokens** de `dispositivos`, un envío por
    teléfono, con el canal de FCM HTTP v1 que ya está en la adenda de ADR-0008 (sección "El panel", "Avisos masivos").
    Para los segmentos sigue abierta, con DD-113.
-4. **El porcentaje global es por plaza, según el modelo de datos** (ADR-0016, C-193): `comisiones` lleva `id_plazas`,
-   e `id_lavanderias` vacío es la comisión global de la plaza. Si el "global" del contrato es uno solo para todo el
-   territorio, se guarda la misma cifra en cada plaza y E11 se lee como el global de la plaza. Arthur lo confirma.
+4. **El porcentaje global es uno solo para todo el sistema: resuelta.** Queda global por el texto del contrato ("por
+   socio o global", `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`, Módulo D #5), decisión 39 de
+   `acta-2026-11-20-modelo-y-pasarela.md` (C-236). La tarea 0.1 lo había hecho global de cada plaza, siguiendo el
+   modelo de datos (ADR-0016, C-193); la migración `2026_11_26_100000_hacer_global_la_comision_global` deja
+   `id_plazas` vacía en la global y convierte lo que hubiera ("Tablas y migración"). E11 lo prueba en todas las
+   plazas.
 5. **Un aviso masivo y la preferencia de avisos del perfil** (F-A15, cambio `perfil-y-soporte`): si quien apagó los
    avisos recibe uno de mantenimiento. Depende de cómo defina ese cambio "notificaciones".
 6. **La entrada al panel con rol de administración** (ADR-0005) se espera de `autorizacion-por-rol` o de

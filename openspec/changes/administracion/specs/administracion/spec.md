@@ -108,7 +108,7 @@ Criterio: A43-6
 
 ### Requirement: Porcentaje de comisión global y por socio
 
-El panel DEBE (MUST) permitir a la administración fijar un porcentaje de comisión global y un porcentaje propio para cada socio. Al socio con porcentaje propio le aplica el suyo; a los demás, el global. El sistema no trae ningún porcentaje de fábrica: los valores los captura EL CLIENTE.
+El panel DEBE (MUST) permitir a la administración fijar un porcentaje de comisión global, uno solo para todas las plazas, y un porcentaje propio para cada socio. Al socio con porcentaje propio le aplica el suyo; a los demás, de cualquier plaza, el global. El sistema no trae ningún porcentaje de fábrica: los valores los captura EL CLIENTE.
 
 Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #5)
 
@@ -116,7 +116,7 @@ Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #5)
 
 - **DADO** que no hay porcentaje global guardado
 - **CUANDO** la administración guarda un porcentaje global
-- **ENTONCES** ese porcentaje aplica a toda lavandería sin porcentaje propio
+- **ENTONCES** ese porcentaje aplica a toda lavandería sin porcentaje propio, de cualquier plaza
 
 Criterio: A43-6
 
