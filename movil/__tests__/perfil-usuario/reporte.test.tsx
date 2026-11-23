@@ -6,8 +6,8 @@
 //
 // Que el reporte quede guardado con el usuario, el pedido, la descripción y la fecha, que la API rechace la descripción
 // vacía sin guardar nada (E12) y el pedido de otra cuenta (E13) se prueba en el servidor (tarea 1.4). Aquí el servidor
-// va simulado: la prueba comprueba lo que manda la app y lo que hace con cada respuesta. Sin plaza para el reporte
-// (decisión 27 de acta-2026-11-20-modelo-y-pasarela), la app muestra el mensaje del servidor y ofrece el WhatsApp.
+// va simulado: la prueba comprueba lo que manda la app y lo que hace con cada respuesta. Una cuenta sin pedidos ni
+// direcciones con plaza manda su reporte como cualquier otra: el servidor lo guarda sin plaza (perfil-usuario-E17).
 //
 // No hay todavía una lista de pedidos en la app ni en la API: el pedido llega en la ruta, "/ayuda?pedido=<id_publico>",
 // para que el seguimiento o el historial abran el reporte de ese pedido. Se abre la app real, con las rutas de
@@ -36,7 +36,6 @@ const NUMERO = '5210000000001';
 const PEDIDO = '01jd00000000000000000000p1';
 const FOLIO = 'DGO-000123';
 const DESCRIPCION = 'La camisa azul llegó con una mancha.';
-const MENSAJE_SIN_PLAZA = 'Para mandar un reporte necesitas un pedido o una dirección guardada en la zona de servicio.';
 
 // La simulación de __mocks__/, la misma instancia que importa la app.
 const almacen = SecureStore as unknown as { __vaciar(): void };
@@ -209,17 +208,17 @@ describe('perfil-usuario-E11: el usuario envía un reporte', () => {
   });
 
   test.each(PLATAFORMAS)(
-    'perfil-usuario-E11 — (%s) sin pedido ni dirección con plaza (decisión 27), muestra el mensaje del servidor y ofrece el WhatsApp',
+    'perfil-usuario-E17 — (%s) una cuenta sin pedidos ni direcciones con plaza manda su reporte y la app confirma que se recibió, sin mandarla al WhatsApp',
     async (plataforma) => {
-      servidor(() => respuesta(422, { message: MENSAJE_SIN_PLAZA, motivo: 'sin_plaza' }));
       await abrirAyuda(plataforma);
 
       await enviar(DESCRIPCION);
 
-      expect(await reporte().findByText(MENSAJE_SIN_PLAZA)).toBeOnTheScreen();
-      expect(reporte().queryByText('Recibimos tu reporte. Gracias por avisarnos.')).not.toBeOnTheScreen();
-      await fireEvent.press(reporte().getByRole('button', { name: 'Escríbenos por WhatsApp' }));
-      expect(abrirEnlace).toHaveBeenCalledWith(`https://wa.me/${NUMERO}`);
+      expect(reportesMandados().map(({ cuerpo }) => cuerpo)).toEqual([{ descripcion: DESCRIPCION, pedido: null }]);
+      expect(await reporte().findByText('Recibimos tu reporte. Gracias por avisarnos.')).toBeOnTheScreen();
+      // El formulario no tiene su propio botón de WhatsApp: el chat vive en su sección (perfil-usuario-E09).
+      expect(reporte().queryByRole('button', { name: 'Escríbenos por WhatsApp' })).not.toBeOnTheScreen();
+      expect(abrirEnlace).not.toHaveBeenCalled();
     },
   );
 });

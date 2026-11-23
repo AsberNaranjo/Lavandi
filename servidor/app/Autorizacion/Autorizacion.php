@@ -13,6 +13,7 @@ use App\Models\Pedido;
 use App\Models\PedidoAsignacion;
 use App\Models\Plaza;
 use App\Models\Repartidor;
+use App\Models\ReporteSoporte;
 use App\Models\Rol;
 use App\Models\Testimonio;
 use App\Models\Usuario;
@@ -35,8 +36,9 @@ use Livewire\Livewire;
  * usuario (confirmacion-E12) y de los de la lavandería, con su plaza (pedidos-lavanderia-E02 y E09), qué teléfonos
  * reciben los avisos de un pedido (avisos-E04 y avisos-E12), qué ve la administración en el panel (las plazas, las
  * lavanderías, los usuarios y los pedidos de todas las plazas: autorizacion-E03, administracion-E01, E06 y E11) y quién
- * abre sesión o bloquea (administracion-E03), quién fija la comisión global (administracion-E11) y quién edita los
- * testimonios de la portada (landing-E19). Del repartidor
+ * abre sesión o bloquea (administracion-E03), quién fija la comisión global (administracion-E11), quién ve los
+ * reportes de Soporte, también los que no tienen plaza (perfil-usuario-E17), y quién edita los testimonios de la portada
+ * (landing-E19). Del repartidor
  * (hito H8; ADR-0019, decisión 1), conoce su rol en la app, qué repartidor opera (repartidor-E03 y E06) y, con su tarea,
  * sus pedidos, de su plaza y con el pago acreditado.
  *
@@ -504,6 +506,22 @@ final class Autorizacion
     public function pedidosActivosDelPanel(Usuario $usuario): Builder
     {
         return $this->pedidosDelPanel($usuario)->activosDelMonitoreo();
+    }
+
+    /**
+     * Los reportes de Soporte que la cuenta ve: todos, de todas las plazas y también los que no tienen plaza, si es de
+     * administración, que es una para todas las plazas; ninguno si no lo es, tampoco a un socio de una plaza
+     * (perfil-usuario-E17; NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, Separación por tipo de usuario). A quién le llega
+     * cada reporte y cómo se atiende es DD-108 (perfil-usuario-E14): ninguna pantalla los lista todavía, y la que llegue
+     * con esa respuesta parte de aquí.
+     *
+     * @return Builder<ReporteSoporte>
+     */
+    public function reportesDeSoporteDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = ReporteSoporte::query();
+
+        return $this->puedeEntrarAlPanel($usuario) ? $consulta : $consulta->whereRaw('false');
     }
 
     /**

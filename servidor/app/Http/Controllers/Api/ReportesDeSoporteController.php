@@ -22,7 +22,7 @@ use Illuminate\Http\JsonResponse;
  *
  * ---------------------------------------------------------------------------------------------------------------------
  *
- *     POST /api/soporte/reportes                     Guarda un reporte (perfil-usuario-E11 a E13)
+ *     POST /api/soporte/reportes                     Guarda un reporte (perfil-usuario-E11 a E13 y E17)
  *
  *     {
  *       "descripcion": "La camisa azul llegó con una mancha.",   obligatoria: texto de hasta 5000, sin contar los
@@ -41,7 +41,9 @@ use Illuminate\Http\JsonResponse;
  *            }
  *          }
  *          La app confirma que se recibió, sin prometer un tiempo de respuesta (perfil-usuario-E11). A quién le llega y
- *          cómo se le responde a la persona es DD-108 (perfil-usuario-E14).
+ *          cómo se le responde a la persona es DD-108 (perfil-usuario-E14). Sin pedido, el reporte va a la plaza del
+ *          último pedido de la cuenta o, si no tiene, a la de su dirección guardada más reciente con plaza; sin ninguna
+ *          de las dos, se guarda sin plaza y la respuesta es la misma (perfil-usuario-E17).
  *
  *     422  { "message": "Cuéntanos qué pasó.", "errors": { "descripcion": ["Cuéntanos qué pasó."] } }
  *          La descripción falta, viene vacía o solo con espacios (perfil-usuario-E12). Los otros motivos:
@@ -51,13 +53,6 @@ use Illuminate\Http\JsonResponse;
  *     404  { "message": "No existe el pedido." }
  *          El pedido es de otra cuenta, no existe o el valor no es un ULID, como un folio: todos responden igual y sin
  *          ningún dato (perfil-usuario-E13; ADR-0019, decisión 3).
- *     422  {
- *            "message": "Para mandar un reporte necesitas un pedido o una dirección guardada en la zona de servicio.",
- *            "motivo": "sin_plaza"
- *          }
- *          Sin pedido, el reporte va a la plaza del último pedido de la cuenta o, si no tiene, a la de su dirección
- *          guardada más reciente con plaza. Sin ninguna de las dos, no se guarda; la app ofrece el WhatsApp de
- *          GET /api/soporte (decisión 27 de acta-2026-11-20-modelo-y-pasarela).
  *
  *     En ningún error se guarda el reporte.
  */

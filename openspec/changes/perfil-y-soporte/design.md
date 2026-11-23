@@ -63,7 +63,8 @@ Questions). Las piezas siguen a sus ADRs:
    correo de EL CLIENTE (E14), lo leerá de ahí; guardarlo es necesario con cualquiera de las dos respuestas.
    - La plaza sigue la decisión 27 (Open Questions) y la resuelve `App\Soporte\RecepcionDeReporte`. Qué pedidos y qué
      direcciones son de la cuenta lo dice el componente único de autorización (ADR-0019): un pedido ajeno responde 404,
-     igual que uno que no existe.
+     igual que uno que no existe. Sin ninguna plaza, el reporte se guarda sin ella (E17), y del componente solo lo
+     recibe la administración (`Autorizacion::reportesDeSoporteDelPanel()`), que es una para todas las plazas.
    - La descripción se topa en 5000 caracteres para proteger la tabla. La spec no fija un tope; si alguien lo quiere
      distinto, es configuración de la validación, no un cambio de esquema (`mensaje` es `text`).
 4. **Notificaciones.** Lectura mínima del numeral 15: el perfil muestra el estado del permiso de avisos y lleva a
@@ -102,9 +103,12 @@ cambio lleva el trigger `impedir_cambio()`, que es solo de `pedidos`, `pedido_ev
   - `(id_pedidos, id_plazas)` → `pedidos(id_pedidos, id_plazas)`, compuesta con la plaza, para que el reporte no
     difiera de la plaza de su pedido;
   - `id_plazas` → `plazas.id_plazas`.
-- `id_plazas` es **no nula** (plazas-E09), por la decisión 27 (Open Questions). `servidor/config/modelo.php` la deja en
-  la lista `plaza_opcional`, porque plazas-E09 la nombra ahí y la lista solo admite el vacío, no lo exige; su nota dice
-  que nace no nula. Sin pedido, PostgreSQL no revisa la llave compuesta (`MATCH SIMPLE`); la de `id_plazas`, sí.
+- `id_plazas` nació **no nula**, por la decisión 27 (Open Questions). La migración
+  `2026_11_26_200000_admitir_reportes_soporte_sin_plaza`, hacia adelante, la deja **opcional**: vacía, el reporte es
+  de una cuenta sin pedidos ni direcciones con plaza, y se guarda igual (E17). La tabla ya estaba en la lista
+  `plaza_opcional` de `servidor/config/modelo.php` (plazas-E09). El `CHECK` `reportes_soporte_pedido_con_plaza_check`
+  no deja un reporte con pedido y sin plaza: con la plaza vacía, PostgreSQL no revisa la llave compuesta
+  (`MATCH SIMPLE`). Sin pedido, la de `id_plazas` se revisa cuando trae valor.
 - `id_pedidos` es opcional: el pedido va "si él quiere" (E11). La descripción del formulario se guarda en `mensaje`.
 - `atendido_en` es `timestamptz` y nace vacío.
 - Lleva `created_at` y `updated_at` en `timestamptz`, como todas las tablas del negocio con llave propia. La fecha del
@@ -135,9 +139,9 @@ tarjeta (modelo-E13). No lleva plaza: está en la lista de tablas sin plaza de `
 - [El número de WhatsApp llega después de enviar la app a las tiendas (DD-082)] → vive en la configuración del
   servidor (decisión 27): cambiarlo no exige otra versión de la app.
 - [Las tiendas piden algo más al borrar una cuenta] → ver Open Questions; grado E, sin verificar.
-- [`modelo-de-datos.md` y el texto de plazas-E09 todavía dicen que la plaza de `reportes_soporte` queda "vacía si el
-  reporte no es de un pedido"] → la decisión 27 la hizo no nula. La migración y esta nota ya la siguen; el vault y la
-  spec de `plazas-y-zonas` los pone al día quien los cuida (el implementador no cambia specs ni el vault).
+- [`modelo-de-datos.md` dice que la plaza de `reportes_soporte` queda "vacía si el reporte no es de un pedido"] → con
+  E17 queda vacía solo si la cuenta no tiene de dónde tomarla; sin pedido, sigue tomando la del último pedido o la de
+  la dirección más reciente. El vault lo pone al día quien lo cuida.
 
 ## Open Questions
 
@@ -153,10 +157,13 @@ tarjeta (modelo-E13). No lleva plaza: está en la lista de tablas sin plaza de `
   2. sin pedido, la del último pedido de la cuenta;
   3. sin pedidos, la de su dirección guardada más reciente. Al implementarla se lee como la más reciente **que tiene
      plaza**: una dirección borrada ya no está guardada, y una fuera de toda zona no tiene plaza que dar;
-  4. sin ninguna, el servidor lo rechaza con 422, un mensaje claro y el motivo `sin_plaza`, sin guardar nada, y la app
-     ofrece el WhatsApp.
+  4. sin ninguna, el servidor lo rechazaba con 422 y el motivo `sin_plaza`, y la app ofrecía el WhatsApp. **Ya no:** el
+     Módulo A #16 pide el "formulario de reporte" sin condiciones (`NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3`), así
+     que el reporte se guarda sin plaza (E17). Los puntos 1 a 3 siguen igual.
 
-  `id_plazas` queda no nula (plazas-E09). Se descartó dejarla vacía, que chocaba con plazas-E09.
+  `id_plazas` nació no nula; la migración `2026_11_26_200000_admitir_reportes_soporte_sin_plaza` la deja opcional, y
+  plazas-E09 ya la nombraba entre las de plaza opcional. Lo ve solo la administración, que es una para todas las
+  plazas: el contrato no nombra una administración por plaza (`autorizacion-por-rol`, Non-Goals).
 - **Apple y Google al borrar una cuenta (grado E, `SIN VERIFICAR`).** Conocimiento de Claude, sin fuente consultada
   hoy: Apple pide revocar el token de "Sign in with Apple" al borrar una cuenta que entró con Apple, y Google Play pide
   además una página web donde pedir el borrado. Sigue sin verificar. E15 se implementó con lo mínimo que pide su texto
@@ -319,16 +326,14 @@ cualquier otro campo se ignora
          "recibido_en": "2026-12-03T18:30:00Z"  la fecha del reporte, en UTC
        }
      }
-     la app confirma que se recibió, sin prometer un tiempo de respuesta (E11)
+     la app confirma que se recibió, sin prometer un tiempo de respuesta (E11); una cuenta sin pedidos ni direcciones
+     guardadas con plaza recibe el mismo 201, y el reporte se guarda sin plaza (E17)
 
 422  { "message": "Cuéntanos qué pasó.", "errors": { "descripcion": ["Cuéntanos qué pasó."] } }
      falta, vacía o solo con espacios (E12); los otros mensajes: "La descripción va en texto.", "La descripción es
      demasiado larga." y, en "pedido", "El pedido va en texto."
 404  { "message": "No existe el pedido." }
      el pedido es de otra cuenta, no existe o no es un ULID, como un folio: todos igual y sin ningún dato (E13)
-422  { "message": "Para mandar un reporte necesitas un pedido o una dirección guardada en la zona de servicio.",
-       "motivo": "sin_plaza" }
-     sin pedido, la cuenta no tiene pedidos ni direcciones guardadas con plaza (decisión 27): la app ofrece el WhatsApp
 
 en ningún error se guarda el reporte
 ```

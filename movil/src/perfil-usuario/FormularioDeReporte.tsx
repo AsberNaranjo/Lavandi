@@ -3,9 +3,8 @@
 // manda tal como se escribió; la API quita los espacios de los lados y rechaza la descripción vacía, y su error va junto
 // al campo (E12). Recibido, la app lo confirma sin prometer un tiempo de respuesta (E11) y deja el campo vacío.
 //
-// Sin plaza para el reporte (decisión 27 de acta-2026-11-20-modelo-y-pasarela), muestra el mensaje del servidor y
-// ofrece el WhatsApp, si hay número. Del mock no entran "¿Sobre qué es?" (sin cita: proposal.md, "Fuera del contrato") ni
-// la lista para elegir el pedido: la app ni la API tienen todavía la lista de pedidos de la cuenta, así que el pedido
+// Una cuenta sin pedidos ni direcciones con plaza lo manda igual: el servidor lo guarda sin plaza (perfil-usuario-E17).
+// Del mock no entran "¿Sobre qué es?" (sin cita: proposal.md, "Fuera del contrato") ni la lista para elegir el pedido: la app ni la API tienen todavía la lista de pedidos de la cuenta, así que el pedido
 // llega en la ruta (./rutas.ts, rutaDeAyuda). No es uno de los seis componentes del design system: se arma con las
 // piezas y los tokens (ADR-0013).
 import { useState } from 'react';
@@ -21,18 +20,15 @@ import { letra } from '../tema/letra';
 import { color, espaciado, tipografia } from '../tema/theme';
 import { enviarReporte, type FallaDelReporte } from './api';
 import { mensajeDelReporte, sobreElPedido, TEXTOS_DEL_PERFIL_DE_USUARIO as TEXTOS } from './textos';
-import { abrirWhatsApp } from './whatsapp';
 
 interface Propiedades {
   /** El id_publico del pedido del que llegó la persona, o null si el reporte no es de un pedido. */
   pedido: string | null;
   /** Su folio, solo para mostrarlo. */
   folio: string | null;
-  /** El enlace del chat de soporte, si hay número: se ofrece cuando el reporte no tiene plaza. */
-  enlaceDeWhatsApp: string | null;
 }
 
-export function FormularioDeReporte({ pedido, folio, enlaceDeWhatsApp }: Propiedades) {
+export function FormularioDeReporte({ pedido, folio }: Propiedades) {
   const { token } = useSesion();
   const [descripcion, setDescripcion] = useState('');
   const [enviando, setEnviando] = useState(false);
@@ -71,14 +67,9 @@ export function FormularioDeReporte({ pedido, folio, enlaceDeWhatsApp }: Propied
         valor={descripcion}
         alCambiar={escribir}
         multilinea
-        error={falla && falla.motivo !== 'sin-plaza' ? errorDeCampo(falla, 'descripcion') : undefined}
+        error={falla ? errorDeCampo(falla, 'descripcion') : undefined}
       />
       <MensajeDeError texto={falla ? mensajeDelReporte(falla) : undefined} />
-      {falla?.motivo === 'sin-plaza' && enlaceDeWhatsApp ? (
-        <Boton variante="secundario" onPress={() => abrirWhatsApp(enlaceDeWhatsApp)}>
-          {TEXTOS.escribenosPorWhatsApp}
-        </Boton>
-      ) : null}
       {recibido ? (
         <Text accessibilityLiveRegion="polite" style={[estilos.confirmacion, letra('cuerpo', 'regular')]}>
           {TEXTOS.reporteRecibido}

@@ -18,12 +18,12 @@ use Tests\TestCase;
  * Módulo A #16, "formulario de reporte"; :20, Separación por tipo de usuario).
  *
  * La plaza del reporte (decisión 27 de acta-2026-11-20-modelo-y-pasarela): con pedido, la del pedido; sin pedido, la
- * del último pedido de la cuenta; sin pedidos, la de su dirección guardada más reciente que tiene plaza; sin ninguna,
- * el servidor lo rechaza con un mensaje y el motivo sin_plaza, sin guardar nada, y la app ofrece el WhatsApp.
+ * del último pedido de la cuenta; sin pedidos, la de su dirección guardada más reciente que tiene plaza. Sin ninguna,
+ * el reporte se guarda igual, sin plaza: el Módulo A #16 pide el formulario sin condiciones (perfil-usuario-E17).
  *
  * A quién le llega el reporte y cómo se le responde a la persona es DD-108 (perfil-usuario-E14): aquí solo se guarda.
  *
- * Escenarios: perfil-usuario-E11, perfil-usuario-E12 y perfil-usuario-E13 · Spec:
+ * Escenarios: perfil-usuario-E11, perfil-usuario-E12, perfil-usuario-E13 y perfil-usuario-E17 · Spec:
  * openspec/changes/perfil-y-soporte/specs/perfil-usuario/spec.md · Tarea 1.4 de
  * openspec/changes/perfil-y-soporte/tasks.md
  */
@@ -38,11 +38,6 @@ class ReporteTest extends TestCase
     private const SIN_DESCRIPCION = 'Cuéntanos qué pasó.';
 
     private const NO_EXISTE_EL_PEDIDO = ['message' => 'No existe el pedido.'];
-
-    private const SIN_PLAZA = [
-        'message' => 'Para mandar un reporte necesitas un pedido o una dirección guardada en la zona de servicio.',
-        'motivo' => 'sin_plaza',
-    ];
 
     #[TestDox('perfil-usuario-E11: el reporte con un pedido propio queda guardado con la cuenta, el pedido, su plaza, la descripción y la fecha')]
     public function test_perfil_usuario_e11_el_reporte_con_un_pedido_propio_queda_guardado(): void
@@ -148,9 +143,10 @@ class ReporteTest extends TestCase
         $this->assertSame($plazaB->getKey(), $reporte->id_plazas);
     }
 
-    #[TestDox('perfil-usuario-E11: sin pedidos ni direcciones con plaza, el servidor rechaza el reporte con un mensaje, sin guardar nada')]
-    public function test_perfil_usuario_e11_sin_pedidos_ni_direcciones_con_plaza_el_servidor_rechaza_el_reporte(): void
+    #[TestDox('perfil-usuario-E17: sin pedidos ni direcciones con plaza, el reporte se guarda igual, sin plaza, con la cuenta, la descripción y la fecha, y la respuesta es la de cualquier reporte')]
+    public function test_perfil_usuario_e17_sin_pedidos_ni_direcciones_con_plaza_el_reporte_se_guarda_sin_plaza(): void
     {
+        $this->travelTo('2026-12-03 18:30:00');
         $plaza = $this->plazaDePrueba();
         $ana = $this->cuentaDeUsuario();
         // Lo de otra cuenta no le da plaza a Ana.
@@ -159,18 +155,46 @@ class ReporteTest extends TestCase
         $this->direccionDe($beto, $plaza);
 
         $this->reportar($ana, ['descripcion' => self::DESCRIPCION])
-            ->assertUnprocessable()
-            ->assertExactJson(self::SIN_PLAZA);
+            ->assertCreated()
+            ->assertExactJson(['reporte' => [
+                'descripcion' => self::DESCRIPCION,
+                'pedido' => null,
+                'estado' => 'recibido',
+                'recibido_en' => '2026-12-03T18:30:00Z',
+            ]]);
 
-        // Ni con una dirección fuera de toda zona, ni con una borrada.
+        // Ni una dirección fuera de toda zona ni una borrada le dan plaza: el segundo también se guarda sin ella.
         $this->direccionDe($ana, null);
         $this->direccionDe($ana, $plaza)->delete();
+        $this->reportar($ana, ['descripcion' => 'Otra cosa.'])->assertCreated()->assertJsonPath('reporte.pedido', null);
 
-        $this->reportar($ana, ['descripcion' => self::DESCRIPCION])
-            ->assertUnprocessable()
-            ->assertExactJson(self::SIN_PLAZA);
+        $reportes = ReporteSoporte::query()->orderBy('id_reportes_soporte')->get();
+        $this->assertCount(2, $reportes);
+        foreach ($reportes as $reporte) {
+            $this->assertSame($ana->getKey(), $reporte->id_usuarios);
+            $this->assertNull($reporte->id_pedidos);
+            $this->assertNull($reporte->id_plazas);
+            $this->assertNull($reporte->plaza);
+            $this->assertSame(ReporteSoporte::RECIBIDO, $reporte->estado);
+        }
+        $this->assertSame([self::DESCRIPCION, 'Otra cosa.'], $reportes->pluck('mensaje')->all());
+        $this->assertSame('2026-12-03 18:30:00', $reportes[0]->created_at->utc()->format('Y-m-d H:i:s'));
+    }
 
-        $this->assertSame(0, ReporteSoporte::count());
+    #[TestDox('perfil-usuario-E17: con un pedido o una dirección con plaza, el reporte sigue llevando su plaza, como antes')]
+    public function test_perfil_usuario_e17_con_plaza_el_reporte_sigue_llevandola(): void
+    {
+        $plaza = $this->plazaDePrueba();
+        $ana = $this->cuentaDeUsuario();
+        $this->reportar($ana, ['descripcion' => 'Antes de tener plaza.'])->assertCreated();
+
+        $this->direccionDe($ana, $plaza);
+        $this->reportar($ana, ['descripcion' => self::DESCRIPCION])->assertCreated();
+
+        $this->assertSame(
+            [null, $plaza->getKey()],
+            ReporteSoporte::query()->orderBy('id_reportes_soporte')->pluck('id_plazas')->all(),
+        );
     }
 
     #[TestDox('perfil-usuario-E12: un reporte con la descripción vacía, solo con espacios, nula o que no viene se rechaza y no se guarda')]

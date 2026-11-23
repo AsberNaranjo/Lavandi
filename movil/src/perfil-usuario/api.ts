@@ -132,20 +132,14 @@ export interface ReporteNuevo {
   pedido: string | null;
 }
 
-/**
- * Un reporte que el servidor no guardó porque no tiene a qué plaza ir: sin pedido, la cuenta no tiene pedidos ni
- * direcciones guardadas con plaza (decisión 27 de acta-2026-11-20-modelo-y-pasarela). La app muestra su mensaje y ofrece
- * el WhatsApp.
- */
-export type FallaDelReporte = Falla | { ok: false; motivo: 'sin-plaza'; mensaje: string };
-
-// El motivo con el que el servidor rechaza un reporte sin plaza.
-const SIN_PLAZA = 'sin_plaza';
+/** Por qué no se guardó un reporte: las fallas generales de la API. */
+export type FallaDelReporte = Falla;
 
 /**
  * POST del reporte, con la descripción tal como la escribió la persona: el servidor quita los espacios de los lados y
  * rechaza la vacía (perfil-usuario-E12), con su error en "descripcion". Un pedido que no es de la cuenta responde 404
- * (perfil-usuario-E13). En ningún error se guarda el reporte.
+ * (perfil-usuario-E13). Una cuenta sin pedidos ni direcciones con plaza lo manda igual: el servidor lo guarda sin plaza
+ * (perfil-usuario-E17). En ningún error se guarda el reporte.
  */
 export async function enviarReporte(
   token: string,
@@ -157,9 +151,7 @@ export async function enviarReporte(
     cuerpo: { descripcion, pedido },
   });
   if (!resultado.ok) {
-    return resultado.motivo === 'invalido' && resultado.motivoDelServidor === SIN_PLAZA
-      ? { ok: false, motivo: 'sin-plaza', mensaje: resultado.mensaje }
-      : resultado;
+    return resultado;
   }
   const reporte = esObjeto(resultado.datos) ? leerReporte(resultado.datos.reporte) : null;
   // Una respuesta fuera del contrato no se pinta a medias: cuenta como falla del servidor.

@@ -75,7 +75,7 @@ return [
     'plaza_opcional' => [
         'avisos_masivos',   // Vacía: el aviso es para todas las plazas.
         'comisiones',       // Vacía, con la lavandería, en la comisión global: una para todas las plazas (administracion-E11).
-        'reportes_soporte', // La lista la admite (plazas-E09), pero nace no nula: decisión 27 de acta-2026-11-20.
+        'reportes_soporte', // Vacía si la cuenta no tiene de dónde tomarla: el reporte se guarda igual (perfil-usuario-E17).
         'repartidores',     // Vacía solo si estado es pendiente, con su CHECK.
         'direcciones',      // Vacía si el punto no cae en ninguna zona.
     ],

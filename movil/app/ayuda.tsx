@@ -16,7 +16,7 @@ import { useRegresar } from '../src/navegacion/regresar';
 import { FormularioDeReporte } from '../src/perfil-usuario/FormularioDeReporte';
 import { SoporteWhatsApp } from '../src/perfil-usuario/SoporteWhatsApp';
 import { TEXTOS_DEL_PERFIL_DE_USUARIO as TEXTOS } from '../src/perfil-usuario/textos';
-import { enlaceDelSoporte, useSoporte } from '../src/perfil-usuario/useSoporte';
+import { useSoporte } from '../src/perfil-usuario/useSoporte';
 import { Pantalla } from '../src/piezas/Pantalla';
 import { espaciado } from '../src/tema/theme';
 
@@ -29,11 +29,7 @@ export default function Ayuda() {
     <Pantalla desplazable encabezado={{ titulo: TEXTOS.ayuda, alRegresar: regresar }}>
       <View style={estilos.secciones}>
         <SoporteWhatsApp soporte={soporte} />
-        <FormularioDeReporte
-          pedido={textoDelParametro(pedido)}
-          folio={textoDelParametro(folio)}
-          enlaceDeWhatsApp={enlaceDelSoporte(soporte)}
-        />
+        <FormularioDeReporte pedido={textoDelParametro(pedido)} folio={textoDelParametro(folio)} />
       </View>
     </Pantalla>
   );

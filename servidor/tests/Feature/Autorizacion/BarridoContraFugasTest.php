@@ -2,10 +2,13 @@
 
 namespace Tests\Feature\Autorizacion;
 
+use App\Autorizacion\Autorizacion;
 use App\Models\Lavanderia;
 use App\Models\Pedido;
+use App\Models\ReporteSoporte;
 use App\Models\Rol;
 use App\Models\Usuario;
+use App\Soporte\RecepcionDeReporte;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Group;
@@ -36,7 +39,13 @@ use Tests\TestCase;
  * Las rutas salen de la tabla de rutas: una ruta nueva entra sola, y una con un parámetro que el barrido no conoce hace
  * fallar la prueba. Corre en su propio paso de la integración continua (SEG-3).
  *
- * Escenario: autorizacion-E14 · Spec: openspec/changes/autorizacion-por-rol/specs/autorizacion/spec.md · Tarea 4.1
+ * Al sembrado se agrega el reporte de Soporte de una cuenta sin plaza, que se guarda sin ella (perfil-usuario-E17): no
+ * es de ninguna plaza, así que ninguna ruta se lo da a nadie, y del componente solo lo recibe la administración, que es
+ * una para todas las plazas. No hay una administración por plaza (autorizacion-por-rol, Non-Goals): los roles que llevan
+ * plaza son los dos socios, y a ellos tampoco.
+ *
+ * Escenarios: autorizacion-E14 y perfil-usuario-E17 · Spec: openspec/changes/autorizacion-por-rol/specs/autorizacion/
+ * spec.md · Tarea 4.1
  */
 #[Group('barrido-contra-fugas')]
 class BarridoContraFugasTest extends TestCase
@@ -54,11 +63,23 @@ class BarridoContraFugasTest extends TestCase
     /** La cadena con la que entra cada rol de la app. */
     private const PROPIA = 'UnoA';
 
+    /** La descripción del reporte sin plaza, para buscarla en las respuestas. */
+    private const REPORTE_SIN_PLAZA = 'BarridoReporteSinPlaza';
+
+    /** La cuenta sin pedidos ni direcciones que manda el reporte sin plaza. */
+    private Usuario $sinPlaza;
+
+    private ReporteSoporte $reporteSinPlaza;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->sembrarDosPlazas();
+
+        $this->sinPlaza = $this->cuentaDeUsuario();
+        $this->sinPlaza->forceFill(['correo' => 'barrido.sin.plaza@ejemplo.com', 'nombre' => 'BarridoCuentaSinPlaza'])->save();
+        $this->reporteSinPlaza = app(RecepcionDeReporte::class)->recibir($this->sinPlaza, self::REPORTE_SIN_PLAZA, null);
     }
 
     #[TestDox('autorizacion-E14: con dos plazas, y dos lavanderías, dos repartidores y dos usuarios en cada una, la sesión de cada rol recorre todas las rutas de la API pidiendo lo que no le corresponde: ninguna respuesta trae datos de otro socio, de otro usuario ni de otra plaza')]
@@ -86,6 +107,28 @@ class BarridoContraFugasTest extends TestCase
         $this->assertSame([$propia['entregado']->id_publico], $this->idsDe($propia['lavanderia']->administrador, '/api/lavanderia/historial'));
         $this->assertSame([$propia['enCurso']->id_publico], $this->idsDe($propia['repartidor']->cuenta, '/api/repartidor/pedidos'));
         $this->assertSame([$propia['entregado']->id_publico], $this->idsDe($propia['repartidor']->cuenta, '/api/repartidor/historial'));
+    }
+
+    #[TestDox('autorizacion-E14 y perfil-usuario-E17: el reporte de una cuenta sin plaza se guarda sin ella; el componente se lo da solo a la administración, que ve todas las plazas, y a ningún otro rol, tampoco a los socios de una plaza')]
+    public function test_autorizacion_e14_y_perfil_usuario_e17_el_reporte_sin_plaza_solo_lo_ve_la_administracion(): void
+    {
+        $this->assertNull($this->reporteSinPlaza->id_plazas);
+        $autorizacion = app(Autorizacion::class);
+        $propia = $this->cadenas[self::PROPIA];
+
+        $this->assertTrue($autorizacion->reportesDeSoporteDelPanel($this->administracion)->whereKey($this->reporteSinPlaza->getKey())->exists());
+
+        foreach ([
+            'usuario' => $propia['usuario'],
+            'quien lo mandó' => $this->sinPlaza,
+            'lavanderia' => $propia['lavanderia']->administrador,
+            'repartidor' => $propia['repartidor']->cuenta,
+        ] as $quien => $cuenta) {
+            $this->assertSame(0, $autorizacion->reportesDeSoporteDelPanel($cuenta)->count(), $quien);
+        }
+
+        $bloqueada = Usuario::factory()->conRol(Rol::ADMINISTRACION)->create(['estado' => Usuario::BLOQUEADO]);
+        $this->assertSame(0, $autorizacion->reportesDeSoporteDelPanel($bloqueada)->count(), 'Una cuenta bloqueada no ve nada.');
     }
 
     #[TestDox('autorizacion-E14: una ruta del Módulo B que trajera datos de otro socio y de otra plaza hace fallar el barrido, que nombra la ruta, el rol y el dato')]
@@ -140,6 +183,9 @@ class BarridoContraFugasTest extends TestCase
         }
 
         $datosAjenos[$this->administracion->correo] = 'el correo de la administración';
+        // El reporte sin plaza de otra cuenta no es de nadie más (perfil-usuario-E17).
+        $datosAjenos[self::REPORTE_SIN_PLAZA] = 'el reporte sin plaza de otra cuenta';
+        $datosAjenos[$this->sinPlaza->correo] = 'el correo de la cuenta sin plaza';
 
         // La plaza separa a los socios: la otra plaza es ajena para ellos, no para el usuario (autorizacion-E08).
         if (! $esUsuario) {
