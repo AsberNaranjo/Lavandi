@@ -36,7 +36,7 @@ fábrica.
 - [ ] 3.4 repartidor-E14 (bloqueada: DD-054): aviso FCM al repartidor cuando se le asigna un pedido — test: `servidor/tests/Feature/Repartidor/AvisoDeAsignacionTest.php` — tamaño S
 - [ ] 3.5 repartidor-E14 (bloqueada: DD-054): recibir el aviso y abrir la lista — test: `movil/__tests__/repartidor/aviso-de-asignacion.test.tsx` — tamaño S
 - [ ] 3.6 repartidor-E18 (bloqueada: DD-014): qué pasa con el pedido rechazado — test: `servidor/tests/Feature/Repartidor/PedidoRechazadoTest.php` — tamaño S
-- [ ] 3.7 repartidor-E22 (bloqueada: DD-022 y DD-011): mapear los estados del repartidor a los cinco del usuario en 60 s o menos — test: `servidor/tests/Feature/Repartidor/ReflejoEnElUsuarioTest.php` — tamaño S
+- [ ] 3.7 repartidor-E22 (bloqueada: DD-022 y DD-140): mapear los estados del repartidor a los cinco del usuario en 60 s o menos — test: `servidor/tests/Feature/Repartidor/ReflejoEnElUsuarioTest.php` — tamaño S
 - [ ] 3.8 repartidor-E24 (bloqueada: BR-29, DD-110): evidencia obligatoria y sus momentos — test: `servidor/tests/Feature/Repartidor/EvidenciaObligatoriaTest.php` — tamaño S
 - [ ] 3.9 repartidor-E26 y repartidor-E29 (bloqueadas: DD-019 y DD-013): monto por entrega e ingreso total acumulado — test: `servidor/tests/Feature/Repartidor/MontosTest.php` — tamaño S
 - [ ] 3.10 repartidor-E26 y repartidor-E29 (bloqueadas: DD-019 y DD-013): mostrar el monto y el ingreso — test: `movil/__tests__/repartidor/montos.test.tsx` — tamaño S

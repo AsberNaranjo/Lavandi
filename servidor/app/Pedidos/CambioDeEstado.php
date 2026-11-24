@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * El único componente que mueve el estado del pedido por mano de un socio (ADR-0021, decisión 4): la tabla de lo que la
- * lavandería puede hacer desde cada estado, la del repartidor (adenda propuesta en openspec/changes/repartidor/design.md),
- * y la operación que lo guarda.
+ * lavandería puede hacer desde cada estado, la del repartidor (adenda del 2026-11-24 de ADR-0021), y la operación que lo
+ * guarda.
  *
  * Cada cambio agrega su evento a pedido_eventos, con la hora y la cuenta que lo hizo, y cambia pedidos.id_estados_pedido
  * en la misma transacción (ADR-0016, segunda excepción). Ya guardado, publica EstadoDelPedidoCambiado, que se entrega al
@@ -73,15 +73,15 @@ final class CambioDeEstado
     ];
 
     /**
-     * Lo que el repartidor puede hacer desde cada estado, en un pedido que aceptó (adenda propuesta a ADR-0021, en
-     * openspec/changes/repartidor/design.md; repartidor-E19 y E20):
+     * Lo que el repartidor puede hacer desde cada estado, en un pedido que aceptó (adenda del 2026-11-24 de ADR-0021;
+     * repartidor-E19 y E20):
      *
      * - Recolectado, desde aceptado: solo lo que la lavandería ya aceptó (Módulo B #2), como sus propios botones;
      * - En tránsito, desde listo: entre los dos, la lavandería marca En proceso y Listo (Módulo B #3);
      * - Entregado, desde en_entrega, también si fue la lavandería quien marcó En proceso de entrega.
      *
      * Desde un estado que no está aquí, el repartidor no puede hacer nada. Cómo ve el usuario estos cambios espera DD-022
-     * y DD-011 (repartidor-E22).
+     * y DD-140 (repartidor-E22).
      *
      * @var array<string, list<string>>
      */
