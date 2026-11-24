@@ -2,15 +2,23 @@
 
 namespace Tests\Feature\Administracion;
 
+use App\Console\Commands\CrearCuentaDeAdministracion;
 use App\Filament\Auth\IniciarSesion;
 use App\Models\Rol;
 use App\Models\Usuario;
 use App\Validacion\CorreoSinCuenta;
+use Closure;
 use Filament\Facades\Filament;
+use Illuminate\Console\OutputStyle;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
+use Mockery;
 use PHPUnit\Framework\Attributes\TestDox;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Question\Question;
 use Tests\TestCase;
 
 /**
@@ -20,7 +28,9 @@ use Tests\TestCase;
  * (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3; ADR-0018) y nunca la muestra.
  *
  * Un caso por rama: el alta válida en producción, el correo que ya tiene cuenta, el de una cuenta borrada, la contraseña
- * corta, las contraseñas distintas, el correo no válido y la terminal que no puede preguntar.
+ * corta, las contraseñas distintas, el correo no válido, la terminal que no puede preguntar y el correo que otra cuenta
+ * toma mientras se escribe la contraseña. Y uno que mira las preguntas mismas: ocultas, sin respaldo visible y sin
+ * recortar lo que se escribe.
  *
  * Escenario: administracion-E26 · Spec: openspec/changes/administracion/specs/administracion/spec.md
  */
@@ -73,7 +83,7 @@ class CuentaDeAdministracionTest extends TestCase
         $this->get('/admin')->assertOk();
     }
 
-    #[TestDox('administracion-E26: la cuenta que crea el comando no recibe token si inicia sesión en la app (registro-E33)')]
+    #[TestDox('administracion-E26: la cuenta que crea el comando no recibe token si inicia sesión en la app con su correo y su contraseña (registro-E33)')]
     public function test_administracion_e26_la_cuenta_creada_no_recibe_token_de_la_app(): void
     {
         $this->crearLaCuenta('duenio@ejemplo.com');
@@ -170,6 +180,84 @@ class CuentaDeAdministracionTest extends TestCase
             ->assertFailed();
 
         $this->assertSame(0, Usuario::withTrashed()->count());
+    }
+
+    #[TestDox('administracion-E26: la contraseña se pide dos veces con la entrada oculta, sin respaldo visible y sin recortarle espacios, y se guarda tal como se escribió')]
+    public function test_administracion_e26_la_contrasena_se_pide_oculta_sin_respaldo_y_sin_recortar(): void
+    {
+        $conEspacios = ' '.self::CONTRASENA.' ';
+
+        [$codigo, $preguntas, $escrito] = $this->correrConSalidaPropia('duenio@ejemplo.com', fn (): string => $conEspacios);
+
+        $this->assertSame(Command::SUCCESS, $codigo, $escrito);
+        $this->assertSame(['Contraseña', 'Repite la contraseña'], array_map(fn (Question $q): string => $q->getQuestion(), $preguntas));
+
+        foreach ($preguntas as $pregunta) {
+            $this->assertTrue($pregunta->isHidden(), $pregunta->getQuestion());
+            $this->assertFalse($pregunta->isHiddenFallback(), $pregunta->getQuestion());
+            $this->assertFalse($pregunta->isTrimmable(), $pregunta->getQuestion());
+        }
+
+        $cuenta = Usuario::query()->sole();
+        $this->assertTrue(Hash::check($conEspacios, $cuenta->password));
+        $this->assertFalse(Hash::check(self::CONTRASENA, $cuenta->password));
+        $this->assertStringNotContainsString(self::CONTRASENA, $escrito);
+    }
+
+    #[TestDox('administracion-E26: si otra cuenta toma el correo mientras se escribe la contraseña, el comando falla con el mismo mensaje, sin el error de la base ni el hash, y no crea ni toca ninguna cuenta')]
+    public function test_administracion_e26_si_otra_cuenta_toma_el_correo_mientras_se_escribe_la_contrasena_el_comando_falla(): void
+    {
+        $otra = null;
+
+        [$codigo, , $escrito] = $this->correrConSalidaPropia(
+            'duenio@ejemplo.com',
+            function (Question $pregunta, int $vez) use (&$otra): string {
+                // Después de la revisión del correo y antes del alta: el único sobre lower(correo) es el que la detiene.
+                if ($vez === 1) {
+                    $otra = Usuario::factory()->conRol(Rol::USUARIO)->create(['correo' => 'DUENIO@ejemplo.com']);
+                }
+
+                return self::CONTRASENA;
+            },
+        );
+
+        $this->assertSame(Command::FAILURE, $codigo);
+        $this->assertStringContainsString(CorreoSinCuenta::MENSAJE.' No se creó ni se cambió ninguna cuenta.', $escrito);
+        $this->assertStringNotContainsString('SQLSTATE', $escrito);
+        $this->assertStringNotContainsString('$2y$', $escrito);
+        $this->assertStringNotContainsString(self::CONTRASENA, $escrito);
+
+        $this->assertSame(1, Usuario::withTrashed()->count());
+        $this->assertSame($otra->getKey(), Usuario::query()->sole()->getKey());
+        $this->assertSame([Rol::USUARIO], $otra->fresh()->roles->pluck('codigo')->all());
+        $this->assertSame(0, $this->cuentasDeAdministracion());
+    }
+
+    /**
+     * Corre el comando con una salida propia, armada como la de PendingCommand, para ver las preguntas tal como llegan:
+     * expectsQuestion() solo compara su texto.
+     *
+     * @param  Closure(Question, int): string  $responder  Recibe la pregunta y su número (1 o 2) y da la respuesta.
+     * @return array{int, list<Question>, string} El código de salida, las preguntas y lo que escribió el comando.
+     */
+    private function correrConSalidaPropia(string $correo, Closure $responder): array
+    {
+        $preguntas = [];
+        $escrito = new BufferedOutput;
+        $salida = Mockery::mock(OutputStyle::class.'[askQuestion]', [new ArrayInput([]), $escrito]);
+        $salida->shouldReceive('askQuestion')
+            ->twice()
+            ->andReturnUsing(function (Question $pregunta) use (&$preguntas, $responder): string {
+                $preguntas[] = $pregunta;
+
+                return $responder($pregunta, count($preguntas));
+            });
+
+        $comando = $this->app->make(CrearCuentaDeAdministracion::class);
+        $comando->setLaravel($this->app);
+        $codigo = $comando->run(new ArrayInput(['correo' => $correo]), $salida);
+
+        return [$codigo, $preguntas, $escrito->fetch()];
     }
 
     private function crearLaCuenta(string $correo): void

@@ -7,9 +7,11 @@ use App\Models\Usuario;
 use App\Validacion\Contrasena;
 use App\Validacion\CorreoSinCuenta;
 use Illuminate\Console\Command;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\Console\Question\Question;
 
 /**
  * Crea la cuenta de administración del dueño del negocio, la que entra al panel: "Pantalla de control reservada al
@@ -20,8 +22,9 @@ use Illuminate\Support\Facades\Validator;
  *     php artisan administracion:crear-cuenta duenio@ejemplo.com
  *
  * Pide la contraseña dos veces, con la entrada oculta; nunca la recibe como argumento ni la escribe en la salida. Si la
- * terminal no puede ocultarla, falla en lugar de mostrarla. Aplica la regla de la contraseña (App\Validacion\Contrasena;
- * ADR-0018, decisión 2) y la guarda con hash (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, protección de contraseñas).
+ * terminal no puede ocultarla, falla en lugar de mostrarla. No le recorta espacios: la app (POST /api/sesion) y el panel
+ * la comparan tal como se escribe. Aplica la regla de la contraseña (App\Validacion\Contrasena; ADR-0018, decisión 2) y
+ * la guarda con hash (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, protección de contraseñas).
  *
  * Corre en cualquier entorno, también en producción: no lleva la guarda de solo-local de las cuentas de desarrollo
  * (Database\Seeders\CuentasDeDesarrolloSeeder). Quien lo corre ya tiene la terminal del servidor; no hay sesión que
@@ -63,9 +66,8 @@ final class CrearCuentaDeAdministracion extends Command
             return $this->fallar('La contraseña se escribe en la terminal: corre el comando sin --no-interaction.');
         }
 
-        // Sin respaldo visible: si la terminal no puede ocultar lo que se escribe, secret() falla en lugar de mostrarlo.
-        $password = $this->secret('Contraseña', false);
-        $confirmacion = $this->secret('Repite la contraseña', false);
+        $password = $this->pedirContrasena('Contraseña');
+        $confirmacion = $this->pedirContrasena('Repite la contraseña');
 
         $errores = Validator::make(
             ['password' => $password, 'password_confirmation' => $confirmacion],
@@ -81,12 +83,19 @@ final class CrearCuentaDeAdministracion extends Command
         // cast guarda tal cual un texto que ya tiene forma de hash (registro-E05).
         $hash = Hash::make((string) $password);
 
-        $cuenta = DB::transaction(function () use ($correo, $hash): Usuario {
-            $cuenta = Usuario::create(['correo' => $correo, 'password' => $hash]);
-            $cuenta->roles()->attach(Rol::query()->where('codigo', Rol::ADMINISTRACION)->sole());
+        try {
+            $cuenta = DB::transaction(function () use ($correo, $hash): Usuario {
+                $cuenta = Usuario::create(['correo' => $correo, 'password' => $hash]);
+                $cuenta->roles()->attach(Rol::query()->where('codigo', Rol::ADMINISTRACION)->sole());
 
-            return $cuenta;
-        });
+                return $cuenta;
+            });
+        } catch (UniqueConstraintViolationException) {
+            // Otra cuenta con ese correo se creó mientras se escribía la contraseña: el único sobre lower(correo) la
+            // rechaza y la transacción no deja nada. Sale el mismo mensaje que en la revisión, no el error de la base,
+            // que traería el SQL con el hash.
+            return $this->fallar(CorreoSinCuenta::MENSAJE);
+        }
 
         $this->components->info(sprintf(
             'Cuenta de administración creada: %s. Entra al panel en /admin con esa contraseña.',
@@ -94,6 +103,17 @@ final class CrearCuentaDeAdministracion extends Command
         ));
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Con la entrada oculta y sin respaldo visible: si la terminal no puede ocultar lo que se escribe, falla en lugar de
+     * mostrarlo. Se arma aquí y no con secret(), cuya pregunta le recorta los espacios del principio y del final.
+     */
+    private function pedirContrasena(string $pregunta): mixed
+    {
+        return $this->output->askQuestion(
+            (new Question($pregunta))->setHidden(true)->setHiddenFallback(false)->setTrimmable(false),
+        );
     }
 
     private function fallar(string $motivo): int
