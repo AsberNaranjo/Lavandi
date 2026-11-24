@@ -245,11 +245,21 @@ panel las hereda con las mismas reglas (`:19:Módulo D #1`). El perfil que ve el
   `maximo_de_fotos`.
 - **La foto sola sigue** (`foto`, E18): reemplaza la principal. Si llegan `foto` y `fotos` juntas, 422 en `fotos`.
 - **El panel** (E31) cambia su campo de foto por la lista: `descripcion` es un área de texto y `fotos` un selector de
-  varias fotos, ordenables, que agrega al final, en el disco de `config('fotos.disco')`, con el máximo de la
-  configuración. El máximo también frena al selector, que no deja subir más (lo mismo que la app, que no lo ofrece). La
-  página convierte la lista a la forma de la app: cada foto que ya tiene, por su lugar, y cada nueva como archivo. La
-  guardan las reglas y la edición de la app, sin otra validación del formulario, y solo si la lista cambió. El error de
-  cualquier foto va al selector.
+  varias fotos, ordenables, que agrega al final, en el disco de `config('fotos.disco')`. La página convierte la lista a
+  la forma de la app: cada foto que ya tiene, por su lugar en la lista que leyó al abrir, y cada nueva como archivo. La
+  guardan las reglas y la edición de la app, y solo si la lista cambió desde que se abrió la página. El error de
+  cualquier foto va al selector. Tres cuidados, para que las fotos que ya tiene no estorben al guardar otro dato:
+  - **El máximo** de la configuración también frena al selector, que no deja subir más (lo mismo que la app, que no lo
+    ofrece). Es la única validación propia del formulario: la regla `max` del selector de Filament corre antes que la
+    edición, con el mensaje de `ReglasDeLaLavanderia` ("La lavandería puede tener hasta N fotos."). A una lavandería que
+    ya tiene más fotos que el máximo, porque se bajó, el selector le deja las que tiene: la regla de la edición, que
+    solo corre si la lista cambió, le pide quedar en el máximo, y lo demás se sigue editando.
+  - **El selector no revisa el disco al abrir** (`fetchFileInformation(false)`). Si lo hiciera, Filament quitaría de la
+    lista la foto cuyo archivo no encuentra, o que no pudo revisar por una falla momentánea del almacenamiento, y la
+    lista parecería cambiada: guardar cualquier otro dato borraría esa foto.
+  - **Las fotos que cambiaron después de abrir.** Con la lavandería bloqueada, la edición revisa que las fotos sigan
+    siendo las que leyó la página; si cambiaron, por ejemplo desde la app, rechaza la lista en `fotos` y no cambia nada
+    (`FotosDeLaLavanderia::FOTOS_QUE_CAMBIARON`). Si la página no cambió las fotos, no las manda y no las toca.
 - **En la app** (`app/lavanderia/perfil.tsx`, `src/alta-lavanderias/FormularioDeLaLavanderia.tsx` y `formulario.ts`),
   solo en Perfil y horarios:
   - el campo "Descripción", de varias líneas y opcional;
@@ -376,6 +386,17 @@ que ya tiene no se vuelve a consultar.
   reales dependen del reclutamiento de EL CLIENTE (DD-021).
 - [`perfil-de-lavanderia` crea `lavanderias` por su lado] → Si al implementarse ya trae `estado` o `aprobada_en`, esta
   migración no los repite; lo que vale es la tabla final de `modelo-de-datos.md`.
+- [La app nombra cada foto que ya tiene por su lugar en su última lectura, y el servidor lo cuenta sobre la lista del
+  momento de guardar] → Si la app y el panel cambian las fotos de la misma lavandería a la vez, la app puede conservar o
+  quitar una foto distinta de la que quería, sin error: la app leyó [A, B, C], el panel las reordena a [C, A, B] y la
+  lavandería quita C mandando [0, 1], que conserva C y A y quita B. El panel no tiene este riesgo: revisa, con la
+  lavandería bloqueada, que las fotos sigan siendo las que leyó. Cerrarlo en la app pide una huella de la lista en la
+  lectura (por ejemplo, un hash del orden de las rutas, que no expone ninguna) y un 422 en `fotos` si al guardar ya no
+  coincide; cambia el contrato de la API y queda fuera de este cambio.
+- [El aviso del selector del panel al pasar del máximo sale en inglés] → El selector de Filament lo arma en el
+  navegador con la traducción de Laravel `validation.max.array`, y el servidor no tiene traducciones propias
+  (`servidor/lang/` no existe). El mensaje de la regla al guardar sí sale en español. Agregar las traducciones toca el
+  panel entero y queda fuera de este cambio.
 - [Las horas no caben en el plan] → Las tareas listas suman 48 h, con las 12 h de la descripción y las fotos del perfil
   (tareas 2.4, 3.4 y 4.3), y las bloqueadas 20 h más, contra 15 h del plan para F-B01, F-D01 y F-B06. Se reporta para la
   recalibración de S-006.
