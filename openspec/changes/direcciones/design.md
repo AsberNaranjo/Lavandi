@@ -47,7 +47,8 @@ asistida (C-238) y se sostienen en la **adenda propuesta del ADR-0009** que va a
 Arthur la asiente, las tareas 4.1 a 5.2 no empiezan (`openspec/config.yaml`, reglas del diseño).
 
 1. **Una dirección escrita se geocodifica una sola vez, al guardarse,** con Google Geocoding (ADR-0009, decisión 4;
-   presupuesto, decisión 3). El servicio va detrás de una interfaz que los tests simulan, así ningún test gasta
+   presupuesto, decisión 3), y su punto se vuelve a pedir por el place ID al usarla si pasó de 30 días (adenda del
+   2026-11-24 de ADR-0009; tarea 3.5, bloqueada por DD-139). El servicio va detrás de una interfaz que los tests simulan, así ningún test gasta
    consultas ni necesita llave.
 2. **Una dirección marcada en el mapa no se geocodifica:** el pin ya da el punto. La colonia y las señas las escribe el
    usuario (presupuesto, decisiones 3 y 4: geocodificación inversa en cero).

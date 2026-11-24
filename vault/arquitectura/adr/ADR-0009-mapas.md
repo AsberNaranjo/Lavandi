@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-29 (A); brecha-ejecutivo-tecnico.md BR-42 (B); presupuesto-de-mapas.md (D); verificaciones-fase-6.md, filas 6, 6b, 8a, 8b y sección del 2026-11-12 (E); ADR-0002, ADR-0003 y ADR-0004 (D); adenda del 2026-11-24: concilio del 2026-11-24, por delegación de C-236 y C-245 (C); DD-139 (B); developers.google.com/maps/documentation/geocoding/policies, consultada el 2026-11-23 (E, SIN VERIFICAR contra los términos firmados); NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.5 (A)
+fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-29 (A); brecha-ejecutivo-tecnico.md BR-42 (B); presupuesto-de-mapas.md (D); verificaciones-fase-6.md, filas 6, 6b, 8a, 8b y sección del 2026-11-12 (E); ADR-0002, ADR-0003 y ADR-0004 (D); adenda del 2026-11-24: concilio del 2026-11-24, por delegación de C-236 y C-245 (C); DD-139 (B); developers.google.com/maps/documentation/geocoding/policies, consultada el 2026-11-23 (E, SIN VERIFICAR contra los términos firmados); developers.google.com/maps/documentation/places/web-service/place-id, consultada el 2026-11-24 (E, SIN VERIFICAR); NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.5 (A)
 fecha: 2026-11-13
 dueño: Arthur Naranjo
 adr: ADR-0009
@@ -197,6 +197,18 @@ hoy.
 SIN RESPUESTA — bloquea: el código de DD-139 (DD-139). El trato de las dos copias se fija en esta misma adenda, antes de
 cualquier código, con los términos firmados verificados.
 
+**Lo que la decisión no dice.** También se fija antes del código de la tarea 3.5:
+
+- qué hace el servidor al usar la dirección si la consulta por place ID falla, porque Google no responde (hoy
+  `GeocodificadorDeGoogle` lanza `GeocodificacionNoDisponible`, `servidor/app/Direcciones/GeocodificadorDeGoogle.php:45`)
+  o porque el place ID ya no existe y Google responde `NOT_FOUND` (grado E, `SIN VERIFICAR`, la fuente de la tabla de
+  alternativas);
+- qué pasa con las direcciones guardadas antes de la columna nueva, que no tienen place ID ni fecha;
+- si el punto del detalle de Places (direcciones-E22) entra en la misma regla y guarda como place ID el `lugar` de la
+  sugerencia.
+
+SIN RESPUESTA — bloquea: la tarea 3.5 (DD-139).
+
 **Costo.** Por uso (RN-23, `NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.5`). El gasto va con el presupuesto de mapas
 (RN-20), que aceptan Nadir y EL CLIENTE.
 
@@ -206,10 +218,11 @@ cualquier código, con los términos firmados verificados.
 
 | Alternativa | Por qué se descarta |
 |---|---|
-| (a) Volver a geocodificar por texto a los 30 días | Repite la búsqueda por texto, que puede dar otro punto que el guardado; el place ID pide el mismo lugar |
+| (a) Volver a geocodificar por texto a los 30 días | Repite la búsqueda por texto, que puede dar otro punto que el guardado. El motivo es de quien asentó la adenda: el registro del concilio no lo trae. Que el place ID dé el mismo lugar es grado E, `SIN VERIFICAR`: Google dice que un place ID puede cambiar con el tiempo y que uno obsoleto responde `NOT_FOUND` (`https://developers.google.com/maps/documentation/places/web-service/place-id`, consultada el 2026-11-24) |
 | (c) Que el punto guardado sea el que confirma la persona en el mapa | Agrega un paso a direcciones-E01, y que ese punto quede fuera de la condición de Google es dudoso (grado E) |
 
 **Quién la decidió.** La decidió el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245). Siguen
-abiertos en DD-139 la verificación de los términos firmados y el trato de las copias del punto.
+abiertos la verificación de los términos firmados, el trato de las copias del punto y lo que la decisión no dice
+(DD-139).
 
 **Trazabilidad.** direcciones-E07 y E24; DD-139.
