@@ -120,6 +120,15 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
   - La respuesta se sostiene con una auditoría del PR #3 contra el contrato, no de palabra:
     [[auditoria-pr-3-contra-el-contrato-2026-11-22]].
   - De ella sale la decisión 39.
+- C-243 (Arthur Naranjo, 2026-11-23). "Lo de Conekta es un hecho que hay que cambiarlo y buscar una alternativa. Yo
+  creo que si es del efectivo mejor usar la de spiral que también es en el OXXO no? o algo similar a Conekta."
+  - Se lee "spiral" como Stripe, que cobra tarjeta y efectivo en OXXO
+    ([[alternativas-de-pasarela-2026-11-18]], grado E); falta que Arthur lo confirme.
+  - Coincide con C-180 (Arthur) y con C-198 (Nadir). Lo que falta es la Orden de Cambio firmada por las dos partes
+    (Cláusula IV; DD-079). Mientras no se firme, Conekta sigue siendo la pasarela del contrato y lo de Stripe no se
+    construye (`CLAUDE.md` §2-bis, punto 3).
+  - En la misma sesión, Arthur pide probar la app en su teléfono Android por USB, y dice que falta probarla en un
+    iPhone.
   - En la misma sesión: hacer otro recorrido en video, narrado con la voz de Jorge o la de Dalia, cuando haya avances
     concretos.
 
