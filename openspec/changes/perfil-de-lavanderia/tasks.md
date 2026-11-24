@@ -26,10 +26,13 @@ que a su vez lee las tablas de la tarea 1.1 (ver `design.md`, Open Questions).
 
 ## 2. Fotos
 
-- [x] 2.1 perfil-lavanderia-E03, perfil-lavanderia-E04 (`servidor/`): disco S3 privado del entorno; fotos de prueba
-  sembradas en `lavanderia_fotos`, con su orden; URLs firmadas que vencen — test:
+- [x] 2.1 perfil-lavanderia-E03, perfil-lavanderia-E04 (`servidor/`): disco privado (`fotos_local` en local y en las
+  pruebas); fotos de prueba sembradas en `lavanderia_fotos`, con su orden; URLs firmadas que vencen — test:
   `servidor/tests/Feature/PerfilLavanderia/FotosTest.php` — tamaño M. El contrato está en `design.md`, "Contrato de la
-  API: las fotos del perfil". En producción, el disco `fotos_s3` espera su librería y el hosting (DD-070)
+  API: las fotos del perfil"
+- [ ] 2.2 El disco `fotos_s3` del entorno de prueba y de producción: su librería y un bucket privado por entorno
+  (adenda del 2026-11-24 de ADR-0006; acta-2026-11-20-modelo-y-pasarela.md, decisión 49) — SIN RESPUESTA — bloquea:
+  el hosting (DD-070). Se separó de la 2.1 el 2026-11-24: la 2.1 tenía palomita y esta parte no está hecha
 
 ## 3. Pantalla del perfil
 
