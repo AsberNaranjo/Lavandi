@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: mixto
-fuente: NSV-2026-001-v8.pdf:4:Cláusula I, :16-20:ANEXO A, Sección A.3, :22:A.5 (A); ADR-0004, ADR-0005, ADR-0006, ADR-0010 (D); arquitectura/modelo-multi-plaza.md y c3-api.md (B); las 26 specs de openspec/changes/ (B); acta-2026-11-19-normativa-y-arranque.md C-187 a C-190 y acta-2026-11-20-modelo-y-pasarela.md C-192 a C-194 (C); C-238 y la decisión 29 del acta del 2026-11-20, con openspec/changes/direcciones/design.md (el catálogo del territorio, 2026-11-21); openspec/changes/alta-de-lavanderias/design.md (el municipio de la lavandería, por delegación de C-236, 2026-11-22); openspec/changes/administracion/design.md (comisiones y avisos_masivos como quedaron en la tarea 0.1, por delegación de C-236, 2026-11-22); segunda adenda del 2026-11-22 de ADR-0010 y openspec/changes/administracion/design.md (movimientos_pasarela, tarea 0.2, que cierra DD-112, por delegación de C-236, 2026-11-22); openspec/changes/landing/design.md (testimonios, tarea 4.0, por delegación de C-236, 2026-11-22); openspec/changes/repartidor/design.md (repartidores, pedido_asignaciones y evidencias como quedaron en la tarea 0.1, por delegación de C-236, 2026-11-22); acta-2026-11-20-modelo-y-pasarela.md, decisión 54, concilio del 2026-11-24 por delegación de Arthur (C-245), y openspec/changes/repartidor/ tarea 0.2 (la plaza vacía en la baja del registro que EL CLIENTE no autorizó, repartidor-E31); diseño de Claude del 2026-11-19
+fuente: NSV-2026-001-v8.pdf:4:Cláusula I, :16-20:ANEXO A, Sección A.3, :22:A.5 (A); ADR-0004, ADR-0005, ADR-0006, ADR-0010 (D); arquitectura/modelo-multi-plaza.md y c3-api.md (B); las 26 specs de openspec/changes/ (B); acta-2026-11-19-normativa-y-arranque.md C-187 a C-190 y acta-2026-11-20-modelo-y-pasarela.md C-192 a C-194 (C); C-238 y la decisión 29 del acta del 2026-11-20, con openspec/changes/direcciones/design.md (el catálogo del territorio, 2026-11-21); openspec/changes/alta-de-lavanderias/design.md (el municipio de la lavandería, por delegación de C-236, 2026-11-22); openspec/changes/administracion/design.md (comisiones y avisos_masivos como quedaron en la tarea 0.1, por delegación de C-236, 2026-11-22); segunda adenda del 2026-11-22 de ADR-0010 y openspec/changes/administracion/design.md (movimientos_pasarela, tarea 0.2, que cierra DD-112, por delegación de C-236, 2026-11-22); openspec/changes/landing/design.md (testimonios, tarea 4.0, por delegación de C-236, 2026-11-22); openspec/changes/landing/design.md y acta-2026-11-20-modelo-y-pasarela.md, decisión 63, concilio del 2026-11-24 por delegación de Arthur (C-236, C-245) (logos_prensa, tarea 4.0b); openspec/changes/repartidor/design.md (repartidores, pedido_asignaciones y evidencias como quedaron en la tarea 0.1, por delegación de C-236, 2026-11-22); acta-2026-11-20-modelo-y-pasarela.md, decisión 54, concilio del 2026-11-24 por delegación de Arthur (C-245), y openspec/changes/repartidor/ tarea 0.2 (la plaza vacía en la baja del registro que EL CLIENTE no autorizó, repartidor-E31); diseño de Claude del 2026-11-19
 fecha: 2026-11-19
 dueño: Arthur Naranjo
 ---
@@ -230,6 +230,7 @@ deuda: no se crea hasta que se responda.
 | Tabla | Columnas | Reglas | Cita | Nace en |
 |---|---|---|---|---|
 | `testimonios` | `id_testimonios`, `autor`, `texto`, `activo`, `orden` | Las opiniones de la sección 8 de la portada, que se editan en el panel con su interruptor de activo y su orden (ADR-0011). `autor` y `texto` no nulos ni en blanco (`CHECK`). `activo` vale `false` por omisión: un testimonio nuevo no se publica hasta activarlo. `orden` es `smallint`, 0 por omisión y no negativo (`CHECK`). **Sin `id_plazas`:** la portada es una para todo el sitio; va en la lista `sin_plaza` de `config/modelo.php` (modelo-E05). Sin el trigger `impedir_cambio()`: es contenido, no historial | `:15:A.2`, sección 8; ADR-0011 | `landing` |
+| `logos_prensa` | `id_logos_prensa`, `nombre`, `imagen`, `activo`, `orden` | Los logos de medios o menciones de la sección 10 de la portada, que se editan en el panel con su interruptor de activo y su orden (ADR-0011). `nombre` es el del medio y es también el texto alternativo de la imagen. `imagen` es la ruta del archivo en el disco privado de fotos del entorno, y la portada la recibe por una ruta pública del servidor (adenda del 2026-11-24 de ADR-0006). `nombre` e `imagen` no nulos ni en blanco (`CHECK`). `activo` vale `false` por omisión: un logo nuevo no se publica hasta activarlo. `orden` es `smallint`, 0 por omisión y no negativo (`CHECK`). **Sin `id_plazas`:** la portada es una para todo el sitio; va en la lista `sin_plaza` de `config/modelo.php` (modelo-E05). Sin el trigger `impedir_cambio()`: es contenido, no historial | `:15:A.2`, sección 10; ADR-0011 | `landing` |
 
 **Los indicadores no tienen tablas propias.** Se calculan de `pedidos`, `pedido_eventos`, `pagos`, `calificaciones` y
 `actividad_usuarios`. Si una consulta resulta lenta, se agrega una vista materializada, que no cambia ninguna tabla
@@ -237,9 +238,9 @@ deuda: no se crea hasta que se responda.
 
 **Lo que no tiene tabla todavía, a propósito:**
 - `documentos_repartidor`: excluido por el contrato (`:18`). Si entra por Orden de Cambio, es una tabla nueva.
-- El cupo por ventana (DD-099), los festivos (DD-078) y los logos de prensa de la landing (ADR-0011; tarea 4.2 de
-  `landing`, que espera los logos de EL CLIENTE): entran cuando se decidan, como columnas opcionales o tablas nuevas.
-  Los demás textos de la landing no tienen tabla: salen de la configuración (`openspec/changes/landing/design.md`).
+- El cupo por ventana (DD-099) y los festivos (DD-078): entran cuando se decidan, como columnas opcionales o tablas
+  nuevas. Los demás textos de la landing no tienen tabla: salen de la configuración
+  (`openspec/changes/landing/design.md`).
 
 ## Lo que falta decidir y toca el modelo
 
