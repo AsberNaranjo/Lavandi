@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; brecha-ejecutivo-tecnico.md BR-09 y BR-29 (B); restricciones-no-negociables.md RN-22 (A); verificaciones-fase-6.md, sección del 2026-11-12 (E); ADR-0003 (D); DD-070 (B); adenda del 2026-11-24: concilio del 2026-11-24, por delegación de Arthur (C-236, C-245) (C); NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2, NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3 y NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.4 (A); servidor/config/fotos.php:24 (B); ADR-0011 y ADR-0016 (D)
+fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; brecha-ejecutivo-tecnico.md BR-09 y BR-29 (B); restricciones-no-negociables.md RN-22 (A); verificaciones-fase-6.md, sección del 2026-11-12 (E); ADR-0003 (D); DD-070 (B); adenda del 2026-11-24: concilio del 2026-11-24, por delegación de Arthur (C-236, C-245) (C); NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2, NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3 y NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.4 (A); servidor/config/fotos.php:24 (B); ADR-0011, ADR-0012 y ADR-0016 (D)
 fecha: 2026-11-13
 dueño: Arthur Naranjo
 adr: ADR-0006
@@ -74,9 +74,10 @@ Bajo. Se copian los objetos al otro bucket y se cambia la configuración.
 
 **Contexto.**
 
-- El B.4 presupuesta el almacenamiento aparte del servidor (`NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.4`), y el
-  contrato guarda las imágenes "en un servicio de almacenamiento en la nube" (`NSV-2026-001-v8.pdf:20:ANEXO A, Sección
-  A.3`, Almacenamiento de imágenes). Por eso este ADR descartó el disco del propio servidor (alternativa C).
+- El B.4 presupuesta el almacenamiento aparte del servidor (`NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.4`). Este ADR
+  descartó el disco del propio servidor (alternativa C) por el B.4 y por razones prácticas; el A.3, que guarda las
+  imágenes "en un servicio de almacenamiento en la nube" (`NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3`,
+  Almacenamiento de imágenes), va en el mismo sentido.
 - Hoy `servidor/config/fotos.php:24` usa `fotos_local`, un disco local privado que sirve cada foto con la URL firmada
   de Laravel, en todo entorno que no sea producción. Este ADR no lo anotaba (`perfil-de-lavanderia/design.md`, Open
   Questions).
@@ -96,8 +97,8 @@ Bajo. Se copian los objetos al otro bucket y se cambia la configuración.
      (DD-070). Hoy no cambia código.
    - La librería de S3 y el bucket siguen en `perfil-de-lavanderia`, tarea 2.1 (DD-070).
    - **Alternativa descartada:** `fotos_local` también en el entorno de prueba. Contradice este ADR y arriesga
-     acreditar el A.4.3 sobre un disco que producción no usa: la validación conforme al A.4.3 se documenta en el
-     entorno de prueba (ADR-0012).
+     acreditar el A.4.3 (`NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3`) sobre un disco que producción no usa: la
+     validación conforme al A.4.3 se documenta en el entorno de prueba (ADR-0012).
 2. **Los logos de prensa de la portada** (landing-E17).
    - Guardan su imagen en el disco privado de fotos del entorno, el de la decisión 1.
    - La portada pública la recibe por una ruta pública del servidor que la lee del disco y la entrega con caché, sin
