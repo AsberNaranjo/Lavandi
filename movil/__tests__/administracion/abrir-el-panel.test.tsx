@@ -14,7 +14,8 @@
 // Con Google, el servidor todavía le da token a la cuenta de administración: POST /api/sesion/google no le responde
 // 403 hasta la tarea 6.2 (openspec/changes/administracion/tasks.md). Las pruebas de administracion-E25 con Google
 // simulan el 403 sin token que pide esa tarea, en el inicio de sesión y en el registro. La que simula el token que hoy
-// da el servidor es de registro-E33: la app no lo guarda y pide revocarlo, y el aviso trae el botón igual.
+// da el servidor es de registro-E33: la app no lo guarda y pide revocarlo, y el aviso trae el botón igual. Esa revocación
+// recibe 403, como en el servidor real (servidor/routes/api.php:58-60), y el token queda vivo allá hasta la 6.2.
 //
 // Se abre la app real, con las rutas de movil/app/ (ADR-0017), en iPhone y en Android, con el servidor simulado
 // (__tests__/apoyo/lavanderia.ts) y la simulación de __mocks__/expo-web-browser.ts. La vista real se prueba en un
@@ -120,7 +121,7 @@ function revocaciones(): string[] {
 
 describe('administracion-E25: una cuenta de administración en la app abre el panel', () => {
   test.each(PLATAFORMAS)(
-    'administracion-E25: (%s) una cuenta de administración que inicia sesión ve el aviso y el botón, y el botón abre en expo-web-browser la dirección del panel de la configuración',
+    'administracion-E25 y registro-E33: (%s) una cuenta de administración que inicia sesión ve el aviso y el botón, y el botón abre en expo-web-browser la dirección del panel de la configuración',
     async (plataforma) => {
       await abrirLaAppSinSesion(plataforma);
       expect(await screen.findByLabelText('Correo electrónico')).toBeOnTheScreen();
@@ -198,9 +199,10 @@ describe('administracion-E25: una cuenta de administración en la app abre el pa
 });
 
 // Hasta la tarea 6.2, POST /api/sesion/google sí le da token a la cuenta de administración (servidor/app/Identidad/
-// EntradaConGoogle.php). La app no abre esa sesión (registro-E33, ProveedorDeSesion) y le ofrece el panel igual.
+// EntradaConGoogle.php). La app no abre esa sesión (registro-E33, ProveedorDeSesion) y le ofrece el panel igual. La
+// revocación que pide recibe 403 del servidor simulado, como del real: la app no depende de que salga bien.
 describe('registro-E33: con Google, la cuenta de administración que recibe token no se queda con la sesión', () => {
-  test('registro-E33: con Google, si el servidor le da token, la app no lo guarda, pide revocarlo y el aviso trae el botón', async () => {
+  test('registro-E33: con Google, si el servidor le da token, la app no lo guarda, pide revocarlo (403, sin efecto hasta la 6.2) y el aviso trae el botón', async () => {
     googleDaSuIdToken();
     servidor().interceptar = ({ metodo, ruta }) =>
       metodo === 'POST' && ruta === '/sesion/google'
@@ -214,6 +216,9 @@ describe('registro-E33: con Google, la cuenta de administración que recibe toke
     expect(await screen.findByText(MENSAJES.sinAccesoALaApp)).toBeOnTheScreen();
     await expect(leerToken()).resolves.toBeNull();
     expect(revocaciones()).toEqual([`DELETE /sesion Bearer ${TOKEN}`]);
+    // El 403 de la revocación no cambia nada en la pantalla: sigue el aviso, sin "Algo salió mal".
+    expect(screen.getByText(MENSAJES.sinAccesoALaApp)).toBeOnTheScreen();
+    expect(screen.queryByText(MENSAJES.servidor)).not.toBeOnTheScreen();
 
     await persona.press(screen.getByRole('button', { name: 'Abrir el panel' }));
 
