@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; brecha-ejecutivo-tecnico.md BR-09 y BR-29 (B); restricciones-no-negociables.md RN-22 (A); verificaciones-fase-6.md, sección del 2026-11-12 (E); ADR-0003 (D); DD-070 (B); adenda del 2026-11-24: acta-2026-11-20-modelo-y-pasarela.md, decisiones 49 y 63, del concilio del 2026-11-24, por delegación de Arthur (C-236, C-245) (C); NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2, NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3 y NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.4 (A); servidor/config/fotos.php:24 (B); ADR-0011, ADR-0012 y ADR-0016 (D)
+fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; brecha-ejecutivo-tecnico.md BR-09 y BR-29 (B); restricciones-no-negociables.md RN-22 (A); verificaciones-fase-6.md, sección del 2026-11-12 (E); ADR-0003 (D); DD-070 (B); adenda del 2026-11-24: acta-2026-11-20-modelo-y-pasarela.md, decisiones 49 y 63, del concilio del 2026-11-24, por delegación de Arthur (C-236, C-245) (C); NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2, NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3 y NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.4 (A); servidor/config/fotos.php:31 (B); ADR-0011, ADR-0012 y ADR-0016 (D)
 fecha: 2026-11-13
 dueño: Arthur Naranjo
 adr: ADR-0006
@@ -78,7 +78,7 @@ Bajo. Se copian los objetos al otro bucket y se cambia la configuración.
   descartó el disco del propio servidor (alternativa C) por el B.4 y por razones prácticas; el A.3, que guarda las
   imágenes "en un servicio de almacenamiento en la nube" (`NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3`,
   Almacenamiento de imágenes), va en el mismo sentido.
-- Hoy `servidor/config/fotos.php:24` usa `fotos_local`, un disco local privado que sirve cada foto con la URL firmada
+- Hoy `servidor/config/fotos.php:31` usa `fotos_local`, un disco local privado que sirve cada foto con la URL firmada
   de Laravel, en todo entorno que no sea producción. Este ADR no lo anotaba (`perfil-de-lavanderia/design.md`, Open
   Questions).
 - El A.2 pide en la portada "Logos de medios o menciones, activables conforme se obtengan"
@@ -93,7 +93,7 @@ Bajo. Se copian los objetos al otro bucket y se cambia la configuración.
    - El entorno de prueba en internet y producción usan `fotos_s3`, con un bucket privado por entorno. Lo condiciona la
      sección Consecuencias de este mismo ADR ("ADR-0012 (un bucket por entorno)"). ADR-0012 no menciona buckets, así
      que no es la fuente de esta regla.
-   - El valor por omisión de `servidor/config/fotos.php:24` cambia cuando exista el bucket del entorno de prueba
+   - El valor por omisión de `servidor/config/fotos.php:31` cambia cuando exista el bucket del entorno de prueba
      (DD-070). Hoy no cambia código.
    - La librería de S3 y el bucket siguen en `perfil-de-lavanderia`, tarea 2.1 (DD-070).
    - **Alternativa descartada:** `fotos_local` también en el entorno de prueba. Contradice este ADR y arriesga
