@@ -245,10 +245,15 @@ cuenta de lavandería recibe 403 en las dos. Ver el reporte de la tarea: no se c
 1. **Cómo se guarda la respuesta de la lavandería.** El modelo lo responde: un evento en `pedido_eventos`, con su
    motivo, y el estado actual en `pedidos` (ADR-0016). Qué fila de `estados_pedido` es cada una y cómo se ve para el
    usuario: ADR-0021 y su adenda propuesta (arriba).
-2. **¿ADR-0007 cubre la lista de la lavandería?** Su decisión habla de "la pantalla del pedido" y de las tablas del
-   panel. Aplicarla a esta lista es una lectura. Si Arthur lo lee distinto, se enmienda el ADR.
-3. **El motivo.** Se especifica como texto libre obligatorio, que es la lectura mínima del contrato. ¿Tiene longitud
-   máxima? Se construye configurable. ¿El usuario ve el motivo? Depende de BR-22 y BR-26.
+2. **¿ADR-0007 cubre la lista de la lavandería?** Resuelta: sí. La adenda del 2026-11-24 de ADR-0007 nombra la lista
+   de pedidos del socio lavandería y la de pedidos asignados del socio repartidor entre las pantallas que consultan
+   cada 30 s solo mientras se ven; la consulta inmediata por aviso FCM a los socios entra solo si se aprueba DD-054.
+   Asienta lo que la app ya hace y prueba (pedidos-lavanderia-E05 y E06). Concilio del 2026-11-24, por delegación de
+   Arthur (C-236, C-245).
+3. **El motivo.** Se especifica como texto libre obligatorio, que es la lectura mínima del contrato. Su largo máximo
+   queda ratificado en 500 caracteres (`servidor/config/pedidos.php:29`, `pedidos.motivo_de_rechazo_maximo`), un valor
+   técnico de configuración (pedidos-lavanderia-E13): concilio del 2026-11-24, por delegación de Arthur (C-236,
+   C-245). ¿El usuario ve el motivo? Sigue dependiendo de BR-22 y BR-26.
 4. **Qué datos del usuario ve la lavandería** (E04): la dirección de recolección y el nombre dependen de quién recoge
    y entrega (DD-022, DD-014).
 5. **El plazo para responder y lo que pasa después de un rechazo** (E10, E14): Es DD-103.
