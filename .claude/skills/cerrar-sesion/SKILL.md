@@ -5,7 +5,7 @@ description: Deja el vault al día antes de terminar. Úsala sin que nadie la pi
 
 # Cerrar la sesión
 
-Regla de `CLAUDE.md` §0-bis (C-139, C-142): lo que pasó en la sesión queda en el repo antes de terminar.
+Regla de `CLAUDE.md` §0-bis (C-204, C-207): lo que pasó en la sesión queda en el repo antes de terminar.
 Este procedimiento la ejecuta. No espera a que un humano lo pida.
 
 ## Pasos, en orden
@@ -15,7 +15,7 @@ Este procedimiento la ejecuta. No espera a que un humano lo pida.
 2. **Quién habló.** Si la sesión no sabe con certeza quién está escribiendo (CLAUDE.md §0-bis, paso 0;
    C-220), no asienta declaraciones grado C: las deja como pregunta para la siguiente sesión.
 3. **Archivar lo que falte.**
-   - Declaración de Nadir o de Arthur (las dos son grado C, C-143) → acta del día en `vault/meta/actas/` (`plantilla-acta-de-sesion`), con el
+   - Declaración de Nadir o de Arthur (las dos son grado C, C-211) → acta del día en `vault/meta/actas/` (`plantilla-acta-de-sesion`), con el
      siguiente `C-NN` libre y el nombre de quien habló: `- C-NN (Nombre). …`. Literal, no interpretada.
    - Pregunta que quedó sin respuesta → nota `DD-NNN` con la skill `nueva-decision`.
    - Decisión técnica → ADR en `vault/arquitectura/adr/`.

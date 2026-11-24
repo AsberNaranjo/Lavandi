@@ -1,7 +1,7 @@
 ---
 estado: borrador
 grado: E
-fuente: búsqueda web de Claude del 2026-11-20, por extractos del buscador sobre dominios oficiales; pedida por Nadir (C-133, C-134 en acta-2026-11-20-decisiones-de-maquetas)
+fuente: búsqueda web de Claude del 2026-11-20, por extractos del buscador sobre dominios oficiales; pedida por Nadir (C-198, C-199 en acta-2026-11-20-decisiones-de-maquetas)
 fecha: 2026-11-20
 dueño: Nadir Hadad Navarrete
 ---
@@ -13,7 +13,7 @@ para la matriz de `ADR-0010`. Sin ADR, la decisión no existe (CLAUDE.md §5).
 ## Dos advertencias antes de leer
 
 1. **Cambiar de pasarela cambia el contrato.** El contrato nombra a Conekta (RN-10, RN-28; A.3 #10). Sustituirla
-   exige acuerdo escrito con EL CLIENTE. Es la fila DD-067 de `meta/deuda-de-decision.md`.
+   exige acuerdo escrito con EL CLIENTE. Es la fila DD-079 de `meta/deuda-de-decision.md`.
 2. **Ninguna página se abrió completa.** La red de la sesión bloqueó los sitios de los proveedores. Lo que sigue
    sale de extractos del buscador restringido a dominios oficiales, no de la lectura de cada página. Varias
    páginas indexadas tienen un año o más. Ninguna cifra se usa sin abrir la URL citada.
@@ -25,8 +25,8 @@ tarjeta dentro de la app, sin que el número pase por el servidor; (3) tarjeta g
 cobros posteriores; (4) efectivo en tiendas, con OXXO u otras cadenas; (5) comisiones y plazo de depósito;
 (6) reembolsos y autorización con captura posterior.
 
-Los requisitos 2 y 3 salen de C-133. El 4, de C-134 y DD-056. El 6 importa por C-132: si se cobra el estimado
-y el peso real difiere, hace falta reembolso parcial o captura por otro monto (DD-069).
+Los requisitos 2 y 3 salen de C-198. El 4, de C-199 y DD-056. El 6 importa por C-197: si se cobra el estimado
+y el peso real difiere, hace falta reembolso parcial o captura por otro monto (DD-125).
 
 ## Tabla
 
@@ -97,4 +97,4 @@ tendría OXXO según su giro. R-028 sigue como estaba.
 1. Nadir abre las URL de los dos o tres candidatos que le interesen y confirma las cifras. Lo confirmado sube a
    grado C en un acta.
 2. Con eso se arma la matriz de criterios ponderados y `ADR-0010`.
-3. En paralelo, DD-067: plantear a EL CLIENTE el cambio de pasarela por escrito.
+3. En paralelo, DD-079: plantear a EL CLIENTE el cambio de pasarela por escrito.

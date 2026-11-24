@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: C
-fuente: decisiones de Nadir del 2026-11-20 (C-137 a C-142 en acta-2026-11-20-decisiones-de-maquetas)
+fuente: decisiones de Nadir del 2026-11-20 (C-202 a C-207 en acta-2026-11-20-decisiones-de-maquetas)
 fecha: 2026-11-20
 dueño: Nadir Hadad Navarrete
 ---
@@ -12,7 +12,7 @@ Para quien llega al repo. Diez minutos. El detalle está en [[colaboracion-en-el
 ## Quiénes somos
 
 Nadir Hadad Navarrete y Arthur Naranjo, cada uno con Claude Code. Lo que cualquiera de los dos declara en
-sesión es grado C, con su nombre en el acta (C-143). Aprobar envíos al cliente, dominio e IMPI, y lo que se
+sesión es grado C, con su nombre en el acta (C-211). Aprobar envíos al cliente, dominio e IMPI, y lo que se
 firma como EL PRESTADOR siguen siendo de Nadir.
 
 Si usan la misma cuenta de Claude, la cuenta no distingue quién escribe: **al abrir cada sesión, Claude

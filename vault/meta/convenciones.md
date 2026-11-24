@@ -2,7 +2,7 @@
 estado: vigente
 grado: D
 fuente: vault/meta/actas/acta-2026-09-07-fundacion.md (C-15, C-16, C-17) y brief de sesión
-fecha: 2026-09-07
+fecha: 2026-11-17
 dueño: Nadir Hadad Navarrete
 ---
 # Convenciones del vault
@@ -43,7 +43,7 @@ dueño: <persona>
 Una nota `superseded` dice en su primera línea qué nota la reemplaza.
 
 Que algo ya se mandó al cliente no es un estado: la nota queda `vigente` y lleva el campo
-`enviada: AAAA-MM-DD HH:MM, por <medio>, a <quién> (C-NN)` (C-141).
+`enviada: AAAA-MM-DD HH:MM, por <medio>, a <quién> (C-NN)` (C-206).
 
 ## Grados y citas
 Ver `CLAUDE.md`, sección 3. Formatos de cita:
@@ -70,19 +70,19 @@ Ver `CLAUDE.md`, sección 3. Formatos de cita:
 | `F-XNN` | Función del inventario funcional. La letra dice de dónde viene: A, B, C y D son los módulos del A.3; L, la landing (A.2); I, los indicadores (A.5); T, lo transversal | `contrato/inventario-funcional.md` |
 | `BR-NN` | Fila de brecha ejecutivo→técnico | `contrato/brecha-ejecutivo-tecnico.md` |
 | `RN-NN` | Restricción no negociable | `contrato/restricciones-no-negociables.md` |
-| `DD-NNN` | Deuda de decisión | `meta/deuda-de-decision.md` hasta DD-069; desde el 2026-11-20, una nota por decisión en `meta/deuda/` |
-| `C-NN` | Declaración de Nadir Hadad Navarrete o de Arthur Naranjo (C-143). Una sola serie para los dos; desde C-143 cada renglón dice quién: `- C-NN (Nombre). …` | acta correspondiente |
+| `DD-NNN` | Deuda de decisión | `meta/deuda-de-decision.md` hasta DD-125; desde el 2026-11-20, una nota por decisión en `meta/deuda/` |
+| `C-NN` | Declaración de Nadir Hadad Navarrete o de Arthur Naranjo (C-211, C-214). Una sola serie para los dos; cada renglón dice quién: `- C-NN (Nombre). …` | acta correspondiente |
 | `ADR-000X` | Decisión técnica | `arquitectura/adr/` |
 | `H-00X` | Hipótesis | `negocio/hipotesis-criticas.md` |
 | `R-00X` | Riesgo | `riesgos-supuestos/riesgos.md` |
 | `S-00X` | Supuesto | `riesgos-supuestos/supuestos.md` |
 
 ## Espejo Notion — retirado
-Retirado el 2026-11-20 por Nadir (C-138): el repo es la única copia del vault. La regla anterior (se
+Retirado el 2026-11-20 por Nadir (C-203): el repo es la única copia del vault. La regla anterior (se
 espejaba todo `vault/` porque EL CLIENTE no consulta el Notion, C-28) queda solo como antecedente.
 
 ## Trabajo entre dos personas
-Dos personas con Claude Code (C-137). Rama por tarea, pull request revisado por la otra persona,
+Dos personas con Claude Code (C-202). Rama por tarea, pull request revisado por la otra persona,
 validación con `herramientas/validar-vault/validar.py`. Reglas completas en
 `formas-de-trabajo/colaboracion-en-el-vault.md`.
 
@@ -98,11 +98,11 @@ validación con `herramientas/validar-vault/validar.py`. Reglas completas en
 - No se comparte con EL CLIENTE.
 
 ## Git
-`main`, protegida: todo entra por pull request. Un commit por fase cerrada (`Fase N: …`); trabajo intermedio `wip(fase-N): …`. Ramas, revisión y choques: `formas-de-trabajo/colaboracion-en-el-vault.md`.
+`main`, protegida: todo entra por pull request. Un commit por fase cerrada (`Fase N: …`); trabajo intermedio `wip(fase-N): …`. Ramas, revisión y choques: `formas-de-trabajo/colaboracion-en-el-vault.md`. Para el código y el PR por sprint a Nadir: `formas-de-trabajo/repositorios-ramas-y-revision.md`.
 
 ## Actas
 Toda sesión con Nadir o con Arthur Naranjo produce un acta en `meta/actas/acta-AAAA-MM-DD-<tema>.md`. Lo
-que cualquiera de los dos dice es grado C solo si está en un acta, con su nombre en el renglón (C-143). Un
+que cualquiera de los dos dice es grado C solo si está en un acta, con su nombre en el renglón (C-211). Un
 dato E confirmado por uno de ellos se registra en la tabla final del acta. Si dos actas del mismo día
 chocan en número, la segunda en unirse se renumera. Una declaración que contradice otra anterior nombra el
 `C-NN` que revoca; si no está claro cuál vale, se abre una `DD-`.

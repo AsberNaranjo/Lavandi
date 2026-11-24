@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: B
-fuente: vault/meta/convenciones.md y CLAUDE.md §3; pedido de Nadir del 2026-11-20 (C-144 en acta-2026-11-20-decisiones-de-maquetas)
+fuente: vault/meta/convenciones.md y CLAUDE.md §3; pedido de Nadir del 2026-11-20 (C-212 en acta-2026-11-20-decisiones-de-maquetas)
 fecha: 2026-11-20
 dueño: Nadir Hadad Navarrete
 ---
@@ -13,15 +13,15 @@ contradice a esas dos, valen ellas y este glosario se corrige.
 ## Grado C y DD, que son las que más se confunden
 
 **Grado C: lo que Nadir o Arthur dijeron en una sesión, y quedó escrito en un acta.**
-- Ejemplo: "se cobra al estimar" es grado C porque Nadir lo dijo y está en el acta como C-132.
+- Ejemplo: "se cobra al estimar" es grado C porque Nadir lo dijo y está en el acta como C-197.
 - La condición es el acta. Lo dicho en un chat que no se transcribió no es grado C todavía.
-- Cada declaración lleva un número `C-NN` y el nombre de quien habló: `C-143 (Nadir Hadad Navarrete)`.
+- Cada declaración lleva un número `C-NN` y el nombre de quien habló: `C-211 (Nadir Hadad Navarrete)`.
 
 **DD: deuda de decisión.** Una pregunta que alguien tiene que contestar para que el trabajo avance sin
 suposiciones.
-- Ejemplo: DD-068, "¿quién arma el tabulador de pesos por prenda?".
+- Ejemplo: DD-124, "¿quién arma el tabulador de pesos por prenda?".
 - Dice quién responde, qué bloquea y para cuándo. Se cierra con la respuesta y dónde quedó: un `C-NN` o un ADR.
-- Hasta DD-069 viven en la tabla [[deuda-de-decision]]. Las nuevas van en una nota por decisión en
+- Hasta DD-125 viven en la tabla [[deuda-de-decision]]. Las nuevas van en una nota por decisión en
   `meta/deuda/`.
 
 La relación: una **DD** es la pregunta abierta, y casi siempre se cierra con una declaración **C**.
@@ -32,7 +32,7 @@ La relación: una **DD** es la pregunta abierta, y casi siempre se cierra con un
 |---|---|---|
 | **A** | Lo que obliga el contrato | `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` |
 | **B** | Algo que se puede comprobar en el repo | `vault/design-system/tokens.json:102` |
-| **C** | Lo que Nadir o Arthur declararon, en acta | `C-132` |
+| **C** | Lo que Nadir o Arthur declararon, en acta | `C-197` |
 | **D** | Decisión técnica con su ADR | `ADR-0007` |
 | **E** | Dato externo que buscó Claude, sin confirmar | fuente, fecha y `SIN VERIFICAR` |
 | **S** | Supuesto | solo en `riesgos-supuestos/supuestos.md`, con dueño y fecha límite |
@@ -73,7 +73,7 @@ La relación: una **DD** es la pregunta abierta, y casi siempre se cierra con un
 | `vigente` | La que vale |
 | `superseded` | Reemplazada; su primera línea dice por cuál |
 
-Que algo se haya enviado al cliente no es un estado: va en el campo `enviada` (C-141).
+Que algo se haya enviado al cliente no es un estado: va en el campo `enviada` (C-206).
 
 ## Otras palabras del proyecto
 

@@ -51,7 +51,7 @@ def main():
     definiciones = defaultdict(list)
 
     for p in lista:
-        rel = p.relative_to(RAIZ)
+        rel = p.relative_to(RAIZ).as_posix()  # con / también en Windows, como excepciones.txt
         texto = p.read_text(encoding="utf-8")
         if p.name not in EXENTAS and "plantillas" not in p.parts:
             fm = frontmatter(texto)

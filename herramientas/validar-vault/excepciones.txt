@@ -2,7 +2,7 @@
 # como la imprime validar.py. Esta lista solo se achica: lo que se corrige se borra de aquí, y nada
 # nuevo entra sin acta que lo justifique.
 #
-# Los diez errores iniciales se corrigieron el 2026-11-20 (C-140, C-141).
+# Los diez errores iniciales se corrigieron el 2026-11-20 (C-205, C-206).
 #
 # C-54 a C-62: las actas acta-2026-09-12-marca-visual y acta-2026-09-12-paleta-y-logotipo transcriben las
 # mismas declaraciones. Vale la de marca-visual, la más reciente (C-140, renumerada C-205 en el PR #2). La

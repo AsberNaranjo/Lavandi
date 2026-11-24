@@ -5,9 +5,12 @@
 set -uo pipefail
 
 cd "${CLAUDE_PROJECT_DIR:-.}" || exit 0
+# En Windows (Git Bash) no hay python3: se usa python. PYTHONIOENCODING, para los acentos.
+PY="$(command -v python3 || command -v python || echo python3)"
+export PYTHONIOENCODING=utf-8
 
 # Solo al empezar o reanudar; en /clear y en compactación no hace falta.
-fuente="$(cat 2>/dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin).get("source",""))' 2>/dev/null || true)"
+fuente="$(cat 2>/dev/null | "$PY" -c 'import json,sys; print(json.load(sys.stdin).get("source",""))' 2>/dev/null || true)"
 case "$fuente" in clear|compact) exit 0 ;; esac
 
 echo "== Inicio de sesión: sincronizar el vault =="
@@ -36,5 +39,5 @@ if ls vault/meta/trabajo/*.md >/dev/null 2>&1; then
   done
 fi
 
-python3 herramientas/validar-vault/validar.py || echo "AVISO: el vault tiene errores; corrígelos antes de abrir un PR."
+"$PY" herramientas/validar-vault/validar.py || echo "AVISO: el vault tiene errores; corrígelos antes de abrir un PR."
 exit 0

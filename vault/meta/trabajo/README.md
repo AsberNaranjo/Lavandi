@@ -1,6 +1,6 @@
 # Trabajo en curso, una nota por tarea
 
-Para que dos personas y sus agentes trabajen en paralelo sin pisarse (C-139). Cada tarea que se empieza
+Para que dos personas y sus agentes trabajen en paralelo sin pisarse (C-204). Cada tarea que se empieza
 abre aquí una nota con `plantillas/plantilla-tarea-en-curso.md`: quién, en qué rama, qué toca y por qué.
 
 - Nombre: `AAAA-MM-DD-<persona>-<tema>.md`. Una nota por tarea, así dos ramas nunca editan la misma.
