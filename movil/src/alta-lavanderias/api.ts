@@ -1,13 +1,13 @@
 // La API de la lavandería del socio, el Módulo B (openspec/changes/alta-de-lavanderias, "El contrato de la API"; el
 // mismo contrato del comentario de servidor/app/Http/Controllers/Api/LavanderiaDelSocioController.php): sus lavanderías,
 // para saber al entrar si abre el registro o los pedidos; su registro (alta-lavanderias-E01 a E03); su lavandería con
-// sus ventanas actuales, y su edición (alta-lavanderias-E18 a E22). Todas van con la sesión de una cuenta de socio
-// lavandería, y el servidor solo le da y le deja tocar la suya (alta-lavanderias-E20). Como las demás consultas, nunca
-// lanza: devuelve un Resultado.
+// sus ventanas actuales, y su edición, con la descripción y las fotos de su perfil (alta-lavanderias-E18 a E22 y E26 a
+// E30). Todas van con la sesión de una cuenta de socio lavandería, y el servidor solo le da y le deja tocar la suya
+// (alta-lavanderias-E20). Como las demás consultas, nunca lanza: devuelve un Resultado.
 //
-// El registro va en multipart, porque lleva la foto. La edición va en JSON, salvo que cambie la foto: entonces va en
-// multipart por POST con _method=PATCH, porque PHP solo lee los archivos de un POST. Los servicios y las ventanas
-// siempre van completos: los que no vienen dejan de ofrecerse.
+// El registro va en multipart, porque lleva la foto. La edición va en JSON, salvo que lleve una foto nueva: entonces va
+// en multipart por POST con _method=PATCH, porque PHP solo lee los archivos de un POST. Los servicios, las ventanas y
+// las fotos siempre van completos: los que no vienen dejan de ofrecerse, y las fotos que no vienen se quitan.
 import { pedir, pedirConEstado, type Falla, type Resultado } from '../configuracion/api';
 import { agregarFoto } from '../configuracion/foto-del-formulario';
 import { esObjeto } from '../configuracion/lectura';
@@ -26,6 +26,8 @@ export const CONTRATO_DE_LA_LAVANDERIA_DEL_SOCIO = {
    * (src/configuracion/foto-del-formulario.ts).
    */
   foto: 'foto',
+  /** La lista de fotos del perfil, en la edición: "fotos[0]", "fotos[1]"… */
+  fotos: 'fotos',
 } as const;
 
 /** Un municipio del catálogo, como lo trae la dirección de la lavandería; el estado es su nombre. */
@@ -59,13 +61,25 @@ export interface VentanaDeLaLavanderia {
   hora_fin: string;
 }
 
+/** Una foto guardada: su URL firmada, que vence; al volver a pedir la lavandería llega otra. */
+export interface FotoDeLaLavanderia {
+  url: string;
+  vence_en: string;
+}
+
 /** La lavandería de la cuenta, como sale en todas las respuestas. Sin su estado: lo que ve suspendida es DD-104. */
 export interface LavanderiaDelSocio {
   id_publico: string;
   nombre: string;
+  /** La del perfil, opcional (alta-lavanderias-E26); null si no tiene. */
+  descripcion: string | null;
   direccion: DireccionDeLaLavanderia;
-  /** La URL firmada vence; al volver a pedir la lavandería llega otra. null si no tiene. */
-  foto: { url: string; vence_en: string } | null;
+  /** La principal, la primera de fotos; null si no tiene. */
+  foto: FotoDeLaLavanderia | null;
+  /** Todas las del perfil, en su orden (alta-lavanderias-E27 a E29). */
+  fotos: FotoDeLaLavanderia[];
+  /** Cuántas fotos puede tener, de la configuración del servidor (alta-lavanderias-E30). */
+  maximo_de_fotos: number;
   servicios: ServicioDeLaLavanderia[];
   ventanas: VentanaDeLaLavanderia[];
 }
@@ -80,6 +94,21 @@ export interface DatosDeLaLavanderia {
   servicios: { tipo: string; precio: string }[];
   ventanas: VentanaDeLaLavanderia[];
 }
+
+/**
+ * Una foto de la lista que manda la edición: una que ya tiene, por su lugar en "fotos" de la última lectura (0, la
+ * primera), o una nueva, ya comprimida en el teléfono.
+ */
+export type FotoQueViaja = number | { uri: string };
+
+/**
+ * Lo que manda la edición (alta-lavanderias-E19 y E26 a E30): los datos del registro que cambiaron, y la descripción y
+ * la lista completa de fotos del perfil, que el registro no pide.
+ */
+export type CambiosDeLaLavanderia = Partial<DatosDeLaLavanderia> & {
+  descripcion?: string;
+  fotos?: FotoQueViaja[];
+};
 
 /** Por qué no salió un envío: además de las fallas generales, el 409 de la cuenta que ya tiene su lavandería. */
 export type FallaDelEnvio = Falla | { ok: false; motivo: 'conflicto'; mensaje?: string };
@@ -117,19 +146,23 @@ export async function registrarLavanderia(token: string, datos: DatosDeLaLavande
 }
 
 /**
- * PATCH de lo que cambió de su lavandería (alta-lavanderias-E19): solo van los datos que vienen. Con foto nueva, en
- * multipart por POST con _method=PATCH; sin ella, en JSON.
+ * PATCH de lo que cambió de su lavandería (alta-lavanderias-E19 y E26 a E30): solo van los datos que vienen. Con una
+ * foto nueva, sola o en la lista de fotos, en multipart por POST con _method=PATCH; sin ella, en JSON.
  */
 export async function editarLavanderia(
   token: string,
   idPublico: string,
-  cambios: Partial<DatosDeLaLavanderia>,
+  cambios: CambiosDeLaLavanderia,
 ): Promise<ResultadoDelEnvio> {
   const ruta = rutaDe(idPublico);
-  if (cambios.foto) {
+  if (cambios.foto || cambios.fotos?.some((foto) => typeof foto !== 'number')) {
     return enviar(ruta, { metodo: 'POST', token, formulario: formularioDe(cambios, 'PATCH') });
   }
-  return enviar(ruta, { metodo: 'PATCH', token, cuerpo: limpio(cambios) });
+  const cuerpo = limpio(cambios);
+  if (cambios.fotos) {
+    cuerpo[CONTRATO_DE_LA_LAVANDERIA_DEL_SOCIO.fotos] = cambios.fotos;
+  }
+  return enviar(ruta, { metodo: 'PATCH', token, cuerpo });
 }
 
 function rutaDe(idPublico: string): string {
@@ -154,11 +187,15 @@ function lavanderiaDeLaRespuesta(datos: unknown): Resultado<LavanderiaDelSocio> 
 }
 
 // Los datos como viajan, con cada texto sin los espacios de las orillas. Lo vacío viaja vacío: el servidor dice que
-// falta, también en la edición, donde un campo que no viaja no cambia. La foto no: solo viaja en multipart.
-function limpio(datos: Partial<DatosDeLaLavanderia>): Record<string, unknown> {
+// falta, también en la edición, donde un campo que no viaja no cambia; la descripción vacía deja el perfil sin ella. Las
+// fotos no: la foto solo viaja en multipart, y la lista de fotos la pone quien manda.
+function limpio(datos: CambiosDeLaLavanderia): Record<string, unknown> {
   const cuerpo: Record<string, unknown> = {};
   if (datos.nombre !== undefined) {
     cuerpo.nombre = datos.nombre.trim();
+  }
+  if (datos.descripcion !== undefined) {
+    cuerpo.descripcion = datos.descripcion.trim();
   }
   if (datos.direccion) {
     cuerpo.direccion = Object.fromEntries(
@@ -176,11 +213,12 @@ function limpio(datos: Partial<DatosDeLaLavanderia>): Record<string, unknown> {
 
 /**
  * Los datos en un formulario multipart, con los nombres que lee Laravel: "direccion[calle]", "servicios[0][tipo]",
- * "ventanas[0][dia_semana]". La foto va con sus bytes, como la arma src/configuracion/foto-del-formulario.ts.
+ * "ventanas[0][dia_semana]". La foto va con sus bytes, como la arma src/configuracion/foto-del-formulario.ts; en la
+ * lista de fotos, cada una en su lugar: "fotos[0]" con el lugar de una que ya tiene, o con los bytes de una nueva.
  */
-function formularioDe(datos: Partial<DatosDeLaLavanderia>, metodo?: 'PATCH'): FormData {
+function formularioDe(datos: CambiosDeLaLavanderia, metodo?: 'PATCH'): FormData {
   const formulario = new FormData();
-  const { foto: campoDeLaFoto, metodo: campoDelMetodo } = CONTRATO_DE_LA_LAVANDERIA_DEL_SOCIO;
+  const { foto: campoDeLaFoto, fotos: campoDeLasFotos, metodo: campoDelMetodo } = CONTRATO_DE_LA_LAVANDERIA_DEL_SOCIO;
   if (metodo) {
     formulario.append(campoDelMetodo, metodo);
   }
@@ -190,6 +228,14 @@ function formularioDe(datos: Partial<DatosDeLaLavanderia>, metodo?: 'PATCH'): Fo
   if (datos.foto) {
     agregarFoto(formulario, campoDeLaFoto, datos.foto);
   }
+  datos.fotos?.forEach((foto, lugar) => {
+    const campo = `${campoDeLasFotos}[${lugar}]`;
+    if (typeof foto === 'number') {
+      formulario.append(campo, String(foto));
+    } else {
+      agregarFoto(formulario, campo, foto);
+    }
+  });
   return formulario;
 }
 
@@ -211,11 +257,18 @@ export function leerLavanderiaDelSocio(datos: unknown): LavanderiaDelSocio | nul
   }
   const direccion = leerDireccion(datos.direccion);
   const foto = datos.foto === null ? null : leerFoto(datos.foto);
+  const fotos = Array.isArray(datos.fotos) ? datos.fotos.map(leerFoto) : null;
   const servicios = Array.isArray(datos.servicios) ? datos.servicios.map(leerServicio) : null;
   const ventanas = Array.isArray(datos.ventanas) ? datos.ventanas.map(leerVentana) : null;
+  const { descripcion, maximo_de_fotos: maximoDeFotos } = datos;
   if (
     !direccion ||
     foto === undefined ||
+    (descripcion !== null && typeof descripcion !== 'string') ||
+    !fotos ||
+    !fotos.every((una) => una !== undefined) ||
+    typeof maximoDeFotos !== 'number' ||
+    !Number.isInteger(maximoDeFotos) ||
     !servicios ||
     !servicios.every((servicio) => servicio !== null) ||
     !ventanas ||
@@ -226,8 +279,11 @@ export function leerLavanderiaDelSocio(datos: unknown): LavanderiaDelSocio | nul
   return {
     id_publico: datos.id_publico,
     nombre: datos.nombre,
+    descripcion,
     direccion,
     foto,
+    fotos: fotos as FotoDeLaLavanderia[],
+    maximo_de_fotos: maximoDeFotos,
     servicios: servicios as ServicioDeLaLavanderia[],
     ventanas: ventanas as VentanaDeLaLavanderia[],
   };
@@ -259,7 +315,7 @@ function leerMunicipio(datos: unknown): MunicipioDeLaLavanderia | undefined {
 }
 
 // La foto, o undefined si no es del contrato (null ya se leyó antes: no tiene).
-function leerFoto(datos: unknown): LavanderiaDelSocio['foto'] | undefined {
+function leerFoto(datos: unknown): FotoDeLaLavanderia | undefined {
   if (!esObjeto(datos) || typeof datos.url !== 'string' || typeof datos.vence_en !== 'string') {
     return undefined;
   }

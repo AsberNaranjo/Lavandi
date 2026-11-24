@@ -2,12 +2,13 @@
 // NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #6: "Edición de información de la lavandería y ventanas de
 // disponibilidad"). Se abre desde la pantalla de pedidos. Al abrirse, pide al servidor, con la sesión, la lavandería de
 // la cuenta con su información y sus ventanas actuales (GET /api/socio/lavanderias/{id_publico}) y la muestra con los
-// mismos campos del registro (src/alta-lavanderias/FormularioDeLaLavanderia.tsx).
+// mismos campos del registro (src/alta-lavanderias/FormularioDeLaLavanderia.tsx), más la descripción y la lista de
+// fotos del perfil, hasta el máximo que da el servidor (alta-lavanderias-E26 a E30).
 //
 // "Guardar cambios" manda solo lo que cambió desde que se abrió (PATCH): la dirección completa si cambió alguna de sus
-// partes, y los servicios y las ventanas completos si cambió alguno; con una foto nueva, en multipart por POST con
-// _method=PATCH (design.md del cambio, "El contrato de la API"). Cada error del servidor va junto a su campo, y la
-// dirección con su motivo, como en_otra_plaza (alta-lavanderias-E10 y E25). Al guardar, la pantalla queda
+// partes, y los servicios, las ventanas y las fotos completos si cambió alguno; con una foto nueva, en multipart por
+// POST con _method=PATCH (design.md del cambio, "El contrato de la API"). Cada error del servidor va junto a su campo,
+// y la dirección con su motivo, como en_otra_plaza (alta-lavanderias-E10 y E25). Al guardar, la pantalla queda
 // con la lavandería que devolvió el servidor y lo dice. Mientras guarda, el botón se bloquea: un doble toque no manda
 // dos veces. Sin conexión o con el servidor caído, sin escenario propio: los mensajes generales de la app, y lo escrito
 // se queda.
@@ -41,10 +42,13 @@ import { color, espaciado, tipografia } from '../../src/tema/theme';
 
 const SIN_ERRORES: ErroresDelFormulario = { campos: {} };
 
-/** El formulario como se abrió (o como quedó al guardar) y como está ahora. */
+/**
+ * El formulario como se abrió (o como quedó al guardar) y como está ahora, con el máximo de fotos que dio el servidor.
+ */
 interface Edicion {
   original: Formulario;
   actual: Formulario;
+  maximoDeFotos: number;
 }
 
 export default function PerfilYHorarios() {
@@ -73,7 +77,7 @@ export default function PerfilYHorarios() {
       }
       if (resultado.ok) {
         const formulario = formularioDe(resultado.datos);
-        setEdicion({ original: formulario, actual: formulario });
+        setEdicion({ original: formulario, actual: formulario, maximoDeFotos: resultado.datos.maximo_de_fotos });
       } else {
         setFallaDeLaLectura(resultado);
       }
@@ -105,7 +109,7 @@ export default function PerfilYHorarios() {
     setGuardando(false);
     if (resultado.ok) {
       const formulario = formularioDe(resultado.datos);
-      setEdicion({ original: formulario, actual: formulario });
+      setEdicion({ original: formulario, actual: formulario, maximoDeFotos: resultado.datos.maximo_de_fotos });
       setGuardado(true);
       poner(resultado.datos);
       return;
@@ -133,7 +137,12 @@ export default function PerfilYHorarios() {
       ) : null}
       {fallaDeLaLectura ? <MensajeDeError texto={mensajeDeLaFalla(fallaDeLaLectura)} /> : null}
       {edicion ? (
-        <FormularioDeLaLavanderia formulario={edicion.actual} alCambiar={cambiar} errores={errores.campos} />
+        <FormularioDeLaLavanderia
+          formulario={edicion.actual}
+          alCambiar={cambiar}
+          errores={errores.campos}
+          edicion={{ maximoDeFotos: edicion.maximoDeFotos }}
+        />
       ) : null}
       <MensajeDeError texto={errores.general} />
       {guardado ? (

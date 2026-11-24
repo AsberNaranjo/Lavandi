@@ -9,9 +9,19 @@
 //   00:00 – 01:00 a 23:00 – 24:00. Una ventana más larga que llega del servidor, como las franjas de las lavanderías de
 //   prueba, se ve como sus horas; si la persona cambia el horario, se manda en ventanas de una hora (design.md,
 //   pregunta abierta 11).
+// - La descripción y la lista de fotos solo son del perfil y horarios (alta-lavanderias-E26 a E30): el registro no las
+//   pide y conserva su foto única (Módulo B #1). Cada foto de la lista es una que ya tiene, por su lugar en la lectura,
+//   o una nueva; la primera es la principal.
 import { MENSAJES } from '../acceso/mensajes';
 import { mensajeDeLaFalla } from '../cercanas/textos';
-import type { DatosDeLaLavanderia, FallaDelEnvio, LavanderiaDelSocio, VentanaDeLaLavanderia } from './api';
+import type {
+  CambiosDeLaLavanderia,
+  DatosDeLaLavanderia,
+  FallaDelEnvio,
+  FotoQueViaja,
+  LavanderiaDelSocio,
+  VentanaDeLaLavanderia,
+} from './api';
 import { avisoDeLaDireccion, esMotivoDeLaDireccion } from './textos';
 
 /**
@@ -70,15 +80,29 @@ export interface FotoDelFormulario {
   nueva: boolean;
 }
 
+/**
+ * Una foto de la lista del perfil: la URL firmada de una guardada, o la dirección en el teléfono de una nueva, ya
+ * comprimida. Una guardada lleva su lugar en "fotos" de la lectura; una nueva, null.
+ */
+export interface FotoDeLaLista {
+  uri: string;
+  guardada: number | null;
+}
+
 /** Lo que la persona captura. */
 export interface Formulario {
   nombre: string;
+  /** Solo en el perfil y horarios: la descripción del perfil, opcional. */
+  descripcion: string;
   calle: string;
   numero: string;
   colonia: string;
   codigoPostal: string;
   municipio: MunicipioElegido | null;
+  /** La foto única del registro. */
   foto: FotoDelFormulario | null;
+  /** Solo en el perfil y horarios: las fotos del perfil, en su orden; la primera es la principal. */
+  fotos: readonly FotoDeLaLista[];
   /** Por tipo de servicio: si lo ofrece y su precio por kilo, como se escribe. */
   servicios: Record<string, { ofrece: boolean; precio: string }>;
   /** Las ventanas marcadas, por su clave, en orden. */
@@ -89,12 +113,14 @@ export interface Formulario {
 export function formularioVacio(): Formulario {
   return {
     nombre: '',
+    descripcion: '',
     calle: '',
     numero: '',
     colonia: '',
     codigoPostal: '',
     municipio: null,
     foto: null,
+    fotos: [],
     servicios: Object.fromEntries(SERVICIOS_QUE_SE_REGISTRAN.map(({ tipo }) => [tipo, { ofrece: false, precio: '' }])),
     ventanas: [],
   };
@@ -113,6 +139,7 @@ export function formularioDe(lavanderia: LavanderiaDelSocio): Formulario {
   const municipio = direccion.municipio;
   return {
     nombre: lavanderia.nombre,
+    descripcion: lavanderia.descripcion ?? '',
     calle: direccion.calle,
     numero: direccion.numero,
     colonia: direccion.colonia,
@@ -121,9 +148,35 @@ export function formularioDe(lavanderia: LavanderiaDelSocio): Formulario {
       ? { codigo: municipio.codigo, texto: [municipio.nombre, municipio.estado].filter(Boolean).join(', ') }
       : null,
     foto: lavanderia.foto ? { uri: lavanderia.foto.url, nueva: false } : null,
+    fotos: lavanderia.fotos.map((foto, lugar) => ({ uri: foto.url, guardada: lugar })),
     servicios,
     ventanas: ordenadas(lavanderia.ventanas.flatMap(horasDeLaVentana)),
   };
+}
+
+/** Agrega al final de la lista una foto nueva, ya comprimida (alta-lavanderias-E27). */
+export function conFotoNueva(fotos: readonly FotoDeLaLista[], uri: string): FotoDeLaLista[] {
+  return [...fotos, { uri, guardada: null }];
+}
+
+/** Quita de la lista la foto de ese lugar (alta-lavanderias-E28). */
+export function sinLaFoto(fotos: readonly FotoDeLaLista[], lugar: number): FotoDeLaLista[] {
+  return fotos.filter((_, otro) => otro !== lugar);
+}
+
+/** Pasa la foto de ese lugar antes de la anterior (alta-lavanderias-E29). */
+export function conLaFotoAntes(fotos: readonly FotoDeLaLista[], lugar: number): FotoDeLaLista[] {
+  if (lugar <= 0 || lugar >= fotos.length) {
+    return [...fotos];
+  }
+  const nuevas = [...fotos];
+  [nuevas[lugar - 1], nuevas[lugar]] = [nuevas[lugar], nuevas[lugar - 1]];
+  return nuevas;
+}
+
+/** La lista de fotos como la manda la edición: cada guardada por su lugar en la lectura, cada nueva como su foto. */
+function fotosQueViajan(fotos: readonly FotoDeLaLista[]): FotoQueViaja[] {
+  return fotos.map(({ uri, guardada }) => guardada ?? { uri });
 }
 
 // Los minutos desde la medianoche de una hora HH:MM; 24:00 es la medianoche siguiente.
@@ -189,14 +242,22 @@ const igual = (una: unknown, otra: unknown) => JSON.stringify(una) === JSON.stri
 
 /**
  * Lo que cambió desde que se abrió el perfil: en la edición solo viaja eso (alta-lavanderias-E19). La dirección va
- * completa si cambió cualquiera de sus partes; los servicios y las ventanas, completos si cambió cualquiera.
+ * completa si cambió cualquiera de sus partes; los servicios, las ventanas y las fotos, completos si cambió cualquiera
+ * (alta-lavanderias-E27 a E29). La descripción, si cambió algo más que los espacios de las orillas (E26).
  */
-export function cambiosEntre(antes: Formulario, ahora: Formulario): Partial<DatosDeLaLavanderia> {
+export function cambiosEntre(antes: Formulario, ahora: Formulario): CambiosDeLaLavanderia {
   const anteriores = datosDe(antes);
   const actuales = datosDe(ahora);
-  const cambios: Partial<DatosDeLaLavanderia> = {};
+  const cambios: CambiosDeLaLavanderia = {};
   if (actuales.nombre !== anteriores.nombre) {
     cambios.nombre = actuales.nombre;
+  }
+  if (ahora.descripcion.trim() !== antes.descripcion.trim()) {
+    cambios.descripcion = ahora.descripcion;
+  }
+  const fotos = fotosQueViajan(ahora.fotos);
+  if (!igual(fotos, fotosQueViajan(antes.fotos))) {
+    cambios.fotos = fotos;
   }
   if (!igual(actuales.direccion, anteriores.direccion)) {
     cambios.direccion = actuales.direccion;
@@ -216,6 +277,8 @@ export function cambiosEntre(antes: Formulario, ahora: Formulario): Partial<Dato
 /** Los campos del formulario que reciben su error del servidor tal cual, por su nombre en la API. */
 const CAMPOS = [
   'nombre',
+  'descripcion',
+  'fotos',
   'direccion',
   'direccion.calle',
   'direccion.numero',
@@ -240,11 +303,12 @@ export interface ErroresDelFormulario {
 
 /**
  * Cada error del servidor en su campo (alta-lavanderias-E03 y E19). Los de un servicio (servicios.N…) van en el precio
- * del servicio que se mandó en ese lugar; los de una ventana (ventanas.N…), en el horario, con su día y sus horas. La
- * dirección que no se pudo ubicar o que queda fuera de las zonas lleva el aviso de su motivo (alta-lavanderias-E10).
- * Sin conexión, con el servidor caído o con otro rechazo, sin escenario propio: los mensajes generales de la app.
+ * del servicio que se mandó en ese lugar; los de una ventana (ventanas.N…), en el horario, con su día y sus horas; los
+ * de una foto de la lista (fotos.N…), en la sección de fotos (alta-lavanderias-E27 y E30). La dirección que no se pudo
+ * ubicar o que queda fuera de las zonas lleva el aviso de su motivo (alta-lavanderias-E10). Sin conexión, con el
+ * servidor caído o con otro rechazo, sin escenario propio: los mensajes generales de la app.
  */
-export function erroresDelEnvio(falla: FallaDelEnvio, enviados: Partial<DatosDeLaLavanderia>): ErroresDelFormulario {
+export function erroresDelEnvio(falla: FallaDelEnvio, enviados: CambiosDeLaLavanderia): ErroresDelFormulario {
   if (falla.motivo === 'conflicto') {
     return { campos: {}, general: falla.mensaje || MENSAJES.servidor };
   }
@@ -268,6 +332,8 @@ export function erroresDelEnvio(falla: FallaDelEnvio, enviados: Partial<DatosDeL
     const ventana = /^ventanas\.(\d+)(?:\..+)?$/.exec(clave);
     if (CAMPOS.includes(clave)) {
       campos[clave] ??= mensaje;
+    } else if (/^fotos\.\d+(?:\..+)?$/.test(clave)) {
+      campos.fotos ??= mensaje;
     } else if (servicio && enviados.servicios?.[Number(servicio[1])]) {
       campos[campoDelPrecio(enviados.servicios[Number(servicio[1])].tipo)] ??= mensaje;
     } else if (ventana && enviados.ventanas?.[Number(ventana[1])]) {

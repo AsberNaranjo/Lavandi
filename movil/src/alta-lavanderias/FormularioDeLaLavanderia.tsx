@@ -6,6 +6,12 @@
 // servidor va junto a su campo; los de la dirección, de los servicios y de las ventanas que no son de un solo campo, al
 // final de su sección.
 //
+// En el perfil y horarios (con `edicion`) suma la descripción del perfil, opcional, y en lugar de la foto única muestra
+// la lista de fotos del perfil en su orden (alta-lavanderias-E26 a E30; acta-2026-11-20-modelo-y-pasarela.md,
+// decisión 44): cada una con "Quitar" si hay más de una y "Mover antes" si no es la primera, y la toma o la elección de
+// una foto nueva, comprimida como la del registro, que va al final, mientras haya menos que el máximo que da el
+// servidor. El registro conserva su foto única y no pide descripción (Módulo B #1).
+//
 // La composición sigue las imágenes b01-registro y b06-perfil de la Propuesta 04, por secciones. Ni el registro ni el
 // perfil tienen componente en el design system (design.md del cambio, pregunta abierta 4): se arman con las piezas y los
 // tokens (ADR-0013), como las demás pantallas. Del mock no entran el cupo por ventana ("Sin cupo", DD-099 y
@@ -30,21 +36,35 @@ import {
   campoDelPrecio,
   cambiarVentana,
   claveDeVentana,
+  conFotoNueva,
+  conLaFotoAntes,
   DIAS_DE_LA_SEMANA,
   HORAS_DEL_DIA,
   nombreDelDia,
   primerDiaConVentanas,
   SERVICIOS_QUE_SE_REGISTRAN,
+  sinLaFoto,
   ventanasDelDia,
   type Formulario,
 } from './formulario';
-import { cuantasVentanas, precioPorKiloDe, TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO as TEXTOS } from './textos';
+import {
+  cuantasVentanas,
+  fotoDeLaLista,
+  instruccionDeLasFotos,
+  precioPorKiloDe,
+  TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO as TEXTOS,
+} from './textos';
 
 interface Propiedades {
   formulario: Formulario;
   alCambiar: Dispatch<SetStateAction<Formulario>>;
   /** Los errores del servidor, por campo (src/alta-lavanderias/formulario.ts, erroresDelEnvio). */
   errores: Record<string, string>;
+  /**
+   * Solo en el perfil y horarios: la descripción y la lista de fotos, con el máximo de fotos que da el servidor. Sin
+   * ella, es el registro, con su foto única.
+   */
+  edicion?: { maximoDeFotos: number };
 }
 
 // Las partes de la dirección que se escriben, con su nombre en la API.
@@ -57,7 +77,7 @@ const PARTES_DE_LA_DIRECCION = [
 // La foto se ve en la proporción de la cámara de los teléfonos, a todo lo ancho.
 const PROPORCION_DE_LA_FOTO = 4 / 3;
 
-export function FormularioDeLaLavanderia({ formulario, alCambiar, errores }: Propiedades) {
+export function FormularioDeLaLavanderia({ formulario, alCambiar, errores, edicion }: Propiedades) {
   const municipios = useMunicipios();
   // El día cuyas ventanas se ven: al abrir, el primero que tiene alguna.
   const [dia, setDia] = useState(() => primerDiaConVentanas(formulario.ventanas));
@@ -76,7 +96,15 @@ export function FormularioDeLaLavanderia({ formulario, alCambiar, errores }: Pro
     setPreparando(origen);
     const resultado = await obtener();
     setPreparando(null);
-    if (resultado.ok) {
+    if (resultado.ok && edicion) {
+      setErrorDeLaFoto(null);
+      // Al final de la lista, y nunca más allá del máximo (alta-lavanderias-E27 y E30).
+      alCambiar((anterior) =>
+        anterior.fotos.length < edicion.maximoDeFotos
+          ? { ...anterior, fotos: conFotoNueva(anterior.fotos, resultado.foto.uri) }
+          : anterior,
+      );
+    } else if (resultado.ok) {
       setErrorDeLaFoto(null);
       cambiar('foto', { uri: resultado.foto.uri, nueva: true });
     } else if (resultado.motivo === 'sin-permiso') {
@@ -94,6 +122,28 @@ export function FormularioDeLaLavanderia({ formulario, alCambiar, errores }: Pro
   const { estado: listaDeMunicipios, reintentar } = municipios;
   const sinMunicipios = listaDeMunicipios.fase === 'no-disponibles';
 
+  // Tomar o elegir la foto: la única del registro, o una más de la lista del perfil.
+  const botonesDeLaFoto = (
+    <>
+      <Boton
+        variante="secundario"
+        ocupado={preparando === 'camara'}
+        deshabilitado={preparando !== null}
+        onPress={() => void ponerFoto('camara', tomarFoto)}
+      >
+        {TEXTOS.tomarFoto}
+      </Boton>
+      <Boton
+        variante="secundario"
+        ocupado={preparando === 'galeria'}
+        deshabilitado={preparando !== null}
+        onPress={() => void ponerFoto('galeria', elegirFoto)}
+      >
+        {TEXTOS.elegirDeLaGaleria}
+      </Boton>
+    </>
+  );
+
   return (
     <View style={estilos.formulario}>
       <View style={estilos.seccion}>
@@ -105,6 +155,16 @@ export function FormularioDeLaLavanderia({ formulario, alCambiar, errores }: Pro
           alCambiar={(texto) => cambiar('nombre', texto)}
           error={errores.nombre}
         />
+        {edicion ? (
+          <CampoDeTexto
+            nombre="descripcion"
+            etiqueta={TEXTOS.descripcion}
+            valor={formulario.descripcion}
+            alCambiar={(texto) => cambiar('descripcion', texto)}
+            error={errores.descripcion}
+            multilinea
+          />
+        ) : null}
       </View>
 
       <View style={estilos.seccion}>
@@ -152,34 +212,67 @@ export function FormularioDeLaLavanderia({ formulario, alCambiar, errores }: Pro
         <AvisoDeLaSeccion testID="campo-direccion" texto={errores.direccion} />
       </View>
 
-      <View style={estilos.seccion} testID="campo-foto">
-        <TituloDeSeccion>{TEXTOS.foto}</TituloDeSeccion>
-        {formulario.foto ? (
-          <Image
-            accessible
-            accessibilityLabel={TEXTOS.fotoDeLaLavanderia}
-            source={{ uri: formulario.foto.uri }}
-            style={estilos.foto}
-          />
-        ) : null}
-        <Boton
-          variante="secundario"
-          ocupado={preparando === 'camara'}
-          deshabilitado={preparando !== null}
-          onPress={() => void ponerFoto('camara', tomarFoto)}
-        >
-          {TEXTOS.tomarFoto}
-        </Boton>
-        <Boton
-          variante="secundario"
-          ocupado={preparando === 'galeria'}
-          deshabilitado={preparando !== null}
-          onPress={() => void ponerFoto('galeria', elegirFoto)}
-        >
-          {TEXTOS.elegirDeLaGaleria}
-        </Boton>
-        <AvisoDeLaSeccion texto={errorDeLaFoto ?? errores.foto} />
-      </View>
+      {edicion ? (
+        <View style={estilos.seccion} testID="campo-fotos">
+          <TituloDeSeccion>{TEXTOS.fotos}</TituloDeSeccion>
+          <Parrafo alineacion="inicio">{instruccionDeLasFotos(edicion.maximoDeFotos)}</Parrafo>
+          {formulario.fotos.map((foto, lugar) => (
+            <View key={`${lugar}-${foto.uri}`} testID={`foto-${lugar + 1}`} style={estilos.fotoDeLaLista}>
+              <Image
+                accessible
+                accessibilityLabel={fotoDeLaLista(lugar + 1)}
+                source={{ uri: foto.uri }}
+                style={estilos.foto}
+              />
+              <View style={estilos.accionesDeLaFoto}>
+                {lugar > 0 ? (
+                  <View style={estilos.accionDeLaFoto}>
+                    <Boton
+                      variante="secundario"
+                      onPress={() => alCambiar((anterior) => ({ ...anterior, fotos: conLaFotoAntes(anterior.fotos, lugar) }))}
+                    >
+                      {TEXTOS.moverAntes}
+                    </Boton>
+                  </View>
+                ) : null}
+                {/* La última no se quita: el registro pide una (alta-lavanderias-E28). */}
+                {formulario.fotos.length > 1 ? (
+                  <View style={estilos.accionDeLaFoto}>
+                    <Boton
+                      variante="secundario"
+                      onPress={() => alCambiar((anterior) => ({ ...anterior, fotos: sinLaFoto(anterior.fotos, lugar) }))}
+                    >
+                      {TEXTOS.quitar}
+                    </Boton>
+                  </View>
+                ) : null}
+              </View>
+            </View>
+          ))}
+          {/* Con el máximo, no se ofrece agregar otra (alta-lavanderias-E30). */}
+          {formulario.fotos.length < edicion.maximoDeFotos ? (
+            <>
+              <Text style={[estilos.subtitulo, letra('cuerpo', 'semifuerte')]}>{TEXTOS.agregarFoto}</Text>
+              {botonesDeLaFoto}
+            </>
+          ) : null}
+          <AvisoDeLaSeccion texto={errorDeLaFoto ?? errores.fotos} />
+        </View>
+      ) : (
+        <View style={estilos.seccion} testID="campo-foto">
+          <TituloDeSeccion>{TEXTOS.foto}</TituloDeSeccion>
+          {formulario.foto ? (
+            <Image
+              accessible
+              accessibilityLabel={TEXTOS.fotoDeLaLavanderia}
+              source={{ uri: formulario.foto.uri }}
+              style={estilos.foto}
+            />
+          ) : null}
+          {botonesDeLaFoto}
+          <AvisoDeLaSeccion texto={errorDeLaFoto ?? errores.foto} />
+        </View>
+      )}
 
       <View style={estilos.seccion}>
         <TituloDeSeccion>{TEXTOS.serviciosYPrecios}</TituloDeSeccion>
@@ -273,6 +366,21 @@ const estilos = StyleSheet.create({
     aspectRatio: PROPORCION_DE_LA_FOTO,
     borderRadius: radio.grande,
     backgroundColor: color.semantico.superficie_hundida,
+  },
+  fotoDeLaLista: {
+    gap: espaciado[2],
+  },
+  // "Mover antes" y "Quitar", lado a lado, debajo de cada foto.
+  accionesDeLaFoto: {
+    flexDirection: 'row',
+    gap: espaciado[2],
+  },
+  accionDeLaFoto: {
+    flex: 1,
+  },
+  subtitulo: {
+    color: color.semantico.texto,
+    fontSize: tipografia.escala.menor,
   },
   aviso: {
     color: color.estado.error,

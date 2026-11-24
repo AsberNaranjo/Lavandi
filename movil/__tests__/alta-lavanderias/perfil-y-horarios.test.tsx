@@ -3,7 +3,8 @@
 // la lavandería y ventanas de disponibilidad"): la lavandería registrada abre su pantalla desde sus pedidos, ve su
 // información y sus ventanas de disponibilidad actuales (GET /api/socio/lavanderias/{id_publico}), y puede editarlas y
 // guardarlas (PATCH, solo con lo que cambió), con cada error del servidor junto a su campo. Con una foto nueva, la
-// edición va en multipart por POST con _method=PATCH (design.md del cambio, "El contrato de la API").
+// edición va en multipart por POST con _method=PATCH (design.md del cambio, "El contrato de la API"). La descripción y
+// la lista de fotos del perfil tienen sus propias pruebas (descripcion-y-fotos.test.tsx, alta-lavanderias-E26 a E30).
 //
 // Se abre la app real con la sesión de una cuenta de socio lavandería con su lavandería, en iPhone y en Android, con el
 // servidor simulado (__tests__/apoyo/lavanderia.ts). Que una lavandería no edite la de otra (alta-lavanderias-E20) y
@@ -101,7 +102,8 @@ describe('alta-lavanderias-E19: la pantalla de perfil y horarios', () => {
         expect(screen.getByLabelText('Colonia')).toHaveDisplayValue('Centro');
         expect(screen.getByLabelText('Código postal')).toHaveDisplayValue('34000');
         expect(screen.getByRole('button', { name: 'Municipio' })).toHaveAccessibilityValue({ text: 'Durango, Durango' });
-        expect(screen.getByLabelText('Foto de la lavandería')).toHaveProp('source', {
+        // La foto del registro es la primera de la lista de fotos del perfil (alta-lavanderias-E27 a E29).
+        expect(screen.getByLabelText('Foto 1 de la lavandería')).toHaveProp('source', {
           uri: LAVANDERIA_DEL_SOCIO.foto?.url,
         });
         expect(screen.getByRole('switch', { name: 'Lavado estándar' })).toBeChecked();
@@ -222,9 +224,10 @@ describe('alta-lavanderias-E19: la pantalla de perfil y horarios', () => {
         await abrirElPerfil(plataforma);
         camara.__fotoDeLaGaleria(FOTO_NUEVA);
 
+        // La foto nueva va en la lista de fotos del perfil, al final (alta-lavanderias-E27).
         await fireEvent.press(screen.getByRole('button', { name: 'Elegir de la galería' }));
         await waitFor(() =>
-          expect(screen.getByLabelText('Foto de la lavandería')).toHaveProp('source', {
+          expect(screen.getByLabelText('Foto 2 de la lavandería')).toHaveProp('source', {
             uri: manipulador.__preparada(FOTO_NUEVA.uri),
           }),
         );
@@ -237,16 +240,19 @@ describe('alta-lavanderias-E19: la pantalla de perfil y horarios', () => {
           multipart: true,
           cuerpo: {
             _method: 'PATCH',
-            foto: {
-              nombre: 'foto.jpg',
-              tipo: 'image/jpeg',
-              contenido: contenidoDelArchivo(manipulador.__preparada(FOTO_NUEVA.uri)),
-            },
+            fotos: [
+              '0',
+              {
+                nombre: 'foto.jpg',
+                tipo: 'image/jpeg',
+                contenido: contenidoDelArchivo(manipulador.__preparada(FOTO_NUEVA.uri)),
+              },
+            ],
           },
         });
         // Al guardar, la foto es la que devolvió el servidor, con su URL firmada.
         expect(await screen.findByText('Guardamos los cambios.')).toBeOnTheScreen();
-        expect(screen.getByLabelText('Foto de la lavandería')).toHaveProp('source', { uri: lavanderia().foto?.url });
+        expect(screen.getByLabelText('Foto 2 de la lavandería')).toHaveProp('source', { uri: lavanderia().fotos[1].url });
       },
     );
 
