@@ -31,11 +31,26 @@ No hay decisión técnica nueva. Se aplica el ADR-0003:
   archivo a quien lo pidió es grado E, `SIN VERIFICAR`: lo comprueba el test de exportacion-E11.
 - **La protección contra fórmulas** se activa en la escritura del CSV y del XLSX, solo en las celdas de texto.
 
-**Lecturas del contrato que hizo el especificador.** Arthur las confirma al aprobar:
+**Lecturas del contrato que hizo el especificador,** confirmadas por el concilio del 2026-11-24, por delegación de
+Arthur (C-245), 3 de 3. Cada una dice su respaldo en el contrato y las pruebas que la sostienen:
 
-1. **"Reportes"** son los 11 indicadores del A.5 y los tres reportes financieros del Módulo D #6.
-2. **"CSV y Excel"** del A.5 manda sobre "CSV o Excel" del A.4.4: se construyen los dos.
-3. **"Cualquier rango de fechas"** no tiene tope de duración.
+1. **"Reportes"** son los 11 indicadores del A.5 y los tres reportes financieros del Módulo D #6: las 11 filas del A.5
+   (`NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5`) más "Ingresos por periodo, comisiones y conciliación con Conekta"
+   (`NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`, Módulo D #6). La sostienen las 11 pruebas de exportacion-E03, una
+   por reporte del A.5 y del Módulo D #6 que ya tiene su cifra en el panel; el mapa de calor (F-I11), por su vista por
+   zona (`servidor/tests/Feature/Exportacion/TodosLosReportesTest.php:90-290`). La vista por colonia del mapa tiene su
+   propia descarga, sin prueba de exportacion-E03 que la compare con el panel: la descargan las pruebas de E07 a E09,
+   con cifras escritas a mano (`servidor/tests/Feature/Exportacion/EscrituraDelArchivoTest.php:60-157`). Los que siguen
+   bloqueados no tienen descarga ni prueba todavía (ver "Implementación en el servidor").
+2. **"CSV y Excel"** del A.5 manda sobre "CSV o Excel" del A.4.4: se construyen los dos. El A.5 dice "Descarga de
+   reportes en formato CSV y Excel para cualquier rango de fechas" (`NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5`); el
+   "CSV o Excel" del A.4.4 (`NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.4`) es el criterio mínimo de aceptación, no un
+   tope. La sostienen las pruebas de exportacion-E01, el CSV
+   (`servidor/tests/Feature/Exportacion/DescargaCsvYExcelTest.php:63`), y exportacion-E02, el XLSX con las mismas filas
+   y cifras (`servidor/tests/Feature/Exportacion/DescargaCsvYExcelTest.php:90`).
+3. **"Cualquier rango de fechas"** no tiene tope de duración (`NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5`). La
+   sostiene la prueba de exportacion-E05, un rango de dos años por día y por mes
+   (`servidor/tests/Feature/Exportacion/RangoDeFechasTest.php:68`).
 
 ## Tablas y migración
 
@@ -49,11 +64,11 @@ La exportación usa además tablas del framework:
 
 - `job_batches`, para la cola y los lotes. Ya está en la lista de excepciones de `servidor/config/modelo.php`
   (`modelo-de-datos`, decisión 2).
-- `exports`, de Filament, y `notifications`, de Laravel, para el aviso de archivo listo. **No están en esa lista.**
-  Sus migraciones de fábrica usan `id`, `user_id` y `notifiable_id`, que la prueba de esquema rechaza (modelo-E01 y
-  modelo-E02), y `exports` apunta a `users`, que aquí se llama `usuarios` (grado E, `SIN VERIFICAR` en Filament 5).
-  Ver Open Questions. **Al implementar:** las dos ya estaban en la lista del framework, y `exports` lleva la cuenta en
-  `id_usuarios` (ver "Implementación en el servidor").
+- `exports`, de Filament, y `notifications`, de Laravel, para el aviso de archivo listo. **La spec las daba fuera de
+  esa lista.** Sus migraciones de fábrica usan `id`, `user_id` y `notifiable_id`, que la prueba de esquema rechaza
+  (modelo-E01 y modelo-E02), y `exports` apunta a `users`, que aquí se llama `usuarios` (grado E, `SIN VERIFICAR` en
+  Filament 5). Ver Open Questions. **Al implementar:** las dos ya estaban en la lista del framework, y `exports` lleva
+  la cuenta en `id_usuarios` (ver "Implementación en el servidor").
 
 ## Risks / Trade-offs
 
