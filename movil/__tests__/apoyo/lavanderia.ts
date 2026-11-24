@@ -351,7 +351,11 @@ export class ServidorDeLaLavanderia {
         : respuesta(200, { usuario: this.cuenta });
     }
     if (metodo === 'DELETE' && ruta === '/sesion') {
-      return respuesta(204);
+      // Como el servidor real: la administración no usa el cierre de sesión de la app y su token no se revoca
+      // (servidor/routes/api.php:58-60; CuentaDeLosRolesDeLaAppTest.php, registro-E33).
+      return this.cuenta.rol === 'administracion'
+        ? respuesta(403, { message: 'Esta cuenta no tiene acceso.' })
+        : respuesta(204);
     }
     // La pantalla principal del usuario, a donde entra una cuenta de usuario.
     if (metodo === 'GET' && ruta.startsWith('/lavanderias/cercanas')) {

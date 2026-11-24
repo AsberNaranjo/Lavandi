@@ -251,3 +251,19 @@ Criterio: A43-6
 - **ENTONCES** solo lo reciben las cuentas de ese segmento
 
 SIN RESPUESTA — bloquea: administracion-E24 (BR-32; DD-113)
+
+### Requirement: La administración en la app
+
+Una cuenta de administración que entra a la app DEBE (MUST) poder abrir desde ella el panel web, sin recibir token en el teléfono.
+
+Cita: A → `NSV-2026-001-v8.pdf:3:Cláusula I` ("Aplicación única para iPhone y Android, con módulo de usuario, módulo de socio lavandería, módulo de socio repartidor y panel de administración"); A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3` (los cuatro módulos accesibles); A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D); C → C-140 y decisión 56 de `acta-2026-11-20-modelo-y-pasarela.md` (C-245); D → adenda del 2026-11-22 de ADR-0010 (`expo-web-browser`, decisión 32)
+
+#### Scenario: administracion-E25 — Una cuenta de administración en la app abre el panel
+
+- **DADO** una cuenta de administración y la dirección del panel en la configuración de la app
+- **CUANDO** inicia sesión en la app
+- **ENTONCES** el servidor no le da token (registro-E33) y la app no guarda ninguna sesión
+- **Y** la app muestra el aviso de que la administración entra por el panel, con un botón que abre el panel en el navegador del sistema dentro de la app
+- **Y** sin la dirección del panel en la configuración, muestra el aviso sin el botón
+
+Criterio: A43-6

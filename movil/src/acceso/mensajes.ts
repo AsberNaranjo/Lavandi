@@ -1,5 +1,6 @@
-// Los mensajes que las pantallas de entrada muestran cuando algo no sale. Viven juntos para revisarlos en un solo
-// lugar. Los errores de cada campo (422) son los del servidor; estos son los generales.
+// Los mensajes que las pantallas de entrada muestran cuando algo no sale, y el botón que acompaña al de la cuenta sin
+// acceso a la app. Viven juntos para revisarlos en un solo lugar. Los errores de cada campo (422) son los del servidor;
+// estos son los generales.
 import type { Falla } from './api';
 
 export const MENSAJES = {
@@ -11,6 +12,8 @@ export const MENSAJES = {
   google: 'No se pudo entrar con Google. Intenta de nuevo.',
   // Una cuenta sin módulo en la app, como la de administración, que entra por el panel (registro-E33).
   sinAccesoALaApp: 'Esta cuenta no tiene acceso a la app. Las cuentas de administración entran por el panel.',
+  // El botón que va con ese aviso si la configuración trae la dirección del panel (administracion-E25).
+  abrirElPanel: 'Abrir el panel',
 } as const;
 
 /**

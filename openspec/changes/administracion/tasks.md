@@ -1,6 +1,6 @@
 Cada tarea sigue rojo, verde, refactor: primero el test con el identificador del escenario, que falla; luego el código
-mínimo que lo pone en verde; luego la limpieza. Todas viven en `servidor/`. Tamaños de S-006, banda media: S = 2 h,
-M = 5 h.
+mínimo que lo pone en verde; luego la limpieza. Todas viven en `servidor/`, salvo la 6.1, que vive en `movil/`. Tamaños
+de S-006, banda media: S = 2 h, M = 5 h.
 
 ## 0. Tablas y migración (servidor/)
 
@@ -41,12 +41,35 @@ M = 5 h.
 - [x] 5.1 administracion-E23: aviso global por FCM, en cola, solo a cuentas con dispositivo registrado, guardado en `avisos_masivos` (FCM simulado) — test: `servidor/tests/Feature/Administracion/AvisosMasivosTest.php` — tamaño M
 - [ ] 5.2 administracion-E24: aviso a un segmento — test: `servidor/tests/Feature/Administracion/AvisosMasivosTest.php` — tamaño M — bloqueada: BR-32, DD-113
 
+## 6. La administración en la app (movil/ y servidor/)
+
+- [x] 6.1 administracion-E25: el aviso de la cuenta de administración con el botón que abre el panel en expo-web-browser — test: `movil/__tests__/administracion/abrir-el-panel.test.tsx` — tamaño S
+- [ ] 6.2 administracion-E25 y registro-E33: POST /api/sesion/google responde 403 sin token a una cuenta de administración — test: `servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php` — tamaño S
+
+La 6.2 vive en `servidor/`. Hoy `POST /api/sesion/google` no pregunta a `Autorizacion::usaLaApp()` y le da token a la
+cuenta de administración; si su Google no estaba ligado, `EntradaConGoogle` además le anula la contraseña y le borra
+los tokens antes de ligarlo (registro-E18), y el panel solo entra con contraseña. El rechazo va antes de ligar y de
+cerrar el acceso anterior, para que la cuenta quede intacta (design.md, Open Questions 1). La app ya lee ese 403 como la
+cuenta sin acceso: no hay que tocarla.
+
+La revocación que la app pide de ese token tampoco sirve: `DELETE /api/sesion` está detrás de
+`autorizar:usuario,lavanderia,repartidor` (`servidor/routes/api.php:58-60`) y a la administración le responde 403 sin
+borrar nada (`servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php:56-58`). Con `'expiration' => null`
+(`servidor/config/sanctum.php:53`), el token queda vigente en `personal_access_tokens`. La 6.2 deja sin efecto también
+los tokens que la administración ya recibió así, por ejemplo borrándolos de esa tabla.
+
+La 6.2 no venía en la decisión 56 de `acta-2026-11-20-modelo-y-pasarela.md`, que dice que la cuenta "sigue sin token":
+es así con la contraseña, no por Google. Entra al plan como consecuencia de administracion-E25 por ese camino; el acta
+todavía no la asienta como complemento de la 56.
+
 ## Horas
 
-- **Este archivo:** 45 h sin bloqueo y 21 h bloqueadas, 66 h en total. La decisión 34 (segunda adenda del 2026-11-22 de
-  ADR-0010) cerró DD-112: 0.2 (S), 4.4 (M) y 4.5 (S), 9 h, dejan de estar bloqueadas.
-- **Contra la versión anterior (66 h; 36 sin bloqueo y 30 bloqueadas):** el total no cambia; 9 h pasan de bloqueadas a
-  sin bloqueo.
-- **Antes (62 h; 41 sin bloqueo y 21 bloqueadas):** entraron la migración de `comisiones` y `avisos_masivos` (0.1, S) y
-  la de `movimientos_pasarela` (0.2, S), y 4.4 y 4.5 se bloquearon por DD-112 hasta la decisión 34.
-- **Contra el plan:** el plan de sprints le da 39 h (F-D03 a F-D07). La diferencia pasa de 23 h a 27 h.
+- **Este archivo:** 49 h sin bloqueo y 21 h bloqueadas, 70 h en total. La decisión 56 de
+  `acta-2026-11-20-modelo-y-pasarela.md` (C-245) agregó la 6.1 (S) y la 6.2 (S), 4 h sin bloqueo.
+- **Contra la versión anterior (66 h; 45 sin bloqueo y 21 bloqueadas):** entran las 2 h de la 6.1 y las 2 h de la 6.2,
+  el 403 de `POST /api/sesion/google` que la 6.1 daba por hecho.
+- **Antes (66 h; 36 sin bloqueo y 30 bloqueadas):** la decisión 34 (segunda adenda del 2026-11-22 de ADR-0010) cerró
+  DD-112: 0.2 (S), 4.4 (M) y 4.5 (S), 9 h, dejaron de estar bloqueadas; el total no cambió.
+- **Antes de eso (62 h; 41 sin bloqueo y 21 bloqueadas):** entraron la migración de `comisiones` y `avisos_masivos`
+  (0.1, S) y la de `movimientos_pasarela` (0.2, S), y 4.4 y 4.5 se bloquearon por DD-112 hasta la decisión 34.
+- **Contra el plan:** el plan de sprints le da 39 h (F-D03 a F-D07). La diferencia pasa de 27 h a 31 h.

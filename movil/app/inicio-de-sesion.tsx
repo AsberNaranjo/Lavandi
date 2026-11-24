@@ -12,10 +12,15 @@
 // configuración, los campos, "¿Olvidaste tu contraseña?" a la derecha, el botón, "o" y Google abajo, con la "G" de Google
 // en lugar de la de relleno del mock (DD-133, punto 3). Del mock no entra el botón para ver la contraseña, que no tiene
 // escenario.
+//
+// Una cuenta de administración no recibe sesión en la app (registro-E33): la pantalla muestra el aviso de que entra por
+// el panel y, si la configuración trae la dirección del panel (EXPO_PUBLIC_PANEL_URL), el botón "Abrir el panel", que lo
+// abre en la vista de navegador del sistema dentro de la app (administracion-E25; src/acceso/BotonDelPanel.tsx).
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
 import { iniciarSesion } from '../src/acceso/api';
+import { BotonDelPanel } from '../src/acceso/BotonDelPanel';
 import { googleDisponible } from '../src/acceso/google';
 import { useEntrada } from '../src/acceso/useEntrada';
 import { nombreDeLaApp } from '../src/configuracion/entorno';
@@ -33,7 +38,7 @@ import { Separador } from '../src/piezas/Separador';
 export default function InicioDeSesion() {
   const router = useRouter();
   const regresar = useRegresarSiHayAnterior();
-  const { enviando, errorGeneral, errorDe, entrarCon, entrarConGoogle } = useEntrada();
+  const { enviando, errorGeneral, sinAccesoALaApp, errorDe, entrarCon, entrarConGoogle } = useEntrada();
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
 
@@ -59,6 +64,7 @@ export default function InicioDeSesion() {
       />
       <Enlace texto="¿Olvidaste tu contraseña?" alinear="fin" alTocar={() => router.push('/recuperar-contrasena')} />
       <MensajeDeError texto={errorGeneral} />
+      <BotonDelPanel conElAviso={sinAccesoALaApp} />
       <Boton ocupado={enviando} onPress={() => entrarCon(() => iniciarSesion({ correo, password }))}>
         Iniciar sesión
       </Boton>

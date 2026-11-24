@@ -75,7 +75,7 @@ nunca en las dos.
 - [ ] 4.6 registro-E29: la aceptación en la pantalla de registro, si EL CLIENTE la pide. Bloqueada por DD-080 — test:
   `movil/__tests__/registro/documentos-legales.test.tsx` — tamaño S
 
-- [x] 3.9 registro-E33: la cuenta y el cierre de la sesión para toda cuenta con un rol de la app (decisión 31) — test: `servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php` — tamaño S
+- [x] 3.9 registro-E33: la cuenta y el cierre de la sesión para toda cuenta con un rol de la app (decisión 31) — test: `servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php` — tamaño S. La línea de la app que entró con la decisión 56 (con el 403, la app no guarda nada y le ofrece abrir el panel) la cubre la tarea 6.1 de `administracion`, con `movil/__tests__/administracion/abrir-el-panel.test.tsx`
 
 ## Horas
 
