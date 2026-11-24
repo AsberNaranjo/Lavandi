@@ -188,8 +188,9 @@ y `pagos` como cualquier otra, y la base no deja borrarla (trigger `impedir_camb
 - [Los revisores de Apple necesitan una cuenta de demostración y una app con contenido; el B.10 advierte rechazos por
   "información insuficiente sobre el modelo de negocio"] → DD-121.
 - [Google Play pide además una página web para solicitar el borrado de la cuenta (grado E, verificaciones, fila 4)] →
-  ADR-0005 solo cubre el borrado desde la app; la página web es una página pública informativa en `textos-legales`, con
-  su adenda de ADR-0005 (Open Questions, 3). Qué datos se borran y cuáles se conservan sigue en DD-109.
+  ADR-0005 solo cubre el borrado desde la app. La página web será una página pública informativa en `textos-legales`,
+  con una adenda de ADR-0005 que todavía no existe (Open Questions, 3); se construye después de confirmar el requisito
+  de Google Play, en otra tarea. Qué datos se borran y cuáles se conservan sigue en DD-109.
 - [Pasar de las cuentas de prueba de EL PRESTADOR a las del cliente antes de producción] → es la consecuencia negativa
   que ya acepta ADR-0012.
 - [El plan gratuito de EAS da 15 compilaciones por plataforma, con cola lenta] → ADR-0002; el plan de pago es costo de
@@ -205,12 +206,16 @@ y `pagos` como cualquier otra, y la base no deja borrarla (trigger `impedir_camb
    Arthur (C-236, C-245):* sí, sin código, como un renglón más del mapa de cuentas de publicacion-E03. El B.4 los
    presupuesta como un servicio que contrata y paga EL CLIENTE (`NSV-2026-001-v8.pdf:6:Cláusula III.B`), a su nombre
    (`NSV-2026-001-v8.pdf:34:ANEXO B, Sección B.11`). No se agrega un escenario de restauración: ningún criterio del A.4
-   lo pide. La retención extendida, que el B.4 recomienda, la decide EL CLIENTE. Espera DD-070, que fija el alojamiento.
+   lo pide, y verificar que los respaldos permiten recuperar la información es del mantenimiento posterior
+   (`NSV-2026-001-v8.pdf:40:ANEXO C, Sección C.5`), que los Non-Goals ya excluyen. La retención extendida, que el B.4
+   recomienda, la decide EL CLIENTE. Espera DD-070, que fija el alojamiento.
 3. **La página web para pedir el borrado de la cuenta** (DD-109): ¿se amplía ADR-0005 y va en
    `perfil-y-soporte` o en `textos-legales`? *Resuelta por el concilio del 2026-11-24, por delegación de Arthur (C-236,
    C-245):* en `textos-legales`, como una página pública informativa con el diseño base de la landing y una adenda de
    ADR-0005. Explica cómo pedir el borrado de la cuenta desde la app (perfil-usuario-E15) o por el correo de contacto y
-   el WhatsApp de soporte de la configuración. No promete qué datos se borran ni cuáles se conservan: eso es de EL
+   el WhatsApp de soporte de la configuración. Es solo informativa: no crea un flujo ni otra superficie de inicio de
+   sesión, y no promete un borrado manual que el panel no tiene (el Módulo D #3 solo da consulta, historial y bloqueo,
+   `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`). No promete qué datos se borran ni cuáles se conservan: eso es de EL
    CLIENTE (`NSV-2026-001-v8.pdf:10:Cláusula X`) y sigue en DD-109. El requisito de Google Play es grado E
    (verificaciones, fila 4) y se confirma antes de construir la página. No desbloquea la tarea 4.1, que sigue esperando
    las cuentas (DD-017, DD-084), la ficha (DD-121) y los datos (DD-109).
