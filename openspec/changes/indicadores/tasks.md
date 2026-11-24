@@ -46,11 +46,12 @@ M = 5 h.
 - [x] 6.1 indicadores-E21: refresco automático con intervalo de configuración — test: `servidor/tests/Feature/Indicadores/PanelEnTiempoRealTest.php` — tamaño S
 - [x] 6.2 indicadores-E22: el valor del intervalo, 30 s por omisión (adenda del 2026-11-22 de ADR-0007, decisión 33; cierra DD-116) — test: `servidor/tests/Feature/Indicadores/PanelEnTiempoRealTest.php` — tamaño S
 - [x] 6.3 indicadores-E23: cada indicador con las cifras de la base, sin cifras de ejemplo en el código — test: `servidor/tests/Feature/Indicadores/DatosRealesTest.php` — tamaño S
+- [x] 6.4 indicadores-E24: lo que no tiene plaza se lee en la zona horaria de referencia de la configuración — test: `servidor/tests/Feature/Indicadores/RetencionPorMesDeRegistroTest.php`, `servidor/tests/Feature/Indicadores/PedidosTotalesTest.php` y `servidor/tests/Feature/Administracion/ConciliacionTest.php` — tamaño S
 
 ## Horas
 
-- **Este archivo:** 52 h sin bloqueo y 14 h bloqueadas, 66 h en total. La 6.2 (S) dejó de estar bloqueada con la
-  adenda del 2026-11-22 de ADR-0007.
-- **Contra la versión anterior (64 h; 48 sin bloqueo y 16 bloqueadas):** 2 h más, de la migración de
-  `actividad_usuarios` (0.1, S). La tarea 2.1 conserva su tamaño M: le quedan la consulta y la línea de tendencia.
-- **Contra el plan:** el plan de sprints le da 57 h (F-I01 a F-I11). La diferencia pasa de 7 h a 9 h.
+- **Este archivo:** 54 h sin bloqueo y 14 h bloqueadas, 68 h en total. La 6.4 (S) es nueva: indicadores-E24, de la
+  pregunta 8 que resolvió el concilio del 2026-11-24 (C-245).
+- **Contra la versión anterior (66 h; 52 sin bloqueo y 14 bloqueadas):** 2 h más, de la zona horaria de lo que no
+  tiene plaza (6.4, S).
+- **Contra el plan:** el plan de sprints le da 57 h (F-I01 a F-I11). La diferencia pasa de 9 h a 11 h.

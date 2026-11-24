@@ -28,9 +28,10 @@ use Illuminate\Support\Facades\DB;
  *     pagado con el que cuadre.
  * - La plaza de un movimiento es la del pedido con el que cuadra; uno sin pedido no tiene plaza.
  * - El día de un pago es el de su confirmación en la hora de su plaza, como en los ingresos. El de un movimiento sin
- *   pedido, que no tiene plaza, es el de su fecha en la pasarela en la zona horaria de la aplicación, como el "hoy" de
- *   los indicadores (openspec/changes/indicadores/design.md, pregunta 8). Un pago y su movimiento cuadran aunque la
- *   pasarela lo feche un poco antes de que llegue su aviso: cuentan en el periodo del pago.
+ *   pedido, que no tiene plaza, es el de su fecha en la pasarela en la zona horaria de referencia de lo que no tiene
+ *   plaza (app.zona_horaria_sin_plaza), como el "hoy" de los indicadores (openspec/changes/indicadores/design.md,
+ *   pregunta 8; indicadores-E24). Un pago y su movimiento cuadran aunque la pasarela lo feche un poco antes de que
+ *   llegue su aviso: cuentan en el periodo del pago.
  * - Los montos se comparan como los guarda la base, con dos decimales. La comisión de la pasarela se guarda, pero
  *   mostrarla y descontarla espera a saber quién la absorbe (administracion-E22, DD-013).
  *
@@ -84,8 +85,9 @@ final class ConciliacionConLaPasarela
     /**
      * El reporte del periodo con lo que ya se leyó de la pasarela, sin volver a pedirle nada: una fila por pago y por
      * movimiento, con la clave "pasarela|orden", del más antiguo al más nuevo. Cada una con su resultado, la orden, el
-     * folio y la plaza del pedido si lo hay, la fecha del pago (d/m/Y H:i, en la hora de la plaza; la de la aplicación
-     * si no tiene pedido) y los dos montos, el de la plataforma y el de la pasarela, el que haya.
+     * folio y la plaza del pedido si lo hay, la fecha del pago (d/m/Y H:i, en la hora de la plaza; en la zona de
+     * referencia de lo que no tiene plaza si no tiene pedido) y los dos montos, el de la plataforma y el de la pasarela,
+     * el que haya.
      *
      * @return array<string, array{resultado: ResultadoDeConciliacion, orden: string, folio: string|null, plaza: string|null, fecha: string, monto_plataforma: string|null, monto_pasarela: string|null}>
      */
@@ -197,10 +199,11 @@ final class ConciliacionConLaPasarela
     }
 
     /**
-     * La zona horaria de un movimiento sin pedido: la de la aplicación, porque no tiene plaza.
+     * La zona horaria de un movimiento sin pedido, que no tiene plaza: la de referencia de lo que no tiene plaza
+     * (app.zona_horaria_sin_plaza; indicadores-E24).
      */
     private static function zonaSinPlaza(): string
     {
-        return (string) config('app.timezone');
+        return (string) config('app.zona_horaria_sin_plaza');
     }
 }

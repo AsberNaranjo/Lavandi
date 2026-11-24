@@ -48,12 +48,12 @@ final readonly class Rango
     }
 
     /**
-     * Hoy, como día del calendario, en la zona horaria de la aplicación: las cuentas no tienen plaza
-     * (design.md, pregunta 8).
+     * Hoy, como día del calendario, en la zona horaria de referencia de lo que no tiene plaza
+     * (app.zona_horaria_sin_plaza): el panel no tiene plaza (design.md, pregunta 8; indicadores-E24).
      */
     public static function hoy(): CarbonImmutable
     {
-        return self::dia(CarbonImmutable::now(config('app.timezone'))->toDateString());
+        return self::dia(CarbonImmutable::now((string) config('app.zona_horaria_sin_plaza'))->toDateString());
     }
 
     /**

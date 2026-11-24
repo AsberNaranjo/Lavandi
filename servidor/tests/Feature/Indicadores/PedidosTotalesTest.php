@@ -2,10 +2,14 @@
 
 namespace Tests\Feature\Indicadores;
 
+use App\Filament\Pages\Indicadores;
 use App\Filament\Widgets\Indicadores\PedidosTotalesGrafica;
 use App\Filament\Widgets\Indicadores\PedidosTotalesTabla;
+use App\Indicadores\Rango;
 use App\Models\EstadoPedido;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
 use Tests\Feature\AltaLavanderias\Soporte\PanelDePrueba;
@@ -24,9 +28,11 @@ use Tests\TestCase;
  * confirmación en la hora de su plaza (design.md, lectura 1; NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo A
  * #12; C-188). La semana va de lunes a domingo (design.md, pregunta 3).
  *
- * La plaza de prueba está en America/Mexico_City (UTC-6, PedidosDePrueba).
+ * La plaza de prueba está en America/Mexico_City (UTC-6, PedidosDePrueba). El hoy del panel, que no tiene plaza, se
+ * lee en la zona horaria de referencia de la configuración (app.zona_horaria_sin_plaza; design.md, pregunta 8).
  *
- * Escenarios: indicadores-E01 · Spec: openspec/changes/indicadores/specs/indicadores/spec.md · Tarea 1.1
+ * Escenarios: indicadores-E01 e indicadores-E24 · Spec: openspec/changes/indicadores/specs/indicadores/spec.md ·
+ * Tareas 1.1 y 6.4
  */
 class PedidosTotalesTest extends TestCase
 {
@@ -226,6 +232,30 @@ class PedidosTotalesTest extends TestCase
             $this->widget(PedidosTotalesGrafica::class, $this->filtros('2026-11-01', '2026-12-31', 'mes')),
         );
         $this->assertSame([2, 0], $meses['datasets'][0]['data']);
+    }
+
+    #[TestDox('indicadores-E24: con la zona horaria de referencia de la configuración en UTC-6, a las 19:00 del 31 de marzo en esa zona, cuando en UTC ya es 1 de abril, el hoy del panel y el rango por omisión son de marzo')]
+    public function test_indicadores_e24_a_las_19_00_del_ultimo_dia_del_mes_el_hoy_y_el_rango_por_omision_son_de_ese_mes(): void
+    {
+        config(['app.zona_horaria_sin_plaza' => self::ZONA_HORARIA]);
+        $this->pedidoConfirmadoEl('2027-03-31 18:30:00');
+        $this->comoAdministracion();
+        $this->travelTo(CarbonImmutable::parse('2027-03-31 19:00:00', self::ZONA_HORARIA));
+        $this->assertSame('2027-04-01', CarbonImmutable::now('UTC')->toDateString());
+
+        $this->assertSame('2027-03-31', Rango::hoy()->toDateString());
+        $this->assertSame('2027-03-01', Rango::desdePorOmision()->toDateString());
+
+        // La página abre en marzo, del día 1 a hoy.
+        Livewire::test(Indicadores::class)
+            ->assertSet('filters.desde', '2027-03-01')
+            ->assertSet('filters.hasta', '2027-03-31');
+
+        // Sin filtros, la gráfica es de marzo, y el pedido de las 18:30 cuenta en su último día.
+        $datos = $this->datosDeLaGrafica($this->widget(PedidosTotalesGrafica::class));
+        $this->assertCount(31, $datos['labels']);
+        $this->assertStringContainsString('31/03/2027', $datos['labels'][30]);
+        $this->assertSame(1, $datos['datasets'][0]['data'][30]);
     }
 
     /**

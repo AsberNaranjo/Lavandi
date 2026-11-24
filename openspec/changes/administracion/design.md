@@ -325,7 +325,8 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
 - **El día de cada fila** (lectura del implementador): el de un pago, el de su confirmación en la hora de su plaza, como
   en los ingresos. Un pago y su movimiento cuadran aunque la pasarela feche el pago unos segundos antes de que llegue su
   aviso, y cuentan en el periodo del pago, sin diferencia en ninguno de los dos. Un movimiento sin pedido no tiene plaza,
-  así que su día es el de su fecha en la zona horaria de la aplicación, como el "hoy" de los indicadores
+  así que su día es el de su fecha en la zona horaria de referencia de lo que no tiene plaza
+  (`app.zona_horaria_sin_plaza`; indicadores-E24), como el "hoy" de los indicadores
   (`openspec/changes/indicadores/design.md`, pregunta 8).
 - **La tabla:** una fila por pago o movimiento, de la más antigua a la más nueva, con el resultado (una insignia con su
   texto), la orden en la pasarela, el folio, la plaza, la fecha del pago (en la hora de la plaza) y los dos montos, el
