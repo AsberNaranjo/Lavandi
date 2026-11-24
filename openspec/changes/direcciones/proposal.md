@@ -9,8 +9,9 @@ TERRITORIO INICIAL (`NSV-2026-001-v8.pdf:4:Cláusula I`). Es el tercer paso del 
 
 - La app deja escribir una dirección (calle y número, colonia, municipio y referencias) o marcarla en el mapa nativo de
   cada plataforma.
-- Una dirección escrita se convierte en un punto del mapa **una sola vez**, al guardarla; una marcada en el mapa se
-  guarda con el punto del pin, sin consulta de pago. La colonia es campo obligatorio (ADR-0009).
+- Una dirección escrita se convierte en un punto del mapa **una sola vez**, al guardarla, y su punto se vuelve a pedir
+  por el place ID al usarla si pasó de 30 días (adenda del 2026-11-24 de ADR-0009); una marcada en el mapa se guarda
+  con el punto del pin, sin consulta de pago. La colonia es campo obligatorio (ADR-0009).
 - El usuario guarda direcciones favoritas con un nombre y las elige después sin volver a escribirlas.
 - El pedido lleva una dirección de recogida y una de entrega, que puede ser la misma (`:16:A.3 #8`; `:30:ANEXO B,
   Sección B.5`).
@@ -46,8 +47,9 @@ TERRITORIO INICIAL (`NSV-2026-001-v8.pdf:4:Cláusula I`). Es el tercer paso del 
 
 ### New Capabilities
 
-- `direcciones`: alta de direcciones escritas o marcadas en el mapa, geocodificadas una sola vez; favoritas con nombre;
-  recogida y entrega del pedido dentro de la zona de servicio de la plaza; y aislamiento por cuenta.
+- `direcciones`: alta de direcciones escritas o marcadas en el mapa, geocodificadas una sola vez al guardarlas y con el
+  punto de Google renovado por el place ID pasados 30 días; favoritas con nombre; recogida y entrega del pedido dentro
+  de la zona de servicio de la plaza; y aislamiento por cuenta.
 
 ### Modified Capabilities
 

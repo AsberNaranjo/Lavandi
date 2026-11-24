@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-29 (A); brecha-ejecutivo-tecnico.md BR-42 (B); presupuesto-de-mapas.md (D); verificaciones-fase-6.md, filas 6, 6b, 8a, 8b y sección del 2026-11-12 (E); ADR-0002, ADR-0003 y ADR-0004 (D)
+fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-29 (A); brecha-ejecutivo-tecnico.md BR-42 (B); presupuesto-de-mapas.md (D); verificaciones-fase-6.md, filas 6, 6b, 8a, 8b y sección del 2026-11-12 (E); ADR-0002, ADR-0003 y ADR-0004 (D); adenda del 2026-11-24: concilio del 2026-11-24, por delegación de C-236 y C-245 (C); DD-139 (B); developers.google.com/maps/documentation/geocoding/policies, consultada el 2026-11-23 (E, SIN VERIFICAR contra los términos firmados); developers.google.com/maps/documentation/places/web-service/place-id, consultada el 2026-11-24 (E, SIN VERIFICAR); NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.5 (A)
 fecha: 2026-11-13
 dueño: Arthur Naranjo
 adr: ADR-0009
@@ -162,3 +162,67 @@ colonia vuelve a ser solo texto y el municipio sale de otra fuente.
 hoy.
 
 **Trazabilidad.** direcciones-E16 a E23; DD-137, DD-138 y DD-139; decisión 29 del acta del 2026-11-20.
+
+## Adenda del 2026-11-24: cuánto se guarda el punto de Google (DD-139)
+
+**Contexto.**
+
+- La política de Geocoding permite guardar la latitud y la longitud hasta 30 días consecutivos, y el place ID sin
+  límite (grado E, `SIN VERIFICAR` contra los términos firmados:
+  `https://developers.google.com/maps/documentation/geocoding/policies`, consultada el 2026-11-23).
+- Choca con la decisión 4, que geocodifica cada dirección una sola vez en su vida y guarda su punto para siempre
+  (`presupuesto-de-mapas.md`, decisión 3).
+- El contrato no dice cuánto se guarda el punto:
+  - RN-29 restringe el SDK del mapa, no la geocodificación;
+  - RN-23 pide el consumo de mapas acotado por diseño (`NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.5`);
+  - F-A08 pide "Ingreso manual o desde mapa. Guardado de direcciones favoritas" (`NSV-2026-001-v8.pdf:16:ANEXO A,
+    Sección A.3`, Módulo A #8).
+- DD-139 la responde Arthur, que delegó en el concilio lo que esperaba de él (C-236, C-245).
+
+**Decisión (opción b).**
+
+- **El punto de Google guarda su place ID y su fecha.** Cada dirección geocodificada por Google guarda su place ID y la
+  fecha de su punto.
+  - Dentro de 30 días se usa el punto guardado, sin consultar.
+  - Pasado ese plazo, el punto se vuelve a pedir por el place ID al usar la dirección.
+- **4, precisión.** Una consulta al guardar la dirección, y otra solo al usar una dirección cuyo punto pasó de 30 días.
+- **El punto que marca la persona en el mapa (direcciones-E04) no viene de Google y no vence.**
+
+**Las copias del punto.** El punto de Google también queda en:
+
+- `pedido_direcciones.ubicacion`, `NOT NULL` y parte del historial del pedido
+  (`servidor/database/migrations/2026_11_21_400000_crear_estados_y_pedidos.php:190`);
+- `lavanderias.ubicacion` (`servidor/app/Lavanderias/UbicacionDeLaLavanderia.php`), que también se geocodifica una vez.
+
+SIN RESPUESTA — bloquea: el código de DD-139 (DD-139). El trato de las dos copias se fija en esta misma adenda, antes de
+cualquier código, con los términos firmados verificados.
+
+**Lo que la decisión no dice.** También se fija antes del código de la tarea 3.5:
+
+- qué hace el servidor al usar la dirección si la consulta por place ID falla, porque Google no responde (hoy
+  `GeocodificadorDeGoogle` lanza `GeocodificacionNoDisponible`, `servidor/app/Direcciones/GeocodificadorDeGoogle.php:45`)
+  o porque el place ID ya no existe y Google responde `NOT_FOUND` (grado E, `SIN VERIFICAR`, la fuente de la tabla de
+  alternativas);
+- qué pasa con las direcciones guardadas antes de la columna nueva, que no tienen place ID ni fecha;
+- si el punto del detalle de Places (direcciones-E22) entra en la misma regla y guarda como place ID el `lugar` de la
+  sugerencia.
+
+SIN RESPUESTA — bloquea: la tarea 3.5 (DD-139).
+
+**Costo.** Por uso (RN-23, `NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.5`). El gasto va con el presupuesto de mapas
+(RN-20), que aceptan Nadir y EL CLIENTE.
+
+**Cuándo.** Se implementa antes de `publicacion`, con la llave de Google. No bloquea el desarrollo.
+
+**Alternativas descartadas.**
+
+| Alternativa | Por qué se descarta |
+|---|---|
+| (a) Volver a geocodificar por texto a los 30 días | Repite la búsqueda por texto, que puede dar otro punto que el guardado. El motivo es de quien asentó la adenda: el registro del concilio no lo trae. Que el place ID dé el mismo lugar es grado E, `SIN VERIFICAR`: Google dice que un place ID puede cambiar con el tiempo y que uno obsoleto responde `NOT_FOUND` (`https://developers.google.com/maps/documentation/places/web-service/place-id`, consultada el 2026-11-24) |
+| (c) Que el punto guardado sea el que confirma la persona en el mapa | Agrega un paso a direcciones-E01, y que ese punto quede fuera de la condición de Google es dudoso (grado E) |
+
+**Quién la decidió.** La decidió el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245). Siguen
+abiertos la verificación de los términos firmados, el trato de las copias del punto y lo que la decisión no dice
+(DD-139).
+
+**Trazabilidad.** direcciones-E07 y E24; DD-139.
