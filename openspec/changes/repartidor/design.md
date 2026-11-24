@@ -21,7 +21,7 @@
 
 - Dejar implementables, sin respuestas pendientes:
   - repartidor-E01 a E03 y E05 a E12;
-  - E15 a E17, E19 a E21, E23, E25, E28 y E30.
+  - E15 a E17, E19 a E21, E23, E25, E28, E30 y E31.
 - Para probar sin DD-014, los tests asignan el pedido directo en la base, con una fábrica.
 
 **Non-Goals:**
@@ -62,7 +62,9 @@ repartidor filtran por esa columna, sin depender del estado interno previo al pa
 ## Tablas y migración
 
 Es una sola migración, hacia adelante (ADR-0016, regla 9), en la tarea 0.1. Pasa la prueba de esquema de
-`modelo-de-datos` (modelo-E01 a modelo-E17). Ninguna de las tres tablas lleva el trigger `impedir_cambio()`, que es
+`modelo-de-datos` (modelo-E01 a modelo-E17). La tarea 0.2 le suma otra, también hacia adelante, que solo redefine
+`repartidores_plaza_check` para la baja de un registro que nunca se autorizó (E31; ver "La baja de un registro que no
+se autorizó"). Ninguna de las tres tablas lleva el trigger `impedir_cambio()`, que es
 solo de `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`. Todas las llaves foráneas llevan su índice y
 `ON DELETE RESTRICT` (modelo-E09 y modelo-E10).
 
@@ -119,7 +121,7 @@ su `$table` y su `$primaryKey` (modelo-E16). `Repartidor` usa el ULID público (
 
 | Tabla | Para qué | La crea |
 |---|---|---|
-| `usuarios`, `rol_usuario`, `roles` | El registro crea la cuenta con el rol `repartidor` y sus datos (E01, E02); la administración los edita (E08); la baja cierra la entrada (E07) | `registro-e-inicio-de-sesion` |
+| `usuarios`, `rol_usuario`, `roles` | El registro crea la cuenta con el rol `repartidor` y sus datos (E01, E02); la administración los edita (E08); la baja cierra la entrada (E07 y E31) | `registro-e-inicio-de-sesion` |
 | `plazas` | La plaza del repartidor y la zona horaria de sus estadísticas (E05, E28) | `plazas-y-zonas` |
 | `pedidos` | La lista y el detalle (E10 a E12); al aceptar se escribe `id_repartidores` (E15); cada botón cambia `id_estados_pedido` (E19); `confirmado_en` dice si el pago está acreditado (E30) | `resumen-y-confirmacion`; `confirmado_en` lo llena `pago` |
 | `pedido_eventos` | Cada botón agrega su evento con `id_usuarios` y `ocurrido_en` (E19); el de Entregado da la fecha del historial y de las estadísticas (E25, E28) | `resumen-y-confirmacion` (base) y `estados-del-pedido` |
@@ -131,15 +133,16 @@ su `$table` y su `$primaryKey` (modelo-E16). `Repartidor` usa el ULID público (
 
 ## Implementación en el servidor
 
-Lo que se decidió al implementar las tareas 0.1 y 1.1 a 1.8, por delegación de Arthur (C-236), con lo mínimo que
-cumple cada escenario. Ninguna decisión agrega una librería ni un servicio externo, ni decide una fila abierta.
+Lo que se decidió al implementar las tareas 0.1, 0.2 y 1.1 a 1.9, por delegación de Arthur (C-236), con lo mínimo
+que cumple cada escenario. Ninguna decisión agrega una librería ni un servicio externo, ni decide una fila abierta.
 
 ### La migración (tarea 0.1)
 
 - **Archivo:** `servidor/database/migrations/2026_11_23_100000_crear_repartidores_asignaciones_y_evidencias.php`. Pasa
   la prueba de esquema (modelo-E01 a E17) y la prueba propia, `servidor/tests/Feature/Repartidor/MigracionTest.php`.
-- **`repartidores`:** como en "Tablas y migración", con la plaza vacía solo en `pendiente`
-  (`repartidores_plaza_check`), la salida (a) de Open Questions. Además:
+- **`repartidores`:** como en "Tablas y migración", con la plaza vacía en `pendiente` (`repartidores_plaza_check`), la
+  salida (a) de Open Questions, y, desde la tarea 0.2, también en la baja de un registro que nunca se autorizó (E31).
+  Además:
   - `id_usuarios` es única, porque una cuenta es a lo más un repartidor (el diagrama del modelo);
   - `estado` vale `pendiente` por omisión, que es como nace el registro de la app (E01);
   - `deleted_at` es la baja (E07), con `estado = 'baja'`.
@@ -210,13 +213,33 @@ El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/
     no se borra. `Autorizacion::puedeIniciarSesion()` ya no le abre sesión por ninguna vía: `POST /api/sesion` responde
     el 422 de la cuenta bloqueada ("Esta cuenta está bloqueada."). Sus entregas se quedan, con el pedido ligado a él
     (`Pedido::repartidor()` lo encuentra aunque esté de baja). Ninguna acción deshace la baja.
-  - **Un pendiente no se da de baja:** no tiene plaza, y la base solo admite la plaza vacía en `pendiente`
-    (`repartidores_plaza_check`). Ver Open Questions.
+  - **Dar de baja a un pendiente** (E31): el registro que nunca se dio de alta, con `aprobado_en` vacía, también se da
+    de baja, con la misma operación: queda en `baja`, sin plaza, con `deleted_at`, y con sus tokens revocados. Ver "La
+    baja de un registro que no se autorizó".
 - **La edición** (E08) son los cinco datos del registro, con sus mismas reglas (`RegistroDeRepartidorRequest::
   reglasDeLosDatos()`), en `App\Repartidores\EdicionDeRepartidor`. El correo no choca con el de su propia cuenta
   (`CorreoSinCuenta` con `salvo`). La foto solo cambia si se sube una nueva, y reemplaza a la anterior con
   `App\Identidad\FotoDePerfil`. La contraseña no se edita. El repartidor ve el cambio en `GET /api/repartidor/perfil`.
 - **Lo que pasa con sus pedidos en curso** al suspenderlo o darlo de baja no lo fija la spec: no se tocan.
+
+### La baja de un registro que no se autorizó (tareas 0.2 y 1.9)
+
+La decidió el concilio del 2026-11-24, por delegación de Arthur (C-245; `acta-2026-11-20-modelo-y-pasarela.md`,
+decisión 54): el Módulo D #2 da la baja sin excepción (`NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`), y la
+autorización es de EL CLIENTE, fuera de la plataforma (`NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3`, Módulo C #1), que
+puede no darla. Se hizo en el orden que piden ADR-0016 (regla 9, solo hacia adelante) y `CLAUDE.md` §9.2 (sin
+escenario no hay código): la fila del modelo de datos, la migración, el escenario y su prueba, y después el código.
+
+- **La migración:** `servidor/database/migrations/2026_11_27_100000_admitir_baja_de_repartidor_sin_alta.php`, hacia
+  adelante y sin `down()`, quita `repartidores_plaza_check` y lo vuelve a crear como
+  `estado = 'pendiente' or id_plazas is not null or (estado = 'baja' and aprobado_en is null)`. Activo, suspendido y la
+  baja de uno que sí se dio de alta siguen exigiendo la plaza. Las filas que ya existen cumplen el anterior, que es más
+  estricto.
+- **La regla:** `EstadoDelRepartidor::puedeDarseDeBaja()` admite activo, suspendido, y pendiente con `aprobado_en`
+  vacía. `darDeBaja()` no cambia: `baja`, `deleted_at` y los tokens revocados. El botón "Dar de baja" del panel aparece
+  también en el pendiente.
+- **Después de la baja** no inicia sesión, como en E07, y ninguna acción la deshace: el alta ya no aparece. Qué más
+  puede hacer una cuenta dada de baja es DD-104, de EL CLIENTE: no se decide aquí.
 
 ### Los pedidos asignados (tarea 1.3)
 
@@ -377,7 +400,7 @@ repartidor que opera (`repartidor-opera`). Las respuestas de error comunes:
 
 | Código | Cuerpo | Cuándo |
 |---|---|---|
-| 401 | `{ "message": "Unauthenticated." }` | Sin sesión, o con un token revocado (al darlo de baja, E07) |
+| 401 | `{ "message": "Unauthenticated." }` | Sin sesión, o con un token revocado (al darlo de baja, E07 y E31) |
 | 403 | `{ "message": "Esta cuenta no tiene acceso." }` | La cuenta no tiene el rol de repartidor (E09) |
 | 403 | `{ "message": "Tu registro espera la autorización de la administración.", "estado": "pendiente" }` | Pendiente de alta (E03) |
 | 403 | `{ "message": "Tu cuenta de repartidor está suspendida.", "estado": "suspendido" }` | Suspendido (E06) |
@@ -565,7 +588,7 @@ entregas, los dos en 0. Sin ingreso total acumulado (E29, DD-019 y DD-013).
 
 ## Implementación en la app
 
-Lo que se decidió al implementar las tareas 2.1 a 2.7 en `movil/`, por delegación de Arthur (C-236), con lo mínimo que
+Lo que se decidió al implementar las tareas 2.1 a 2.8 en `movil/`, por delegación de Arthur (C-236), con lo mínimo que
 cumple cada escenario y el "Contrato de la API" de arriba, sin tocar `servidor/`. Ninguna decisión agrega una librería,
 un permiso ni un cambio en la configuración de EAS, ni decide una fila abierta. Cada pantalla se prueba en iPhone y en
 Android, con la app real y el servidor simulado con este contrato (`movil/__tests__/apoyo/repartidor.ts`), en
@@ -577,7 +600,7 @@ Android, con la app real y el servidor simulado con este contrato (`movil/__test
 |---|---|---|
 | `/registro-de-repartidor` | El registro, sin sesión (`app/registro-de-repartidor.tsx`) | E01, E02 |
 | `/repartidor/espera` | La espera del alta, o de que le quiten la suspensión | E01, E03 |
-| `/repartidor/pedidos` | Los pedidos asignados, la primera del módulo | E10, E11, E15, E19, E20 |
+| `/repartidor/pedidos` | Los pedidos asignados, la primera del módulo, con sus datos arriba | E08, E10, E11, E15, E19, E20 |
 | `/repartidor/pedidos/rechazo/[id]` | El rechazo con motivo | E16, E17 |
 | `/repartidor/pedidos/entrega/[id]` | La entrega con la foto de evidencia | E23 |
 | `/repartidor/historial` | El historial de entregas | E25 |
@@ -643,12 +666,28 @@ Android, con la app real y el servidor simulado con este contrato (`movil/__test
   "Entregas de hoy" y "Entregas de esta semana", con la nota de que la semana va de lunes a domingo. Sin ingreso
   acumulado (E29) ni el desglose por día del mock c05 (fuera del contrato).
 
+### Sus datos en Pedidos asignados (tarea 2.8)
+
+La decidió el concilio del 2026-11-24, por delegación de Arthur (C-245; `acta-2026-11-20-modelo-y-pasarela.md`,
+decisión 55), para cumplir "Y el repartidor lo ve en su módulo" de E08 con una pantalla que ya existe.
+
+- **Una cabecera bajo el título de Pedidos asignados,** antes de las entradas al historial y a las estadísticas: la foto
+  en un círculo y, a su lado, el nombre, el teléfono, el correo y el tipo de vehículo, cada dato con su etiqueta en el
+  tono suave y leído en un solo anuncio ("Teléfono: …"). Se arma con los tokens, sin pieza nueva, como las pantallas sin
+  componente (ADR-0013); los textos son los del registro.
+- **Los datos son los del perfil que el módulo ya lee al entrar** (`useRepartidorDeLaCuenta()`, en la fase `listo`, de
+  `GET /api/repartidor/perfil`): sin ruta, pantalla, petición ni consulta periódica nuevas. Lo que la administración le
+  edita llega la siguiente vez que el módulo pide el perfil: al volver a entrar, o con "Revisar de nuevo" y el 403 de
+  arriba.
+- **La foto** se ve desde su URL firmada; sin foto, nada en su lugar.
+- **El repartidor no edita sus datos:** la cabecera no tiene botones ni campos. Editarlos es de la administración (E08).
+
 ### Lo que la app no hace todavía
 
 - **El enlace al registro** (E04, DD-053), **el aviso de asignación** (E14, DD-054), **los montos** (E26 y E29, DD-019 y
   DD-013) y **la calificación recibida** (E27, DD-052): sin huecos ni datos de relleno.
-- **Un perfil del repartidor en la app** para ver lo que le editó la administración (E08): ninguna tarea de `movil/` lo
-  pide; hoy solo lo trae `GET /api/repartidor/perfil`.
+- **Un perfil del repartidor en la app:** no hay pantalla "Mi perfil". Lo que le editó la administración (E08) se ve en la
+  cabecera de Pedidos asignados (tarea 2.8, "Sus datos en Pedidos asignados"), y el repartidor no edita sus datos.
 - **El texto del permiso de la cámara** (`src/alta-lavanderias/permisos-de-la-foto.json`, que `app.config.ts` lleva al
   Info.plist) ya nombra "la foto de una entrega" (`movil/src/alta-lavanderias/permisos-de-la-foto.json:2`, commit
   `65731ed`).
@@ -659,7 +698,8 @@ Con el servidor sembrado como dice "Cómo se prueba en local", la app apuntando 
 `repartidor@ejemplo.com` (`contrasena-de-prueba`):
 
 1. **Sus pedidos:** entra a "Pedidos asignados" con los tres pedidos ofrecidos, cada uno con Aceptar y Rechazar. La
-   lista se pone al día sola cada 30 s con la pantalla a la vista.
+   lista se pone al día sola cada 30 s con la pantalla a la vista. Arriba están sus datos; si `admin@ejemplo.com` los
+   edita en `/admin/repartidores`, se ven al cerrar y volver a abrir la app.
 2. **Aceptar:** en el que la lavandería ya aceptó aparece "Recolectado"; en el listo para el reparto, "En tránsito"; en
    el que la lavandería no responde, ningún botón hasta que `lavanderia.norte@ejemplo.com` lo acepte.
 3. **Rechazar:** pide el motivo; sin él, el botón dice "Escribe el motivo". El pedido sale de la lista.
@@ -697,14 +737,15 @@ Con el servidor sembrado como dice "Cómo se prueba en local", la app apuntando 
   entre a la lista de "plaza opcional" de la prueba de esquema de `modelo-de-datos`, como `avisos_masivos`; (b) la
   alternativa de la lectura 2: el repartidor elige su plaza al registrarse y la administración
   la confirma al darlo de alta, lo que agrega un sexto dato a E01 y E02. **Quedó (a):** ya la traían
-  `vault/arquitectura/modelo-de-datos.md` ("`id_plazas` vacía solo si `estado` es `pendiente`") y la lista
-  `plaza_opcional` de `servidor/config/modelo.php`, y no cambia los cinco datos de E01 y E02. La tarea 0.1 la
+  `vault/arquitectura/modelo-de-datos.md` (que decía entonces "`id_plazas` vacía solo si `estado` es `pendiente`") y
+  la lista `plaza_opcional` de `servidor/config/modelo.php`, y no cambia los cinco datos de E01 y E02. La tarea 0.1 la
   implementa (sección "Implementación en el servidor").
-- **Un registro pendiente que EL CLIENTE no autoriza** (al implementar la tarea 1.2). El contrato pide alta, baja,
-  suspensión y edición (Módulo D #2), y la spec da de baja a un repartidor activo (E07), sin decir qué pasa con un
-  registro que nunca se autoriza. Hoy se queda `pendiente`, sin acceso a pedidos: la base no admite la baja sin plaza.
-  Si Arthur quiere que también se pueda dar de baja, la salida es que el `CHECK` admita la plaza vacía en `baja` cuando
-  `aprobado_en` está vacía, con su escenario.
+- **Un registro pendiente que EL CLIENTE no autoriza: resuelta con la opción (b),** que se pueda dar de baja, por el
+  concilio del 2026-11-24, por delegación de Arthur (C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 54). Salió
+  al implementar la tarea 1.2: el contrato pide alta, baja, suspensión y edición (Módulo D #2), y la spec daba de baja
+  solo a un repartidor activo (E07). Ahora el `CHECK` admite la plaza vacía en `baja` cuando `aprobado_en` está vacía,
+  con repartidor-E31 (tareas 0.2 y 1.9, sección "La baja de un registro que no se autorizó"). Lo que puede hacer
+  después una cuenta dada de baja sigue en DD-104.
 - **En tránsito: resuelta.** `en_entrega` es el estado interno de ADR-0021, el mismo paso que "En proceso de entrega"
   de la lavandería, y DD-123 está cerrada (decisión 26 del acta del 2026-11-20).
 - **Pantallas sin componente.** El componente 5 de `vault/design-system/componentes.md` cubre la tarjeta de pedido

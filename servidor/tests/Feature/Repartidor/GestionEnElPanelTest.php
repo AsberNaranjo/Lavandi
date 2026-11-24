@@ -37,9 +37,11 @@ use Tests\TestCase;
  *
  * El alta autoriza un registro que ya existe (design.md, lectura 1) y fija su plaza (lectura 2). La validación del
  * repartidor ocurre fuera de la plataforma. La baja no borra: deja la fila con su estado y en borrado suave, y sus
- * entregas se quedan (E07).
+ * entregas se quedan (E07). También se da de baja el registro pendiente que EL CLIENTE no autoriza, que se queda sin
+ * plaza (E31; acta-2026-11-20-modelo-y-pasarela.md, decisión 54).
  *
- * Escenarios: repartidor-E05 a repartidor-E09 · Spec: openspec/changes/repartidor/specs/repartidor/spec.md · Tarea 1.2
+ * Escenarios: repartidor-E05 a repartidor-E09 y repartidor-E31 · Spec:
+ * openspec/changes/repartidor/specs/repartidor/spec.md · Tareas 1.2 y 1.9
  */
 class GestionEnElPanelTest extends TestCase
 {
@@ -246,24 +248,66 @@ class GestionEnElPanelTest extends TestCase
         $this->assertNotNull(Usuario::query()->whereKey($cuenta->getKey())->first());
     }
 
-    #[TestDox('repartidor-E07: se da de baja a un activo o a un suspendido; ninguna acción deshace la baja, y un pendiente sin plaza no se da de baja')]
+    #[TestDox('repartidor-E07: se da de baja a un activo o a un suspendido; ninguna acción deshace la baja')]
     public function test_repartidor_e07_a_quien_se_da_de_baja(): void
     {
         $suspendido = Repartidor::factory()->en($this->plaza)->suspendido()->create();
-        $pendiente = Repartidor::factory()->pendiente()->create();
         $this->comoAdministracion();
 
         Livewire::test(ListRepartidores::class)
             ->assertTableActionVisible('darDeBaja', $suspendido)
-            ->assertTableActionHidden('darDeBaja', $pendiente)
             ->callTableAction('darDeBaja', $suspendido)
             ->assertTableActionHidden('levantarSuspension', $suspendido)
             ->assertTableActionHidden('darDeAlta', $suspendido);
 
-        $this->assertSame(Repartidor::BAJA, Repartidor::withTrashed()->whereKey($suspendido->getKey())->value('estado'));
+        $deBaja = Repartidor::withTrashed()->whereKey($suspendido->getKey())->sole();
+        $this->assertSame(Repartidor::BAJA, $deBaja->estado);
 
-        $this->expectException(TransicionNoPermitida::class);
-        app(EstadoDelRepartidor::class)->darDeBaja($pendiente);
+        // La regla vive en el estado del repartidor, no solo en el botón: ni un alta ni otra baja salen de la baja.
+        $estado = app(EstadoDelRepartidor::class);
+        $this->assertThrows(fn () => $estado->darDeAlta($deBaja, $this->plaza), TransicionNoPermitida::class);
+        $this->assertThrows(fn () => $estado->darDeBaja($deBaja), TransicionNoPermitida::class);
+    }
+
+    #[TestDox('repartidor-E31: la administración da de baja desde el panel a un pendiente que nunca se autorizó; queda en baja sin plaza, en borrado suave, con sus tokens revocados, y no puede iniciar sesión')]
+    public function test_repartidor_e31_la_baja_de_un_pendiente_que_nunca_se_autorizo(): void
+    {
+        $cuenta = RepartidorFactory::cuentaDeRepartidor(['correo' => 'no-autorizado@ejemplo.com']);
+        $pendiente = Repartidor::factory()->pendiente()->deLaCuenta($cuenta)->create();
+        $token = $cuenta->createToken('app')->plainTextToken;
+        // Mientras espera su alta, inicia sesión y ve su espera (repartidor-E03).
+        $this->withToken($token)->getJson('/api/repartidor/perfil')
+            ->assertOk()
+            ->assertJsonPath('repartidor.estado', Repartidor::PENDIENTE)
+            ->assertJsonPath('repartidor.plaza', null);
+        $this->app['auth']->forgetGuards();
+        $this->comoAdministracion();
+
+        Livewire::test(ListRepartidores::class)
+            ->assertTableActionVisible('darDeBaja', $pendiente)
+            ->callTableAction('darDeBaja', $pendiente)
+            ->assertHasNoTableActionErrors()
+            ->assertTableActionHidden('darDeBaja', $pendiente)
+            ->assertTableActionHidden('darDeAlta', $pendiente);
+
+        // La fila se queda, de baja, en borrado suave y sin plaza: nunca tuvo alta.
+        $deBaja = Repartidor::withTrashed()->whereKey($pendiente->getKey())->sole();
+        $this->assertSame(Repartidor::BAJA, $deBaja->estado);
+        $this->assertNull($deBaja->id_plazas);
+        $this->assertNull($deBaja->aprobado_en);
+        $this->assertNotNull($deBaja->deleted_at);
+
+        // Sus sesiones abiertas dejan de servir, y ya no inicia sesión con su contraseña.
+        $this->assertSame(0, $cuenta->tokens()->count());
+        $this->app['auth']->forgetGuards();
+        $this->withToken($token)->getJson('/api/repartidor/perfil')->assertUnauthorized();
+        $this->app['auth']->forgetGuards();
+        $this->postJson('/api/sesion', ['correo' => 'no-autorizado@ejemplo.com', 'password' => UsuarioFactory::CONTRASENA])
+            ->assertUnprocessable()
+            ->assertJsonMissingPath('token');
+        $this->assertFalse(app(Autorizacion::class)->puedeIniciarSesion($cuenta->fresh()));
+        // Su cuenta no se borra.
+        $this->assertNotNull(Usuario::query()->whereKey($cuenta->getKey())->first());
     }
 
     #[TestDox('repartidor-E08: la administración cambia el nombre, el teléfono, el correo, la foto y el tipo de vehículo del repartidor; el cambio queda guardado y el repartidor lo ve en su módulo')]

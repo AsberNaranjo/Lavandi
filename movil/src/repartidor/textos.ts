@@ -18,6 +18,8 @@ export const TEXTOS_DEL_REPARTIDOR = {
   // Lo que pasa al enviarlo: el alta, la validación y la autorización corresponden a EL CLIENTE (Módulo C #1).
   queSigue: 'Tu registro queda pendiente hasta que la administración lo autorice.',
   fotoDePerfil: 'Foto de perfil',
+  // La foto y los nombres de los datos también van en la cabecera de Pedidos asignados, donde el repartidor ve lo que
+  // le editó la administración (repartidor-E08).
   tuFotoDePerfil: 'Tu foto de perfil',
   nombre: 'Nombre',
   telefono: 'Teléfono',

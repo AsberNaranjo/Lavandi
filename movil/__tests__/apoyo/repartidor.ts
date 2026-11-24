@@ -1,6 +1,7 @@
 // Apoyo de las pruebas del Módulo C, lo que ve y hace el socio repartidor (openspec/changes/repartidor): su registro, la
-// espera de su alta, sus pedidos asignados con aceptar, rechazar y sus botones, la evidencia de entrega, su historial y
-// sus estadísticas. No es una prueba: Jest no lo corre como tal (testPathIgnorePatterns en package.json).
+// espera de su alta, sus pedidos asignados con aceptar, rechazar y sus botones, la evidencia de entrega, su
+// historial, sus estadísticas y sus datos, que la administración edita en el panel. No es una prueba: Jest no lo corre
+// como tal (testPathIgnorePatterns en package.json).
 //
 // Abre la app real, con las rutas de movil/app/ (ADR-0017), y simula el servidor con el "Contrato de la API" de
 // openspec/changes/repartidor/design.md, el mismo de los comentarios de
@@ -303,6 +304,14 @@ export class ServidorDelRepartidor {
 
   constructor(private readonly base: string) {
     this.fetch = jest.fn((url: string, opciones: RequestInit = {}) => this.contestar(url, opciones));
+  }
+
+  /**
+   * La administración edita sus datos en el panel (repartidor-E08): el perfil los da desde la siguiente consulta. Una
+   * foto nueva llega con otra URL firmada; null, sin foto.
+   */
+  editarElPerfil(cambios: Partial<Omit<ServidorDelRepartidor['datos'], 'id_publico'>>): void {
+    this.datos = { ...this.datos, ...cambios };
   }
 
   /** Le ofrece un pedido al repartidor, en ese estado (la oferta se siembra en la base, DD-014). */
