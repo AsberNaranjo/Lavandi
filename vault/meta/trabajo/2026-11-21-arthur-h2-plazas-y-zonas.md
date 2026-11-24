@@ -189,4 +189,18 @@ foto del perfil (el disco privado).
 - **Lo que espera.** La visibilidad de las lavanderías pendientes espera DD-053, de Nadir. El catálogo de colonias y
   la hora de cada estado esperan a Arthur.
 
+**2026-11-23.**
+- **La app en el teléfono de Arthur.** Ya está instalada por USB y abre con el ícono de Lavandi.
+- **El mapa no aparece** porque la compilación no trae la llave de Google Maps para Android: ni `movil/.env` ni
+  `servidor/.env` tienen una. La app ya avisa que el mapa no está disponible (`movil/src/cercanas/mapa.ts`). Espera
+  la llave de la cuenta de prueba de Arthur (C-170).
+- **Las siete imágenes que le pasaron a Arthur por WhatsApp** no son las originales de las Propuestas 1 y 2 del lienzo:
+  - son capturas de esta app retocadas, con ilustraciones agregadas;
+  - traen las lavanderías de prueba (`servidor/database/seeders/LavanderiasDePruebaSeeder.php:98`), los textos de la
+    app (`movil/src/contenido/bienvenida.ts:30`) y un subtítulo del video narrado;
+  - el texto sale deformado («Diutencia», «Calificsción») y el logotipo está redibujado, distinto del aprobado (C-98);
+  - dos de las siete son el mismo archivo.
+
+  El lienzo no cambia por ellas.
+
 **Al terminar.** `situacion: terminada`, con el enlace al PR, que va después del del H1.
