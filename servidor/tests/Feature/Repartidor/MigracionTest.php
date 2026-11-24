@@ -29,16 +29,18 @@ use Tests\TestCase;
  * migración"; vault/arquitectura/modelo-de-datos.md; ADR-0016).
  *
  * - repartidores: el socio repartidor, con su plaza, su cuenta, su tipo de vehículo y su estado. La plaza queda vacía
- *   solo mientras el registro está pendiente, con su CHECK (lista "plaza opcional" de config/modelo.php). Sin columnas
- *   de documentos: la verificación documental está excluida (NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3, Módulo C).
+ *   mientras el registro está pendiente, o en la baja de un registro que nunca se autorizó (aprobado_en vacía), con su
+ *   CHECK (lista "plaza opcional" de config/modelo.php; la migración hacia adelante 2026_11_27_100000, repartidor-E31).
+ *   Sin columnas de documentos: la verificación documental está excluida (NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3,
+ *   Módulo C).
  * - pedido_asignaciones: cada oferta de un pedido a un repartidor, con su respuesta. Las dos llaves son compuestas con
  *   la plaza: la base rechaza ofrecer un pedido de una plaza a un repartidor de otra (modelo-E06).
  * - evidencias: la ruta de la foto de evidencia, ligada al pedido y a quien la tomó (ADR-0006).
  *
  * Las filas se insertan con el constructor de consultas, sin pasar por el modelo, para probar lo que hace la base.
  *
- * Escenarios: modelo-E01 a modelo-E17 sobre las tres tablas, y la base de repartidor-E01 a repartidor-E30 · Spec:
- * openspec/changes/repartidor/specs/repartidor/spec.md · Tarea 0.1
+ * Escenarios: modelo-E01 a modelo-E17 sobre las tres tablas, y la base de repartidor-E01 a repartidor-E31 · Spec:
+ * openspec/changes/repartidor/specs/repartidor/spec.md · Tareas 0.1 y 0.2
  */
 class MigracionTest extends TestCase
 {
@@ -132,8 +134,8 @@ class MigracionTest extends TestCase
         }
     }
 
-    #[TestDox('plazas-E09 y repartidor-E05: la plaza del repartidor queda vacía solo mientras está pendiente; activo, suspendido o de baja, la base la exige. La tabla está en la lista de plaza opcional')]
-    public function test_plazas_e09_y_repartidor_e05_la_plaza_vacia_solo_en_pendiente(): void
+    #[TestDox('plazas-E09, repartidor-E05 y repartidor-E31: la plaza del repartidor queda vacía mientras está pendiente, o en la baja de un registro que nunca se autorizó, con aprobado_en vacía; activo, suspendido o de baja después de su alta, la base la exige. La tabla está en la lista de plaza opcional')]
+    public function test_plazas_e09_repartidor_e05_y_e31_la_plaza_vacia_en_pendiente_o_en_la_baja_sin_alta(): void
     {
         $this->assertContains('repartidores', config('modelo.plaza_opcional'));
         $this->assertTrue($this->admiteVacio('repartidores', 'id_plazas'));
@@ -144,10 +146,30 @@ class MigracionTest extends TestCase
         $pendiente = $this->insertarRepartidor(['id_plazas' => null, 'estado' => Repartidor::PENDIENTE, 'aprobado_en' => null]);
         $this->assertNull(DB::table('repartidores')->where('id_repartidores', $pendiente)->value('id_plazas'));
 
+        // Con aprobado_en llena, como la deja el alta: sin plaza se rechaza en activo, en suspendido y en baja.
         foreach ([Repartidor::ACTIVO, Repartidor::SUSPENDIDO, Repartidor::BAJA] as $estado) {
             $this->assertRechazada(fn () => $this->insertarRepartidor(['id_plazas' => null, 'estado' => $estado]), self::CHECK_INCUMPLIDO);
             $this->insertarRepartidor(['id_plazas' => $plaza->getKey(), 'estado' => $estado]);
         }
+
+        // Sin alta, solo la baja queda sin plaza: el registro que EL CLIENTE no autorizó (repartidor-E31).
+        foreach ([Repartidor::ACTIVO, Repartidor::SUSPENDIDO] as $estado) {
+            $this->assertRechazada(
+                fn () => $this->insertarRepartidor(['id_plazas' => null, 'estado' => $estado, 'aprobado_en' => null]),
+                self::CHECK_INCUMPLIDO,
+            );
+        }
+        $noAutorizado = $this->insertarRepartidor(['id_plazas' => null, 'estado' => Repartidor::PENDIENTE, 'aprobado_en' => null]);
+        DB::table('repartidores')->where('id_repartidores', $noAutorizado)->update(['estado' => Repartidor::BAJA, 'deleted_at' => now()]);
+        $this->assertSame(
+            [Repartidor::BAJA, null, null],
+            array_values((array) DB::table('repartidores')->where('id_repartidores', $noAutorizado)->first(['estado', 'id_plazas', 'aprobado_en'])),
+        );
+        // Darle la hora de un alta a esa baja, sin plaza, se rechaza.
+        $this->assertRechazada(
+            fn () => DB::table('repartidores')->where('id_repartidores', $noAutorizado)->update(['aprobado_en' => now()]),
+            self::CHECK_INCUMPLIDO,
+        );
 
         // El alta le pone plaza a la fila pendiente; quitársela fuera de pendiente se rechaza.
         DB::table('repartidores')->where('id_repartidores', $pendiente)

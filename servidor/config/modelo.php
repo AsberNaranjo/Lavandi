@@ -76,7 +76,9 @@ return [
         'avisos_masivos',   // Vacía: el aviso es para todas las plazas.
         'comisiones',       // Vacía, con la lavandería, en la comisión global: una para todas las plazas (administracion-E11).
         'reportes_soporte', // Vacía si la cuenta no tiene de dónde tomarla: el reporte se guarda igual (perfil-usuario-E17).
-        'repartidores',     // Vacía solo si estado es pendiente, con su CHECK.
+        // Vacía si estado es pendiente, o si es baja con aprobado_en vacía: el registro que EL CLIENTE no autorizó
+        // (repartidor-E31). Con su CHECK.
+        'repartidores',
         'direcciones',      // Vacía si el punto no cae en ninguna zona.
     ],
 

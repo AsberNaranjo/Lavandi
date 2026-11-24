@@ -6,6 +6,7 @@ fábrica.
 ## 0. Tablas y migración (`servidor/`)
 
 - [x] 0.1 Migración de `repartidores`, `pedido_asignaciones` y `evidencias`, con sus llaves compuestas con la plaza y sus `created_at` y `updated_at` en `timestamptz`; más las llaves foráneas compuestas `(id_repartidores, id_plazas)` → `repartidores(id_repartidores, id_plazas)` de `pedidos` y de `calificaciones`, con `ON DELETE RESTRICT` y su índice; y sus modelos de Eloquent `Repartidor`, `PedidoAsignacion` y `Evidencia`, sobre `App\Models\Modelo`, que sostienen repartidor-E01 a repartidor-E30 (depende de la pregunta abierta de `design.md` sobre la plaza de un registro pendiente) — test: `servidor/tests/Feature/Repartidor/MigracionTest.php` y la prueba de esquema de `modelo-de-datos` (modelo-E01 a modelo-E17) — tamaño M
+- [x] 0.2 Migración hacia adelante de `repartidores_plaza_check` para la baja de un registro no autorizado — test: `servidor/tests/Feature/Repartidor/MigracionTest.php` — tamaño S
 
 ## 1. Servidor (`servidor/`)
 
@@ -17,6 +18,7 @@ fábrica.
 - [x] 1.6 repartidor-E23: guardar la foto de evidencia en el bucket privado, ligada al pedido en `evidencias` — test: `servidor/tests/Feature/Repartidor/EvidenciaDeEntregaTest.php` — tamaño S
 - [x] 1.7 repartidor-E25: historial de entregas completadas, solo las suyas — test: `servidor/tests/Feature/Repartidor/HistorialDeEntregasTest.php` — tamaño S
 - [x] 1.8 repartidor-E28: entregas del día y de la semana en la zona horaria de la plaza — test: `servidor/tests/Feature/Repartidor/EstadisticasTest.php` — tamaño S
+- [x] 1.9 repartidor-E31: baja de un pendiente que nunca se autorizó — test: `servidor/tests/Feature/Repartidor/GestionEnElPanelTest.php` — tamaño S
 
 ## 2. App (`movil/`)
 
