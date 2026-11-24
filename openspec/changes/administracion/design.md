@@ -26,7 +26,8 @@
 
 - Mover dinero: ni liquidar ni dispersar a los socios (`NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3`, Módulo C).
 - Rastrear al repartidor en el mapa.
-- Dar de alta, editar o borrar usuarios.
+- Dar de alta, editar o borrar usuarios desde el panel. La cuenta de administración se crea con un comando, sin
+  pantalla (administracion-E26; "La cuenta de administración", abajo).
 - Consultas rápidas o avisos nativos de la administración en la app: la app solo abre el panel (administracion-E25).
 - Asignar repartidores (DD-014, cambio `repartidor`).
 
@@ -394,17 +395,23 @@ abierta 6:
   (`CuentasDeDesarrolloSeeder`) solo se siembran en local (ADR-0012). No lleva pantalla, porque el Módulo D #3 da
   consulta, historial y bloqueo, no alta; es el mismo camino que abrir una plaza con `plazas:cargar`. Dar de alta
   usuarios desde el panel sigue fuera del contrato (Non-Goals).
-- **Qué pide:** el correo, como argumento; la contraseña, dos veces y con la entrada oculta (`secret()` sin respaldo
-  visible: si la terminal no la puede ocultar, falla en lugar de mostrarla). Nunca la recibe como argumento ni la
-  escribe en la salida. Sin una terminal que pregunte (`--no-interaction`), falla.
+- **Qué pide:** el correo, como argumento; la contraseña, dos veces y con la entrada oculta, sin respaldo visible: si la
+  terminal no la puede ocultar, falla en lugar de mostrarla. La pregunta se arma a mano y no con `secret()`, que le
+  recorta los espacios del principio y del final; la app (`POST /api/sesion`) y el panel la comparan tal como se
+  escribe. Nunca la recibe como argumento ni la escribe en la salida. Sin una terminal que pregunte
+  (`--no-interaction`), falla.
 - **Qué revisa, antes de crear nada:** el correo primero, con las reglas del registro (`App\Validacion\CorreoSinCuenta`:
   sin distinguir mayúsculas y contando las cuentas borradas), y solo después pide la contraseña; luego, la contraseña,
   con `App\Validacion\Contrasena` (ADR-0018, decisión 2: 8 caracteres como mínimo), y que las dos coincidan. Cada rechazo
-  dice su motivo y no cambia nada.
+  dice su motivo y no cambia nada. Si otra cuenta toma el correo mientras se escribe la contraseña, el único sobre
+  `lower(correo)` detiene el alta, la transacción no deja nada y sale el mismo mensaje del correo ocupado, sin el error
+  de la base, que traería el SQL con el hash.
 - **Qué crea:** en una transacción, la cuenta con el correo normalizado, la contraseña cifrada con `Hash::make`, como
   `App\Identidad\AltaDeCuenta` (registro-E05), y solo el rol de administración. Nace activa. Con ella entra al panel
-  (autorizacion-E03) y en la app recibe 403 sin token (registro-E33). Qué puede hacer la cuenta lo decide después
-  `App\Autorizacion\Autorizacion` (ADR-0019); quien corre el comando ya tiene la terminal del servidor.
+  (autorizacion-E03) y, si inicia sesión en la app con su correo y su contraseña, recibe 403 sin token (registro-E33).
+  Por Google todavía recibe token y, si su Google no estaba ligado, se le anula la contraseña, hasta la tarea 6.2. Qué
+  puede hacer la cuenta lo decide después `App\Autorizacion\Autorizacion` (ADR-0019); quien corre el comando ya tiene la
+  terminal del servidor.
 - **Corre en cualquier entorno, también en producción:** no lleva la guarda de solo-local de `CuentasDeDesarrolloSeeder`,
   que no cambia.
 - **Qué no hace:** no le da el rol a una cuenta que ya existe, de ningún rol, para no decidir "una cuenta, dos roles"

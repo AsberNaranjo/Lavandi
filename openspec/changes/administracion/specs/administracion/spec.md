@@ -289,7 +289,7 @@ CLIENTE. No manda correo, invitación ni enlace.
 - **CUANDO** se corre `php artisan administracion:crear-cuenta {correo}` con un correo y una contraseña válida, escrita dos veces
 - **ENTONCES** existe la cuenta con ese correo, con solo el rol de administración y la contraseña guardada con hash, que no aparece en la salida
 - **Y** esa cuenta entra al panel `/admin` (autorizacion-E03)
-- **Y** si inicia sesión en la app, recibe 403 sin token (registro-E33)
+- **Y** si inicia sesión en la app con su correo y su contraseña, recibe 403 sin token (registro-E33)
 - **Y** con un correo que ya tiene cuenta, de cualquier rol o borrada, el comando falla sin tocar esa cuenta
 - **Y** con un correo no válido, o una contraseña corta o que no coincide al repetirla, el comando falla sin crear ninguna cuenta
 
