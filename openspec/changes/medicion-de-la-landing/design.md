@@ -63,9 +63,10 @@ cumple cada escenario; se pueden rehacer sin tocar los requisitos.
   cada evento todo lo que la página puso en la capa de datos, para que un dato personal ahí hiciera fallar la prueba.
   Las pruebas son `tests/Browser/Medicion/Eventos.spec.js`, con Playwright desde Node, como las de `landing` (su
   pregunta 7), y `tests/Feature/Medicion/EventosDeLaPortadaTest.php` para la parte del servidor. Las dos corren en la
-  integración continua; las de navegador, en el trabajo `landing-navegadores` (2026-11-24). La configuración del servidor de las pruebas de navegador ahora trae el contenedor de prueba y
-  enlaces de prueba de las tiendas (`tests/Browser/Soporte/configuracion.js`); por eso landing-E13, que revisa que el
-  mapa no pida nada a otro servidor, sirve vacío ese contenedor y lo deja fuera de su cuenta.
+  integración continua; las de navegador, en el trabajo `landing-navegadores` (2026-11-24). La configuración del
+  servidor de las pruebas de navegador ahora trae el contenedor de prueba y enlaces de prueba de las tiendas
+  (`tests/Browser/Soporte/configuracion.js`); por eso landing-E13, que revisa que el mapa no pida nada a otro servidor,
+  sirve vacío ese contenedor y lo deja fuera de su cuenta.
 - **Títulos y descripciones (tarea 2.1, 2026-11-22):** el título de la portada es `APP_NAME`, y el de cada documento
   legal, su nombre y `APP_NAME` ("Aviso de privacidad · …"), como ya estaban: ninguno inventa un texto. La descripción
   de cada página sale de `LANDING_DESCRIPCION_PORTADA`, `LANDING_DESCRIPCION_AVISO_DE_PRIVACIDAD` y

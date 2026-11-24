@@ -16,7 +16,8 @@ use Tests\TestCase;
  * ninguno. Y los botones de las tiendas dicen qué tienda son, para el evento de descarga.
  *
  * Que el contenedor de prueba mande esos eventos hacia GA4 y Meta Pixel, y el toque en los botones, lo prueba
- * tests/Browser/Medicion/Eventos.spec.js, que la integración continua todavía no corre: esta prueba sí corre ahí.
+ * tests/Browser/Medicion/Eventos.spec.js, que la integración continua corre en el trabajo landing-navegadores; esta
+ * prueba corre en el trabajo servidor.
  *
  * Escenarios: medicion-E04 y medicion-E05 · Spec: openspec/changes/medicion-de-la-landing/specs/medicion/spec.md · Tarea
  * 1.2
