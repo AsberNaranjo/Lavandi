@@ -352,7 +352,9 @@ if (require.main === module) {
     argumentos.length === 0
       ? { origen: RUTA_TOKENS, tema: RUTA_TEMA, css: RUTA_CSS }
       : { origen, tema: destinoTema ?? RUTA_TEMA, css: destinoCss ?? null };
-  const nombres = rutas.css ? 'theme.ts ni tokens.css' : 'theme.ts';
+  // Las salidas que faltan por escribir, en el orden en que se escriben: si una escritura falla a medias, el mensaje
+  // nombra solo las que no se escribieron.
+  const faltan = rutas.css ? ['theme.ts', 'tokens.css'] : ['theme.ts'];
   try {
     // Los dos se generan antes de escribir el primero: si tokens.json no tiene la forma esperada, no se escribe nada.
     const tokens = leerTokens(rutas.origen);
@@ -362,10 +364,11 @@ if (require.main === module) {
     }
     for (const { nombre, destino, contenido } of salidas) {
       const { cambio } = escribirSiCambio(destino, contenido);
+      faltan.shift();
       console.log(`${nombre} ${cambio ? 'generado' : 'ya estaba al día'}: ${path.relative(process.cwd(), destino)}`);
     }
   } catch (error) {
-    console.error(`No se generó ${nombres}. ${error.message}`);
+    console.error(`No se generó ${faltan.join(' ni ')}. ${error.message}`);
     process.exitCode = 1;
   }
 }
