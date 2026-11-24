@@ -35,17 +35,20 @@ No hay decisión técnica nueva. Se aplican los ADR vigentes:
   proveedor (ADR-0009). Las zonas y el punto de cada pedido se cruzan con PostGIS (ADR-0004).
 - **Colonia:** sale del campo de la dirección; no hay geocodificación inversa (ADR-0009, `presupuesto-de-mapas.md`,
   decisión 4).
-- **Horas:** cada fecha se presenta en la zona horaria de la plaza del pedido (`modelo-multi-plaza.md`).
+- **Horas:** cada fecha se presenta en la zona horaria de la plaza del pedido (`modelo-multi-plaza.md`); lo que no
+  tiene plaza, en la zona horaria de referencia de la configuración (pregunta 8, indicadores-E24).
 
-**Lecturas del contrato que hizo el especificador.** Arthur las confirma al aprobar:
+**Lecturas del contrato que hizo el especificador.** Confirmadas por el concilio del 2026-11-24, por delegación de
+Arthur (C-245), salvo la 2:
 
 1. **Pedido** es todo pedido que llegó a Confirmado (`NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3`, Módulo A #12).
    Cuenta en los totales, en los estados y en la retención, aunque después se cancele. Con C-188, un pedido llega a
    Confirmado solo cuando la pasarela confirma su pago (`pedidos.confirmado_en`); el que nunca se paga no cuenta.
 2. **Usuarios activos** son personas distintas con cuenta de usuario. Lavanderías y repartidores se miden aparte, en
-   la categoría Socios. Va en DD-111.
+   la categoría Socios. Sigue en DD-111: Arthur propone y EL CLIENTE confirma.
 3. **Retención:** de los usuarios de un mes de registro que hicieron su primer pedido, qué porcentaje volvió a pedir,
-   hasta hoy. Es una cifra por mes, no una matriz de meses.
+   hasta hoy. Es una cifra por mes, no una matriz de meses, como dice el A.5: "agrupados según el mes en que se
+   registraron" (`NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5`).
 4. **"Con tendencia":** el monto promedio contra el del periodo anterior de la misma duración.
 5. **"Tabla comparativa":** cada periodo junto al anterior; en los repartidores, uno al lado del otro.
 
@@ -65,7 +68,8 @@ Una sola migración, hacia adelante (ADR-0016, regla 9), en la tarea 0.1. Pasa l
 - Sin `id_plazas`, por diseño: está en la lista de tablas sin plaza de `servidor/config/modelo.php`.
 - Sin `created_at` ni `updated_at`, como propuesta: no tiene llave propia (ver Open Questions, 9).
 - Qué la escribe, y por eso qué cuenta como "usar la aplicación", es DD-111 (E07). Mientras, el test de E06 siembra
-  sus filas.
+  sus filas. Cuando DD-111 diga qué la escribe, su `fecha` será el día en la zona horaria de referencia de lo que no
+  tiene plaza, la misma clave `app.zona_horaria_sin_plaza` (pregunta 8, indicadores-E24).
 - Su modelo de Eloquent sigue lo que decida `registro-e-inicio-de-sesion` para `rol_usuario`, la primera tabla con llave
   compuesta: Eloquent espera una llave de una sola columna.
 
@@ -90,7 +94,7 @@ cambios, sin escribirlas; si una consulta resulta lenta, se agrega una vista mat
 
 - [Las cohortes y el mapa de calor son las consultas más pesadas] → con el volumen de arranque se calculan en vivo.
   Si el panel tarda, se cachean o se precalculan, con ADR (BR-33).
-- [8 de los 23 escenarios esperan una respuesta] → el panel puede salir con los demás, pero A44-1 pide los 11
+- [7 de los 24 escenarios esperan una respuesta] → el panel puede salir con los demás, pero A44-1 pide los 11
   indicadores: no se acredita hasta que todos tengan su escenario en verde.
 - [A43-7 pide datos reales] → hace falta una lavandería real (DD-021). La lavandería propia del cliente podría
   servir (DD-066, sin confirmar).
@@ -111,8 +115,8 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
 - **El rango se ajusta a periodos completos:** por semana, del lunes de la semana del primer día al domingo de la del
   último; por mes, del día 1 al último día. Así cada periodo se compara entero con el anterior. Sin filtros, es el mes
   en curso hasta hoy, por día.
-- **"Hoy"** (el rango sin filtros) se lee en la zona horaria de la aplicación, porque la cuenta no tiene plaza; es la
-  misma pregunta 8.
+- **"Hoy"** (el rango sin filtros) se lee en la zona horaria de referencia de lo que no tiene plaza
+  (`app.zona_horaria_sin_plaza`), porque el panel no tiene plaza; es la misma pregunta 8 (indicadores-E24).
 - **La dona** cuenta los pedidos confirmados en el rango por su estado actual: activos son `confirmado`, `aceptado`,
   `recolectado`, `en_proceso`, `listo` y `en_entrega` (ADR-0021 y su adenda); completados, `entregado`. Un pedido
   `rechazado` no es activo ni completado, y la dona no lo muestra mientras E05 espera DD-016.
@@ -120,7 +124,8 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
   (E07, DD-111) decide quién cuenta, como dice "Tablas y migración". Hasta entonces nada la escribe, y en producción la
   línea da 0.
 - **La retención** pone una fila por cada mes del rango, aunque ese mes nadie se haya registrado. El mes de registro se
-  lee en la zona horaria de la aplicación (pregunta 8). Cuentan también las cuentas borradas después, porque su
+  lee en la zona horaria de referencia de lo que no tiene plaza (`app.zona_horaria_sin_plaza`; pregunta 8,
+  indicadores-E24). Cuentan también las cuentas borradas después, porque su
   registro y sus pedidos son historial. El porcentaje lleva un decimal.
 - **El ranking** promedia todas las calificaciones de cada lavandería, sin el rango de la página, con un decimal, como
   su perfil. Entran todas las lavanderías no borradas, de todas las plazas; con el mismo promedio, van por nombre.
@@ -208,18 +213,29 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
    indicadores. Necesita ADR, o ampliar el ADR-0007. Recomendación de Claude: los mismos 30 s. DD-116. **Resuelta** por
    la adenda del 2026-11-22 de ADR-0007 (decisión 33, C-236): 30 s; cierra DD-116.
 2. **Qué fecha cuenta para un pedido:** la de su confirmación, que es la que usan los escenarios, o la de su
-   creación. Arthur la confirma al aprobar. Con C-188 la diferencia importa: el pedido se crea al aceptar el resumen y
-   se confirma cuando se paga.
-3. **La semana va de lunes a domingo** (ISO 8601). Arthur la confirma.
+   creación. Con C-188 la diferencia importa: el pedido se crea al aceptar el resumen y se confirma cuando se paga.
+   **Resuelta** por el concilio del 2026-11-24, por delegación de Arthur (C-245): cuenta la fecha de confirmación,
+   `confirmado_en`.
+3. **La semana va de lunes a domingo** (ISO 8601). **Resuelta** por el concilio del 2026-11-24, por delegación de
+   Arthur (C-245): de lunes a domingo, ISO 8601 (grado E).
 4. **Qué dirección del pedido cuenta en el mapa de calor:** la de recolección, que es la recomendación, o la de
-   entrega.
+   entrega. **Resuelta** por el concilio del 2026-11-24, por delegación de Arthur (C-245): la dirección de
+   recolección.
 5. **La colonia: texto libre normalizado o catálogo.** Se decide en `direcciones`. Si es catálogo, necesita ADR.
 6. **Consultas en vivo o precalculadas** (BR-33). Necesita ADR solo si las consultas en vivo no alcanzan.
 7. **El mes de registro (E08): resuelta.** Es `usuarios.created_at`: todas las tablas del negocio con llave propia
    llevan `created_at` y `updated_at` en `timestamptz`.
 8. **El día de `actividad_usuarios`.** La persona no tiene plaza, así que su `fecha` no tiene zona horaria propia. Si
    las plazas del territorio inicial comparten zona horaria (`SIN VERIFICAR`; sale de las filas semilla de DD-093), hoy
-   no cambia nada; con plazas en zonas distintas, hay que decidir cuál vale.
+   no cambia nada; con plazas en zonas distintas, hay que decidir cuál vale. **Resuelta** por el concilio del
+   2026-11-24, por delegación de Arthur (C-245), con la opción b: un dato de configuración con la zona horaria de
+   referencia de lo que no tiene plaza, una sola clave para los indicadores y las finanzas, `app.zona_horaria_sin_plaza`
+   (`ZONA_HORARIA_SIN_PLAZA`). Por omisión es la de las plazas sembradas, `America/Mexico_City` (UTC-6, grado E; nunca
+   `America/Matamoros`, que es Matamoros, Tamaulipas). La leen el "hoy" del panel (`Rango::hoy`), el mes de registro
+   (`RetencionPorMesDeRegistro`) y el día de un movimiento sin pedido de la conciliación
+   (`ConciliacionConLaPasarela::zonaSinPlaza`); `actividad_usuarios.fecha` usará la misma clave cuando DD-111 diga qué
+   la escribe. `app.timezone` sigue en UTC. No adelanta DD-093: si las plazas quedan en zonas distintas, sigue bastando
+   un valor. Lo fija indicadores-E24.
 9. **`actividad_usuarios` y las fechas de creación: resuelta.** No las lleva: `modelo-de-datos.md` dice "No los llevan
    `rol_usuario` ni `actividad_usuarios`, que no tienen llave propia y no se editan" (`vault/arquitectura/
    modelo-de-datos.md:90`), y `config/modelo.php` la pone en la lista de tablas de enlace. La migración de la tarea 0.1
