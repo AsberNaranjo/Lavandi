@@ -85,14 +85,24 @@ Este cambio crea tres tablas, tal como las fija `vault/arquitectura/modelo-de-da
 - **DD-093: plazas del territorio inicial.** ¿Una plaza o dos? C-123 habla de arrancar "en ambas" (Durango y
   La Laguna), pero falta decir qué municipios van en cada una: Gómez Palacio y Lerdo son de Durango y de la Comarca
   Lagunera (`:4:Cláusula I`). Bloquea plazas-E10 y plazas-E11.
-- **DD-094: zonas del territorio inicial (BR-02).** ¿Cada zona es el límite oficial completo del municipio o un
-  área menor dentro de él? ¿De qué fuente sale el polígono y quién lo aprueba? Bloquea plazas-E10 y plazas-E11, y el
+- **DD-094: zonas del territorio inicial (BR-02).** Sigue abierta en su otra mitad: ¿cada zona es el municipio
+  completo o un área menor dentro de él, y quién la aprueba? Eso es de EL CLIENTE, vía Nadir. Si responde que una zona
+  es un área menor, se traza a mano sobre la base del INEGI y la aprueba EL CLIENTE. La fuente del polígono ya está
+  resuelta (ver "La fuente de los límites oficiales", abajo). Bloquea plazas-E10 y plazas-E11, junto con DD-093, y el
   mapa de cobertura de la landing (F-L07).
 - **Zonas encimadas.** Resuelta: la carga las rechaza (plazas-E12; DD-134, C-234).
 - **Tipos espaciales en Eloquent.** Sin paquete, las consultas usan las funciones de PostGIS directamente y no hace
   falta ADR. Si se quiere un paquete de tipos espaciales, necesita ADR.
-- **La fuente de los límites oficiales** (por ejemplo, el marco geoestadístico del INEGI) y su licencia: grado E,
-  `SIN VERIFICAR`.
+- **La fuente de los límites oficiales.** Resuelta en su parte técnica: los polígonos de las zonas salen de los
+  límites municipales del Marco Geoestadístico del INEGI, simplificados al cargarlos. Encaja con un territorio que el
+  contrato define por municipios, "La totalidad de los municipios que integran el Estado de Durango" y "Únicamente
+  los municipios de Torreón y Matamoros, Coahuila de Zaragoza" (`NSV-2026-001-v8.pdf:4:Cláusula I`), y con el mapa
+  de cobertura, que muestra "las zonas de servicio del TERRITORIO INICIAL"
+  (`NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2`). Su licencia (libre uso con atribución) es grado E, `SIN VERIFICAR`,
+  y se verifica, con su fecha de consulta, antes de cargar el archivo. Es la parte que DD-094 asigna a "Arthur (la
+  fuente de datos)" (`vault/meta/deuda-de-decision.md:105`); la decidió el concilio de agentes del 2026-11-24, por
+  delegación de Arthur (C-236, ampliada por C-245). No desbloquea la tarea 4.1: siguen DD-093 y la otra mitad de
+  DD-094.
 - **Con qué reconoce la carga una plaza que ya existe.** plazas-E08 pide que volver a cargar el mismo archivo no
   duplique. Para eso la carga necesita una llave natural, por ejemplo `nombre` único en `plazas` y
   `(id_plazas, nombre)` único en `zonas`. **Resuelta:** el modelo de datos aprobado ya los trae (ADR-0016, C-193;
