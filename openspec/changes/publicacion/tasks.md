@@ -14,7 +14,7 @@ bloqueadas por sus otras filas.
 
 - [x] 1.1 publicacion-E01: configuración por entorno de la pasarela, Firebase, llaves de Google y correo, leída de las variables del entorno y nunca del código; la pasarela es Conekta, o la elegida si se firma el cambio (DD-079) — test: `servidor/tests/Feature/Publicacion/ConfiguracionPorEntornoTest.php` — tamaño S
 - [ ] 1.2 publicacion-E02: despliegue al entorno de prueba, con migraciones sobre PostgreSQL con PostGIS (bloqueada: DD-070) — test: `servidor/tests/Feature/Publicacion/SaludDelEntornoTest.php` contra la dirección de prueba — tamaño M
-- [ ] 1.3 publicacion-E03: despliegue a producción en las cuentas de EL CLIENTE, con el mapa de cuentas en `vault/evidencias/publicacion/` (bloqueada: DD-070, DD-084) — test: `servidor/tests/Feature/Publicacion/SaludDelEntornoTest.php` contra producción — tamaño S
+- [ ] 1.3 publicacion-E03: despliegue a producción en las cuentas de EL CLIENTE, con el mapa de cuentas en `vault/evidencias/publicacion/` y el renglón de las copias de seguridad de la base en ese mapa (bloqueada: DD-070, DD-084) — test: `servidor/tests/Feature/Publicacion/SaludDelEntornoTest.php` contra producción; el renglón de las copias de seguridad se acredita con el mapa de cuentas, no con la prueba de salud — tamaño S
 
 ## 2. Comunicaciones cifradas
 
