@@ -64,7 +64,7 @@ const MOTIVOS_DE_LA_DIRECCION: Record<string, string> = {
   direccion_no_encontrada: 'No encontramos la dirección. Revisa la calle, el número, la colonia y el código postal.',
   // La geocodificación no respondió (503): no se guardó nada.
   geocodificacion_no_disponible: 'No pudimos ubicar la dirección. Inténtalo más tarde.',
-  // Solo al editar: el cambio de plaza espera la pregunta abierta 5 del design.md.
+  // Solo al editar: la dirección cae en otra plaza y la lavandería no cambia de plaza (alta-lavanderias-E25).
   en_otra_plaza: 'La dirección nueva queda en otra plaza de servicio. Ese cambio todavía no se puede hacer.',
 };
 

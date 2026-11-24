@@ -7,7 +7,7 @@
 // "Guardar cambios" manda solo lo que cambió desde que se abrió (PATCH): la dirección completa si cambió alguna de sus
 // partes, y los servicios y las ventanas completos si cambió alguno; con una foto nueva, en multipart por POST con
 // _method=PATCH (design.md del cambio, "El contrato de la API"). Cada error del servidor va junto a su campo, y la
-// dirección con su motivo, como en_otra_plaza (alta-lavanderias-E10; pregunta abierta 5). Al guardar, la pantalla queda
+// dirección con su motivo, como en_otra_plaza (alta-lavanderias-E10 y E25). Al guardar, la pantalla queda
 // con la lavandería que devolvió el servidor y lo dice. Mientras guarda, el botón se bloquea: un doble toque no manda
 // dos veces. Sin conexión o con el servidor caído, sin escenario propio: los mensajes generales de la app, y lo escrito
 // se queda.

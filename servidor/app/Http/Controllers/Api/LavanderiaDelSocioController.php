@@ -109,8 +109,8 @@ use Illuminate\Support\Str;
  *
  * ---------------------------------------------------------------------------------------------------------------------
  *
- *     PATCH /api/socio/lavanderias/{id_publico}  Edita su información y sus ventanas (alta-lavanderias-E18, E20, E21 y
- *                                                E22)
+ *     PATCH /api/socio/lavanderias/{id_publico}  Edita su información y sus ventanas (alta-lavanderias-E18, E20, E21,
+ *                                                E22 y E25)
  *
  *     Los mismos campos del registro, con las mismas reglas; solo van los que cambian:
  *       - nombre;

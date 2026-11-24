@@ -327,7 +327,7 @@ los archivos de un `POST`. La dirección nueva se geocodifica una vez; la misma 
    lavandería" (`:17:Módulo B #6`) o por la "edición de socios" del panel (`:19:Módulo D #1`)? Hay que acordarlo con
    `perfil-de-lavanderia`. El modelo ya tiene `lavanderias.descripcion` y `lavanderias.telefono`, opcionales, y
    `lavanderia_fotos` admite varias fotos; el registro no los pide y este cambio no agrega ningún campo al formulario.
-   **Decidida el 2026-11-24** (concilio del 2026-11-24, por delegación de Arthur (C-236, C-245)), opción a: la
+   **Decidida el 2026-11-24** (concilio del 2026-11-24, por delegación de Arthur (C-236, C-245)): la
    descripción, opcional, y las fotos las captura la propia lavandería en Perfil y horarios ("Edición de información de
    la lavandería", `:17:Módulo B #6`), y el panel las hereda porque usa las mismas reglas (`:19:Módulo D #1`). El
    registro sigue pidiendo una sola foto (`:17:Módulo B #1`). No necesita migración: `lavanderias.descripcion` y
@@ -338,7 +338,7 @@ los archivos de un `POST`. La dirección nueva se geocodifica una vez; la misma 
    de la Propuesta 04 orientan. La Definition of Ready pide el componente o una tarea para crearlo.
 5. **El cambio de dirección a otra plaza.** Si una lavandería edita su dirección y cae en otra plaza, ¿cambia de plaza
    sin más, o eso se hace desde el panel? El contrato no lo dice. **Resuelta el 2026-11-24** (concilio del 2026-11-24,
-   por delegación de Arthur (C-236, C-245)), opción a: no cambia de plaza. La edición se rechaza con el motivo
+   por delegación de Arthur (C-236, C-245)): no cambia de plaza. La edición se rechaza con el motivo
    `en_otra_plaza`, desde la app y desde el panel (alta-lavanderias-E25), y una lavandería que se muda de plaza se da
    de baja y se registra con otra cuenta.
 6. **Lo que pasa con los pedidos en curso** de una lavandería suspendida o dada de baja, y lo que ve en su app mientras
@@ -353,7 +353,7 @@ los archivos de un `POST`. La dirección nueva se geocodifica una vez; la misma 
 10. **La baja usa `estado = 'baja'` y no `deleted_at`.** El modelo tiene las dos cosas en `lavanderias` y no dice cuál
     usa la baja del Módulo D #1. Con el borrado suave de Eloquent, una lavandería dada de baja desaparecería del panel y
     de las relaciones de sus pedidos. ¿Arthur confirma la lectura, y para qué queda `deleted_at` en esta tabla?
-    **Resuelta el 2026-11-24** (concilio del 2026-11-24, por delegación de Arthur (C-236, C-245)), opción a: la baja es
+    **Resuelta el 2026-11-24** (concilio del 2026-11-24, por delegación de Arthur (C-236, C-245)): la baja es
     `estado = 'baja'` sin borrado suave, y no cambia código (alta-lavanderias-E17). `deleted_at` queda sin uso en
     `lavanderias` y no se quita (ADR-0016, regla 9: las migraciones van solo hacia adelante). Queda una asimetría con
     el repartidor, cuya baja sí llena `deleted_at` (`servidor/app/Repartidores/EstadoDelRepartidor.php:88-90`).
