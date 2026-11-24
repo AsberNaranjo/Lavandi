@@ -82,6 +82,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Zona horaria de lo que no tiene plaza
+    |--------------------------------------------------------------------------
+    |
+    | El día, la semana y el mes de lo que no tiene plaza: el "hoy" del panel y su rango por omisión, el mes de registro
+    | de una cuenta, el día de actividad_usuarios cuando DD-111 diga qué la escribe y el día de un movimiento de la
+    | pasarela sin pedido (NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5; openspec/changes/indicadores/design.md,
+    | pregunta 8; indicadores-E24). Lo que tiene plaza se lee en la zona horaria de su plaza.
+    |
+    | Por omisión es America/Mexico_City, la de las plazas sembradas Plaza de prueba 1 y Plaza de prueba Durango
+    | (database/datos/plazas-de-prueba/): UTC-6, grado E. Nunca America/Matamoros, que es Matamoros, Tamaulipas. Es una
+    | sola clave para los indicadores y las finanzas. No adelanta DD-093: si las plazas quedan en zonas distintas, sigue
+    | bastando un valor. La zona de la aplicación (timezone) se queda en UTC: los instantes se guardan absolutos.
+    |
+    */
+
+    'zona_horaria_sin_plaza' => env('ZONA_HORARIA_SIN_PLAZA', 'America/Mexico_City'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |

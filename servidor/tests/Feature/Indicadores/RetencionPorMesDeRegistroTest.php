@@ -5,6 +5,7 @@ namespace Tests\Feature\Indicadores;
 use App\Filament\Pages\Indicadores;
 use App\Filament\Widgets\Indicadores\RetencionTabla;
 use App\Models\Usuario;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
@@ -22,10 +23,12 @@ use Tests\TestCase;
  * mes hicieron su primer pedido y qué porcentaje de ellos volvió a pedir, hasta hoy (openspec/changes/indicadores/
  * design.md, lectura 3).
  *
- * El mes de registro es el de usuarios.created_at (pregunta 7), leído en la zona horaria de la aplicación, porque la
- * cuenta no tiene plaza (pregunta 8). Cuenta como pedido el que llegó a Confirmado (lectura 1).
+ * El mes de registro es el de usuarios.created_at (pregunta 7), leído en la zona horaria de referencia de lo que no
+ * tiene plaza (app.zona_horaria_sin_plaza), porque la cuenta no tiene plaza (pregunta 8; indicadores-E24). Cuenta como
+ * pedido el que llegó a Confirmado (lectura 1).
  *
- * Escenarios: indicadores-E08 · Spec: openspec/changes/indicadores/specs/indicadores/spec.md · Tarea 2.3
+ * Escenarios: indicadores-E08 e indicadores-E24 · Spec: openspec/changes/indicadores/specs/indicadores/spec.md ·
+ * Tareas 2.3 y 6.4
  */
 class RetencionPorMesDeRegistroTest extends TestCase
 {
@@ -111,6 +114,22 @@ class RetencionPorMesDeRegistroTest extends TestCase
             ->assertTableColumnFormattedStateSet('porcentaje', '33.3 %', '2026-04-01');
 
         $this->assertContains(RetencionTabla::class, (new Indicadores)->getWidgets());
+    }
+
+    #[TestDox('indicadores-E24: con la zona horaria de referencia de la configuración en UTC-6, una cuenta registrada a las 19:00 del 31 de marzo en esa zona, ya 1 de abril en UTC, que hizo su primer pedido cuenta en marzo')]
+    public function test_indicadores_e24_la_cuenta_registrada_la_noche_del_31_de_marzo_cuenta_en_marzo(): void
+    {
+        config(['app.zona_horaria_sin_plaza' => self::ZONA_HORARIA]);
+        $this->travelTo(CarbonImmutable::parse('2027-03-31 19:00:00', self::ZONA_HORARIA));
+        $cuenta = Usuario::factory()->conRol('usuario')->create();
+        $this->assertSame('2027-04-01 01:00', $cuenta->created_at->utc()->format('Y-m-d H:i'));
+
+        $this->pedidoConfirmadoEl('2027-04-02 10:00:00', $cuenta);
+        $this->comoAdministracion();
+
+        $this->widget(RetencionTabla::class, $this->filtros('2027-03-01', '2027-04-30'))
+            ->assertTableColumnStateSet('con_primer_pedido', 1, '2027-03-01')
+            ->assertTableColumnStateSet('con_primer_pedido', 0, '2027-04-01');
     }
 
     /**

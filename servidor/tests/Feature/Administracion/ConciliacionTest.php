@@ -36,6 +36,9 @@ use Tests\TestCase;
  *
  * Escenarios: administracion-E20 y administracion-E21 · Spec: openspec/changes/administracion/specs/administracion/
  * spec.md · Tareas 4.4 y 4.5
+ *
+ * Escenario: indicadores-E24, el día del movimiento sin pedido · Spec: openspec/changes/indicadores/specs/indicadores/
+ * spec.md · Tarea 6.4
  */
 class ConciliacionTest extends TestCase
 {
@@ -233,6 +236,9 @@ class ConciliacionTest extends TestCase
     #[TestDox('administracion-E21: con un movimiento de la pasarela sin pedido, un pedido pagado sin movimiento y un pedido cuyo monto no coincide con su movimiento (simulado), la administración concilia el periodo y el reporte señala cada uno con su tipo de diferencia')]
     public function test_administracion_e21_periodo_con_diferencias(): void
     {
+        // La fecha de un movimiento sin pedido se lee en la zona horaria de referencia de lo que no tiene plaza
+        // (indicadores-E24), aquí en UTC-6.
+        config(['app.zona_horaria_sin_plaza' => self::ZONA_HORARIA]);
         $conciliado = $this->cobroDe($this->pagadoEl('2027-03-05 10:00:00', '100.00'));
 
         // La pasarela acreditó un pago cuya orden no es de ningún pedido de la plataforma.
@@ -258,7 +264,8 @@ class ConciliacionTest extends TestCase
             'orden' => 'orden-de-otro-sistema',
             'folio' => null,
             'plaza' => null,
-            'fecha' => '10/03/2027 16:00',
+            // Las 16:00 en UTC son las 10:00 en UTC-6.
+            'fecha' => '10/03/2027 10:00',
             'monto_plataforma' => null,
             'monto_pasarela' => '80.00',
         ], $filas['simulada|orden-de-otro-sistema']);
@@ -330,6 +337,22 @@ class ConciliacionTest extends TestCase
 
         $abril = $this->filas($this->conciliar(['desde' => '2027-04-01', 'hasta' => '2027-04-30']));
         $this->assertSame([ResultadoDeConciliacion::Conciliado], array_column(array_values($abril), 'resultado'));
+    }
+
+    #[TestDox('indicadores-E24: con la zona horaria de referencia de la configuración en UTC-6, un movimiento de la pasarela sin pedido a las 19:00 del 31 de marzo en esa zona, ya 1 de abril en UTC, cuenta en la conciliación en el 31 de marzo')]
+    public function test_indicadores_e24_el_movimiento_sin_pedido_de_la_noche_del_31_de_marzo_cuenta_en_marzo(): void
+    {
+        config(['app.zona_horaria_sin_plaza' => self::ZONA_HORARIA]);
+        $this->simulada()->acreditar('orden-de-otro-sistema', '80.00', CarbonImmutable::parse('2027-03-31 19:00:00', self::ZONA_HORARIA));
+        $this->comoAdministracion();
+
+        $marzo = $this->filas($this->conciliar(self::MARZO));
+        $this->assertSame(['simulada|orden-de-otro-sistema'], array_keys($marzo));
+        $this->assertSame(ResultadoDeConciliacion::MovimientoSinPedido, $marzo['simulada|orden-de-otro-sistema']['resultado']);
+        $this->assertSame('31/03/2027 19:00', $marzo['simulada|orden-de-otro-sistema']['fecha']);
+
+        // En abril no cuenta, aunque en UTC sea del 1 de abril.
+        $this->assertSame([], $this->filas($this->conciliar(['desde' => '2027-04-01', 'hasta' => '2027-04-30'])));
     }
 
     /**

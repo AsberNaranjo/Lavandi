@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\DB;
  * volvió a pedir, hasta hoy (openspec/changes/indicadores/design.md, lectura 3). Es una cifra por mes, no una matriz
  * de meses.
  *
- * - El mes de registro es el de usuarios.created_at (pregunta 7), en la zona horaria de la aplicación, porque la
- *   cuenta no tiene plaza (pregunta 8). También cuentan las cuentas borradas después: su registro y sus pedidos son
- *   historial.
+ * - El mes de registro es el de usuarios.created_at (pregunta 7), en la zona horaria de referencia de lo que no tiene
+ *   plaza (app.zona_horaria_sin_plaza), porque la cuenta no tiene plaza (pregunta 8; indicadores-E24). También cuentan
+ *   las cuentas borradas después: su registro y sus pedidos son historial.
  * - Pedido es el que llegó a Confirmado, aunque después se rechace (lectura 1). Los pedidos cuentan hasta hoy, no solo
  *   los del rango.
  * - Un mes sin cuentas que hayan pedido da 0 y no tiene porcentaje.
@@ -61,7 +61,7 @@ final class RetencionPorMesDeRegistro
      */
     private function contar(Rango $meses): array
     {
-        $zona = config('app.timezone');
+        $zona = (string) config('app.zona_horaria_sin_plaza');
         $registro = '(usuarios.created_at at time zone ?)';
 
         $pedidosPorCuenta = DB::table('pedidos')
