@@ -213,4 +213,26 @@ foto del perfil (el disco privado).
   - se unió `upstream/main` a la rama (`0b6c413`) y se subió: el PR #3 entra limpio;
   - el concilio de agentes hace el inventario de lo que falta y vota qué se implementa.
 
+**2026-11-24, de madrugada: el concilio y sus lotes** ([[concilio-2026-11-24]]).
+- **La rama de trabajo** es `feat/h3-concilio`, en el worktree `integracion`, y está en origin. Trae:
+  - los lotes 1 y 2 (P01 a P17), unidos y revisados;
+  - `8388de5`, el arreglo del máximo de fotos del panel.
+
+  Pasan 1298 pruebas del servidor y 1282 de la app, en verde, sobre `21e99bb`.
+- **El lote 3** (P18, los logos de prensa; P20, el comando de la cuenta del dueño) se quedó corriendo en la sesión
+  anterior. Sus ramas `lote/p18` y `lote/p20` ya tienen la implementación. Para la próxima sesión:
+  1. revisar con `git log` qué commits tiene cada rama, y si la corrección no alcanzó a correr, revisarla contra su
+     paquete;
+  2. unirlas en `feat/h3-concilio` con `--no-ff`;
+  3. correr las suites completas.
+- **El lote 4** (P19, la página pública para pedir el borrado de la cuenta) no ha empezado. Va después del lote 3,
+  porque comparte `servidor/routes/web.php`.
+- **Los paquetes** están descritos en el plan del concilio, que se guardó fuera del repo: en el scratchpad de la
+  sesión del 2026-11-23, `plan-concilio.json`. Lo que dice cada uno también está en las decisiones 40 a 68 del acta y en
+  la nota del concilio.
+- **Al terminar todo:**
+  1. completar los resultados por lote en la nota del concilio;
+  2. hacer push;
+  3. abrir el PR de `feat/h3-concilio` hacia `nhadadn/Lavandi`, después del PR #3 o encima de él.
+
 **Al terminar.** `situacion: terminada`, con el enlace al PR, que va después del del H1.
