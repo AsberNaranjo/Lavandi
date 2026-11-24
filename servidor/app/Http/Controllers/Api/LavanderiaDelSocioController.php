@@ -130,7 +130,7 @@ use Illuminate\Support\Str;
  *     422  Como en el registro, cada error en su campo; si algo se rechaza, no cambia nada. Además:
  *     422  { "message": "La dirección nueva queda en otra plaza de servicio. Ese cambio todavía no se puede hacer.",
  *            "errors": { "direccion": ["..."] }, "motivo": "en_otra_plaza" }
- *          La dirección cae en una zona de otra plaza. El cambio de plaza espera la pregunta abierta 5 de design.md.
+ *          La dirección cae en una zona de otra plaza: la lavandería no cambia de plaza (alta-lavanderias-E25).
  *     503  Como en el registro.
  */
 class LavanderiaDelSocioController extends Controller

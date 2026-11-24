@@ -17,9 +17,9 @@ use Tests\TestCase;
  * El perfil y los horarios de la lavandería desde la app: la lavandería edita su información con las mismas
  * validaciones del registro, y nunca la de otra (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #6;
  * :20:Medidas de seguridad, separación por tipo de usuario). Una lavandería ajena responde igual que una que no existe
- * (ADR-0019, decisión 3).
+ * (ADR-0019, decisión 3). Una dirección nueva en la zona de otra plaza no se guarda: la lavandería no cambia de plaza.
  *
- * Escenarios: alta-lavanderias-E18 y alta-lavanderias-E20 · Tarea 2.1 · Spec:
+ * Escenarios: alta-lavanderias-E18, alta-lavanderias-E20 y alta-lavanderias-E25 · Tareas 2.1 y 2.3 · Spec:
  * openspec/changes/alta-de-lavanderias/specs/alta-lavanderias/spec.md
  */
 class PerfilTest extends TestCase
@@ -160,8 +160,8 @@ class PerfilTest extends TestCase
         $this->assertSame('Calle de prueba', $lavanderia->fresh()->calle);
     }
 
-    #[TestDox('alta-lavanderias-E18: una dirección nueva en la zona de otra plaza no se guarda: el cambio de plaza espera la pregunta abierta 5')]
-    public function test_alta_lavanderias_e18_una_direccion_nueva_en_otra_plaza_no_se_guarda(): void
+    #[TestDox('alta-lavanderias-E25: desde la app, una dirección nueva en la zona de otra plaza no se guarda y la lavandería conserva su plaza')]
+    public function test_alta_lavanderias_e25_desde_la_app_una_direccion_nueva_en_otra_plaza_no_se_guarda(): void
     {
         $cuenta = $this->cuentaDeLavanderia();
         $lavanderia = $this->registrada($cuenta);

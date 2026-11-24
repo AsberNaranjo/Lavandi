@@ -5,12 +5,14 @@ namespace Tests\Feature\AltaLavanderias;
 use App\Filament\Resources\Lavanderias\LavanderiaResource;
 use App\Filament\Resources\Lavanderias\Pages\EditLavanderia;
 use App\Filament\Resources\Lavanderias\Pages\ListLavanderias;
+use App\Lavanderias\DireccionNoUbicable;
 use App\Models\Lavanderia;
 use App\Models\Rol;
 use App\Models\Usuario;
 use Closure;
 use Filament\Forms\Components\Repeater;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Feature\AltaLavanderias\Soporte\AltaDePrueba;
@@ -22,9 +24,11 @@ use Tests\TestCase;
  * La gestión de lavanderías en el panel web: la lista con su estado y su plaza, y la edición de sus datos de registro
  * con las mismas validaciones del registro de la app (NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #1,
  * "edición de socios"; ADR-0003). El alta desde el panel espera DD-053 (alta-lavanderias-E11): el recurso no tiene
- * página de alta.
+ * página de alta. Una dirección nueva en la zona de otra plaza se rechaza, como en la app: la lavandería no cambia de
+ * plaza.
  *
- * Escenario: alta-lavanderias-E13 · Tarea 3.1 · Spec: openspec/changes/alta-de-lavanderias/specs/alta-lavanderias/spec.md
+ * Escenarios: alta-lavanderias-E13 y alta-lavanderias-E25 · Tareas 3.1 y 2.3 · Spec:
+ * openspec/changes/alta-de-lavanderias/specs/alta-lavanderias/spec.md
  */
 class PanelEdicionTest extends TestCase
 {
@@ -205,6 +209,26 @@ class PanelEdicionTest extends TestCase
         $this->assertSame('Calle de prueba', $lavanderia->fresh()->calle);
     }
 
+    #[TestDox('alta-lavanderias-E25: desde el panel, una dirección nueva en la zona de otra plaza se rechaza junto a la dirección y la lavandería conserva su plaza')]
+    public function test_alta_lavanderias_e25_desde_el_panel_una_direccion_en_otra_plaza_se_rechaza(): void
+    {
+        $lavanderia = $this->registrada();
+        $ubicacion = $this->ubicacionDe($lavanderia);
+        $otra = $this->plazaDePrueba('Plaza de prueba 2');
+        $this->zonaDePrueba($otra, 'Zona de prueba Norte', $this->cuadrado(-116.0, 10.0));
+        $this->geocodificarEn([10.5, -115.5]);
+        $this->comoAdministracion();
+
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->fillForm(['direccion.calle' => 'Calle de otra plaza'])
+            ->call('save')
+            ->assertHasFormErrors(['direccion.calle' => DireccionNoUbicable::MENSAJES[DireccionNoUbicable::EN_OTRA_PLAZA]]);
+
+        $lavanderia->refresh();
+        $this->assertSame([$this->plaza->getKey(), 'Calle de prueba'], [$lavanderia->id_plazas, $lavanderia->calle]);
+        $this->assertSame($ubicacion, $this->ubicacionDe($lavanderia));
+    }
+
     #[TestDox('alta-lavanderias-E13: el panel no tiene alta ni borrado de lavanderías: el alta espera DD-053 y la baja no borra')]
     public function test_alta_lavanderias_e13_el_panel_no_tiene_alta_ni_borrado(): void
     {
@@ -229,5 +253,19 @@ class PanelEdicionTest extends TestCase
         }
 
         $this->assertSame('Lavandería de prueba Privada', $lavanderia->fresh()->nombre);
+    }
+
+    /**
+     * @return array{float, float}
+     */
+    private function ubicacionDe(Lavanderia $lavanderia): array
+    {
+        $punto = DB::selectOne(
+            'select ST_Y(ubicacion::geometry) as latitud, ST_X(ubicacion::geometry) as longitud
+               from lavanderias where id_lavanderias = ?',
+            [$lavanderia->getKey()],
+        );
+
+        return [(float) $punto->latitud, (float) $punto->longitud];
     }
 }

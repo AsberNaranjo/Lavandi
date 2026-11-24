@@ -19,9 +19,9 @@ final class DireccionNoUbicable extends RuntimeException
     public const FUERA_DE_LA_ZONA = 'fuera_de_la_zona_de_servicio';
 
     /**
-     * Al editar: la dirección nueva cae en una zona de otra plaza. Si la lavandería cambia de plaza es la pregunta
-     * abierta 5 de design.md; mientras no se responda, no cambia, porque su historial y sus hijas van atados a su plaza
-     * por las llaves compuestas (modelo-E06).
+     * Al editar: la dirección nueva cae en una zona de otra plaza. La lavandería no cambia de plaza
+     * (alta-lavanderias-E25), porque su historial y sus hijas van atados a su plaza por las llaves compuestas
+     * (modelo-E06).
      */
     public const EN_OTRA_PLAZA = 'en_otra_plaza';
 
