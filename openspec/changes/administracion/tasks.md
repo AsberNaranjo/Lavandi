@@ -44,14 +44,22 @@ de S-006, banda media: S = 2 h, M = 5 h.
 ## 6. La administración en la app (movil/)
 
 - [x] 6.1 administracion-E25: el aviso de la cuenta de administración con el botón que abre el panel en expo-web-browser — test: `movil/__tests__/administracion/abrir-el-panel.test.tsx` — tamaño S
+- [ ] 6.2 administracion-E25 y registro-E33: POST /api/sesion/google responde 403 sin token a una cuenta de administración — test: `servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php` — tamaño S
+
+La 6.2 vive en `servidor/`. Hoy `POST /api/sesion/google` no pregunta a `Autorizacion::usaLaApp()` y le da token a la
+cuenta de administración; si su Google no estaba ligado, `EntradaConGoogle` además le anula la contraseña y le borra
+los tokens antes de ligarlo (registro-E18), y el panel solo entra con contraseña. El rechazo va antes de ligar y de
+cerrar el acceso anterior, para que la cuenta quede intacta (design.md, Open Questions 1). La app ya lee ese 403 como la
+cuenta sin acceso: no hay que tocarla.
 
 ## Horas
 
-- **Este archivo:** 47 h sin bloqueo y 21 h bloqueadas, 68 h en total. La decisión 56 de
-  `acta-2026-11-20-modelo-y-pasarela.md` (C-245) agregó la 6.1 (S), 2 h sin bloqueo.
-- **Contra la versión anterior (66 h; 45 sin bloqueo y 21 bloqueadas):** entran las 2 h de la 6.1.
+- **Este archivo:** 49 h sin bloqueo y 21 h bloqueadas, 70 h en total. La decisión 56 de
+  `acta-2026-11-20-modelo-y-pasarela.md` (C-245) agregó la 6.1 (S) y la 6.2 (S), 4 h sin bloqueo.
+- **Contra la versión anterior (66 h; 45 sin bloqueo y 21 bloqueadas):** entran las 2 h de la 6.1 y las 2 h de la 6.2,
+  el 403 de `POST /api/sesion/google` que la 6.1 daba por hecho.
 - **Antes (66 h; 36 sin bloqueo y 30 bloqueadas):** la decisión 34 (segunda adenda del 2026-11-22 de ADR-0010) cerró
   DD-112: 0.2 (S), 4.4 (M) y 4.5 (S), 9 h, dejaron de estar bloqueadas; el total no cambió.
 - **Antes de eso (62 h; 41 sin bloqueo y 21 bloqueadas):** entraron la migración de `comisiones` y `avisos_masivos`
   (0.1, S) y la de `movimientos_pasarela` (0.2, S), y 4.4 y 4.5 se bloquearon por DD-112 hasta la decisión 34.
-- **Contra el plan:** el plan de sprints le da 39 h (F-D03 a F-D07). La diferencia pasa de 27 h a 29 h.
+- **Contra el plan:** el plan de sprints le da 39 h (F-D03 a F-D07). La diferencia pasa de 27 h a 31 h.

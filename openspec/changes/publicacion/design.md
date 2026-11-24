@@ -106,6 +106,7 @@ en la cuenta de cada entorno (ADR-0012): la de prueba puede ser la de EL PRESTAD
 | `GOOGLE_MAPS_ANDROID_API_KEY` | texto | secreta | La llave de Google Maps de Android del entorno, restringida a la app (ADR-0009) |
 | `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` | texto | texto plano | Los clientes OAuth de Google del entorno (ADR-0005; DD-072) |
 | `EXPO_PUBLIC_AVISO_DE_PRIVACIDAD_URL`, `EXPO_PUBLIC_TERMINOS_URL` | texto | texto plano | Las páginas legales del servidor del entorno (DD-080) |
+| `EXPO_PUBLIC_PANEL_URL` | texto | texto plano | La dirección del panel del servidor del entorno, su `APP_URL` seguido de `/admin` (administracion-E25) |
 
 - **Las `EXPO_PUBLIC_*` no son secretas:** van dentro de la app y cualquiera las puede leer de ella.
 - **Una variable secreta no se lee en la máquina** al preparar la compilación, solo en el servidor de EAS (grado E,

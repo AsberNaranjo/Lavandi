@@ -47,7 +47,7 @@ No hay decisión técnica nueva. Se aplican los ADR vigentes:
 
 **Lecturas del contrato que hizo el especificador.** No son decisiones técnicas. Confirmadas por el concilio del
 2026-11-24, como Claude por delegación de Arthur (C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 57), 3 de 3,
-las cinco como están. Son lecturas literales del Módulo D #4 a #6 (`NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`) y del
+las cinco como están. Son lecturas literales del Módulo D #3 a #6 (`NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`) y del
 A.5 (`NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5`), y las sostienen las pruebas
 `servidor/tests/Feature/Administracion/MonitoreoDePedidosTest.php:56` (1), `ConfiguracionDeComisionesTest.php:128` (2),
 `BloqueoDeUsuariosTest.php:202` (3), `ReportesFinancierosTest.php:65` (4) y `MapaDelMonitoreoTest.php:215` (5):
@@ -400,16 +400,26 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
 
 1. **Qué entra en la vista reducida de administración de la app** (C-140). Pregunta para Arthur; no se diseña aquí.
    **Resuelta** por el concilio del 2026-11-24, por delegación de Arthur (C-245; `acta-2026-11-20-modelo-y-pasarela.md`,
-   decisión 56, que complementa la 31), 3 de 3, con la opción b, la mínima (administracion-E25, tarea 6.1):
+   decisión 56, que complementa la 31), 3 de 3, con la opción b, la mínima (administracion-E25, tareas 6.1 y 6.2):
    - Una cuenta de administración que inicia sesión en la app no recibe token: el 403 de `POST /api/sesion`
      (registro-E33) no cambia en el servidor, y con esa respuesta la app no guarda nada.
+   - **Hueco, hasta la tarea 6.2:** por Google el servidor sí le da token. `SesionConGoogleController` y
+     `EntradaConGoogle::entrar()` no preguntan a `Autorizacion::usaLaApp()`; solo `SesionController` lo hace. Peor: si
+     su Google no estaba ligado, `EntradaConGoogle::cerrarElAccesoAnterior()` (registro-E18) le anula la contraseña y le
+     borra los tokens antes de ligarlo, y el panel entra solo con contraseña (`App\Filament\Auth\IniciarSesion`): la
+     cuenta no vuelve a entrar al panel hasta que recupere su contraseña. La app no guarda ese token, pide revocarlo y
+     muestra el aviso con el botón (registro-E33), pero el daño ya está hecho en el servidor. La 6.2 responde 403 sin
+     token, antes de ligar Google y de anular la contraseña, para que la cuenta quede intacta; su línea en registro-E33
+     y su prueba entran con ella.
    - La app le muestra el aviso de que la administración entra por el panel, con un botón, "Abrir el panel", que lo
      abre en el navegador del sistema dentro de la app, con `expo-web-browser`, el mismo del checkout (adenda del
-     2026-11-22 de ADR-0010, decisión 32).
+     2026-11-22 de ADR-0010, decisión 32). Va en el inicio de sesión y en el registro, que también entra con Google
+     (`movil/src/acceso/BotonDelPanel.tsx`).
    - La dirección del panel sale de la configuración de la app, `EXPO_PUBLIC_PANEL_URL`, nunca del código; sin ella, el
      aviso sale sin el botón.
-   - Sin datos, rutas ni funciones nuevas en el servidor. Se conserva la "vista en app" de C-140 en su lectura mínima;
-     las consultas rápidas y los avisos nativos (opción c, que agranda sin cita) no entran. La opción a revocaba C-140.
+   - Sin datos ni rutas nuevas en el servidor; lo único que cambia ahí es el 403 de Google de la 6.2. Se conserva la
+     "vista en app" de C-140 en su lectura mínima; las consultas rápidas y los avisos nativos (opción c, que agranda sin
+     cita) no entran. La opción a revocaba C-140.
 2. **De dónde salen los movimientos de la pasarela para conciliar: resuelta** por la segunda adenda del 2026-11-22 de
    ADR-0010 (decisiones 6 y 7, asentada en la decisión 34 de `acta-2026-11-20-modelo-y-pasarela.md`, que cierra
    DD-112): de la API de la pasarela, por la misma interfaz neutral del cobro, cuando la administración concilia un
@@ -431,8 +441,8 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
    la opción a, sin código: el servidor no guarda ninguna preferencia de avisos; el aviso masivo va a todo teléfono
    registrado y el sistema operativo lo detiene si la persona apagó los avisos. El A #15 dice solo "notificaciones"
    (`NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3`, Módulo A #15) y el perfil solo refleja el permiso del sistema
-   (`perfil-y-soporte/design.md`, pregunta 4). Una preferencia por tipo de aviso sería posible Orden de Cambio, que
-   decide Nadir (`perfil-y-soporte/proposal.md:27`; `NSV-2026-001-v8.pdf:8:Cláusula IV`).
+   (`perfil-y-soporte/design.md:70-78`, Decisions, punto 4). Una preferencia por tipo de aviso sería posible Orden de
+   Cambio, que decide Nadir (`perfil-y-soporte/proposal.md:27`; `NSV-2026-001-v8.pdf:8:Cláusula IV`).
 6. **La entrada al panel con rol de administración** (ADR-0005) se espera de `autorizacion-por-rol` o de
    `alta-de-lavanderias`, que llegan antes (sprints 11 y 12). Si ninguno la trae, hay que agregarla aquí.
 7. **`actividad_usuarios` nace después.** La crea `indicadores` (sprints 24 a 29) y la lee administracion-E02 (sprint
