@@ -219,12 +219,8 @@ foto del perfil (el disco privado).
   - `8388de5`, el arreglo del máximo de fotos del panel.
 
   Pasan 1298 pruebas del servidor y 1282 de la app, en verde, sobre `21e99bb`.
-- **El lote 3** (P18, los logos de prensa; P20, el comando de la cuenta del dueño) se quedó corriendo en la sesión
-  anterior. Sus ramas `lote/p18` y `lote/p20` ya tienen la implementación. Para la próxima sesión:
-  1. revisar con `git log` qué commits tiene cada rama, y si la corrección no alcanzó a correr, revisarla contra su
-     paquete;
-  2. unirlas en `feat/h3-concilio` con `--no-ff`;
-  3. correr las suites completas.
+- **El lote 3** (P18, los logos de prensa sin borrado; P20, `php artisan administracion:crear-cuenta {correo}`) se
+  revisó, se corrigió y se unió en `ed1daae`. Su suite completa la corre la CI de GitHub; la local quedó pendiente.
 - **El lote 4** (P19, la página pública para pedir el borrado de la cuenta) no ha empezado. Va después del lote 3,
   porque comparte `servidor/routes/web.php`.
 - **Los paquetes** están descritos en el plan del concilio, que se guardó fuera del repo: en el scratchpad de la
