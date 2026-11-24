@@ -2,9 +2,9 @@
 
 El perfil es la ficha que la persona ve antes de pedir. Toma la lavandería que se eligió en `lavanderias-cercanas` y
 lleva a la selección del tipo de servicio, que abre el pedido. El almacenamiento ya está decidido: `Storage` de Laravel
-con driver S3, buckets privados y URLs firmadas que vencen (ADR-0006), un bucket por entorno (ADR-0012). Lo que falta
-es de negocio: quién fija el precio y en qué unidad va el lavado en seco (DD-010, BR-16). "Aún no hay precios"
-(C-131): los de este hito son de prueba.
+con driver S3, buckets privados y URLs firmadas que vencen, un bucket por entorno (ADR-0006, Consecuencias y adenda
+del 2026-11-24). Lo que falta es de negocio: quién fija el precio y en qué unidad va el lavado en seco (DD-010,
+BR-16). "Aún no hay precios" (C-131): los de este hito son de prueba.
 
 ## Goals / Non-Goals
 
@@ -112,15 +112,20 @@ llevan `id_plazas`, no nula y con llave foránea a `plazas` (plazas-E09).
   responda EL CLIENTE, no se muestra nada de esa persona.
 - **DD-098: varios servicios en un pedido.** ¿Un pedido lleva un solo tipo o puede combinar varios? El mock A06
   deja elegir más de uno, sin fila. Sin respuesta, la app deja elegir uno.
-- **El orden y la cantidad de reseñas en pantalla.** El contrato no los fija. Lo decide Arthur, o se deja a
-  `historial-y-calificacion`.
-- **El almacenamiento en local: resuelta para local** por `alta-de-lavanderias` (`design.md`, "La foto"): el disco local
-  privado de Laravel, `fotos_local`, con URLs firmadas; la tarea 2.1 lo reusa. Se aparta del driver S3 solo fuera de
-  producción, así que **falta anotarlo en el ADR-0006**; lo anota quien cuida los ADRs (el implementador no los toca).
-  En producción, el disco `fotos_s3` necesita la librería `league/flysystem-aws-s3-v3`, que no está instalada: se
-  propone instalarla cuando se decida el hosting (DD-070).
-- **El vencimiento de las URLs:** es un valor técnico de la configuración; lo fija Arthur. Hoy es
-  `FOTOS_VIGENCIA_MINUTOS`, 60 minutos por omisión (`servidor/config/fotos.php`).
+- **El orden y la cantidad de reseñas en pantalla: resuelta** el 2026-11-24 (concilio del 2026-11-24, por delegación
+  de Arthur, C-236 y C-245). Van todas, de la más reciente a la más antigua, como ya hace la tarea 1.2; se revisa solo
+  si el volumen lo pide. El A #5 pide "reseñas" sin cantidad
+  (`NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #5`), así que no se pagina.
+- **El almacenamiento en local: resuelta** por `alta-de-lavanderias` (`design.md`, "La foto") y **asentada en la adenda
+  del 2026-11-24 de ADR-0006** (concilio del 2026-11-24, por delegación de Arthur, C-236 y C-245): el disco local
+  privado de Laravel, `fotos_local`, con URLs firmadas, solo en la máquina local y en las pruebas automáticas; la tarea
+  2.1 lo reusa. El entorno de prueba en internet y producción usan `fotos_s3`, con un bucket privado por entorno; el
+  valor por omisión de `servidor/config/fotos.php` cambia cuando exista el bucket del entorno de prueba (DD-070). El
+  disco `fotos_s3` necesita la librería `league/flysystem-aws-s3-v3`, que no está instalada: se instala cuando se
+  decida el hosting (DD-070).
+- **El vencimiento de las URLs: resuelta** el 2026-11-24 (concilio del 2026-11-24, por delegación de Arthur, C-236 y
+  C-245). Se ratifican los 60 minutos de `FOTOS_VIGENCIA_MINUTOS` (`servidor/config/fotos.php`), un valor técnico de
+  la configuración.
 - **Pregunta de diseño:** el design system no tiene componente para la galería de fotos, la lista de reseñas ni la
   selección de servicio. La tarea los crea con los tokens, o se agregan antes a `vault/design-system/componentes.md`.
 

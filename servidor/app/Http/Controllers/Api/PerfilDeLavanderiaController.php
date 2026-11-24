@@ -57,8 +57,8 @@ use Illuminate\Support\Str;
  *
  * Las fotos viven en el almacenamiento privado del entorno (App\Fotos\AlmacenDeFotos; ADR-0006) y solo salen como URL
  * firmada: ni su ruta ni su llave salen como campo (perfil-lavanderia-E03 y E04). Las reseñas no traen nada de quien
- * calificó (perfil-lavanderia-E08). El orden y la cantidad de reseñas siguen abiertos en design.md (Open Questions);
- * hoy van todas.
+ * calificó (perfil-lavanderia-E08). Van todas, de la más reciente a la más antigua (design.md, resuelta el
+ * 2026-11-24).
  */
 class PerfilDeLavanderiaController extends Controller
 {
