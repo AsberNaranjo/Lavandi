@@ -31,11 +31,23 @@ No hay decisión técnica nueva. Se aplica el ADR-0003:
   archivo a quien lo pidió es grado E, `SIN VERIFICAR`: lo comprueba el test de exportacion-E11.
 - **La protección contra fórmulas** se activa en la escritura del CSV y del XLSX, solo en las celdas de texto.
 
-**Lecturas del contrato que hizo el especificador.** Arthur las confirma al aprobar:
+**Lecturas del contrato que hizo el especificador,** confirmadas por el concilio del 2026-11-24, por delegación de
+Arthur (C-245), 3 de 3. Cada una dice su respaldo en el contrato y las pruebas que la sostienen:
 
-1. **"Reportes"** son los 11 indicadores del A.5 y los tres reportes financieros del Módulo D #6.
-2. **"CSV y Excel"** del A.5 manda sobre "CSV o Excel" del A.4.4: se construyen los dos.
-3. **"Cualquier rango de fechas"** no tiene tope de duración.
+1. **"Reportes"** son los 11 indicadores del A.5 y los tres reportes financieros del Módulo D #6: las 11 filas del A.5
+   (`NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5`) más "Ingresos por periodo, comisiones y conciliación con Conekta"
+   (`NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`, Módulo D #6). La sostienen las pruebas de exportacion-E03, una por
+   reporte que ya tiene su cifra en el panel (`servidor/tests/Feature/Exportacion/TodosLosReportesTest.php:90-256`). Los
+   que siguen bloqueados no tienen descarga ni prueba todavía (ver "Implementación en el servidor").
+2. **"CSV y Excel"** del A.5 manda sobre "CSV o Excel" del A.4.4: se construyen los dos. El A.5 dice "Descarga de
+   reportes en formato CSV y Excel para cualquier rango de fechas" (`NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5`); el
+   "CSV o Excel" del A.4.4 (`NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.4`) es el criterio mínimo de aceptación, no un
+   tope. La sostienen las pruebas de exportacion-E01, el CSV
+   (`servidor/tests/Feature/Exportacion/DescargaCsvYExcelTest.php:63`), y exportacion-E02, el XLSX con las mismas filas
+   y cifras (`servidor/tests/Feature/Exportacion/DescargaCsvYExcelTest.php:90`).
+3. **"Cualquier rango de fechas"** no tiene tope de duración (`NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5`). La
+   sostiene la prueba de exportacion-E05, un rango de dos años por día y por mes
+   (`servidor/tests/Feature/Exportacion/RangoDeFechasTest.php:68`).
 
 ## Tablas y migración
 
