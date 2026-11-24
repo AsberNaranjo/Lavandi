@@ -27,7 +27,8 @@
 
 ## Decisions
 
-No hay decisión técnica nueva. Se aplican los ADR vigentes:
+No hay decisión técnica nueva con ADR propio; la única clave de configuración nueva, la zona horaria de lo que no
+tiene plaza, la decidió el concilio del 2026-11-24 (pregunta 8, C-245). Se aplican los ADR vigentes:
 
 - **Widgets:** barras, dona y línea con las gráficas que trae Filament; el indicador destacado con su widget de
   estadísticas; las tablas comparativas como tablas de Filament (ADR-0003).
@@ -176,9 +177,9 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
 - **El mapa de calor** (tareas 5.1 y 5.2, E19 y E20) es el widget `MapaDeCalor`, con su vista
   `resources/views/filament/widgets/indicadores/mapa-de-calor.blade.php`:
   - **Por colonia** (E19) lee `App\Indicadores\PedidosPorColonia`: la colonia de la **dirección de recolección** del
-    pedido (pregunta 4, la recomendación), como se capturó en `pedido_direcciones`, sin espacios a los lados, en su
-    municipio y su plaza. El punto de cada colonia es el centro de las recolecciones de sus pedidos (`ST_Centroid` de
-    PostGIS); no hay geocodificación inversa ni ninguna petición a Google desde el servidor.
+    pedido (pregunta 4, resuelta por el concilio del 2026-11-24, C-245), como se capturó en `pedido_direcciones`, sin
+    espacios a los lados, en su municipio y su plaza. El punto de cada colonia es el centro de las recolecciones de sus
+    pedidos (`ST_Centroid` de PostGIS); no hay geocodificación inversa ni ninguna petición a Google desde el servidor.
   - **Por zona de servicio** (E20) lee `App\Indicadores\PedidosPorZona`: un pedido cuenta en la zona de su plaza que
     cubre el punto de su recolección (`ST_Covers` de PostGIS, con el borde dentro, como la zona de servicio de las
     direcciones), no en la de su entrega. Salen las zonas activas, también con 0, y una inactiva solo si tuvo pedidos
@@ -217,7 +218,9 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
    **Resuelta** por el concilio del 2026-11-24, por delegación de Arthur (C-245): cuenta la fecha de confirmación,
    `confirmado_en`.
 3. **La semana va de lunes a domingo** (ISO 8601). **Resuelta** por el concilio del 2026-11-24, por delegación de
-   Arthur (C-245): de lunes a domingo, ISO 8601 (grado E).
+   Arthur (C-245): de lunes a domingo, ISO 8601 (grado E, `SIN VERIFICAR`: la semana ISO va del lunes 1 al domingo
+   7, `en.wikipedia.org/wiki/ISO_week_date` y `timeanddate.com/date/weeknumber-help.html`, consultadas el
+   2026-11-24).
 4. **Qué dirección del pedido cuenta en el mapa de calor:** la de recolección, que es la recomendación, o la de
    entrega. **Resuelta** por el concilio del 2026-11-24, por delegación de Arthur (C-245): la dirección de
    recolección.
@@ -228,10 +231,14 @@ Lo que decidió el implementador dentro de esta spec y de los ADR, sin decisión
 8. **El día de `actividad_usuarios`.** La persona no tiene plaza, así que su `fecha` no tiene zona horaria propia. Si
    las plazas del territorio inicial comparten zona horaria (`SIN VERIFICAR`; sale de las filas semilla de DD-093), hoy
    no cambia nada; con plazas en zonas distintas, hay que decidir cuál vale. **Resuelta** por el concilio del
-   2026-11-24, por delegación de Arthur (C-245), con la opción b: un dato de configuración con la zona horaria de
-   referencia de lo que no tiene plaza, una sola clave para los indicadores y las finanzas, `app.zona_horaria_sin_plaza`
-   (`ZONA_HORARIA_SIN_PLAZA`). Por omisión es la de las plazas sembradas, `America/Mexico_City` (UTC-6, grado E; nunca
-   `America/Matamoros`, que es Matamoros, Tamaulipas). La leen el "hoy" del panel (`Rango::hoy`), el mes de registro
+   2026-11-24, por delegación de Arthur (C-245; decisión 60 del acta del 2026-11-20): un dato de configuración con la
+   zona horaria de referencia de lo que no tiene plaza, una sola clave para los indicadores y las finanzas,
+   `app.zona_horaria_sin_plaza` (`ZONA_HORARIA_SIN_PLAZA`). Se descartaron seguir en UTC y cambiar `app.timezone`. Por
+   omisión es la de las plazas sembradas Plaza de prueba 1 y Plaza de prueba Durango, `America/Mexico_City` (la Plaza
+   de prueba 2 está en `America/Tijuana`). Es UTC-6 todo el año (grado E, `SIN VERIFICAR`: la Ciudad de México está en
+   el horario del centro todo el año y su último cambio de hora fue el 30 de octubre de 2022,
+   `timeanddate.com/time/change/mexico/mexico-city`, consultada el 2026-11-24). Nunca `America/Matamoros`, que es
+   Matamoros, Tamaulipas. La leen el "hoy" del panel (`Rango::hoy`), el mes de registro
    (`RetencionPorMesDeRegistro`) y el día de un movimiento sin pedido de la conciliación
    (`ConciliacionConLaPasarela::zonaSinPlaza`); `actividad_usuarios.fecha` usará la misma clave cuando DD-111 diga qué
    la escribe. `app.timezone` sigue en UTC. No adelanta DD-093: si las plazas quedan en zonas distintas, sigue bastando
