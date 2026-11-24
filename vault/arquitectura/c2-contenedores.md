@@ -1,7 +1,7 @@
 ---
 estado: borrador
 grado: mixto
-fuente: NSV-2026-001-v8.pdf ANEXO A.2, A.3, A.5 y ANEXO B.4 (A); restricciones-no-negociables.md (B); ADR-0001 (D); DD-040 por acta-2026-11-12-traspaso-del-proyecto.md C-140 (C)
+fuente: NSV-2026-001-v8.pdf ANEXO A.2, A.3, A.5 y ANEXO B.4 (A); restricciones-no-negociables.md (B); ADR-0001 (D); DD-040 por acta-2026-11-12-traspaso-del-proyecto.md C-140 (C); la vista reducida de administración por acta-2026-11-20-modelo-y-pasarela.md, decisión 56, por delegación de C-245 (C)
 fecha: 2026-11-12
 dueño: Nadir Hadad Navarrete
 adr: ADR-0001
@@ -102,8 +102,10 @@ módulo de `app-movil`; el resto del diagrama no cambia. Por eso no bloquea.
 >   indicadores.
 > - Además, `app-movil` trae una **vista reducida para el administrador**, con consultas rápidas y avisos. Habla con
 >   `api` igual que los demás módulos y tiene su propia autorización por rol.
-> - Qué entra exactamente en esa vista se define en la spec del Módulo D. Mientras tanto,
->   `ESPECIFICACIÓN PENDIENTE`.
+> - Qué entra exactamente en esa vista se define en la spec del Módulo D. **Especificada en administracion-E25: la
+>   app no le da sesión y abre el panel web dentro de la app** (spec del cambio `administracion` en `openspec/`;
+>   decisión 56 de `acta-2026-11-20-modelo-y-pasarela.md`, concilio del 2026-11-24 por delegación de Arthur,
+>   C-245). Las consultas rápidas y los avisos nativos no entran: la vista no lleva sesión propia con `api`.
 >
 > El diagrama no cambia de contenedores.
 
