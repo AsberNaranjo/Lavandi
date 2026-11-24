@@ -67,7 +67,7 @@ Las tomó Claude por delegación de Arthur (C-236) al implementar las tareas 0.1
 ### 4. La lista de momentos y sus textos viven en `config/avisos.php`
 
 - `avisos.momentos` es la única lista, por el código del estado que dispara cada momento: `confirmado`, `recolectado`, `listo` y `entregado`. El quinto entra ahí cuando se defina (DD-011, avisos-E13), sin tocar los otros cuatro.
-- Los textos son provisionales, en español y neutros, con `:folio` para el folio del pedido. Los redacta EL PRESTADOR con la guía de tono y los aprueba Nadir antes de enviarlos a EL CLIENTE (DD-106). No llevan marca ni dominio.
+- Los textos son propuesta, en español y en el registro de la guía de tono para quien pide, con `:folio` para el folio del pedido. Los redacta EL PRESTADOR con la guía de tono y los aprueba Nadir antes de enviarlos a EL CLIENTE (DD-106). No llevan marca ni dominio.
 
 ### 5. Qué hace que la API borre un token
 
@@ -273,7 +273,7 @@ Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cam
 - **[A43-5 no se puede acreditar completo]** → Con cuatro momentos de cinco, el criterio queda en `implementado` parcial hasta que DD-011 defina el quinto.
 - **[El usuario niega el permiso]** → Con la app abierta, la consulta cada 30 segundos cumple; con la app cerrada, ve el estado al volver (ADR-0007).
 - **[El servicio de avisos no garantiza la entrega]** → Ningún paso del pedido depende solo del aviso (ADR-0008); un fallo queda en la bitácora y el pedido sigue (avisos-E02).
-- **[Textos provisionales]** → Los textos de cada aviso no están definidos (BR-24). Se construyen como configuración y se cambian sin tocar código.
+- **[Textos provisionales]** → Los textos son propuesta de EL PRESTADOR con la guía de tono; falta que Nadir los apruebe (DD-106). Viven en configuración y se cambian sin tocar código.
 - **[`pedidos-de-la-lavanderia` necesita `dispositivos` antes que este cambio]** → Su aviso de pedido nuevo (E15, E16) está bloqueado por DD-054 y, además, espera esta tabla, que en el plan nace después. No se mueve aquí.
 
 ## Open Questions
@@ -285,9 +285,9 @@ Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cam
 - **En qué pantalla se pide el permiso.** El mock A17 lo explica con una pantalla propia; el contrato no lo dice. Es decisión de pantalla de Arthur.
   - **Resuelta en la implementación de la app, por delegación (C-236):** sin pantalla propia, con la petición del
     sistema al abrirse la sesión del usuario que nunca respondió ("Decisiones de la implementación de la app", punto 6).
-- **Quién escribe y aprueba los textos de los avisos** (BR-24): fila propuesta en el reporte.
-  - **Quién escribe, resuelto por el concilio del 2026-11-24, por delegación de Arthur (C-245):** EL PRESTADOR, con la
-    guía de tono de voz, que es su entregable (`NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1`;
-    `vault/marca/entregables/guia-de-tono-de-voz.html`, "Ejemplos por público"). Los cuatro textos quedan como propuesta
-    en `servidor/config/avisos.php` ("Decisiones de la implementación del servidor", punto 4).
+- **Quién escribe y aprueba los textos de los avisos** (BR-24): DD-106.
+  - **Quién escribe, resuelto por el concilio del 2026-11-24, por delegación de Arthur (C-245; decisión 43 del acta del
+    2026-11-20):** EL PRESTADOR, con la guía de tono de voz, que es su entregable (`NSV-2026-001-v8.pdf:14:ANEXO A,
+    Sección A.1`; `vault/marca/entregables/guia-de-tono-de-voz.html`, "Ejemplos por público"). Los cuatro textos quedan
+    como propuesta en `servidor/config/avisos.php` ("Decisiones de la implementación del servidor", punto 4).
   - **Quién aprueba: Nadir, y sigue en DD-106.** Detiene solo acreditar A43-5 con los textos finales.
