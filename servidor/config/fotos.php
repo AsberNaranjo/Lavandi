@@ -30,6 +30,11 @@ return [
 
     'disco' => env('FOTOS_DISCO', env('APP_ENV') === 'production' ? 'fotos_s3' : 'fotos_local'),
 
+    /*
+     * Los logos de prensa de la portada usan este disco y los tipos y el peso que siguen (landing, tarea 4.2; adenda
+     * del 2026-11-24 de ADR-0006, decisión 2): cambiar FOTOS_DISCO, FOTOS_TIPOS o FOTOS_PESO_MAXIMO_KB cambia también
+     * lo que acepta el panel de prensa y de dónde lee su imagen la ruta pública de la portada.
+     */
     'tipos' => array_values(array_filter(array_map('trim', explode(',', (string) env('FOTOS_TIPOS', 'jpg,jpeg,png,webp'))))),
 
     'peso_maximo_kb' => (int) env('FOTOS_PESO_MAXIMO_KB', 5120),

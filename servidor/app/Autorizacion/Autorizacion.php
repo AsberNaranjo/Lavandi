@@ -8,6 +8,7 @@ use App\Models\Direccion;
 use App\Models\Dispositivo;
 use App\Models\EstadoPedido;
 use App\Models\Lavanderia;
+use App\Models\LogoPrensa;
 use App\Models\Pago;
 use App\Models\Pedido;
 use App\Models\PedidoAsignacion;
@@ -37,8 +38,8 @@ use Livewire\Livewire;
  * reciben los avisos de un pedido (avisos-E04 y avisos-E12), qué ve la administración en el panel (las plazas, las
  * lavanderías, los usuarios y los pedidos de todas las plazas: autorizacion-E03, administracion-E01, E06 y E11) y quién
  * abre sesión o bloquea (administracion-E03), quién fija la comisión global (administracion-E11), quién ve los
- * reportes de Soporte, también los que no tienen plaza (perfil-usuario-E17), y quién edita los testimonios de la portada
- * (landing-E19). Del repartidor
+ * reportes de Soporte, también los que no tienen plaza (perfil-usuario-E17), y quién edita los testimonios y los logos
+ * de prensa de la portada (landing-E19). Del repartidor
  * (hito H8; ADR-0019, decisión 1), conoce su rol en la app, qué repartidor opera (repartidor-E03 y E06) y, con su tarea,
  * sus pedidos, de su plaza y con el pago acreditado.
  *
@@ -81,6 +82,7 @@ final class Autorizacion
             'GET /' => 'La portada pública de la landing.',
             'POST formularios/interes' => 'El formulario de interés de lavanderías de la portada.',
             'POST formularios/contacto' => 'El formulario de contacto de la portada.',
+            'GET prensa/{archivo}' => 'La imagen de un logo de prensa activo de la portada, por el nombre de su archivo: sin datos de ninguna cuenta ni la llave interna, y 404 si el logo no existe o no está activo (landing-E17; adenda del 2026-11-24 de ADR-0006).',
             // Los textos legales, públicos como la portada (textos-legales-E01).
             'GET aviso-de-privacidad' => 'El aviso de privacidad, sin datos de ninguna cuenta (textos-legales-E01).',
             'GET terminos' => 'Los términos y condiciones, sin datos de ninguna cuenta (textos-legales-E01).',
@@ -525,9 +527,10 @@ final class Autorizacion
     }
 
     /**
-     * Si la cuenta edita el contenido de la portada que vive en el panel, los testimonios y su interruptor de activo:
-     * solo la administración (landing-E19; NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2, sección 8; ADR-0011). Ese
-     * contenido no es de una plaza: la portada es una para todo el sitio, así que no hay tenencia ni plaza que mirar.
+     * Si la cuenta edita el contenido de la portada que vive en el panel, los testimonios y los logos de prensa con su
+     * interruptor de activo: solo la administración (landing-E19; NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2,
+     * secciones 8 y 10; ADR-0011). Ese contenido no es de una plaza: la portada es una para todo el sitio, así que no
+     * hay tenencia ni plaza que mirar.
      */
     public function puedeEditarLaPortada(Usuario $usuario): bool
     {
@@ -543,6 +546,19 @@ final class Autorizacion
     public function testimoniosDelPanel(Usuario $usuario): Builder
     {
         $consulta = Testimonio::query();
+
+        return $this->puedeEditarLaPortada($usuario) ? $consulta : $consulta->whereRaw('false');
+    }
+
+    /**
+     * Los logos de prensa que la cuenta ve y edita en el panel: todos, si puede editar la portada (landing-E17 y E19);
+     * ninguno si no. El recurso de logos de prensa del panel parte de aquí.
+     *
+     * @return Builder<LogoPrensa>
+     */
+    public function logosPrensaDelPanel(Usuario $usuario): Builder
+    {
+        $consulta = LogoPrensa::query();
 
         return $this->puedeEditarLaPortada($usuario) ? $consulta : $consulta->whereRaw('false');
     }

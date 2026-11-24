@@ -10,7 +10,8 @@
 | Los textos y las imágenes de la portada son de EL CLIENTE (NSV-2026-001-v8.pdf:6:Cláusula III, inciso B; DD-117) y
 | entran aquí como contenido, sin programar (NSV-2026-001-v8.pdf:23:ANEXO A, Sección A.7). Mientras no lleguen, cada
 | uno va vacío y la portada muestra en su lugar un marcador de contenido de prueba, marcado como tal: nunca se
-| inventa un texto, una promesa, un precio ni una cifra. Los testimonios se editan en el panel (ADR-0011).
+| inventa un texto, una promesa, un precio ni una cifra. Los testimonios y los logos de prensa se editan en el panel
+| (ADR-0011).
 |
 | Los títulos de las secciones, los cuatro pasos y los títulos de los seis pilares son los del contrato y viven en la
 | vista. El nombre del producto es APP_NAME (config/app.php); el WhatsApp es el de config/soporte.php.
@@ -122,6 +123,15 @@ return [
      * (landing-E20; App\Landing\PreguntasFrecuentes).
      */
     'preguntas_frecuentes' => env('LANDING_PREGUNTAS_FRECUENTES'),
+
+    /*
+     * Sección 10, "Prensa / Reconocimientos": los logos de medios o menciones se editan en el panel, con su interruptor
+     * de activo y su orden (ADR-0011). Aquí va solo el texto que muestra la sección mientras no haya ningún logo activo,
+     * porque la sección no se oculta (landing-E18); lo decide EL CLIENTE, como los logos (DD-117).
+     */
+    'prensa' => [
+        'sin_logos' => env('LANDING_PRENSA_SIN_LOGOS'),
+    ],
 
     /*
      * Sección 11, "Contacto & Soporte": el correo de contacto, que confirma EL CLIENTE (DD-117). El número de WhatsApp

@@ -46,8 +46,8 @@ class FilaDeOperacionConPlazaTest extends TestCase
     public function test_plazas_e09_la_lista_de_tablas_sin_plaza_es_la_de_modelo_de_datos_y_la_de_plaza_opcional_tiene_cinco(): void
     {
         // Las del escenario: los catálogos, plazas, las de cuentas y las de la pasarela. Los tres del territorio los
-        // agregó la dirección asistida (openspec/changes/direcciones/design.md, tarea 4.1; C-238), y testimonios, la
-        // landing (openspec/changes/landing/design.md, tarea 4.0).
+        // agregó la dirección asistida (openspec/changes/direcciones/design.md, tarea 4.1; C-238), y testimonios y
+        // logos_prensa, la landing (openspec/changes/landing/design.md, tareas 4.0 y 4.0b).
         $this->assertEqualsCanonicalizing([
             'roles',
             'tipos_servicio',
@@ -66,6 +66,7 @@ class FilaDeOperacionConPlazaTest extends TestCase
             'metodos_pago_guardados',
             'movimientos_pasarela',
             'testimonios',
+            'logos_prensa',
         ], config('modelo.sin_plaza'));
 
         // comisiones entró con la comisión global, una para todas las plazas (administracion, Open Questions 4).
