@@ -95,7 +95,7 @@ Cita: A → `NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2`; D → ADR-0011
 - **CUANDO** se pide el mapa del sitio
 - **ENTONCES** responde un XML con la portada, el aviso de privacidad y los términos
 - **Y** cada dirección es absoluta y usa el dominio de la configuración
-- **Y** el archivo de robots declara la dirección del mapa del sitio
+- **Y**, con la configuración de producción, el archivo de robots declara la dirección del mapa del sitio
 
 #### Scenario: medicion-E09 — Search Console lee el mapa del sitio
 
@@ -105,6 +105,20 @@ Cita: A → `NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2`; D → ADR-0011
 - **Y** la captura, con fecha, queda en `vault/evidencias/medicion/`
 
 SIN RESPUESTA — bloquea: medicion-E09 (DD-023, DD-118)
+
+### Requirement: Solo producción se deja indexar
+
+La landing DEBE (MUST) pedir a los buscadores que no indexen ningún entorno que no sea producción.
+
+Cita: A → `NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.2`; D → adenda del 2026-11-24 de ADR-0012
+
+#### Scenario: medicion-E15 — Fuera de producción, el archivo de robots cierra el sitio
+
+- **DADO** el servidor con una configuración que no es la de producción
+- **CUANDO** un buscador pide el archivo de robots
+- **ENTONCES** responde `User-agent: *` y `Disallow: /`
+- **Y** con la configuración de producción responde el archivo de medicion-E08, que no cierra el sitio y declara el
+  mapa del sitio
 
 ### Requirement: Información estructurada del negocio y su zona
 
