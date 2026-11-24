@@ -1,11 +1,22 @@
-// El script de tokens (vault/arquitectura/adr/ADR-0013-adaptador-de-tokens.md): lee tokens.json y genera theme.ts.
-// No tiene escenario en una spec: lo pide la pregunta abierta 10 de openspec/changes/registro-e-inicio-de-sesion/design.md
-// (DD-090). Se prueba con tokens-de-prueba.json, que trae valores inventados y distintos en cada modo.
+// El script de tokens (vault/arquitectura/adr/ADR-0013-adaptador-de-tokens.md): lee tokens.json y genera theme.ts y
+// tokens.css. theme.ts no tiene escenario en una spec: lo pide la pregunta abierta 10 de
+// openspec/changes/registro-e-inicio-de-sesion/design.md (DD-090). tokens.css, las variables CSS de la portada, sirve a
+// landing-E01 y landing-E07 (openspec/changes/landing/). Se prueba con tokens-de-prueba.json, que trae valores
+// inventados y distintos en cada modo.
 //
 // El script se corre con node, como en la terminal y en la integración continua: dentro de Jest pasaría por Babel, que
 // le agrega dependencias que fuera de movil/ no existen.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -14,6 +25,7 @@ import ts from 'typescript';
 const RAIZ_DEL_REPOSITORIO = path.resolve(__dirname, '..', '..', '..');
 const SCRIPT = path.join(RAIZ_DEL_REPOSITORIO, 'herramientas', 'tokens', 'generar.js');
 const TOKENS_DE_PRUEBA = path.join(__dirname, 'tokens-de-prueba.json');
+const CSS_DEL_REPOSITORIO = path.join(RAIZ_DEL_REPOSITORIO, 'servidor', 'resources', 'css', 'tokens.css');
 
 let carpeta: string;
 
@@ -45,8 +57,10 @@ function cambiar(tokens: Record<string, unknown>, ruta: string[], valor: unknown
   return tokens;
 }
 
-function correr(origen: string, destino: string) {
-  return spawnSync(process.execPath, [SCRIPT, origen, destino], { encoding: 'utf8' });
+// Sin destinoCss, el script no escribe ningún CSS: nunca toca el tokens.css del repositorio.
+function correr(origen: string, destino: string, destinoCss?: string) {
+  const rutas = destinoCss === undefined ? [origen, destino] : [origen, destino, destinoCss];
+  return spawnSync(process.execPath, [SCRIPT, ...rutas], { encoding: 'utf8' });
 }
 
 // Escribe los tokens en una carpeta nueva, corre el script y devuelve lo que generó (null si no generó nada).
@@ -285,7 +299,7 @@ describe('ADR-0013: el script de tokens genera theme.ts', () => {
       expect(leer('herramientas/tokens/package.json').scripts?.generar).toBe('node generar.js');
     });
 
-    test('ADR-0013 — sin rutas, lee vault/design-system/tokens.json y escribe movil/src/tema/theme.ts', () => {
+    test('ADR-0013 — sin rutas, lee vault/design-system/tokens.json y escribe movil/src/tema/theme.ts y servidor/resources/css/tokens.css', () => {
       // Una copia del repositorio con solo el script y unos tokens de prueba, para no tocar los archivos reales.
       const copia = mkdtempSync(path.join(carpeta, 'repositorio-'));
       mkdirSync(path.join(copia, 'herramientas', 'tokens'), { recursive: true });
@@ -302,6 +316,126 @@ describe('ADR-0013: el script de tokens genera theme.ts', () => {
       expect(readFileSync(path.join(copia, 'movil', 'src', 'tema', 'theme.ts'), 'utf8')).toBe(
         generar(tokensDePrueba()).codigo,
       );
+      expect(readFileSync(path.join(copia, 'servidor', 'resources', 'css', 'tokens.css'), 'utf8')).toBe(
+        generarCss(tokensDePrueba()).css,
+      );
     });
+  });
+});
+
+// Escribe los tokens en una carpeta nueva, corre el script con las tres rutas y devuelve el CSS que generó (null si no
+// generó nada). El CSS va en una subcarpeta, para ver que el script la crea.
+function generarCss(tokens: unknown) {
+  const aqui = mkdtempSync(path.join(carpeta, 'css-'));
+  const origen = path.join(aqui, 'tokens.json');
+  const destinoCss = path.join(aqui, 'css', 'tokens.css');
+  writeFileSync(origen, JSON.stringify(tokens));
+  const corrida = correr(origen, path.join(aqui, 'theme.ts'), destinoCss);
+  return { ...corrida, css: existsSync(destinoCss) ? readFileSync(destinoCss, 'utf8') : null };
+}
+
+// Las líneas de un bloque `selector {` … `}` del CSS, sin sangría; null si el bloque no está.
+function bloque(css: string, selector: string): string[] | null {
+  const inicio = css.indexOf(`${selector} {\n`);
+  if (inicio === -1) {
+    return null;
+  }
+  const lineas = css.slice(inicio).split('\n').slice(1);
+  const fin = lineas.findIndex((linea) => /^\s*}$/.test(linea));
+  return lineas.slice(0, fin).map((linea) => linea.trim());
+}
+
+describe('ADR-0013: el script de tokens genera tokens.css, las variables CSS de la portada', () => {
+  test('landing-E01: el generador escribe en el destino dado las variables --ds-* de tokens-de-prueba.json, solo del modo claro', () => {
+    const corrida = generarCss(tokensDePrueba());
+    if (corrida.status !== 0 || corrida.css === null) {
+      throw new Error(`El script no generó tokens.css: ${corrida.stderr}`);
+    }
+    const { css } = corrida;
+    const encabezado = css.split('\n').slice(0, 8).join('\n');
+
+    expect(encabezado).toContain('ARCHIVO GENERADO: no se edita a mano.');
+    expect(encabezado).toContain('vault/design-system/tokens.json (versión 9.9.9, 2030-01-02)');
+    expect(encabezado).toContain('herramientas/tokens/generar.js (ADR-0013)');
+    expect(encabezado).toContain('Solo modo claro (C-141)');
+    expect(bloque(css, ':root')).toEqual([
+      '--ds-color-marca-primario: #112233;',
+      '--ds-color-marca-primario-oscuro: #445566;',
+      '--ds-color-neutro-0: #FFFFFF;',
+      '--ds-color-neutro-50: #F0F0F0;',
+      '--ds-color-neutro-1000: #000000;',
+      '--ds-color-estado-exito: #0A0A01;',
+      '--ds-color-estado-error: #0A0A03;',
+      '--ds-color-semantico-fondo: #FAFAFA;',
+      '--ds-color-semantico-texto: #101010;',
+      '--ds-color-pedido-confirmado: #0A0A02;',
+      '--ds-color-marca-extendida-hueso: #F1F2F3;',
+      '--ds-tipografia-familia-titulares: Fuente Uno, system-ui, sans-serif;',
+      "--ds-tipografia-familia-cuerpo: 'Fuente Dos', system-ui, sans-serif;",
+      '--ds-tipografia-escala-cuerpo: 1rem;',
+      '--ds-tipografia-escala-titulo: 1.5rem;',
+      '--ds-tipografia-peso-regular: 400;',
+      '--ds-tipografia-peso-fuerte: 700;',
+      '--ds-tipografia-interlineado-normal: 1.5;',
+      '--ds-tipografia-espaciado-letra-normal: 0;',
+      '--ds-tipografia-espaciado-letra-titular: -0.01em;',
+      '--ds-espaciado-0: 0;',
+      '--ds-espaciado-1: 4px;',
+      '--ds-radio-chico: 4px;',
+      '--ds-radio-pildora: 999px;',
+      '--ds-grosor-control: 2px;',
+      '--ds-grosor-foco: 5px;',
+      '--ds-alto-boton-principal: 60px;',
+      '--ds-elevacion-0: none;',
+      '--ds-elevacion-1: 0 1px 2px rgba(0,0,0,.08);',
+      '--ds-duracion-rapida: 120ms;',
+      '--ds-curva-estandar: cubic-bezier(.2,0,0,1);',
+      '--ds-accesibilidad-contraste-minimo-texto-normal: 4.5;',
+      '--ds-accesibilidad-contraste-minimo-texto-grande: 3;',
+      '--ds-accesibilidad-contraste-minimo-componente: 3;',
+      '--ds-accesibilidad-texto-grande-desde-px: 18.66px;',
+      '--ds-accesibilidad-area-tactil-minima-dp: 48px;',
+      '--ds-accesibilidad-area-tactil-minima-pt-ios: 44px;',
+      '--ds-accesibilidad-separacion-minima-entre-objetivos-dp: 8px;',
+    ]);
+    for (const oscuro of ['#0C0C0C', '#EFEFEF', '#0B0B01', '#0B0B02', '#0B0B03']) {
+      expect(css).not.toContain(oscuro);
+    }
+    // Ni el nombre de $meta ni los comentarios, que pueden traer la marca.
+    for (const documentacion of ['MarcaFicticia', 'Comentario de prueba', 'Nota de prueba', 'Texto de la fuente']) {
+      expect(css).not.toContain(documentacion);
+    }
+    expect(css).not.toContain('Uso de prueba');
+    expect(generarCss(tokensDePrueba()).css).toBe(css);
+  });
+
+  test('landing-E07: el CSS generado deja en 0 las duraciones con movimiento reducido', () => {
+    const { css } = generarCss(cambiar(tokensDePrueba(), ['duracion', 'lenta'], 320));
+    if (css === null) {
+      throw new Error('El script no generó tokens.css');
+    }
+    const reducido = css.slice(css.indexOf('@media (prefers-reduced-motion: reduce) {'));
+
+    expect(bloque(css, ':root')).toEqual(
+      expect.arrayContaining(['--ds-duracion-rapida: 120ms;', '--ds-duracion-lenta: 320ms;']),
+    );
+    expect(reducido).toMatch(/^@media \(prefers-reduced-motion: reduce\) \{\n {4}:root \{\n/);
+    expect(bloque(reducido, '    :root')).toEqual(['--ds-duracion-rapida: 0ms;', '--ds-duracion-lenta: 0ms;']);
+  });
+
+  test('ADR-0013 — con origen y destino de theme.ts, sin destino CSS, no escribe ningún CSS', () => {
+    const aqui = mkdtempSync(path.join(carpeta, 'sin-css-'));
+    const origen = path.join(aqui, 'tokens.json');
+    writeFileSync(origen, readFileSync(TOKENS_DE_PRUEBA));
+    const contenidoAntes = readFileSync(CSS_DEL_REPOSITORIO, 'utf8');
+    const modificadoAntes = statSync(CSS_DEL_REPOSITORIO).mtimeMs;
+
+    const corrida = correr(origen, path.join(aqui, 'theme.ts'));
+
+    expect(corrida.status).toBe(0);
+    expect(corrida.stdout).not.toContain('tokens.css');
+    expect(readdirSync(aqui, { recursive: true }).sort()).toEqual(['theme.ts', 'tokens.json']);
+    expect(readFileSync(CSS_DEL_REPOSITORIO, 'utf8')).toBe(contenidoAntes);
+    expect(statSync(CSS_DEL_REPOSITORIO).mtimeMs).toBe(modificadoAntes);
   });
 });
