@@ -286,8 +286,9 @@ Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cam
   - **Resuelta en la implementación de la app, por delegación (C-236):** sin pantalla propia, con la petición del
     sistema al abrirse la sesión del usuario que nunca respondió ("Decisiones de la implementación de la app", punto 6).
 - **Quién escribe y aprueba los textos de los avisos** (BR-24): DD-106.
-  - **Quién escribe, resuelto por el concilio del 2026-11-24, por delegación de Arthur (C-245; decisión 43 del acta del
-    2026-11-20):** EL PRESTADOR, con la guía de tono de voz, que es su entregable (`NSV-2026-001-v8.pdf:14:ANEXO A,
-    Sección A.1`; `vault/marca/entregables/guia-de-tono-de-voz.html`, "Ejemplos por público"). Los cuatro textos quedan
-    como propuesta en `servidor/config/avisos.php` ("Decisiones de la implementación del servidor", punto 4).
+  - **Quién escribe, resuelto por el concilio del 2026-11-24, por delegación de Arthur (C-245;
+    `acta-2026-11-20-modelo-y-pasarela.md`, decisión 43):** EL PRESTADOR, con la guía de tono de voz, que es su
+    entregable (`NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1`; `vault/marca/entregables/guia-de-tono-de-voz.html`,
+    "Ejemplos por público"). Los cuatro textos quedan como propuesta en `servidor/config/avisos.php` ("Decisiones de la
+    implementación del servidor", punto 4).
   - **Quién aprueba: Nadir, y sigue en DD-106.** Detiene solo acreditar A43-5 con los textos finales.

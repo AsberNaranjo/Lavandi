@@ -36,8 +36,8 @@ use Illuminate\Support\Str;
  *       "estado": {
  *         "codigo": "confirmado",                     el paso del seguimiento en que el usuario ve el estado actual:
  *                                                     con la lavandería en "aceptado" sale "confirmado", y en
- *                                                     "en_entrega", "listo" (ADR-0021 y su adenda propuesta). Fuera
- *                                                     del flujo, el código del estado: "por_pagar" o "rechazado"
+ *                                                     "en_entrega", "listo" (ADR-0021 y su adenda del 2026-11-22).
+ *                                                     Fuera del flujo, el código del estado: "por_pagar" o "rechazado"
  *         "nombre": "Confirmado",                     el nombre para el usuario
  *         "visible_usuario": true                     false fuera del flujo, como en el estado previo al pago (DD-123)
  *                                                     o en "rechazado" (estados-E19 espera DD-103): la app no lo nombra

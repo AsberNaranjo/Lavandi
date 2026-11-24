@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-29 (A); brecha-ejecutivo-tecnico.md BR-42 (B); presupuesto-de-mapas.md (D); verificaciones-fase-6.md, filas 6, 6b, 8a, 8b y sección del 2026-11-12 (E); ADR-0002, ADR-0003 y ADR-0004 (D); adenda del 2026-11-24: concilio del 2026-11-24, por delegación de C-236 y C-245 (C); DD-139 (B); developers.google.com/maps/documentation/geocoding/policies, consultada el 2026-11-23 (E, SIN VERIFICAR contra los términos firmados); developers.google.com/maps/documentation/places/web-service/place-id, consultada el 2026-11-24 (E, SIN VERIFICAR); NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.5 (A)
+fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-29 (A); brecha-ejecutivo-tecnico.md BR-42 (B); presupuesto-de-mapas.md (D); verificaciones-fase-6.md, filas 6, 6b, 8a, 8b y sección del 2026-11-12 (E); ADR-0002, ADR-0003 y ADR-0004 (D); adenda del 2026-11-24: acta-2026-11-20-modelo-y-pasarela.md, decisión 40, del concilio del 2026-11-24, por delegación de C-236 y C-245 (C); DD-139 (B); developers.google.com/maps/documentation/geocoding/policies, consultada el 2026-11-23 (E, SIN VERIFICAR contra los términos firmados); developers.google.com/maps/documentation/places/web-service/place-id, consultada el 2026-11-24 (E, SIN VERIFICAR); NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.5 (A)
 fecha: 2026-11-13
 dueño: Arthur Naranjo
 adr: ADR-0009
@@ -221,8 +221,8 @@ SIN RESPUESTA — bloquea: la tarea 3.5 (DD-139).
 | (a) Volver a geocodificar por texto a los 30 días | Repite la búsqueda por texto, que puede dar otro punto que el guardado. El motivo es de quien asentó la adenda: el registro del concilio no lo trae. Que el place ID dé el mismo lugar es grado E, `SIN VERIFICAR`: Google dice que un place ID puede cambiar con el tiempo y que uno obsoleto responde `NOT_FOUND` (`https://developers.google.com/maps/documentation/places/web-service/place-id`, consultada el 2026-11-24) |
 | (c) Que el punto guardado sea el que confirma la persona en el mapa | Agrega un paso a direcciones-E01, y que ese punto quede fuera de la condición de Google es dudoso (grado E) |
 
-**Quién la decidió.** La decidió el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245). Siguen
-abiertos la verificación de los términos firmados, el trato de las copias del punto y lo que la decisión no dice
-(DD-139).
+**Quién la decidió.** La decidió el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245), en la
+decisión 40 de `acta-2026-11-20-modelo-y-pasarela.md`. Siguen abiertos la verificación de los términos firmados, el
+trato de las copias del punto y lo que la decisión no dice (DD-139).
 
 **Trazabilidad.** direcciones-E07 y E24; DD-139.

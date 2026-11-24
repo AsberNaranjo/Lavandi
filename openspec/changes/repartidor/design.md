@@ -35,7 +35,7 @@
 ## Decisions
 
 No hay decisión técnica nueva. Cinco lecturas que fijan los escenarios, confirmadas por el concilio del 2026-11-24, por
-delegación de Arthur (C-245):
+delegación de Arthur (C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 53):
 
 1. **"Alta" es autorizar un registro pendiente.** El repartidor se registra en el Módulo C (#1), y "El alta, validación
    y autorización del repartidor corresponden a EL CLIENTE" (`NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3`, Módulo
@@ -313,9 +313,9 @@ El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/
 
 Propuesta por Claude por delegación de Arthur (C-236), con la tarea 1.5. **Quedó asentada en ADR-0021 el 2026-11-24**
 ("Adenda del 2026-11-24: las transiciones del repartidor"), por el concilio del 2026-11-24, por delegación de Arthur
-(C-236, C-245). Completa lo que la adenda del 2026-11-22 dejó abierto ("Desde dónde marca el repartidor su Recolectado
-lo fija `repartidor`"). Lo que esperan DD-022 (entregar sin repartidor), DD-140 (uno o dos viajes), DD-014 (asignación)
-y DD-016 (cancelación) **no** se decide aquí.
+(C-236, C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 52). Completa lo que la adenda del 2026-11-22 dejó
+abierto ("Desde dónde marca el repartidor su Recolectado lo fija `repartidor`"). Lo que esperan DD-022 (entregar sin
+repartidor), DD-140 (uno o dos viajes), DD-014 (asignación) y DD-016 (cancelación) **no** se decide aquí.
 
 1. **Las transiciones del repartidor,** en la tabla `DEL_REPARTIDOR` de `App\Pedidos\CambioDeEstado` (ADR-0021,
    decisión 4):
@@ -685,7 +685,8 @@ Con el servidor sembrado como dice "Cómo se prueba en local", la app apuntando 
 ## Open Questions
 
 - **Las cinco lecturas de Decisions: resueltas.** Las confirmó el concilio del 2026-11-24, por delegación de Arthur
-  (C-236, C-245). Cómo llega cada rol a su registro sigue en DD-053, de Nadir.
+  (C-236, C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 53). Cómo llega cada rol a su registro sigue en
+  DD-053, de Nadir.
 - **Dónde se asigna el repartidor** (DD-014). Si es en el panel, es una acción nueva del Módulo D, que no la lista. Si
   es la lavandería desde su módulo, es una acción nueva del Módulo B. Las dos necesitan su cita al cerrarse DD-014.
 - **BR-29 es DD-110.**

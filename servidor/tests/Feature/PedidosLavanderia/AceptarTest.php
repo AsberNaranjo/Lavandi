@@ -25,8 +25,7 @@ use Tests\TestCase;
  *
  * Aceptar pasa el pedido al estado aceptado y agrega su evento, con la hora y la cuenta de la lavandería, en la misma
  * transacción (ADR-0016, segunda excepción; design.md, "Tablas y migración"). El usuario lo sigue viendo en Confirmado
- * (adenda propuesta a ADR-0021 en el design.md de pedidos-de-la-lavanderia). El pedido se confirma como lo confirmará
- * el cobro (C-188).
+ * (adenda del 2026-11-22 de ADR-0021, punto 1). El pedido se confirma como lo confirmará el cobro (C-188).
  *
  * Escenarios: pedidos-lavanderia-E07 y pedidos-lavanderia-E08 · Spec:
  * openspec/changes/pedidos-de-la-lavanderia/specs/pedidos-lavanderia/spec.md · Tarea 1.2

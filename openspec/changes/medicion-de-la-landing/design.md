@@ -155,9 +155,9 @@ ningún evento de medición se guarda en la base.
    el contenedor de EL CLIENTE. Mientras tanto, el plan de eventos de arriba dice qué etiquetas lleva.
 3. **¿El entorno de prueba pide a los buscadores que no lo indexen?** No lo dicen el contrato ni ADR-0012. **Necesita
    decisión de Arthur, en ADR-0012.** *Resuelta el 2026-11-24 con la adenda de ADR-0012, que asentó el concilio por
-   delegación de Arthur Naranjo (C-236, C-245):* sí, y como regla por entorno: todo entorno que no sea producción
-   responde `Disallow: /` en el archivo de robots (medicion-E15, tarea 2.3). La comprobación en el entorno de prueba
-   real espera a que exista (DD-070).
+   delegación de Arthur Naranjo (C-236, C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 65):* sí, y como regla
+   por entorno: todo entorno que no sea producción responde `Disallow: /` en el archivo de robots (medicion-E15, tarea
+   2.3). La comprobación en el entorno de prueba real espera a que exista (DD-070).
 4. **Dónde corre Lighthouse CI:** un trabajo más en `.github/workflows/ci.yml`, con la portada levantada en la máquina
    de la integración continua. Versiones por confirmar (E). *Resuelta el 2026-11-22, por delegación de Arthur (C-236):*
    el trabajo `landing-velocidad`, con `@lhci/cli@0.15.1` (ver "Cómo quedó implementado").

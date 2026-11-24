@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; brecha-ejecutivo-tecnico.md BR-09 y BR-29 (B); restricciones-no-negociables.md RN-22 (A); verificaciones-fase-6.md, sección del 2026-11-12 (E); ADR-0003 (D); DD-070 (B); adenda del 2026-11-24: concilio del 2026-11-24, por delegación de Arthur (C-236, C-245) (C); NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2, NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3 y NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.4 (A); servidor/config/fotos.php:24 (B); ADR-0011, ADR-0012 y ADR-0016 (D)
+fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; brecha-ejecutivo-tecnico.md BR-09 y BR-29 (B); restricciones-no-negociables.md RN-22 (A); verificaciones-fase-6.md, sección del 2026-11-12 (E); ADR-0003 (D); DD-070 (B); adenda del 2026-11-24: acta-2026-11-20-modelo-y-pasarela.md, decisiones 49 y 63, del concilio del 2026-11-24, por delegación de Arthur (C-236, C-245) (C); NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2, NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3 y NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.4 (A); servidor/config/fotos.php:24 (B); ADR-0011, ADR-0012 y ADR-0016 (D)
 fecha: 2026-11-13
 dueño: Arthur Naranjo
 adr: ADR-0006
@@ -108,6 +108,7 @@ Bajo. Se copian los objetos al otro bucket y se cambia la configuración.
    - **Solo aplica a los logos de prensa.** Las fotos de las lavanderías, las de perfil y las evidencias siguen solo
      con URL firmada para la app y el panel.
 
-**La asentó** el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245).
+**La asentó** el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245), en las decisiones 49 (el
+disco de cada entorno) y 63 (los logos de prensa) de `acta-2026-11-20-modelo-y-pasarela.md`.
 
 **Trazabilidad:** perfil-lavanderia-E03 y E04; landing-E17; DD-070.

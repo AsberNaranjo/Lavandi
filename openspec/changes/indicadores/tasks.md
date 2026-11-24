@@ -51,7 +51,7 @@ M = 5 h.
 ## Horas
 
 - **Este archivo:** 54 h sin bloqueo y 14 h bloqueadas, 68 h en total. La 6.4 (S) es nueva: indicadores-E24, de la
-  pregunta 8 que resolvió el concilio del 2026-11-24 (C-245).
+  pregunta 8 que resolvió el concilio del 2026-11-24 (C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 60).
 - **Contra la versión anterior (66 h; 52 sin bloqueo y 14 bloqueadas):** 2 h más, de la zona horaria de lo que no
   tiene plaza (6.4, S).
 - **Contra el plan:** el plan de sprints le da 57 h (F-I01 a F-I11). La diferencia pasa de 9 h a 11 h.

@@ -313,34 +313,35 @@ los archivos de un `POST`. La dirección nueva se geocodifica una vez; la misma 
 
 1. **La compresión de la foto.** ADR-0006 deja a la spec el tamaño y la calidad, y no hay dato para fijarlos. Se
    construye con parámetros de configuración; los valores los decide Arthur. **Resuelta el 2026-11-24** (concilio del
-   2026-11-24, por delegación de Arthur (C-236, C-245)): se ratifican los valores de configuración, el lado mayor de
-   1600 px y la calidad de 0.7 en la app (`movil/src/configuracion/fotos.ts`) y el peso máximo de 5120 KB en el
-   servidor (`servidor/config/fotos.php`). Se miden en el Android de Arthur (C-243) sin bloquear nada: medir solo puede
-   mover un número de la configuración.
+   2026-11-24, por delegación de Arthur (C-236, C-245); `acta-2026-11-20-modelo-y-pasarela.md`, decisión 47): se
+   ratifican los valores de configuración, el lado mayor de 1600 px y la calidad de 0.7 en la app
+   (`movil/src/configuracion/fotos.ts`) y el peso máximo de 5120 KB en el servidor (`servidor/config/fotos.php`). Se
+   miden en el Android de Arthur (C-243) sin bloquear nada: medir solo puede mover un número de la configuración.
 2. **La librería que toma, elige y comprime la foto** en la app no la nombra ningún ADR. ¿Arthur la considera una
    decisión que necesita ADR? **Resuelta el 2026-11-24** (concilio del 2026-11-24, por delegación de Arthur (C-236,
-   C-245)): sin ADR propio. `expo-image-picker` y `expo-image-manipulator` son módulos del SDK de Expo, que fija
-   ADR-0002.
+   C-245); `acta-2026-11-20-modelo-y-pasarela.md`, decisión 47): sin ADR propio. `expo-image-picker` y
+   `expo-image-manipulator` son módulos del SDK de Expo, que fija ADR-0002.
 3. **La descripción y las fotos del perfil.** El perfil que ve el usuario muestra "Fotos, descripción, servicios,
    precios por kilo, calificación y reseñas" (`NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #5`), pero el
    registro pide una "foto" y ninguna descripción (`:17:Módulo B #1`). ¿Entran por "Edición de información de la
    lavandería" (`:17:Módulo B #6`) o por la "edición de socios" del panel (`:19:Módulo D #1`)? Hay que acordarlo con
    `perfil-de-lavanderia`. El modelo ya tiene `lavanderias.descripcion` y `lavanderias.telefono`, opcionales, y
    `lavanderia_fotos` admite varias fotos; el registro no los pide y este cambio no agrega ningún campo al formulario.
-   **Decidida el 2026-11-24** (concilio del 2026-11-24, por delegación de Arthur (C-236, C-245)): la
-   descripción, opcional, y las fotos las captura la propia lavandería en Perfil y horarios ("Edición de información de
-   la lavandería", `:17:Módulo B #6`), y el panel las hereda porque usa las mismas reglas (`:19:Módulo D #1`). El
-   registro sigue pidiendo una sola foto (`:17:Módulo B #1`). No necesita migración: `lavanderias.descripcion` y
-   `lavanderia_fotos.orden` ya existen. Sus escenarios, de alta-lavanderias-E26 en adelante, fijan cómo se agregan, se
-   quitan y se ordenan las fotos y cuál es el máximo; se escriben antes que su código, y los dos quedan pendientes.
+   **Decidida el 2026-11-24** (concilio del 2026-11-24, por delegación de Arthur (C-236, C-245);
+   `acta-2026-11-20-modelo-y-pasarela.md`, decisión 44): la descripción, opcional, y las fotos las captura la propia
+   lavandería en Perfil y horarios ("Edición de información de la lavandería", `:17:Módulo B #6`), y el panel las
+   hereda porque usa las mismas reglas (`:19:Módulo D #1`). El registro sigue pidiendo una sola foto
+   (`:17:Módulo B #1`). No necesita migración: `lavanderias.descripcion` y `lavanderia_fotos.orden` ya existen. Sus
+   escenarios, de alta-lavanderias-E26 en adelante, fijan cómo se agregan, se quitan y se ordenan las fotos y cuál es
+   el máximo; se escriben antes que su código, y los dos quedan pendientes.
 4. **Las pantallas no tienen componente en el design system.** El registro y el perfil y horarios del Módulo B no
    están entre los seis componentes (`vault/design-system/componentes.md`); las imágenes `b01-registro` y `b06-perfil`
    de la Propuesta 04 orientan. La Definition of Ready pide el componente o una tarea para crearlo.
 5. **El cambio de dirección a otra plaza.** Si una lavandería edita su dirección y cae en otra plaza, ¿cambia de plaza
    sin más, o eso se hace desde el panel? El contrato no lo dice. **Resuelta el 2026-11-24** (concilio del 2026-11-24,
-   por delegación de Arthur (C-236, C-245)): no cambia de plaza. La edición se rechaza con el motivo
-   `en_otra_plaza`, desde la app y desde el panel (alta-lavanderias-E25), y una lavandería que se muda de plaza se da
-   de baja y se registra con otra cuenta.
+   por delegación de Arthur (C-236, C-245); `acta-2026-11-20-modelo-y-pasarela.md`, decisión 45): no cambia de plaza.
+   La edición se rechaza con el motivo `en_otra_plaza`, desde la app y desde el panel (alta-lavanderias-E25), y una
+   lavandería que se muda de plaza se da de baja y se registra con otra cuenta.
 6. **Lo que pasa con los pedidos en curso** de una lavandería suspendida o dada de baja, y lo que ve en su app mientras
    está suspendida (E16). Es DD-104.
 7. **El cupo por ventana** (BR-17, E23). Es DD-099. Cuando responda, entra como columna de `lavanderia_horarios`
@@ -353,10 +354,11 @@ los archivos de un `POST`. La dirección nueva se geocodifica una vez; la misma 
 10. **La baja usa `estado = 'baja'` y no `deleted_at`.** El modelo tiene las dos cosas en `lavanderias` y no dice cuál
     usa la baja del Módulo D #1. Con el borrado suave de Eloquent, una lavandería dada de baja desaparecería del panel y
     de las relaciones de sus pedidos. ¿Arthur confirma la lectura, y para qué queda `deleted_at` en esta tabla?
-    **Resuelta el 2026-11-24** (concilio del 2026-11-24, por delegación de Arthur (C-236, C-245)): la baja es
-    `estado = 'baja'` sin borrado suave, y no cambia código (alta-lavanderias-E17). `deleted_at` queda sin uso en
-    `lavanderias` y no se quita (ADR-0016, regla 9: las migraciones van solo hacia adelante). Queda una asimetría con
-    el repartidor, cuya baja sí llena `deleted_at` (`servidor/app/Repartidores/EstadoDelRepartidor.php:88-90`).
+    **Resuelta el 2026-11-24** (concilio del 2026-11-24, por delegación de Arthur (C-236, C-245);
+    `acta-2026-11-20-modelo-y-pasarela.md`, decisión 46): la baja es `estado = 'baja'` sin borrado suave, y no cambia
+    código (alta-lavanderias-E17). `deleted_at` queda sin uso en `lavanderias` y no se quita (ADR-0016, regla 9: las
+    migraciones van solo hacia adelante). Queda una asimetría con el repartidor, cuya baja sí llena `deleted_at`
+    (`servidor/app/Repartidores/EstadoDelRepartidor.php:88-90`).
 11. **Horario y ventanas en `lavanderia_horarios`.** Dos choques con la lectura de "una fila, una ventana de una hora":
     - `agenda-de-recoleccion` lee el horario como un tramo que parte en ventanas de una hora. Con filas de una hora las
       dos lecturas dan las mismas ventanas; pero si `perfil-de-lavanderia` siembra tramos largos (9:00 a 18:00), la

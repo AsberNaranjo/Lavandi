@@ -183,7 +183,8 @@ class MapaYFavoritasTest extends TestCase
         $this->comoCuenta($cuenta)
             ->postJson(self::DIRECCIONES, $this->direccionEscrita(['es_favorita' => true, 'alias' => 'Casa']))
             ->assertCreated();
-        // Una sola consulta en su vida: al guardarla.
+        // Una sola consulta, al guardarla: dentro de 30 días se usa el punto guardado (direcciones-E07; adenda del
+        // 2026-11-24 de ADR-0009).
         $this->assertCount(1, $geocodificacion->consultas);
 
         foreach ([1, 2, 3] as $pedido) {

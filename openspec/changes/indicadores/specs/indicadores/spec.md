@@ -249,7 +249,7 @@ Acreditar A43-7 en el entorno de prueba o en producción necesita lavanderías r
 
 Lo que no tiene plaza, como el hoy del panel, el mes de registro de una cuenta, el día de `actividad_usuarios` y el día de un movimiento de la pasarela sin pedido, DEBE (MUST) leerse en la zona horaria de referencia de la configuración, nunca en UTC.
 
-Cita: A → `NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5` (por día, por semana y por mes); A → `NSV-2026-001-v8.pdf:46:ANEXO D, Sección D.5`; C → C-245 (decisión 60 del acta del 2026-11-20, concilio del 2026-11-24); `design.md`, pregunta 8
+Cita: A → `NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5` (por día, por semana y por mes); A → `NSV-2026-001-v8.pdf:46:ANEXO D, Sección D.5`; C → C-245 (`acta-2026-11-20-modelo-y-pasarela.md`, decisión 60, concilio del 2026-11-24); `design.md`, pregunta 8
 
 #### Scenario: indicadores-E24 — Lo que no tiene plaza se lee en la zona de referencia
 

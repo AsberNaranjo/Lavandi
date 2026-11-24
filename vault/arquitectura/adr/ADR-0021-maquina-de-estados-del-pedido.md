@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-20-modelo-y-pasarela.md C-236 (C) y decisión 26; DD-123; C-188 (C); openspec/changes/estados-del-pedido/design.md (B); NSV-2026-001-v8.pdf:17-18:ANEXO A, Sección A.3 (A); adenda del 2026-11-24: concilio del 2026-11-24, por delegación de Arthur (C-236, C-245) (C), openspec/changes/repartidor/design.md y servidor/tests/Feature/Repartidor/EstadosDelRepartidorTest.php (B), NSV-2026-001-v8.pdf:17-18:ANEXO A, Sección A.3, Módulo B #2 y Módulo C #3 (A)
+fuente: acta-2026-11-20-modelo-y-pasarela.md C-236 (C) y decisión 26; DD-123; C-188 (C); openspec/changes/estados-del-pedido/design.md (B); NSV-2026-001-v8.pdf:17-18:ANEXO A, Sección A.3 (A); adenda del 2026-11-24: acta-2026-11-20-modelo-y-pasarela.md, decisión 52, del concilio del 2026-11-24, por delegación de Arthur (C-236, C-245) (C), openspec/changes/repartidor/design.md y servidor/tests/Feature/Repartidor/EstadosDelRepartidorTest.php (B), NSV-2026-001-v8.pdf:17-18:ANEXO A, Sección A.3, Módulo B #2 y Módulo C #3 (A)
 fecha: 2026-11-21
 dueño: Arthur Naranjo
 adr: ADR-0021
@@ -178,4 +178,5 @@ se decide aquí.
 - la misma regla que la adenda del 2026-11-22 (decisión 30 del acta del 2026-11-20);
 - repartidor-E19 a E21 en verde en `servidor/tests/Feature/Repartidor/EstadosDelRepartidorTest.php`.
 
-La asentó el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245).
+La asentó el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245), en la decisión 52 de
+`acta-2026-11-20-modelo-y-pasarela.md`.

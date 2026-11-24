@@ -98,7 +98,7 @@ class PedidoResource extends JsonResource
      * El estado actual como lo ve el usuario: el paso del seguimiento en que lo ve, con el nombre del estado. Un estado
      * operativo que se ve como uno de los cinco, como aceptado, sale con el código de ese paso, para que la app lo
      * ubique en el seguimiento; uno fuera del flujo, como por_pagar, sale con su código y visible_usuario falso (adenda
-     * propuesta a ADR-0021, en openspec/changes/pedidos-de-la-lavanderia/design.md). Espera cargado estado.paso.
+     * del 2026-11-22 de ADR-0021, punto 4). Espera cargado estado.paso.
      *
      * @return array{codigo: string, nombre: string, visible_usuario: bool}
      */

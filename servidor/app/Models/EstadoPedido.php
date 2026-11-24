@@ -17,8 +17,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  *
  * visible_usuario dice si el estado es uno de los cinco pasos del seguimiento. Un estado operativo que el usuario ve
  * como uno de ellos, como aceptado, lleva visible_usuario falso y el nombre y el orden de ese paso: el usuario ve el
- * paso (paso()). Uno sin paso de su orden, como por_pagar, está fuera del flujo (adenda propuesta a ADR-0021, en
- * openspec/changes/pedidos-de-la-lavanderia/design.md).
+ * paso (paso()). Uno sin paso de su orden, como por_pagar, está fuera del flujo (adenda del 2026-11-22 de ADR-0021,
+ * punto 4).
  */
 class EstadoPedido extends Modelo
 {

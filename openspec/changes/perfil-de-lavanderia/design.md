@@ -115,7 +115,8 @@ llevan `id_plazas`, no nula y con llave foránea a `plazas` (plazas-E09).
 - **DD-098: varios servicios en un pedido.** ¿Un pedido lleva un solo tipo o puede combinar varios? El mock A06
   deja elegir más de uno, sin fila. Sin respuesta, la app deja elegir uno.
 - **El orden y la cantidad de reseñas en pantalla: resuelta** el 2026-11-24 (concilio del 2026-11-24, por delegación
-  de Arthur, C-236 y C-245). La API entrega todas, de la más reciente a la más antigua, sin paginar (tarea 1.2;
+  de Arthur, C-236 y C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 48). La API entrega todas, de la más
+  reciente a la más antigua, sin paginar (tarea 1.2;
   `servidor/app/Http/Controllers/Api/PerfilDeLavanderiaController.php:77-79`;
   `servidor/tests/Feature/PerfilLavanderia/PerfilTest.php:86`, perfil-lavanderia-E01). La pantalla muestra las tres
   más recientes, y "Ver todas las reseñas" despliega las demás en la misma pantalla (DD-135, punto 3; decisión 25 de
@@ -123,15 +124,16 @@ llevan `id_plazas`, no nula y con llave foránea a `plazas` (plazas-E09).
   todas llegan y todas se ven, sin paginación. Se revisa solo si el volumen lo pide. El A #5 pide "reseñas" sin
   cantidad (`NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #5`).
 - **El almacenamiento en local: resuelta** por `alta-de-lavanderias` (`design.md`, "La foto") y **asentada en la adenda
-  del 2026-11-24 de ADR-0006** (concilio del 2026-11-24, por delegación de Arthur, C-236 y C-245): el disco local
-  privado de Laravel, `fotos_local`, con URLs firmadas, solo en la máquina local y en las pruebas automáticas; la tarea
-  2.1 lo reusa. El entorno de prueba en internet y producción usan `fotos_s3`, con un bucket privado por entorno; el
-  valor por omisión de `servidor/config/fotos.php` cambia cuando exista el bucket del entorno de prueba (DD-070). El
-  disco `fotos_s3` necesita la librería `league/flysystem-aws-s3-v3`, que no está instalada: se instala cuando se
-  decida el hosting (DD-070).
+  del 2026-11-24 de ADR-0006** (concilio del 2026-11-24, por delegación de Arthur, C-236 y C-245;
+  `acta-2026-11-20-modelo-y-pasarela.md`, decisión 49): el disco local privado de Laravel, `fotos_local`, con URLs
+  firmadas, solo en la máquina local y en las pruebas automáticas; la tarea 2.1 lo reusa. El entorno de prueba en
+  internet y producción usan `fotos_s3`, con un bucket privado por entorno; el valor por omisión de
+  `servidor/config/fotos.php` cambia cuando exista el bucket del entorno de prueba (DD-070). El disco `fotos_s3`
+  necesita la librería `league/flysystem-aws-s3-v3`, que no está instalada: se instala cuando se decida el hosting
+  (DD-070).
 - **El vencimiento de las URLs: resuelta** el 2026-11-24 (concilio del 2026-11-24, por delegación de Arthur, C-236 y
-  C-245). Se ratifican los 60 minutos de `FOTOS_VIGENCIA_MINUTOS` (`servidor/config/fotos.php`), un valor técnico de
-  la configuración.
+  C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 47). Se ratifican los 60 minutos de
+  `FOTOS_VIGENCIA_MINUTOS` (`servidor/config/fotos.php`), un valor técnico de la configuración.
 - **Pregunta de diseño:** el design system no tiene componente para la galería de fotos, la lista de reseñas ni la
   selección de servicio. La tarea los crea con los tokens, o se agregan antes a `vault/design-system/componentes.md`.
 

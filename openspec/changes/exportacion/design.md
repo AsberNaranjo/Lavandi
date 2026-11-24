@@ -32,7 +32,8 @@ No hay decisión técnica nueva. Se aplica el ADR-0003:
 - **La protección contra fórmulas** se activa en la escritura del CSV y del XLSX, solo en las celdas de texto.
 
 **Lecturas del contrato que hizo el especificador,** confirmadas por el concilio del 2026-11-24, por delegación de
-Arthur (C-245), 3 de 3. Cada una dice su respaldo en el contrato y las pruebas que la sostienen:
+Arthur (C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 61), 3 de 3. Cada una dice su respaldo en el contrato
+y las pruebas que la sostienen:
 
 1. **"Reportes"** son los 11 indicadores del A.5 y los tres reportes financieros del Módulo D #6: las 11 filas del A.5
    (`NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5`) más "Ingresos por periodo, comisiones y conciliación con Conekta"

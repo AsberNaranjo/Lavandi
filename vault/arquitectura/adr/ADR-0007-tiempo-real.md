@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-05 (A); brecha-ejecutivo-tecnico.md BR-23 (B); c2-contenedores.md (B); verificaciones-fase-6.md, sección del 2026-11-12 (E); ADR-0002 y ADR-0003 (D); adenda del 2026-11-22: acta-2026-11-20-modelo-y-pasarela.md, decisión 33, por delegación de C-236 (C); NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.4 (A); adenda del 2026-11-24: concilio del 2026-11-24, por delegación de Arthur (C-236, C-245) (C); NSV-2026-001-v8.pdf:17-18:ANEXO A, Sección A.3 (A); obligaciones-ejecutivas.md O-14 y O-15 (A); movil/src/estados/useConsultaPeriodica.ts (B); movil/__tests__/pedidos-lavanderia/consulta-periodica.test.tsx y movil/__tests__/repartidor/pedidos-asignados.test.tsx (B)
+fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-05 (A); brecha-ejecutivo-tecnico.md BR-23 (B); c2-contenedores.md (B); verificaciones-fase-6.md, sección del 2026-11-12 (E); ADR-0002 y ADR-0003 (D); adenda del 2026-11-22: acta-2026-11-20-modelo-y-pasarela.md, decisión 33, por delegación de C-236 (C); NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.4 (A); adenda del 2026-11-24: acta-2026-11-20-modelo-y-pasarela.md, decisión 50, del concilio del 2026-11-24, por delegación de Arthur (C-236, C-245) (C); NSV-2026-001-v8.pdf:17-18:ANEXO A, Sección A.3 (A); obligaciones-ejecutivas.md O-14 y O-15 (A); movil/src/estados/useConsultaPeriodica.ts (B); movil/__tests__/pedidos-lavanderia/consulta-periodica.test.tsx y movil/__tests__/repartidor/pedidos-asignados.test.tsx (B)
 fecha: 2026-11-13
 dueño: Arthur Naranjo
 adr: ADR-0007
@@ -133,4 +133,5 @@ Cierra DD-116 y la parte de latencia de BR-33. De BR-33 siguen abiertos los umbr
 **Trazabilidad.** Obligaciones: O-14 y O-15. Escenarios: pedidos-lavanderia-E05 y E06; repartidor-E10 y E11. Cierra
 la pregunta 2 de `openspec/changes/pedidos-de-la-lavanderia/design.md`.
 
-**La asentó** el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245).
+**La asentó** el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245), en la decisión 50 de
+`acta-2026-11-20-modelo-y-pasarela.md`.

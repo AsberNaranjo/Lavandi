@@ -6,9 +6,10 @@
 // que llega a él con las dos direcciones. El resumen pide el pedido completo, así que el de la prueba lleva la ventana
 // que deja el paso de fecha y hora.
 //
-// Elegir una favorita no geocodifica: el servidor usa el punto guardado (direcciones-E07, tarea 1.3). Que la dirección
-// quede copiada en el pedido se prueba en resumen-y-confirmacion (design.md, "Lo que no escribe"). Se abre la app real,
-// con las rutas de movil/app/ (ADR-0017), en iPhone y en Android, con el servidor simulado.
+// Elegir una favorita dentro de los 30 días no geocodifica: el servidor usa el punto guardado (direcciones-E07, tarea
+// 1.3; adenda del 2026-11-24 de ADR-0009). Que la dirección quede copiada en el pedido se prueba en
+// resumen-y-confirmacion (design.md, "Lo que no escribe"). Se abre la app real, con las rutas de movil/app/ (ADR-0017),
+// en iPhone y en Android, con el servidor simulado.
 import path from 'node:path';
 
 import { fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';

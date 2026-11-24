@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\DB;
  * aquí, en el servidor, con PostGIS (ADR-0004; ADR-0009, decisión 3).
  *
  * - La colonia es la que se capturó en la dirección de recolección del pedido, la copia de pedido_direcciones
- *   (design.md, pregunta 4, resuelta por el concilio del 2026-11-24, C-245). No se deduce del mapa: no hay
- *   geocodificación inversa (presupuesto-de-mapas.md, decisión 4).
+ *   (design.md, pregunta 4, resuelta por el concilio del 2026-11-24, C-245; acta-2026-11-20-modelo-y-pasarela.md,
+ *   decisión 59). No se deduce del mapa: no hay geocodificación inversa (presupuesto-de-mapas.md, decisión 4).
  * - Una colonia es su texto sin espacios a los lados, en su municipio y su plaza: la misma colonia escrita igual en dos
  *   municipios son dos colonias. Escrita de dos formas distintas, se cuenta como dos (design.md, "Risks / Trade-offs").
  * - El punto de cada colonia es el centro de las recolecciones de sus pedidos (ST_Centroid de su colección de puntos).

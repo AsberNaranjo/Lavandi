@@ -18,7 +18,8 @@
 
 ## Decisions
 
-Tres lecturas que fijan los escenarios, ratificadas por el concilio del 2026-11-24, por delegación de Arthur (C-245):
+Tres lecturas que fijan los escenarios, ratificadas por el concilio del 2026-11-24, por delegación de Arthur (C-245;
+`acta-2026-11-20-modelo-y-pasarela.md`, decisión 51):
 
 1. **"Completado" es Entregado,** el último de los cinco estados del pedido (Módulo A #12). La lavandería no marca
    Entregado (su último botón es "En proceso de entrega", Módulo B #3), pero el pedido termina ahí. La fecha del
@@ -121,10 +122,11 @@ misma plaza y con el pago acreditado (C-188).
 
 ## Open Questions
 
-- **Qué cuenta como "pedido del día": resuelta.** El concilio del 2026-11-24, por delegación de Arthur (C-245),
-  ratificó la lectura 2: cuenta los entregados. La lectura alterna, contar los pedidos recibidos en el día, también cabe
-  en el texto "Pedidos del día" del Módulo B #5 (`NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3`). Se quedó la de
-  entregados porque va junto a "ingreso total", que la spec plantea sobre pedidos entregados
+- **Qué cuenta como "pedido del día": resuelta.** El concilio del 2026-11-24, por delegación de Arthur (C-245;
+  `acta-2026-11-20-modelo-y-pasarela.md`, decisión 51), ratificó la lectura 2: cuenta los entregados. La lectura
+  alterna, contar los pedidos recibidos en el día, también cabe en el texto "Pedidos del día" del Módulo B #5
+  (`NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3`). Se quedó la de entregados porque va junto a "ingreso total", que la
+  spec plantea sobre pedidos entregados
   (`openspec/changes/historial-de-la-lavanderia/specs/historial-lavanderia/spec.md:58`, E07; su definición sigue en
   DD-013, DD-020 y DD-012), sigue al B #4 "Pedidos completados", y el C #5 dice "Entregas del día y de la semana"
   (`NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3`). Ninguna DD de EL CLIENTE la reclama; si la pide, cambia la consulta,

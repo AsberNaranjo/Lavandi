@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Http;
 
 /**
  * La geocodificación con Google Geocoding (ADR-0009, decisión 4): una consulta por dirección escrita, al guardarla.
+ * Volver a pedir por el place ID un punto que pasó de 30 días (adenda del 2026-11-24 de ADR-0009, direcciones-E24)
+ * espera la tarea 3.5 (DD-139): hoy no se hace.
  *
  * - La llave es de cada entorno y vive solo en su .env, como GOOGLE_GEOCODIFICACION_LLAVE (ADR-0012). Sin llave no se
  *   consulta nada.
