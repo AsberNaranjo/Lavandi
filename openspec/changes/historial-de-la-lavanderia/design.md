@@ -122,12 +122,14 @@ misma plaza y con el pago acreditado (C-188).
 ## Open Questions
 
 - **Qué cuenta como "pedido del día": resuelta.** El concilio del 2026-11-24, por delegación de Arthur (C-245),
-  ratificó la lectura 2: cuenta los entregados. La lectura alterna: contar los pedidos recibidos en el día también cabe
+  ratificó la lectura 2: cuenta los entregados. La lectura alterna, contar los pedidos recibidos en el día, también cabe
   en el texto "Pedidos del día" del Módulo B #5 (`NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3`). Se quedó la de
-  entregados porque va junto a "ingreso total", que solo cuenta pedidos cobrados, sigue al B #4 "Pedidos completados",
-  y el C #5 dice "Entregas del día y de la semana" (`NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3`). Ninguna DD de EL
-  CLIENTE la reclama; si la pide, cambia la consulta, no la tabla. Respaldo de la implementación:
-  `servidor/tests/Feature/HistorialLavanderia/EstadisticasTest.php:57-144`.
+  entregados porque va junto a "ingreso total", que la spec plantea sobre pedidos entregados
+  (`openspec/changes/historial-de-la-lavanderia/specs/historial-lavanderia/spec.md:58`, E07; su definición sigue en
+  DD-013, DD-020 y DD-012), sigue al B #4 "Pedidos completados", y el C #5 dice "Entregas del día y de la semana"
+  (`NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3`). Ninguna DD de EL CLIENTE la reclama; si la pide, cambia la consulta,
+  no la tabla. Respaldo de la implementación: las cinco pruebas de historial-lavanderia-E05,
+  `servidor/tests/Feature/HistorialLavanderia/EstadisticasTest.php:57-150`.
 - **DD-013, DD-020, DD-012 y DD-052.**
 - **Pantallas sin componente.** El historial y las estadísticas no tienen componente en
   `vault/design-system/componentes.md`.
