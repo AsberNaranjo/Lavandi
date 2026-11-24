@@ -67,7 +67,7 @@ Las tomó Claude por delegación de Arthur (C-236) al implementar las tareas 0.1
 ### 4. La lista de momentos y sus textos viven en `config/avisos.php`
 
 - `avisos.momentos` es la única lista, por el código del estado que dispara cada momento: `confirmado`, `recolectado`, `listo` y `entregado`. El quinto entra ahí cuando se defina (DD-011, avisos-E13), sin tocar los otros cuatro.
-- Los textos son provisionales, en español y neutros, con `:folio` para el folio del pedido. Los escribe y aprueba EL CLIENTE (BR-24). No llevan marca ni dominio.
+- Los textos son provisionales, en español y neutros, con `:folio` para el folio del pedido. Los redacta EL PRESTADOR con la guía de tono y los aprueba Nadir antes de enviarlos a EL CLIENTE (DD-106). No llevan marca ni dominio.
 
 ### 5. Qué hace que la API borre un token
 
@@ -286,3 +286,8 @@ Fuente: `vault/arquitectura/modelo-de-datos.md` ("Nace en") y ADR-0016. Este cam
   - **Resuelta en la implementación de la app, por delegación (C-236):** sin pantalla propia, con la petición del
     sistema al abrirse la sesión del usuario que nunca respondió ("Decisiones de la implementación de la app", punto 6).
 - **Quién escribe y aprueba los textos de los avisos** (BR-24): fila propuesta en el reporte.
+  - **Quién escribe, resuelto por el concilio del 2026-11-24, por delegación de Arthur (C-245):** EL PRESTADOR, con la
+    guía de tono de voz, que es su entregable (`NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1`;
+    `vault/marca/entregables/guia-de-tono-de-voz.html`, "Ejemplos por público"). Los cuatro textos quedan como propuesta
+    en `servidor/config/avisos.php` ("Decisiones de la implementación del servidor", punto 4).
+  - **Quién aprueba: Nadir, y sigue en DD-106.** Detiene solo acreditar A43-5 con los textos finales.

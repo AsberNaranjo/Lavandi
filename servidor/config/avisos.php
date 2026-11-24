@@ -38,25 +38,27 @@ return [
      * (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo A #17). El quinto del criterio A.4.3 se agrega aquí cuando
      * se defina (DD-011, avisos-E13), sin tocar los otros cuatro.
      *
-     * Los textos son provisionales, en español y neutros: los escribe y aprueba EL CLIENTE (BR-24). :folio se cambia
-     * por el folio del pedido. Ni la marca ni el dominio se escriben aquí.
+     * Los textos los redacta EL PRESTADOR con la guía de tono de voz, su entregable (NSV-2026-001-v8.pdf:14:ANEXO A,
+     * Sección A.1; vault/marca/entregables/guia-de-tono-de-voz.html, Ejemplos por público), y Nadir los aprueba antes
+     * de enviarlos a EL CLIENTE (DD-106, abierta para la aprobación). Mientras no los apruebe, son propuesta. :folio se
+     * cambia por el folio del pedido. Ni la marca ni el dominio se escriben aquí.
      */
     'momentos' => [
         'confirmado' => [
             'titulo' => 'Pedido confirmado',
-            'texto' => 'Tu pedido :folio está confirmado.',
+            'texto' => 'Listo, tu pedido :folio está confirmado.',
         ],
         'recolectado' => [
             'titulo' => 'Pedido recolectado',
-            'texto' => 'La ropa de tu pedido :folio ya fue recolectada.',
+            'texto' => 'Ya recogimos la ropa de tu pedido :folio. Te avisamos cuando esté lista.',
         ],
         'listo' => [
             'titulo' => 'Pedido listo para entrega',
-            'texto' => 'Tu pedido :folio está listo para entrega.',
+            'texto' => 'La ropa de tu pedido :folio ya está lista para entregártela.',
         ],
         'entregado' => [
             'titulo' => 'Pedido entregado',
-            'texto' => 'Tu pedido :folio fue entregado.',
+            'texto' => 'Tu ropa ya está de vuelta. Tu pedido :folio fue entregado.',
         ],
     ],
 
