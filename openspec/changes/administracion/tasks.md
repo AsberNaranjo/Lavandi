@@ -62,14 +62,25 @@ La 6.2 no venía en la decisión 56 de `acta-2026-11-20-modelo-y-pasarela.md`, q
 es así con la contraseña, no por Google. Entra al plan como consecuencia de administracion-E25 por ese camino; el acta
 todavía no la asienta como complemento de la 56.
 
+## 7. La cuenta de administración (servidor/)
+
+- [x] 7.1 administracion-E26: `php artisan administracion:crear-cuenta {correo}`, que pide la contraseña dos veces con la entrada oculta, la guarda con hash y crea la cuenta con solo el rol de administración en cualquier entorno, también en producción; rechaza sin cambiar nada un correo no válido, una contraseña corta o que no coincide y un correo que ya tiene cuenta, de cualquier rol o borrada (decisión 68 de `acta-2026-11-20-modelo-y-pasarela.md`, C-245; design.md, Open Questions 6) — test: `servidor/tests/Feature/Administracion/CuentaDeAdministracionTest.php` — tamaño S
+
+Correr el comando en el entorno de prueba y en producción no es tarea de código: espera el alojamiento (DD-070) y el
+correo que dé EL CLIENTE, por medio de Nadir.
+
 ## Horas
 
-- **Este archivo:** 49 h sin bloqueo y 21 h bloqueadas, 70 h en total. La decisión 56 de
-  `acta-2026-11-20-modelo-y-pasarela.md` (C-245) agregó la 6.1 (S) y la 6.2 (S), 4 h sin bloqueo.
-- **Contra la versión anterior (66 h; 45 sin bloqueo y 21 bloqueadas):** entran las 2 h de la 6.1 y las 2 h de la 6.2,
-  el 403 de `POST /api/sesion/google` que la 6.1 daba por hecho.
+- **Este archivo:** 51 h sin bloqueo y 21 h bloqueadas, 72 h en total. La decisión 68 de
+  `acta-2026-11-20-modelo-y-pasarela.md` (C-245) agregó la 7.1 (S), 2 h sin bloqueo.
+- **Contra la versión anterior (70 h; 49 sin bloqueo y 21 bloqueadas):** entran las 2 h de la 7.1, la cuenta de
+  administración con un comando.
+- **Antes (70 h):** la decisión 56 (C-245) agregó la 6.1 (S) y la 6.2 (S), 4 h sin bloqueo. **Contra la versión de
+  entonces (66 h; 45 sin bloqueo y 21 bloqueadas):** entraron las 2 h de la 6.1 y las 2 h de la 6.2, el 403 de
+  `POST /api/sesion/google` que la 6.1 daba por hecho.
 - **Antes (66 h; 36 sin bloqueo y 30 bloqueadas):** la decisión 34 (segunda adenda del 2026-11-22 de ADR-0010) cerró
   DD-112: 0.2 (S), 4.4 (M) y 4.5 (S), 9 h, dejaron de estar bloqueadas; el total no cambió.
 - **Antes de eso (62 h; 41 sin bloqueo y 21 bloqueadas):** entraron la migración de `comisiones` y `avisos_masivos`
   (0.1, S) y la de `movimientos_pasarela` (0.2, S), y 4.4 y 4.5 se bloquearon por DD-112 hasta la decisión 34.
-- **Contra el plan:** el plan de sprints le da 39 h (F-D03 a F-D07). La diferencia pasa de 27 h a 31 h.
+- **Contra el plan:** el plan de sprints le da 39 h (F-D03 a F-D07). La diferencia pasa de 31 h a 33 h; antes había
+  pasado de 27 h a 31 h.
