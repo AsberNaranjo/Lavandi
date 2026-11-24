@@ -476,7 +476,10 @@ parámetros exactos de Places (`includedRegionCodes`, la máscara de campos) se 
   `https://cloud.google.com/maps-platform/terms/maps-service-terms`, sin consulta en esta sesión) → Si se confirma,
   toca la decisión 4 del ADR-0009 y la 3 de `presupuesto-de-mapas.md` ("una dirección se geocodifica una sola vez en su
   vida"), no solo el autocompletado. El punto marcado en el mapa no sale de Google, así que no le aplica. Hay que
-  verificarlo antes de producción.
+  verificarlo antes de producción. **Decidida la opción b el 2026-11-24** (adenda del 2026-11-24 de ADR-0009): cada
+  dirección geocodificada por Google guarda su place ID y la fecha de su punto, y pasados 30 días el punto se vuelve a
+  pedir por el place ID al usarla (direcciones-E07 y E24). Siguen abiertos en DD-139 la verificación de los términos
+  firmados y el trato de las copias del punto (`pedido_direcciones.ubicacion` y `lavanderias.ubicacion`).
 - [Las sesiones de sugerencias que no terminan en una dirección guardada se cobran por petición] (grado E) → Tres
   caracteres antes de pedir, 300 ms de espera entre teclas, 30 peticiones por minuto por cuenta, y la app deja de pedir
   al recibir `"activo": false`. Si el primer mes pasa del nivel gratuito, se apaga por configuración (adenda, criterio
@@ -511,7 +514,9 @@ parámetros exactos de Places (`includedRegionCodes`, la máscara de campos) se 
   - **La licencia del catálogo de SEPOMEX.** ¿Se puede usar en el producto? La verifica Nadir. Bloquea la carga en
     producción, no los escenarios.
   - **Cuánto tiempo se puede guardar el punto de Google.** La verifica Arthur contra los términos vigentes. Puede tocar
-    la decisión 4 del ADR-0009.
+    la decisión 4 del ADR-0009. **Decidida la opción b el 2026-11-24** (adenda del 2026-11-24 de ADR-0009): el place ID
+    y la fecha del punto, que se vuelve a pedir pasados 30 días (tarea 3.5). Siguen abiertos en DD-139 la verificación
+    de los términos firmados y el trato de las copias del punto.
 - **DD-083:** si la lavandería atiende toda su plaza o un radio (direcciones-E13).
 - **¿El TERRITORIO INICIAL es una plaza o dos?** Pendiente de Nadir en `modelo-multi-plaza.md`; es DD-093.
 - **`id_plazas` de una dirección fuera de toda zona.** El modelo dice que la plaza sale de la zona que contiene el

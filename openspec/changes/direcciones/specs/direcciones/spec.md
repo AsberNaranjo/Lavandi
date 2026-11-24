@@ -4,10 +4,10 @@
 
 La app DEBE (MUST) dejar escribir la dirección con calle y número, código postal, colonia, municipio y referencias, y la
 colonia DEBE (MUST) ser obligatoria. El municipio se elige de la lista del territorio (requisito "El municipio, de la
-lista del territorio"). Al guardarla, el servidor DEBE (MUST) convertirla en un punto del mapa una sola vez y no volver
-a consultarla para esa dirección.
+lista del territorio"). El servidor DEBE (MUST) convertirla en un punto del mapa una sola vez al guardarla, y no volver
+a consultarla mientras su punto tenga 30 días o menos.
 
-Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #8`; C → C-238 (código postal y municipio de la lista); D → ADR-0009
+Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #8`; C → C-238 (código postal y municipio de la lista); D → ADR-0009; D → adenda del 2026-11-24 de ADR-0009
 
 #### Scenario: direcciones-E01 — Una dirección escrita se guarda con su punto
 
@@ -74,9 +74,10 @@ Criterio: A43-6
 ### Requirement: Direcciones favoritas
 
 El usuario DEBE (MUST) poder guardar una dirección como favorita, con un nombre, y elegirla después de su lista sin
-volver a escribirla. Elegir una favorita DEBE (MUST) costar cero consultas de geocodificación.
+volver a escribirla. Elegir una favorita DEBE (MUST) costar cero consultas de geocodificación mientras su punto tenga 30
+días o menos; el que marcó la persona en el mapa no vence.
 
-Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #8`; D → ADR-0009
+Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #8`; D → ADR-0009; D → adenda del 2026-11-24 de ADR-0009
 
 #### Scenario: direcciones-E06 — Guardar una dirección como favorita
 
@@ -86,12 +87,21 @@ Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #8`; D → 
 
 Criterio: A43-6
 
-#### Scenario: direcciones-E07 — Elegir una favorita no vuelve a consultar el mapa
+#### Scenario: direcciones-E07 — Elegir una favorita dentro de los 30 días no vuelve a consultar el mapa
 
-- **DADO** un usuario con la favorita "Casa" ya guardada
+- **DADO** un usuario con la favorita "Casa" guardada hace menos de 30 días
 - **CUANDO** la elige para un pedido nuevo
 - **ENTONCES** el pedido usa el punto guardado de "Casa"
 - **Y** no hay ninguna consulta al servicio de geocodificación
+
+#### Scenario: direcciones-E24 — Una favorita con el punto de Google vencido lo vuelve a pedir
+
+- **DADO** un usuario con la favorita "Casa", escrita y geocodificada hace más de 30 días, con su place ID guardado
+- **CUANDO** la elige para un pedido nuevo
+- **ENTONCES** el servidor pide su punto por el place ID, con una sola consulta
+- **Y** el pedido usa el punto nuevo, que queda guardado con su fecha
+
+SIN RESPUESTA — bloquea: direcciones-E24 (DD-139: los términos firmados de Google y el trato de las copias del punto).
 
 #### Scenario: direcciones-E08 — Una dirección que no es favorita no entra a la lista
 

@@ -21,6 +21,7 @@ luego el código mínimo; luego la limpieza.
 - [ ] 3.2 direcciones-E21, direcciones-E23: `GET /api/direcciones/sugerencias` con Google Places detrás de una interfaz simulada en el test; el interruptor `GOOGLE_PLACES_ACTIVO` con `GOOGLE_PLACES_LLAVE` (ADR-0012), que apagado o sin llave responde `"activo": false` sin consultar; solo México, con el municipio y el estado; `throttle:sugerencias` de 30 por minuto por cuenta (DD-072, la llave; costo, fila propuesta en `design.md`) — test: `servidor/tests/Feature/Direcciones/SugerenciasDeCalleTest.php` — tamaño M — vive en `servidor/`
 - [ ] 3.3 direcciones-E22, direcciones-E23: `lugar` en `POST /api/direcciones`: con el autocompletado encendido, una sola consulta de detalle con el mismo token y la máscara `location`, en lugar de la geocodificación; apagado, se ignora y se geocodifica (DD-072; costo, fila propuesta) — test: `servidor/tests/Feature/Direcciones/SesionDeSugerenciasTest.php` — tamaño S — vive en `servidor/`
 - [ ] 3.4 direcciones-E21, direcciones-E22, direcciones-E23: las sugerencias bajo la calle, con un token UUID v4 por dirección, tres caracteres y 300 ms de espera, la atribución de Google, y sin mandar `lugar` si la persona cambió la calle; con `"activo": false` deja de pedir y la calle queda como texto libre (DD-072; costo, fila propuesta) — test: `movil/__tests__/direcciones/sugerencias-de-calle.test.tsx` — tamaño M — vive en `movil/`
+- [ ] 3.5 direcciones-E07, direcciones-E24: guardar el place ID y la fecha del punto (columna nueva hacia adelante, con su fila en `vault/arquitectura/modelo-de-datos.md` antes de la migración, ADR-0016) y pedir el punto por el place ID al usar una dirección de más de 30 días (bloqueada: DD-139) — test: `servidor/tests/Feature/Direcciones/VigenciaDelPuntoTest.php` — tamaño M — vive en `servidor/`
 
 ## 4. Servidor: la dirección asistida (C-238)
 
@@ -45,6 +46,7 @@ Empiezan con la 4.3 y la 4.4 en verde, y con la pieza de lista que decida Arthur
 
 - **Banda media de S-006:** S = 2 h, M = 5 h.
 - **Listas:** 51 h (7 M y 8 S). Antes eran 25 h; la dirección asistida (tareas 4.1 a 5.2: 4 M y 3 S) suma 26 h.
-- **Bloqueadas:** 14 h (2 M y 2 S). Antes eran 2 h; el autocompletado (tareas 3.2 a 3.4) suma 12 h.
+- **Bloqueadas:** 19 h (3 M y 2 S). Antes eran 2 h; el autocompletado (tareas 3.2 a 3.4) suma 12 h y la vigencia del
+  punto de Google (tarea 3.5, DD-139) suma 5 h.
 - **El plan:** le da 12 h a F-A08. Las listas quedan 39 h por encima (antes, 13). El plan de sprints no tenía la
   dirección asistida, que llegó con C-238.
