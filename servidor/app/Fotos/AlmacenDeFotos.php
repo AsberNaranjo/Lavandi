@@ -8,8 +8,11 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * El almacenamiento privado de fotos del entorno: el disco de config/fotos.php, fotos_s3 en producción y fotos_local en
- * los demás (ADR-0006; ADR-0012). Guarda las fotos de las lavanderías y la foto de perfil de cada cuenta.
+ * El almacenamiento privado de fotos del entorno: el disco de config/fotos.php (ADR-0006; ADR-0012). Por la adenda del
+ * 2026-11-24 de ADR-0006 (acta-2026-11-20-modelo-y-pasarela.md, decisión 49), fotos_local solo es para la máquina local
+ * y las pruebas automáticas, y el entorno de prueba y producción usan fotos_s3; hasta que exista el bucket del entorno
+ * de prueba (DD-070), el valor por omisión sigue siendo fotos_local fuera de producción. Guarda las fotos de las
+ * lavanderías y la foto de perfil de cada cuenta.
  *
  * En la base solo va la ruta de cada foto; la app y el panel la ven con una URL firmada que vence, siempre con la misma
  * forma, { url, vence_en }. La ruta nunca sale como campo de la API.

@@ -1,7 +1,7 @@
 // Los textos del registro de la lavandería y de su perfil y horarios (openspec/changes/alta-de-lavanderias), juntos para
 // revisarlos en un solo lugar. Los títulos son los de las imágenes b01-registro y b06-perfil de la Propuesta 04. Los
-// errores de cada dato los da el servidor (ReglasDeLaLavanderia); aquí viven los de la dirección por su motivo
-// (alta-lavanderias-E10) y los de la foto, que pasan en el teléfono.
+// errores de cada dato los da el servidor (ReglasDeLaLavanderia), también los de la descripción y la lista de fotos;
+// aquí viven los de la dirección por su motivo (alta-lavanderias-E10) y los de la foto, que pasan en el teléfono.
 export const TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO = {
   // La entrada al módulo: mientras se lee la lavandería de la cuenta, o si no llega.
   leyendo: 'Cargando tu lavandería…',
@@ -36,6 +36,12 @@ export const TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO = {
   sinPermisoDeLaCamara: 'Sin permiso de la cámara no podemos tomar la foto. Puedes elegirla de tu galería.',
   // Sin escenario propio: la foto que no se pudo leer o comprimir.
   fotoNoPreparada: 'No pudimos preparar la foto. Intenta con otra.',
+  // Solo en el perfil y horarios: la descripción y las fotos del perfil (alta-lavanderias-E26 a E30).
+  descripcion: 'Descripción',
+  fotos: 'Fotos',
+  agregarFoto: 'Agregar foto',
+  quitar: 'Quitar',
+  moverAntes: 'Mover antes',
   serviciosYPrecios: 'Servicios y precios',
   ventanas: 'Ventanas de disponibilidad',
   // Las ventanas son de una hora (NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #7), en la hora de la plaza.
@@ -47,6 +53,26 @@ export const TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO = {
 /** "Precio por kilo de lavado estándar": el precio de cada servicio, que el contrato pide por kilo (Módulo A #5). */
 export function precioPorKiloDe(nombreDelServicio: string): string {
   return `Precio por kilo de ${nombreDelServicio.charAt(0).toLowerCase()}${nombreDelServicio.slice(1)}`;
+}
+
+/** "Foto 2 de la lavandería": cada foto de la lista del perfil, por su lugar, para el lector de pantalla. */
+export function fotoDeLaLista(numero: number): string {
+  return `Foto ${numero} de la lavandería`;
+}
+
+/** "Quitar la foto 2": el botón de cada foto de la lista, para el lector de pantalla (alta-lavanderias-E28). */
+export function quitarLaFoto(numero: number): string {
+  return `${TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO.quitar} la foto ${numero}`;
+}
+
+/** "Mover antes la foto 2": el botón de cada foto de la lista, para el lector de pantalla (alta-lavanderias-E29). */
+export function moverAntesLaFoto(numero: number): string {
+  return `${TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO.moverAntes} la foto ${numero}`;
+}
+
+/** Lo que dice la sección de fotos del perfil: cuál es la principal y el máximo que da el servidor (E29 y E30). */
+export function instruccionDeLasFotos(maximo: number): string {
+  return `La primera es la principal. Puedes tener hasta ${maximo}.`;
 }
 
 /** "Sin ventanas", "1 ventana", "3 ventanas": lo que tiene cada día, en la lista de días. */

@@ -25,20 +25,22 @@ use Livewire\Attributes\Locked;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 /**
- * La edición de una lavandería en el panel (alta-lavanderias-E13; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo
- * D #1, "edición de socios"). Usa la misma edición y las mismas validaciones del registro que la app
+ * La edición de una lavandería en el panel (alta-lavanderias-E13 y E31; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3,
+ * Módulo D #1, "edición de socios"). Usa la misma edición y las mismas validaciones del registro que la app
  * (App\Lavanderias\EdicionDeLavanderia y App\Lavanderias\ReglasDeLaLavanderia; design.md, "Decisions").
  *
  * Como en el PATCH de la app, solo se manda lo que cambió desde que se abrió la página: así una lavandería de prueba sin
- * municipio, o con franjas largas de horario, se puede editar en lo demás. La foto solo cambia si se sube una nueva.
- * Cada error vuelve junto al campo del formulario que lo causó.
+ * municipio, o con franjas largas de horario, se puede editar en lo demás. Las fotos van como en la app: la lista
+ * completa, cada una que ya tiene por su lugar y cada nueva como archivo, y solo si cambió. Los lugares se cuentan sobre
+ * las fotos que se leyeron al abrir la página, y la edición rechaza la lista si las fotos cambiaron después, por
+ * ejemplo desde la app (alta-lavanderias-E31). Cada error vuelve junto al campo del formulario que lo causó.
  */
 class EditLavanderia extends EditRecord
 {
     protected static string $resource = LavanderiaResource::class;
 
-    /** Los campos del registro que se editan aquí, además de la foto. */
-    private const CAMPOS = ['nombre', 'direccion', 'servicios', 'ventanas'];
+    /** Los campos de la edición que se comparan con lo que había al abrir, además de las fotos. */
+    private const CAMPOS = ['nombre', 'direccion', 'servicios', 'ventanas', 'descripcion'];
 
     /**
      * Los datos como estaban al abrir la página, en la forma del registro, para mandar solo lo que cambió.
@@ -47,6 +49,15 @@ class EditLavanderia extends EditRecord
      */
     #[Locked]
     public array $inicial = [];
+
+    /**
+     * Las rutas de las fotos de la lavandería, en su orden, como estaban al abrir la página: los lugares de la lista se
+     * cuentan sobre ellas.
+     *
+     * @var list<string>
+     */
+    #[Locked]
+    public array $fotosAlAbrir = [];
 
     /**
      * Las acciones de estado: suspender y levantar la suspensión (alta-lavanderias-E14 y E15).
@@ -67,11 +78,10 @@ class EditLavanderia extends EditRecord
         /** @var Lavanderia $lavanderia */
         $lavanderia = $this->getRecord();
         $this->inicial = self::datosDe($lavanderia);
+        $this->fotosAlAbrir = app(FotosDeLaLavanderia::class)->enOrden($lavanderia)->pluck('ruta')->all();
 
-        return [
-            ...$this->inicial,
-            'foto' => app(FotosDeLaLavanderia::class)->principal($lavanderia)?->ruta,
-        ];
+        // Las fotos, en su orden, por su ruta: el selector de archivos del panel las muestra con su URL firmada.
+        return [...$this->inicial, 'fotos' => $this->fotosAlAbrir];
     }
 
     /**
@@ -86,8 +96,8 @@ class EditLavanderia extends EditRecord
             fn (string $campo): bool => $nuevos[$campo] != ($this->inicial[$campo] ?? null),
             ARRAY_FILTER_USE_KEY,
         ));
-        $foto = $this->fotoNueva();
-        $aValidar = $foto === null ? $cambios : [...$cambios, 'foto' => $foto];
+        [$fotos, $cambiaron] = $this->fotosDelFormulario();
+        $aValidar = $cambiaron ? [...$cambios, 'fotos' => $fotos] : $cambios;
 
         try {
             $validados = Validator::make(
@@ -96,7 +106,7 @@ class EditLavanderia extends EditRecord
                 ReglasDeLaLavanderia::mensajes(),
             )->validate();
 
-            app(EdicionDeLavanderia::class)->editar($record, Arr::except($validados, ['foto']), $foto);
+            app(EdicionDeLavanderia::class)->editar($record, $validados, fotosLeidas: $this->fotosAlAbrir);
         } catch (ValidationException $error) {
             throw $this->enElFormulario($error);
         } catch (DireccionNoUbicable $error) {
@@ -112,17 +122,36 @@ class EditLavanderia extends EditRecord
     }
 
     /**
-     * La foto que se subió en el formulario, si se subió una: la que todavía no está guardada. La que ya tenía llega
-     * como su ruta y no cuenta.
+     * Las fotos del formulario en la forma de la edición de la app: cada una que ya tiene, por su lugar en la lista que
+     * se leyó al abrir la página (la del selector llega como su ruta), y cada nueva como el archivo que se subió y todavía
+     * no está guardado. Una ruta que no es de esta lavandería no se pasa como foto: queda en un lugar que no existe y las
+     * reglas la rechazan. Dice además si la lista cambió desde que se abrió la página.
+     *
+     * @return array{0: list<int|TemporaryUploadedFile>, 1: bool}
      */
-    private function fotoNueva(): ?TemporaryUploadedFile
+    private function fotosDelFormulario(): array
     {
-        return collect(Arr::wrap($this->data['foto'] ?? []))
-            ->first(fn (mixed $archivo): bool => $archivo instanceof TemporaryUploadedFile);
+        $rutas = $this->fotosAlAbrir;
+
+        $fotos = collect(Arr::wrap($this->data['fotos'] ?? []))
+            ->filter(fn (mixed $foto): bool => $foto instanceof TemporaryUploadedFile || is_string($foto))
+            ->map(function (TemporaryUploadedFile|string $foto) use ($rutas): int|TemporaryUploadedFile {
+                if ($foto instanceof TemporaryUploadedFile) {
+                    return $foto;
+                }
+
+                $lugar = array_search($foto, $rutas, true);
+
+                return $lugar === false ? -1 : (int) $lugar;
+            })
+            ->values()
+            ->all();
+
+        return [$fotos, $fotos !== array_keys($rutas)];
     }
 
     /**
-     * Después de guardar, el formulario vuelve a leer la lavandería: la foto nueva ya es la guardada.
+     * Después de guardar, el formulario vuelve a leer la lavandería: las fotos nuevas ya son las guardadas.
      */
     protected function afterSave(): void
     {
@@ -130,8 +159,8 @@ class EditLavanderia extends EditRecord
     }
 
     /**
-     * La lavandería en la forma del registro de la app: nombre, dirección con el código del municipio, los servicios
-     * activos con su precio y las ventanas en orden.
+     * La lavandería en la forma de la edición de la app: nombre, descripción, dirección con el código del municipio, los
+     * servicios activos con su precio y las ventanas en orden. Las fotos van aparte (fotosDelFormulario()).
      *
      * @return array<string, mixed>
      */
@@ -141,6 +170,7 @@ class EditLavanderia extends EditRecord
 
         return [
             'nombre' => $lavanderia->nombre,
+            'descripcion' => $lavanderia->descripcion,
             'direccion' => [
                 'calle' => $lavanderia->calle,
                 'numero' => $lavanderia->numero,
@@ -178,6 +208,7 @@ class EditLavanderia extends EditRecord
 
         return [
             'nombre' => $data['nombre'] ?? null,
+            'descripcion' => $data['descripcion'] ?? null,
             'direccion' => $direccion,
             'servicios' => array_values((array) ($data['servicios'] ?? [])),
             'ventanas' => array_values(array_map(
@@ -210,6 +241,11 @@ class EditLavanderia extends EditRecord
     private function campoDelFormulario(string $clave): string
     {
         $partes = explode('.', $clave);
+
+        // El selector de fotos es un solo campo: el error de una de ellas (fotos.N) va en él.
+        if ($partes[0] === 'fotos') {
+            return 'data.fotos';
+        }
 
         if (in_array($partes[0], ['servicios', 'ventanas'], true) && isset($partes[1])) {
             $llaves = array_keys((array) ($this->data[$partes[0]] ?? []));

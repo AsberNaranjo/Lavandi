@@ -6,12 +6,14 @@ use App\Filament\Resources\Lavanderias\LavanderiaResource;
 use App\Filament\Resources\Lavanderias\Pages\EditLavanderia;
 use App\Filament\Resources\Lavanderias\Pages\ListLavanderias;
 use App\Lavanderias\DireccionNoUbicable;
+use App\Lavanderias\FotosDeLaLavanderia;
 use App\Models\Lavanderia;
 use App\Models\Rol;
 use App\Models\Usuario;
 use Closure;
 use Filament\Forms\Components\Repeater;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Feature\AltaLavanderias\Soporte\AltaDePrueba;
@@ -24,9 +26,9 @@ use Tests\TestCase;
  * con las mismas validaciones del registro de la app (NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #1,
  * "edición de socios"; ADR-0003). El alta desde el panel espera DD-053 (alta-lavanderias-E11): el recurso no tiene
  * página de alta. Una dirección nueva en la zona de otra plaza se rechaza, como en la app: la lavandería no cambia de
- * plaza.
+ * plaza. La descripción y las fotos del perfil se editan con las reglas de la app (alta-lavanderias-E31).
  *
- * Escenarios: alta-lavanderias-E13 y alta-lavanderias-E25 · Tareas 3.1 y 2.3 · Spec:
+ * Escenarios: alta-lavanderias-E13, alta-lavanderias-E25 y alta-lavanderias-E31 · Tareas 3.1, 2.3 y 3.4 · Spec:
  * openspec/changes/alta-de-lavanderias/specs/alta-lavanderias/spec.md
  */
 class PanelEdicionTest extends TestCase
@@ -126,7 +128,8 @@ class PanelEdicionTest extends TestCase
 
         Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
             ->fillForm([
-                'foto' => $this->fotoDePrueba('desde-el-panel.jpg'),
+                // La foto del registro se cambia en la lista de fotos (alta-lavanderias-E31).
+                'fotos' => [$this->fotoDePrueba('desde-el-panel.jpg')],
                 'direccion.calle' => 'Calle del panel',
                 'servicios' => [
                     ['tipo' => 'estandar', 'precio' => '19.00'],
@@ -169,10 +172,181 @@ class PanelEdicionTest extends TestCase
                 'ventanas.0.hora_fin',
             ]);
 
-        unset($antes['foto']);
+        unset($antes['foto'], $antes['fotos']);
         $despues = $this->consultar($cuenta, $lavanderia->id_publico)->json('lavanderia');
-        unset($despues['foto']);
+        unset($despues['foto'], $despues['fotos']);
         $this->assertSame($antes, $despues);
+    }
+
+    #[TestDox('alta-lavanderias-E31: la administración cambia la descripción y las fotos desde el panel: quita una, cambia el orden y agrega otra al final, y la lavandería y el usuario lo ven')]
+    public function test_alta_lavanderias_e31_el_panel_edita_la_descripcion_y_las_fotos(): void
+    {
+        $cuenta = $this->cuentaDeLavanderia();
+        $lavanderia = $this->registrada($cuenta);
+        [$primera, $segunda, $tercera] = $this->conFotos($lavanderia, 3);
+        $this->comoAdministracion();
+
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->assertOk()
+            ->assertSchemaStateSet(['descripcion' => null])
+            ->fillForm([
+                'descripcion' => 'Descripción de prueba desde el panel.',
+                'fotos' => [$tercera, $primera],
+            ])
+            // La nueva se sube al final de la lista, como la agrega el selector (appendFiles()).
+            ->set('data.fotos.nueva', $this->fotoDePrueba('desde-el-panel.jpg'))
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $rutas = $this->rutasEnOrden($lavanderia);
+        $this->assertCount(3, $rutas);
+        $this->assertSame([$tercera, $primera], array_slice($rutas, 0, 2));
+        $this->assertSame([1, 2, 3], $lavanderia->fotos()->orderBy('orden')->pluck('orden')->all());
+        // La que se quitó se borra del almacenamiento.
+        $this->assertEqualsCanonicalizing($rutas, $this->archivosDeFotos());
+        $this->assertNotContains($segunda, $this->archivosDeFotos());
+
+        $this->consultar($cuenta, $lavanderia->id_publico)
+            ->assertJsonPath('lavanderia.descripcion', 'Descripción de prueba desde el panel.');
+        $perfil = $this->perfilDelUsuario($lavanderia)
+            ->assertJsonPath('lavanderia.descripcion', 'Descripción de prueba desde el panel.');
+        $this->assertSame($rutas, $this->rutasDe($perfil->json('lavanderia.fotos')));
+    }
+
+    #[TestDox('alta-lavanderias-E31: el panel borra la descripción y, si no cambia las fotos, no las toca')]
+    public function test_alta_lavanderias_e31_el_panel_borra_la_descripcion_sin_tocar_las_fotos(): void
+    {
+        $lavanderia = $this->registrada();
+        $lavanderia->update(['descripcion' => 'Descripción de prueba anterior.']);
+        $antes = $this->conFotos($lavanderia, 2);
+        $this->comoAdministracion();
+
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->assertSchemaStateSet(['descripcion' => 'Descripción de prueba anterior.'])
+            ->fillForm(['descripcion' => ''])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertNull($lavanderia->fresh()->descripcion);
+        $this->assertSame($antes, $this->rutasEnOrden($lavanderia));
+        $this->assertEqualsCanonicalizing($antes, $this->archivosDeFotos());
+    }
+
+    #[TestDox('alta-lavanderias-E31: el panel aplica las reglas de la descripción y de las fotos: sin fotos, con más del máximo o con una descripción demasiado larga se rechaza junto a su campo y nada cambia')]
+    public function test_alta_lavanderias_e31_el_panel_aplica_las_reglas_de_la_descripcion_y_las_fotos(): void
+    {
+        config(['fotos.maximo_por_lavanderia' => 2]);
+        $lavanderia = $this->registrada();
+        $antes = $this->conFotos($lavanderia, 2);
+        $this->comoAdministracion();
+
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->fillForm(['fotos' => []])
+            ->call('save')
+            ->assertHasFormErrors(['fotos' => 'La lavandería necesita al menos una foto.']);
+
+        // El selector no deja subir más que el máximo, y su propia regla lo dice con el mensaje de la edición.
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->fillForm(['fotos' => [...$antes, $this->fotoDePrueba('una-de-mas.jpg')]])
+            ->call('save')
+            ->assertHasFormErrors(['fotos' => 'La lavandería puede tener hasta 2 fotos.']);
+
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->fillForm(['descripcion' => str_repeat('a', 1001)])
+            ->call('save')
+            ->assertHasFormErrors(['descripcion' => 'La descripción puede tener hasta 1000 caracteres.']);
+
+        $this->assertNull($lavanderia->fresh()->descripcion);
+        $this->assertSame($antes, $this->rutasEnOrden($lavanderia));
+        $this->assertEqualsCanonicalizing($antes, $this->archivosDeFotos());
+    }
+
+    #[TestDox('alta-lavanderias-E31: con el máximo por debajo de las fotos que ya tiene, el panel guarda los demás datos, y una lista que cambia se rechaza con el mensaje del máximo')]
+    public function test_alta_lavanderias_e31_con_el_maximo_por_debajo_de_sus_fotos_el_panel_edita_lo_demas(): void
+    {
+        $lavanderia = $this->registrada();
+        [$primera, $segunda, $tercera] = $this->conFotos($lavanderia, 3);
+        config(['fotos.maximo_por_lavanderia' => 2]);
+        $this->comoAdministracion();
+
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->fillForm(['nombre' => 'Lavandería de prueba Renombrada'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('Lavandería de prueba Renombrada', $lavanderia->fresh()->nombre);
+        $this->assertSame([$primera, $segunda, $tercera], $this->rutasEnOrden($lavanderia));
+
+        // La lista que arma la página pasa por la regla del máximo de la edición, como en la app.
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->fillForm(['fotos' => [$tercera, $primera, $segunda]])
+            ->call('save')
+            ->assertHasFormErrors(['fotos' => 'La lavandería puede tener hasta 2 fotos.']);
+
+        $this->assertSame([$primera, $segunda, $tercera], $this->rutasEnOrden($lavanderia));
+        $this->assertEqualsCanonicalizing([$primera, $segunda, $tercera], $this->archivosDeFotos());
+    }
+
+    #[TestDox('alta-lavanderias-E31: una foto cuyo archivo no está en el disco se queda, con su lugar, cuando la administración cambia solo el nombre; sin ningún archivo, el nombre también se guarda')]
+    public function test_alta_lavanderias_e31_una_foto_sin_su_archivo_se_queda_al_cambiar_solo_el_nombre(): void
+    {
+        $lavanderia = $this->registrada();
+        $antes = $this->conFotos($lavanderia, 3);
+        $disco = Storage::disk(config('fotos.disco'));
+        $disco->delete($antes[1]);
+        $this->comoAdministracion();
+
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->fillForm(['nombre' => 'Lavandería de prueba Renombrada'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('Lavandería de prueba Renombrada', $lavanderia->fresh()->nombre);
+        $this->assertSame($antes, $this->rutasEnOrden($lavanderia));
+        $this->assertSame([1, 2, 3], $lavanderia->fotos()->orderBy('orden')->pluck('orden')->all());
+
+        $disco->delete($antes);
+
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->fillForm(['nombre' => 'Lavandería de prueba sin archivos'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('Lavandería de prueba sin archivos', $lavanderia->fresh()->nombre);
+        $this->assertSame($antes, $this->rutasEnOrden($lavanderia));
+    }
+
+    #[TestDox('alta-lavanderias-E31: los lugares de las fotos se cuentan sobre las que el panel leyó al abrir: si cambiaron después, guardar otro dato no las toca y una lista cambiada se rechaza sin cambiar nada')]
+    public function test_alta_lavanderias_e31_el_panel_no_pisa_las_fotos_que_cambiaron_despues_de_abrir(): void
+    {
+        $cuenta = $this->cuentaDeLavanderia();
+        $lavanderia = $this->registrada($cuenta);
+        [$primera, $segunda] = $this->conFotos($lavanderia, 2);
+        $this->comoAdministracion();
+
+        $soloElNombre = Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()]);
+        $lasFotos = Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()]);
+
+        // Con las dos páginas abiertas, la lavandería agrega una foto desde la app.
+        $tercera = $this->conFotos($lavanderia, 3)[2];
+
+        $soloElNombre
+            ->fillForm(['nombre' => 'Lavandería de prueba Renombrada'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame([$primera, $segunda, $tercera], $this->rutasEnOrden($lavanderia));
+
+        $lasFotos
+            ->fillForm(['fotos' => [$segunda, $primera]])
+            ->call('save')
+            ->assertHasFormErrors(['fotos' => FotosDeLaLavanderia::FOTOS_QUE_CAMBIARON]);
+
+        $this->assertSame([$primera, $segunda, $tercera], $this->rutasEnOrden($lavanderia));
+        $this->assertEqualsCanonicalizing([$primera, $segunda, $tercera], $this->archivosDeFotos());
+        $this->consultar($cuenta, $lavanderia->id_publico)
+            ->assertJsonPath('lavanderia.nombre', 'Lavandería de prueba Renombrada')
+            ->assertJsonCount(3, 'lavanderia.fotos');
     }
 
     #[TestDox('alta-lavanderias-E13: una lavandería de prueba sin municipio y con franjas largas se edita en lo demás: solo se valida lo que cambia')]

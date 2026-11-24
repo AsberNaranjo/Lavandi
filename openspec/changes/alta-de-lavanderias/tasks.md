@@ -17,17 +17,20 @@ M = 5 h, L = 12 h.
 - [x] 2.1 alta-lavanderias-E18, alta-lavanderias-E20: la lavandería edita su información y no puede editar la de otra — test: `servidor/tests/Feature/AltaLavanderias/PerfilTest.php` — tamaño S
 - [x] 2.2 alta-lavanderias-E21, alta-lavanderias-E22: ventanas de una hora por día de la semana y rechazo de las que no duran una hora — test: `servidor/tests/Feature/AltaLavanderias/VentanasTest.php` — tamaño S
 - [x] 2.3 alta-lavanderias-E25: una dirección nueva en otra plaza se rechaza en la app y en el panel — test: `servidor/tests/Feature/AltaLavanderias/PerfilTest.php` y `servidor/tests/Feature/AltaLavanderias/PanelEdicionTest.php` — tamaño S
+- [x] 2.4 alta-lavanderias-E26 a E30: descripción y fotos en la edición del socio — test: `servidor/tests/Feature/AltaLavanderias/DescripcionYFotosTest.php` — tamaño M
 
 ## 3. Gestión de lavanderías en el panel de Filament
 
 - [x] 3.1 alta-lavanderias-E13: lista de lavanderías con su estado y su plaza, y edición con las validaciones del registro — test: `servidor/tests/Feature/AltaLavanderias/PanelEdicionTest.php` — tamaño M
 - [x] 3.2 alta-lavanderias-E14, alta-lavanderias-E15: suspender (`estado = 'suspendida'`) y levantar la suspensión (de vuelta a `activa` si `aprobada_en` tiene fecha, a `pendiente` si no), con su efecto en la búsqueda y en los pedidos nuevos — test: `servidor/tests/Feature/AltaLavanderias/PanelSuspensionTest.php` — tamaño S
 - [x] 3.3 alta-lavanderias-E17: baja (`estado = 'baja'`, sin `deleted_at`) que conserva la lavandería y sus pedidos en la base — test: `servidor/tests/Feature/AltaLavanderias/PanelBajaTest.php` — tamaño S
+- [x] 3.4 alta-lavanderias-E31 — test: `servidor/tests/Feature/AltaLavanderias/PanelEdicionTest.php` — tamaño S
 
 ## 4. Pantallas del Módulo B en la app
 
 - [x] 4.1 alta-lavanderias-E03: pantalla de registro, con la foto tomada o elegida y comprimida con los parámetros de configuración — test: `movil/__tests__/alta-lavanderias/registro.test.tsx` — tamaño M
 - [x] 4.2 alta-lavanderias-E19: pantalla de perfil y horarios, con las ventanas de disponibilidad y los errores del servidor por campo — test: `movil/__tests__/alta-lavanderias/perfil-y-horarios.test.tsx` — tamaño M
+- [x] 4.3 alta-lavanderias-E26 a E30 en Perfil y horarios — test: `movil/__tests__/alta-lavanderias/descripcion-y-fotos.test.tsx` — tamaño M
 
 ## 5. Bloqueadas: no entran al sprint mientras su fila siga abierta
 
@@ -41,8 +44,9 @@ M = 5 h, L = 12 h.
 
 ## Horas
 
-- **Listas para el sprint** (grupos 0 a 4): 4 tareas M y 8 tareas S, **36 h**. Antes de alinear con el modelo eran
-  32 h; la migración de 0.1 suma 2 h y el escenario E25 de 2.3, otras 2 h.
+- **Listas para el sprint** (grupos 0 a 4): 6 tareas M y 9 tareas S, **48 h**. Antes de alinear con el modelo eran
+  32 h; la migración de 0.1 suma 2 h, el escenario E25 de 2.3 otras 2 h, y la descripción y las fotos del perfil
+  (alta-lavanderias-E26 a E31: 2.4, 3.4 y 4.3, dos M y una S) 12 h más.
 - **Bloqueadas** (grupo 5), tamaño tentativo: 2 M y 5 S, **20 h**, sin cambio.
 - **Contra el plan:** el plan de sprints le da **15 h** a este cambio (F-B01, F-D01 y F-B06, tres M). Las listas pasan
-  el plan por 21 h (antes, por 19 h); con las bloqueadas, por 41 h (antes, por 39 h).
+  el plan por 33 h (antes, por 21 h); con las bloqueadas, por 53 h (antes, por 41 h).

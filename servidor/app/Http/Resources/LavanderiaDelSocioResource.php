@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Lavanderias\FotosDeLaLavanderia;
 use App\Models\Lavanderia;
+use App\Models\LavanderiaFoto;
 use App\Models\LavanderiaHorario;
 use App\Models\LavanderiaServicio;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,11 +14,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * La lavandería como la ve su socio en la app: lo que registró y edita, nombre, dirección, foto, servicios con su precio
- * y ventanas (alta-lavanderias-E01, E18 y E19). La forma exacta está en
+ * y ventanas (alta-lavanderias-E01, E18 y E19), y la descripción y las fotos de su perfil, con el máximo de fotos de la
+ * configuración (alta-lavanderias-E26 a E30). La forma exacta está en
  * App\Http\Controllers\Api\LavanderiaDelSocioController.
  *
- * No lleva llaves internas, ni la plaza, ni la ruta de la foto: la foto sale con su URL firmada. Tampoco lleva su
- * estado: lo que ve la lavandería suspendida o dada de baja lo fija DD-104 (alta-lavanderias-E16).
+ * No lleva llaves internas, ni la plaza, ni la ruta de una foto: cada foto sale con su URL firmada, y la edición la
+ * nombra por su lugar en la lista (perfil-lavanderia-E03; ADR-0016, regla 5). Tampoco lleva su estado: lo que ve la
+ * lavandería suspendida o dada de baja lo fija DD-104 (alta-lavanderias-E16).
  *
  * @mixin Lavanderia
  */
@@ -25,7 +28,7 @@ class LavanderiaDelSocioResource extends JsonResource
 {
     /**
      * La lavandería con lo que el recurso lee: el municipio con su estado, los servicios activos con su tipo y su
-     * unidad, las ventanas en orden y las fotos.
+     * unidad, las ventanas en orden y las fotos en su orden.
      */
     public static function cargar(Lavanderia $lavanderia): Lavanderia
     {
@@ -40,6 +43,10 @@ class LavanderiaDelSocioResource extends JsonResource
                 ->orderBy('dia_semana')
                 ->orderBy('hora_inicio')
                 ->orderBy('id_lavanderia_horarios'),
+            // El mismo orden de FotosDeLaLavanderia::enOrden(): la edición nombra cada foto por su lugar aquí.
+            'fotos' => fn (HasMany $fotos) => $fotos
+                ->orderBy('orden')
+                ->orderBy('id_lavanderia_fotos'),
         ]);
     }
 
@@ -48,12 +55,13 @@ class LavanderiaDelSocioResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $fotos = app(FotosDeLaLavanderia::class);
-        $principal = $fotos->principal($this->resource);
+        $deLaLavanderia = app(FotosDeLaLavanderia::class);
+        $fotos = $this->fotos->map(fn (LavanderiaFoto $foto): array => $deLaLavanderia->url($foto))->values()->all();
 
         return [
             'id_publico' => $this->id_publico,
             'nombre' => $this->nombre,
+            'descripcion' => $this->descripcion,
             'direccion' => [
                 'calle' => $this->calle,
                 'numero' => $this->numero,
@@ -66,7 +74,10 @@ class LavanderiaDelSocioResource extends JsonResource
                     'estado' => $this->municipio->entidadFederativa?->nombre,
                 ],
             ],
-            'foto' => $principal === null ? null : $fotos->url($principal),
+            // La principal, la primera de la lista; null si no tiene.
+            'foto' => $fotos[0] ?? null,
+            'fotos' => $fotos,
+            'maximo_de_fotos' => FotosDeLaLavanderia::maximo(),
             'servicios' => $this->servicios->map(fn (LavanderiaServicio $servicio): array => [
                 'tipo' => $servicio->tipo->codigo,
                 'nombre' => $servicio->tipo->nombre,

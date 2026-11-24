@@ -2,24 +2,38 @@
 
 namespace App\Filament\Resources\Lavanderias\Schemas;
 
+use App\Lavanderias\FotosDeLaLavanderia;
+use App\Lavanderias\ReglasDeLaLavanderia;
 use App\Lavanderias\ServiciosYVentanas;
+use App\Models\Lavanderia;
 use App\Models\Municipio;
 use App\Models\TipoServicio;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 /**
- * El formulario de edición de una lavandería en el panel: los mismos datos del registro de la app, con los mismos
- * nombres de campo (alta-lavanderias-E13). No valida por su cuenta: al guardar, EditLavanderia pasa todo por
- * App\Lavanderias\ReglasDeLaLavanderia y App\Lavanderias\EdicionDeLavanderia, como la app, y cada error vuelve a su
- * campo.
+ * El formulario de edición de una lavandería en el panel: los mismos datos de la edición de la app, con los mismos
+ * nombres de campo (alta-lavanderias-E13 y E31). No valida por su cuenta, salvo el máximo de fotos del selector (abajo):
+ * al guardar, EditLavanderia pasa todo por App\Lavanderias\ReglasDeLaLavanderia y App\Lavanderias\EdicionDeLavanderia,
+ * como la app, y cada error vuelve a su campo.
  *
- * La foto no se guarda al subirla (storeFiles(false)): la edición la sube al disco privado de fotos y reemplaza la
- * principal, como en la app. Vacía, la foto no cambia.
+ * Las fotos son la lista del perfil, en su orden, y la primera es la principal: la foto del registro es una de ellas
+ * (alta-lavanderias-E27 a E29). Se pueden quitar, ordenar y agregar al final hasta el máximo de la configuración, que
+ * también frena al selector de archivos (alta-lavanderias-E30). Las nuevas no se guardan al subirlas
+ * (storeFiles(false)): la edición las sube al disco privado de fotos, como en la app.
+ *
+ * Dos cuidados del selector, para que las fotos que ya tiene no estorben al guardar otro dato:
+ * - No revisa el disco al abrir (fetchFileInformation(false)). Si lo hiciera, Filament quitaría de la lista la foto cuyo
+ *   archivo no encuentra, o que no pudo revisar por una falla momentánea del almacenamiento, y la lista parecería
+ *   cambiada.
+ * - Su propia regla del máximo (maxFiles()) corre antes que la edición y dice el mensaje de la edición. A una lavandería
+ *   que ya tiene más fotos que el máximo, porque se bajó, le deja las que tiene: la regla de la edición, que solo corre
+ *   si la lista cambia, le pide quedar en el máximo.
  */
 class LavanderiaForm
 {
@@ -41,13 +55,24 @@ class LavanderiaForm
                 Section::make('Lavandería')
                     ->schema([
                         TextInput::make('nombre')->label('Nombre'),
-                        FileUpload::make('foto')
-                            ->label('Foto')
+                        Textarea::make('descripcion')->label('Descripción')->rows(4),
+                        FileUpload::make('fotos')
+                            ->label('Fotos')
                             ->image()
+                            ->multiple()
+                            ->reorderable()
+                            ->appendFiles()
+                            ->maxFiles(fn (?Lavanderia $record): int => max(FotosDeLaLavanderia::maximo(), $record?->fotos()->count() ?? 0))
+                            ->validationMessages(['max' => fn (): string => str_replace(
+                                ':max',
+                                (string) FotosDeLaLavanderia::maximo(),
+                                ReglasDeLaLavanderia::mensajes()['fotos.max'],
+                            )])
                             ->disk(fn (): string => (string) config('fotos.disco'))
                             ->visibility('private')
+                            ->fetchFileInformation(false)
                             ->storeFiles(false)
-                            ->helperText('Sube una foto solo para cambiarla.'),
+                            ->helperText('La primera es la principal. Arrástralas para cambiar el orden.'),
                     ]),
                 Section::make('Dirección')
                     ->statePath('direccion')

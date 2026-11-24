@@ -177,10 +177,17 @@ export interface VentanaDelSocio {
   hora_fin: string;
 }
 
+/** Una foto como sale en la API: solo su URL firmada y cuándo vence. */
+export interface FotoDelSocio {
+  url: string;
+  vence_en: string;
+}
+
 /** La lavandería del socio, como sale en todas las respuestas de /api/socio/lavanderias. */
 export interface LavanderiaDelSocio {
   id_publico: string;
   nombre: string;
+  descripcion: string | null;
   direccion: {
     calle: string;
     numero: string;
@@ -188,18 +195,27 @@ export interface LavanderiaDelSocio {
     codigo_postal: string;
     municipio: { codigo: string; nombre: string; estado: string } | null;
   };
-  foto: { url: string; vence_en: string } | null;
+  /** La principal: la primera de fotos. */
+  foto: FotoDelSocio | null;
+  fotos: FotoDelSocio[];
+  maximo_de_fotos: number;
   servicios: { tipo: string; nombre: string; precio: string; unidad: { codigo: string; nombre: string } }[];
   ventanas: VentanaDelSocio[];
 }
 
+/** Una foto de prueba ya guardada, con su URL firmada. */
+export function fotoGuardada(nombre: string): FotoDelSocio {
+  return { url: `https://fotos.prueba.invalid/${nombre}.jpg?firma=1`, vence_en: '2026-12-03T18:00:00Z' };
+}
+
 /**
- * La lavandería ya registrada de la cuenta: en Durango, con su foto, el lavado estándar a 18.50 por kilo y los jueves
- * de 10:00 a 11:00.
+ * La lavandería ya registrada de la cuenta: en Durango, sin descripción, con la foto del registro, el lavado estándar a
+ * 18.50 por kilo y los jueves de 10:00 a 11:00. Puede tener hasta cinco fotos, el máximo del servidor por omisión.
  */
 export const LAVANDERIA_DEL_SOCIO: LavanderiaDelSocio = {
   id_publico: '01jd8x6m3v2c9q4w5e7r8t0la1',
   nombre: 'Lavandería de prueba del socio',
+  descripcion: null,
   direccion: {
     calle: 'Calle de prueba',
     numero: '123',
@@ -207,7 +223,9 @@ export const LAVANDERIA_DEL_SOCIO: LavanderiaDelSocio = {
     codigo_postal: '34000',
     municipio: { codigo: '10005', nombre: 'Durango', estado: 'Durango' },
   },
-  foto: { url: 'https://fotos.prueba.invalid/lavanderia.jpg?firma=1', vence_en: '2026-12-03T18:00:00Z' },
+  foto: fotoGuardada('lavanderia'),
+  fotos: [fotoGuardada('lavanderia')],
+  maximo_de_fotos: 5,
   servicios: [{ tipo: 'estandar', nombre: 'Lavado estándar', precio: '18.50', unidad: { codigo: 'kg', nombre: 'kilo' } }],
   ventanas: [{ dia_semana: 4, hora_inicio: '10:00', hora_fin: '11:00' }],
 };
@@ -453,8 +471,11 @@ export class ServidorDeLaLavanderia {
     const nueva: LavanderiaDelSocio = {
       id_publico: ID_DE_LA_REGISTRADA,
       nombre: '',
+      descripcion: null,
       direccion: { calle: '', numero: '', colonia: '', codigo_postal: '', municipio: null },
       foto: null,
+      fotos: [],
+      maximo_de_fotos: LAVANDERIA_DEL_SOCIO.maximo_de_fotos,
       servicios: [],
       ventanas: [],
     };
@@ -464,11 +485,27 @@ export class ServidorDeLaLavanderia {
   }
 }
 
+// La foto nueva que subió la app, con su URL firmada.
+function fotoSubida(archivo: ArchivoDelFormulario): FotoDelSocio {
+  return { url: `https://fotos.prueba.invalid/${encodeURIComponent(archivo.contenido)}?firma=2`, vence_en: '2026-12-03T19:00:00Z' };
+}
+
 // Pone en la lavandería lo que llegó, como lo guardaría el servidor: el municipio con su nombre, la foto con su URL
-// firmada, cada servicio con su nombre y su unidad, y los días como números.
+// firmada, la descripción vacía como ninguna, la lista de fotos en su orden (cada una que ya tiene por su lugar en la
+// lista anterior, cada nueva con su URL), cada servicio con su nombre y su unidad, y los días como números.
 function aplicar(lavanderia: LavanderiaDelSocio, cuerpo: Record<string, unknown>) {
   if (typeof cuerpo.nombre === 'string') {
     lavanderia.nombre = cuerpo.nombre;
+  }
+  if (typeof cuerpo.descripcion === 'string') {
+    lavanderia.descripcion = cuerpo.descripcion.trim() === '' ? null : cuerpo.descripcion;
+  }
+  if (Array.isArray(cuerpo.fotos)) {
+    const anteriores = lavanderia.fotos;
+    lavanderia.fotos = (cuerpo.fotos as unknown[]).map((foto) =>
+      esObjeto(foto) ? fotoSubida(foto as unknown as ArchivoDelFormulario) : anteriores[Number(foto)],
+    );
+    lavanderia.foto = lavanderia.fotos[0] ?? null;
   }
   if (esObjeto(cuerpo.direccion)) {
     const direccion = cuerpo.direccion as Record<string, string>;
@@ -482,11 +519,9 @@ function aplicar(lavanderia: LavanderiaDelSocio, cuerpo: Record<string, unknown>
     };
   }
   if (esObjeto(cuerpo.foto)) {
-    const foto = cuerpo.foto as unknown as ArchivoDelFormulario;
-    lavanderia.foto = {
-      url: `https://fotos.prueba.invalid/${encodeURIComponent(foto.contenido)}?firma=2`,
-      vence_en: '2026-12-03T19:00:00Z',
-    };
+    // La foto sola es la principal: reemplaza a la primera de la lista.
+    lavanderia.foto = fotoSubida(cuerpo.foto as unknown as ArchivoDelFormulario);
+    lavanderia.fotos = [lavanderia.foto, ...lavanderia.fotos.slice(1)];
   }
   if (Array.isArray(cuerpo.servicios)) {
     lavanderia.servicios = (cuerpo.servicios as { tipo: string; precio: string }[]).map(({ tipo, precio }) => ({

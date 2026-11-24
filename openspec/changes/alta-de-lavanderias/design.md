@@ -126,8 +126,8 @@ decisión agrega una librería ni un servicio externo.
   prenda). Un tipo que ya no viene en la lista queda `activo = false`, sin borrarse. El precio va en pesos, sin signo y
   con hasta dos decimales; el piso, el techo y quién lo fija son E08 (DD-010).
 - **La edición** (`App\Lavanderias\EdicionDeLavanderia`) es la misma para la app y el panel. Cambia solo lo que viene,
-  con las reglas del registro; los servicios y las ventanas, si vienen, son la lista completa. Una lavandería ajena
-  responde 404 antes de validar (E20).
+  con las reglas del registro; los servicios, las ventanas y las fotos del perfil, si vienen, son la lista completa.
+  Una lavandería ajena responde 404 antes de validar (E20).
 - **Las ventanas** (E21, E22) son el mismo campo `ventanas` en el registro y en la edición: el horario completo de la
   semana, una fila de `lavanderia_horarios` por ventana. Cada una dura exactamente una hora
   (`App\Lavanderias\VentanaDeUnaHora`), con horas `HH:MM` en la zona horaria de la plaza; la última del día puede
@@ -143,13 +143,17 @@ decisión agrega una librería ni un servicio externo.
 - **Una cuenta, una lavandería.** El modelo dice `usuarios ||--o| lavanderias`: el registro de una cuenta que ya tiene
   la suya responde 409 y no guarda nada. La base no lo exige con un único; si DD-053 lo confirma, entra como índice.
 - **La foto.** Va al disco privado de fotos del entorno, que elige `config/fotos.php` (`FOTOS_DISCO`): `fotos_s3` en
-  producción, el bucket S3 privado de las variables de entorno (ADR-0006, ADR-0012), y `fotos_local` en los demás, un
-  disco local privado (`storage/app/private/fotos`) que sirve cada foto en `/archivos/fotos/…` solo con una URL firmada
-  que vence. Esto responde, para local, la pregunta abierta "El almacenamiento en local" de `perfil-de-lavanderia`:
-  falta anotarlo en ADR-0006. El servidor revisa el tipo (`FOTOS_TIPOS`, `jpg,jpeg,png,webp`) y el peso
-  (`FOTOS_PESO_MAXIMO_KB`, 5120 por omisión, ratificado el 2026-11-24: pregunta abierta 1, resuelta); la URL dura
-  `FOTOS_VIGENCIA_MINUTOS` (60). La ruta del archivo nunca sale como campo de la API. La foto del registro es la
-  principal (`orden` 1); cambiarla reemplaza esa fila y borra el archivo anterior.
+  producción, el bucket S3 privado de las variables de entorno (ADR-0006, ADR-0012), y hoy `fotos_local` en los demás,
+  un disco local privado (`storage/app/private/fotos`) que sirve cada foto en `/archivos/fotos/…` solo con una URL
+  firmada que vence. Esto responde, para local, la pregunta abierta "El almacenamiento en local" de
+  `perfil-de-lavanderia`, y ya lo anota la adenda del 2026-11-24 de ADR-0006 (`acta-2026-11-20-modelo-y-pasarela.md`,
+  decisión 49): `fotos_local` solo es para la máquina local y las pruebas automáticas; el entorno de prueba y
+  producción usan `fotos_s3`, y el valor por omisión cambia cuando exista el bucket del entorno de prueba (DD-070). El
+  servidor revisa el tipo (`FOTOS_TIPOS`, `jpg,jpeg,png,webp`) y el peso (`FOTOS_PESO_MAXIMO_KB`, 5120 por omisión,
+  ratificado el 2026-11-24: pregunta abierta 1, resuelta); la URL dura `FOTOS_VIGENCIA_MINUTOS` (60). La ruta del
+  archivo nunca sale como campo de la API. La foto del registro es la principal (`orden` 1); cambiarla reemplaza esa
+  fila y borra el archivo anterior. La lista de fotos del perfil está en la sección "La descripción y las fotos del
+  perfil".
 - **Para producción falta una dependencia:** el driver S3 de Laravel necesita `league/flysystem-aws-s3-v3`. No se
   instaló, porque hoy solo existe el entorno local (C-154); se propone instalarla cuando se decida el hosting (DD-070).
 
@@ -162,10 +166,11 @@ El recurso de lavanderías de Filament (ADR-0003, ADR-0011) vive en `servidor/ap
   todas las plazas, para la administración; ninguna para otra cuenta (autorizacion-E03, con su prueba en
   `servidor/tests/Feature/Autorizacion/PanelSoloAdministracionTest.php`). No usa Policies de Filament (ADR-0019).
 - **La lista** muestra nombre, estado (Pendiente, Activa, Suspendida, Dada de baja) y plaza (E13).
-- **La edición** usa los mismos campos del registro y pasa por `ReglasDeLaLavanderia` y `EdicionDeLavanderia`, como
-  la app; cada error vuelve junto a su campo. Solo se manda lo que cambió desde que se abrió la página, como en el
-  `PATCH` de la app: así una lavandería de prueba sin municipio, o con sus franjas largas de prueba, se edita en lo
-  demás. La foto solo cambia si se sube una nueva.
+- **La edición** usa los mismos campos del registro, más la descripción y las fotos del perfil, y pasa por
+  `ReglasDeLaLavanderia` y `EdicionDeLavanderia`, como la app; cada error vuelve junto a su campo. Solo se manda lo que
+  cambió desde que se abrió la página, como en el `PATCH` de la app: así una lavandería de prueba sin municipio, o con
+  sus franjas largas de prueba, se edita en lo demás. La foto del registro es la primera de la lista de fotos
+  (alta-lavanderias-E31, en la sección "La descripción y las fotos del perfil").
 - **No hay alta ni borrado:** el alta espera DD-053 (E11) y la baja no borra (E17).
 - **Suspender y levantar la suspensión** (E14, E15) son acciones de la lista y de la página de cada lavandería, con
   confirmación (`app/Filament/Resources/Lavanderias/Actions/AccionesDeEstado.php`). La regla vive en
@@ -207,9 +212,68 @@ Durango; cualquier otro municipio responde `direccion_no_encontrada`. Para regis
 local, la dirección va en Durango, con el catálogo del territorio ya cargado (`php artisan direcciones:cargar-catalogo`,
 con los archivos de Correos de México que no se versionan, DD-138): sin él, ningún municipio pasa la validación.
 
+## La descripción y las fotos del perfil
+
+alta-lavanderias-E26 a E31 (tareas 2.4, 3.4 y 4.3). La pregunta abierta 3 la decidió el concilio del 2026-11-24, por
+delegación de Arthur (C-236, C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 44; DD-097): la descripción y las
+fotos las captura la lavandería en Perfil y horarios (`NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #6`) y el
+panel las hereda con las mismas reglas (`:19:Módulo D #1`). El perfil que ve el usuario ya las mostraba
+(perfil-lavanderia-E01 y E09) y no cambia.
+
+- **Sin migración.** `lavanderias.descripcion` (`text`, opcional) y `lavanderia_fotos.orden` ya existen.
+- **El registro no cambia.** Pide una sola foto y ninguna descripción (`ReglasDeLaLavanderia::CAMPOS`). La edición
+  admite además `descripcion` y `fotos` (`ReglasDeLaLavanderia::CAMPOS_DE_LA_EDICION`).
+- **La descripción** es opcional, de hasta 1000 caracteres (`ReglasDeLaLavanderia::DESCRIPCION_MAXIMA`), el mismo
+  largo técnico del comentario de la calificación (`config/pedidos.php`). Se guarda sin los espacios de las orillas, y
+  vacía deja el perfil sin descripción (`null`).
+- **Las fotos son una lista completa y ordenada** que reemplaza a la anterior, como los servicios y las ventanas:
+  `FotosDeLaLavanderia::reemplazarTodas()`, junto a `reemplazarPrincipal()`. Dentro de la transacción de la edición,
+  con la lavandería bloqueada:
+  - revisa que cada foto que ya tiene exista y venga una sola vez (si no, 422 en `fotos.N`);
+  - borra las filas que no vienen;
+  - crea las nuevas;
+  - reescribe `orden` de 1 a n: la primera es la principal.
+
+  Los archivos quitados se borran cuando la transacción queda guardada, y los nuevos se borran si falla, como la foto
+  del registro.
+- **Cómo se nombra una foto que ya tiene:** por su lugar en `fotos` de la última lectura (0, la primera), nunca por su
+  ruta ni por su llave (perfil-lavanderia-E03; ADR-0016, regla 5). En multipart, Laravel junta primero los textos y
+  luego los archivos de la lista; el controlador la ordena por su lugar antes de validar.
+- **El máximo** es `FOTOS_MAXIMO_POR_LAVANDERIA` (`config/fotos.php`, `maximo_por_lavanderia`, 5 por omisión), un
+  valor técnico que cambia sin tocar el código. La lista va de 1 al máximo: la última foto no se quita, porque el
+  registro pide una (E28), y una lista más larga se rechaza con un mensaje que dice el máximo (E30). La app lo recibe en
+  `maximo_de_fotos`.
+- **La foto sola sigue** (`foto`, E18): reemplaza la principal. Si llegan `foto` y `fotos` juntas, 422 en `fotos`.
+- **El panel** (E31) cambia su campo de foto por la lista: `descripcion` es un área de texto y `fotos` un selector de
+  varias fotos, ordenables, que agrega al final, en el disco de `config('fotos.disco')`. La página convierte la lista a
+  la forma de la app: cada foto que ya tiene, por su lugar en la lista que leyó al abrir, y cada nueva como archivo. La
+  guardan las reglas y la edición de la app, y solo si la lista cambió desde que se abrió la página. El error de
+  cualquier foto va al selector. Tres cuidados, para que las fotos que ya tiene no estorben al guardar otro dato:
+  - **El máximo** de la configuración también frena al selector, que no deja subir más (lo mismo que la app, que no lo
+    ofrece). Es la única validación propia del formulario: la regla `max` del selector de Filament corre antes que la
+    edición, con el mensaje de `ReglasDeLaLavanderia` ("La lavandería puede tener hasta N fotos."). A una lavandería que
+    ya tiene más fotos que el máximo, porque se bajó, el selector le deja las que tiene: la regla de la edición, que
+    solo corre si la lista cambió, le pide quedar en el máximo, y lo demás se sigue editando.
+  - **El selector no revisa el disco al abrir** (`fetchFileInformation(false)`). Si lo hiciera, Filament quitaría de la
+    lista la foto cuyo archivo no encuentra, o que no pudo revisar por una falla momentánea del almacenamiento, y la
+    lista parecería cambiada: guardar cualquier otro dato borraría esa foto.
+  - **Las fotos que cambiaron después de abrir.** Con la lavandería bloqueada, la edición revisa que las fotos sigan
+    siendo las que leyó la página; si cambiaron, por ejemplo desde la app, rechaza la lista en `fotos` y no cambia nada
+    (`FotosDeLaLavanderia::FOTOS_QUE_CAMBIARON`). Si la página no cambió las fotos, no las manda y no las toca.
+- **En la app** (`app/lavanderia/perfil.tsx`, `src/alta-lavanderias/FormularioDeLaLavanderia.tsx` y `formulario.ts`),
+  solo en Perfil y horarios:
+  - el campo "Descripción", de varias líneas y opcional;
+  - en lugar de la foto única, la lista de fotos en su orden; cada una con "Quitar" si hay más de una y "Mover antes"
+    si no es la primera;
+  - "Agregar foto", con la misma toma, elección y compresión del registro (`src/alta-lavanderias/foto.ts`), mientras
+    haya menos que el máximo que da el servidor. La nueva va al final.
+
+  La edición manda la descripción si cambió y la lista completa si cambió algo de ella, en JSON o, con una foto nueva,
+  en multipart. El error de una foto va en la sección de fotos. El registro conserva su campo único de foto.
+
 ## El contrato de la API
 
-Para la app (tareas 4.1 y 4.2). El mismo texto, con su detalle, está en
+Para la app (tareas 4.1, 4.2 y 4.3). El mismo texto, con su detalle, está en
 `servidor/app/Http/Controllers/Api/LavanderiaDelSocioController.php`.
 
 Todas las rutas llevan `Authorization: Bearer <token>` de una cuenta con el rol de socio lavandería. Sin sesión
@@ -221,6 +285,7 @@ responden 401; con otro rol, 403 (`{ "message": "Esta cuenta no tiene acceso." }
 {
   "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",
   "nombre": "Lavandería Ejemplo",
+  "descripcion": "Entregamos el mismo día.",
   "direccion": {
     "calle": "Calle Ejemplo",
     "numero": "123",
@@ -229,6 +294,10 @@ responden 401; con otro rol, 403 (`{ "message": "Esta cuenta no tiene acceso." }
     "municipio": { "codigo": "10005", "nombre": "Durango", "estado": "Durango" }
   },
   "foto": { "url": "https://…/archivos/fotos/…?expires=…&signature=…", "vence_en": "2026-11-22T18:00:00Z" },
+  "fotos": [
+    { "url": "https://…/archivos/fotos/…?expires=…&signature=…", "vence_en": "2026-11-22T18:00:00Z" }
+  ],
+  "maximo_de_fotos": 5,
   "servicios": [
     { "tipo": "estandar", "nombre": "Lavado estándar", "precio": "18.50", "unidad": { "codigo": "kg", "nombre": "kilo" } }
   ],
@@ -238,7 +307,9 @@ responden 401; con otro rol, 403 (`{ "message": "Esta cuenta no tiene acceso." }
 }
 ```
 
-- `municipio` es `null` en una lavandería de prueba sin municipio; `foto` es `null` si no tiene.
+- `municipio` es `null` en una lavandería de prueba sin municipio; `descripcion` es `null` si no tiene.
+- `fotos` son todas las del perfil, en su orden; `foto` es la principal, la primera de ellas, o `null` si no tiene.
+  `maximo_de_fotos` es el máximo de la configuración (alta-lavanderias-E30).
 - `precio` es texto en pesos con dos decimales. `dia_semana` va del 1, el lunes, al 7, el domingo; las horas, en la
   hora local de la plaza.
 - No sale el estado de la lavandería: lo que ve suspendida o de baja es DD-104 (E16).
@@ -275,22 +346,31 @@ registro o el perfil, y con qué `id_publico`.
 **200** `{ "lavanderia": { … } }`. **404** `{ "message": "No existe la lavandería." }` si no existe, está borrada o es
 de otra cuenta: las tres responden igual (E20).
 
-**`PATCH /api/socio/lavanderias/{id_publico}`**: edita su información y sus ventanas (E18, E20, E21, E22). Los mismos
-campos del registro, con las mismas reglas; solo van los que cambian:
+**`PATCH /api/socio/lavanderias/{id_publico}`**: edita su información, su descripción, sus fotos y sus ventanas (E18,
+E20, E21, E22, E25 y E26 a E30). Los mismos campos del registro, con las mismas reglas, más la descripción y la lista de
+fotos; solo van los que cambian:
 
 - `nombre`;
 - `direccion`, completa (las cinco partes);
-- `foto`, que reemplaza a la anterior;
+- `foto`, que reemplaza a la principal;
 - `servicios`, la lista completa: un tipo que no viene deja de ofrecerse;
-- `ventanas`, el horario completo de la semana: reemplaza a todas las anteriores.
+- `ventanas`, el horario completo de la semana: reemplaza a todas las anteriores;
+- `descripcion`, texto de hasta 1000 caracteres; vacía, el perfil queda sin descripción;
+- `fotos`, la lista completa y en orden, de 1 a `maximo_de_fotos`; la primera es la principal. Cada elemento es una
+  foto que ya tiene, por su lugar en `fotos` de la última lectura (0, la primera), o un archivo nuevo con las reglas de
+  la foto del registro. Una foto que no viene se quita y su archivo se borra. No va junto con `foto`. En JSON,
+  `"fotos": [2, 0]`; en multipart, `fotos[0]=2`, `fotos[1]=<archivo>`, `fotos[2]=0`.
 
-Sin foto va en JSON. **Con foto, en `multipart/form-data` por `POST` con el campo `_method=PATCH`**, porque PHP solo lee
-los archivos de un `POST`. La dirección nueva se geocodifica una vez; la misma que ya tiene no se vuelve a consultar.
+Sin archivos va en JSON. **Con `foto` o con una foto nueva en `fotos`, en `multipart/form-data` por `POST` con el campo
+`_method=PATCH`**, porque PHP solo lee los archivos de un `POST`. La dirección nueva se geocodifica una vez; la misma
+que ya tiene no se vuelve a consultar.
 
 - **200** `{ "lavanderia": { … } }`, ya con los cambios.
 - **404** como en `GET`: una ajena no se edita y sus datos no cambian. La búsqueda va antes de validar.
-- **422** como en el registro; si algo se rechaza, no cambia nada. Además, `"motivo": "en_otra_plaza"` en `direccion`
-  si la dirección nueva cae en una zona de otra plaza (ver la decisión del cambio de plaza).
+- **422** como en el registro; si algo se rechaza, no cambia nada. Los errores de la lista de fotos van en `fotos` (sin
+  fotos, más que el máximo, o junto con `foto`) o en su lugar, `fotos.N` (una foto que no tiene o que ya está en la
+  lista, o un archivo que no cumple las reglas). Además, `"motivo": "en_otra_plaza"` en `direccion` si la dirección
+  nueva cae en una zona de otra plaza (ver la decisión del cambio de plaza).
 - **503** como en el registro.
 
 ## Risks / Trade-offs
@@ -306,8 +386,20 @@ los archivos de un `POST`. La dirección nueva se geocodifica una vez; la misma 
   reales dependen del reclutamiento de EL CLIENTE (DD-021).
 - [`perfil-de-lavanderia` crea `lavanderias` por su lado] → Si al implementarse ya trae `estado` o `aprobada_en`, esta
   migración no los repite; lo que vale es la tabla final de `modelo-de-datos.md`.
-- [Las horas no caben en el plan] → Las tareas listas suman 36 h y las bloqueadas 20 h más, contra 15 h del plan para
-  F-B01, F-D01 y F-B06. Se reporta para la recalibración de S-006.
+- [La app nombra cada foto que ya tiene por su lugar en su última lectura, y el servidor lo cuenta sobre la lista del
+  momento de guardar] → Si la app y el panel cambian las fotos de la misma lavandería a la vez, la app puede conservar o
+  quitar una foto distinta de la que quería, sin error: la app leyó [A, B, C], el panel las reordena a [C, A, B] y la
+  lavandería quita C mandando [0, 1], que conserva C y A y quita B. El panel no tiene este riesgo: revisa, con la
+  lavandería bloqueada, que las fotos sigan siendo las que leyó. Cerrarlo en la app pide una huella de la lista en la
+  lectura (por ejemplo, un hash del orden de las rutas, que no expone ninguna) y un 422 en `fotos` si al guardar ya no
+  coincide; cambia el contrato de la API y queda fuera de este cambio.
+- [El aviso del selector del panel al pasar del máximo sale en inglés] → El selector de Filament lo arma en el
+  navegador con la traducción de Laravel `validation.max.array`, y el servidor no tiene traducciones propias
+  (`servidor/lang/` no existe). El mensaje de la regla al guardar sí sale en español. Agregar las traducciones toca el
+  panel entero y queda fuera de este cambio.
+- [Las horas no caben en el plan] → Las tareas listas suman 48 h, con las 12 h de la descripción y las fotos del perfil
+  (tareas 2.4, 3.4 y 4.3), y las bloqueadas 20 h más, contra 15 h del plan para F-B01, F-D01 y F-B06. Se reporta para la
+  recalibración de S-006.
 
 ## Open Questions
 
@@ -331,9 +423,10 @@ los archivos de un `POST`. La dirección nueva se geocodifica una vez; la misma 
    `acta-2026-11-20-modelo-y-pasarela.md`, decisión 44): la descripción, opcional, y las fotos las captura la propia
    lavandería en Perfil y horarios ("Edición de información de la lavandería", `:17:Módulo B #6`), y el panel las
    hereda porque usa las mismas reglas (`:19:Módulo D #1`). El registro sigue pidiendo una sola foto
-   (`:17:Módulo B #1`). No necesita migración: `lavanderias.descripcion` y `lavanderia_fotos.orden` ya existen. Sus
-   escenarios, de alta-lavanderias-E26 en adelante, fijan cómo se agregan, se quitan y se ordenan las fotos y cuál es
-   el máximo; se escriben antes que su código, y los dos quedan pendientes.
+   (`:17:Módulo B #1`). No necesita migración: `lavanderias.descripcion` y `lavanderia_fotos.orden` ya existen.
+   **Resuelta con alta-lavanderias-E26 a E31**, que fijan cómo se escribe la descripción y cómo se agregan, se quitan y
+   se ordenan las fotos, y cuál es el máximo. Se escribieron antes que su código, y los implementan las tareas 2.4, 3.4
+   y 4.3 (sección "La descripción y las fotos del perfil").
 4. **Las pantallas no tienen componente en el design system.** El registro y el perfil y horarios del Módulo B no
    están entre los seis componentes (`vault/design-system/componentes.md`); las imágenes `b01-registro` y `b06-perfil`
    de la Propuesta 04 orientan. La Definition of Ready pide el componente o una tarea para crearlo.
