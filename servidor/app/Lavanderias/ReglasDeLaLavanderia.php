@@ -5,6 +5,7 @@ namespace App\Lavanderias;
 use App\Fotos\ReglasDeLaFoto;
 use App\Http\Requests\GuardarDireccionRequest;
 use App\Models\Municipio;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
 
 /**
@@ -14,12 +15,24 @@ use Illuminate\Validation\Rule;
  * App\Http\Controllers\Api\LavanderiaDelSocioController.
  *
  * El registro pide los cinco datos del Módulo B #1: nombre, dirección, foto, servicios con su precio y horario
- * (alta-lavanderias-E02). La edición pide solo los que cambia, cada uno con la misma regla.
+ * (alta-lavanderias-E02). La edición pide solo los que cambia, cada uno con la misma regla, y además admite la
+ * descripción y la lista de fotos del perfil, que el registro no pide (alta-lavanderias-E26 a E31;
+ * NSV-2026-001-v8.pdf:16:Módulo A #5, "Fotos, descripción"; acta-2026-11-20-modelo-y-pasarela.md, decisión 44).
  */
 final class ReglasDeLaLavanderia
 {
     /** Los datos del registro, por su campo (Módulo B #1). */
     public const CAMPOS = ['nombre', 'direccion', 'foto', 'servicios', 'ventanas'];
+
+    /** Los datos de la edición, en la app y en el panel: los del registro, la descripción y la lista de fotos. */
+    public const CAMPOS_DE_LA_EDICION = [...self::CAMPOS, 'descripcion', 'fotos'];
+
+    /**
+     * El largo máximo de la descripción, en caracteres. El contrato pide la descripción y no le pone largo: es un límite
+     * técnico para proteger la tabla, el mismo del comentario de la calificación (config/pedidos.php,
+     * comentario_de_calificacion_maximo).
+     */
+    public const DESCRIPCION_MAXIMA = 1000;
 
     /** Una hora del día, HH:MM, de 00:00 a 23:59. */
     public const HORA = '/^([01][0-9]|2[0-3]):[0-5][0-9]$/';
@@ -70,6 +83,21 @@ final class ReglasDeLaLavanderia
                 'ventanas.*.dia_semana' => ['bail', 'required', 'integer', 'between:1,7'],
                 'ventanas.*.hora_inicio' => ['bail', 'required', 'string', 'regex:'.self::HORA],
                 'ventanas.*.hora_fin' => ['bail', 'required', 'string', 'regex:'.self::HORA_DE_FIN],
+            ],
+            // Opcional: vacía, el perfil queda sin descripción (alta-lavanderias-E26).
+            'descripcion' => [
+                'descripcion' => ['nullable', 'string', 'max:'.self::DESCRIPCION_MAXIMA],
+            ],
+            // La lista completa y en orden, de una al máximo de la configuración: la última no se quita, porque el
+            // registro pide una (alta-lavanderias-E28 y E30). No va junto con la foto principal sola.
+            'fotos' => [
+                'fotos' => ['bail', 'required', 'array', 'list', 'min:1', 'max:'.FotosDeLaLavanderia::maximo(), 'prohibits:foto'],
+                // Cada una, una foto que ya tiene, por su lugar en la lista de la última lectura (0, la primera), o un
+                // archivo nuevo con las reglas de toda foto. Que ese lugar exista lo revisa FotosDeLaLavanderia, con la
+                // lavandería bloqueada.
+                'fotos.*' => Rule::forEach(fn (mixed $foto): array => $foto instanceof UploadedFile
+                    ? ReglasDeLaFoto::reglas()
+                    : ['bail', 'required', 'integer', 'min:0']),
             ],
         ];
 
@@ -129,6 +157,21 @@ final class ReglasDeLaLavanderia
             'ventanas.*.hora_inicio.string' => 'La hora va como HH:MM.',
             'ventanas.*.hora_fin.string' => 'La hora va como HH:MM.',
             'servicios.*.tipo.string' => 'Ese servicio no se admite.',
+            'descripcion.string' => 'La descripción debe ser texto.',
+            'descripcion.max' => 'La descripción puede tener hasta :max caracteres.',
+            'fotos.required' => 'La lavandería necesita al menos una foto.',
+            'fotos.min' => 'La lavandería necesita al menos una foto.',
+            'fotos.array' => 'Las fotos van en una lista.',
+            'fotos.list' => 'Las fotos van en una lista.',
+            'fotos.max' => 'La lavandería puede tener hasta :max fotos.',
+            'fotos.prohibits' => 'Manda la foto principal o la lista de fotos, no las dos.',
+            'fotos.*.required' => 'Cada foto es una que ya tiene, por su lugar en la lista, o una foto nueva.',
+            'fotos.*.integer' => 'Cada foto es una que ya tiene, por su lugar en la lista, o una foto nueva.',
+            'fotos.*.min' => 'Cada foto es una que ya tiene, por su lugar en la lista, o una foto nueva.',
+            'fotos.*.file' => "La foto debe ser una imagen: {$tipos}.",
+            'fotos.*.image' => "La foto debe ser una imagen: {$tipos}.",
+            'fotos.*.mimes' => "La foto debe ser una imagen: {$tipos}.",
+            'fotos.*.max' => 'La foto pesa más de :max KB.',
             'direccion.*.string' => 'Este campo debe ser texto.',
             'direccion.*.max' => 'Este campo es demasiado largo.',
             '*.string' => 'Este campo debe ser texto.',

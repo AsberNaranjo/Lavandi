@@ -241,14 +241,14 @@ class PerfilTest extends TestCase
     }
 
     /**
-     * La lavandería sin la URL firmada de su foto, que cambia en cada consulta.
+     * La lavandería sin las URLs firmadas de sus fotos, que cambian en cada consulta.
      *
      * @param  array<string, mixed>  $lavanderia
      * @return array<string, mixed>
      */
     private function sinUrl(array $lavanderia): array
     {
-        unset($lavanderia['foto']);
+        unset($lavanderia['foto'], $lavanderia['fotos']);
 
         return $lavanderia;
     }

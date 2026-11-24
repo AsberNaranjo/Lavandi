@@ -4,6 +4,7 @@ namespace Tests\Feature\AltaLavanderias\Soporte;
 
 use App\Direcciones\Geocodificador;
 use App\Direcciones\Punto;
+use App\Fotos\AlmacenDeFotos;
 use App\Models\Lavanderia;
 use App\Models\Municipio;
 use App\Models\Plaza;
@@ -190,6 +191,59 @@ trait AltaDePrueba
     protected function archivosDeFotos(): array
     {
         return Storage::disk(config('fotos.disco'))->allFiles();
+    }
+
+    /**
+     * Le da a la lavandería registrada, que ya tiene la foto del registro, las fotos que faltan para tener esas, con su
+     * archivo en el disco de fotos (alta-lavanderias-E26 a E31). Devuelve sus rutas en orden.
+     *
+     * @return list<string>
+     */
+    protected function conFotos(Lavanderia $lavanderia, int $cuantas): array
+    {
+        $almacen = app(AlmacenDeFotos::class);
+
+        for ($orden = $lavanderia->fotos()->count() + 1; $orden <= $cuantas; $orden++) {
+            $ruta = "lavanderias/{$lavanderia->id_publico}/de-prueba-{$orden}.jpg";
+            $almacen->guardarContenido($ruta, "contenido de prueba de la foto {$orden}");
+            $lavanderia->fotos()->create(['ruta' => $ruta, 'orden' => $orden]);
+        }
+
+        return $this->rutasEnOrden($lavanderia);
+    }
+
+    /**
+     * Las rutas de las fotos de la lavandería, en su orden.
+     *
+     * @return list<string>
+     */
+    protected function rutasEnOrden(Lavanderia $lavanderia): array
+    {
+        return $lavanderia->fotos()->orderBy('orden')->orderBy('id_lavanderia_fotos')->pluck('ruta')->all();
+    }
+
+    /**
+     * La ruta de cada foto de una respuesta: la URL del disco falso de las pruebas lleva la ruta del archivo. La API
+     * nunca la manda como campo.
+     *
+     * @param  list<array{url: string, vence_en: string}|null>  $fotos
+     * @return list<string>
+     */
+    protected function rutasDe(array $fotos): array
+    {
+        return array_map(fn (?array $foto): string => ltrim((string) parse_url((string) ($foto['url'] ?? ''), PHP_URL_PATH), '/'), $fotos);
+    }
+
+    /**
+     * El perfil de la lavandería como lo ve un usuario de la app (perfil-lavanderia-E01).
+     */
+    protected function perfilDelUsuario(Lavanderia $lavanderia): TestResponse
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withToken(Usuario::factory()->conRol(Rol::USUARIO)->create()->createToken('app')->plainTextToken)
+            ->getJson("/api/lavanderias/{$lavanderia->id_publico}")
+            ->assertOk();
     }
 
     /**

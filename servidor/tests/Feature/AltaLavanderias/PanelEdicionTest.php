@@ -24,9 +24,9 @@ use Tests\TestCase;
  * con las mismas validaciones del registro de la app (NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #1,
  * "edición de socios"; ADR-0003). El alta desde el panel espera DD-053 (alta-lavanderias-E11): el recurso no tiene
  * página de alta. Una dirección nueva en la zona de otra plaza se rechaza, como en la app: la lavandería no cambia de
- * plaza.
+ * plaza. La descripción y las fotos del perfil se editan con las reglas de la app (alta-lavanderias-E31).
  *
- * Escenarios: alta-lavanderias-E13 y alta-lavanderias-E25 · Tareas 3.1 y 2.3 · Spec:
+ * Escenarios: alta-lavanderias-E13, alta-lavanderias-E25 y alta-lavanderias-E31 · Tareas 3.1, 2.3 y 3.4 · Spec:
  * openspec/changes/alta-de-lavanderias/specs/alta-lavanderias/spec.md
  */
 class PanelEdicionTest extends TestCase
@@ -126,7 +126,8 @@ class PanelEdicionTest extends TestCase
 
         Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
             ->fillForm([
-                'foto' => $this->fotoDePrueba('desde-el-panel.jpg'),
+                // La foto del registro se cambia en la lista de fotos (alta-lavanderias-E31).
+                'fotos' => [$this->fotoDePrueba('desde-el-panel.jpg')],
                 'direccion.calle' => 'Calle del panel',
                 'servicios' => [
                     ['tipo' => 'estandar', 'precio' => '19.00'],
@@ -169,10 +170,92 @@ class PanelEdicionTest extends TestCase
                 'ventanas.0.hora_fin',
             ]);
 
-        unset($antes['foto']);
+        unset($antes['foto'], $antes['fotos']);
         $despues = $this->consultar($cuenta, $lavanderia->id_publico)->json('lavanderia');
-        unset($despues['foto']);
+        unset($despues['foto'], $despues['fotos']);
         $this->assertSame($antes, $despues);
+    }
+
+    #[TestDox('alta-lavanderias-E31: la administración cambia la descripción y las fotos desde el panel: quita una, cambia el orden y agrega otra al final, y la lavandería y el usuario lo ven')]
+    public function test_alta_lavanderias_e31_el_panel_edita_la_descripcion_y_las_fotos(): void
+    {
+        $cuenta = $this->cuentaDeLavanderia();
+        $lavanderia = $this->registrada($cuenta);
+        [$primera, $segunda, $tercera] = $this->conFotos($lavanderia, 3);
+        $this->comoAdministracion();
+
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->assertOk()
+            ->assertSchemaStateSet(['descripcion' => null])
+            ->fillForm([
+                'descripcion' => 'Descripción de prueba desde el panel.',
+                'fotos' => [$tercera, $primera],
+            ])
+            // La nueva se sube al final de la lista, como la agrega el selector (appendFiles()).
+            ->set('data.fotos.nueva', $this->fotoDePrueba('desde-el-panel.jpg'))
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $rutas = $this->rutasEnOrden($lavanderia);
+        $this->assertCount(3, $rutas);
+        $this->assertSame([$tercera, $primera], array_slice($rutas, 0, 2));
+        $this->assertSame([1, 2, 3], $lavanderia->fotos()->orderBy('orden')->pluck('orden')->all());
+        // La que se quitó se borra del almacenamiento.
+        $this->assertEqualsCanonicalizing($rutas, $this->archivosDeFotos());
+        $this->assertNotContains($segunda, $this->archivosDeFotos());
+
+        $this->consultar($cuenta, $lavanderia->id_publico)
+            ->assertJsonPath('lavanderia.descripcion', 'Descripción de prueba desde el panel.');
+        $perfil = $this->perfilDelUsuario($lavanderia)
+            ->assertJsonPath('lavanderia.descripcion', 'Descripción de prueba desde el panel.');
+        $this->assertSame($rutas, $this->rutasDe($perfil->json('lavanderia.fotos')));
+    }
+
+    #[TestDox('alta-lavanderias-E31: el panel borra la descripción y, si no cambia las fotos, no las toca')]
+    public function test_alta_lavanderias_e31_el_panel_borra_la_descripcion_sin_tocar_las_fotos(): void
+    {
+        $lavanderia = $this->registrada();
+        $lavanderia->update(['descripcion' => 'Descripción de prueba anterior.']);
+        $antes = $this->conFotos($lavanderia, 2);
+        $this->comoAdministracion();
+
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->assertSchemaStateSet(['descripcion' => 'Descripción de prueba anterior.'])
+            ->fillForm(['descripcion' => ''])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertNull($lavanderia->fresh()->descripcion);
+        $this->assertSame($antes, $this->rutasEnOrden($lavanderia));
+        $this->assertEqualsCanonicalizing($antes, $this->archivosDeFotos());
+    }
+
+    #[TestDox('alta-lavanderias-E31: el panel aplica las reglas de la descripción y de las fotos: sin fotos, con más del máximo o con una descripción demasiado larga se rechaza junto a su campo y nada cambia')]
+    public function test_alta_lavanderias_e31_el_panel_aplica_las_reglas_de_la_descripcion_y_las_fotos(): void
+    {
+        config(['fotos.maximo_por_lavanderia' => 2]);
+        $lavanderia = $this->registrada();
+        $antes = $this->conFotos($lavanderia, 2);
+        $this->comoAdministracion();
+
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->fillForm(['fotos' => []])
+            ->call('save')
+            ->assertHasFormErrors(['fotos' => 'La lavandería necesita al menos una foto.']);
+
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->fillForm(['fotos' => [...$antes, $this->fotoDePrueba('una-de-mas.jpg')]])
+            ->call('save')
+            ->assertHasFormErrors(['fotos']);
+
+        Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()])
+            ->fillForm(['descripcion' => str_repeat('a', 1001)])
+            ->call('save')
+            ->assertHasFormErrors(['descripcion' => 'La descripción puede tener hasta 1000 caracteres.']);
+
+        $this->assertNull($lavanderia->fresh()->descripcion);
+        $this->assertSame($antes, $this->rutasEnOrden($lavanderia));
+        $this->assertEqualsCanonicalizing($antes, $this->archivosDeFotos());
     }
 
     #[TestDox('alta-lavanderias-E13: una lavandería de prueba sin municipio y con franjas largas se edita en lo demás: solo se valida lo que cambia')]

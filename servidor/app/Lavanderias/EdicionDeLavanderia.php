@@ -10,17 +10,19 @@ use Throwable;
 
 /**
  * La edición de la información de una lavandería: nombre, dirección, foto, servicios con su precio y ventanas, con las
- * mismas validaciones del registro (App\Lavanderias\ReglasDeLaLavanderia). La usan la app del socio
- * (alta-lavanderias-E18; NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #6) y el panel de administración
- * (alta-lavanderias-E13; :19:Módulo D #1).
+ * mismas validaciones del registro (App\Lavanderias\ReglasDeLaLavanderia), y la descripción y las fotos de su perfil
+ * (alta-lavanderias-E26 a E31). La usan la app del socio (alta-lavanderias-E18; NSV-2026-001-v8.pdf:17:ANEXO A, Sección
+ * A.3, Módulo B #6) y el panel de administración (alta-lavanderias-E13 y E31; :19:Módulo D #1).
  *
  * No sabe quién la llama: recibe la lavandería ya autorizada (App\Autorizacion\Autorizacion). Cambia solo lo que viene;
- * los servicios y las ventanas, si vienen, son la lista completa y reemplazan a las anteriores.
+ * los servicios, las ventanas y las fotos, si vienen, son la lista completa y reemplazan a las anteriores.
  *
  * - La dirección nueva se geocodifica una vez; si es la misma que ya tiene, no se consulta (ADR-0009). Fuera de las
  *   zonas, o en una zona de otra plaza, no se guarda (DireccionNoUbicable).
- * - La foto nueva reemplaza a la principal; el archivo anterior se borra cuando la transacción queda guardada. Si algo
- *   falla, se borra el nuevo y no cambia nada.
+ * - La descripción vacía deja el perfil sin descripción.
+ * - La foto nueva reemplaza a la principal. La lista de fotos reemplaza a todas: las que no vienen se quitan, y el orden
+ *   es el de la lista (FotosDeLaLavanderia::reemplazarTodas()). Los archivos que se reemplazan o se quitan se borran
+ *   cuando la transacción queda guardada. Si algo falla, se borran los nuevos y no cambia nada.
  */
 final class EdicionDeLavanderia
 {
@@ -34,7 +36,8 @@ final class EdicionDeLavanderia
     ) {}
 
     /**
-     * @param  array<string, mixed>  $datos  Lo validado que cambia, sin la foto.
+     * @param  array<string, mixed>  $datos  Lo validado que cambia, sin la foto principal sola. Las fotos nuevas de la
+     *                                       lista vienen en ella, como archivos.
      *
      * @throws DireccionNoUbicable
      */
@@ -43,16 +46,22 @@ final class EdicionDeLavanderia
         $direccion = isset($datos['direccion']) ? $this->direccionNueva($lavanderia, $datos['direccion']) : null;
 
         $guardadas = [];
-        $anterior = null;
+        $aBorrar = [];
 
         try {
-            DB::transaction(function () use ($lavanderia, $datos, $foto, $direccion, &$guardadas, &$anterior): void {
+            DB::transaction(function () use ($lavanderia, $datos, $foto, $direccion, &$guardadas, &$aBorrar): void {
                 Lavanderia::query()->whereKey($lavanderia->getKey())->lockForUpdate()->first();
 
                 $lavanderia->fill(array_filter([
                     'nombre' => $datos['nombre'] ?? null,
                     ...($direccion ?? []),
-                ], fn (mixed $valor): bool => $valor !== null))->save();
+                ], fn (mixed $valor): bool => $valor !== null));
+
+                if (array_key_exists('descripcion', $datos)) {
+                    $lavanderia->descripcion = self::descripcion($datos['descripcion']);
+                }
+
+                $lavanderia->save();
 
                 if (isset($datos['servicios'])) {
                     $this->serviciosYVentanas->guardarServicios($lavanderia, $datos['servicios']);
@@ -63,7 +72,11 @@ final class EdicionDeLavanderia
                 }
 
                 if ($foto !== null) {
-                    $anterior = $this->fotos->reemplazarPrincipal($lavanderia, $foto, $guardadas);
+                    $aBorrar = array_filter([$this->fotos->reemplazarPrincipal($lavanderia, $foto, $guardadas)]);
+                }
+
+                if (isset($datos['fotos'])) {
+                    $aBorrar = $this->fotos->reemplazarTodas($lavanderia, $datos['fotos'], $guardadas);
                 }
             });
         } catch (Throwable $error) {
@@ -72,9 +85,19 @@ final class EdicionDeLavanderia
             throw $error;
         }
 
-        $this->fotos->borrar(array_filter([$anterior]));
+        $this->fotos->borrar(array_values($aBorrar));
 
         return $lavanderia;
+    }
+
+    /**
+     * La descripción como se guarda: sin los espacios de las orillas, y vacía, sin descripción (alta-lavanderias-E26).
+     */
+    private static function descripcion(mixed $descripcion): ?string
+    {
+        $texto = trim((string) $descripcion);
+
+        return $texto === '' ? null : $texto;
     }
 
     /**

@@ -2,24 +2,28 @@
 
 namespace App\Filament\Resources\Lavanderias\Schemas;
 
+use App\Lavanderias\FotosDeLaLavanderia;
 use App\Lavanderias\ServiciosYVentanas;
 use App\Models\Municipio;
 use App\Models\TipoServicio;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 /**
- * El formulario de edición de una lavandería en el panel: los mismos datos del registro de la app, con los mismos
- * nombres de campo (alta-lavanderias-E13). No valida por su cuenta: al guardar, EditLavanderia pasa todo por
+ * El formulario de edición de una lavandería en el panel: los mismos datos de la edición de la app, con los mismos
+ * nombres de campo (alta-lavanderias-E13 y E31). No valida por su cuenta: al guardar, EditLavanderia pasa todo por
  * App\Lavanderias\ReglasDeLaLavanderia y App\Lavanderias\EdicionDeLavanderia, como la app, y cada error vuelve a su
  * campo.
  *
- * La foto no se guarda al subirla (storeFiles(false)): la edición la sube al disco privado de fotos y reemplaza la
- * principal, como en la app. Vacía, la foto no cambia.
+ * Las fotos son la lista del perfil, en su orden, y la primera es la principal: la foto del registro es una de ellas
+ * (alta-lavanderias-E27 a E29). Se pueden quitar, ordenar y agregar al final hasta el máximo de la configuración, que
+ * también frena al selector de archivos (alta-lavanderias-E30). Las nuevas no se guardan al subirlas
+ * (storeFiles(false)): la edición las sube al disco privado de fotos, como en la app.
  */
 class LavanderiaForm
 {
@@ -41,13 +45,18 @@ class LavanderiaForm
                 Section::make('Lavandería')
                     ->schema([
                         TextInput::make('nombre')->label('Nombre'),
-                        FileUpload::make('foto')
-                            ->label('Foto')
+                        Textarea::make('descripcion')->label('Descripción')->rows(4),
+                        FileUpload::make('fotos')
+                            ->label('Fotos')
                             ->image()
+                            ->multiple()
+                            ->reorderable()
+                            ->appendFiles()
+                            ->maxFiles(fn (): int => FotosDeLaLavanderia::maximo())
                             ->disk(fn (): string => (string) config('fotos.disco'))
                             ->visibility('private')
                             ->storeFiles(false)
-                            ->helperText('Sube una foto solo para cambiarla.'),
+                            ->helperText('La primera es la principal. Arrástralas para cambiar el orden.'),
                     ]),
                 Section::make('Dirección')
                     ->statePath('direccion')

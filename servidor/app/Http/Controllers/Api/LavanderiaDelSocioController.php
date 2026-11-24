@@ -15,12 +15,14 @@ use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 /**
  * La lavandería del socio en el Módulo B: su registro (NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #1;
- * openspec/changes/alta-de-lavanderias/, tarea 1.1). El mismo contrato está en el design.md del cambio, sección "El
- * contrato de la API".
+ * openspec/changes/alta-de-lavanderias/, tarea 1.1) y su perfil y horarios, con la descripción y las fotos de su perfil
+ * (:17:Módulo B #6; tareas 2.1 a 2.4). El mismo contrato está en el design.md del cambio, sección "El contrato de la
+ * API".
  *
  * Todas las rutas llevan sesión y pasan por el componente de autorización con el rol de socio lavandería:
  *
@@ -41,8 +43,15 @@ use Illuminate\Support\Str;
  *         "codigo_postal": "34000",
  *         "municipio": { "codigo": "10005", "nombre": "Durango", "estado": "Durango" } | null
  *       },
+ *       "descripcion": "Entregamos el mismo día." | null, la del perfil, opcional (alta-lavanderias-E26)
  *       "foto": { "url": "https://…firmada…", "vence_en": "2026-11-22T18:00:00Z" } | null,
- *                                                        la URL vence; al volver a pedir la lavandería llega otra
+ *                                                        la principal, la primera de fotos; la URL vence, y al volver
+ *                                                        a pedir la lavandería llega otra
+ *       "fotos": [
+ *         { "url": "https://…firmada…", "vence_en": "2026-11-22T18:00:00Z" }
+ *       ],                                               todas las del perfil, en su orden; la primera es la principal
+ *                                                        (alta-lavanderias-E27 a E29)
+ *       "maximo_de_fotos": 5,                            cuántas puede tener, de config/fotos.php (alta-lavanderias-E30)
  *       "servicios": [
  *         { "tipo": "estandar", "nombre": "Lavado estándar", "precio": "18.50",
  *           "unidad": { "codigo": "kg", "nombre": "kilo" } }
@@ -109,17 +118,24 @@ use Illuminate\Support\Str;
  *
  * ---------------------------------------------------------------------------------------------------------------------
  *
- *     PATCH /api/socio/lavanderias/{id_publico}  Edita su información y sus ventanas (alta-lavanderias-E18, E20, E21,
- *                                                E22 y E25)
+ *     PATCH /api/socio/lavanderias/{id_publico}  Edita su información, su descripción, sus fotos y sus ventanas
+ *                                                (alta-lavanderias-E18, E20, E21, E22, E25 y E26 a E30)
  *
- *     Los mismos campos del registro, con las mismas reglas; solo van los que cambian:
+ *     Los mismos campos del registro, con las mismas reglas, más la descripción y la lista de fotos; solo van los que
+ *     cambian:
  *       - nombre;
  *       - direccion, completa: calle, numero, colonia, codigo_postal y municipio;
- *       - foto, que reemplaza a la anterior;
+ *       - foto, que reemplaza a la principal;
  *       - servicios, la lista completa: un tipo que no viene deja de ofrecerse;
- *       - ventanas, el horario completo de la semana: reemplaza a todas las anteriores.
- *     Sin foto, en JSON. Con foto, en multipart/form-data por POST con el campo _method=PATCH, porque PHP solo lee los
- *     archivos de un POST.
+ *       - ventanas, el horario completo de la semana: reemplaza a todas las anteriores;
+ *       - descripcion: texto de hasta 1000 caracteres; vacía, el perfil queda sin descripción;
+ *       - fotos, la lista completa y en orden, de 1 a maximo_de_fotos; la primera es la principal. Cada elemento es una
+ *         foto que ya tiene, por su lugar en "fotos" de la última lectura (0, la primera), o un archivo nuevo con las
+ *         reglas de la foto del registro. Una foto que no viene se quita y su archivo se borra. No va junto con foto.
+ *             JSON:       "fotos": [2, 0]
+ *             multipart:  fotos[0]=2, fotos[1]=<archivo>, fotos[2]=0
+ *     Sin archivos, en JSON. Con foto o con una foto nueva en fotos, en multipart/form-data por POST con el campo
+ *     _method=PATCH, porque PHP solo lee los archivos de un POST.
  *
  *     La dirección nueva se geocodifica una vez; la misma que ya tiene no se vuelve a consultar.
  *
@@ -127,7 +143,9 @@ use Illuminate\Support\Str;
  *     404  { "message": "No existe la lavandería." }
  *          Como en GET: una ajena no se edita ni se nombra, y sus datos no cambian (alta-lavanderias-E20). La búsqueda
  *          va antes de validar.
- *     422  Como en el registro, cada error en su campo; si algo se rechaza, no cambia nada. Además:
+ *     422  Como en el registro, cada error en su campo; si algo se rechaza, no cambia nada. Los de la lista de fotos van
+ *          en fotos (sin fotos, más que maximo_de_fotos, o junto con foto) o en su lugar, fotos.N (una foto que no
+ *          tiene o que ya está en la lista, o un archivo que no cumple las reglas). Además:
  *     422  { "message": "La dirección nueva queda en otra plaza de servicio. Ese cambio todavía no se puede hacer.",
  *            "errors": { "direccion": ["..."] }, "motivo": "en_otra_plaza" }
  *          La dirección cae en una zona de otra plaza: la lavandería no cambia de plaza (alta-lavanderias-E25).
@@ -164,8 +182,9 @@ class LavanderiaDelSocioController extends Controller
     {
         $propia = $this->deLaCuenta($peticion, $lavanderia);
 
-        $campos = array_values(array_intersect(ReglasDeLaLavanderia::CAMPOS, array_keys($peticion->all())));
-        $datos = $peticion->validate(ReglasDeLaLavanderia::para($campos), ReglasDeLaLavanderia::mensajes());
+        $recibidos = self::conLasFotosEnOrden($peticion->all());
+        $campos = array_values(array_intersect(ReglasDeLaLavanderia::CAMPOS_DE_LA_EDICION, array_keys($recibidos)));
+        $datos = Validator::make($recibidos, ReglasDeLaLavanderia::para($campos), ReglasDeLaLavanderia::mensajes())->validate();
 
         try {
             $edicion->editar($propia, Arr::except($datos, ['foto']), $peticion->file('foto'));
@@ -192,6 +211,22 @@ class LavanderiaDelSocioController extends Controller
         return response()->json([
             'lavanderia' => new LavanderiaDelSocioResource(LavanderiaDelSocioResource::cargar($lavanderia)),
         ], 201);
+    }
+
+    /**
+     * Lo que llegó, con la lista de fotos en el orden de sus lugares. En multipart, Laravel junta primero los textos y
+     * después los archivos: fotos[0] como archivo y fotos[1]=0 quedarían al revés.
+     *
+     * @param  array<string, mixed>  $recibidos
+     * @return array<string, mixed>
+     */
+    private static function conLasFotosEnOrden(array $recibidos): array
+    {
+        if (is_array($recibidos['fotos'] ?? null)) {
+            ksort($recibidos['fotos']);
+        }
+
+        return $recibidos;
     }
 
     /**
