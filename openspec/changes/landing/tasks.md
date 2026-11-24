@@ -1,13 +1,13 @@
 Cada tarea sigue rojo, verde y refactor: primero el test con el identificador del escenario en su nombre, que falla;
 luego el código mínimo que lo pone en verde; luego la limpieza. Todas viven en `servidor/`.
 
-Horas con las bandas de S-006 (S = 2, M = 5): **41 h**, contra **30 h** del plan para F-L01 a F-L12 (10 S y 2 M del
-inventario). La diferencia sale de las pruebas en tres navegadores, del panel de testimonios, de la migración de
-testimonios y de la acreditación. De las 41 h, 4 h están bloqueadas (tareas 5.2 y 7.1).
+Horas con las bandas de S-006 (S = 2, M = 5): **46 h**, contra **30 h** del plan para F-L01 a F-L12 (10 S y 2 M del
+inventario). La diferencia sale de las pruebas en tres navegadores, de los paneles de testimonios y de logos de prensa,
+de sus dos migraciones y de la acreditación. De las 46 h, 4 h están bloqueadas (tareas 5.2 y 7.1).
 
 Con el modelo de datos (ADR-0016): la tabla de testimonios entró a `vault/arquitectura/modelo-de-datos.md` el
-2026-11-22, con su tarea de migración, la 4.0, antes de la 4.1 (`design.md`, "Tablas y migración"). La 4.2 sigue
-esperando la tabla de logos de prensa; cuando entre, se agrega su migración antes de ella.
+2026-11-22, con su tarea de migración, la 4.0, antes de la 4.1 (`design.md`, "Tablas y migración"). La de logos de
+prensa entró el 2026-11-24, con la suya, la 4.0b, antes de la 4.2 (acta-2026-11-20-modelo-y-pasarela.md, decisión 63).
 
 Las pruebas de navegador son de Playwright desde Node (`design.md`, pregunta abierta 7): viven en
 `servidor/tests/Browser/` como `*.spec.js` y se corren con `npx playwright test` desde `servidor/`.
@@ -32,7 +32,8 @@ Las pruebas de navegador son de Playwright desde Node (`design.md`, pregunta abi
 
 - [x] 4.0 Migración de `testimonios`, como entró a `modelo-de-datos.md` (sección "Landing"), en la lista `sin_plaza` de `config/modelo.php`, con su modelo y su fábrica de datos de prueba; base de landing-E15, landing-E16 y landing-E19 — test: `servidor/tests/Feature/Landing/MigracionTest.php` (modelo-E01 a modelo-E17 sobre la tabla) — tamaño S
 - [x] 4.1 landing-E15, landing-E16, landing-E19 y landing-E26: testimonios en Filament con interruptor de activo, orden y borrado; de 3 a 5 tarjetas con marcadores de posición; edición solo con permiso de administración — test: `servidor/tests/Feature/Landing/TestimoniosTest.php` — tamaño M
-- [ ] 4.2 landing-E17, landing-E18: logos de prensa activables y la sección presente sin logos activos (espera: la tabla de logos de prensa en `modelo-de-datos.md` y los logos de EL CLIENTE) — test: `servidor/tests/Feature/Landing/PrensaTest.php` — tamaño S
+- [x] 4.0b Migración de `logos_prensa`, como entró a `modelo-de-datos.md` (sección "Landing"), en la lista `sin_plaza` de `config/modelo.php`, con su modelo y su fábrica de datos de prueba; base de landing-E17 a landing-E19 — test: `servidor/tests/Feature/Landing/MigracionTest.php` (modelo-E01 a modelo-E17 sobre la tabla) — tamaño S
+- [x] 4.2 landing-E17, landing-E18 y landing-E19: logos de prensa en Filament con interruptor de activo y orden, su imagen por la ruta pública del servidor (adenda del 2026-11-24 de ADR-0006) y la sección presente sin logos activos, con `LANDING_PRENSA_SIN_LOGOS`; edición solo con permiso de administración. Los logos reales de EL CLIENTE (DD-117) solo bloquean el contenido y su acreditación, en la 7.1 — test: `servidor/tests/Feature/Landing/PrensaTest.php` — tamaño M
 - [x] 4.3 landing-E20: preguntas frecuentes en acordeón, con toque y con teclado — test: `servidor/tests/Browser/Landing/PreguntasFrecuentes.spec.js` y `servidor/tests/Feature/Landing/PreguntasFrecuentesTest.php` — tamaño S
 
 ## 5. Formularios y contacto
