@@ -438,4 +438,34 @@ describe('ADR-0013: el script de tokens genera tokens.css, las variables CSS de 
     expect(readFileSync(CSS_DEL_REPOSITORIO, 'utf8')).toBe(contenidoAntes);
     expect(statSync(CSS_DEL_REPOSITORIO).mtimeMs).toBe(modificadoAntes);
   });
+
+  test('ADR-0013 — con las tres rutas y un tokens.json que no tiene la forma esperada, no escribe ni theme.ts ni tokens.css', () => {
+    const aqui = mkdtempSync(path.join(carpeta, 'rotos-'));
+    const origen = path.join(aqui, 'tokens.json');
+    writeFileSync(origen, JSON.stringify(cambiar(tokensDePrueba(), ['curva', 'estandar'], 'x')));
+
+    const corrida = correr(origen, path.join(aqui, 'theme.ts'), path.join(aqui, 'css', 'tokens.css'));
+
+    expect(corrida.status).toBe(1);
+    expect(corrida.stderr).toContain('No se generó theme.ts ni tokens.css');
+    expect(corrida.stderr).toContain('curva.estandar');
+    expect(readdirSync(aqui, { recursive: true })).toEqual(['tokens.json']);
+  });
+
+  test('ADR-0013 — si theme.ts se escribe y tokens.css no, el error nombra solo tokens.css', () => {
+    const aqui = mkdtempSync(path.join(carpeta, 'a-medias-'));
+    const origen = path.join(aqui, 'tokens.json');
+    writeFileSync(origen, readFileSync(TOKENS_DE_PRUEBA));
+    // La carpeta del CSS es un archivo: theme.ts se escribe y la escritura de tokens.css falla.
+    const estorbo = path.join(aqui, 'css');
+    writeFileSync(estorbo, '');
+
+    const corrida = correr(origen, path.join(aqui, 'theme.ts'), path.join(estorbo, 'tokens.css'));
+
+    expect(corrida.status).toBe(1);
+    expect(corrida.stdout).toContain('theme.ts generado');
+    expect(corrida.stderr).toMatch(/^No se generó tokens\.css\. /);
+    expect(corrida.stderr).not.toContain('No se generó theme.ts');
+    expect(existsSync(path.join(aqui, 'theme.ts'))).toBe(true);
+  });
 });
