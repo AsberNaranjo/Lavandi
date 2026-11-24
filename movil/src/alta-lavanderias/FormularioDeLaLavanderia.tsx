@@ -51,7 +51,9 @@ import {
   cuantasVentanas,
   fotoDeLaLista,
   instruccionDeLasFotos,
+  moverAntesLaFoto,
   precioPorKiloDe,
+  quitarLaFoto,
   TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO as TEXTOS,
 } from './textos';
 
@@ -229,6 +231,7 @@ export function FormularioDeLaLavanderia({ formulario, alCambiar, errores, edici
                   <View style={estilos.accionDeLaFoto}>
                     <Boton
                       variante="secundario"
+                      paraLeer={moverAntesLaFoto(lugar + 1)}
                       onPress={() => alCambiar((anterior) => ({ ...anterior, fotos: conLaFotoAntes(anterior.fotos, lugar) }))}
                     >
                       {TEXTOS.moverAntes}
@@ -240,6 +243,7 @@ export function FormularioDeLaLavanderia({ formulario, alCambiar, errores, edici
                   <View style={estilos.accionDeLaFoto}>
                     <Boton
                       variante="secundario"
+                      paraLeer={quitarLaFoto(lugar + 1)}
                       onPress={() => alCambiar((anterior) => ({ ...anterior, fotos: sinLaFoto(anterior.fotos, lugar) }))}
                     >
                       {TEXTOS.quitar}

@@ -84,9 +84,9 @@ function fotosEnLaPantalla(): string[] {
     .map((foto) => (foto.props.source as { uri: string }).uri);
 }
 
-/** El botón de una foto de la lista, por su lugar (1, la primera). */
-function botonDeLaFoto(numero: number, nombre: 'Quitar' | 'Mover antes') {
-  return within(screen.getByTestId(`foto-${numero}`)).queryByRole('button', { name: nombre });
+/** El botón de una foto de la lista, por su lugar (1, la primera): el lector de pantalla dice de qué foto es. */
+function botonDeLaFoto(numero: number, accion: 'Quitar' | 'Mover antes') {
+  return within(screen.getByTestId(`foto-${numero}`)).queryByRole('button', { name: `${accion} la foto ${numero}` });
 }
 
 describe('alta-lavanderias-E26: la lavandería escribe su descripción', () => {

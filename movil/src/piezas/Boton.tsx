@@ -25,6 +25,11 @@ interface Props {
    * ve apagado, como el .btn[disabled] de los mocks. El texto del botón dice qué falta.
    */
   deshabilitado?: boolean;
+  /**
+   * Lo que lee el lector de pantalla en lugar del texto, cuando el texto solo no dice sobre qué actúa: "Quitar la foto
+   * 2" en una lista de fotos que dicen "Quitar" (alta-lavanderias-E28).
+   */
+  paraLeer?: string;
 }
 
 export function Boton({
@@ -34,12 +39,14 @@ export function Boton({
   ocupado = false,
   delante = null,
   deshabilitado = false,
+  paraLeer,
 }: Props) {
   const aspecto = ASPECTO[variante];
   const apagado = deshabilitado && !ocupado;
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={paraLeer}
       accessibilityState={{ busy: ocupado, disabled: ocupado || deshabilitado }}
       disabled={ocupado || deshabilitado}
       onPress={onPress}

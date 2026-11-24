@@ -60,6 +60,16 @@ export function fotoDeLaLista(numero: number): string {
   return `Foto ${numero} de la lavandería`;
 }
 
+/** "Quitar la foto 2": el botón de cada foto de la lista, para el lector de pantalla (alta-lavanderias-E28). */
+export function quitarLaFoto(numero: number): string {
+  return `${TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO.quitar} la foto ${numero}`;
+}
+
+/** "Mover antes la foto 2": el botón de cada foto de la lista, para el lector de pantalla (alta-lavanderias-E29). */
+export function moverAntesLaFoto(numero: number): string {
+  return `${TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO.moverAntes} la foto ${numero}`;
+}
+
 /** Lo que dice la sección de fotos del perfil: cuál es la principal y el máximo que da el servidor (E29 y E30). */
 export function instruccionDeLasFotos(maximo: number): string {
   return `La primera es la principal. Puedes tener hasta ${maximo}.`;
