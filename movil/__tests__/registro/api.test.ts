@@ -224,7 +224,9 @@ describe('registro: cliente de la API de acceso', () => {
 
   // La cuenta de administración entra por el panel: POST /api/sesion le responde 403, sin token
   // (servidor/app/Http/Controllers/Api/SesionController.php), y la app le ofrece abrir el panel (administracion-E25).
-  describe('registro-E33: el 403 al pedir la sesión dice que la cuenta no tiene acceso a la app', () => {
+  // POST /api/sesion/google todavía le da token: su 403 lo pide la tarea 6.2
+  // (openspec/changes/administracion/tasks.md), y la app ya lo lee igual.
+  describe('registro-E33 y administracion-E25: el 403 al pedir la sesión dice que la cuenta no tiene acceso a la app', () => {
     const SIN_ACCESO = {
       message: 'Esta cuenta no tiene acceso a la app. Las cuentas de administración entran por el panel.',
     };
@@ -237,7 +239,7 @@ describe('registro: cliente de la API de acceso', () => {
       expect(resultado).toEqual({ ok: false, motivo: 'sin-acceso' });
     });
 
-    test('registro-E33 — con 403 al entrar con Google, también', async () => {
+    test('administracion-E25 — con el 403 al entrar con Google (tarea 6.2), tampoco hay token', async () => {
       fetchFalso.mockResolvedValue(respuesta(403, SIN_ACCESO));
 
       const resultado = await iniciarSesionConGoogle('id-token-de-google');
