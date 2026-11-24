@@ -1,7 +1,8 @@
 ## Context
 
 - El Módulo D vive en el panel web hecho con Filament (ADR-0003; DD-040 cerrada por C-140). La app trae además una
-  vista reducida para el administrador, cuyo contenido no está definido (`c2-contenedores.md`). Este cambio no la toca.
+  vista reducida para el administrador (`c2-contenedores.md`), en su lectura mínima: el aviso con el botón que abre
+  el panel (administracion-E25; Open Questions 1, resuelta).
 - Cubre F-D03 a F-D07. F-D01 y F-D02 viven en `alta-de-lavanderias` y en `repartidor`.
 - Se apoya en piezas de otros cambios, que llegan antes en el plan: las plazas y zonas, el rol de administración y la
   entrada al panel (ADR-0005), los estados del pedido, el pago confirmado por el webhook de la pasarela (ADR-0010), los
@@ -26,7 +27,7 @@
 - Mover dinero: ni liquidar ni dispersar a los socios (`NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3`, Módulo C).
 - Rastrear al repartidor en el mapa.
 - Dar de alta, editar o borrar usuarios.
-- La vista reducida de administración en la app.
+- Consultas rápidas o avisos nativos de la administración en la app: la app solo abre el panel (administracion-E25).
 - Asignar repartidores (DD-014, cambio `repartidor`).
 
 ## Decisions
@@ -41,8 +42,15 @@ No hay decisión técnica nueva. Se aplican los ADR vigentes:
   (ADR-0010).
 - **Plaza y horas:** toda fila de operación lleva su plaza; las horas se guardan como instante absoluto y se presentan
   en la zona de la plaza (ADR-0004, `modelo-multi-plaza.md`).
+- **La administración en la app** (administracion-E25; Open Questions 1): la vista del navegador del sistema dentro de
+  la app, con `expo-web-browser`, la misma del checkout (adenda del 2026-11-22 de ADR-0010, decisión 32).
 
-**Lecturas del contrato que hizo el especificador.** No son decisiones técnicas, y Arthur las confirma al aprobar:
+**Lecturas del contrato que hizo el especificador.** No son decisiones técnicas. Confirmadas por el concilio del
+2026-11-24, como Claude por delegación de Arthur (C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 57), 3 de 3,
+las cinco como están. Son lecturas literales del Módulo D #4 a #6 (`NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`) y del
+A.5 (`NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5`), y las sostienen las pruebas
+`servidor/tests/Feature/Administracion/MonitoreoDePedidosTest.php:56` (1), `ConfiguracionDeComisionesTest.php:128` (2),
+`BloqueoDeUsuariosTest.php:202` (3), `ReportesFinancierosTest.php:65` (4) y `MapaDelMonitoreoTest.php:215` (5):
 
 1. **Pedido activo** es el confirmado que no se ha entregado ni cancelado. El A.5 separa activos, completados y
    cancelados (`NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5`).
@@ -52,7 +60,8 @@ No hay decisión técnica nueva. Se aplican los ADR vigentes:
 5. **El mapa** pone un marcador en la dirección de recolección y otro en la de entrega si es distinta (BR-30).
 
 Con C-188, "confirmado" es pagado: el pedido llena `confirmado_en` solo cuando la pasarela confirma el pago. Un pedido
-sin pago acreditado no está activo y no entra al monitoreo (lectura 1).
+sin pago acreditado no está activo y no entra al monitoreo (lectura 1). El rechazado sigue en el monitoreo hasta que
+respondan DD-103 y DD-016, de EL CLIENTE ("Monitoreo de pedidos", abajo).
 
 ## Tablas y migración
 
@@ -366,8 +375,9 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
   y el texto; en `data` lleva solo `tipo: aviso_masivo`, porque no hay pedido que consultar.
 - **Quién lo recibe** (lectura del implementador): los teléfonos registrados de todas las cuentas de la app que pueden
   usarla. No una cuenta bloqueada desde el panel, ni la de un repartidor dado de baja, ni una borrada: no pueden iniciar
-  sesión (`Autorizacion::puedeIniciarSesion()`). Una cuenta sin teléfono no genera ningún envío. Si quien apagó los
-  avisos en su perfil recibe el aviso sigue siendo la pregunta abierta 5.
+  sesión (`Autorizacion::puedeIniciarSesion()`). Una cuenta sin teléfono no genera ningún envío. A quien apagó los
+  avisos, el servidor se lo manda igual, como a todo teléfono registrado, y el sistema operativo lo detiene (pregunta
+  abierta 5, resuelta).
 
 ## Risks / Trade-offs
 
@@ -389,6 +399,17 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
 ## Open Questions
 
 1. **Qué entra en la vista reducida de administración de la app** (C-140). Pregunta para Arthur; no se diseña aquí.
+   **Resuelta** por el concilio del 2026-11-24, por delegación de Arthur (C-245; `acta-2026-11-20-modelo-y-pasarela.md`,
+   decisión 56, que complementa la 31), 3 de 3, con la opción b, la mínima (administracion-E25, tarea 6.1):
+   - Una cuenta de administración que inicia sesión en la app no recibe token: el 403 de `POST /api/sesion`
+     (registro-E33) no cambia en el servidor, y con esa respuesta la app no guarda nada.
+   - La app le muestra el aviso de que la administración entra por el panel, con un botón, "Abrir el panel", que lo
+     abre en el navegador del sistema dentro de la app, con `expo-web-browser`, el mismo del checkout (adenda del
+     2026-11-22 de ADR-0010, decisión 32).
+   - La dirección del panel sale de la configuración de la app, `EXPO_PUBLIC_PANEL_URL`, nunca del código; sin ella, el
+     aviso sale sin el botón.
+   - Sin datos, rutas ni funciones nuevas en el servidor. Se conserva la "vista en app" de C-140 en su lectura mínima;
+     las consultas rápidas y los avisos nativos (opción c, que agranda sin cita) no entran. La opción a revocaba C-140.
 2. **De dónde salen los movimientos de la pasarela para conciliar: resuelta** por la segunda adenda del 2026-11-22 de
    ADR-0010 (decisiones 6 y 7, asentada en la decisión 34 de `acta-2026-11-20-modelo-y-pasarela.md`, que cierra
    DD-112): de la API de la pasarela, por la misma interfaz neutral del cobro, cuando la administración concilia un
@@ -405,7 +426,13 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
    `id_plazas` vacía en la global y convierte lo que hubiera ("Tablas y migración"). E11 lo prueba en todas las
    plazas.
 5. **Un aviso masivo y la preferencia de avisos del perfil** (F-A15, cambio `perfil-y-soporte`): si quien apagó los
-   avisos recibe uno de mantenimiento. Depende de cómo defina ese cambio "notificaciones".
+   avisos recibe uno de mantenimiento. Depende de cómo defina ese cambio "notificaciones". **Resuelta** por el concilio
+   del 2026-11-24, por delegación de Arthur (C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 58), 3 de 3, con
+   la opción a, sin código: el servidor no guarda ninguna preferencia de avisos; el aviso masivo va a todo teléfono
+   registrado y el sistema operativo lo detiene si la persona apagó los avisos. El A #15 dice solo "notificaciones"
+   (`NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3`, Módulo A #15) y el perfil solo refleja el permiso del sistema
+   (`perfil-y-soporte/design.md`, pregunta 4). Una preferencia por tipo de aviso sería posible Orden de Cambio, que
+   decide Nadir (`perfil-y-soporte/proposal.md:27`; `NSV-2026-001-v8.pdf:8:Cláusula IV`).
 6. **La entrada al panel con rol de administración** (ADR-0005) se espera de `autorizacion-por-rol` o de
    `alta-de-lavanderias`, que llegan antes (sprints 11 y 12). Si ninguno la trae, hay que agregarla aquí.
 7. **`actividad_usuarios` nace después.** La crea `indicadores` (sprints 24 a 29) y la lee administracion-E02 (sprint

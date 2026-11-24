@@ -336,10 +336,11 @@ su nombre (`servidor/tests/Feature/Registro/MigracionTest.php`).
 
 La API DEBE (MUST) dejar que una cuenta con un rol de la app —usuario, socio lavandería o socio repartidor— consulte su
 cuenta, con su rol, y cierre su sesión. Con el rol la app sabe a qué módulo entra la cuenta. La administración entra por
-el panel y NO DEBE (MUST NOT) usar estas rutas de la app.
+el panel y NO DEBE (MUST NOT) usar estas rutas de la app; la app le ofrece abrir el panel (administracion-E25).
 
 Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (una sola app con los módulos del usuario, la lavandería y el
-repartidor) · D → ADR-0019 (la autorización en un solo componente) y decisión 31 del acta del 2026-11-20 (C-236)
+repartidor) · D → ADR-0019 (la autorización en un solo componente) y decisión 31 del acta del 2026-11-20 (C-236) ·
+C → C-140, con su complemento, la decisión 56 del acta del 2026-11-20 (C-245)
 
 #### Scenario: registro-E33 — Una cuenta de lavandería consulta su cuenta y cierra su sesión
 
@@ -349,3 +350,4 @@ repartidor) · D → ADR-0019 (la autorización en un solo componente) y decisi�
 - **Y** cuando la app cierra la sesión, el token deja de servir
 - **Y** una cuenta de administración recibe 403 en las dos rutas, sin datos
 - **Y** una cuenta de administración que inicia sesión en la app con su correo y su contraseña recibe 403, sin token
+- **Y**, con esa respuesta, la app no guarda nada y le ofrece abrir el panel (administracion-E25)
