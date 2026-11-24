@@ -202,5 +202,15 @@ foto del perfil (el disco privado).
   - dos de las siete son el mismo archivo.
 
   El lienzo no cambia por ellas.
+- **La guía para que Nadir pruebe en iPhone con Expo Go** (C-244), escrita y en video:
+  - artifact privado: https://claude.ai/artifact/WJwomgbJgRTvSGh7msj8eX (Nadir lo ve cuando Arthur se lo comparta);
+  - PDF: `notas-locales/guia-iphone-expo-go-2026-11-23.pdf`;
+  - video narrado con la voz de Jorge, de 2:38: `notas-locales/guia-iphone-expo-go-2026-11-23.mp4`.
+
+  Sale de la sección 5-bis de [[correr-la-app-en-local]]. Falta comprobar qué ve Nadir si busca lavanderías desde
+  fuera de Durango, donde están las de prueba.
+- **Por la noche, C-244 y C-245:**
+  - se unió `upstream/main` a la rama (`0b6c413`) y se subió: el PR #3 entra limpio;
+  - el concilio de agentes hace el inventario de lo que falta y vota qué se implementa.
 
 **Al terminar.** `situacion: terminada`, con el enlace al PR, que va después del del H1.
