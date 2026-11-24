@@ -79,7 +79,8 @@ necesita el alta real.
   - Suspender (E14) pone `suspendida`. Levantar la suspensión (E15) regresa a `activa` si `aprobada_en` tiene fecha y a
     `pendiente` si no: "el estado que tenía antes" sale de la fila, sin otra columna.
   - Dar de baja (E17) pone `baja` y no borra la fila, ni en suave: `deleted_at` queda vacío, para que el panel la siga
-    listando con su estado y sus pedidos la sigan encontrando. Es la lectura de este diseño (pregunta abierta 10).
+    listando con su estado y sus pedidos la sigan encontrando. Es la lectura de este diseño, ratificada el 2026-11-24
+    (pregunta abierta 10, resuelta).
 - **Sin trigger:** `impedir_cambio()` es solo para `pedidos`, `pedido_eventos`, `pagos` y `reembolsos`.
 - **Prueba de esquema:** la migración pasa la de `modelo-de-datos` (modelo-E01 a modelo-E17).
 
@@ -135,10 +136,10 @@ decisión agrega una librería ni un servicio externo.
   agenda ya ofrece una sola vez la ventana repetida. Con esta lectura, las franjas largas sembradas en las lavanderías
   de prueba (de 9:00 a 14:00) se ven en la app, pero la edición pide reemplazarlas por ventanas de una hora (pregunta
   abierta 11).
-- **El cambio de plaza no se hace todavía** (pregunta abierta 5). Una dirección nueva que cae en una zona de otra plaza
-  se rechaza en `direccion` con el motivo `en_otra_plaza`, en la app y en el panel: las hijas de la lavandería y sus
-  pedidos van atados a su plaza por las llaves compuestas (modelo-E06), y moverla no es una edición. Si Arthur decide
-  que cambie, es una operación aparte, con su escenario.
+- **El cambio de plaza no se hace** (alta-lavanderias-E25): una lavandería que se muda de plaza se da de baja y se
+  registra con otra cuenta (`CuentaConLavanderia` impide dos en la misma). Una dirección nueva que cae en una zona de
+  otra plaza se rechaza en `direccion` con el motivo `en_otra_plaza`, en la app y en el panel: las hijas de la
+  lavandería y sus pedidos van atados a su plaza por las llaves compuestas (modelo-E06), y moverla no es una edición.
 - **Una cuenta, una lavandería.** El modelo dice `usuarios ||--o| lavanderias`: el registro de una cuenta que ya tiene
   la suya responde 409 y no guarda nada. La base no lo exige con un único; si DD-053 lo confirma, entra como índice.
 - **La foto.** Va al disco privado de fotos del entorno, que elige `config/fotos.php` (`FOTOS_DISCO`): `fotos_s3` en
@@ -146,7 +147,7 @@ decisión agrega una librería ni un servicio externo.
   disco local privado (`storage/app/private/fotos`) que sirve cada foto en `/archivos/fotos/…` solo con una URL firmada
   que vence. Esto responde, para local, la pregunta abierta "El almacenamiento en local" de `perfil-de-lavanderia`:
   falta anotarlo en ADR-0006. El servidor revisa el tipo (`FOTOS_TIPOS`, `jpg,jpeg,png,webp`) y el peso
-  (`FOTOS_PESO_MAXIMO_KB`, 5120 por omisión, **provisional**: lo fija Arthur, pregunta abierta 1); la URL dura
+  (`FOTOS_PESO_MAXIMO_KB`, 5120 por omisión, ratificado el 2026-11-24: pregunta abierta 1, resuelta); la URL dura
   `FOTOS_VIGENCIA_MINUTOS` (60). La ruta del archivo nunca sale como campo de la API. La foto del registro es la
   principal (`orden` 1); cambiarla reemplaza esa fila y borra el archivo anterior.
 - **Para producción falta una dependencia:** el driver S3 de Laravel necesita `league/flysystem-aws-s3-v3`. No se
@@ -175,7 +176,8 @@ El recurso de lavanderías de Filament (ADR-0003, ADR-0011) vive en `servidor/ap
 - **Dar de baja** (E17) es otra acción, con confirmación, desde cualquier estado que no sea `baja`. Pone
   `estado = 'baja'` y deja `deleted_at` vacío: el panel la sigue listando como "Dada de baja", y sus servicios, su
   horario, sus calificaciones y sus pedidos pasados se quedan y la siguen encontrando. Es la lectura de la pregunta
-  abierta 10; `deleted_at` queda sin uso en este cambio. Ninguna acción deshace la baja: el contrato no lo pide.
+  abierta 10, ratificada el 2026-11-24; `deleted_at` queda sin uso en este cambio y no se quita (ADR-0016, regla 9).
+  Ninguna acción deshace la baja: el contrato no lo pide.
 - **`Usuario` implementa `HasName` de Filament:** el panel no podía pintar la barra de la cuenta de administración
   porque `usuarios` no tiene `name`; muestra el nombre, o el correo mientras el nombre esté vacío (C-225).
 - **El idioma de la interfaz de Filament** sale de `APP_LOCALE`, que hoy es `en` en `.env.example`: las etiquetas de
@@ -304,26 +306,41 @@ los archivos de un `POST`. La dirección nueva se geocodifica una vez; la misma 
   reales dependen del reclutamiento de EL CLIENTE (DD-021).
 - [`perfil-de-lavanderia` crea `lavanderias` por su lado] → Si al implementarse ya trae `estado` o `aprobada_en`, esta
   migración no los repite; lo que vale es la tabla final de `modelo-de-datos.md`.
-- [Las horas no caben en el plan] → Las tareas listas suman 34 h y las bloqueadas 20 h más, contra 15 h del plan para
+- [Las horas no caben en el plan] → Las tareas listas suman 36 h y las bloqueadas 20 h más, contra 15 h del plan para
   F-B01, F-D01 y F-B06. Se reporta para la recalibración de S-006.
 
 ## Open Questions
 
 1. **La compresión de la foto.** ADR-0006 deja a la spec el tamaño y la calidad, y no hay dato para fijarlos. Se
-   construye con parámetros de configuración; los valores los decide Arthur.
+   construye con parámetros de configuración; los valores los decide Arthur. **Resuelta el 2026-11-24** (concilio del
+   2026-11-24, por delegación de Arthur (C-236, C-245)): se ratifican los valores de configuración, el lado mayor de
+   1600 px y la calidad de 0.7 en la app (`movil/src/configuracion/fotos.ts`) y el peso máximo de 5120 KB en el
+   servidor (`servidor/config/fotos.php`). Se miden en el Android de Arthur (C-243) sin bloquear nada: medir solo puede
+   mover un número de la configuración.
 2. **La librería que toma, elige y comprime la foto** en la app no la nombra ningún ADR. ¿Arthur la considera una
-   decisión que necesita ADR?
+   decisión que necesita ADR? **Resuelta el 2026-11-24** (concilio del 2026-11-24, por delegación de Arthur (C-236,
+   C-245)): sin ADR propio. `expo-image-picker` y `expo-image-manipulator` son módulos del SDK de Expo, que fija
+   ADR-0002.
 3. **La descripción y las fotos del perfil.** El perfil que ve el usuario muestra "Fotos, descripción, servicios,
    precios por kilo, calificación y reseñas" (`NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #5`), pero el
    registro pide una "foto" y ninguna descripción (`:17:Módulo B #1`). ¿Entran por "Edición de información de la
    lavandería" (`:17:Módulo B #6`) o por la "edición de socios" del panel (`:19:Módulo D #1`)? Hay que acordarlo con
    `perfil-de-lavanderia`. El modelo ya tiene `lavanderias.descripcion` y `lavanderias.telefono`, opcionales, y
    `lavanderia_fotos` admite varias fotos; el registro no los pide y este cambio no agrega ningún campo al formulario.
+   **Decidida el 2026-11-24** (concilio del 2026-11-24, por delegación de Arthur (C-236, C-245)): la
+   descripción, opcional, y las fotos las captura la propia lavandería en Perfil y horarios ("Edición de información de
+   la lavandería", `:17:Módulo B #6`), y el panel las hereda porque usa las mismas reglas (`:19:Módulo D #1`). El
+   registro sigue pidiendo una sola foto (`:17:Módulo B #1`). No necesita migración: `lavanderias.descripcion` y
+   `lavanderia_fotos.orden` ya existen. Sus escenarios, de alta-lavanderias-E26 en adelante, fijan cómo se agregan, se
+   quitan y se ordenan las fotos y cuál es el máximo; se escriben antes que su código, y los dos quedan pendientes.
 4. **Las pantallas no tienen componente en el design system.** El registro y el perfil y horarios del Módulo B no
    están entre los seis componentes (`vault/design-system/componentes.md`); las imágenes `b01-registro` y `b06-perfil`
    de la Propuesta 04 orientan. La Definition of Ready pide el componente o una tarea para crearlo.
 5. **El cambio de dirección a otra plaza.** Si una lavandería edita su dirección y cae en otra plaza, ¿cambia de plaza
-   sin más, o eso se hace desde el panel? El contrato no lo dice.
+   sin más, o eso se hace desde el panel? El contrato no lo dice. **Resuelta el 2026-11-24** (concilio del 2026-11-24,
+   por delegación de Arthur (C-236, C-245)): no cambia de plaza. La edición se rechaza con el motivo
+   `en_otra_plaza`, desde la app y desde el panel (alta-lavanderias-E25), y una lavandería que se muda de plaza se da
+   de baja y se registra con otra cuenta.
 6. **Lo que pasa con los pedidos en curso** de una lavandería suspendida o dada de baja, y lo que ve en su app mientras
    está suspendida (E16). Es DD-104.
 7. **El cupo por ventana** (BR-17, E23). Es DD-099. Cuando responda, entra como columna de `lavanderia_horarios`
@@ -336,6 +353,10 @@ los archivos de un `POST`. La dirección nueva se geocodifica una vez; la misma 
 10. **La baja usa `estado = 'baja'` y no `deleted_at`.** El modelo tiene las dos cosas en `lavanderias` y no dice cuál
     usa la baja del Módulo D #1. Con el borrado suave de Eloquent, una lavandería dada de baja desaparecería del panel y
     de las relaciones de sus pedidos. ¿Arthur confirma la lectura, y para qué queda `deleted_at` en esta tabla?
+    **Resuelta el 2026-11-24** (concilio del 2026-11-24, por delegación de Arthur (C-236, C-245)): la baja es
+    `estado = 'baja'` sin borrado suave, y no cambia código (alta-lavanderias-E17). `deleted_at` queda sin uso en
+    `lavanderias` y no se quita (ADR-0016, regla 9: las migraciones van solo hacia adelante). Queda una asimetría con
+    el repartidor, cuya baja sí llena `deleted_at` (`servidor/app/Repartidores/EstadoDelRepartidor.php:88-90`).
 11. **Horario y ventanas en `lavanderia_horarios`.** Dos choques con la lectura de "una fila, una ventana de una hora":
     - `agenda-de-recoleccion` lee el horario como un tramo que parte en ventanas de una hora. Con filas de una hora las
       dos lecturas dan las mismas ventanas; pero si `perfil-de-lavanderia` siembra tramos largos (9:00 a 18:00), la

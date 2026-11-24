@@ -71,10 +71,13 @@ SIN RESPUESTA — bloquea: alta-lavanderias-E08 (DD-010; BR-46)
 ### Requirement: Plaza de la lavandería según su dirección
 El servidor DEBE (MUST) geocodificar una sola vez la dirección de la lavandería, asignarle la plaza de la zona de
 servicio que la contiene y rechazar una dirección que quede fuera de las zonas del territorio inicial o que no se pueda
-ubicar.
+ubicar. Una dirección nueva, editada desde la app o desde el panel, que caiga en la zona de servicio de otra plaza DEBE
+(MUST) rechazarse: la lavandería no cambia de plaza.
 
 Cita: A → `NSV-2026-001-v8.pdf:4:Cláusula I` (el alta de socios lavandería se desarrolla exclusivamente para el
-TERRITORIO INICIAL); D → `ADR-0004`; D → `ADR-0009` (una geocodificación por dirección)
+TERRITORIO INICIAL); A → `NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #6`; A →
+`NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #1`; D → `ADR-0004`; D → `ADR-0009` (una geocodificación por
+dirección); D → `ADR-0016` (la plaza viaja en las llaves compuestas de sus hijas, modelo-E06)
 
 #### Scenario: alta-lavanderias-E09 — Dirección dentro de una zona de servicio
 - **DADO** las zonas de servicio del territorio inicial cargadas
@@ -87,6 +90,14 @@ TERRITORIO INICIAL); D → `ADR-0004`; D → `ADR-0009` (una geocodificación po
 - **CUANDO** la lavandería registra una dirección fuera de todas las zonas, o una que la geocodificación no ubica
 - **ENTONCES** el servidor rechaza el registro y lo indica en el campo de la dirección
 - **Y** no guarda nada
+
+#### Scenario: alta-lavanderias-E25 — Una dirección nueva en otra plaza no cambia la plaza
+- **DADO** una lavandería registrada en una plaza
+- **CUANDO** cambia su dirección, desde la app o desde el panel, a una que cae en una zona de servicio de otra plaza
+- **ENTONCES** el servidor rechaza la edición y lo indica en el campo de la dirección, con el motivo `en_otra_plaza`
+- **Y** la lavandería conserva su plaza, su dirección y su ubicación
+
+Criterio: A43-6
 
 ### Requirement: Alta de la lavandería desde el panel
 El panel web de administración DEBE (MUST) permitir dar de alta una lavandería, y solo una lavandería con alta DEBE

@@ -50,7 +50,7 @@ class PlazaPorDireccionTest extends TestCase
 
         $lavanderia = $this->lavanderiaDe($cuenta);
         $this->assertSame($otra->getKey(), $lavanderia->id_plazas);
-        $this->assertSame([10.5, -115.5], $this->ubicacionDe($lavanderia->getKey()));
+        $this->assertSame([10.5, -115.5], $this->ubicacionDe($lavanderia));
 
         // Una sola consulta, con el municipio y el estado del catálogo en el texto.
         $this->assertSame(['Calle de prueba 123, Colonia de prueba, 99000 Municipio de prueba, Estado de prueba'], $this->geocodificador->consultas);
@@ -151,19 +151,5 @@ class PlazaPorDireccionTest extends TestCase
 
         $this->assertSame([], $this->archivosDeFotos());
         $this->assertCount($consultas, $this->geocodificador->consultas);
-    }
-
-    /**
-     * @return array{float, float}
-     */
-    private function ubicacionDe(int $lavanderia): array
-    {
-        $punto = DB::selectOne(
-            'select ST_Y(ubicacion::geometry) as latitud, ST_X(ubicacion::geometry) as longitud
-               from lavanderias where id_lavanderias = ?',
-            [$lavanderia],
-        );
-
-        return [(float) $punto->latitud, (float) $punto->longitud];
     }
 }

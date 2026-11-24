@@ -16,6 +16,7 @@ M = 5 h, L = 12 h.
 
 - [x] 2.1 alta-lavanderias-E18, alta-lavanderias-E20: la lavandería edita su información y no puede editar la de otra — test: `servidor/tests/Feature/AltaLavanderias/PerfilTest.php` — tamaño S
 - [x] 2.2 alta-lavanderias-E21, alta-lavanderias-E22: ventanas de una hora por día de la semana y rechazo de las que no duran una hora — test: `servidor/tests/Feature/AltaLavanderias/VentanasTest.php` — tamaño S
+- [x] 2.3 alta-lavanderias-E25: una dirección nueva en otra plaza se rechaza en la app y en el panel — test: `servidor/tests/Feature/AltaLavanderias/PerfilTest.php` y `servidor/tests/Feature/AltaLavanderias/PanelEdicionTest.php` — tamaño S
 
 ## 3. Gestión de lavanderías en el panel de Filament
 
@@ -40,8 +41,8 @@ M = 5 h, L = 12 h.
 
 ## Horas
 
-- **Listas para el sprint** (grupos 0 a 4): 4 tareas M y 7 tareas S, **34 h**. Antes de alinear con el modelo eran
-  32 h; la migración de 0.1 suma 2 h.
+- **Listas para el sprint** (grupos 0 a 4): 4 tareas M y 8 tareas S, **36 h**. Antes de alinear con el modelo eran
+  32 h; la migración de 0.1 suma 2 h y el escenario E25 de 2.3, otras 2 h.
 - **Bloqueadas** (grupo 5), tamaño tentativo: 2 M y 5 S, **20 h**, sin cambio.
 - **Contra el plan:** el plan de sprints le da **15 h** a este cambio (F-B01, F-D01 y F-B06, tres M). Las listas pasan
-  el plan por 19 h (antes, por 17 h); con las bloqueadas, por 39 h (antes, por 37 h).
+  el plan por 21 h (antes, por 19 h); con las bloqueadas, por 41 h (antes, por 39 h).
