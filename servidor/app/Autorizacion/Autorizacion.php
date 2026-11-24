@@ -86,7 +86,7 @@ final class Autorizacion
             'GET terminos' => 'Los términos y condiciones, sin datos de ninguna cuenta (textos-legales-E01).',
             // Lo que leen los buscadores: las direcciones de las páginas públicas, sin datos (medicion-E08).
             'GET sitemap.xml' => 'El mapa del sitio, con las direcciones de las páginas públicas (medicion-E08).',
-            'GET robots.txt' => 'El archivo de robots, que declara el mapa del sitio (medicion-E08).',
+            'GET robots.txt' => 'El archivo de robots: en producción declara el mapa del sitio; fuera de ella cierra el sitio (medicion-E08, medicion-E15).',
 
             // La página para crear la contraseña nueva: la llave es el token del enlace del correo (ADR-0018, decisión 4).
             'GET contrasena/restablecer/{token}' => 'Muestra el formulario; la llave es el token del enlace del correo.',

@@ -1,8 +1,9 @@
 Cada tarea sigue rojo, verde y refactor: primero el test con el identificador del escenario en su nombre, que falla;
 luego el código mínimo que lo pone en verde; luego la limpieza. Todas viven en `servidor/`.
 
-Horas con las bandas de S-006 (S = 2, M = 5): **25 h**, contra **7 h** del plan (F-T16, M, y F-T17, S, del inventario).
-De las 25 h, 6 h son de acreditación y están bloqueadas (tareas 1.3, 2.2 y 3.3).
+Horas con las bandas de S-006 (S = 2, M = 5): **27 h**, contra **7 h** del plan (F-T16, M, y F-T17, S, del inventario).
+De las 27 h, 6 h son de acreditación y están bloqueadas (tareas 1.3, 2.2 y 3.3). La tarea 2.3 suma 2 h, de la adenda del
+2026-11-24 de ADR-0012.
 
 ## 1. Medición
 
@@ -14,6 +15,7 @@ De las 25 h, 6 h son de acreditación y están bloqueadas (tareas 1.3, 2.2 y 3.3
 
 - [x] 2.1 medicion-E07, medicion-E08, medicion-E10: título y descripción por página, mapa del sitio y archivo de robots, e información estructurada con las plazas activas — test: `servidor/tests/Feature/Medicion/BuscadoresTest.php` — tamaño M
 - [ ] 2.2 medicion-E09: verificación por DNS y envío del mapa del sitio en la Search Console de EL CLIENTE (bloqueada: DD-023, DD-118) — test: `servidor/tests/Feature/Medicion/BuscadoresTest.php` con el dominio de producción, más la captura — tamaño S
+- [x] 2.3 medicion-E15: el archivo de robots cierra el sitio fuera de producción (adenda del 2026-11-24 de ADR-0012) — test: `servidor/tests/Feature/Medicion/BuscadoresTest.php` — tamaño S
 
 ## 3. Velocidad y candado
 

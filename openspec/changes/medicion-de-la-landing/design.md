@@ -76,8 +76,15 @@ cumple cada escenario; se pueden rehacer sin tocar los requisitos.
 - **Mapa del sitio y robots (tarea 2.1):** dos rutas públicas, `GET /sitemap.xml` y `GET /robots.txt`
   (`BuscadoresController`), declaradas en `Autorizacion::rutasSinSesion()`. Las direcciones salen de los nombres de las
   rutas, así que van en el dominio de `APP_URL` aunque la consulta llegue por otro. El `public/robots.txt` fijo se
-  borró: el servidor web lo serviría antes que la ruta, y no sabe el dominio. El archivo de robots no le cierra nada a
-  ningún buscador y es el mismo en todos los entornos: si prueba pide no ser indexado es la pregunta 3.
+  borró: el servidor web lo serviría antes que la ruta, y no sabe el dominio. En producción, el archivo de robots no le
+  cierra nada a ningún buscador y declara el mapa del sitio (medicion-E08).
+- **Solo producción se deja indexar (tarea 2.3, 2026-11-24; pregunta 3):** en todo entorno cuyo `APP_ENV` no sea
+  `production`, `MapaDelSitio::robots()` responde `User-agent: *` y `Disallow: /`, sin declarar el mapa del sitio
+  (medicion-E15; adenda del 2026-11-24 de ADR-0012). `BuscadoresTest` lo prueba cambiando el entorno de la aplicación:
+  en el de pruebas, en local y en dos nombres que no son de ninguno (`prueba` y `staging`), porque la regla no nombra el
+  del entorno de prueba en internet. La prueba del archivo de robots de medicion-E08 corre con la configuración de
+  producción (el entorno y solo https) y también lleva medicion-E15. Que el entorno de prueba en internet responda
+  cerrado se comprueba cuando exista (DD-070).
 - **Información estructurada (tarea 2.1):** un bloque JSON-LD en la cabecera de la portada, con el vocabulario de
   schema.org: `Service`, con `serviceType` "Lavandería a domicilio", `name` y `provider` con `APP_NAME`, `url` con la
   dirección del sitio, y `areaServed` con cada plaza activa como `Place` y sus zonas activas en `containsPlace`. Sin
@@ -134,7 +141,7 @@ ningún evento de medición se guarda en la base.
   que es el responsable (`NSV-2026-001-v8.pdf:10:Cláusula X`); va en DD-118.
 - [Search Console necesita un registro en el DNS del dominio del cliente] → espera a DD-023 y a los accesos de
   colaborador.
-- [El inventario pesó F-T16 y F-T17 en 7 h] → las tareas suman 25 h; ver `tasks.md`.
+- [El inventario pesó F-T16 y F-T17 en 7 h] → las tareas suman 27 h; ver `tasks.md`.
 
 ## Open Questions
 
@@ -147,9 +154,10 @@ ningún evento de medición se guarda en la base.
    código; la exportación, con fecha, va a `vault/evidencias/medicion/` con las capturas de la tarea 1.3, cuando exista
    el contenedor de EL CLIENTE. Mientras tanto, el plan de eventos de arriba dice qué etiquetas lleva.
 3. **¿El entorno de prueba pide a los buscadores que no lo indexen?** No lo dicen el contrato ni ADR-0012. **Necesita
-   decisión de Arthur, en ADR-0012.** *Sigue abierta.* Recomendación de Claude: sí, que prueba responda
-   `Disallow: /` en el archivo de robots, para que no compita con producción en los buscadores. No se implementó: pide
-   la adenda de ADR-0012, y el entorno de prueba no existe mientras siga abierta DD-070.
+   decisión de Arthur, en ADR-0012.** *Resuelta el 2026-11-24 con la adenda de ADR-0012, que asentó el concilio por
+   delegación de Arthur Naranjo (C-236, C-245):* sí, y como regla por entorno: todo entorno que no sea producción
+   responde `Disallow: /` en el archivo de robots (medicion-E15, tarea 2.3). La comprobación en el entorno de prueba
+   real espera a que exista (DD-070).
 4. **Dónde corre Lighthouse CI:** un trabajo más en `.github/workflows/ci.yml`, con la portada levantada en la máquina
    de la integración continua. Versiones por confirmar (E). *Resuelta el 2026-11-22, por delegación de Arthur (C-236):*
    el trabajo `landing-velocidad`, con `@lhci/cli@0.15.1` (ver "Cómo quedó implementado").
