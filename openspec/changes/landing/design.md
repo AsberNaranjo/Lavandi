@@ -81,15 +81,21 @@ dependencias.
   `LANDING_PREGUNTAS_FRECUENTES`; se muestran a lo más ocho, en `details` y `summary`.
 - **Prensa (tarea 4.2, 2026-11-24):** los logos se editan en el panel, en el recurso `LogosPrensa`, solo por la
   administración (`Autorizacion::logosPrensaDelPanel()`; landing-E19): el nombre del medio, que es también el texto
-  alternativo, la imagen, el interruptor de activo y el orden, que se cambia arrastrando. La imagen se sube al disco
-  privado de fotos del entorno (`config('fotos.disco')`), en la carpeta `prensa`, con los tipos y el peso de
-  `config/fotos.php`. La portada muestra los activos, en su orden, y recibe cada imagen por la ruta pública
-  `GET /prensa/{archivo}` (`portada.prensa.imagen`), que la adenda del 2026-11-24 de ADR-0006 abre solo para los logos
-  de prensa: la lee del disco y la entrega con su tipo y con caché pública, sin URL firmada, sin sesión ni cookies, y
-  responde 404 si el logo no existe o no está activo. La ruta lleva el nombre del archivo, nunca la llave interna
-  (ADR-0016, regla 5), y la declara `Autorizacion::rutasSinSesion()`. Sin logos activos, la sección sigue con el texto
-  de `LANDING_PRENSA_SIN_LOGOS` (`landing.prensa.sin_logos`) o, sin él, con su marcador de contenido de prueba
-  (landing-E18). No enlaza a la nota del medio: el concilio del 2026-11-24 lo descartó
+  alternativo, la imagen, el interruptor de activo y el orden, que se cambia arrastrando. No se borran: ningún
+  escenario lo pide, y un logo que ya no debe salir se retira desactivándolo (landing-E17); el borrado de los
+  testimonios sí tiene el suyo, landing-E26. La imagen se sube al disco privado de fotos del entorno
+  (`config('fotos.disco')`), en la carpeta `prensa`, con los tipos y el peso de `config/fotos.php`: hoy PNG, JPG o WEBP
+  de hasta 5 MB, sin SVG. Eso es una restricción técnica del disco de fotos, no de landing-E17, y limita el formato en
+  que EL CLIENTE entrega sus logos (DD-117). La portada muestra los activos, en su orden, y recibe cada imagen por la
+  ruta pública `GET /prensa/{archivo}` (`portada.prensa.imagen`), que la adenda del 2026-11-24 de ADR-0006 abre solo
+  para los logos de prensa: la lee del disco y la entrega con su tipo y con caché pública, sin URL firmada, sin sesión
+  ni cookies, y responde 404 si el logo no existe o no está activo. La ruta lleva el nombre del archivo, nunca la llave
+  interna (ADR-0016, regla 5), y la declara `Autorizacion::rutasSinSesion()`. La portada solo muestra los logos con la
+  imagen suelta en la carpeta `prensa`, que es lo único que la ruta entrega; no revisa que cada archivo siga en el
+  disco, porque con `fotos_s3` costaría una llamada al bucket por logo: el panel es la única vía de alta. Cada logo
+  ocupa una caja fija, de tres veces su alto, para que la fila no se reacomode al cargar. Sin logos activos, la sección
+  sigue con el texto de `LANDING_PRENSA_SIN_LOGOS` (`landing.prensa.sin_logos`) o, sin él, con su marcador de
+  contenido de prueba (landing-E18). No enlaza a la nota del medio: el concilio del 2026-11-24 lo descartó
   (`acta-2026-11-20-modelo-y-pasarela.md`, decisión 63). Los logos reales son de EL CLIENTE (DD-117) y solo bloquean
   el contenido y la acreditación (tarea 7.1).
 - **Pie legal (tarea 6.1, 2026-11-22):** lo pone el diseño base, `publico.layout`, con `publico/pie-legal.blade.php`,
@@ -148,6 +154,12 @@ Lo que esta spec guarda y el modelo todavía no tiene:
   (`NSV-2026-001-v8.pdf:10:Cláusula X`); qué aviso acompaña al formulario va en DD-119.
 - [El cliente marcó "No" en el mapa de cobertura en el formulario en papel del 2026-11-05, sin confirmar] → se
   construye porque el contrato lo pide; quitarlo sería Orden de Cambio.
+- [Con `fotos_s3`, cada imagen de prensa que se pide sin caché hace varias llamadas al bucket: si existe, su tipo, su
+  tamaño y su lectura] → la caché pública de un día las amortigua. Se mide cuando exista el bucket (DD-070); si pesa,
+  se guardan el tipo y el tamaño al subir la imagen.
+- [Al cambiar la imagen de un logo de prensa, el archivo anterior se queda en el disco privado, en la carpeta
+  `prensa`] → no se filtra, porque la ruta solo entrega la imagen de un logo activo, pero los archivos sin logo se
+  acumulan. La regla para retirarlos no se decide en la tarea 4.2.
 
 ## Open Questions
 
