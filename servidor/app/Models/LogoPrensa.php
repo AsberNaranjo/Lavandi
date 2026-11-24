@@ -49,14 +49,21 @@ class LogoPrensa extends Modelo
     }
 
     /**
-     * Los activos, en el orden fijado en el panel; a igual orden, el más antiguo primero.
+     * Los activos, en el orden fijado en el panel; a igual orden, el más antiguo primero. Solo los que tienen la imagen
+     * suelta en la carpeta prensa, que es lo único que entrega la ruta pública (ImagenDePrensaController): uno con la
+     * imagen en otra parte saldría en la portada como imagen rota. El panel siempre la sube ahí.
      *
      * @param  Builder<LogoPrensa>  $consulta
      * @return Builder<LogoPrensa>
      */
     public function scopeActivosEnOrden(Builder $consulta): Builder
     {
-        return $consulta->where('activo', true)->orderBy('orden')->orderBy('id_logos_prensa');
+        return $consulta
+            ->where('activo', true)
+            ->where('imagen', 'like', self::CARPETA.'/%')
+            ->where('imagen', 'not like', self::CARPETA.'/%/%')
+            ->orderBy('orden')
+            ->orderBy('id_logos_prensa');
     }
 
     /**

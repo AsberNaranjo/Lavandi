@@ -22,9 +22,10 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Los logos de prensa de la portada en el panel (NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2, sección 10: "Logos de
  * medios o menciones, activables conforme se obtengan"; ADR-0011; openspec/changes/landing/, tarea 4.2): la lista con su
- * interruptor de activo y su orden, que se cambia arrastrando, el alta, la edición y el borrado.
+ * interruptor de activo y su orden, que se cambia arrastrando, el alta y la edición. No se borran: ningún escenario lo
+ * pide, y un logo que ya no debe salir se retira desactivándolo (landing-E17).
  *
- * Solo la administración entra, crea, edita, activa, ordena o borra (landing-E19): lo decide el componente único de
+ * Solo la administración entra, crea, edita, activa u ordena (landing-E19): lo decide el componente único de
  * autorización (Autorizacion::puedeEditarLaPortada() y logosPrensaDelPanel()), no una Policy de Filament (ADR-0019,
  * consecuencias), además de que el panel ya no deja entrar a otra cuenta.
  */
@@ -84,12 +85,12 @@ class LogoPrensaResource extends Resource
 
     public static function canDelete(Model $record): bool
     {
-        return self::puedeEditar();
+        return false;
     }
 
     public static function canDeleteAny(): bool
     {
-        return self::puedeEditar();
+        return false;
     }
 
     public static function canReorder(): bool

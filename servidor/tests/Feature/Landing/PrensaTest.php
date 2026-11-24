@@ -82,6 +82,10 @@ class PrensaTest extends TestCase
         $segundo = LogoPrensa::factory()->activo()->create(['nombre' => 'Medio de prueba B', 'orden' => 2]);
         $primero = LogoPrensa::factory()->activo()->create(['nombre' => 'Medio de prueba A', 'orden' => 1]);
         $inactivo = LogoPrensa::factory()->create(['nombre' => 'Medio de prueba inactivo', 'orden' => 0]);
+        // La ruta pública solo entrega archivos sueltos de la carpeta de prensa: un logo con la imagen en otra parte
+        // saldría como imagen rota, así que la portada no lo muestra.
+        LogoPrensa::factory()->activo()->create(['nombre' => 'Medio de prueba fuera', 'imagen' => 'otra/logo.png']);
+        LogoPrensa::factory()->activo()->create(['nombre' => 'Medio de prueba anidado', 'imagen' => LogoPrensa::CARPETA.'/sub/logo.png']);
 
         $this->assertSame(['Medio de prueba A', 'Medio de prueba B'], $this->nombresDeLosLogos());
 
@@ -112,10 +116,9 @@ class PrensaTest extends TestCase
 
         $direccion = route('portada.prensa.imagen', $activo->archivo());
         $this->assertSame(url('/prensa/'.$activo->archivo()), $direccion, 'La ruta lleva el nombre del archivo.');
-        $this->assertStringNotContainsString((string) $activo->getKey().'/', $direccion, 'Nunca la llave interna.');
+        $this->get('/prensa/'.$activo->getKey())->assertNotFound(); // Nunca la llave interna (ADR-0016, regla 5).
 
         $respuesta = $this->get($direccion)->assertOk();
-        $this->assertGuest('web');
         $this->assertSame($contenido, $respuesta->streamedContent());
         $this->assertSame('image/png', $respuesta->headers->get('Content-Type'));
         $this->assertStringContainsString('public', (string) $respuesta->headers->get('Cache-Control'));
@@ -210,6 +213,13 @@ class PrensaTest extends TestCase
         Livewire::test(ListLogosPrensa::class)->call('updateTableColumnState', 'activo', (string) $otro->getKey(), false);
         $this->assertFalse($otro->refresh()->activo);
         $this->assertSame(['Medio de prueba editado'], $this->nombresDeLosLogos());
+
+        // Un logo se retira de la portada desactivándolo: el panel no tiene borrado, ni en la lista ni en la edición.
+        $this->assertFalse(LogoPrensaResource::canDelete($otro));
+        $this->assertFalse(LogoPrensaResource::canDeleteAny());
+        Livewire::test(ListLogosPrensa::class)->assertTableActionDoesNotExist('delete');
+        Livewire::test(EditLogoPrensa::class, ['record' => $otro->getRouteKey()])->assertActionDoesNotExist('delete');
+        $this->assertSame(2, LogoPrensa::count());
     }
 
     #[TestDox('landing-E17: el panel no deja guardar un logo de prensa sin nombre o sin imagen, ni una imagen de un tipo que no es de foto')]

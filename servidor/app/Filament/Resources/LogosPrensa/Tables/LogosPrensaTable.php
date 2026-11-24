@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\LogosPrensa\Tables;
 
-use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -10,7 +9,8 @@ use Filament\Tables\Table;
 
 /**
  * La lista de logos de prensa del panel, en el orden en que salen en la portada: se reordena arrastrando y cada uno se
- * activa o se desactiva desde su interruptor (landing-E17; ADR-0011, "su interruptor de activo").
+ * activa o se desactiva desde su interruptor (landing-E17; ADR-0011, "su interruptor de activo"). Sin borrado: ningún
+ * escenario lo pide, y un logo que ya no debe salir se retira desactivándolo.
  */
 class LogosPrensaTable
 {
@@ -25,7 +25,6 @@ class LogosPrensaTable
             ])
             ->recordActions([
                 EditAction::make()->label('Editar'),
-                DeleteAction::make()->label('Borrar'),
             ]);
     }
 }

@@ -539,7 +539,11 @@
         font-weight: var(--ds-tipografia-peso-semifuerte);
     }
 
-    /* Los logos de prensa, en una fila que se acomoda al ancho; cada uno a la misma altura, sin salirse. */
+    /*
+     * Los logos de prensa, en una fila que se acomoda al ancho; cada uno a la misma altura, sin salirse. Cada logo ocupa
+     * una caja fija, de tres veces su alto, y se ajusta dentro sin deformarse: así la fila no se reacomoda al cargar las
+     * imágenes, que no traen su ancho (desplazamiento de diseño; PageSpeed de 70 o más, A.4.2).
+     */
     .prensa__logos {
         display: flex;
         flex-wrap: wrap;
@@ -552,7 +556,7 @@
     }
 
     .prensa__logo {
-        width: auto;
+        width: calc(var(--ds-espaciado-7) * 3);
         max-width: 100%;
         height: var(--ds-espaciado-7);
         object-fit: contain;
