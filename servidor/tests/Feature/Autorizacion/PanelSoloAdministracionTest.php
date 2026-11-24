@@ -5,6 +5,7 @@ namespace Tests\Feature\Autorizacion;
 use App\Autorizacion\Autorizacion;
 use App\Filament\Auth\IniciarSesion;
 use App\Models\Lavanderia;
+use App\Models\LogoPrensa;
 use App\Models\Repartidor;
 use App\Models\Rol;
 use App\Models\Testimonio;
@@ -89,6 +90,7 @@ class PanelSoloAdministracionTest extends TestCase
         $lavanderia = Lavanderia::factory()->create(['nombre' => 'Lavandería del panel E03']);
         Repartidor::factory()->create();
         Testimonio::factory()->create();
+        LogoPrensa::factory()->create();
         Usuario::factory()->conRol(Rol::USUARIO)->create();
 
         $rutas = $this->rutasDelPanel();

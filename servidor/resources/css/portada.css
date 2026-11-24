@@ -539,6 +539,25 @@
         font-weight: var(--ds-tipografia-peso-semifuerte);
     }
 
+    /* Los logos de prensa, en una fila que se acomoda al ancho; cada uno a la misma altura, sin salirse. */
+    .prensa__logos {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--ds-espaciado-6);
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .prensa__logo {
+        width: auto;
+        max-width: 100%;
+        height: var(--ds-espaciado-7);
+        object-fit: contain;
+    }
+
     /* --- Preguntas frecuentes --- */
 
     .acordeon {

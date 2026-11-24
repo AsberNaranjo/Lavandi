@@ -3,10 +3,14 @@
 use App\Http\Controllers\BuscadoresController;
 use App\Http\Controllers\Desarrollo\CheckoutDeDesarrolloController;
 use App\Http\Controllers\FormularioDeLaPortadaController;
+use App\Http\Controllers\ImagenDePrensaController;
 use App\Http\Controllers\PortadaController;
 use App\Http\Controllers\RecuperacionController;
 use App\Http\Controllers\TextosLegalesController;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /*
  * La raíz es la portada de la landing (ADR-0011; openspec/changes/landing/). La salud es /up (base-E01).
@@ -24,6 +28,16 @@ Route::post('/contrasena/restablecer', [RecuperacionController::class, 'guardarC
  * La portada pública de la landing, con sus 12 secciones (openspec/changes/landing/, tarea 1.1).
  */
 Route::get('/', PortadaController::class)->name('portada');
+
+/*
+ * La imagen de un logo de prensa activo de la portada, por el nombre de su archivo, leída del disco privado de fotos
+ * (openspec/changes/landing/, tarea 4.2; adenda del 2026-11-24 de ADR-0006). Va con caché pública, así que no abre
+ * sesión ni pone cookies: una caché compartida no debe guardar la cookie de nadie.
+ */
+Route::get('/prensa/{archivo}', ImagenDePrensaController::class)
+    ->where('archivo', '[^/]+')
+    ->withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, PreventRequestForgery::class])
+    ->name('portada.prensa.imagen');
 
 /*
  * Los formularios de la portada: interés de lavanderías y contacto (openspec/changes/landing/, tareas 2.4 y 5.1).
