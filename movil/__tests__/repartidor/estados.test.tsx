@@ -6,7 +6,7 @@
 // Recolectado y Listo le toca a la lavandería (Módulo B #3): ahí el repartidor no tiene botón. Si ese ya no es el paso
 // siguiente (409), el pedido no cambia: la app muestra el mensaje del servidor y vuelve a consultar.
 //
-// Cómo ve el usuario estos estados espera DD-022 y DD-011 (repartidor-E22). Se abre la app real con la sesión de una
+// Cómo ve el usuario estos estados espera DD-022 y DD-140 (repartidor-E22). Se abre la app real con la sesión de una
 // cuenta de repartidor activo, en iPhone y en Android, con el servidor simulado (__tests__/apoyo/repartidor.ts) y los
 // temporizadores falsos de Jest, para que la consulta cada 30 segundos traiga lo que marca la lavandería.
 import { act, fireEvent, screen, waitFor, within } from 'expo-router/testing-library';

@@ -57,7 +57,7 @@ del usuario y para el panel; aquí se aplica igual a la lista del socio. No hay 
 
 **El pago acreditado** se lee de `pedidos.confirmado_en`: con C-188, el pedido pasa a Confirmado y lo llena solo
 cuando la pasarela confirma el pago (`modelo-de-datos.md`, tabla `pedidos`). La lista, el detalle y la aceptación del
-repartidor filtran por esa columna, sin depender del estado interno previo al pago que fije DD-123.
+repartidor filtran por esa columna, sin depender del estado interno previo al pago (`por_pagar`, ADR-0021).
 
 ## Tablas y migración
 
@@ -123,7 +123,7 @@ su `$table` y su `$primaryKey` (modelo-E16). `Repartidor` usa el ULID público (
 | `plazas` | La plaza del repartidor y la zona horaria de sus estadísticas (E05, E28) | `plazas-y-zonas` |
 | `pedidos` | La lista y el detalle (E10 a E12); al aceptar se escribe `id_repartidores` (E15); cada botón cambia `id_estados_pedido` (E19); `confirmado_en` dice si el pago está acreditado (E30) | `resumen-y-confirmacion`; `confirmado_en` lo llena `pago` |
 | `pedido_eventos` | Cada botón agrega su evento con `id_usuarios` y `ocurrido_en` (E19); el de Entregado da la fecha del historial y de las estadísticas (E25, E28) | `resumen-y-confirmacion` (base) y `estados-del-pedido` |
-| `estados_pedido` | Recolectado, En tránsito y Entregado. En tránsito es un estado interno que fija DD-123 | `resumen-y-confirmacion` |
+| `estados_pedido` | Recolectado, En tránsito y Entregado. En tránsito es `en_entrega`, el estado interno de ADR-0021 (DD-123, cerrada) | `resumen-y-confirmacion` |
 | `pedido_direcciones` | La dirección de recogida y la de entrega en la lista (E10) | `resumen-y-confirmacion` |
 | `lavanderias` | El nombre de la lavandería en la lista (E10) | `perfil-de-lavanderia` |
 | `calificaciones` | La calificación recibida, con `id_repartidores` (E27, bloqueado por DD-052). Esta migración le pone la llave foránea a esa columna | `perfil-de-lavanderia` (base) y `historial-y-calificacion` |

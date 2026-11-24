@@ -98,7 +98,7 @@ const BOTONES: Partial<Record<CodigoOperativo, string>> = {
 };
 
 /**
- * El paso siguiente del repartidor en cada estado (adenda propuesta a ADR-0021 en design.md): Recolectado desde
+ * El paso siguiente del repartidor en cada estado (adenda del 2026-11-24 de ADR-0021): Recolectado desde
  * aceptado, En tránsito desde listo y Entregado desde en_entrega. Entre Recolectado y Listo le toca a la lavandería.
  */
 const SIGUIENTE: Partial<Record<CodigoOperativo, CodigoOperativo>> = {

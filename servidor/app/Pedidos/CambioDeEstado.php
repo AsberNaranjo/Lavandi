@@ -56,8 +56,8 @@ final class CambioDeEstado
 
     /**
      * Lo que la lavandería puede hacer desde cada estado: el estado al que llega (ADR-0021, decisión 2, y su adenda
-     * propuesta en openspec/changes/pedidos-de-la-lavanderia/design.md). Desde un estado que no está aquí, como
-     * por_pagar, rechazado, en_entrega o entregado, la lavandería no puede hacer nada.
+     * del 2026-11-22). Desde un estado que no está aquí, como por_pagar, rechazado, en_entrega o entregado, la
+     * lavandería no puede hacer nada.
      *
      * @var array<string, list<string>>
      */
