@@ -260,7 +260,13 @@ class GestionEnElPanelTest extends TestCase
             ->assertTableActionHidden('levantarSuspension', $suspendido)
             ->assertTableActionHidden('darDeAlta', $suspendido);
 
-        $this->assertSame(Repartidor::BAJA, Repartidor::withTrashed()->whereKey($suspendido->getKey())->value('estado'));
+        $deBaja = Repartidor::withTrashed()->whereKey($suspendido->getKey())->sole();
+        $this->assertSame(Repartidor::BAJA, $deBaja->estado);
+
+        // La regla vive en el estado del repartidor, no solo en el botón: ni un alta ni otra baja salen de la baja.
+        $estado = app(EstadoDelRepartidor::class);
+        $this->assertThrows(fn () => $estado->darDeAlta($deBaja, $this->plaza), TransicionNoPermitida::class);
+        $this->assertThrows(fn () => $estado->darDeBaja($deBaja), TransicionNoPermitida::class);
     }
 
     #[TestDox('repartidor-E31: la administración da de baja desde el panel a un pendiente que nunca se autorizó; queda en baja sin plaza, en borrado suave, con sus tokens revocados, y no puede iniciar sesión')]
@@ -302,10 +308,6 @@ class GestionEnElPanelTest extends TestCase
         $this->assertFalse(app(Autorizacion::class)->puedeIniciarSesion($cuenta->fresh()));
         // Su cuenta no se borra.
         $this->assertNotNull(Usuario::query()->whereKey($cuenta->getKey())->first());
-
-        // La regla vive en el estado del repartidor, no solo en el botón: la baja tampoco se deshace con un alta.
-        $this->expectException(TransicionNoPermitida::class);
-        app(EstadoDelRepartidor::class)->darDeAlta($deBaja, $this->plaza);
     }
 
     #[TestDox('repartidor-E08: la administración cambia el nombre, el teléfono, el correo, la foto y el tipo de vehículo del repartidor; el cambio queda guardado y el repartidor lo ve en su módulo')]
