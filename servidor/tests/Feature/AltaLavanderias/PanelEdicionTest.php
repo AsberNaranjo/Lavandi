@@ -12,7 +12,6 @@ use App\Models\Usuario;
 use Closure;
 use Filament\Forms\Components\Repeater;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Feature\AltaLavanderias\Soporte\AltaDePrueba;
@@ -253,19 +252,5 @@ class PanelEdicionTest extends TestCase
         }
 
         $this->assertSame('Lavandería de prueba Privada', $lavanderia->fresh()->nombre);
-    }
-
-    /**
-     * @return array{float, float}
-     */
-    private function ubicacionDe(Lavanderia $lavanderia): array
-    {
-        $punto = DB::selectOne(
-            'select ST_Y(ubicacion::geometry) as latitud, ST_X(ubicacion::geometry) as longitud
-               from lavanderias where id_lavanderias = ?',
-            [$lavanderia->getKey()],
-        );
-
-        return [(float) $punto->latitud, (float) $punto->longitud];
     }
 }

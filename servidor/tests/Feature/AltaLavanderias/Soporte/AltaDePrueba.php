@@ -11,6 +11,7 @@ use App\Models\Rol;
 use App\Models\Usuario;
 use App\Models\Zona;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
 use Tests\Feature\Direcciones\Soporte\CatalogoDePrueba;
@@ -189,5 +190,21 @@ trait AltaDePrueba
     protected function archivosDeFotos(): array
     {
         return Storage::disk(config('fotos.disco'))->allFiles();
+    }
+
+    /**
+     * La ubicación guardada de la lavandería, como latitud y longitud.
+     *
+     * @return array{float, float}
+     */
+    protected function ubicacionDe(Lavanderia $lavanderia): array
+    {
+        $punto = DB::selectOne(
+            'select ST_Y(ubicacion::geometry) as latitud, ST_X(ubicacion::geometry) as longitud
+               from lavanderias where id_lavanderias = ?',
+            [$lavanderia->getKey()],
+        );
+
+        return [(float) $punto->latitud, (float) $punto->longitud];
     }
 }

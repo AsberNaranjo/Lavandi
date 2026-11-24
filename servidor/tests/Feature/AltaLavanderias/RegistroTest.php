@@ -261,18 +261,4 @@ class RegistroTest extends TestCase
         // Sin datos completos ni siquiera se consulta la geocodificación.
         $this->assertSame([], $this->geocodificador->consultas);
     }
-
-    /**
-     * @return array{float, float}
-     */
-    private function ubicacionDe(Lavanderia $lavanderia): array
-    {
-        $punto = DB::selectOne(
-            'select ST_Y(ubicacion::geometry) as latitud, ST_X(ubicacion::geometry) as longitud
-               from lavanderias where id_lavanderias = ?',
-            [$lavanderia->getKey()],
-        );
-
-        return [(float) $punto->latitud, (float) $punto->longitud];
-    }
 }

@@ -165,6 +165,7 @@ class PerfilTest extends TestCase
     {
         $cuenta = $this->cuentaDeLavanderia();
         $lavanderia = $this->registrada($cuenta);
+        $ubicacion = $this->ubicacionDe($lavanderia);
         $otra = $this->plazaDePrueba('Plaza de prueba 2');
         $this->zonaDePrueba($otra, 'Zona de prueba Norte', $this->cuadrado(-116.0, 10.0));
         $this->geocodificarEn([10.5, -115.5]);
@@ -177,6 +178,7 @@ class PerfilTest extends TestCase
 
         $lavanderia->refresh();
         $this->assertSame([$this->plaza->getKey(), 'Calle de prueba'], [$lavanderia->id_plazas, $lavanderia->calle]);
+        $this->assertSame($ubicacion, $this->ubicacionDe($lavanderia));
     }
 
     #[TestDox('alta-lavanderias-E18: la lavandería ve su información y sus ventanas actuales, y su lista trae solo la suya')]
