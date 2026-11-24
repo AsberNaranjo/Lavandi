@@ -10,9 +10,14 @@ use Illuminate\Http\Response;
  * A.2; ADR-0011). Los dos los declara App\Autorizacion\Autorizacion::rutasSinSesion().
  *
  *     GET /sitemap.xml    el mapa del sitio, con las páginas públicas    (medicion.mapa-del-sitio)
- *     GET /robots.txt     el archivo de robots, que declara el mapa      (medicion.robots)
+ *     GET /robots.txt     el archivo de robots: en producción declara    (medicion.robots)
+ *                         el mapa; fuera de ella, cierra el sitio
  *
- * Escenario: medicion-E08 · Spec: openspec/changes/medicion-de-la-landing/specs/medicion/spec.md · Tarea 2.1
+ * Que solo producción se deje indexar es la adenda del 2026-11-24 de ADR-0012 (NSV-2026-001-v8.pdf:14:ANEXO A, Sección
+ * A.2).
+ *
+ * Escenarios: medicion-E08 y medicion-E15 · Spec: openspec/changes/medicion-de-la-landing/specs/medicion/spec.md ·
+ * Tareas 2.1 y 2.3
  */
 class BuscadoresController extends Controller
 {

@@ -14,15 +14,18 @@ use Tests\TestCase;
 
 /**
  * La landing preparada para buscadores: título y descripción propios en cada página pública, el mapa del sitio con
- * direcciones absolutas en el dominio de la configuración, declarado en el archivo de robots, y la información
- * estructurada del negocio y su zona de servicio en la portada (NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2; ADR-0011).
+ * direcciones absolutas en el dominio de la configuración, declarado en el archivo de robots de producción, y la
+ * información estructurada del negocio y su zona de servicio en la portada (NSV-2026-001-v8.pdf:15:ANEXO A, Sección
+ * A.2; ADR-0011). Fuera de producción, el archivo de robots cierra el sitio a todo buscador, para que solo producción se
+ * indexe (NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.2; adenda del 2026-11-24 de ADR-0012).
  *
  * Los textos de las descripciones son de EL CLIENTE (DD-117): aquí son de prueba y lo dicen. Las plazas son las ficticias
  * de PlazasDePrueba, no las del territorio inicial (DD-093, DD-094). Que Search Console lea el mapa del sitio es
- * medicion-E09 (tarea 2.2, bloqueada por DD-023 y DD-118).
+ * medicion-E09 (tarea 2.2, bloqueada por DD-023 y DD-118). Que el entorno de prueba en internet responda cerrado se
+ * comprueba cuando exista (DD-070); aquí se cambia el entorno de la aplicación.
  *
- * Escenarios: medicion-E07, medicion-E08 y medicion-E10 · Spec: openspec/changes/medicion-de-la-landing/specs/medicion/
- * spec.md · Tarea 2.1
+ * Escenarios: medicion-E07, medicion-E08, medicion-E10 y medicion-E15 · Spec: openspec/changes/medicion-de-la-landing/
+ * specs/medicion/spec.md · Tareas 2.1 y 2.3
  */
 class BuscadoresTest extends TestCase
 {
@@ -127,13 +130,13 @@ class BuscadoresTest extends TestCase
         ], $direcciones);
     }
 
-    #[TestDox('medicion-E08: el archivo de robots declara la dirección absoluta del mapa del sitio, en el dominio de la configuración, y no le cierra el sitio a los buscadores')]
+    #[TestDox('medicion-E08: en producción, el archivo de robots declara la dirección absoluta del mapa del sitio, en el dominio de la configuración, y no le cierra el sitio a los buscadores')]
     public function test_medicion_e08_el_archivo_de_robots_declara_el_mapa_del_sitio(): void
     {
-        $respuesta = $this->get('http://otra-direccion.test/robots.txt')->assertOk();
-        $this->assertStringStartsWith('text/plain', (string) $respuesta->headers->get('Content-Type'));
+        $this->app->detectEnvironment(fn (): string => 'production');
 
-        $lineas = array_map('trim', explode("\n", (string) $respuesta->getContent()));
+        // Por https, como en producción: por http, medicion-E13 redirige antes de llegar a la ruta.
+        $lineas = $this->lineasDelArchivoDeRobots('https://otra-direccion.test/robots.txt');
 
         $this->assertContains('Sitemap: '.self::DOMINIO_DE_PRUEBA.'/sitemap.xml', $lineas);
         $this->assertContains('User-agent: *', $lineas);
@@ -141,6 +144,18 @@ class BuscadoresTest extends TestCase
 
         // El archivo fijo de public/ lo serviría el servidor web antes que la ruta, y no sabe el dominio.
         $this->assertFileDoesNotExist(public_path('robots.txt'));
+    }
+
+    #[TestDox('medicion-E15: fuera de producción, en el entorno de pruebas y en local, el archivo de robots responde Disallow: / para todo buscador')]
+    public function test_medicion_e15_fuera_de_produccion_el_archivo_de_robots_cierra_el_sitio(): void
+    {
+        foreach (['testing', 'local'] as $entorno) {
+            $this->app->detectEnvironment(fn (): string => $entorno);
+
+            $lineas = $this->lineasDelArchivoDeRobots('http://otra-direccion.test/robots.txt');
+
+            $this->assertSame(['User-agent: *', 'Disallow: /'], array_values(array_filter($lineas)), $entorno);
+        }
     }
 
     #[TestDox('medicion-E08: el mapa del sitio y el archivo de robots son públicos: no piden sesión y lo declaran en el componente de autorización')]
@@ -278,6 +293,19 @@ class BuscadoresTest extends TestCase
 
             $this->assertSame($valores, array_values(array_unique($valores)), "Ningún {$campo} se repite.");
         }
+    }
+
+    /**
+     * Las líneas del archivo de robots, sin espacios al borde, de una respuesta que tiene que ser texto plano.
+     *
+     * @return list<string>
+     */
+    private function lineasDelArchivoDeRobots(string $direccion): array
+    {
+        $respuesta = $this->get($direccion)->assertOk();
+        $this->assertStringStartsWith('text/plain', (string) $respuesta->headers->get('Content-Type'));
+
+        return array_map('trim', explode("\n", (string) $respuesta->getContent()));
     }
 
     /**
