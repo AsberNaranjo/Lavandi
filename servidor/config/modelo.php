@@ -43,8 +43,8 @@ return [
     /*
      * Sin plaza, por diseño: los catálogos, las plazas, las cuentas y lo de la pasarela. Los del territorio
      * (entidades_federativas, municipios y colonias) no son de una plaza, y una plaza nueva no los cambia (direcciones,
-     * design.md, "La dirección asistida"). Los testimonios de la landing tampoco: la portada es una para todo el sitio
-     * (landing, design.md, "Tablas y migración").
+     * design.md, "La dirección asistida"). Los testimonios y los logos de prensa de la landing tampoco: la portada es una
+     * para todo el sitio (landing, design.md, "Tablas y migración").
      */
     'sin_plaza' => [
         'roles',
@@ -67,6 +67,9 @@ return [
         // adenda del 2026-11-22 de ADR-0010, decisión 7; administracion-E20 y E21).
         'movimientos_pasarela',
         'testimonios',
+        // Los logos de la sección 10 de la portada, como los testimonios: una portada para todo el sitio (landing,
+        // tarea 4.0b).
+        'logos_prensa',
     ],
 
     /*
