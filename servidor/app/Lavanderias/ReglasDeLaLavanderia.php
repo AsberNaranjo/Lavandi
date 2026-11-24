@@ -46,7 +46,7 @@ final class ReglasDeLaLavanderia
     /**
      * Las reglas de los campos que se pasan, todos obligatorios: el registro pide los cinco; la edición, los que trae.
      *
-     * @param  list<string>  $campos  Algunos de CAMPOS.
+     * @param  list<string>  $campos  Algunos de CAMPOS_DE_LA_EDICION (el registro usa CAMPOS).
      * @return array<string, mixed>
      */
     public static function para(array $campos): array

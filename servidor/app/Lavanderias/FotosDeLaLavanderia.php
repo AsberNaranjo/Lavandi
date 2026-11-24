@@ -30,6 +30,9 @@ final class FotosDeLaLavanderia
     /** La misma foto que ya tiene viene dos veces en la lista. */
     public const FOTO_REPETIDA = 'Esa foto ya está en la lista.';
 
+    /** Las fotos cambiaron desde que el panel las leyó: sus lugares ya no nombran las mismas fotos. */
+    public const FOTOS_QUE_CAMBIARON = 'Las fotos de la lavandería cambiaron desde que abriste la página. Vuelve a abrirla y haz el cambio otra vez.';
+
     public function __construct(private readonly AlmacenDeFotos $almacen) {}
 
     /**
@@ -71,18 +74,25 @@ final class FotosDeLaLavanderia
      * Las que no vienen se quitan, las nuevas se guardan, y el orden se reescribe de 1 a n: la primera es la principal.
      *
      * Va dentro de la transacción de la edición, con la lavandería bloqueada. Si una foto que ya tiene no existe o viene
-     * dos veces, no guarda nada y lo dice en su lugar de la lista (fotos.N). Devuelve las rutas de los archivos que
-     * quitó, que se borran cuando la transacción quede guardada (borrar()).
+     * dos veces, no guarda nada y lo dice en su lugar de la lista (fotos.N). Si se pasan las rutas sobre las que se
+     * contaron los lugares y las fotos ya no son esas, tampoco guarda nada y lo dice en la lista (fotos). Devuelve las
+     * rutas de los archivos que quitó, que se borran cuando la transacción quede guardada (borrar()).
      *
      * @param  list<int|string|UploadedFile>  $fotos  Ya validadas con App\Lavanderias\ReglasDeLaLavanderia.
      * @param  list<string>  $guardadas  Aquí se anotan las rutas nuevas, para borrarlas si la transacción no se guarda.
+     * @param  list<string>|null  $leidas  Las rutas, en su orden, sobre las que se contaron los lugares (el panel).
      * @return list<string>
      *
      * @throws ValidationException
      */
-    public function reemplazarTodas(Lavanderia $lavanderia, array $fotos, array &$guardadas): array
+    public function reemplazarTodas(Lavanderia $lavanderia, array $fotos, array &$guardadas, ?array $leidas = null): array
     {
         $actuales = $this->enOrden($lavanderia);
+
+        if ($leidas !== null && $actuales->pluck('ruta')->all() !== array_values($leidas)) {
+            throw ValidationException::withMessages(['fotos' => self::FOTOS_QUE_CAMBIARON]);
+        }
+
         $conservadas = $this->conservadas($actuales, $fotos);
 
         $quitadas = $actuales->reject(fn (LavanderiaFoto $foto, int $lugar): bool => isset($conservadas[$lugar]));

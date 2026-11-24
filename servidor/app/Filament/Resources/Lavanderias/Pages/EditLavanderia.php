@@ -31,8 +31,9 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
  *
  * Como en el PATCH de la app, solo se manda lo que cambió desde que se abrió la página: así una lavandería de prueba sin
  * municipio, o con franjas largas de horario, se puede editar en lo demás. Las fotos van como en la app: la lista
- * completa, cada una que ya tiene por su lugar y cada nueva como archivo, y solo si cambió. Cada error vuelve junto al
- * campo del formulario que lo causó.
+ * completa, cada una que ya tiene por su lugar y cada nueva como archivo, y solo si cambió. Los lugares se cuentan sobre
+ * las fotos que se leyeron al abrir la página, y la edición rechaza la lista si las fotos cambiaron después, por
+ * ejemplo desde la app (alta-lavanderias-E31). Cada error vuelve junto al campo del formulario que lo causó.
  */
 class EditLavanderia extends EditRecord
 {
@@ -48,6 +49,15 @@ class EditLavanderia extends EditRecord
      */
     #[Locked]
     public array $inicial = [];
+
+    /**
+     * Las rutas de las fotos de la lavandería, en su orden, como estaban al abrir la página: los lugares de la lista se
+     * cuentan sobre ellas.
+     *
+     * @var list<string>
+     */
+    #[Locked]
+    public array $fotosAlAbrir = [];
 
     /**
      * Las acciones de estado: suspender y levantar la suspensión (alta-lavanderias-E14 y E15).
@@ -68,12 +78,10 @@ class EditLavanderia extends EditRecord
         /** @var Lavanderia $lavanderia */
         $lavanderia = $this->getRecord();
         $this->inicial = self::datosDe($lavanderia);
+        $this->fotosAlAbrir = app(FotosDeLaLavanderia::class)->enOrden($lavanderia)->pluck('ruta')->all();
 
         // Las fotos, en su orden, por su ruta: el selector de archivos del panel las muestra con su URL firmada.
-        return [
-            ...$this->inicial,
-            'fotos' => app(FotosDeLaLavanderia::class)->enOrden($lavanderia)->pluck('ruta')->all(),
-        ];
+        return [...$this->inicial, 'fotos' => $this->fotosAlAbrir];
     }
 
     /**
@@ -88,7 +96,7 @@ class EditLavanderia extends EditRecord
             fn (string $campo): bool => $nuevos[$campo] != ($this->inicial[$campo] ?? null),
             ARRAY_FILTER_USE_KEY,
         ));
-        [$fotos, $cambiaron] = $this->fotosDelFormulario($record);
+        [$fotos, $cambiaron] = $this->fotosDelFormulario();
         $aValidar = $cambiaron ? [...$cambios, 'fotos' => $fotos] : $cambios;
 
         try {
@@ -98,7 +106,7 @@ class EditLavanderia extends EditRecord
                 ReglasDeLaLavanderia::mensajes(),
             )->validate();
 
-            app(EdicionDeLavanderia::class)->editar($record, $validados);
+            app(EdicionDeLavanderia::class)->editar($record, $validados, fotosLeidas: $this->fotosAlAbrir);
         } catch (ValidationException $error) {
             throw $this->enElFormulario($error);
         } catch (DireccionNoUbicable $error) {
@@ -114,16 +122,16 @@ class EditLavanderia extends EditRecord
     }
 
     /**
-     * Las fotos del formulario en la forma de la edición de la app: cada una que ya tiene, por su lugar en la lista de
-     * la lavandería (la del selector llega como su ruta), y cada nueva como el archivo que se subió y todavía no está
-     * guardado. Una ruta que no es de esta lavandería no se pasa como foto: queda en un lugar que no existe y las reglas
-     * la rechazan. Dice además si la lista cambió desde como está guardada.
+     * Las fotos del formulario en la forma de la edición de la app: cada una que ya tiene, por su lugar en la lista que
+     * se leyó al abrir la página (la del selector llega como su ruta), y cada nueva como el archivo que se subió y todavía
+     * no está guardado. Una ruta que no es de esta lavandería no se pasa como foto: queda en un lugar que no existe y las
+     * reglas la rechazan. Dice además si la lista cambió desde que se abrió la página.
      *
      * @return array{0: list<int|TemporaryUploadedFile>, 1: bool}
      */
-    private function fotosDelFormulario(Lavanderia $lavanderia): array
+    private function fotosDelFormulario(): array
     {
-        $rutas = app(FotosDeLaLavanderia::class)->enOrden($lavanderia)->pluck('ruta')->all();
+        $rutas = $this->fotosAlAbrir;
 
         $fotos = collect(Arr::wrap($this->data['fotos'] ?? []))
             ->filter(fn (mixed $foto): bool => $foto instanceof TemporaryUploadedFile || is_string($foto))
