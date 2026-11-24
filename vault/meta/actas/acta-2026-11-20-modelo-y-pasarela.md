@@ -131,6 +131,32 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
     iPhone.
   - En la misma sesión: hacer otro recorrido en video, narrado con la voz de Jorge o la de Dalia, cuando haya avances
     concretos.
+- C-244 (Arthur Naranjo, 2026-11-23, por la noche, dictado por voz). Antes de irse a dormir:
+  - **La pasarela.** "Stripe, usarlo de Stripe, sería lo más óptimo. Nadie está de acuerdo, el cliente nomás faltaría
+    convencerlo."
+    - Confirma que "spiral" (C-243) es Stripe.
+    - Por el contexto del dictado, "Nadie" se lee como "Nadir": Arthur dice que Nadir está de acuerdo y que falta
+      convencer a EL CLIENTE. Es lo que Arthur dice de Nadir, no una declaración de Nadir.
+    - El pago queda pendiente hasta la Orden de Cambio firmada (DD-079). No se construye Stripe.
+  - **El mapa.** La llave de Google Maps se deja para el final.
+  - **La guía para probar en iPhone con Expo Go** se hace escrita y en video.
+  - **El trabajo.** "Continúa, apégate al contrato para ya terminar la aplicación." Pide:
+    - ser autocrítico;
+    - usar varios agentes, todos en Opus 5.5, que dialoguen como un concilio y voten;
+    - usar los recursos necesarios.
+  - **Su duda sobre los roles.** Si a un repartidor o a un cliente lo da de alta la administración o se registra él
+    mismo. Se responde con el contrato: el Módulo C solo registra, y el alta, validación y autorización del repartidor
+    corresponden a EL CLIENTE (`NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3, Módulo C`). El Módulo D gestiona el alta,
+    la baja, la suspensión y la edición de lavanderías y repartidores (`:19:A.3, Módulo D`).
+- C-245 (Arthur Naranjo, 2026-11-23, por la noche, enseguida de C-244). "Otra cosa que me faltó mencionar es los PRs.
+  Ya sabes cómo hacerlos. [...] También velos haciendo."
+  - **Los PR y el push.** Autoriza subir las ramas y abrir sus PR como el PR #3, sin preguntarle otra vez.
+  - **La CI.** Pide que la CI corra las pruebas. Ya lo hace (`.github/workflows/ci.yml`) y pasa en el PR #3.
+  - **Las specs.** "Todos los specs deben seguirse al pie de la letra, sí o sí."
+  - **Sus decisiones.** "No pongas nada de lo que yo tenga que decidir. Ustedes decidan por la manera más óptima",
+    dialogado por un consejo de agentes y "siempre y cuando se mantenga [...] firmemente en el contrato".
+    - Amplía C-236 a todo lo que esperaba a Arthur, por ejemplo el catálogo de colonias y la hora de cada estado.
+    - No alcanza lo que el contrato o el método reservan a Nadir o a EL CLIENTE.
 
 ## Decisiones tomadas en la sesión
 
