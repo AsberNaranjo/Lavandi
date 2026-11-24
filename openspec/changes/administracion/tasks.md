@@ -41,7 +41,7 @@ de S-006, banda media: S = 2 h, M = 5 h.
 - [x] 5.1 administracion-E23: aviso global por FCM, en cola, solo a cuentas con dispositivo registrado, guardado en `avisos_masivos` (FCM simulado) — test: `servidor/tests/Feature/Administracion/AvisosMasivosTest.php` — tamaño M
 - [ ] 5.2 administracion-E24: aviso a un segmento — test: `servidor/tests/Feature/Administracion/AvisosMasivosTest.php` — tamaño M — bloqueada: BR-32, DD-113
 
-## 6. La administración en la app (movil/)
+## 6. La administración en la app (movil/ y servidor/)
 
 - [x] 6.1 administracion-E25: el aviso de la cuenta de administración con el botón que abre el panel en expo-web-browser — test: `movil/__tests__/administracion/abrir-el-panel.test.tsx` — tamaño S
 - [ ] 6.2 administracion-E25 y registro-E33: POST /api/sesion/google responde 403 sin token a una cuenta de administración — test: `servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php` — tamaño S
@@ -51,6 +51,16 @@ cuenta de administración; si su Google no estaba ligado, `EntradaConGoogle` ade
 los tokens antes de ligarlo (registro-E18), y el panel solo entra con contraseña. El rechazo va antes de ligar y de
 cerrar el acceso anterior, para que la cuenta quede intacta (design.md, Open Questions 1). La app ya lee ese 403 como la
 cuenta sin acceso: no hay que tocarla.
+
+La revocación que la app pide de ese token tampoco sirve: `DELETE /api/sesion` está detrás de
+`autorizar:usuario,lavanderia,repartidor` (`servidor/routes/api.php:58-60`) y a la administración le responde 403 sin
+borrar nada (`servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php:56-58`). Con `'expiration' => null`
+(`servidor/config/sanctum.php:53`), el token queda vigente en `personal_access_tokens`. La 6.2 deja sin efecto también
+los tokens que la administración ya recibió así, por ejemplo borrándolos de esa tabla.
+
+La 6.2 no venía en la decisión 56 de `acta-2026-11-20-modelo-y-pasarela.md`, que dice que la cuenta "sigue sin token":
+es así con la contraseña, no por Google. Entra al plan como consecuencia de administracion-E25 por ese camino; el acta
+todavía no la asienta como complemento de la 56.
 
 ## Horas
 

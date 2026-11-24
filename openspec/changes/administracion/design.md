@@ -395,6 +395,13 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
   por lote es grado E, `SIN VERIFICAR`.
 - [Bloquear a alguien con un pedido activo] → el bloqueo solo cierra la entrada y no cambia el estado de ningún
   pedido. Lo demás lo dice DD-016 (administracion-E05).
+- [La app lee todo 403 de `POST /api/sesion` y de `POST /api/sesion/google` como la cuenta sin acceso a la app]
+  (`movil/src/acceso/api.ts`, administracion-E25) → el servidor tiene otro 403 en esas rutas: el de
+  `App\Http\Middleware\SoloHttps` (`servidor/app/Http/Middleware/SoloHttps.php:36`), a toda petición de la API que
+  llega por http con `solo_https` encendido. Con una compilación o un proxy mal configurados, cualquier cuenta vería el
+  aviso de la administración y "Abrir el panel" en vez de "Algo salió mal". Es el mismo criterio que ya sigue
+  `ProveedorDeSesion` con el 403 de `GET /api/cuenta`, y solo pasa con una mala configuración. Se queda como riesgo
+  conocido; si se quiere distinguir, el servidor tendría que mandar un motivo propio en ese 403.
 
 ## Open Questions
 
@@ -408,9 +415,14 @@ tablero de Filament con sus filtros, como el de indicadores (`App\Filament\Pages
      su Google no estaba ligado, `EntradaConGoogle::cerrarElAccesoAnterior()` (registro-E18) le anula la contraseña y le
      borra los tokens antes de ligarlo, y el panel entra solo con contraseña (`App\Filament\Auth\IniciarSesion`): la
      cuenta no vuelve a entrar al panel hasta que recupere su contraseña. La app no guarda ese token, pide revocarlo y
-     muestra el aviso con el botón (registro-E33), pero el daño ya está hecho en el servidor. La 6.2 responde 403 sin
-     token, antes de ligar Google y de anular la contraseña, para que la cuenta quede intacta; su línea en registro-E33
-     y su prueba entran con ella.
+     muestra el aviso con el botón (registro-E33), pero el daño ya está hecho en el servidor. Y la revocación falla:
+     `DELETE /api/sesion` está detrás de `autorizar:usuario,lavanderia,repartidor` (`servidor/routes/api.php:58-60`), a
+     la administración le responde 403 y el token no se borra
+     (`servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php:56-58`); con `'expiration' => null`
+     (`servidor/config/sanctum.php:53`), queda vigente en `personal_access_tokens`. La 6.2 responde 403 sin token,
+     antes de ligar Google y de anular la contraseña, para que la cuenta quede intacta, y deja sin efecto los tokens que
+     la administración ya recibió así; su línea en registro-E33 y su prueba entran con ella. La 6.2 no venía en la
+     decisión 56, que dice "sigue sin token": el acta todavía no la asienta como su complemento.
    - La app le muestra el aviso de que la administración entra por el panel, con un botón, "Abrir el panel", que lo
      abre en el navegador del sistema dentro de la app, con `expo-web-browser`, el mismo del checkout (adenda del
      2026-11-22 de ADR-0010, decisión 32). Va en el inicio de sesión y en el registro, que también entra con Google
