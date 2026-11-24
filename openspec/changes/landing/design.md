@@ -27,7 +27,7 @@
 - La medición, los buscadores, la velocidad y el candado (`medicion-de-la-landing`).
 - El texto de los documentos legales (`textos-legales`).
 - Cargar o trazar las zonas (`plazas-y-zonas`).
-- Diseñar las pantallas de las secciones: es una pregunta abierta, abajo.
+- Diseñar las pantallas de las secciones: resuelta (pregunta 1).
 - Páginas por ciudad, ficha de Google Maps o cualquier contenido fuera del territorio inicial
   (`NSV-2026-001-v8.pdf:4:Cláusula I`).
 
@@ -65,9 +65,10 @@ dependencias.
   Vacío, cada lugar muestra un marcador "Contenido de prueba: …", marcado con `data-de-prueba` para que la
   acreditación (landing-E03) compruebe que no queda ninguno. El nombre es `APP_NAME`; el logo, `LANDING_LOGO`, con el
   símbolo aprobado (C-63) en `public/marca/logotipo.png`; el WhatsApp, `SOPORTE_WHATSAPP`, el mismo de la app.
-- **Tokens (ADR-0013):** `servidor/resources/css/tokens.css` sale de `tokens.json` con la salida CSS del adaptador:
-  variables `--ds-*`, solo modo claro y, con movimiento reducido, las duraciones en 0. La extensión del generador para
-  esa salida está pendiente de entrar a `herramientas/tokens/generar.js` (fuera de `servidor/`).
+- **Tokens (ADR-0013):** `servidor/resources/css/tokens.css` sale de `tokens.json` con la salida CSS de
+  `herramientas/tokens/generar.js`, el mismo script que genera `theme.ts`: variables `--ds-*`, solo modo claro y, con
+  movimiento reducido, las duraciones en 0. Lo vigila el trabajo `tokens` de la integración continua, que falla si el
+  archivo no es el que genera `tokens.json` (2026-11-24).
 - **Letras:** Nunito y Source Sans 3, en woff2 del subconjunto latino, servidas desde `servidor/resources/fuentes/`
   con su licencia SIL Open Font License: ninguna petición a otro servidor.
 - **Iconos:** los de Heroicons que ya trae Filament. Los de los pilares para usuarios flotan y se quedan quietos con
@@ -89,8 +90,8 @@ dependencias.
   los documentos. Los demás marcadores de la portada no cambian.
 - **Pruebas de navegador (pregunta 7):** Playwright desde Node, 1.57.0, en `servidor/tests/Browser/**/*.spec.js`, con
   `npx playwright test` desde `servidor/`. Su servidor de prueba compila los estilos, deja la base de pruebas desde cero
-  con `tests/Browser/Soporte/PortadaDePrueba.php` y la sirve en un puerto propio. La integración continua todavía no
-  las corre: agregarlas toca `.github/workflows/ci.yml`.
+  con `tests/Browser/Soporte/PortadaDePrueba.php` y la sirve en un puerto propio. La integración continua las corre en
+  el trabajo `landing-navegadores` de `.github/workflows/ci.yml`, en Chromium, Firefox y WebKit (2026-11-24).
 
 ## Tablas y migración
 
@@ -135,8 +136,14 @@ Lo que esta spec guarda y el modelo todavía no tiene:
 ## Open Questions
 
 1. **¿Quién diseña las 12 secciones?** No hay mocks ni componentes del design system para ellas. Lo decide Arthur.
-   *Mientras tanto:* Claude las armó con los tokens y las reglas transversales de `componentes.md`, por delegación de
-   Arthur (C-236); se pueden rehacer sin tocar los requisitos.
+   *Resuelta el 2026-11-24 con la opción a* (`acta-2026-11-20-modelo-y-pasarela.md`, decisión 64; concilio por
+   delegación de Arthur, C-236 y C-245): el diseño actual, que Claude armó con `tokens.json` y las reglas de
+   `componentes.md` por delegación de Arthur (C-236), es el que se entrega, y EL CLIENTE solo pone el contenido
+   (DD-117). No se hacen mocks de la landing antes de acreditar. El A.4.2 pide las 12 secciones "presentes y
+   correctamente renderizadas" (`NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.2`), no un diseño aprobado; el A.1 no
+   incluye maquetas de la landing (`NSV-2026-001-v8.pdf:14:ANEXO A, Sección A.1`), y las preferencias estéticas
+   subjetivas no documentadas en el ANEXO A no son rechazo válido (`NSV-2026-001-v8.pdf:7:Cláusula IV`). El envío a EL
+   CLIENTE sigue siendo de Nadir.
 2. **¿Se compra una plantilla?** ADR-0011 lo permite solo si su licencia completa, leída con sesión iniciada, permite
    entregar el sitio, y esa licencia se archiva en el vault. Si no, se sigue sin plantilla. *Resuelta el 2026-11-22:*
    sin plantilla (opción B).
@@ -154,4 +161,5 @@ Lo que esta spec guarda y el modelo todavía no tiene:
 7. **Las pruebas de navegador.** Playwright desde Pest o desde Node. Las tareas usan `servidor/tests/Browser/Landing/`;
    la ruta se ajusta al confirmarlo (`vault/formas-de-trabajo/ciclo-openspec-tdd.md`, "Herramientas de prueba", que es
    propuesta). *Resuelta el 2026-11-22:* desde Node, con la dependencia de desarrollo `@playwright/test` que ya nombra
-   `proposal.md`; las pruebas son `*.spec.js`. Falta que la integración continua las corra.
+   `proposal.md`; las pruebas son `*.spec.js`. *Resuelta del todo el 2026-11-24:* la integración continua las corre en
+   el trabajo `landing-navegadores`, en los tres motores.

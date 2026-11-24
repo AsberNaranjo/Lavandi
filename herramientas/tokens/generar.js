@@ -1,13 +1,14 @@
-// Genera movil/src/tema/theme.ts desde vault/design-system/tokens.json (ADR-0013).
+// Genera desde vault/design-system/tokens.json las dos salidas que decide el ADR-0013: movil/src/tema/theme.ts para la
+// app y servidor/resources/css/tokens.css, las variables CSS de la web.
 //
-// Uso, desde la raíz del repositorio:   node herramientas/tokens/generar.js [origen] [destino]
+// Uso, desde la raíz del repositorio:   node herramientas/tokens/generar.js   (escribe los dos en sus rutas)
+//                                       node herramientas/tokens/generar.js <origen> <destino-ts> [destino-css]
+//                                       (con rutas, el CSS se escribe solo si se da la tercera)
 // o desde movil/:                       npm run tokens
 // o desde herramientas/tokens/:         npm run generar   (lo que corre la integración continua)
 //
-// Es idempotente: si theme.ts ya corresponde a tokens.json, no lo toca. Falla, nombrando la clave, si tokens.json no
-// tiene la forma que espera: es preferible a generar un tema incompleto.
-//
-// Solo genera theme.ts. Las variables CSS para la web que también decide el ADR-0013 llegan con el cambio de la landing.
+// Es idempotente: si un archivo ya corresponde a tokens.json, no lo toca. Falla, nombrando la clave, si tokens.json no
+// tiene la forma que espera, y entonces no escribe ninguno: es preferible a generar un tema incompleto.
 'use strict';
 
 const fs = require('node:fs');
@@ -16,6 +17,7 @@ const path = require('node:path');
 const RAIZ = path.resolve(__dirname, '..', '..');
 const RUTA_TOKENS = path.join(RAIZ, 'vault', 'design-system', 'tokens.json');
 const RUTA_TEMA = path.join(RAIZ, 'movil', 'src', 'tema', 'theme.ts');
+const RUTA_CSS = path.join(RAIZ, 'servidor', 'resources', 'css', 'tokens.css');
 
 // La v1 lleva solo modo claro (C-141). El bloque oscuro se queda en tokens.json sin usarse.
 const MODO = 'claro';
@@ -106,7 +108,22 @@ function bezier(valor, ruta) {
   return numeros;
 }
 
-function leerTema(tokens) {
+/** CSS sí acepta pilas de familias: pasa la pila entera. */
+function pilaDeFamilias(valor, ruta) {
+  return texto(valor, ruta).trim();
+}
+
+/** CSS usa la curva tal como está en tokens.json, después de comprobar que es una cubic-bezier de cuatro números. */
+function curvaEnCss(valor, ruta) {
+  bezier(valor, ruta);
+  return valor.trim();
+}
+
+/**
+ * Los valores de tokens.json que usa cada salida, ya validados. Las familias y las curvas pasan como las pide cada
+ * plataforma: para React Native, la primera familia y los cuatro números de la curva.
+ */
+function leerTema(tokens, { familia = primeraFamilia, curva = bezier } = {}) {
   const raiz = objeto(tokens, ['(raíz)']);
   const color = objeto(raiz.color, ['color']);
   const tipografia = objeto(raiz.tipografia, ['tipografia']);
@@ -121,7 +138,7 @@ function leerTema(tokens) {
       marca_extendida: mapear(color.marca_extendida, ['color', 'marca_extendida'], campo('hex', hex)),
     },
     tipografia: {
-      familia: mapear(tipografia.familia, ['tipografia', 'familia'], primeraFamilia, ['estado']),
+      familia: mapear(tipografia.familia, ['tipografia', 'familia'], familia, ['estado']),
       escala: mapear(tipografia.escala, ['tipografia', 'escala'], numero),
       peso: mapear(tipografia.peso, ['tipografia', 'peso'], numero),
       interlineado: mapear(tipografia.interlineado, ['tipografia', 'interlineado'], numero),
@@ -133,9 +150,15 @@ function leerTema(tokens) {
     alto: mapear(raiz.alto, ['alto'], numero),
     elevacion: mapear(raiz.elevacion, ['elevacion'], texto),
     duracion: mapear(raiz.duracion, ['duracion'], numero),
-    curva: mapear(raiz.curva, ['curva'], bezier),
+    curva: mapear(raiz.curva, ['curva'], curva),
     accesibilidad: mapear(raiz.accesibilidad, ['accesibilidad'], numero, ['fuente']),
   };
+}
+
+/** La versión y la fecha de $meta, para el encabezado de cada archivo generado; vacía si no están. */
+function versionDe(tokens) {
+  const meta = tokens && typeof tokens.$meta === 'object' && tokens.$meta !== null ? tokens.$meta : {};
+  return [meta.version, meta.fecha].filter((v) => typeof v === 'string' && v !== '').join(', ');
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -188,8 +211,7 @@ function valorEnTs(valor, sangria, ruta) {
  */
 function generarTema(tokens) {
   const tema = leerTema(tokens);
-  const meta = tokens && typeof tokens.$meta === 'object' && tokens.$meta !== null ? tokens.$meta : {};
-  const version = [meta.version, meta.fecha].filter((v) => typeof v === 'string' && v !== '').join(', ');
+  const version = versionDe(tokens);
 
   const encabezado = [
     '// ARCHIVO GENERADO: no se edita a mano.',
@@ -215,21 +237,92 @@ function generarTema(tokens) {
   return `${[encabezado.join('\n'), ...grupos, reunion, 'export type Tema = typeof tema;'].join('\n\n')}\n`;
 }
 
+// ---------------------------------------------------------------------------------------------------------------
+// Escritura de tokens.css: las mismas claves que theme.ts, como variables --ds-* con las unidades de la web. Siempre el
+// mismo texto para la misma entrada (sin fechas), con fin de línea \n.
+// ---------------------------------------------------------------------------------------------------------------
+
+const px = (n) => (n === 0 ? '0' : `${n}px`);
+
+// La unidad de cada grupo en CSS. Lo que no está aquí pasa tal cual: colores, pilas de familias, pesos, interlineados,
+// sombras y curvas.
+const UNIDADES_CSS = {
+  // Los tamaños de letra, en rem sobre 16 px, para que sigan el tamaño de letra que elija quien lee.
+  'tipografia.escala': (n) => (n === 0 ? '0' : `${n / 16}rem`),
+  'tipografia.espaciado_letra': (n) => (n === 0 ? '0' : `${n}em`),
+  espaciado: px,
+  radio: px,
+  grosor: px,
+  alto: px,
+  // Una duración sin unidad no es válida en CSS, ni siquiera en 0.
+  duracion: (n) => `${n}ms`,
+  // Los contrastes son razones, sin unidad; las medidas (en px, dp o pt) pasan a px.
+  accesibilidad: (n, nombre) => (/_(px|dp|pt_ios)$/.test(nombre) ? px(n) : String(n)),
+};
+
+/** Una línea `--ds-grupo-clave: valor;` por cada valor del grupo, con los guiones bajos de las claves como guiones. */
+function variablesCss(valor, ruta) {
+  if (typeof valor === 'object' && valor !== null) {
+    return Object.entries(valor).flatMap(([nombre, hijo]) => variablesCss(hijo, [...ruta, nombre]));
+  }
+  const unidad = UNIDADES_CSS[ruta.slice(0, 2).join('.')] ?? UNIDADES_CSS[ruta[0]];
+  const escrito = unidad && typeof valor === 'number' ? unidad(valor, ruta[ruta.length - 1]) : String(valor);
+  return [`--ds-${ruta.join('-').replace(/_/g, '-')}: ${escrito};`];
+}
+
 /**
- * Lee tokens.json y escribe theme.ts solo si cambió. Un theme.ts que difiere solo en el fin de línea (\r\n, como lo
- * deja git en Windows) ya está al día.
- * @param {{ origen?: string, destino?: string }} [rutas]
- * @returns {{ cambio: boolean }}
+ * El contenido de tokens.css para unos tokens: las variables --ds-* en :root, solo del modo claro, y las duraciones en
+ * 0 con movimiento reducido. Lanza un error que nombra la clave si los tokens no tienen la forma esperada.
+ * @param {unknown} tokens el contenido de tokens.json, ya leído como JSON
+ * @returns {string}
  */
-function escribirTema({ origen = RUTA_TOKENS, destino = RUTA_TEMA } = {}) {
-  let tokens;
+function generarCss(tokens) {
+  const tema = leerTema(tokens, { familia: pilaDeFamilias, curva: curvaEnCss });
+  const version = versionDe(tokens);
+
+  const encabezado = [
+    '/*',
+    ' * ARCHIVO GENERADO: no se edita a mano.',
+    ` * Sale de vault/design-system/tokens.json${version ? ` (versión ${version})` : ''} con`,
+    ' * herramientas/tokens/generar.js (ADR-0013). Para cambiar un valor se cambia tokens.json y se corre el script.',
+    ` * Solo modo ${MODO} (C-141). Los componentes usan --ds-color-semantico-*, nunca --ds-color-marca-* directo`,
+    ' * (design-system.md, Decisión 3). Las medidas van en px, y los tamaños de letra en rem sobre 16 px.',
+    ' */',
+  ];
+
+  const raiz = [':root {', ...variablesCss(tema, []).map((linea) => `    ${linea}`), '}'];
+
+  const enCero = Object.fromEntries(Object.keys(tema.duracion).map((nombre) => [nombre, 0]));
+  const movimientoReducido = [
+    '/* Movimiento reducido: todas las duraciones valen 0 (componentes.md, reglas transversales). */',
+    '@media (prefers-reduced-motion: reduce) {',
+    '    :root {',
+    ...variablesCss(enCero, ['duracion']).map((linea) => `        ${linea}`),
+    '    }',
+    '}',
+  ];
+
+  return `${[encabezado, raiz, movimientoReducido].map((bloque) => bloque.join('\n')).join('\n\n')}\n`;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Lectura del origen y escritura en disco.
+// ---------------------------------------------------------------------------------------------------------------
+
+function leerTokens(origen) {
   try {
-    tokens = JSON.parse(fs.readFileSync(origen, 'utf8'));
+    return JSON.parse(fs.readFileSync(origen, 'utf8'));
   } catch (error) {
     throw new Error(`No se pudo leer ${origen}: ${error.message}`);
   }
-  const contenido = generarTema(tokens);
+}
 
+/**
+ * Escribe el contenido solo si cambió. Un archivo que difiere solo en el fin de línea (\r\n, como lo deja git en
+ * Windows) ya está al día.
+ * @returns {{ cambio: boolean }}
+ */
+function escribirSiCambio(destino, contenido) {
   const actual = fs.existsSync(destino) ? fs.readFileSync(destino, 'utf8').replace(/\r\n/g, '\n') : null;
   if (actual === contenido) {
     return { cambio: false };
@@ -239,16 +332,43 @@ function escribirTema({ origen = RUTA_TOKENS, destino = RUTA_TEMA } = {}) {
   return { cambio: true };
 }
 
-module.exports = { generarTema, escribirTema, RUTA_TOKENS, RUTA_TEMA };
+/**
+ * Lee tokens.json y escribe theme.ts solo si cambió.
+ * @param {{ origen?: string, destino?: string }} [rutas]
+ * @returns {{ cambio: boolean }}
+ */
+function escribirTema({ origen = RUTA_TOKENS, destino = RUTA_TEMA } = {}) {
+  return escribirSiCambio(destino, generarTema(leerTokens(origen)));
+}
+
+module.exports = { generarTema, generarCss, escribirTema, RUTA_TOKENS, RUTA_TEMA, RUTA_CSS };
 
 if (require.main === module) {
-  const [origen, destino] = process.argv.slice(2);
-  const rutas = { origen: origen ? path.resolve(origen) : RUTA_TOKENS, destino: destino ? path.resolve(destino) : RUTA_TEMA };
+  // Sin argumentos, los dos archivos del repositorio. Con rutas, el CSS solo si se da la tercera: así una prueba que
+  // genera theme.ts en una carpeta temporal nunca reescribe el tokens.css del repositorio.
+  const argumentos = process.argv.slice(2);
+  const [origen, destinoTema, destinoCss] = argumentos.map((ruta) => path.resolve(ruta));
+  const rutas =
+    argumentos.length === 0
+      ? { origen: RUTA_TOKENS, tema: RUTA_TEMA, css: RUTA_CSS }
+      : { origen, tema: destinoTema ?? RUTA_TEMA, css: destinoCss ?? null };
+  // Las salidas que faltan por escribir, en el orden en que se escriben: si una escritura falla a medias, el mensaje
+  // nombra solo las que no se escribieron.
+  const faltan = rutas.css ? ['theme.ts', 'tokens.css'] : ['theme.ts'];
   try {
-    const { cambio } = escribirTema(rutas);
-    console.log(`${cambio ? 'theme.ts generado' : 'theme.ts ya estaba al día'}: ${path.relative(process.cwd(), rutas.destino)}`);
+    // Los dos se generan antes de escribir el primero: si tokens.json no tiene la forma esperada, no se escribe nada.
+    const tokens = leerTokens(rutas.origen);
+    const salidas = [{ nombre: 'theme.ts', destino: rutas.tema, contenido: generarTema(tokens) }];
+    if (rutas.css) {
+      salidas.push({ nombre: 'tokens.css', destino: rutas.css, contenido: generarCss(tokens) });
+    }
+    for (const { nombre, destino, contenido } of salidas) {
+      const { cambio } = escribirSiCambio(destino, contenido);
+      faltan.shift();
+      console.log(`${nombre} ${cambio ? 'generado' : 'ya estaba al día'}: ${path.relative(process.cwd(), destino)}`);
+    }
   } catch (error) {
-    console.error(`No se generó theme.ts. ${error.message}`);
+    console.error(`No se generó ${faltan.join(' ni ')}. ${error.message}`);
     process.exitCode = 1;
   }
 }
