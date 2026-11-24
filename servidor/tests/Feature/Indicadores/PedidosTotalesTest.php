@@ -256,6 +256,13 @@ class PedidosTotalesTest extends TestCase
         $this->assertCount(31, $datos['labels']);
         $this->assertStringContainsString('31/03/2027', $datos['labels'][30]);
         $this->assertSame(1, $datos['datasets'][0]['data'][30]);
+
+        // La zona sale de la configuración, no de un valor escrito en el código: a las 00:30 del 1 de abril en UTC-6,
+        // en la zona de la plaza de prueba 2 (America/Tijuana) todavía es 31 de marzo.
+        $this->travelTo(CarbonImmutable::parse('2027-04-01 00:30:00', self::ZONA_HORARIA));
+        $this->assertSame('2027-04-01', Rango::hoy()->toDateString());
+        config(['app.zona_horaria_sin_plaza' => 'America/Tijuana']);
+        $this->assertSame('2027-03-31', Rango::hoy()->toDateString());
     }
 
     /**
