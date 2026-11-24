@@ -203,11 +203,16 @@ app; la entrada con Google no viene en él, así que ahí no aparece ese botón 
 Publicar la API en internet, aunque sea con datos de prueba, lo aprueba Arthur antes.
 
 Los pasos:
-1. En el iPhone, instalar **Expo Go** desde la App Store y comprobar que corre el SDK 58.
+1. En el iPhone, instalar **Expo Go** desde la App Store (pide iOS 16.4 o posterior). La versión 58.0.5, del 22 de
+   octubre, "adds support for SDK 58" (grado E, apps.apple.com/app/expo-go/id982107779, consultado el 2026-11-23).
 2. Levantar la base y el servidor (sección 2) y publicar la API: `cloudflared tunnel --url http://127.0.0.1:8000`.
    Anotar la dirección `https://…trycloudflare.com` que muestra.
 3. En `movil/.env`, poner `EXPO_PUBLIC_API_URL=https://<la dirección del túnel>/api`.
-4. Entrar con una cuenta gratuita de Expo (no de Apple), porque el túnel de Metro la pide: `npx expo login`.
+4. Entrar con una cuenta gratuita de Expo (no de Apple) en esta máquina, `npx expo login`, **y con la misma en Expo Go**
+   del iPhone, desde el ícono de la esquina superior derecha. Desde el 2026-09-03, Expo Go en iOS solo abre un proyecto
+   en desarrollo si las dos sesiones son de la misma cuenta: "you will need to be logged in to the same account on both
+   the terminal and in Expo Go" (grado E, expo.dev/changelog/expo-go-57-login, consultado el 2026-11-23). Por eso,
+   para que lo pruebe otra persona conviene una cuenta de Expo solo para pruebas, no la personal de nadie.
 5. Desde `movil/`: `npx expo start --go --tunnel --clear`.
    - El `--go` hace que el QR abra Expo Go y no el development build.
    - El `--clear` vuelve a leer el `.env`.
