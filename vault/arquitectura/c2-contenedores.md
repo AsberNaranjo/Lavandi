@@ -101,7 +101,8 @@ módulo de `app-movil`; el resto del diagrama no cambia. Por eso no bloquea.
 > - `panel-admin` **sigue como contenedor web propio**, con el Módulo D completo: las 7 funciones y los 11
 >   indicadores.
 > - Además, `app-movil` trae una **vista reducida para el administrador**, con consultas rápidas y avisos. Habla con
->   `api` igual que los demás módulos y tiene su propia autorización por rol.
+>   `api` igual que los demás módulos y tiene su propia autorización por rol. (Texto de C-140; la decisión 56 lo acota
+>   en la viñeta siguiente: ni consultas rápidas ni avisos nativos, y sin sesión propia con `api`.)
 > - Qué entra exactamente en esa vista se define en la spec del Módulo D. **Especificada en administracion-E25: la
 >   app no le da sesión y abre el panel web dentro de la app** (spec del cambio `administracion` en `openspec/`;
 >   decisión 56 de `acta-2026-11-20-modelo-y-pasarela.md`, concilio del 2026-11-24 por delegación de Arthur,
@@ -135,5 +136,5 @@ distintos. Un ADR de infraestructura que se salga del rango contradice el contra
 | `ESPECIFICACIÓN PENDIENTE` | Máquina de estados del pedido y qué rol dispara cada transición | C3, tras DD-011, DD-014, DD-016 y DD-022 |
 | `ESPECIFICACIÓN PENDIENTE` | Mecanismo de propagación para los 60 s | `ADR-0007`, Fase 6 |
 | Resuelto el 2026-11-12 | Si `panel-admin` es contenedor propio: sí, más una vista reducida en `app-movil` | C-140; DD-040 cerrada |
-| `ESPECIFICACIÓN PENDIENTE` | Qué funciones del Módulo D entran en la vista de administración de la app | Spec del Módulo D |
+| Resuelto el 2026-11-24 | Qué funciones del Módulo D entran en la vista de administración de la app: ninguna nativa, la app abre el panel (administracion-E25) | Decisión 56 de `acta-2026-11-20-modelo-y-pasarela.md` (C-245) |
 | `ESPECIFICACIÓN PENDIENTE` | Presupuesto de consultas de mapas por pedido | `presupuesto-de-mapas.md`, esta fase |
