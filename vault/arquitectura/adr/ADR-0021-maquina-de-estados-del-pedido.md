@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-20-modelo-y-pasarela.md C-236 (C) y decisión 26; DD-123; C-188 (C); openspec/changes/estados-del-pedido/design.md (B); NSV-2026-001-v8.pdf:17-18:ANEXO A, Sección A.3 (A)
+fuente: acta-2026-11-20-modelo-y-pasarela.md C-236 (C) y decisión 26; DD-123; C-188 (C); openspec/changes/estados-del-pedido/design.md (B); NSV-2026-001-v8.pdf:17-18:ANEXO A, Sección A.3 (A); adenda del 2026-11-24: concilio del 2026-11-24, por delegación de Arthur (C-236, C-245) (C), openspec/changes/repartidor/design.md y servidor/tests/Feature/Repartidor/EstadosDelRepartidorTest.php (B), NSV-2026-001-v8.pdf:17-18:ANEXO A, Sección A.3, Módulo B #2 y Módulo C #3 (A)
 fecha: 2026-11-21
 dueño: Arthur Naranjo
 adr: ADR-0021
@@ -137,3 +137,45 @@ repartidor), DD-016 (cancelación) y DD-103 (plazo y consecuencias del rechazo) 
 5. **Cada cambio publica `App\Pedidos\EstadoDelPedidoCambiado`,** también aceptar y rechazar: es un cambio del estado
    actual, y el aviso de solo datos deja que la app del usuario consulte de inmediato (ADR-0007; avisos-E14). Ninguno de
    los dos es un momento de aviso visible (`config/avisos.php`).
+
+## Adenda del 2026-11-24: las transiciones del repartidor
+
+Asentada el 2026-11-24, tal como la proponía el `design.md` de `repartidor` (tarea 1.5). Completa lo que la adenda del
+2026-11-22 dejó abierto ("Desde dónde marca el repartidor su Recolectado lo fija `repartidor`"). Precisa para el
+repartidor la fila `recolectado` de la decisión 2, que decía "desde `confirmado`", sin reescribir esa tabla. Lo que
+esperan DD-022 (entregar sin repartidor), DD-140 (uno o dos viajes), DD-014 (asignación) y DD-016 (cancelación) **no**
+se decide aquí.
+
+1. **Las transiciones del repartidor,** en la tabla `DEL_REPARTIDOR` de `App\Pedidos\CambioDeEstado` (ADR-0021,
+   decisión 4):
+
+   | Desde | Botón del repartidor | Llega a |
+   |---|---|---|
+   | `aceptado` | Recolectado | `recolectado` |
+   | `listo` | En tránsito | `en_entrega` |
+   | `en_entrega` | Entregado | `entregado` |
+
+2. **Recolectado sale de `aceptado`, no de `confirmado`** (la decisión 2 original decía `confirmado` para los dos
+   socios). Si el repartidor pudiera recolectar un pedido `confirmado`, la lavandería ya no podría aceptarlo ni
+   rechazarlo (Módulo B #2): su tabla no tiene esas acciones desde `recolectado`. Es la misma regla que la adenda del
+   2026-11-22 le puso a la lavandería: sin aceptar no hay botones. El repartidor puede aceptar la oferta antes de que la
+   lavandería responda, pero su botón aparece hasta que ella acepte.
+3. **Solo mueve el pedido el repartidor que lo aceptó:** `pedidos.id_repartidores` es el suyo y su oferta en
+   `pedido_asignaciones` está `aceptado`. La oferta no es un estado del pedido: aceptarla o rechazarla no agrega evento.
+4. **Dos pasos los comparten la lavandería y el repartidor,** sin cambiar la tabla de ella: Recolectado (desde
+   `aceptado`) y `en_entrega` ("En proceso de entrega" de ella, "En tránsito" de él), como ya decía la decisión 2. Lo
+   marca quien llegue primero; si la lavandería ya marcó En proceso de entrega, el siguiente botón del repartidor es
+   Entregado. Si DD-022 decide que la lavandería entrega con su gente, su Entregado es una fila nueva en su tabla, sin
+   tocar esta.
+5. **Lo que ve el usuario no cambia** (adenda del 2026-11-22, punto 4): Recolectado, Listo por `en_entrega` y Entregado.
+   Si DD-140 decide dos viajes de repartidor (recoger y entregar), la oferta del segundo viaje es otra fila de
+   `pedido_asignaciones` y `pedidos.id_repartidores` pasa al segundo; esa regla se escribe con repartidor-E22.
+
+**Respaldo:**
+- la lavandería acepta o rechaza (`NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3`, Módulo B #2);
+- los botones del repartidor, "Recolectado → En tránsito → Entregado" (`NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3`,
+  Módulo C #3);
+- la misma regla que la adenda del 2026-11-22 (decisión 30 del acta del 2026-11-20);
+- repartidor-E19 a E21 en verde en `servidor/tests/Feature/Repartidor/EstadosDelRepartidorTest.php`.
+
+La asentó el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245).

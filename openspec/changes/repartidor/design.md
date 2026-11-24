@@ -30,16 +30,18 @@
 - Ubicación del teléfono, en primer o en segundo plano: ninguna función del Módulo C la usa.
 - Modelar documentos del repartidor. Si un día entran por Orden de Cambio, van en una entidad aparte, como deja
   previsto `vault/arquitectura/c3-api.md`.
-- Lo que bloquean DD-014, DD-053, DD-054, DD-022, DD-011, DD-019, DD-013, DD-052 y BR-29.
+- Lo que bloquean DD-014, DD-053, DD-054, DD-022, DD-140, DD-019, DD-013, DD-052 y BR-29.
 
 ## Decisions
 
-No hay decisión técnica nueva. Cinco lecturas que fijan los escenarios; Arthur las aprueba con la spec:
+No hay decisión técnica nueva. Cinco lecturas que fijan los escenarios, confirmadas por el concilio del 2026-11-24, por
+delegación de Arthur (C-245):
 
-1. **"Alta" es autorizar un registro pendiente.** El repartidor se registra en el Módulo C (#1), y el alta, la
-   validación y la autorización "corresponden a EL CLIENTE". Por eso el alta del Módulo D (#2) autoriza un registro que
-   ya existe. Alternativa: que la administración también cree repartidores desde el panel. No se descarta, pero no
-   hace falta para cumplir los dos numerales.
+1. **"Alta" es autorizar un registro pendiente.** El repartidor se registra en el Módulo C (#1), y "El alta, validación
+   y autorización del repartidor corresponden a EL CLIENTE" (`NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3`, Módulo
+   C #1). Por eso el alta del Módulo D (#2) autoriza un registro que ya existe. Cómo llega cada rol a su registro sigue
+   en DD-053, de Nadir. Alternativa: que la administración también cree repartidores desde el panel. No se descarta,
+   pero no hace falta para cumplir los dos numerales.
 2. **La plaza se fija al dar de alta.** Toda fila de operación lleva su plaza (`CLAUDE.md` §9.5 y
    `vault/arquitectura/modelo-multi-plaza.md`). La administración elige la plaza al autorizar. Alternativa: que el
    repartidor la elija al registrarse. **Choca con el modelo:** `repartidores.id_plazas` es no nula (plazas-E09), y un
@@ -55,7 +57,7 @@ del usuario y para el panel; aquí se aplica igual a la lista del socio. No hay 
 
 **El pago acreditado** se lee de `pedidos.confirmado_en`: con C-188, el pedido pasa a Confirmado y lo llena solo
 cuando la pasarela confirma el pago (`modelo-de-datos.md`, tabla `pedidos`). La lista, el detalle y la aceptación del
-repartidor filtran por esa columna, sin depender del estado interno previo al pago que fije DD-123.
+repartidor filtran por esa columna, sin depender del estado interno previo al pago (`por_pagar`, ADR-0021).
 
 ## Tablas y migración
 
@@ -121,7 +123,7 @@ su `$table` y su `$primaryKey` (modelo-E16). `Repartidor` usa el ULID público (
 | `plazas` | La plaza del repartidor y la zona horaria de sus estadísticas (E05, E28) | `plazas-y-zonas` |
 | `pedidos` | La lista y el detalle (E10 a E12); al aceptar se escribe `id_repartidores` (E15); cada botón cambia `id_estados_pedido` (E19); `confirmado_en` dice si el pago está acreditado (E30) | `resumen-y-confirmacion`; `confirmado_en` lo llena `pago` |
 | `pedido_eventos` | Cada botón agrega su evento con `id_usuarios` y `ocurrido_en` (E19); el de Entregado da la fecha del historial y de las estadísticas (E25, E28) | `resumen-y-confirmacion` (base) y `estados-del-pedido` |
-| `estados_pedido` | Recolectado, En tránsito y Entregado. En tránsito es un estado interno que fija DD-123 | `resumen-y-confirmacion` |
+| `estados_pedido` | Recolectado, En tránsito y Entregado. En tránsito es `en_entrega`, el estado interno de ADR-0021 (DD-123, cerrada) | `resumen-y-confirmacion` |
 | `pedido_direcciones` | La dirección de recogida y la de entrega en la lista (E10) | `resumen-y-confirmacion` |
 | `lavanderias` | El nombre de la lavandería en la lista (E10) | `perfil-de-lavanderia` |
 | `calificaciones` | La calificación recibida, con `id_repartidores` (E27, bloqueado por DD-052). Esta migración le pone la llave foránea a esa columna | `perfil-de-lavanderia` (base) y `historial-y-calificacion` |
@@ -244,7 +246,7 @@ El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/
   ya lo tomó otro repartidor.". Esto no decide DD-014: la regla de a quién se ofrece sigue abierta; solo impide que un
   pedido tenga dos repartidores a la vez en `pedidos.id_repartidores`.
 - **Se acepta aunque la lavandería todavía no responda el pedido**, porque la oferta puede llegar antes; sus botones
-  esperan a que la lavandería lo acepte (ver la adenda propuesta a ADR-0021).
+  esperan a que la lavandería lo acepte (ver la adenda a ADR-0021, abajo).
 - **Una oferta respondida no se vuelve a responder:** aceptar dos veces, o rechazar después de aceptar, responde 409 "La
   oferta ya fue respondida.". Deshacer una aceptación no lo pide la spec.
 - **El motivo** usa la regla del rechazo de la lavandería (`App\Http\Requests\RechazarPedidoRequest`): obligatorio, texto,
@@ -256,8 +258,8 @@ El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/
 ### Los botones del repartidor (tarea 1.5)
 
 - **La misma operación que la lavandería:** `App\Pedidos\CambioDeEstado::marcarComoRepartidor()`, con su propia tabla
-  (la adenda propuesta de abajo). Cada botón cambia `pedidos.id_estados_pedido` y agrega su evento a `pedido_eventos`,
-  con la cuenta del repartidor y su hora, en una transacción con el pedido bloqueado, y publica
+  (la adenda de abajo, asentada en ADR-0021). Cada botón cambia `pedidos.id_estados_pedido` y agrega su evento a
+  `pedido_eventos`, con la cuenta del repartidor y su hora, en una transacción con el pedido bloqueado, y publica
   `EstadoDelPedidoCambiado` (E19).
 - **Solo en el pedido que aceptó:** el pedido tiene que ser suyo (`pedidos.id_repartidores`) y su oferta, `aceptado`.
   Con la oferta todavía `ofrecido`, responde 409 "Primero acepta el pedido." (E20). Uno de otro repartidor ni siquiera
@@ -265,7 +267,7 @@ El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/
 - **Entre Recolectado y En tránsito van los botones de la lavandería,** En proceso y Listo (Módulo B #3): en esos dos el
   repartidor no tiene botón (`siguiente` en `null`). E19 lo prueba así, con la lavandería en medio.
 - **Lo que no se decide aquí:** cómo ve el usuario Recolectado, En tránsito y Entregado del repartidor, y si el pedido
-  lleva un viaje de repartidor o dos (E22, DD-022 y DD-011). Hoy el usuario los ve como ya lo fija ADR-0021: Recolectado,
+  lleva un viaje de repartidor o dos (E22, DD-022 y DD-140). Hoy el usuario los ve como ya lo fija ADR-0021: Recolectado,
   Listo (por `en_entrega`) y Entregado.
 - **`EstadosDePrueba::entregarComoElRepartidor()`** dejó de escribir el estado a mano: ahora usa
   `marcarComoRepartidor()`, con un repartidor de la plaza del pedido que recibe la oferta (con su fábrica) y la acepta
@@ -307,12 +309,13 @@ El recurso de repartidores de Filament vive en `servidor/app/Filament/Resources/
   la plaza es del jueves, aunque en UTC ya sea el viernes. La semana va de lunes a domingo e incluye hoy.
 - **Sin ingreso total acumulado:** espera DD-019 y DD-013 (E29). Entra como un campo nuevo.
 
-### Adenda propuesta a ADR-0021: las transiciones del repartidor
+### Adenda a ADR-0021: las transiciones del repartidor
 
-Propuesta por Claude por delegación de Arthur (C-236), con la tarea 1.5. No edita el ADR: Arthur la asienta o la cambia
-al revisar. Completa lo que la adenda del 2026-11-22 dejó abierto ("Desde dónde marca el repartidor su Recolectado lo
-fija `repartidor`"). Lo que esperan DD-022 (entregar sin repartidor), DD-011 (uno o dos viajes), DD-014 (asignación) y
-DD-016 (cancelación) **no** se decide aquí.
+Propuesta por Claude por delegación de Arthur (C-236), con la tarea 1.5. **Quedó asentada en ADR-0021 el 2026-11-24**
+("Adenda del 2026-11-24: las transiciones del repartidor"), por el concilio del 2026-11-24, por delegación de Arthur
+(C-236, C-245). Completa lo que la adenda del 2026-11-22 dejó abierto ("Desde dónde marca el repartidor su Recolectado
+lo fija `repartidor`"). Lo que esperan DD-022 (entregar sin repartidor), DD-140 (uno o dos viajes), DD-014 (asignación)
+y DD-016 (cancelación) **no** se decide aquí.
 
 1. **Las transiciones del repartidor,** en la tabla `DEL_REPARTIDOR` de `App\Pedidos\CambioDeEstado` (ADR-0021,
    decisión 4):
@@ -336,7 +339,7 @@ DD-016 (cancelación) **no** se decide aquí.
    Entregado. Si DD-022 decide que la lavandería entrega con su gente, su Entregado es una fila nueva en su tabla, sin
    tocar esta.
 5. **Lo que ve el usuario no cambia** (adenda del 2026-11-22, punto 4): Recolectado, Listo por `en_entrega` y Entregado.
-   Si DD-011 decide dos viajes de repartidor (recoger y entregar), la oferta del segundo viaje es otra fila de
+   Si DD-140 decide dos viajes de repartidor (recoger y entregar), la oferta del segundo viaje es otra fila de
    `pedido_asignaciones` y `pedidos.id_repartidores` pasa al segundo; esa regla se escribe con E22.
 
 ### Cómo se prueba en local
@@ -555,7 +558,7 @@ entregas, los dos en 0. Sin ingreso total acumulado (E29, DD-019 y DD-013).
 | Quién asigna el pedido y desde qué pantalla; qué pasa con el que se rechaza | E13, E18 | DD-014 |
 | La entrada al registro en la app y los roles de la cuenta | E04 | DD-053 |
 | El aviso al teléfono de un pedido asignado con la app cerrada | E14 | DD-054 |
-| Cómo ve el usuario Recolectado, En tránsito y Entregado del repartidor; uno o dos viajes | E22 | DD-022, DD-011 |
+| Cómo ve el usuario Recolectado, En tránsito y Entregado del repartidor; uno o dos viajes | E22 | DD-022, DD-140 |
 | Si la evidencia es obligatoria, en qué momentos, y si es foto o firma | E24 | BR-29, DD-110 |
 | El monto por entrega y el ingreso total acumulado | E26, E29 | DD-019, DD-013 |
 | La calificación recibida por entrega | E27 | DD-052 |
@@ -647,8 +650,8 @@ Android, con la app real y el servidor simulado con este contrato (`movil/__test
 - **Un perfil del repartidor en la app** para ver lo que le editó la administración (E08): ninguna tarea de `movil/` lo
   pide; hoy solo lo trae `GET /api/repartidor/perfil`.
 - **El texto del permiso de la cámara** (`src/alta-lavanderias/permisos-de-la-foto.json`, que `app.config.ts` lleva al
-  Info.plist) habla de la foto de perfil y de la de la lavandería, no de la evidencia de entrega. Cambiarlo es un cambio
-  de la configuración nativa que pide una compilación nueva: se le propone a Arthur y no se hizo.
+  Info.plist) ya nombra "la foto de una entrega" (`movil/src/alta-lavanderias/permisos-de-la-foto.json:2`, commit
+  `65731ed`).
 
 ### Cómo se prueba en el emulador
 
@@ -681,11 +684,12 @@ Con el servidor sembrado como dice "Cómo se prueba en local", la app apuntando 
 
 ## Open Questions
 
-- **Las cinco lecturas de Decisions:** Arthur las confirma o las cambia al aprobar la spec.
+- **Las cinco lecturas de Decisions: resueltas.** Las confirmó el concilio del 2026-11-24, por delegación de Arthur
+  (C-236, C-245). Cómo llega cada rol a su registro sigue en DD-053, de Nadir.
 - **Dónde se asigna el repartidor** (DD-014). Si es en el panel, es una acción nueva del Módulo D, que no la lista. Si
   es la lavandería desde su módulo, es una acción nueva del Módulo B. Las dos necesitan su cita al cerrarse DD-014.
 - **BR-29 es DD-110.**
-- **DD-053, DD-054, DD-022, DD-011, DD-019, DD-013 y DD-052.**
+- **DD-053, DD-054, DD-022, DD-140, DD-019, DD-013 y DD-052.**
 - **La plaza de un registro pendiente: respondida con la salida (a).** La lectura 2 fija la plaza al dar de alta, así
   que un registro `pendiente` no la tiene; plazas-E09 y el modelo piden `id_plazas` no nula. Dos salidas: (a) que
   `id_plazas` quede vacía solo en `pendiente`, con un `CHECK` que la exija en los demás estados, y que `repartidores`
@@ -700,8 +704,8 @@ Con el servidor sembrado como dice "Cómo se prueba en local", la app apuntando 
   registro que nunca se autoriza. Hoy se queda `pendiente`, sin acceso a pedidos: la base no admite la baja sin plaza.
   Si Arthur quiere que también se pueda dar de baja, la salida es que el `CHECK` admita la plaza vacía en `baja` cuando
   `aprobado_en` está vacía, con su escenario.
-- **En tránsito** no es uno de los cinco estados del usuario: es un estado interno de `estados_pedido` que fija el ADR
-  de la máquina de estados (DD-123, límite 2027-01-04). E19 y E20 lo necesitan antes del sprint 18.
+- **En tránsito: resuelta.** `en_entrega` es el estado interno de ADR-0021, el mismo paso que "En proceso de entrega"
+  de la lavandería, y DD-123 está cerrada (decisión 26 del acta del 2026-11-20).
 - **Pantallas sin componente.** El componente 5 de `vault/design-system/componentes.md` cubre la tarjeta de pedido
   del repartidor. El registro, el historial y las estadísticas no tienen componente; tampoco el recurso del panel.
   **En la app** se armaron con las piezas y los tokens, como las pantallas de la lavandería sin componente (ADR-0013),

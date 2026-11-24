@@ -28,14 +28,14 @@ use Tests\TestCase;
  * A.3, Módulo C #3; :20, Separación por tipo de usuario).
  *
  * Mueve el estado operativo de ADR-0021 con la misma operación que los botones de la lavandería
- * (App\Pedidos\CambioDeEstado), con la tabla del repartidor de la adenda propuesta en design.md:
+ * (App\Pedidos\CambioDeEstado), con la tabla del repartidor de la adenda del 2026-11-24 de ADR-0021:
  *
  * - Recolectado, desde aceptado: la lavandería ya aceptó el pedido (Módulo B #2);
  * - En tránsito, desde listo: es el mismo paso operativo que "En proceso de entrega" de la lavandería, en_entrega;
  * - Entregado, desde en_entrega.
  *
  * Entre Recolectado y En tránsito, el pedido pasa por los botones de la lavandería, En proceso y Listo (Módulo B #3).
- * Cómo ve el usuario cada estado del repartidor espera DD-022 y DD-011 (repartidor-E22).
+ * Cómo ve el usuario cada estado del repartidor espera DD-022 y DD-140 (repartidor-E22).
  *
  * Escenarios: repartidor-E19, repartidor-E20 y repartidor-E21; y los botones que se habilitan al aceptar (repartidor-E15)
  * · Spec: openspec/changes/repartidor/specs/repartidor/spec.md · Tarea 1.5

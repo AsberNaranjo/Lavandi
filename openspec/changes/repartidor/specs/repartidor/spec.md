@@ -189,7 +189,7 @@ Criterio: SEG-3
 
 Criterio: A43-3
 
-SIN RESPUESTA — bloquea: repartidor-E22 (DD-022 y DD-011: cómo se mapean Recolectado, En tránsito y Entregado a los cinco estados del usuario, y si el pedido lleva un viaje de repartidor o dos)
+SIN RESPUESTA — bloquea: repartidor-E22 (DD-022 y DD-140: cómo se mapean Recolectado, En tránsito y Entregado a los cinco estados del usuario, y si el pedido lleva un viaje de repartidor o dos)
 
 ### Requirement: Evidencia de entrega
 Al marcar Entregado, la app DEBE (MUST) dejar al repartidor tomar una foto como evidencia de entrega. La foto DEBE (MUST) guardarse en almacenamiento privado, ligada al pedido.
