@@ -1,7 +1,7 @@
 // Cliente de la API de acceso: registro, sesión, Google y recuperación de la contraseña
 // (openspec/changes/registro-e-inicio-de-sesion). Toda consulta sale de la dirección base del entorno (base-E07).
 // Ninguna función lanza: cada una devuelve un Resultado que la pantalla lee.
-import { pedir, pedirConEstado, type Resultado, type ResultadoConEstado } from '../configuracion/api';
+import { pedir, pedirConEstado, type Falla, type Resultado, type ResultadoConEstado } from '../configuracion/api';
 
 export type { ErroresPorCampo, Falla, Resultado } from '../configuracion/api';
 
@@ -19,6 +19,15 @@ export interface SesionNueva {
   usuario: Usuario;
 }
 
+/**
+ * Por qué no se abrió la sesión. Además de las fallas generales, el 403 de una cuenta que no tiene acceso a la app, como
+ * la de administración, que entra por el panel: el servidor no le da token (registro-E33) y la app le ofrece abrir el
+ * panel (administracion-E25).
+ */
+export type FallaDeEntrada = Falla | { ok: false; motivo: 'sin-acceso' };
+
+export type ResultadoDeEntrada<T> = { ok: true; datos: T } | FallaDeEntrada;
+
 export interface Credenciales {
   correo: string;
   password: string;
@@ -30,8 +39,8 @@ export function registrar(credenciales: Credenciales): Promise<Resultado<SesionN
 }
 
 /** POST /sesion: abre la sesión con el correo y la contraseña (registro-E07 y E09). */
-export function iniciarSesion(credenciales: Credenciales): Promise<Resultado<SesionNueva>> {
-  return pedir<SesionNueva>('sesion', { metodo: 'POST', cuerpo: soloCredenciales(credenciales) });
+export function iniciarSesion(credenciales: Credenciales): Promise<ResultadoDeEntrada<SesionNueva>> {
+  return pedirLaSesion('sesion', soloCredenciales(credenciales));
 }
 
 /** GET /cuenta: la propia cuenta, con el token (registro-E10 y E11). */
@@ -61,8 +70,14 @@ export function cerrarSesionEnServidor(token: string, tokenDelTelefono?: string)
 }
 
 /** POST /sesion/google: el servidor valida el idToken y abre la sesión (registro-E16 y E19). */
-export function iniciarSesionConGoogle(idToken: string): Promise<Resultado<SesionNueva>> {
-  return pedir<SesionNueva>('sesion/google', { metodo: 'POST', cuerpo: { id_token: idToken } });
+export function iniciarSesionConGoogle(idToken: string): Promise<ResultadoDeEntrada<SesionNueva>> {
+  return pedirLaSesion('sesion/google', { id_token: idToken });
+}
+
+// Una ruta que abre la sesión. Su 403 dice que la cuenta no tiene acceso a la app (registro-E33). Nunca lanza.
+async function pedirLaSesion(ruta: string, cuerpo: unknown): Promise<ResultadoDeEntrada<SesionNueva>> {
+  const { resultado, estado } = await pedirConEstado<SesionNueva>(ruta, { metodo: 'POST', cuerpo });
+  return !resultado.ok && estado === 403 ? { ok: false, motivo: 'sin-acceso' } : resultado;
 }
 
 /** POST /contrasena/olvido: pide el enlace de recuperación; la respuesta es la misma exista o no la cuenta (E26). */

@@ -81,3 +81,12 @@ export function direccionDelAvisoDePrivacidad(): string | undefined {
 export function direccionDeLosTerminos(): string | undefined {
   return opcional(process.env.EXPO_PUBLIC_TERMINOS_URL);
 }
+
+/**
+ * La dirección del panel web de la administración en el servidor de este entorno (administracion-E25). Una cuenta de
+ * administración que entra a la app no recibe sesión (registro-E33) y la app le ofrece abrir el panel. Sin ella, el
+ * aviso sale sin el botón.
+ */
+export function direccionDelPanel(): string | undefined {
+  return opcional(process.env.EXPO_PUBLIC_PANEL_URL);
+}
