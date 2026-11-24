@@ -130,12 +130,14 @@ class BuscadoresTest extends TestCase
         ], $direcciones);
     }
 
-    #[TestDox('medicion-E08: en producción, el archivo de robots declara la dirección absoluta del mapa del sitio, en el dominio de la configuración, y no le cierra el sitio a los buscadores')]
+    #[TestDox('medicion-E08 y medicion-E15: en producción, el archivo de robots declara la dirección absoluta del mapa del sitio, en el dominio de la configuración, y no le cierra el sitio a los buscadores')]
     public function test_medicion_e08_el_archivo_de_robots_declara_el_mapa_del_sitio(): void
     {
+        // La configuración de producción, como en CandadoTest: el entorno y solo https. Por eso se pide por https: por
+        // http, medicion-E13 redirigiría antes de llegar a la ruta.
         $this->app->detectEnvironment(fn (): string => 'production');
+        config(['app.solo_https' => true]);
 
-        // Por https, como en producción: por http, medicion-E13 redirige antes de llegar a la ruta.
         $lineas = $this->lineasDelArchivoDeRobots('https://otra-direccion.test/robots.txt');
 
         $this->assertContains('Sitemap: '.self::DOMINIO_DE_PRUEBA.'/sitemap.xml', $lineas);
@@ -146,10 +148,12 @@ class BuscadoresTest extends TestCase
         $this->assertFileDoesNotExist(public_path('robots.txt'));
     }
 
-    #[TestDox('medicion-E15: fuera de producción, en el entorno de pruebas y en local, el archivo de robots responde Disallow: / para todo buscador')]
+    #[TestDox('medicion-E15: fuera de producción (en las pruebas, en local y en cualquier otro entorno), el archivo de robots responde Disallow: / para todo buscador')]
     public function test_medicion_e15_fuera_de_produccion_el_archivo_de_robots_cierra_el_sitio(): void
     {
-        foreach (['testing', 'local'] as $entorno) {
+        // Además de las pruebas y local, dos nombres que no son de ninguno: el del entorno de prueba en internet todavía no
+        // está fijado (DD-070; DD-134, punto 6) y la regla tiene que cerrarlo sin nombrarlo.
+        foreach (['testing', 'local', 'prueba', 'staging'] as $entorno) {
             $this->app->detectEnvironment(fn (): string => $entorno);
 
             $lineas = $this->lineasDelArchivoDeRobots('http://otra-direccion.test/robots.txt');
