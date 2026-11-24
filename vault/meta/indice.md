@@ -33,6 +33,7 @@ Empieza por `CLAUDE.md` en la raíz del repo y por [[convenciones]].
 - [[restricciones-no-negociables]] — lo que toda arquitectura debe cumplir
 - [[calendario-contractual]] — semanas, fechas, trámites de terceros, hitos de pago
 - [[auditoria-pr-3-contra-el-contrato-2026-11-22]] — **si el código se sale del contrato**: lo que estira su cita, lo que se corrigió, lo que espera una decisión y lo que todavía falta (C-242)
+- [[concilio-2026-11-24]] — **qué falta del contrato y quién lo bloquea**: el inventario de las 27 specs, los votos del concilio de agentes, las decisiones 40 a 68 y los paquetes de trabajo (C-244, C-245)
 
 ## Negocio (Fase 2)
 
