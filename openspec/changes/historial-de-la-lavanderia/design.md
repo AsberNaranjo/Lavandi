@@ -18,16 +18,18 @@
 
 ## Decisions
 
-Tres lecturas que fijan los escenarios; Arthur las aprueba con la spec:
+Tres lecturas que fijan los escenarios, ratificadas por el concilio del 2026-11-24, por delegación de Arthur (C-245):
 
 1. **"Completado" es Entregado,** el último de los cinco estados del pedido (Módulo A #12). La lavandería no marca
    Entregado (su último botón es "En proceso de entrega", Módulo B #3), pero el pedido termina ahí. La fecha del
    historial es la del paso a Entregado.
-2. **"Pedidos del día y de la semana" cuenta pedidos completados**, igual que el historial del numeral 4 y que las
-   "entregas del día y de la semana" del repartidor. Alternativa: contar los pedidos recibidos en el día. Ver Open
-   Questions.
+2. **"Pedidos del día y de la semana" cuenta los entregados**, igual que el historial del numeral 4 y que las
+   "entregas del día y de la semana" del repartidor. La lectura alterna, contar los pedidos recibidos en el día, queda
+   escrita en Open Questions.
 3. **"Del día" y "de la semana"** se cuentan en la zona horaria de la plaza (`vault/arquitectura/modelo-multi-plaza.md`).
-   La semana va de lunes a domingo.
+   La semana va de lunes a domingo. Es la misma regla de la lectura 5 del repartidor
+   (`openspec/changes/repartidor/design.md`, Decisions), para que las dos estadísticas, la de la lavandería y la del
+   repartidor, cuenten igual.
 
 ## Tablas y migración
 
@@ -119,8 +121,13 @@ misma plaza y con el pago acreditado (C-188).
 
 ## Open Questions
 
-- **Qué cuenta como "pedido del día":** el completado ese día (lectura de este cambio) o el recibido ese día. Si
-  Arthur cree que es una pregunta de negocio, va a EL CLIENTE como fila de la deuda.
+- **Qué cuenta como "pedido del día": resuelta.** El concilio del 2026-11-24, por delegación de Arthur (C-245),
+  ratificó la lectura 2: cuenta los entregados. La lectura alterna: contar los pedidos recibidos en el día también cabe
+  en el texto "Pedidos del día" del Módulo B #5 (`NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3`). Se quedó la de
+  entregados porque va junto a "ingreso total", que solo cuenta pedidos cobrados, sigue al B #4 "Pedidos completados",
+  y el C #5 dice "Entregas del día y de la semana" (`NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3`). Ninguna DD de EL
+  CLIENTE la reclama; si la pide, cambia la consulta, no la tabla. Respaldo de la implementación:
+  `servidor/tests/Feature/HistorialLavanderia/EstadisticasTest.php:57-144`.
 - **DD-013, DD-020, DD-012 y DD-052.**
 - **Pantallas sin componente.** El historial y las estadísticas no tienen componente en
   `vault/design-system/componentes.md`.
