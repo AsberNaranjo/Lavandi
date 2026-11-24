@@ -124,8 +124,8 @@ SIN RESPUESTA — bloquea: alta-lavanderias-E12 (DD-053)
 
 ### Requirement: Edición de la lavandería desde el panel
 El panel DEBE (MUST) mostrar las lavanderías con su estado y su plaza, y permitir a la administración editar los datos
-de registro de cualquiera de ellas —nombre, dirección, foto, servicios, precios y horario— con las mismas validaciones
-del registro.
+de cualquiera de ellas —nombre, dirección, foto, servicios, precios, horario, descripción y fotos— con las mismas
+validaciones del registro.
 
 Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #1` ("edición de socios"); A →
 `NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #1`; D → `ADR-0003`
@@ -211,6 +211,63 @@ Criterio: A43-6
 - **Y** los datos de la segunda no cambian
 
 Criterio: SEG-3
+
+### Requirement: Descripción y fotos del perfil de la lavandería
+La lavandería DEBE (MUST) poder escribir una descripción opcional y mantener varias fotos ordenadas de su perfil desde
+Perfil y horarios, y la administración DEBE (MUST) poder hacer lo mismo desde el panel con las mismas reglas. El
+registro sigue pidiendo una sola foto.
+
+Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3, Módulo A #5` ("Fotos, descripción"); A →
+`NSV-2026-001-v8.pdf:17:ANEXO A, Sección A.3, Módulo B #6` ("Edición de información de la lavandería"); A →
+`NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #1` ("edición de socios"); D → `ADR-0006`
+
+#### Scenario: alta-lavanderias-E26 — La lavandería escribe su descripción
+- **DADO** una lavandería registrada sin descripción
+- **CUANDO** escribe su descripción en Perfil y horarios y guarda
+- **ENTONCES** el servidor la guarda
+- **Y** el perfil que ve el usuario la muestra (perfil-lavanderia-E01)
+- **Y** si la deja vacía, el perfil queda sin descripción
+
+Criterio: A43-6
+
+#### Scenario: alta-lavanderias-E27 — Agregar una foto
+- **DADO** una lavandería con menos fotos que el máximo de la configuración
+- **CUANDO** agrega una foto, tomada o elegida y comprimida como la del registro (E03), y guarda
+- **ENTONCES** la foto queda al final de su orden
+- **Y** el perfil del usuario la muestra en ese lugar
+
+Criterio: A43-6
+
+#### Scenario: alta-lavanderias-E28 — Quitar una foto
+- **DADO** una lavandería con dos fotos o más
+- **CUANDO** quita una y guarda
+- **ENTONCES** esa foto deja de estar en su perfil y su archivo se borra del almacenamiento
+- **Y** la última foto no se puede quitar, porque el registro pide una (Módulo B #1)
+
+Criterio: A43-6
+
+#### Scenario: alta-lavanderias-E29 — Cambiar el orden
+- **DADO** una lavandería con tres fotos
+- **CUANDO** pasa la tercera antes de la segunda y guarda
+- **ENTONCES** el perfil del usuario las muestra en el orden nuevo
+- **Y** la primera es la principal
+
+Criterio: A43-6
+
+#### Scenario: alta-lavanderias-E30 — El máximo de fotos
+- **DADO** una lavandería con el máximo de fotos de la configuración
+- **CUANDO** intenta agregar otra
+- **ENTONCES** la app no ofrece agregarla
+- **Y** el servidor rechaza una lista con más fotos que el máximo, con un mensaje que lo dice, y nada cambia
+
+Criterio: A43-6
+
+#### Scenario: alta-lavanderias-E31 — El panel edita la descripción y las fotos
+- **DADO** una lavandería
+- **CUANDO** la administración cambia su descripción o sus fotos desde el panel
+- **ENTONCES** se guardan con las reglas de E26 a E30
+
+Criterio: A43-6
 
 ### Requirement: Ventanas de disponibilidad
 La lavandería DEBE (MUST) poder definir, para cada día de la semana, las ventanas de una hora en que tiene
