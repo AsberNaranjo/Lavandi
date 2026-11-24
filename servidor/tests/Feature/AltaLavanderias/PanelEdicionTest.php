@@ -287,6 +287,27 @@ class PanelEdicionTest extends TestCase
         $this->assertEqualsCanonicalizing([$primera, $segunda, $tercera], $this->archivosDeFotos());
     }
 
+    #[TestDox('alta-lavanderias-E31: con el máximo por debajo de sus fotos, si la app quita una mientras el panel está abierto, cambiar solo el nombre se guarda y las fotos quedan como las dejó la app, sin el mensaje del máximo')]
+    public function test_alta_lavanderias_e31_fotos_que_cambian_con_el_panel_abierto_y_el_maximo_por_debajo(): void
+    {
+        $lavanderia = $this->registrada();
+        [$primera, $segunda, $tercera] = $this->conFotos($lavanderia, 3);
+        config(['fotos.maximo_por_lavanderia' => 2]);
+        $this->comoAdministracion();
+
+        $pagina = Livewire::test(EditLavanderia::class, ['record' => $lavanderia->getRouteKey()]);
+
+        // La app quita una foto mientras la página sigue abierta.
+        $lavanderia->fotos()->where('ruta', $tercera)->delete();
+
+        $pagina->fillForm(['nombre' => 'Lavandería de prueba Renombrada'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('Lavandería de prueba Renombrada', $lavanderia->fresh()->nombre);
+        $this->assertSame([$primera, $segunda], $this->rutasEnOrden($lavanderia));
+    }
+
     #[TestDox('alta-lavanderias-E31: una foto cuyo archivo no está en el disco se queda, con su lugar, cuando la administración cambia solo el nombre; sin ningún archivo, el nombre también se guarda')]
     public function test_alta_lavanderias_e31_una_foto_sin_su_archivo_se_queda_al_cambiar_solo_el_nombre(): void
     {

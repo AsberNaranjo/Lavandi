@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Lavanderias\Schemas;
 
+use App\Filament\Resources\Lavanderias\Pages\EditLavanderia;
 use App\Lavanderias\FotosDeLaLavanderia;
 use App\Lavanderias\ReglasDeLaLavanderia;
 use App\Lavanderias\ServiciosYVentanas;
@@ -62,7 +63,12 @@ class LavanderiaForm
                             ->multiple()
                             ->reorderable()
                             ->appendFiles()
-                            ->maxFiles(fn (?Lavanderia $record): int => max(FotosDeLaLavanderia::maximo(), $record?->fotos()->count() ?? 0))
+                            // Cuenta las fotos que la página leyó al abrir, no las de la base: si la app las cambió
+                            // mientras tanto, la edición responde que cambiaron, no con el mensaje del máximo.
+                            ->maxFiles(fn (?Lavanderia $record, mixed $livewire): int => max(
+                                FotosDeLaLavanderia::maximo(),
+                                $livewire instanceof EditLavanderia ? count($livewire->fotosAlAbrir) : ($record?->fotos()->count() ?? 0),
+                            ))
                             ->validationMessages(['max' => fn (): string => str_replace(
                                 ':max',
                                 (string) FotosDeLaLavanderia::maximo(),
