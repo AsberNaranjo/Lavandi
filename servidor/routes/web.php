@@ -44,8 +44,9 @@ Route::get('/terminos', TextosLegalesController::class)
     ->name('textos-legales.terminos');
 
 /*
- * El mapa del sitio y el archivo de robots que lo declara, para los buscadores (openspec/changes/medicion-de-la-landing/,
- * tarea 2.1). Con las direcciones absolutas en el dominio de la configuración.
+ * El mapa del sitio y el archivo de robots, para los buscadores (openspec/changes/medicion-de-la-landing/, tareas 2.1 y
+ * 2.3). Con las direcciones absolutas en el dominio de la configuración. En producción, el archivo de robots declara el
+ * mapa del sitio; fuera de ella, cierra el sitio (medicion-E15).
  */
 Route::get('/sitemap.xml', [BuscadoresController::class, 'mapaDelSitio'])->name('medicion.mapa-del-sitio');
 Route::get('/robots.txt', [BuscadoresController::class, 'robots'])->name('medicion.robots');

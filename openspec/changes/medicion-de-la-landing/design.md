@@ -80,9 +80,11 @@ cumple cada escenario; se pueden rehacer sin tocar los requisitos.
   cierra nada a ningún buscador y declara el mapa del sitio (medicion-E08).
 - **Solo producción se deja indexar (tarea 2.3, 2026-11-24; pregunta 3):** en todo entorno cuyo `APP_ENV` no sea
   `production`, `MapaDelSitio::robots()` responde `User-agent: *` y `Disallow: /`, sin declarar el mapa del sitio
-  (medicion-E15; adenda del 2026-11-24 de ADR-0012). `BuscadoresTest` lo prueba cambiando el entorno de la aplicación,
-  en el de pruebas y en local; la prueba del archivo de robots de medicion-E08 corre en producción, por https. Que el
-  entorno de prueba en internet responda cerrado se comprueba cuando exista (DD-070).
+  (medicion-E15; adenda del 2026-11-24 de ADR-0012). `BuscadoresTest` lo prueba cambiando el entorno de la aplicación:
+  en el de pruebas, en local y en dos nombres que no son de ninguno (`prueba` y `staging`), porque la regla no nombra el
+  del entorno de prueba en internet. La prueba del archivo de robots de medicion-E08 corre con la configuración de
+  producción (el entorno y solo https) y también lleva medicion-E15. Que el entorno de prueba en internet responda
+  cerrado se comprueba cuando exista (DD-070).
 - **Información estructurada (tarea 2.1):** un bloque JSON-LD en la cabecera de la portada, con el vocabulario de
   schema.org: `Service`, con `serviceType` "Lavandería a domicilio", `name` y `provider` con `APP_NAME`, `url` con la
   dirección del sitio, y `areaServed` con cada plaza activa como `Place` y sus zonas activas en `containsPlace`. Sin
