@@ -140,9 +140,9 @@ que cumple cada escenario. Ninguna decisión agrega una librería ni un servicio
 
 - **Archivo:** `servidor/database/migrations/2026_11_23_100000_crear_repartidores_asignaciones_y_evidencias.php`. Pasa
   la prueba de esquema (modelo-E01 a E17) y la prueba propia, `servidor/tests/Feature/Repartidor/MigracionTest.php`.
-- **`repartidores`:** como en "Tablas y migración", con la plaza vacía solo en `pendiente`
-  (`repartidores_plaza_check`), la salida (a) de Open Questions; la tarea 0.2 también la admite vacía en la baja de un
-  registro que nunca se autorizó (E31). Además:
+- **`repartidores`:** como en "Tablas y migración", con la plaza vacía en `pendiente` (`repartidores_plaza_check`), la
+  salida (a) de Open Questions, y, desde la tarea 0.2, también en la baja de un registro que nunca se autorizó (E31).
+  Además:
   - `id_usuarios` es única, porque una cuenta es a lo más un repartidor (el diagrama del modelo);
   - `estado` vale `pendiente` por omisión, que es como nace el registro de la app (E01);
   - `deleted_at` es la baja (E07), con `estado = 'baja'`.
@@ -737,8 +737,8 @@ Con el servidor sembrado como dice "Cómo se prueba en local", la app apuntando 
   entre a la lista de "plaza opcional" de la prueba de esquema de `modelo-de-datos`, como `avisos_masivos`; (b) la
   alternativa de la lectura 2: el repartidor elige su plaza al registrarse y la administración
   la confirma al darlo de alta, lo que agrega un sexto dato a E01 y E02. **Quedó (a):** ya la traían
-  `vault/arquitectura/modelo-de-datos.md` ("`id_plazas` vacía solo si `estado` es `pendiente`") y la lista
-  `plaza_opcional` de `servidor/config/modelo.php`, y no cambia los cinco datos de E01 y E02. La tarea 0.1 la
+  `vault/arquitectura/modelo-de-datos.md` (que decía entonces "`id_plazas` vacía solo si `estado` es `pendiente`") y
+  la lista `plaza_opcional` de `servidor/config/modelo.php`, y no cambia los cinco datos de E01 y E02. La tarea 0.1 la
   implementa (sección "Implementación en el servidor").
 - **Un registro pendiente que EL CLIENTE no autoriza: resuelta con la opción (b),** que se pueda dar de baja, por el
   concilio del 2026-11-24, por delegación de Arthur (C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisión 54). Salió

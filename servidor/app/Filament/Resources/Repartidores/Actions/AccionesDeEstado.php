@@ -13,8 +13,8 @@ use Filament\Forms\Components\Select;
 use Filament\Support\Icons\Heroicon;
 
 /**
- * Las acciones de estado del repartidor en el panel, en la lista y en la página de cada uno (repartidor-E05, E06 y E07;
- * ADR-0003). Cada botón solo aparece cuando la transición se puede hacer, y la regla vive en
+ * Las acciones de estado del repartidor en el panel, en la lista y en la página de cada uno (repartidor-E05, E06, E07
+ * y E31; ADR-0003). Cada botón solo aparece cuando la transición se puede hacer, y la regla vive en
  * App\Repartidores\EstadoDelRepartidor, no aquí.
  */
 final class AccionesDeEstado

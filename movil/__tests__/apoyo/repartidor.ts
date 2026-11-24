@@ -1,6 +1,7 @@
 // Apoyo de las pruebas del Módulo C, lo que ve y hace el socio repartidor (openspec/changes/repartidor): su registro, la
-// espera de su alta, sus pedidos asignados con aceptar, rechazar y sus botones, la evidencia de entrega, su historial,
-// sus estadísticas y sus datos, que la administración edita en el panel. No es una prueba: Jest no lo corre como tal (testPathIgnorePatterns en package.json).
+// espera de su alta, sus pedidos asignados con aceptar, rechazar y sus botones, la evidencia de entrega, su
+// historial, sus estadísticas y sus datos, que la administración edita en el panel. No es una prueba: Jest no lo corre
+// como tal (testPathIgnorePatterns en package.json).
 //
 // Abre la app real, con las rutas de movil/app/ (ADR-0017), y simula el servidor con el "Contrato de la API" de
 // openspec/changes/repartidor/design.md, el mismo de los comentarios de
