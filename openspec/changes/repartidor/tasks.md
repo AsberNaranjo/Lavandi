@@ -29,6 +29,7 @@ fábrica.
 - [x] 2.5 repartidor-E23: foto de evidencia al marcar Entregado — test: `movil/__tests__/repartidor/evidencia.test.tsx` — tamaño S
 - [x] 2.6 repartidor-E25: pantalla del historial de entregas — test: `movil/__tests__/repartidor/historial.test.tsx` — tamaño S
 - [x] 2.7 repartidor-E28: pantalla de estadísticas — test: `movil/__tests__/repartidor/estadisticas.test.tsx` — tamaño S
+- [x] 2.8 repartidor-E08: los datos del repartidor en la cabecera de Pedidos asignados — test: `movil/__tests__/repartidor/perfil-en-sus-pedidos.test.tsx` — tamaño S
 
 ## 3. Bloqueadas: no entran al sprint hasta cerrar su fila
 
@@ -47,8 +48,12 @@ fábrica.
 
 ## Horas
 
-- **Este archivo:** 38 h listas para entrar y 27 h bloqueadas, 65 h en total.
-- **Contra la versión anterior (60 h):** 5 h más, de la migración y los modelos (0.1, M). repartidor-E30 entra en la
-  tarea 1.3 sin cambiar su tamaño: es un filtro más sobre la misma consulta.
+- **Este archivo:** 44 h listas para entrar y 27 h bloqueadas, 71 h en total.
+- **Contra la versión anterior (65 h):** 6 h más, de lo que decidió el concilio del 2026-11-24, por delegación de Arthur
+  (C-245; `acta-2026-11-20-modelo-y-pasarela.md`, decisiones 54 y 55): la migración hacia adelante del `CHECK` (0.2, S),
+  la baja del registro que nunca se autorizó (1.9, S) y los datos del repartidor en la cabecera de Pedidos asignados
+  (2.8, S).
+- **Antes (60 h):** 5 h más, de la migración y los modelos (0.1, M). repartidor-E30 entra en la tarea 1.3 sin cambiar
+  su tamaño: es un filtro más sobre la misma consulta.
 - **Contra el plan:** el plan de sprints le da 21 h a este cambio (F-C01, S; F-C02, M; F-C03, M; F-C04, S; F-C05, S;
-  F-D02, M). La diferencia pasa de 39 h a 44 h.
+  F-D02, M). La diferencia pasa de 44 h a 50 h.

@@ -588,7 +588,7 @@ entregas, los dos en 0. Sin ingreso total acumulado (E29, DD-019 y DD-013).
 
 ## Implementación en la app
 
-Lo que se decidió al implementar las tareas 2.1 a 2.7 en `movil/`, por delegación de Arthur (C-236), con lo mínimo que
+Lo que se decidió al implementar las tareas 2.1 a 2.8 en `movil/`, por delegación de Arthur (C-236), con lo mínimo que
 cumple cada escenario y el "Contrato de la API" de arriba, sin tocar `servidor/`. Ninguna decisión agrega una librería,
 un permiso ni un cambio en la configuración de EAS, ni decide una fila abierta. Cada pantalla se prueba en iPhone y en
 Android, con la app real y el servidor simulado con este contrato (`movil/__tests__/apoyo/repartidor.ts`), en
@@ -600,7 +600,7 @@ Android, con la app real y el servidor simulado con este contrato (`movil/__test
 |---|---|---|
 | `/registro-de-repartidor` | El registro, sin sesión (`app/registro-de-repartidor.tsx`) | E01, E02 |
 | `/repartidor/espera` | La espera del alta, o de que le quiten la suspensión | E01, E03 |
-| `/repartidor/pedidos` | Los pedidos asignados, la primera del módulo | E10, E11, E15, E19, E20 |
+| `/repartidor/pedidos` | Los pedidos asignados, la primera del módulo, con sus datos arriba | E08, E10, E11, E15, E19, E20 |
 | `/repartidor/pedidos/rechazo/[id]` | El rechazo con motivo | E16, E17 |
 | `/repartidor/pedidos/entrega/[id]` | La entrega con la foto de evidencia | E23 |
 | `/repartidor/historial` | El historial de entregas | E25 |
@@ -666,12 +666,28 @@ Android, con la app real y el servidor simulado con este contrato (`movil/__test
   "Entregas de hoy" y "Entregas de esta semana", con la nota de que la semana va de lunes a domingo. Sin ingreso
   acumulado (E29) ni el desglose por día del mock c05 (fuera del contrato).
 
+### Sus datos en Pedidos asignados (tarea 2.8)
+
+La decidió el concilio del 2026-11-24, por delegación de Arthur (C-245; `acta-2026-11-20-modelo-y-pasarela.md`,
+decisión 55), para cumplir "Y el repartidor lo ve en su módulo" de E08 con una pantalla que ya existe.
+
+- **Una cabecera bajo el título de Pedidos asignados,** antes de las entradas al historial y a las estadísticas: la foto
+  en un círculo y, a su lado, el nombre, el teléfono, el correo y el tipo de vehículo, cada dato con su etiqueta en el
+  tono suave y leído en un solo anuncio ("Teléfono: …"). Se arma con los tokens, sin pieza nueva, como las pantallas sin
+  componente (ADR-0013); los textos son los del registro.
+- **Los datos son los del perfil que el módulo ya lee al entrar** (`useRepartidorDeLaCuenta()`, en la fase `listo`, de
+  `GET /api/repartidor/perfil`): sin ruta, pantalla, petición ni consulta periódica nuevas. Lo que la administración le
+  edita llega la siguiente vez que el módulo pide el perfil: al volver a entrar, o con "Revisar de nuevo" y el 403 de
+  arriba.
+- **La foto** se ve desde su URL firmada; sin foto, nada en su lugar.
+- **El repartidor no edita sus datos:** la cabecera no tiene botones ni campos. Editarlos es de la administración (E08).
+
 ### Lo que la app no hace todavía
 
 - **El enlace al registro** (E04, DD-053), **el aviso de asignación** (E14, DD-054), **los montos** (E26 y E29, DD-019 y
   DD-013) y **la calificación recibida** (E27, DD-052): sin huecos ni datos de relleno.
-- **Un perfil del repartidor en la app** para ver lo que le editó la administración (E08): ninguna tarea de `movil/` lo
-  pide; hoy solo lo trae `GET /api/repartidor/perfil`.
+- **Un perfil del repartidor en la app:** no hay pantalla "Mi perfil". Lo que le editó la administración (E08) se ve en la
+  cabecera de Pedidos asignados (tarea 2.8, "Sus datos en Pedidos asignados"), y el repartidor no edita sus datos.
 - **El texto del permiso de la cámara** (`src/alta-lavanderias/permisos-de-la-foto.json`, que `app.config.ts` lleva al
   Info.plist) ya nombra "la foto de una entrega" (`movil/src/alta-lavanderias/permisos-de-la-foto.json:2`, commit
   `65731ed`).
@@ -682,7 +698,8 @@ Con el servidor sembrado como dice "Cómo se prueba en local", la app apuntando 
 `repartidor@ejemplo.com` (`contrasena-de-prueba`):
 
 1. **Sus pedidos:** entra a "Pedidos asignados" con los tres pedidos ofrecidos, cada uno con Aceptar y Rechazar. La
-   lista se pone al día sola cada 30 s con la pantalla a la vista.
+   lista se pone al día sola cada 30 s con la pantalla a la vista. Arriba están sus datos; si `admin@ejemplo.com` los
+   edita en `/admin/repartidores`, se ven al cerrar y volver a abrir la app.
 2. **Aceptar:** en el que la lavandería ya aceptó aparece "Recolectado"; en el listo para el reparto, "En tránsito"; en
    el que la lavandería no responde, ningún botón hasta que `lavanderia.norte@ejemplo.com` lo acepte.
 3. **Rechazar:** pide el motivo; sin él, el botón dice "Escribe el motivo". El pedido sale de la lista.
