@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\AvisosMasivos\Schemas;
 
+use App\Avisos\CreacionDeAvisoMasivo;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
@@ -13,14 +14,11 @@ use Filament\Schemas\Schema;
  * El aviso es global: va a todas las cuentas con un teléfono registrado. Elegir un segmento espera DD-113
  * (administracion-E24), así que el formulario no lo pide.
  *
- * El texto lleva un tope de caracteres para que el mensaje quepa en lo que acepta FCM por mensaje (grado E, SIN
- * VERIFICAR: 4096 bytes; openspec/changes/administracion/design.md, "El panel").
+ * Los topes y los mensajes de los dos campos son los de App\Avisos\CreacionDeAvisoMasivo, que crea el aviso del panel y
+ * el de la API (administracion-app-E11); el panel pone los mensajes bajo cada campo.
  */
 class AvisoMasivoForm
 {
-    /** El tope del texto, en caracteres. */
-    public const TOPE_DEL_MENSAJE = 1000;
-
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -28,16 +26,36 @@ class AvisoMasivoForm
                 TextInput::make('titulo')
                     ->label('Título')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(CreacionDeAvisoMasivo::TOPE_DEL_TITULO)
+                    ->validationMessages(self::mensajesDe('titulo')),
                 Textarea::make('mensaje')
                     ->label('Texto')
                     ->required()
-                    ->maxLength(self::TOPE_DEL_MENSAJE)
+                    ->maxLength(CreacionDeAvisoMasivo::TOPE_DEL_MENSAJE)
+                    ->validationMessages(self::mensajesDe('mensaje'))
                     ->rows(4),
                 TextEntry::make('destinatarios')
                     ->label('A quién le llega')
                     ->state('A todas las cuentas de la app con un teléfono registrado para avisos, salvo las bloqueadas.'),
             ])
             ->columns(1);
+    }
+
+    /**
+     * Los mensajes de la creación del aviso para ese campo, por regla, como los pide Filament.
+     *
+     * @return array<string, string>
+     */
+    private static function mensajesDe(string $campo): array
+    {
+        $mensajes = [];
+
+        foreach (CreacionDeAvisoMasivo::mensajes() as $clave => $mensaje) {
+            if (str_starts_with($clave, "{$campo}.")) {
+                $mensajes[substr($clave, strlen($campo) + 1)] = $mensaje;
+            }
+        }
+
+        return $mensajes;
     }
 }
