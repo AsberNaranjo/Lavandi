@@ -4,22 +4,20 @@ namespace App\Filament\Resources\Repartidores\Pages;
 
 use App\Filament\Resources\Repartidores\Actions\AccionesDeEstado;
 use App\Filament\Resources\Repartidores\RepartidorResource;
-use App\Http\Requests\RegistroDeRepartidorRequest;
 use App\Models\Repartidor;
 use App\Repartidores\EdicionDeRepartidor;
-use App\Validacion\CorreoSinCuenta;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 /**
  * La edición de un repartidor en el panel (repartidor-E08; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #2,
  * "edición de socios repartidores"): su nombre, su teléfono, su correo, su foto y su tipo de vehículo, con las mismas
- * reglas del registro de la app (App\Http\Requests\RegistroDeRepartidorRequest). El correo no choca con el suyo propio.
+ * reglas del registro de la app (App\Http\Requests\RegistroDeRepartidorRequest), que aplica
+ * App\Repartidores\EdicionDeRepartidor. El correo no choca con el suyo propio.
  *
  * La contraseña no se edita aquí. La foto solo cambia si se sube una nueva. Cada error vuelve junto al campo del
  * formulario que lo causó. El repartidor ve el cambio en su perfil de la app.
@@ -27,9 +25,6 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 class EditRepartidor extends EditRecord
 {
     protected static string $resource = RepartidorResource::class;
-
-    /** Los datos del registro que se editan aquí, además de la foto. */
-    private const CAMPOS = ['nombre', 'telefono', 'correo', 'tipo_vehiculo'];
 
     /**
      * Las acciones de estado: dar de alta, suspender, levantar la suspensión y dar de baja (repartidor-E05 a E07).
@@ -61,30 +56,25 @@ class EditRepartidor extends EditRecord
     }
 
     /**
+     * La validación y el guardado son de App\Repartidores\EdicionDeRepartidor, que usa también la API de la
+     * administración (ADR-0022, decisión 9). Aquí solo se pasan los datos del formulario y la foto nueva, y cada error
+     * vuelve bajo data.<campo>, donde el formulario lo pone junto a su campo.
+     *
      * @param  array<string, mixed>  $data
      */
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         /** @var Repartidor $record */
-        $datos = array_map(
-            fn (mixed $valor): mixed => is_string($valor) && trim($valor) === '' ? null : (is_string($valor) ? trim($valor) : $valor),
-            Arr::only($data, self::CAMPOS),
-        );
+        $datos = Arr::only($data, EdicionDeRepartidor::CAMPOS);
         $foto = $this->fotoNueva();
-        $aValidar = $foto === null ? $datos : [...$datos, 'foto' => $foto];
-
-        $reglas = Arr::only(RegistroDeRepartidorRequest::reglasDeLosDatos(), array_keys($aValidar));
-        $reglas['correo'][] = new CorreoSinCuenta(salvo: $record->cuenta);
 
         try {
-            $validados = Validator::make($aValidar, $reglas, RegistroDeRepartidorRequest::mensajesDeLosDatos())->validate();
+            app(EdicionDeRepartidor::class)->editar($record, $foto === null ? $datos : [...$datos, 'foto' => $foto]);
         } catch (ValidationException $error) {
             throw ValidationException::withMessages(collect($error->errors())
                 ->mapWithKeys(fn (array $textos, string $campo): array => ["data.{$campo}" => $textos])
                 ->all());
         }
-
-        app(EdicionDeRepartidor::class)->editar($record, Arr::except($validados, ['foto']), $foto);
 
         return $record->refresh();
     }
