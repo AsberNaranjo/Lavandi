@@ -188,10 +188,10 @@ y `pagos` como cualquier otra, y la base no deja borrarla (trigger `impedir_camb
   marcador; el definitivo espera a la marca (DD-023).
 - [Los revisores de Apple necesitan una cuenta de demostración y una app con contenido; el B.10 advierte rechazos por
   "información insuficiente sobre el modelo de negocio"] → DD-121.
-- [Google Play pide además una página web para solicitar el borrado de la cuenta (grado E, verificaciones, fila 4)] →
-  ADR-0005 solo cubre el borrado desde la app. La página web será una página pública informativa en `textos-legales`,
-  con una adenda de ADR-0005 que todavía no existe (Open Questions, 3); se construye después de confirmar el requisito
-  de Google Play, en otra tarea. Qué datos se borran y cuáles se conservan sigue en DD-109.
+- [Google Play pide además una página web para solicitar el borrado de la cuenta (grado E, consultado el 2026-11-24,
+  SIN VERIFICAR; verificaciones, fila 4)] → la cubre la adenda del 2026-11-24 de ADR-0005: una página pública
+  informativa en `textos-legales`, `/borrado-de-cuenta` (textos-legales-E06 y E07, tarea 1.4). Declarar su dirección en
+  Play Console sigue en publicacion-E11, y qué datos se borran y cuáles se conservan sigue en DD-109.
 - [Pasar de las cuentas de prueba de EL PRESTADOR a las del cliente antes de producción] → es la consecuencia negativa
   que ya acepta ADR-0012.
 - [El plan gratuito de EAS da 15 compilaciones por plataforma, con cola lenta] → ADR-0002; el plan de pago es costo de
