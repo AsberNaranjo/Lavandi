@@ -86,6 +86,7 @@ final class Autorizacion
             // Los textos legales, públicos como la portada (textos-legales-E01).
             'GET aviso-de-privacidad' => 'El aviso de privacidad, sin datos de ninguna cuenta (textos-legales-E01).',
             'GET terminos' => 'Los términos y condiciones, sin datos de ninguna cuenta (textos-legales-E01).',
+            'GET borrado-de-cuenta' => 'Cómo pedir el borrado de la cuenta, sin datos de ninguna cuenta: solo informa, sin formulario y sin borrar nada (textos-legales-E06; adenda del 2026-11-24 de ADR-0005).',
             // Lo que leen los buscadores: las direcciones de las páginas públicas, sin datos (medicion-E08).
             'GET sitemap.xml' => 'El mapa del sitio, con las direcciones de las páginas públicas (medicion-E08).',
             'GET robots.txt' => 'El archivo de robots: en producción declara el mapa del sitio; fuera de ella cierra el sitio (medicion-E08, medicion-E15).',

@@ -53,10 +53,10 @@ class CandadoTest extends TestCase
             ->assertRedirect('https://'.self::DOMINIO.'/aviso-de-privacidad');
     }
 
-    #[TestDox('medicion-E13: ninguna página pública se sirve por http: el aviso de privacidad, los términos, el mapa del sitio y el archivo de robots también redirigen, sin su contenido')]
+    #[TestDox('medicion-E13: ninguna página pública se sirve por http: el aviso de privacidad, los términos, la página del borrado de la cuenta, el mapa del sitio y el archivo de robots también redirigen, sin su contenido')]
     public function test_medicion_e13_ninguna_pagina_publica_se_sirve_por_http(): void
     {
-        foreach (['/', '/aviso-de-privacidad', '/terminos', '/sitemap.xml', '/robots.txt'] as $direccion) {
+        foreach (['/', '/aviso-de-privacidad', '/terminos', '/borrado-de-cuenta', '/sitemap.xml', '/robots.txt'] as $direccion) {
             $respuesta = $this->pedirPagina('http://'.self::DOMINIO.$direccion)
                 ->assertStatus(301)
                 ->assertRedirect('https://'.self::DOMINIO.$direccion);

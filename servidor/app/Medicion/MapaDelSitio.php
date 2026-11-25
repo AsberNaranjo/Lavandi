@@ -19,11 +19,15 @@ use XMLWriter;
  */
 final class MapaDelSitio
 {
-    /** Las páginas públicas, por el nombre de su ruta: la portada y los dos documentos legales. */
+    /**
+     * Las páginas públicas, por el nombre de su ruta: la portada, los dos documentos legales y la página para pedir el
+     * borrado de la cuenta (textos-legales-E06).
+     */
     private const PAGINAS = [
         'portada',
         'textos-legales.aviso-de-privacidad',
         'textos-legales.terminos',
+        'textos-legales.borrado-de-cuenta',
     ];
 
     /** El espacio de nombres del protocolo de los mapas del sitio. */

@@ -42,6 +42,7 @@ class BuscadoresTest extends TestCase
         'portada' => 'Descripción de prueba de la portada.',
         'aviso-de-privacidad' => 'Descripción de prueba del aviso de privacidad.',
         'terminos' => 'Descripción de prueba de los términos y condiciones.',
+        'borrado-de-cuenta' => 'Descripción de prueba de la página del borrado de la cuenta.',
     ];
 
     /** El espacio de nombres de los mapas del sitio (sitemaps.org). */
@@ -54,7 +55,7 @@ class BuscadoresTest extends TestCase
         config(['app.name' => self::NOMBRE_DE_PRUEBA, 'app.url' => self::DOMINIO_DE_PRUEBA]);
     }
 
-    #[TestDox('medicion-E07: con las descripciones configuradas, la portada, el aviso de privacidad y los términos tienen cada una un título y una descripción que no están vacíos, y ninguna repite los de otra')]
+    #[TestDox('medicion-E07: con las descripciones configuradas, la portada, el aviso de privacidad, los términos y la página del borrado de la cuenta tienen cada una un título y una descripción que no están vacíos, y ninguna repite los de otra')]
     public function test_medicion_e07_cada_pagina_tiene_su_titulo_y_su_descripcion(): void
     {
         foreach (self::DESCRIPCIONES as $pagina => $descripcion) {
@@ -70,7 +71,7 @@ class BuscadoresTest extends TestCase
         $this->assertSinVaciosNiRepetidos($vistas);
     }
 
-    #[TestDox('medicion-E07: el título de cada página lleva el nombre de la configuración, y el de los documentos legales, además, su nombre')]
+    #[TestDox('medicion-E07: el título de cada página lleva el nombre de la configuración, y el de los documentos legales y el de la página del borrado de la cuenta, además, su nombre')]
     public function test_medicion_e07_el_titulo_lleva_el_nombre_de_la_configuracion(): void
     {
         $vistas = $this->tituloYDescripcionDeCadaPagina();
@@ -78,6 +79,7 @@ class BuscadoresTest extends TestCase
         $this->assertSame(self::NOMBRE_DE_PRUEBA, $vistas['portada']['titulo']);
         $this->assertSame('Aviso de privacidad · '.self::NOMBRE_DE_PRUEBA, $vistas['aviso-de-privacidad']['titulo']);
         $this->assertSame('Términos y condiciones · '.self::NOMBRE_DE_PRUEBA, $vistas['terminos']['titulo']);
+        $this->assertSame('Eliminar tu cuenta · '.self::NOMBRE_DE_PRUEBA, $vistas['borrado-de-cuenta']['titulo']);
     }
 
     #[TestDox('medicion-E07: sin las descripciones de EL CLIENTE, fuera de producción, cada página lleva una descripción de contenido de prueba, marcada como tal, propia de esa página')]
@@ -105,7 +107,7 @@ class BuscadoresTest extends TestCase
         }
     }
 
-    #[TestDox('medicion-E08: el mapa del sitio responde un XML con la portada, el aviso de privacidad y los términos, cada uno con su dirección absoluta en el dominio de la configuración')]
+    #[TestDox('medicion-E08: el mapa del sitio responde un XML con la portada, el aviso de privacidad, los términos y la página del borrado de la cuenta, cada uno con su dirección absoluta en el dominio de la configuración')]
     public function test_medicion_e08_el_mapa_del_sitio_trae_las_paginas_publicas_en_el_dominio_de_la_configuracion(): void
     {
         $this->assertGuest();
@@ -127,6 +129,7 @@ class BuscadoresTest extends TestCase
             self::DOMINIO_DE_PRUEBA,
             self::DOMINIO_DE_PRUEBA.'/aviso-de-privacidad',
             self::DOMINIO_DE_PRUEBA.'/terminos',
+            self::DOMINIO_DE_PRUEBA.'/borrado-de-cuenta',
         ], $direcciones);
     }
 

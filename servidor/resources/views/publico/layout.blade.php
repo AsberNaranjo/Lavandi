@@ -1,6 +1,7 @@
 {{--
-    El diseño base de las páginas públicas del sitio (ADR-0011): la portada de la landing y las del aviso de privacidad
-    y los términos (textos-legales). Toda página que lo usa lleva el pie legal al final (landing-E24 y landing-E25).
+    El diseño base de las páginas públicas del sitio (ADR-0011): la portada de la landing y las de textos-legales, el
+    aviso de privacidad, los términos y la página para pedir el borrado de la cuenta. Toda página que lo usa lleva el pie
+    legal al final (landing-E24 y landing-E25).
 
     En la cabecera, lo de medicion-de-la-landing: el contenedor de etiquetas (publico.medicion; medicion-E01), y el título
     y la descripción para buscadores de la página (medicion-E07). Cada página dice cuál es con $pagina, que le pasa su

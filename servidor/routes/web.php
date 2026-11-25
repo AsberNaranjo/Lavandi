@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BorradoDeCuentaController;
 use App\Http\Controllers\BuscadoresController;
 use App\Http\Controllers\Desarrollo\CheckoutDeDesarrolloController;
 use App\Http\Controllers\FormularioDeLaPortadaController;
@@ -56,6 +57,13 @@ Route::get('/aviso-de-privacidad', TextosLegalesController::class)
 Route::get('/terminos', TextosLegalesController::class)
     ->defaults('documento', 'terminos')
     ->name('textos-legales.terminos');
+
+/*
+ * Cómo pedir el borrado de la cuenta: desde la app o por el contacto de la configuración (openspec/changes/textos-legales/,
+ * tarea 1.4; adenda del 2026-11-24 de ADR-0005). Es la dirección web que pide Google Play: solo informa, no tiene
+ * formulario ni borra nada.
+ */
+Route::get('/borrado-de-cuenta', BorradoDeCuentaController::class)->name('textos-legales.borrado-de-cuenta');
 
 /*
  * El mapa del sitio y el archivo de robots, para los buscadores (openspec/changes/medicion-de-la-landing/, tareas 2.1 y
