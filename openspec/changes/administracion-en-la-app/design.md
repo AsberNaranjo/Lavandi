@@ -8,10 +8,13 @@
   web en `administracion` (26 escenarios), `indicadores` (24), `exportacion` (12), `alta-de-lavanderias` y `repartidor`.
   Viven en clases de dominio de `servidor/app/` que el panel llama. Este cambio pone encima una API y unas pantallas;
   no cambia ninguna cifra ni ninguna regla.
-- **Lo que hoy hace la app con la administración.** `POST /api/sesion` le responde 403 sin token
-  (`servidor/app/Http/Controllers/Api/SesionController.php:76-81`), `GET /api/cuenta` y `DELETE /api/sesion` la dejan
-  fuera (`servidor/routes/api.php:58`) y la app le ofrece abrir el panel web (`movil/src/acceso/BotonDelPanel.tsx`;
-  administracion-E25). Por Google todavía recibe token (tarea 6.2 de `administracion`, abierta). Todo eso se reemplaza.
+- **Lo que hacía la app con la administración antes del lote 0** (en `9f6b7e5`). `POST /api/sesion` le respondía 403
+  sin token (`servidor/app/Http/Controllers/Api/SesionController.php:76-81`), `GET /api/cuenta` y `DELETE /api/sesion`
+  la dejaban fuera (`servidor/routes/api.php:58`) y la app le ofrecía abrir el panel web
+  (`movil/src/acceso/BotonDelPanel.tsx`; administracion-E25). Por Google todavía recibía token (tarea 6.2 de
+  `administracion`). El lote 0 (tareas 1.1 a 1.7 y 2.1 a 2.3) lo reemplazó: hoy `POST /api/sesion` le da su token
+  (`servidor/app/Http/Controllers/Api/SesionController.php:85-90`), la cuenta y el cierre la admiten
+  (`servidor/routes/api.php:59-62`) y la app abre su módulo (`movil/app/administracion/index.tsx`).
 - **La app.** Cada rol entra a su módulo por el rol de su cuenta (`movil/src/sesion/modulos.ts`;
   `movil/app/_layout.tsx`). Los módulos B y C son pilas de `expo-router` con las entradas a sus pantallas como enlaces
   bajo el título (`movil/app/lavanderia/pedidos/index.tsx:13-15`). Las pruebas abren la app real con un servidor
@@ -78,8 +81,10 @@ Las técnicas están en ADR-0022 y no se repiten. Aquí, cómo se aplican.
 - **El grupo de rutas se parte en dos:** `cuenta` y `sesion` con `autorizar:usuario,lavanderia,repartidor,administracion`;
   `catalogos/municipios` y `codigos-postales/{codigo_postal}/colonias` con los tres roles que los usan.
 - **La pieza que crea los tokens,** `App\Identidad\TokensDeLaApp` (ADR-0022, decisión 3), reemplaza las cuatro llamadas
-  a `createToken()` (`SesionController.php:84`, `SesionConGoogleController.php:30`, `RegistroController.php:23` y
-  `RepartidorController.php:85`). Pregunta a `Autorizacion` la habilidad y el vencimiento; los otros roles siguen como
+  a `createToken()` (en `9f6b7e5`: `SesionController.php:84`, `SesionConGoogleController.php:30`,
+  `RegistroController.php:23` y `RepartidorController.php:85`). Hoy los cuatro llaman a `TokensDeLaApp::crear()`
+  (`SesionController.php:88`, `SesionConGoogleController.php:36`, `RegistroController.php:25` y
+  `RepartidorController.php:89`). Pregunta a `Autorizacion` la habilidad y el vencimiento; los otros roles siguen como
   hoy. Al crear el token de una cuenta de administración, borra los de esa cuenta que no llevan la habilidad (ADR-0022,
   decisión 4). Las pruebas que necesitan un token de la app lo piden a esta pieza.
 - **`Autorizacion::usaLaApp()`** incluye a la administración. El 403 de `SesionController` se queda para una cuenta sin
@@ -94,8 +99,9 @@ Las técnicas están en ADR-0022 y no se repiten. Aquí, cómo se aplican.
   - `permite()` no cambia: la usan el panel (`puedeEntrarAlPanel()`, `puedeVerLosIndicadores()`,
     `puedeDescargarReportes()`), el trabajo de la cola `EscribirArchivoDelReporte` y `usaLaApp()`, donde no hay token.
 - **Google** (ADR-0022, decisión 5): `Autorizacion::puedeEntrarConProveedorExterno(Usuario)` responde que no a la
-  administración, y `EntradaConGoogle::cuentaDe()` lo pregunta antes de la rama de la cuenta ya ligada (`:65-67`) y
-  antes de la del correo (`:78`). La entrada con Apple lo pregunta igual cuando exista (DD-069).
+  administración, y `EntradaConGoogle::cuentaDe()` lo pregunta antes de la rama de la cuenta ya ligada y antes de la del
+  correo (`servidor/app/Identidad/EntradaConGoogle.php:68-70` y `:81`; en `9f6b7e5`, `:65-67` y `:78`), por
+  `siPuedeEntrar()` (`:100-104`). La entrada con Apple lo pregunta igual cuando exista (DD-069).
 - **En la app:** la pantalla de inicio de sesión es la misma. Con el rol `administracion`, la app abre su módulo. Un 401
   en cualquier pantalla del módulo borra la sesión del teléfono y vuelve al inicio de sesión (ADR-0018, decisión 1).
   "Cerrar sesión" va en el inicio del módulo, con la confirmación de la app (registro-E13).
@@ -113,11 +119,11 @@ Las pruebas del panel siguen pasando sin cambios:
 
 | Hoy, dentro de Filament | Qué regla tiene | Lo usan después | Se mueve en |
 |---|---|---|---|
-| `App\Filament\EstadosDelPedido` | El nombre operativo de cada estado (ADR-0021) | El panel, `MarcadoresDelMonitoreo`, la ficha del usuario (`HistorialDelUsuario`) y el monitoreo de la API | El lote 0, antes de la ficha del usuario y del monitoreo |
+| `App\Filament\EstadosDelPedido` | El nombre operativo de cada estado (ADR-0021) | El panel, `MarcadoresDelMonitoreo`, la ficha del usuario (`HistorialDelUsuario`) y el monitoreo de la API | El lote 0, antes de la ficha del usuario y del monitoreo. **Ya se movió** con la tarea 1.7: hoy es `App\Pedidos\NombresDelEstado` |
 | `App\Filament\Resources\Lavanderias\Pages\EditLavanderia::handleRecordUpdate()` | Qué campos cambiaron respecto de lo que se leyó al abrir, y que se validan solo esos con `ReglasDeLaLavanderia::para()` y sus mensajes | El panel y la API, desde `EdicionDeLavanderia` | El lote 1, antes de la edición por la API |
 | `App\Filament\Resources\Repartidores\Pages\EditRepartidor::handleRecordUpdate()` | Los textos recortados y el vacío como nulo; las reglas de `RegistroDeRepartidorRequest::reglasDeLosDatos()` solo de los campos que llegan; `CorreoSinCuenta` salvo la propia cuenta | El panel y la API, desde `EdicionDeRepartidor` | El lote 2, antes de la edición por la API |
 | `App\Filament\Resources\Usuarios\HistorialDelUsuario` | Qué pedidos van en la ficha, su fecha en la hora de la plaza y su monto | La ficha del panel y la de la API | El lote 3 |
-| El formulario de `App\Filament\Pages\Conciliacion` y los campos de `ExportadorDeIndicador::getOptionsFormComponents()` | La regla del rango: las dos fechas, y la de fin no anterior a la de inicio, con su mensaje | La conciliación y la descarga, del panel y de la API | El lote 6; la descarga la usa en el lote 9 |
+| El formulario de `App\Filament\Pages\Conciliacion` y los campos de `ExportadorDeIndicador::getOptionsFormComponents()` | La regla del rango: las dos fechas, y la de fin no anterior a la de inicio, con su mensaje | La conciliación y la descarga, del panel y de la API | El lote 6; la descarga la usa en el lote 9. **La regla ya se movió** a `App\Validacion\RangoDeFechas` (`reglas()` y `mensajes()`), que el panel toma por `App\Filament\CamposDelRango`; faltan las dos rutas (tareas 13.2 y 19.2) |
 | `CreateAvisoMasivo` y `AvisoMasivoForm` | Qué se guarda con el aviso, que sale en cola después de guardarlo, y los topes del título (255) y del texto (1000) | El panel y la API | El lote 7 |
 | `App\Filament\Actions\DescargarReporte::generar()` | Cómo se crea la descarga de la cuenta y se pone en cola su archivo | El botón del panel y la API | El lote 9 |
 
