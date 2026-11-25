@@ -160,6 +160,14 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
     dialogado por un consejo de agentes y "siempre y cuando se mantenga [...] firmemente en el contrato".
     - Amplía C-236 a todo lo que esperaba a Arthur, por ejemplo el catálogo de colonias y la hora de cada estado.
     - No alcanza lo que el contrato o el método reservan a Nadir o a EL CLIENTE.
+- C-246 (Arthur Naranjo, 2026-11-24, por la noche, en una sesión nueva).
+  - **Quién trabaja (C-220).** Claude preguntó quién estaba y Arthur respondió "ok" y siguió con las instrucciones.
+  - **Lo que pidió:** "1 sí, dale, arregla todo lo que haya fallado del CI"; sobre abrir el PR, "3. sí, ok"; y "hay que
+    terminar al 100%, y también te encargo el video final, usa el emulador para eso".
+  - **El punto 2.** Preguntó "¿qué?" sobre el lote 4 (P19, la página pública para pedir el borrado de la cuenta). Se le
+    explicó y se siguió con él, dentro de "terminar al 100%".
+  - **Qué es "al 100%".** Se lee como todo lo que no espera a Nadir, a EL CLIENTE ni a las cuentas de prueba. Lo que
+    espera a ellos sigue en sus DD: el concilio lo contó, 119 tareas ([[concilio-2026-11-24]]).
 
 ## Decisiones tomadas en la sesión
 
