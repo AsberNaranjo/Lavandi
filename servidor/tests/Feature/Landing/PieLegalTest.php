@@ -15,9 +15,10 @@ use Tests\TestCase;
  * los términos, en las direcciones que publica textos-legales, y el aviso de derechos de autor con el titular y el año
  * de la configuración (NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2; NSV-2026-001-v8.pdf:31:ANEXO B, Sección B.7).
  *
- * Las páginas públicas de la landing son la portada y las dos de textos-legales. Quién aparece como titular es DD-120:
- * mientras no se configure, fuera de producción el pie lleva un marcador de contenido de prueba, y en producción no lleva
- * ninguno, para que las páginas de los documentos no muestren texto de prueba (textos-legales-E02).
+ * Las páginas públicas de la landing son la portada y las tres de textos-legales: el aviso de privacidad, los términos y
+ * la página para pedir el borrado de la cuenta (textos-legales-E06). Quién aparece como titular es DD-120: mientras no se
+ * configure, fuera de producción el pie lleva un marcador de contenido de prueba, y en producción no lleva ninguno, para
+ * que las páginas de los documentos no muestren texto de prueba (textos-legales-E02).
  *
  * Escenarios: landing-E24 y landing-E25 · Spec: openspec/changes/landing/specs/landing/spec.md · Tarea 6.1
  */
@@ -27,8 +28,8 @@ class PieLegalTest extends TestCase
     use RefreshDatabase;
     use TextosLegalesDePrueba;
 
-    /** Las páginas públicas de la landing: la portada y los dos documentos legales. */
-    private const PAGINAS = ['/', '/aviso-de-privacidad', '/terminos'];
+    /** Las páginas públicas de la landing: la portada y las tres de textos-legales. */
+    private const PAGINAS = ['/', '/aviso-de-privacidad', '/terminos', '/borrado-de-cuenta'];
 
     protected function setUp(): void
     {
@@ -110,7 +111,7 @@ class PieLegalTest extends TestCase
 
         $this->app->detectEnvironment(fn (): string => 'production');
 
-        foreach (['/aviso-de-privacidad', '/terminos'] as $pagina) {
+        foreach (['/aviso-de-privacidad', '/terminos', '/borrado-de-cuenta'] as $pagina) {
             $pie = $this->pieDe($pagina);
             $this->assertCount(0, $pie->query('//footer[@data-seccion="pie-legal"]//*[@data-derechos]'));
             $this->assertCount(0, $pie->query('//*[@data-de-prueba]'), "Sin marcador de prueba en {$pagina}.");
