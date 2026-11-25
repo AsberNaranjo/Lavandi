@@ -14,8 +14,10 @@ use Filament\Schemas\Schema;
 
 /**
  * La ficha del usuario: sus datos de cuenta y su historial de pedidos, con su folio, su fecha, su lavandería, su estado
- * y su monto (administracion-E01). Es de solo lectura. Las filas del historial las arma App\Filament\Resources\Usuarios\
- * HistorialDelUsuario, que lee los pedidos del componente de autorización.
+ * y su monto (administracion-E01). Es de solo lectura. Las filas del historial salen de la clase de dominio
+ * App\Pedidos\HistorialDelUsuario, la misma de la ficha de la API de la administración, que lee los pedidos del
+ * componente de autorización (ADR-0022, decisión 9); App\Filament\Resources\Usuarios\HistorialDelUsuario las escribe
+ * como las muestra el panel.
  */
 class UsuarioInfolist
 {
