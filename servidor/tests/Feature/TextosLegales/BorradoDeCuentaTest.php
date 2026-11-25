@@ -3,14 +3,13 @@
 namespace Tests\Feature\TextosLegales;
 
 use App\Autorizacion\Autorizacion;
-use DOMDocument;
 use DOMXPath;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Route as Rutas;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\TextosLegales\Soporte\TextosLegalesDePrueba;
 use Tests\TestCase;
 
 /**
@@ -29,6 +28,7 @@ use Tests\TestCase;
 class BorradoDeCuentaTest extends TestCase
 {
     use RefreshDatabase;
+    use TextosLegalesDePrueba;
 
     private const DIRECCION = '/borrado-de-cuenta';
 
@@ -39,10 +39,18 @@ class BorradoDeCuentaTest extends TestCase
     private const WHATSAPP_DE_PRUEBA = '+52 000 000 0000';
 
     /**
-     * Los pasos para borrar la cuenta desde la app, con las etiquetas de la pantalla "Mi perfil" de la app
-     * (movil/src/perfil-usuario/textos.ts: miPerfil, eliminarMiCuenta, confirmarEliminar y eliminar; perfil-usuario-E15).
+     * Las etiquetas de la pantalla "Mi perfil" de la app que nombran los pasos para borrar la cuenta desde ella, por su
+     * clave en movil/src/perfil-usuario/textos.ts (perfil-usuario-E15).
      */
-    private const ETIQUETAS_DE_LA_APP = ['“Mi perfil”', '“Eliminar mi cuenta”', '“¿Eliminar tu cuenta?”', '“Eliminar”'];
+    private const ETIQUETAS_DE_LA_APP = [
+        'miPerfil' => 'Mi perfil',
+        'eliminarMiCuenta' => 'Eliminar mi cuenta',
+        'confirmarEliminar' => '¿Eliminar tu cuenta?',
+        'eliminar' => 'Eliminar',
+    ];
+
+    /** Los textos de la app de donde salen esas etiquetas, desde la raíz del repositorio. */
+    private const TEXTOS_DE_LA_APP = 'movil/src/perfil-usuario/textos.ts';
 
     /** Lo que diría la página si hablara de qué datos se borran o se conservan, que es DD-109. */
     private const SOBRE_LOS_DATOS = ['datos', 'conserva', 'retien', 'retenc', 'plazo', 'días', 'fiscal', 'historial'];
@@ -53,6 +61,7 @@ class BorradoDeCuentaTest extends TestCase
 
         config(['app.name' => self::NOMBRE_DE_PRUEBA]);
         $this->sinContacto();
+        $this->almacenamientoVacio();
     }
 
     #[TestDox('textos-legales-E06: con el correo de contacto y el WhatsApp de soporte configurados, alguien sin sesión abre la página y ve cómo borrar su cuenta desde la app, con las etiquetas de la app, y cómo pedirlo por ese correo o ese WhatsApp')]
@@ -75,7 +84,7 @@ class BorradoDeCuentaTest extends TestCase
 
         $pasos = $this->textoDe($html, '//*[@data-pasos-de-la-app]');
         foreach (self::ETIQUETAS_DE_LA_APP as $etiqueta) {
-            $this->assertStringContainsString($etiqueta, $pasos, "Los pasos de la app nombran {$etiqueta}.");
+            $this->assertStringContainsString("“{$etiqueta}”", $pasos, "Los pasos de la app nombran “{$etiqueta}”.");
         }
         $this->assertCount(4, $html->query('//*[@data-pasos-de-la-app]//ol/li'), 'Cuatro pasos en la app.');
 
@@ -117,17 +126,20 @@ class BorradoDeCuentaTest extends TestCase
         $this->assertArrayHasKey('GET borrado-de-cuenta', app(Autorizacion::class)->rutasSinSesion());
     }
 
-    #[TestDox('textos-legales-E06: con solo uno de los dos medios configurado, la página muestra ese y no un enlace vacío en lugar del otro')]
-    public function test_textos_legales_e06_con_un_solo_medio_se_muestra_ese(): void
+    #[TestDox('textos-legales-E06: las etiquetas de los pasos de la app son las que muestra la app, en movil/src/perfil-usuario/textos.ts')]
+    public function test_textos_legales_e06_las_etiquetas_de_los_pasos_son_las_de_la_app(): void
     {
-        $this->app->detectEnvironment(fn (): string => 'production');
-        config(['landing.contacto.correo' => self::CORREO_DE_PRUEBA]);
+        $archivo = base_path('../'.self::TEXTOS_DE_LA_APP);
+        if (! is_file($archivo)) {
+            $this->markTestSkipped('Sin '.self::TEXTOS_DE_LA_APP.' junto al servidor no hay con qué comparar las etiquetas.');
+        }
 
-        $html = $this->html($this->pedirPagina()->assertOk());
+        $textos = (string) file_get_contents($archivo);
 
-        $this->assertSame(['mailto:'.self::CORREO_DE_PRUEBA], $this->enlaces($html, 'correo'));
-        $this->assertSame([], $this->enlaces($html, 'whatsapp'));
-        $this->assertCount(0, $html->query('//a[@href=""]'), 'Ningún enlace vacío.');
+        foreach (self::ETIQUETAS_DE_LA_APP as $clave => $etiqueta) {
+            $this->assertSame(1, preg_match("/^\\s*{$clave}:\\s*'([^']*)',/mu", $textos, $coincidencia), "La app define {$clave}.");
+            $this->assertSame($etiqueta, $coincidencia[1], "La etiqueta {$clave} de la app.");
+        }
     }
 
     #[TestDox('textos-legales-E07: con la configuración de producción y sin el correo ni el WhatsApp, la página sigue diciendo cómo borrar la cuenta desde la app y no muestra ningún contacto de ejemplo ni de prueba')]
@@ -141,7 +153,7 @@ class BorradoDeCuentaTest extends TestCase
 
         $pasos = $this->textoDe($html, '//*[@data-pasos-de-la-app]');
         foreach (self::ETIQUETAS_DE_LA_APP as $etiqueta) {
-            $this->assertStringContainsString($etiqueta, $pasos, "Los pasos de la app siguen nombrando {$etiqueta}.");
+            $this->assertStringContainsString("“{$etiqueta}”", $pasos, "Los pasos de la app siguen nombrando “{$etiqueta}”.");
         }
 
         $this->assertCount(0, $html->query('//*[@data-pedir-por-contacto]'), 'Sin contacto, no hay sección de contacto.');
@@ -152,6 +164,21 @@ class BorradoDeCuentaTest extends TestCase
         foreach (['de prueba', 'ejemplo', 'lorem', '@'] as $palabra) {
             $this->assertStringNotContainsString($palabra, $visible, "La página no dice \"{$palabra}\".");
         }
+    }
+
+    #[TestDox('textos-legales-E07: en producción, con solo el correo configurado, el medio que falta no aparece y no se inventa: ni un enlace vacío ni un marcador de prueba, y el título de la sección nombra solo el correo')]
+    public function test_textos_legales_e07_en_produccion_el_medio_que_falta_no_aparece(): void
+    {
+        $this->app->detectEnvironment(fn (): string => 'production');
+        config(['landing.contacto.correo' => self::CORREO_DE_PRUEBA]);
+
+        $html = $this->html($this->pedirPagina()->assertOk());
+
+        $this->assertSame(['mailto:'.self::CORREO_DE_PRUEBA], $this->enlaces($html, 'correo'));
+        $this->assertSame([], $this->enlaces($html, 'whatsapp'));
+        $this->assertCount(0, $html->query('//a[@href=""]'), 'Ningún enlace vacío.');
+        $this->assertCount(0, $html->query('//*[@data-de-prueba]'), 'Ningún marcador de prueba en producción.');
+        $this->assertSame('Por correo', $this->textoDe($html, '//*[@data-pedir-por-contacto]//h2'));
     }
 
     #[TestDox('textos-legales-E07: en producción, un correo que no es una dirección válida o un número sin dígitos cuentan como no configurados')]
@@ -198,28 +225,15 @@ class BorradoDeCuentaTest extends TestCase
 
     /**
      * La página, sin sesión. Las pruebas no compilan los estilos: withoutVite() deja fuera las etiquetas de Vite, que en
-     * la integración continua no tienen manifiesto. Los documentos legales no se cargan: el pie legal los enlaza igual.
+     * la integración continua no tienen manifiesto. Los documentos legales no se cargan (almacenamientoVacio(), en
+     * setUp()): el pie legal los enlaza igual.
      */
     private function pedirPagina(): TestResponse
     {
         $this->withoutVite();
         $this->app['auth']->forgetGuards();
-        Storage::fake((string) config('textos_legales.disco'));
 
         return $this->get(self::DIRECCION);
-    }
-
-    /**
-     * El HTML de la respuesta como documento, con XPath.
-     */
-    private function html(TestResponse $respuesta): DOMXPath
-    {
-        $documento = new DOMDocument;
-        libxml_use_internal_errors(true);
-        $documento->loadHTML('<?xml encoding="utf-8"?>'.$respuesta->getContent());
-        libxml_clear_errors();
-
-        return new DOMXPath($documento);
     }
 
     /**
