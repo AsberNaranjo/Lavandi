@@ -11,7 +11,7 @@ Cita: A → `NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2` y `NSV-2026-001-v8.pd
 #### Scenario: medicion-E01 — El contenedor en cada página
 
 - **DADO** un identificador de contenedor configurado
-- **CUANDO** alguien abre la portada, el aviso de privacidad o los términos
+- **CUANDO** alguien abre la portada, el aviso de privacidad, los términos o la página del borrado de la cuenta
 - **ENTONCES** cada página carga ese contenedor una sola vez
 - **Y** ningún identificador de medición está escrito en el código
 
