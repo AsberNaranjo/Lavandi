@@ -187,6 +187,14 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
     prueba que cruce cliente, recolector y administrador. La parte del administrador se graba cuando exista en la app.
   - **Sobre la página de borrado de cuenta (P19):** "no borres la cuenta aún, que no hemos creado ninguna técnicamente".
     Se le aclaró que P19 solo publica una página informativa y no borra nada.
+- C-248 (Arthur Naranjo, 2026-11-24, por la noche). A la pregunta de si se armaba ya la primera parte del video o se
+  esperaba al video completo: "Ok, entonces manos a la obra: genera los mocks del administrador y adelante. Una vez
+  termines, recuerda siempre discutir esto con los agentes, y cuando acuerden tener la mejor versión, tomen esa y
+  terminen de desarrollar eso."
+  - **Los mocks.** Los mocks de la administración en la app los hace un concilio: tres diseñadores con enfoques
+    distintos, tres jueces que eligen y una versión convergida, que es la Propuesta 6 del lienzo.
+  - **El desarrollo.** Sigue esa versión.
+  - **El video completo** espera a que la administración exista en la app.
 
 ## Decisiones tomadas en la sesión
 
