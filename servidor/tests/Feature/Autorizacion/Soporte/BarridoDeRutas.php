@@ -3,6 +3,7 @@
 namespace Tests\Feature\Autorizacion\Soporte;
 
 use App\Models\Usuario;
+use Closure;
 use Illuminate\Routing\Route as Ruta;
 use Illuminate\Testing\TestResponse;
 
@@ -36,6 +37,8 @@ trait BarridoDeRutas
      * @param  array<string, string>  $publicos  Por parámetro, un valor que la cuenta sí puede pedir: ['codigo_postal' => '00000'].
      * @param  array<string, string>  $datosAjenos  Lo que no puede traer ninguna respuesta, con su etiqueta: [folio => 'folio del pedido 2a'].
      * @param  array<string, mixed>  $datos  El cuerpo de cada llamada, o la consulta de un GET.
+     * @param  (Closure(Ruta): bool)|null  $soloLasRutas  Si viene, el barrido recorre solo las rutas de la API para las
+     *                                                    que da true; si no, todas.
      * @return list<string>
      */
     protected function fugasDe(
@@ -45,13 +48,15 @@ trait BarridoDeRutas
         array $publicos,
         array $datosAjenos,
         array $datos = [],
+        ?Closure $soloLasRutas = null,
     ): array {
         // Las respuestas se revisan como salen en producción, sin el detalle de depuración del entorno local.
         config(['app.debug' => false]);
         $fugas = [];
         $llamadas = 0;
+        $rutas = $soloLasRutas === null ? $this->rutasDeLaApi() : array_filter($this->rutasDeLaApi(), $soloLasRutas);
 
-        foreach ($this->rutasDeLaApi() as $nombre => $ruta) {
+        foreach ($rutas as $nombre => $ruta) {
             $roles = $this->rolesDe($ruta);
             $admite = $roles === [] || in_array($rol, $roles, true);
 

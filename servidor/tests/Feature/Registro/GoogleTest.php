@@ -35,7 +35,8 @@ use Tests\TestCase;
  * Las pruebas no salen a la red: la Google de prueba firma con sus propias llaves (Soporte/ImitaAGoogle). Cada
  * petición olvida la cuenta de la anterior, como dos peticiones reales al servidor.
  *
- * Escenarios: registro-E16, registro-E17, registro-E18 y administracion-app-E08 · Spec:
+ * Escenarios: registro-E16, registro-E17, registro-E18, registro-E33 (la administración que entra con Google) y
+ * administracion-app-E08 · Spec:
  * openspec/changes/registro-e-inicio-de-sesion/specs/registro/spec.md, con el delta de
  * openspec/changes/administracion-en-la-app/specs/registro/spec.md
  */
@@ -358,8 +359,8 @@ class GoogleTest extends TestCase
         $this->assertTrue(Hash::check(UsuarioFactory::CONTRASENA, $existente->fresh()->password));
     }
 
-    #[TestDox('administracion-app-E08 y registro-E18: una cuenta de administración con contraseña, sin Google ligado y con su sesión abierta, que entra con Google con su correo verificado recibe 422 en id_token, sin token: no se liga, no se anula su contraseña y su sesión sigue abierta')]
-    public function test_administracion_app_e08_y_registro_e18_la_administracion_sin_google_ligado_no_entra_con_google(): void
+    #[TestDox('administracion-app-E08, registro-E18 y registro-E33: una cuenta de administración con contraseña, sin Google ligado y con su sesión abierta, que entra con Google con su correo verificado recibe 422 en id_token, sin token: no se liga, no se anula su contraseña y su sesión sigue abierta')]
+    public function test_administracion_app_e08_registro_e18_y_registro_e33_la_administracion_sin_google_ligado_no_entra_con_google(): void
     {
         $administracion = Usuario::factory()->conRol(Rol::ADMINISTRACION)->create(['correo' => self::CORREO]);
         $abierta = $this->iniciarSesion(UsuarioFactory::CONTRASENA)->assertOk()->json('token');

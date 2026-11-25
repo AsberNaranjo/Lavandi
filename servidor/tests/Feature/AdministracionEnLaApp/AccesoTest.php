@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\AdministracionEnLaApp;
 
+use App\Autorizacion\Autorizacion;
 use App\Http\Middleware\Autorizar;
 use App\Identidad\TokensDeLaApp;
 use App\Models\Rol;
@@ -13,6 +14,7 @@ use Illuminate\Routing\Route as Ruta;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\PersonalAccessToken;
+use Laravel\Sanctum\TransientToken;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Feature\AdministracionEnLaApp\Soporte\SesionesDeLaApp;
 use Tests\Feature\Autorizacion\Soporte\TablaDeRutas;
@@ -21,9 +23,10 @@ use Tests\TestCase;
 /**
  * La puerta de la API de la administración: las rutas de /api/administracion las abre solo la cuenta de administración
  * con su token de administración. Un token suyo sin la habilidad, como los "*" que salieron por Google antes de
- * ADR-0022, recibe 403 sin datos, también en la consulta de la cuenta y en el cierre de la sesión; las cuentas de los
- * otros roles, 403; sin sesión, 401; y nada cambia (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, Separación por tipo de
- * usuario; :10:Cláusula X; ADR-0019, decisión 1; ADR-0022, decisiones 4, 7 y 8).
+ * ADR-0022, o su sesión web del panel, reciben 403 sin datos, también en la consulta de la cuenta, y el token sin la
+ * habilidad, también en el cierre de la sesión; las cuentas de los otros roles, 403; sin sesión, 401; y nada cambia
+ * (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, Separación por tipo de usuario; :10:Cláusula X; ADR-0019, decisión 1;
+ * ADR-0022, decisiones 4, 7 y 8).
  *
  * Mientras el grupo no tenga rutas propias, la puerta se prueba con una ruta de prueba registrada aquí con el mismo
  * middleware, el mismo prefijo y el mismo nombre que el grupo de routes/api.php. El recorrido de las rutas reales que se
@@ -129,6 +132,37 @@ class AccesoTest extends TestCase
         $this->llamarConToken($nuevo, 'GET', '/api/cuenta')->assertOk();
         $this->llamarConToken($delUsuario, 'GET', '/api/cuenta')->assertOk();
         $this->assertSame(1, $usuario->tokens()->count());
+    }
+
+    #[TestDox('administracion-app-E06: la sesión web de la cuenta de administración, que Sanctum da por buena con un TransientToken, recibe 403 sin datos en una ruta de /api/administracion y en GET /api/cuenta, y nada cambia; sin token o con un TransientToken, el componente no deja pasar al rol de administración')]
+    public function test_administracion_app_e06_la_sesion_web_no_abre_la_api_de_la_administracion(): void
+    {
+        $this->registrarLasRutasDePrueba();
+        $administracion = $this->cuentaDeAdministracion();
+        $autorizacion = app(Autorizacion::class);
+
+        $this->assertFalse($autorizacion->permiteEnLaApi($administracion, Rol::ADMINISTRACION, null));
+        $this->assertFalse($autorizacion->permiteEnLaApi($administracion, Rol::ADMINISTRACION, new TransientToken));
+        // Con su token de administración, sí: la regla no rechaza toda llamada.
+        $this->assertTrue($autorizacion->permiteEnLaApi(
+            $administracion,
+            Rol::ADMINISTRACION,
+            app(TokensDeLaApp::class)->crear($administracion)->accessToken,
+        ));
+
+        // La sesión web es la del panel de respaldo: Sanctum revisa su guardia web antes que el token, y a la cuenta que
+        // encuentra ahí le pone un TransientToken, sin habilidades guardadas.
+        config(['app.debug' => false]);
+        $antes = $this->fotoDeLaBase();
+
+        foreach ([self::LECTURA, '/api/cuenta'] as $url) {
+            $this->app['auth']->forgetGuards();
+            $this->withoutToken()->actingAs($administracion, 'web')->getJson($url)
+                ->assertForbidden()
+                ->assertExactJson(self::RESPUESTA_SIN_ACCESO);
+        }
+
+        $this->assertSame($antes, $this->fotoDeLaBase());
     }
 
     #[TestDox('administracion-app-E07: cada ruta real de /api/administracion se llama administracion.*, lleva la sesión de Sanctum y autorizar:administracion, y solo la abre la administración: el recorrido crece solo con cada función')]

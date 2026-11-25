@@ -88,11 +88,13 @@ class SesionDeLaAdministracionTest extends TestCase
         );
     }
 
-    #[TestDox('administracion-app-E01: los días salen de la variable ACCESO_DIAS_DEL_TOKEN_DE_ADMINISTRACION de config/acceso.php, 30 si no está o va vacía')]
+    #[TestDox('administracion-app-E01: los días salen de la variable ACCESO_DIAS_DEL_TOKEN_DE_ADMINISTRACION de config/acceso.php, 30 si no está, va vacía o en cero')]
     public function test_administracion_app_e01_los_dias_salen_de_la_variable_de_entorno(): void
     {
         $this->assertSame(12, $this->configuracionDeAccesoConEntorno(['ACCESO_DIAS_DEL_TOKEN_DE_ADMINISTRACION' => '12'])['dias_del_token_de_administracion']);
         $this->assertSame(30, $this->configuracionDeAccesoConEntorno(['ACCESO_DIAS_DEL_TOKEN_DE_ADMINISTRACION' => ''])['dias_del_token_de_administracion']);
+        // En cero, el token nacería vencido y no abriría ninguna sesión.
+        $this->assertSame(30, $this->configuracionDeAccesoConEntorno(['ACCESO_DIAS_DEL_TOKEN_DE_ADMINISTRACION' => '0'])['dias_del_token_de_administracion']);
         $this->assertSame(30, $this->configuracionDeAccesoConEntorno([])['dias_del_token_de_administracion']);
     }
 
@@ -287,7 +289,9 @@ class SesionDeLaAdministracionTest extends TestCase
     }
 
     /**
-     * Lee config/acceso.php de nuevo con unas variables de entorno puestas solo durante la lectura.
+     * Lee config/acceso.php de nuevo con unas variables de entorno puestas solo durante la lectura. env() lee de
+     * $_SERVER, de $_ENV y de getenv(), donde Dotenv también deja lo del .env local: la variable se quita de los tres
+     * durante la lectura y vuelve después a como estaba, para que un valor del .env local no cambie el resultado.
      *
      * @param  array<string, string>  $variables
      * @return array<string, mixed>
@@ -295,8 +299,9 @@ class SesionDeLaAdministracionTest extends TestCase
     private function configuracionDeAccesoConEntorno(array $variables): array
     {
         $nombre = 'ACCESO_DIAS_DEL_TOKEN_DE_ADMINISTRACION';
-        $antes = [$_SERVER[$nombre] ?? null, $_ENV[$nombre] ?? null];
+        $antes = [$_SERVER[$nombre] ?? null, $_ENV[$nombre] ?? null, getenv($nombre)];
         unset($_SERVER[$nombre], $_ENV[$nombre]);
+        putenv($nombre);
 
         foreach ($variables as $variable => $valor) {
             $_SERVER[$variable] = $_ENV[$variable] = $valor;
@@ -313,6 +318,10 @@ class SesionDeLaAdministracionTest extends TestCase
 
             if ($antes[1] !== null) {
                 $_ENV[$nombre] = $antes[1];
+            }
+
+            if ($antes[2] !== false) {
+                putenv("{$nombre}={$antes[2]}");
             }
         }
     }
