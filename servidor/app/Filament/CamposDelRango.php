@@ -9,9 +9,10 @@ use Filament\Forms\Components\Field;
 /**
  * Los dos campos de fecha de un rango en un formulario del panel, con la regla de dominio App\Validacion\RangoDeFechas:
  * la conciliación (App\Filament\Pages\Conciliacion) y la descarga de los reportes
- * (App\Exportacion\ExportadorDeIndicador) validan con la clase que es una sola para el panel y para la API de la
- * administración (ADR-0022, decisión 9; openspec/changes/administracion-en-la-app/design.md, sección 3;
- * administracion-app-E11).
+ * (App\Exportacion\ExportadorDeIndicador) validan con la misma clase que usarán también las rutas de la API de la
+ * administración de las tareas 13.2 y 19.2 (ADR-0022, decisión 9; openspec/changes/administracion-en-la-app/design.md,
+ * sección 3; administracion-app-E11; E38 y E60). Esas rutas no pasarán por aquí, que es de Filament: validarán con
+ * RangoDeFechas::reglas() y mensajes().
  *
  * Cómo se aplica la regla a un campo de Filament, sin cambiarla:
  * - "required" va con required(), que además marca el campo como obligatorio en el formulario;
@@ -23,7 +24,10 @@ use Filament\Forms\Components\Field;
  */
 final class CamposDelRango
 {
-    /** Las reglas que el campo de Filament ya pone por su cuenta: required() y el DatePicker. */
+    /**
+     * Las reglas que el campo de Filament ya pone por su cuenta: required() y el DatePicker. Si cambian las reglas de
+     * RangoDeFechas::reglas(), esta lista se revisa en el mismo cambio.
+     */
     private const DEL_CAMPO = ['required', 'date'];
 
     public static function desde(): DatePicker

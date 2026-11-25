@@ -63,7 +63,7 @@ class ReglaDelRangoTest extends TestCase
     }
 
     /**
-     * El validador de Laravel con las reglas y los mensajes de la clase de dominio, como los usa la API.
+     * El validador de Laravel con las reglas y los mensajes de la clase de dominio, como los usará la API.
      *
      * @param  array<string, mixed>  $datos
      */

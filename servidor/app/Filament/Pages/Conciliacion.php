@@ -82,7 +82,8 @@ class Conciliacion extends Page implements HasTable
                     'desde' => Rango::desdePorOmision()->toDateString(),
                     'hasta' => Rango::hoy()->toDateString(),
                 ])
-                // Las dos fechas, con la regla del rango, una sola para el panel y la API (administracion-app-E11).
+                // Las dos fechas, con la regla del rango (App\Validacion\RangoDeFechas), que usarán también las rutas de
+                // la API de las tareas 13.2 y 19.2 (administracion-app-E11; E38 y E60).
                 ->schema([CamposDelRango::desde(), CamposDelRango::hasta()])
                 ->authorize(fn (): bool => self::canAccess())
                 ->action(fn (array $data) => $this->conciliar($data)),

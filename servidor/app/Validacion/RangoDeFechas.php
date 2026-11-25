@@ -7,11 +7,11 @@ namespace App\Validacion;
  * (administracion-E20; exportacion-E06). Un rango de un solo día vale, y no hay tope de duración (exportacion-E04 y
  * E05).
  *
- * Es la regla de la conciliación y de la descarga de los reportes, una sola para el panel y para la API de la
- * administración (ADR-0022, decisión 9; openspec/changes/administracion-en-la-app/design.md, sección 3;
- * administracion-app-E11, E38 y E60). Salió del panel, donde vivía repetida en el formulario de la conciliación
- * (App\Filament\Pages\Conciliacion) y en el de la descarga (App\Exportacion\ExportadorDeIndicador); los dos la toman
- * ahora de aquí, por App\Filament\CamposDelRango.
+ * Es la regla de la conciliación y de la descarga de los reportes en el panel, y la que usarán también las rutas de la
+ * API de la administración de las tareas 13.2 y 19.2 (ADR-0022, decisión 9;
+ * openspec/changes/administracion-en-la-app/design.md, sección 3; administracion-app-E11; E38 y E60). Salió del
+ * panel, donde vivía repetida en el formulario de la conciliación (App\Filament\Pages\Conciliacion) y en el de la
+ * descarga (App\Exportacion\ExportadorDeIndicador); los dos la toman ahora de aquí, por App\Filament\CamposDelRango.
  *
  *     $request->validate(RangoDeFechas::reglas(), RangoDeFechas::mensajes());
  */

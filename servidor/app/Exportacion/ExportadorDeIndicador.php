@@ -96,7 +96,8 @@ abstract class ExportadorDeIndicador extends Exporter
     public static function getOptionsFormComponents(): array
     {
         // Las dos fechas van incluidas y no hay tope de duración (exportacion-E04 y E05); al revés, no (E06). La regla es
-        // la del rango de dominio, una sola para el panel y la API (administracion-app-E11).
+        // la regla de dominio del rango, App\Validacion\RangoDeFechas, por App\Filament\CamposDelRango; la usarán también
+        // las rutas de la API de las tareas 13.2 y 19.2 (administracion-app-E11; E38 y E60).
         return [
             CamposDelRango::desde()
                 ->default(fn (mixed $livewire): string => self::filtroDeLaPagina($livewire, 'desde') ?? Rango::desdePorOmision()->toDateString()),
