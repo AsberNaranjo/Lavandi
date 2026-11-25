@@ -149,6 +149,13 @@ sola función. La tomó Claude por delegación de Arthur Naranjo (C-236), con la
   cuentas y la ficha (DD-017, DD-084, DD-121) y no la toca esta adenda.
 - Mientras el correo de contacto (DD-117) y el WhatsApp de soporte (DD-082) no lleguen, la página de producción solo
   dice cómo borrar la cuenta desde la app.
+- Una petición de borrado que llegue por el correo o por el WhatsApp no tiene en la plataforma con qué cumplirse: la
+  administración solo bloquea (Módulo D #3), y las cuentas de socio lavandería y de socio repartidor no tienen borrado
+  en la app. Cómo la atiende EL CLIENTE sigue en DD-109; la página no promete un borrado manual.
+- Si al borrar la cuenta se conservan datos, Google Play pide informar esa retención, por ejemplo en el aviso de
+  privacidad (E, la misma consulta del 2026-11-24, SIN VERIFICAR). Qué se conserva es de EL CLIENTE (DD-109) y el
+  aviso también (DD-080): la página no lo dice, y esa declaración tiene que estar en el aviso antes del envío si se
+  conservan datos.
 - La especifican textos-legales-E06 y textos-legales-E07 (`openspec/changes/textos-legales/`).
 
 La decidió el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245), la parte de Arthur de DD-109,
