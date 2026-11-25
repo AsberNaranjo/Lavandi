@@ -7,19 +7,25 @@ use App\Http\Requests\SesionConGoogleRequest;
 use App\Http\Resources\UsuarioResource;
 use App\Identidad\EntradaConGoogle;
 use App\Identidad\EntradaConGoogleRechazada;
+use App\Identidad\TokensDeLaApp;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 
 /**
- * POST /api/sesion/google: abre la sesión de quien entra con Google, con un token de Sanctum nuevo, con la misma
- * respuesta que el inicio de sesión con correo y contraseña (registro-E16 a registro-E18; ADR-0005).
+ * POST /api/sesion/google: abre la sesión de quien entra con Google, con un token de Sanctum nuevo de
+ * App\Identidad\TokensDeLaApp, con la misma respuesta que el inicio de sesión con correo y contraseña (registro-E16 a
+ * registro-E18; ADR-0005).
  *
- * Un rechazo sale como error de validación del campo id_token, sin token.
+ * Un rechazo sale como error de validación del campo id_token, sin token. Así sale también el de una cuenta de
+ * administración, que entra con su correo y su contraseña (administracion-app-E08).
  */
 class SesionConGoogleController extends Controller
 {
-    public function __invoke(SesionConGoogleRequest $request, EntradaConGoogle $entrada): JsonResponse
-    {
+    public function __invoke(
+        SesionConGoogleRequest $request,
+        EntradaConGoogle $entrada,
+        TokensDeLaApp $tokens,
+    ): JsonResponse {
         try {
             $usuario = $entrada->entrar($request->validated('id_token'));
         } catch (EntradaConGoogleRechazada $rechazo) {
@@ -27,7 +33,7 @@ class SesionConGoogleController extends Controller
         }
 
         return response()->json([
-            'token' => $usuario->createToken(SesionController::NOMBRE_DEL_TOKEN)->plainTextToken,
+            'token' => $tokens->crear($usuario)->plainTextToken,
             'usuario' => new UsuarioResource($usuario),
         ]);
     }

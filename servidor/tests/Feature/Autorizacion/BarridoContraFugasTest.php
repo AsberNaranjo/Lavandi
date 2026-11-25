@@ -36,8 +36,16 @@ use Tests\TestCase;
  * perfil de las lavanderías en el Módulo A (Módulo A #5), no cuenta como ajeno para el usuario; la plaza no restringe al
  * usuario (autorizacion-E08), y sí a los socios (autorizacion-E12).
  *
+ * La administración entra con su token de administración y ve todas las plazas en su módulo, /api/administracion
+ * (autorizacion-E13; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #1 a #4): lo de las cadenas, la plaza Dos, la
+ * cuenta y el reporte sin plaza y su propio correo, que le da GET /api/cuenta, no le son ajenos. Sí lo es lo de otra
+ * cuenta de administración, que el sembrado suma aquí: su correo. Las rutas de los Módulos A, B y C le responden 403 sin
+ * datos (ADR-0022, decisiones 8 y 15).
+ *
  * Las rutas salen de la tabla de rutas: una ruta nueva entra sola, y una con un parámetro que el barrido no conoce hace
- * fallar la prueba. Corre en su propio paso de la integración continua (SEG-3).
+ * fallar la prueba. Los parámetros de las rutas de la administración que llegan con las tareas 5.1, 7.2 y 17.1 de
+ * administracion-en-la-app ({repartidor}, {usuario} y {categoria}) ya tienen su valor público. Corre en su propio paso
+ * de la integración continua (SEG-3).
  *
  * Al sembrado se agrega el reporte de Soporte de una cuenta sin plaza, que se guarda sin ella (perfil-usuario-E17): no
  * es de ninguna plaza, así que ninguna ruta se lo da a nadie, y del componente solo lo recibe la administración, que es
@@ -45,7 +53,8 @@ use Tests\TestCase;
  * plaza son los dos socios, y a ellos tampoco.
  *
  * Escenarios: autorizacion-E14 y perfil-usuario-E17 · Spec: openspec/changes/autorizacion-por-rol/specs/autorizacion/
- * spec.md · Tarea 4.1
+ * spec.md, con el delta de openspec/changes/administracion-en-la-app/specs/autorizacion/spec.md · Tareas 4.1 de
+ * autorizacion-por-rol y 1.6 de administracion-en-la-app
  */
 #[Group('barrido-contra-fugas')]
 class BarridoContraFugasTest extends TestCase
@@ -71,6 +80,9 @@ class BarridoContraFugasTest extends TestCase
 
     private ReporteSoporte $reporteSinPlaza;
 
+    /** La segunda cuenta de administración: lo suyo es lo único ajeno para la primera (autorizacion-E14). */
+    private Usuario $otraAdministracion;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -80,6 +92,10 @@ class BarridoContraFugasTest extends TestCase
         $this->sinPlaza = $this->cuentaDeUsuario();
         $this->sinPlaza->forceFill(['correo' => 'barrido.sin.plaza@ejemplo.com', 'nombre' => 'BarridoCuentaSinPlaza'])->save();
         $this->reporteSinPlaza = app(RecepcionDeReporte::class)->recibir($this->sinPlaza, self::REPORTE_SIN_PLAZA, null);
+
+        $this->otraAdministracion = Usuario::factory()->conRol(Rol::ADMINISTRACION)->create([
+            'correo' => 'barrido.otra.administracion@ejemplo.com',
+        ]);
     }
 
     #[TestDox('autorizacion-E14: con dos plazas, y dos lavanderías, dos repartidores y dos usuarios en cada una, la sesión de cada rol recorre todas las rutas de la API pidiendo lo que no le corresponde: ninguna respuesta trae datos de otro socio, de otro usuario ni de otra plaza')]
@@ -146,9 +162,30 @@ class BarridoContraFugasTest extends TestCase
         $this->assertContains('GET api/lavanderia/prueba/fuga · lavanderia · sin parámetros: trae el folio del pedido en curso DosB', $fugas);
     }
 
+    #[TestDox('autorizacion-E14: la sesión de una cuenta de administración, con su token de administración, ve su propia cuenta sin que cuente como fuga, y una ruta de /api/administracion que trajera el correo de la otra cuenta de administración hace fallar el barrido, que la nombra')]
+    public function test_autorizacion_e14_para_la_administracion_lo_ajeno_es_lo_de_la_otra_cuenta_de_administracion(): void
+    {
+        $this->llamarSinEfecto($this->administracion, 'GET', '/api/cuenta')
+            ->assertOk()
+            ->assertJsonPath('usuario.correo', $this->administracion->correo);
+
+        Route::prefix('api')->middleware(['api', 'auth:sanctum', 'autorizar:administracion'])
+            ->get('administracion/prueba/fuga', fn () => [
+                'cuentas' => Usuario::query()->pluck('correo'),
+                'pedidos' => Pedido::query()->pluck('folio'),
+            ]);
+
+        $fugas = $this->fugasDelRol(Rol::ADMINISTRACION);
+
+        $this->assertSame(
+            ['GET api/administracion/prueba/fuga · administracion · sin parámetros: trae el correo de la otra cuenta de administración'],
+            $fugas,
+        );
+    }
+
     /**
-     * Las fugas del rol en todas las rutas: entra con la cuenta de la cadena propia, o con la de administración, y pide
-     * lo de las otras tres cadenas.
+     * Las fugas del rol en todas las rutas: entra con la cuenta de la cadena propia y pide lo de las otras tres cadenas;
+     * o con la de administración, y busca lo de la otra cuenta de administración.
      *
      * @return list<string>
      */
@@ -192,27 +229,47 @@ class BarridoContraFugasTest extends TestCase
             $datosAjenos[$this->plazaDos->nombre] = 'la plaza Dos';
         }
 
-        // La administración no tiene módulo en la app: todo lo de la app le es ajeno.
-        if ($rol === Rol::ADMINISTRACION) {
-            $datosAjenos += $this->datosDeLaCadena(self::PROPIA);
-        }
-
         $otraPlaza = $this->cadenas['DosB'];
+
+        $ajenos = [
+            'pedido' => $pedidos,
+            'pago' => $pagos,
+            'direccion' => $direcciones,
+            ...($esUsuario ? [] : ['lavanderia' => $lavanderias]),
+        ];
+
+        // Al usuario, la lavandería de otra plaza, que es pública en el Módulo A; el catálogo es de todos. Y, para todos,
+        // los parámetros de las rutas de la administración que llegan con las tareas 5.1, 7.2 y 17.1 de
+        // administracion-en-la-app: el repartidor y el usuario de la cadena propia y una categoría del A.5. A los otros
+        // roles esas rutas les responden 403.
+        $publicos = [
+            ...($esUsuario ? ['lavanderia' => $otraPlaza['lavanderia']->id_publico] : []),
+            'codigo_postal' => '00000',
+            'repartidor' => $propia['repartidor']->id_publico,
+            'usuario' => $propia['usuario']->id_publico,
+            'categoria' => 'operaciones',
+        ];
+
+        // La administración ve todas las plazas en su módulo (autorizacion-E13): nada de las cadenas le es ajeno, ni la
+        // plaza Dos, ni la cuenta y el reporte sin plaza, ni su propio correo, que le da GET /api/cuenta. Lo único ajeno
+        // es lo de la otra cuenta de administración: su correo.
+        if ($rol === Rol::ADMINISTRACION) {
+            $ajenos = [];
+            $publicos = [
+                ...$publicos,
+                'pedido' => $otraPlaza['enCurso']->id_publico,
+                'pago' => $otraPlaza['enCurso']->cobro->id_publico,
+                'direccion' => $otraPlaza['direccion']->id_publico,
+                'lavanderia' => $otraPlaza['lavanderia']->id_publico,
+            ];
+            $datosAjenos = [$this->otraAdministracion->correo => 'el correo de la otra cuenta de administración'];
+        }
 
         return $this->fugasDe(
             $cuenta,
             $rol,
-            ajenos: [
-                'pedido' => $pedidos,
-                'pago' => $pagos,
-                'direccion' => $direcciones,
-                ...($esUsuario ? [] : ['lavanderia' => $lavanderias]),
-            ],
-            // Al usuario, la lavandería de otra plaza, que es pública en el Módulo A; el catálogo es de todos.
-            publicos: [
-                ...($esUsuario ? ['lavanderia' => $otraPlaza['lavanderia']->id_publico] : []),
-                'codigo_postal' => '00000',
-            ],
+            ajenos: $ajenos,
+            publicos: $publicos,
             datosAjenos: $datosAjenos,
             // En el cuerpo y en la consulta, lo de otras cadenas, con un pedido que pasa la validación y un punto de la
             // otra plaza.

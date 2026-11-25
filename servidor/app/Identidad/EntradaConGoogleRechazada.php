@@ -26,4 +26,13 @@ final class EntradaConGoogleRechazada extends RuntimeException
     {
         return new self('Esta cuenta está bloqueada.');
     }
+
+    /**
+     * La cuenta es de administración, que entra con su correo y su contraseña, tenga o no Google ligado
+     * (administracion-app-E08; ADR-0022, decisión 5). Se dice solo después de verificar el idToken.
+     */
+    public static function deAdministracion(): self
+    {
+        return new self('La administración entra con su correo y su contraseña.');
+    }
 }

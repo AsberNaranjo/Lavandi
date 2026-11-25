@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CierreDeSesionRequest;
 use App\Http\Requests\InicioDeSesionRequest;
 use App\Http\Resources\UsuarioResource;
+use App\Identidad\TokensDeLaApp;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -19,10 +20,12 @@ use Illuminate\Validation\ValidationException;
 /**
  * La sesión de la app con correo y contraseña, con tokens de Sanctum (ADR-0005):
  *
- * - POST /api/sesion abre una sesión nueva: un token nuevo por cada inicio (registro-E07 y registro-E08). A una cuenta
- *   bloqueada desde el panel no se le abre: con la contraseña correcta, responde
+ * - POST /api/sesion abre una sesión nueva: un token nuevo por cada inicio (registro-E07 y registro-E08), creado por
+ *   App\Identidad\TokensDeLaApp. La cuenta de administración recibe el suyo, con su habilidad y su vencimiento
+ *   (administracion-app-E01). A una cuenta bloqueada desde el panel no se le abre: con la contraseña correcta, responde
  *   422 { "message": "Esta cuenta está bloqueada.", "errors": { "correo": ["Esta cuenta está bloqueada."] } }, sin
- *   token; con otra contraseña, la respuesta de siempre (administracion-E03);
+ *   token; con otra contraseña, la respuesta de siempre (administracion-E03). A una cuenta sin ningún rol de la app,
+ *   403 { "message": "Esta cuenta no tiene acceso a la app." }, sin token (administracion-app-E09);
  * - DELETE /api/sesion la cierra: revoca el token con el que llegó la petición, y solo ese (registro-E12).
  *
  * Al cerrar la sesión, la app manda también el token de Firebase del teléfono, para que la API lo borre y los avisos de
@@ -40,14 +43,18 @@ use Illuminate\Validation\ValidationException;
  */
 class SesionController extends Controller
 {
-    /** El nombre de los tokens de la app en personal_access_tokens. */
-    public const NOMBRE_DEL_TOKEN = 'app';
-
     /** El mensaje a quien escribe bien su contraseña, pero tiene la cuenta bloqueada desde el panel. */
     public const CUENTA_BLOQUEADA = 'Esta cuenta está bloqueada.';
 
-    public function iniciar(InicioDeSesionRequest $request, Timebox $timebox, Autorizacion $autorizacion): JsonResponse
-    {
+    /** El mensaje a una cuenta sin ningún rol de la app (administracion-app-E09). */
+    public const SIN_ACCESO_A_LA_APP = 'Esta cuenta no tiene acceso a la app.';
+
+    public function iniciar(
+        InicioDeSesionRequest $request,
+        Timebox $timebox,
+        Autorizacion $autorizacion,
+        TokensDeLaApp $tokens,
+    ): JsonResponse {
         $datos = $request->validated();
 
         // El Timebox iguala la duración de la respuesta exista o no la cuenta, como el guard de Laravel: el tiempo no
@@ -73,15 +80,12 @@ class SesionController extends Controller
             throw ValidationException::withMessages(['correo' => self::CUENTA_BLOQUEADA]);
         }
 
-        // Solo los roles con módulo en la app reciben token; la administración entra por el panel (registro-E33).
-        abort_unless(
-            $autorizacion->usaLaApp($usuario->load('roles')),
-            403,
-            'Esta cuenta no tiene acceso a la app. Las cuentas de administración entran por el panel.',
-        );
+        // Solo los roles con módulo en la app reciben token, también la administración (registro-E33;
+        // administracion-app-E09).
+        abort_unless($autorizacion->usaLaApp($usuario->load('roles')), 403, self::SIN_ACCESO_A_LA_APP);
 
         return response()->json([
-            'token' => $usuario->createToken(self::NOMBRE_DEL_TOKEN)->plainTextToken,
+            'token' => $tokens->crear($usuario)->plainTextToken,
             'usuario' => new UsuarioResource($usuario->load('roles')),
         ]);
     }

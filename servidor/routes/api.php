@@ -53,14 +53,18 @@ Route::post('pasarela/avisos', AvisosDeLaPasarelaController::class)->name('pasar
 
 // Con sesión, y por el componente único de autorización (registro-E14). Una ruta nueva sin las dos no pasa la prueba
 // tests/Feature/Registro/AutorizacionTest.php.
-// La cuenta y el cierre de la sesión, de toda cuenta con un rol de la app: con el rol, la app sabe a qué módulo entra
-// (registro-E33). La administración entra por el panel.
-Route::middleware(['auth:sanctum', 'autorizar:usuario,lavanderia,repartidor'])->group(function () {
+// La cuenta y el cierre de la sesión, de toda cuenta con un rol de la app, también la de administración con su token de
+// administración: con el rol, la app sabe a qué módulo entra (registro-E33; administracion-app-E01 y E04; ADR-0022,
+// decisión 6). Un token de administración sin su habilidad no las abre (administracion-app-E06).
+Route::middleware(['auth:sanctum', 'autorizar:usuario,lavanderia,repartidor,administracion'])->group(function () {
     Route::get('cuenta', CuentaController::class)->name('cuenta');
     Route::delete('sesion', [SesionController::class, 'cerrar'])->name('sesion.cerrar');
+});
 
-    // El catálogo del territorio para la dirección asistida (direcciones, C-238): la del usuario y la de la lavandería
-    // que se registra (alta-lavanderias-E01). El contrato está en el controlador.
+// El catálogo del territorio para la dirección asistida (direcciones, C-238): la del usuario y la de la lavandería que se
+// registra (alta-lavanderias-E01). Sigue con los tres roles de siempre, sin la administración (ADR-0022, decisión 6). El
+// contrato está en el controlador.
+Route::middleware(['auth:sanctum', 'autorizar:usuario,lavanderia,repartidor'])->group(function () {
     // Sin where en el código postal a propósito: uno que no son cinco números responde 422, no 404 (direcciones-E20).
     Route::get('catalogos/municipios', [CatalogoDelTerritorioController::class, 'municipios'])
         ->name('catalogos.municipios');
@@ -193,3 +197,25 @@ Route::middleware(['auth:sanctum', 'autorizar:repartidor'])->prefix('repartidor'
             ->name('repartidor.estadisticas');
     });
 });
+
+// El Módulo D de la administración y los indicadores del A.5, en la app (NSV-2026-001-v8.pdf:3:Cláusula I;
+// :19:ANEXO A, Sección A.3, Módulo D; :22:ANEXO A, Sección A.5; C-247; ADR-0022, decisión 7). Con sesión y por el
+// componente único de autorización con el rol de administración, que además pide la habilidad de administración del
+// token (ADR-0022, decisión 8). Cada ruta llama a la misma clase de dominio que usa el panel (decisión 9); su contrato
+// está en openspec/changes/administracion-en-la-app/design.md, sección 4.
+// Cada función tiene su archivo en routes/administracion/, en el orden del Módulo D y del A.5: una ruta nueva va en el
+// de su función, sin tocar este grupo. Sus nombres empiezan con administracion.
+Route::middleware(['auth:sanctum', 'autorizar:administracion'])
+    ->prefix('administracion')
+    ->name('administracion.')
+    ->group(function () {
+        require __DIR__.'/administracion/lavanderias.php';
+        require __DIR__.'/administracion/repartidores.php';
+        require __DIR__.'/administracion/usuarios.php';
+        require __DIR__.'/administracion/monitoreo.php';
+        require __DIR__.'/administracion/comisiones.php';
+        require __DIR__.'/administracion/reportes-financieros.php';
+        require __DIR__.'/administracion/avisos-masivos.php';
+        require __DIR__.'/administracion/indicadores.php';
+        require __DIR__.'/administracion/descargas.php';
+    });
