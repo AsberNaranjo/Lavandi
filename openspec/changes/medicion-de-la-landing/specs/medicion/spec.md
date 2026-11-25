@@ -76,7 +76,7 @@ Cita: A → `NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2`
 
 #### Scenario: medicion-E07 — Título y descripción propios
 
-- **CUANDO** un buscador lee la portada, el aviso de privacidad y los términos
+- **CUANDO** un buscador lee la portada, el aviso de privacidad, los términos y la página del borrado de la cuenta
 - **ENTONCES** cada página tiene un título y una descripción que no están vacíos
 - **Y** ninguna repite el título ni la descripción de otra
 
@@ -93,7 +93,8 @@ Cita: A → `NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2`; D → ADR-0011
 #### Scenario: medicion-E08 — El mapa del sitio y el archivo de robots
 
 - **CUANDO** se pide el mapa del sitio
-- **ENTONCES** responde un XML con la portada, el aviso de privacidad y los términos
+- **ENTONCES** responde un XML con la portada, el aviso de privacidad, los términos y la página del borrado de la
+  cuenta
 - **Y** cada dirección es absoluta y usa el dominio de la configuración
 - **Y**, con la configuración de producción, el archivo de robots declara la dirección del mapa del sitio
 
