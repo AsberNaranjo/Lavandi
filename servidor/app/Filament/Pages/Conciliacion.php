@@ -6,6 +6,7 @@ use App\Autorizacion\Autorizacion;
 use App\Cobro\PasarelaNoDisponible;
 use App\Exportacion\Exportadores\ConciliacionExportador;
 use App\Filament\Actions\DescargarReporte;
+use App\Filament\CamposDelRango;
 use App\Finanzas\ConciliacionConLaPasarela;
 use App\Finanzas\Pesos;
 use App\Finanzas\ResultadoDeConciliacion;
@@ -14,7 +15,6 @@ use App\Models\Usuario;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\EmbeddedTable;
@@ -82,14 +82,8 @@ class Conciliacion extends Page implements HasTable
                     'desde' => Rango::desdePorOmision()->toDateString(),
                     'hasta' => Rango::hoy()->toDateString(),
                 ])
-                ->schema([
-                    DatePicker::make('desde')->label('Desde')->required(),
-                    DatePicker::make('hasta')
-                        ->label('Hasta')
-                        ->required()
-                        ->afterOrEqual('desde')
-                        ->validationMessages(['after_or_equal' => 'La fecha de fin no puede ser anterior a la de inicio.']),
-                ])
+                // Las dos fechas, con la regla del rango, una sola para el panel y la API (administracion-app-E11).
+                ->schema([CamposDelRango::desde(), CamposDelRango::hasta()])
                 ->authorize(fn (): bool => self::canAccess())
                 ->action(fn (array $data) => $this->conciliar($data)),
             // La descarga del periodo conciliado, con las filas de la tabla: solo después de conciliar

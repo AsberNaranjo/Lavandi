@@ -2,13 +2,13 @@
 
 namespace App\Exportacion;
 
+use App\Filament\CamposDelRango;
 use App\Indicadores\Granularidad;
 use App\Indicadores\Rango;
 use BackedEnum;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Contracts\HasLabel;
@@ -95,17 +95,12 @@ abstract class ExportadorDeIndicador extends Exporter
      */
     public static function getOptionsFormComponents(): array
     {
+        // Las dos fechas van incluidas y no hay tope de duración (exportacion-E04 y E05); al revés, no (E06). La regla es
+        // la del rango de dominio, una sola para el panel y la API (administracion-app-E11).
         return [
-            DatePicker::make('desde')
-                ->label('Desde')
-                ->required()
+            CamposDelRango::desde()
                 ->default(fn (mixed $livewire): string => self::filtroDeLaPagina($livewire, 'desde') ?? Rango::desdePorOmision()->toDateString()),
-            // Las dos fechas van incluidas y no hay tope de duración (exportacion-E04 y E05); al revés, no (E06).
-            DatePicker::make('hasta')
-                ->label('Hasta')
-                ->required()
-                ->afterOrEqual('desde')
-                ->validationMessages(['after_or_equal' => 'La fecha de fin no puede ser anterior a la de inicio.'])
+            CamposDelRango::hasta()
                 ->default(fn (mixed $livewire): string => self::filtroDeLaPagina($livewire, 'hasta') ?? Rango::hoy()->toDateString()),
             Select::make('granularidad')
                 ->label('Ver por')
