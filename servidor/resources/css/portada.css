@@ -689,6 +689,29 @@
         font-size: var(--ds-tipografia-escala-cuerpo-grande);
     }
 
+    /* --- La página para pedir el borrado de la cuenta (textos-legales-E06) --- */
+
+    .borrado-de-cuenta__seccion + .borrado-de-cuenta__seccion {
+        margin-top: var(--ds-espaciado-6);
+    }
+
+    .borrado-de-cuenta__subtitulo {
+        margin: 0 0 var(--ds-espaciado-3);
+        font-size: var(--ds-tipografia-escala-titulo);
+    }
+
+    .borrado-de-cuenta__seccion > p {
+        margin: 0 0 var(--ds-espaciado-3);
+    }
+
+    .borrado-de-cuenta__pasos {
+        display: grid;
+        gap: var(--ds-espaciado-2);
+        margin: 0;
+        padding-inline-start: var(--ds-espaciado-5);
+        list-style: decimal;
+    }
+
     /* --- Pie legal --- */
 
     .pie-legal {

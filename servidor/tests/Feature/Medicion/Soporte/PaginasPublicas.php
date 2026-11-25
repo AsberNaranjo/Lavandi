@@ -11,10 +11,10 @@ use Illuminate\Testing\TestResponse;
  * Lo que comparten las pruebas de medicion-de-la-landing: las páginas públicas que se miden, pedirlas sin sesión y leer
  * su HTML como documento.
  *
- * Las páginas públicas son la portada (openspec/changes/landing/) y las dos de textos-legales. Los documentos legales no
- * se cargan: sin ellos, las páginas responden igual, con su marcador de prueba fuera de producción. Las pruebas no
- * compilan los estilos: withoutVite() deja fuera las etiquetas de Vite, que en la integración continua no tienen
- * manifiesto.
+ * Las páginas públicas son la portada (openspec/changes/landing/) y las tres de textos-legales: el aviso de privacidad,
+ * los términos y la página para pedir el borrado de la cuenta (textos-legales-E06). Los documentos legales no se cargan:
+ * sin ellos, las páginas responden igual, con su marcador de prueba fuera de producción. Las pruebas no compilan los
+ * estilos: withoutVite() deja fuera las etiquetas de Vite, que en la integración continua no tienen manifiesto.
  */
 trait PaginasPublicas
 {
@@ -23,6 +23,7 @@ trait PaginasPublicas
         'portada' => '/',
         'aviso-de-privacidad' => '/aviso-de-privacidad',
         'terminos' => '/terminos',
+        'borrado-de-cuenta' => '/borrado-de-cuenta',
     ];
 
     /** Un identificador de contenedor inventado, con la forma de los de Google Tag Manager. No es de ninguna cuenta. */

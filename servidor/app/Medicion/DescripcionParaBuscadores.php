@@ -21,6 +21,7 @@ final class DescripcionParaBuscadores
         'portada' => 'la portada',
         'aviso-de-privacidad' => 'el aviso de privacidad',
         'terminos' => 'los términos y condiciones',
+        'borrado-de-cuenta' => 'la página del borrado de la cuenta',
     ];
 
     /**

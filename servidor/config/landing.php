@@ -157,12 +157,14 @@ return [
      * openspec/changes/medicion-de-la-landing/). Los textos los aprueba EL CLIENTE (DD-117). Mientras no lleguen, fuera de
      * producción cada página lleva un marcador de contenido de prueba como descripción; en producción no lleva ninguna,
      * porque no se inventa (App\Medicion\DescripcionParaBuscadores). El título de cada página es el nombre del producto,
-     * y el de los documentos legales lleva además el nombre del documento.
+     * y el de los documentos legales y el de la página del borrado de la cuenta llevan además su nombre.
      */
     'descripciones' => [
         'portada' => env('LANDING_DESCRIPCION_PORTADA'),
         'aviso-de-privacidad' => env('LANDING_DESCRIPCION_AVISO_DE_PRIVACIDAD'),
         'terminos' => env('LANDING_DESCRIPCION_TERMINOS'),
+        // La página para pedir el borrado de la cuenta (textos-legales-E06; adenda del 2026-11-24 de ADR-0005).
+        'borrado-de-cuenta' => env('LANDING_DESCRIPCION_BORRADO_DE_CUENTA'),
     ],
 
 ];

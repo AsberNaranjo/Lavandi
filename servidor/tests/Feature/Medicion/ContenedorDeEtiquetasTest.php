@@ -52,7 +52,7 @@ class ContenedorDeEtiquetasTest extends TestCase
     /** Lo que se revisa: el código y la configuración de servidor/, sin las pruebas, lo de terceros ni lo generado. */
     private const CARPETAS_DEL_CODIGO = ['app', 'config', 'database', 'resources', 'routes'];
 
-    #[TestDox('medicion-E01: con un identificador configurado, la portada, el aviso de privacidad y los términos cargan ese contenedor una sola vez, en la cabecera')]
+    #[TestDox('medicion-E01: con un identificador configurado, la portada, el aviso de privacidad, los términos y la página del borrado de la cuenta cargan ese contenedor una sola vez, en la cabecera')]
     public function test_medicion_e01_cada_pagina_carga_el_contenedor_una_sola_vez(): void
     {
         config(['medicion.gtm' => self::CONTENEDOR_DE_PRUEBA]);
