@@ -16,9 +16,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *   (pedido_direcciones.id_direcciones). Si salió de la misma, el pedido lleva un solo marcador, el de la recolección,
  *   que dice "Recolección y entrega".
  *
- * Cada marcador lleva el folio, el estado operativo (NombresDelEstado, como la tabla) y la plaza del pedido,
- * y el punto que se guardó con la dirección, leído con PostGIS: no se geocodifica nada (presupuesto-de-mapas.md,
- * decisión 3). No hay marcadores de repartidores: su posición está fuera del contrato (proposal.md).
+ * Cada marcador lleva el folio, el estado operativo (NombresDelEstado, como la tabla) y la plaza del pedido, y el punto
+ * que se guardó con la dirección, leído con PostGIS: no se geocodifica nada (presupuesto-de-mapas.md, decisión 3). No
+ * hay marcadores de repartidores: su posición está fuera del contrato (proposal.md).
  *
  * Los pedidos llegan del componente de autorización (Autorizacion::pedidosActivosDelPanel()): esta clase no decide quién
  * ve cuáles.

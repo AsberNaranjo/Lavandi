@@ -42,6 +42,9 @@ class NombresDelEstadoTest extends TestCase
     {
         $this->assertEquals(self::LOS_DEL_PANEL, NombresDelEstado::NOMBRES);
 
+        // El catálogo tiene justo esos estados: si una migración siembra uno nuevo, esta lista se revisa.
+        $this->assertEqualsCanonicalizing(array_keys(self::LOS_DEL_PANEL), EstadoPedido::query()->pluck('codigo')->all());
+
         foreach (self::LOS_DEL_PANEL as $codigo => $nombre) {
             $estado = EstadoPedido::query()->where('codigo', $codigo)->firstOrFail();
 
