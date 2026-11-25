@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Administracion;
 
+use App\Autorizacion\Autorizacion;
 use App\Console\Commands\CrearCuentaDeAdministracion;
 use App\Filament\Auth\IniciarSesion;
+use App\Identidad\TokensDeLaApp;
 use App\Models\Rol;
 use App\Models\Usuario;
 use App\Validacion\CorreoSinCuenta;
@@ -32,7 +34,10 @@ use Tests\TestCase;
  * toma mientras se escribe la contraseña. Y uno que mira las preguntas mismas: ocultas, sin respaldo visible y sin
  * recortar lo que se escribe.
  *
- * Escenario: administracion-E26 · Spec: openspec/changes/administracion/specs/administracion/spec.md
+ * Con C-247, la cuenta también inicia sesión en la app y recibe su token de administración (ADR-0022, decisión 1).
+ *
+ * Escenario: administracion-E26 · Spec: openspec/changes/administracion/specs/administracion/spec.md, modificado por
+ * openspec/changes/administracion-en-la-app/specs/administracion/spec.md
  */
 class CuentaDeAdministracionTest extends TestCase
 {
@@ -83,17 +88,21 @@ class CuentaDeAdministracionTest extends TestCase
         $this->get('/admin')->assertOk();
     }
 
-    #[TestDox('administracion-E26: la cuenta que crea el comando no recibe token si inicia sesión en la app con su correo y su contraseña (registro-E33)')]
-    public function test_administracion_e26_la_cuenta_creada_no_recibe_token_de_la_app(): void
+    #[TestDox('administracion-E26: la cuenta que crea el comando inicia sesión en la app con su correo y su contraseña y recibe su token de administración (administracion-app-E01)')]
+    public function test_administracion_e26_la_cuenta_creada_recibe_su_token_de_administracion_en_la_app(): void
     {
         $this->crearLaCuenta('duenio@ejemplo.com');
 
         $this->postJson('/api/sesion', ['correo' => 'duenio@ejemplo.com', 'password' => self::CONTRASENA])
-            ->assertForbidden()
-            ->assertJsonMissingPath('token')
-            ->assertJsonPath('message', 'Esta cuenta no tiene acceso a la app. Las cuentas de administración entran por el panel.');
+            ->assertOk()
+            ->assertJsonStructure(['token'])
+            ->assertJsonPath('usuario.correo', 'duenio@ejemplo.com')
+            ->assertJsonPath('usuario.rol', Rol::ADMINISTRACION);
 
-        $this->assertSame(0, Usuario::query()->sole()->tokens()->count());
+        $token = Usuario::query()->sole()->tokens()->sole();
+        $this->assertSame(TokensDeLaApp::NOMBRE_DE_ADMINISTRACION, $token->name);
+        $this->assertSame([Autorizacion::HABILIDAD_DE_ADMINISTRACION], $token->abilities);
+        $this->assertNotNull($token->expires_at);
     }
 
     #[TestDox('administracion-E26: con un correo que ya tiene cuenta, de cualquier rol y sin distinguir mayúsculas, el comando falla sin tocar esa cuenta ni darle el rol')]

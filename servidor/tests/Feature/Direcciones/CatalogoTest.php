@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Direcciones;
 
+use App\Identidad\TokensDeLaApp;
 use App\Models\Colonia;
 use App\Models\Rol;
 use App\Models\Usuario;
@@ -210,7 +211,7 @@ class CatalogoTest extends TestCase
     {
         CatalogoDePrueba::territorio();
         $lavanderia = Usuario::factory()->conRol(Rol::LAVANDERIA)->create();
-        $token = $lavanderia->createToken('app')->plainTextToken;
+        $token = app(TokensDeLaApp::class)->crear($lavanderia)->plainTextToken;
 
         $this->withToken($token)->getJson('/api/catalogos/municipios')
             ->assertOk()
@@ -219,8 +220,10 @@ class CatalogoTest extends TestCase
         $this->withToken($token)->getJson('/api/codigos-postales/34000/colonias')->assertOk();
 
         $this->app['auth']->forgetGuards();
+        // Con su token de administración, el real: el 403 sale de la regla del catálogo, que no la admite, y no de un
+        // token sin la habilidad (ADR-0022, decisión 3; registro-E33).
         $administracion = Usuario::factory()->conRol(Rol::ADMINISTRACION)->create();
-        $this->withToken($administracion->createToken('app')->plainTextToken)
+        $this->withToken(app(TokensDeLaApp::class)->crear($administracion)->plainTextToken)
             ->getJson('/api/catalogos/municipios')
             ->assertForbidden();
     }

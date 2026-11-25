@@ -2,31 +2,39 @@
 
 namespace Tests\Feature\Registro;
 
+use App\Http\Controllers\Api\SesionController;
 use App\Models\Rol;
 use App\Models\Usuario;
 use Database\Factories\UsuarioFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\AdministracionEnLaApp\Soporte\SesionesDeLaApp;
 use Tests\TestCase;
 
 /**
  * La cuenta y el cierre de la sesión son de toda cuenta con un rol de la app, no solo del usuario: con el rol, la app
- * sabe a qué módulo entra (ANEXO A, Sección A.3; decisión 31 del acta del 2026-11-20). La administración entra por el
- * panel.
+ * sabe a qué módulo entra (ANEXO A, Sección A.3; NSV-2026-001-v8.pdf:3:Cláusula I). La administración también, con su
+ * token de administración: C-247 y la decisión 69 del acta del 2026-11-20 reemplazan la decisión 31, que la dejaba
+ * fuera (ADR-0022, decisiones 1, 6 y 8). Un token suyo sin la habilidad no las abre, y el catálogo del territorio sigue
+ * con los tres roles de siempre.
  *
- * Escenario: registro-E33 · Spec: openspec/changes/registro-e-inicio-de-sesion/specs/registro/spec.md
+ * Los tokens son los reales, de App\Identidad\TokensDeLaApp, y van con withToken().
+ *
+ * Escenarios: registro-E33, administracion-app-E06 y administracion-app-E09 · Spec:
+ * openspec/changes/administracion-en-la-app/specs/registro/spec.md y
+ * openspec/changes/administracion-en-la-app/specs/administracion-en-la-app/spec.md · Tareas 1.3 y 1.5
  */
 class CuentaDeLosRolesDeLaAppTest extends TestCase
 {
     use RefreshDatabase;
+    use SesionesDeLaApp;
 
     #[TestDox('registro-E33: una cuenta de lavandería consulta su cuenta, con su rol')]
     public function test_registro_e33_una_cuenta_de_lavanderia_consulta_su_cuenta_con_su_rol(): void
     {
         $lavanderia = Usuario::factory()->conRol(Rol::LAVANDERIA)->create(['correo' => 'socio@ejemplo.com']);
 
-        $this->withToken($lavanderia->createToken('app')->plainTextToken)
-            ->getJson('/api/cuenta')
+        $this->llamarConToken($this->tokenDeLaApp($lavanderia), 'GET', '/api/cuenta')
             ->assertOk()
             ->assertJsonPath('usuario.correo', 'socio@ejemplo.com')
             ->assertJsonPath('usuario.rol', Rol::LAVANDERIA);
@@ -36,39 +44,12 @@ class CuentaDeLosRolesDeLaAppTest extends TestCase
     public function test_registro_e33_una_cuenta_de_lavanderia_cierra_su_sesion(): void
     {
         $lavanderia = Usuario::factory()->conRol(Rol::LAVANDERIA)->create();
-        $token = $lavanderia->createToken('app')->plainTextToken;
+        $token = $this->tokenDeLaApp($lavanderia);
 
-        $this->withToken($token)->deleteJson('/api/sesion')->assertNoContent();
+        $this->llamarConToken($token, 'DELETE', '/api/sesion')->assertNoContent();
 
         $this->assertSame(0, $lavanderia->tokens()->count());
-        $this->app['auth']->forgetGuards();
-        $this->withToken($token)->getJson('/api/cuenta')->assertUnauthorized();
-    }
-
-    #[TestDox('registro-E33: la administración no usa la cuenta ni el cierre de sesión de la app')]
-    public function test_registro_e33_la_administracion_no_usa_las_rutas_de_la_app(): void
-    {
-        $administracion = Usuario::factory()->conRol(Rol::ADMINISTRACION)->create();
-        $token = $administracion->createToken('app')->plainTextToken;
-
-        $this->withToken($token)->getJson('/api/cuenta')->assertForbidden()->assertJsonMissingPath('usuario');
-        $this->app['auth']->forgetGuards();
-        $this->withToken($token)->deleteJson('/api/sesion')->assertForbidden();
-
-        $this->assertSame(1, $administracion->tokens()->count());
-    }
-
-    #[TestDox('registro-E33: una cuenta de administración no recibe token al iniciar sesión en la app')]
-    public function test_registro_e33_la_administracion_no_recibe_token_de_la_app(): void
-    {
-        $administracion = Usuario::factory()->conRol(Rol::ADMINISTRACION)->create(['correo' => 'panel@ejemplo.com']);
-
-        $this->postJson('/api/sesion', ['correo' => 'panel@ejemplo.com', 'password' => UsuarioFactory::CONTRASENA])
-            ->assertForbidden()
-            ->assertJsonMissingPath('token')
-            ->assertJsonPath('message', 'Esta cuenta no tiene acceso a la app. Las cuentas de administración entran por el panel.');
-
-        $this->assertSame(0, $administracion->tokens()->count());
+        $this->llamarConToken($token, 'GET', '/api/cuenta')->assertUnauthorized();
     }
 
     #[TestDox('registro-E33: una cuenta de lavandería inicia sesión en la app y recibe su token y su rol')]
@@ -80,5 +61,84 @@ class CuentaDeLosRolesDeLaAppTest extends TestCase
             ->assertOk()
             ->assertJsonPath('usuario.rol', Rol::LAVANDERIA)
             ->assertJsonStructure(['token']);
+    }
+
+    #[TestDox('registro-E33: una cuenta de administración inicia sesión en la app con su correo y su contraseña y recibe su token de administración (administracion-app-E01)')]
+    public function test_registro_e33_la_administracion_inicia_sesion_en_la_app_y_recibe_su_token(): void
+    {
+        $administracion = $this->cuentaDeAdministracion(['correo' => 'duenio@ejemplo.com']);
+
+        $this->postJson('/api/sesion', ['correo' => 'duenio@ejemplo.com', 'password' => UsuarioFactory::CONTRASENA])
+            ->assertOk()
+            ->assertJsonStructure(['token'])
+            ->assertJsonPath('usuario.rol', Rol::ADMINISTRACION);
+
+        $this->assertSame(['administracion'], $administracion->tokens()->sole()->abilities);
+    }
+
+    #[TestDox('registro-E33: con su token de administración, la consulta de su cuenta trae su correo y su rol, administracion, y el cierre de la sesión lo revoca (administracion-app-E04)')]
+    public function test_registro_e33_la_administracion_consulta_su_cuenta_y_cierra_su_sesion(): void
+    {
+        $administracion = $this->cuentaDeAdministracion(['correo' => 'duenio@ejemplo.com']);
+        $token = $this->tokenDeLaApp($administracion);
+
+        $this->llamarConToken($token, 'GET', '/api/cuenta')
+            ->assertOk()
+            ->assertJsonPath('usuario.correo', 'duenio@ejemplo.com')
+            ->assertJsonPath('usuario.rol', Rol::ADMINISTRACION);
+
+        $this->llamarConToken($token, 'DELETE', '/api/sesion')->assertNoContent();
+
+        $this->assertSame(0, $administracion->tokens()->count());
+        $this->llamarConToken($token, 'GET', '/api/cuenta')->assertUnauthorized();
+    }
+
+    #[TestDox('registro-E33 y administracion-app-E06: un token de una cuenta de administración sin la habilidad administracion recibe 403 en la consulta de la cuenta y en el cierre de la sesión, sin datos, y el token sigue ahí')]
+    public function test_registro_e33_y_administracion_app_e06_un_token_sin_la_habilidad_no_abre_la_cuenta_ni_la_sesion(): void
+    {
+        $administracion = $this->cuentaDeAdministracion();
+        $token = $this->tokenSinLaHabilidad($administracion);
+
+        $this->llamarConToken($token, 'GET', '/api/cuenta')
+            ->assertForbidden()
+            ->assertExactJson(self::RESPUESTA_SIN_ACCESO);
+        $this->llamarConToken($token, 'DELETE', '/api/sesion')
+            ->assertForbidden()
+            ->assertExactJson(self::RESPUESTA_SIN_ACCESO);
+
+        $this->assertSame(1, $administracion->tokens()->count());
+    }
+
+    #[TestDox('registro-E33: el catálogo del territorio sigue solo para el usuario, la lavandería y el repartidor: la administración, con su token, recibe 403 sin datos')]
+    public function test_registro_e33_el_catalogo_del_territorio_sigue_sin_la_administracion(): void
+    {
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+
+        foreach (['/api/catalogos/municipios', '/api/codigos-postales/34000/colonias'] as $url) {
+            $this->llamarConToken($token, 'GET', $url)->assertForbidden()->assertExactJson(self::RESPUESTA_SIN_ACCESO);
+        }
+
+        foreach (self::ROLES_QUE_NO_SON_DE_ADMINISTRACION as $rol) {
+            $this->llamarConToken($this->tokenDeLaApp($this->cuentaQueOperaComo($rol)), 'GET', '/api/catalogos/municipios')
+                ->assertOk();
+        }
+    }
+
+    #[TestDox('administracion-app-E09: a una cuenta sin ningún rol de la app, POST /api/sesion le responde 403 sin token, con un mensaje que no menciona el panel')]
+    public function test_administracion_app_e09_una_cuenta_sin_rol_de_la_app_no_recibe_token(): void
+    {
+        $sinRol = Usuario::factory()->create(['correo' => 'sin.rol@ejemplo.com']);
+
+        $respuesta = $this->llamarConToken(null, 'POST', '/api/sesion', [
+            'correo' => 'sin.rol@ejemplo.com',
+            'password' => UsuarioFactory::CONTRASENA,
+        ]);
+
+        $respuesta->assertForbidden()
+            ->assertJsonMissingPath('token')
+            ->assertExactJson(['message' => SesionController::SIN_ACCESO_A_LA_APP]);
+        $this->assertSame('Esta cuenta no tiene acceso a la app.', $respuesta->json('message'));
+        $this->assertStringNotContainsStringIgnoringCase('panel', $respuesta->json('message'));
+        $this->assertSame(0, $sinRol->tokens()->count());
     }
 }

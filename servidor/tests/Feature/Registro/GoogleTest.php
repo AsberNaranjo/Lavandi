@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Registro;
 
-use App\Http\Controllers\Api\SesionController;
+use App\Identidad\TokensDeLaApp;
 use App\Models\CuentaExterna;
 use App\Models\Rol;
 use App\Models\Usuario;
@@ -29,11 +29,16 @@ use Tests\TestCase;
  * anulada: quien registró el correo antes ya no entra, y el dueño del correo puede crear otra con la recuperación
  * (DD-132, decisión 23 de acta-2026-11-20-modelo-y-pasarela).
  *
+ * Una cuenta de administración no entra con Google, tenga o no Google ligado: entra con su correo y su contraseña, y
+ * la respuesta no le liga nada, ni le anula la contraseña, ni le cierra las sesiones (ADR-0022, decisión 5).
+ *
  * Las pruebas no salen a la red: la Google de prueba firma con sus propias llaves (Soporte/ImitaAGoogle). Cada
  * petición olvida la cuenta de la anterior, como dos peticiones reales al servidor.
  *
- * Escenarios: registro-E16, registro-E17 y registro-E18 · Spec:
- * openspec/changes/registro-e-inicio-de-sesion/specs/registro/spec.md
+ * Escenarios: registro-E16, registro-E17, registro-E18, registro-E33 (la administración que entra con Google) y
+ * administracion-app-E08 · Spec:
+ * openspec/changes/registro-e-inicio-de-sesion/specs/registro/spec.md, con el delta de
+ * openspec/changes/administracion-en-la-app/specs/registro/spec.md
  */
 class GoogleTest extends TestCase
 {
@@ -49,6 +54,8 @@ class GoogleTest extends TestCase
     private const NO_VALIDO = 'No se pudo entrar con tu cuenta de Google.';
 
     private const CREDENCIALES_NO_VALIDAS = 'Las credenciales no son válidas.';
+
+    private const ADMINISTRACION_CON_CONTRASENA = 'La administración entra con su correo y su contraseña.';
 
     protected function setUp(): void
     {
@@ -252,7 +259,7 @@ class GoogleTest extends TestCase
         $telefono = $this->iniciarSesion(UsuarioFactory::CONTRASENA)->assertOk()->json('token');
         $tableta = $this->iniciarSesion(UsuarioFactory::CONTRASENA)->assertOk()->json('token');
         $otraCuenta = Usuario::factory()->conRol(Rol::USUARIO)->create(['correo' => self::OTRO_CORREO]);
-        $deLaOtraCuenta = $otraCuenta->createToken(SesionController::NOMBRE_DEL_TOKEN)->plainTextToken;
+        $deLaOtraCuenta = app(TokensDeLaApp::class)->crear($otraCuenta)->plainTextToken;
 
         $respuesta = $this->entrarConGoogle($this->idTokenDeGoogle());
 
@@ -335,7 +342,7 @@ class GoogleTest extends TestCase
     public function test_registro_e18_si_google_no_da_el_correo_por_verificado_el_servidor_rechaza_la_entrada_y_no_liga_nada(): void
     {
         $existente = $this->cuentaConContrasena();
-        $abierta = $existente->createToken(SesionController::NOMBRE_DEL_TOKEN)->plainTextToken;
+        $abierta = app(TokensDeLaApp::class)->crear($existente)->plainTextToken;
 
         $sinVerificar = $this->entrarConGoogle($this->idTokenDeGoogle(['email_verified' => false]));
         $sinReclamo = $this->entrarConGoogle($this->idTokenDeGoogle(['email_verified' => null]));
@@ -350,6 +357,58 @@ class GoogleTest extends TestCase
         // Sin ligar, tampoco se cierran las sesiones ni se anula la contraseña.
         $this->consultarCuenta($abierta)->assertOk();
         $this->assertTrue(Hash::check(UsuarioFactory::CONTRASENA, $existente->fresh()->password));
+    }
+
+    #[TestDox('administracion-app-E08, registro-E18 y registro-E33: una cuenta de administración con contraseña, sin Google ligado y con su sesión abierta, que entra con Google con su correo verificado recibe 422 en id_token, sin token: no se liga, no se anula su contraseña y su sesión sigue abierta')]
+    public function test_administracion_app_e08_registro_e18_y_registro_e33_la_administracion_sin_google_ligado_no_entra_con_google(): void
+    {
+        $administracion = Usuario::factory()->conRol(Rol::ADMINISTRACION)->create(['correo' => self::CORREO]);
+        $abierta = $this->iniciarSesion(UsuarioFactory::CONTRASENA)->assertOk()->json('token');
+        $antes = $administracion->fresh()->getAttributes();
+        $tokens = PersonalAccessToken::query()->orderBy('id')->pluck('token')->all();
+
+        $respuesta = $this->entrarConGoogle($this->idTokenDeGoogle(['email_verified' => true]));
+
+        $this->assertRechazado($respuesta, self::ADMINISTRACION_CON_CONTRASENA);
+        $this->assertSame(0, CuentaExterna::count(), 'No se liga la cuenta de Google.');
+        $this->assertSame(1, Usuario::count(), 'No se crea otra cuenta.');
+        $this->assertSame($tokens, PersonalAccessToken::query()->orderBy('id')->pluck('token')->all(), 'No se crea ni se borra ningún token.');
+        $this->assertSame($antes, $administracion->fresh()->getAttributes(), 'La cuenta queda como estaba.');
+        $this->assertTrue(Hash::check(UsuarioFactory::CONTRASENA, $administracion->fresh()->password));
+
+        $this->consultarCuenta($abierta)->assertOk()->assertJsonPath('usuario.rol', Rol::ADMINISTRACION);
+        $this->iniciarSesion(UsuarioFactory::CONTRASENA)->assertOk()->assertJsonPath('usuario.rol', Rol::ADMINISTRACION);
+    }
+
+    #[TestDox('administracion-app-E08: una cuenta de administración que ya tiene Google ligado recibe la misma respuesta: 422 en id_token, sin token y sin tocar su cuenta, su contraseña ni sus tokens')]
+    public function test_administracion_app_e08_la_administracion_con_google_ya_ligado_tampoco_entra_con_google(): void
+    {
+        $administracion = Usuario::factory()->conRol(Rol::ADMINISTRACION)->create(['correo' => self::CORREO]);
+        // Como la ligó el hueco de la tarea 6.2 de administracion, antes de ADR-0022.
+        $administracion->cuentasExternas()->create([
+            'proveedor' => 'google',
+            'sujeto' => self::SUJETO_DE_PRUEBA,
+            'correo' => self::CORREO,
+        ]);
+        $abierta = $this->iniciarSesion(UsuarioFactory::CONTRASENA)->assertOk()->json('token');
+        // Y un token "*" que salió por Google entonces.
+        $deGoogle = $administracion->createToken(TokensDeLaApp::NOMBRE)->plainTextToken;
+        $antes = $administracion->fresh()->getAttributes();
+        $tokens = PersonalAccessToken::query()->orderBy('id')->pluck('token')->all();
+
+        // El mismo sujeto, aunque en Google haya cambiado el correo: es la rama de la cuenta ya ligada.
+        $respuesta = $this->entrarConGoogle($this->idTokenDeGoogle(['email' => 'correo-nuevo@ejemplo.com']));
+
+        $this->assertRechazado($respuesta, self::ADMINISTRACION_CON_CONTRASENA);
+        $this->assertSame(1, CuentaExterna::count());
+        $this->assertSame(1, Usuario::count());
+        $this->assertSame($tokens, PersonalAccessToken::query()->orderBy('id')->pluck('token')->all(), 'No se crea ni se borra ningún token.');
+        $this->assertSame($antes, $administracion->fresh()->getAttributes(), 'La cuenta queda como estaba.');
+        $this->assertTrue(Hash::check(UsuarioFactory::CONTRASENA, $administracion->fresh()->password));
+
+        $this->consultarCuenta($abierta)->assertOk();
+        // El token "*" no abre la cuenta (administracion-app-E06).
+        $this->consultarCuenta($deGoogle)->assertForbidden()->assertJsonMissingPath('usuario');
     }
 
     /**

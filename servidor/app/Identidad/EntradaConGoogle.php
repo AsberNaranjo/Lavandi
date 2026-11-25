@@ -23,7 +23,10 @@ use Illuminate\Support\Facades\Log;
  *   (registro-E18; C-224, DD-091 cerrada; DD-132);
  * - una cuenta borrada no vuelve a entrar, y tampoco se crea otra con su correo, que sigue ocupado;
  * - una cuenta bloqueada desde el panel no entra, ya ligada o por su correo, y no se le liga nada ni se le cierra nada
- *   (administracion-E03): lo decide Autorizacion::puedeIniciarSesion().
+ *   (administracion-E03): lo decide Autorizacion::puedeIniciarSesion();
+ * - una cuenta de administración no entra, ya ligada o por su correo: entra con su correo y su contraseña, y no se le
+ *   liga nada, ni se le anula la contraseña, ni se le cierra nada (administracion-app-E08; ADR-0022, decisión 5). Lo
+ *   decide Autorizacion::puedeEntrarConProveedorExterno(), antes de las dos ramas.
  */
 final class EntradaConGoogle
 {
@@ -74,7 +77,7 @@ final class EntradaConGoogle
         } elseif ($usuario->trashed()) {
             throw EntradaConGoogleRechazada::noValida();
         } else {
-            // Antes de ligar: a una cuenta bloqueada no se le cierra nada ni se le liga Google.
+            // Antes de ligar: a una cuenta de administración o bloqueada no se le cierra nada ni se le liga Google.
             $this->cerrarElAccesoAnterior($this->siPuedeEntrar($usuario));
         }
 
@@ -88,13 +91,18 @@ final class EntradaConGoogle
     }
 
     /**
-     * La misma cuenta, si el componente de autorización la deja abrir sesión: una bloqueada desde el panel no entra
-     * (administracion-E03).
+     * La misma cuenta, si el componente de autorización la deja abrir sesión con Google: la de administración no entra
+     * con un proveedor externo (administracion-app-E08), y una bloqueada desde el panel no entra (administracion-E03).
+     * Las dos ramas de cuentaDe() preguntan aquí antes de devolver la cuenta o de ligarla.
      *
      * @throws EntradaConGoogleRechazada
      */
     private function siPuedeEntrar(Usuario $usuario): Usuario
     {
+        if (! $this->autorizacion->puedeEntrarConProveedorExterno($usuario)) {
+            throw EntradaConGoogleRechazada::deAdministracion();
+        }
+
         return $this->autorizacion->puedeIniciarSesion($usuario) ? $usuario : throw EntradaConGoogleRechazada::bloqueada();
     }
 

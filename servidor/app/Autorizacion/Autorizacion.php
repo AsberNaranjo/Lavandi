@@ -19,10 +19,13 @@ use App\Models\Rol;
 use App\Models\Testimonio;
 use App\Models\Usuario;
 use App\Repartidores\RepartidorSinAcceso;
+use Carbon\CarbonInterface;
 use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Laravel\Sanctum\Contracts\HasAbilities;
+use Laravel\Sanctum\PersonalAccessToken;
 use Livewire\Livewire;
 
 /**
@@ -32,6 +35,10 @@ use Livewire\Livewire;
  * Toda ruta protegida de la API pasa por él con el middleware autorizar:<rol> (App\Http\Middleware\Autorizar), y el
  * panel de Filament le pregunta a través de Usuario::canAccessPanel(). Ninguna otra clase decide accesos. Las rutas que
  * no piden sesión y las piezas del panel que no muestran datos también se declaran aquí (autorizacion-E01).
+ *
+ * De la sesión de la administración en la app (ADR-0022, decisiones 2, 5 y 8), conoce qué habilidad y qué vencimiento
+ * lleva el token de cada cuenta, que pide App\Identidad\TokensDeLaApp; que las rutas de la administración exigen
+ * además la habilidad literal del token (permiteEnLaApi()); y que la administración no entra con un proveedor externo.
  *
  * Conoce el rol (registro-E14 y registro-E15), la tenencia de las direcciones (direcciones-E14), de los pedidos del
  * usuario (confirmacion-E12) y de los de la lavandería, con su plaza (pedidos-lavanderia-E02 y E09), qué teléfonos
@@ -50,6 +57,12 @@ use Livewire\Livewire;
  */
 final class Autorizacion
 {
+    /**
+     * La habilidad del token de la administración, y la única que lleva (ADR-0022, decisión 2). Se revisa literal: el "*"
+     * de los tokens de los demás roles no cuenta como ella (decisión 8).
+     */
+    public const HABILIDAD_DE_ADMINISTRACION = 'administracion';
+
     /**
      * Las rutas que no piden sesión, por "MÉTODO uri" y sin HEAD, cada una con la razón por la que no la pide
      * (autorizacion-E01). Toda otra ruta de la API pide la sesión de Sanctum y pasa por autorizar:<rol>, y toda otra
@@ -169,6 +182,74 @@ final class Autorizacion
     }
 
     /**
+     * Si la cuenta, con el token con el que llegó la petición, pasa una ruta de la API que pide ese rol. Solo la llama el
+     * middleware Autorizar, con el token de la petición (ADR-0022, decisión 8):
+     *
+     * - para el rol de administración, permite() y además un token de Sanctum que lleva la habilidad de administración
+     *   en su lista, literal (esTokenDeAdministracion()). Un token con "*", como los que salieron por Google antes de
+     *   ADR-0022, un TransientToken de la sesión web o ninguno no pasan (administracion-app-E06);
+     * - para los otros roles, permite(), igual que siempre.
+     *
+     * permite() no cambia ni recibe el token: la usan también el panel, la cola y usaLaApp(), donde no hay token de la
+     * app.
+     */
+    public function permiteEnLaApi(Usuario $usuario, string $rol, ?HasAbilities $token): bool
+    {
+        if ($rol !== Rol::ADMINISTRACION) {
+            return $this->permite($usuario, $rol);
+        }
+
+        return $this->permite($usuario, $rol) && $this->esTokenDeAdministracion($token);
+    }
+
+    /**
+     * Si el token es de administración: un token de Sanctum guardado, con la habilidad de administración en su lista. Se
+     * revisa la lista misma, sin can() ni tokenCan(), que dan por buena cualquier habilidad a un token con "*" (ADR-0022,
+     * decisión 8).
+     */
+    public function esTokenDeAdministracion(?HasAbilities $token): bool
+    {
+        return $token instanceof PersonalAccessToken
+            && is_array($token->abilities)
+            && in_array(self::HABILIDAD_DE_ADMINISTRACION, $token->abilities, true);
+    }
+
+    /**
+     * Las habilidades del token de la app que se crea para la cuenta (App\Identidad\TokensDeLaApp): la cuenta de
+     * administración, solo la de administración (ADR-0022, decisión 2; administracion-app-E01); las demás, "*", como
+     * siempre.
+     *
+     * @return list<string>
+     */
+    public function habilidadesDelTokenDeLaApp(Usuario $usuario): array
+    {
+        return $this->esDeAdministracion($usuario) ? [self::HABILIDAD_DE_ADMINISTRACION] : ['*'];
+    }
+
+    /**
+     * Cuándo vence el token de la app que se crea para la cuenta (App\Identidad\TokensDeLaApp): el de la administración, a
+     * los días de acceso.dias_del_token_de_administracion desde que se abre la sesión (ADR-0022, decisión 2;
+     * administracion-app-E01 y E05); los de los demás roles no vencen (registro-E10 y E11).
+     */
+    public function vencimientoDelTokenDeLaApp(Usuario $usuario): ?CarbonInterface
+    {
+        if (! $this->esDeAdministracion($usuario)) {
+            return null;
+        }
+
+        return now()->addDays((int) config('acceso.dias_del_token_de_administracion'));
+    }
+
+    /**
+     * Si la cuenta tiene el rol de administración, esté o no bloqueada: el token que reciba es siempre el de
+     * administración.
+     */
+    private function esDeAdministracion(Usuario $usuario): bool
+    {
+        return $usuario->roles->contains('codigo', Rol::ADMINISTRACION);
+    }
+
+    /**
      * Si la cuenta puede abrir una sesión, por cualquier vía: con correo y contraseña, con Google y, cuando exista, con
      * Apple (DD-069). Una cuenta bloqueada desde el panel no puede hasta que se levante el bloqueo (administracion-E03 y
      * E04; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #3), ni la de un repartidor dado de baja
@@ -177,6 +258,17 @@ final class Autorizacion
     public function puedeIniciarSesion(Usuario $usuario): bool
     {
         return $usuario->estado !== Usuario::BLOQUEADO && ! $this->esRepartidorDeBaja($usuario);
+    }
+
+    /**
+     * Si la cuenta puede entrar con un proveedor externo: con Google y, cuando exista, con Apple (DD-069), que pregunta
+     * aquí igual. La administración no: entra con su correo y su contraseña, la cuenta nace con contraseña por el comando
+     * (administracion-E26) y el panel de respaldo solo entra con ella (ADR-0022, decisión 5; administracion-app-E08). Se
+     * pregunta antes de ligar nada, tenga o no Google ligado.
+     */
+    public function puedeEntrarConProveedorExterno(Usuario $usuario): bool
+    {
+        return ! $this->esDeAdministracion($usuario);
     }
 
     /**
@@ -202,14 +294,16 @@ final class Autorizacion
     }
 
     /**
-     * Si la cuenta usa la app: la de un rol con módulo en ella, usuario, socio lavandería o socio repartidor. La
-     * administración entra por el panel y la app no le da token (registro-E33).
+     * Si la cuenta usa la app: la de un rol con módulo en ella, usuario, socio lavandería, socio repartidor o
+     * administración, que hace el Módulo D en la app (NSV-2026-001-v8.pdf:3:Cláusula I; C-247; ADR-0022, decisión 1;
+     * registro-E33). Una cuenta sin ninguno de esos roles no recibe token (administracion-app-E09).
      */
     public function usaLaApp(Usuario $usuario): bool
     {
         return $this->permite($usuario, Rol::USUARIO)
             || $this->permite($usuario, Rol::LAVANDERIA)
-            || $this->permite($usuario, Rol::REPARTIDOR);
+            || $this->permite($usuario, Rol::REPARTIDOR)
+            || $this->permite($usuario, Rol::ADMINISTRACION);
     }
 
     /**

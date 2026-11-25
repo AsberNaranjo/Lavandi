@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RegistroDeRepartidorRequest;
 use App\Http\Resources\RepartidorResource;
 use App\Http\Resources\UsuarioResource;
+use App\Identidad\TokensDeLaApp;
 use App\Models\Usuario;
 use App\Repartidores\RegistroDeRepartidor;
 use App\Repartidores\RepartidorSinAcceso;
@@ -74,15 +75,18 @@ use Illuminate\Support\Arr;
  */
 class RepartidorController extends Controller
 {
-    public function registrar(RegistroDeRepartidorRequest $peticion, RegistroDeRepartidor $registro): JsonResponse
-    {
+    public function registrar(
+        RegistroDeRepartidorRequest $peticion,
+        RegistroDeRepartidor $registro,
+        TokensDeLaApp $tokens,
+    ): JsonResponse {
         $repartidor = $registro->registrar(
             Arr::only($peticion->validated(), ['nombre', 'telefono', 'correo', 'password', 'tipo_vehiculo']),
             $peticion->foto(),
         );
 
         return response()->json([
-            'token' => $repartidor->cuenta->createToken(SesionController::NOMBRE_DEL_TOKEN)->plainTextToken,
+            'token' => $tokens->crear($repartidor->cuenta)->plainTextToken,
             'usuario' => new UsuarioResource($repartidor->cuenta),
             'repartidor' => RepartidorResource::delRepartidor($repartidor),
         ], 201);
