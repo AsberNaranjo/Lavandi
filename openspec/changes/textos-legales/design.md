@@ -75,43 +75,6 @@ dependencias.
    - Para cargar en producción (textos-legales-E03, bloqueada por DD-080) se corre en el servidor de producción, con su
      `.env`.
 
-### La página para pedir el borrado de la cuenta (tarea 1.4, 2026-11-24)
-
-La decidió el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245), en la decisión 66 de
-`acta-2026-11-20-modelo-y-pasarela.md`: es la parte de Arthur de DD-109, y su adenda es la del 2026-11-24 de ADR-0005.
-Google Play pide, además del borrado dentro de la app, un recurso web donde pedir el borrado de la cuenta, con su enlace
-declarado en el formulario de datos de Play Console (grado E,
-support.google.com/googleplay/android-developer/answer/13327111, consultado el 2026-11-24, SIN VERIFICAR contra lo que
-pida la revisión; `vault/arquitectura/verificaciones-fase-6.md`, fila 4).
-
-10. **Dónde vive:** `GET /borrado-de-cuenta`, ruta `textos-legales.borrado-de-cuenta`, con
-    `servidor/app/Http/Controllers/BorradoDeCuentaController.php` y la vista
-    `servidor/resources/views/publico/borrado-de-cuenta.blade.php`, sobre el diseño base de las páginas públicas
-    (`publico.layout`) y con el encabezado de los documentos legales. Se abre sin sesión: está en
-    `Autorizacion::rutasSinSesion()`. Es una página informativa: no tiene formulario, no abre sesión y no borra nada; su
-    dirección solo responde a GET. No es el borrado de la API (`Api\BorradoDeCuentaController`, perfil-usuario-E15).
-11. **Qué dice (textos-legales-E06):** el título, "Eliminar tu cuenta de" y `APP_NAME`, porque Google Play pide que la
-    página nombre la app como aparece en su ficha. Después, dos secciones:
-    - **"Desde la app":** los pasos con las etiquetas reales de la pantalla "Mi perfil"
-      (`movil/src/perfil-usuario/textos.ts`): "Mi perfil" en la pantalla principal, "Eliminar mi cuenta" al final del
-      perfil y "Eliminar" en el diálogo "¿Eliminar tu cuenta?". La entrada dice que es para quien usa la app para pedir
-      su servicio, porque la API solo da el borrado a la cuenta de usuario (`autorizar:usuario`).
-    - **"Por correo o por WhatsApp":** el correo de contacto (`landing.contacto.correo`, DD-117) y el WhatsApp de
-      soporte (`soporte.whatsapp`, DD-082), los mismos de "Contacto & Soporte" de la portada, con
-      `App\Landing\MediosDeContacto`: un correo que no es una dirección válida o un número sin dígitos no dan enlace.
-    No dice qué datos se borran ni cuáles se conservan (DD-109, de EL CLIENTE por la Cláusula X), no promete un borrado
-    manual desde el panel, que solo tiene bloqueo (Módulo D #3), y no es el aviso de privacidad (RN-27).
-12. **Sin contacto (textos-legales-E07):** en producción, el medio que falta no aparece, y sin ninguno no aparece la
-    sección "Por correo o por WhatsApp": la página sigue diciendo cómo eliminar la cuenta desde la app, sin ningún
-    contacto de ejemplo ni de prueba. Fuera de producción, un marcador de contenido de prueba en lugar de cada medio que
-    falta, como la portada.
-13. **Para los buscadores:** entra al mapa del sitio (`MapaDelSitio::PAGINAS`, medicion-E08), con su título "Eliminar tu
-    cuenta ·" y `APP_NAME`, y su descripción en `LANDING_DESCRIPCION_BORRADO_DE_CUENTA` (`landing.descripciones`,
-    medicion-E07), que aprueba EL CLIENTE (DD-117), con la misma lectura que las otras páginas. Por http redirige a
-    https como las demás (medicion-E13).
-14. **Qué no se hace:** ningún enlace nuevo en el pie legal (landing-E24 nombra solo dos) ni en la app; la declaración
-    de la dirección en Play Console es de publicacion-E11, bloqueada por DD-017, DD-084, DD-121 y DD-109.
-
 ### Las direcciones, para la app y las tiendas
 
 - **Aviso de privacidad:** `GET /aviso-de-privacidad`, ruta `textos-legales.aviso-de-privacidad`.
@@ -149,6 +112,46 @@ con su recomendación escrita aquí. No suman dependencias: `expo-web-browser` y
    valen el `APP_URL` de su servidor seguido de `/aviso-de-privacidad` y `/terminos` (`movil/.env.example`). La app no
    escribe ninguna: lo comprueban registro-E28 y textos-legales-E05.
 
+### La página para pedir el borrado de la cuenta (tarea 1.4, 2026-11-24)
+
+La decidió el concilio del 2026-11-24 por delegación de Arthur Naranjo (C-236, C-245), en la decisión 66 de
+`acta-2026-11-20-modelo-y-pasarela.md`: es la parte de Arthur de DD-109, y su adenda es la del 2026-11-24 de ADR-0005.
+Google Play pide, además del borrado dentro de la app, un recurso web donde pedir el borrado de la cuenta, con su enlace
+declarado en el formulario de datos de Play Console (grado E,
+support.google.com/googleplay/android-developer/answer/13327111, consultado el 2026-11-24, SIN VERIFICAR contra lo que
+pida la revisión; `vault/arquitectura/verificaciones-fase-6.md`, fila 4).
+
+10. **Dónde vive:** `GET /borrado-de-cuenta`, ruta `textos-legales.borrado-de-cuenta`, con
+    `servidor/app/Http/Controllers/BorradoDeCuentaController.php` y la vista
+    `servidor/resources/views/publico/borrado-de-cuenta.blade.php`, sobre el diseño base de las páginas públicas
+    (`publico.layout`) y con el encabezado de los documentos legales. Se abre sin sesión: está en
+    `Autorizacion::rutasSinSesion()`. Es una página informativa: no tiene formulario, no abre sesión y no borra nada; su
+    dirección solo responde a GET. No es el borrado de la API (`Api\BorradoDeCuentaController`, perfil-usuario-E15).
+11. **Qué dice (textos-legales-E06):** el título, "Eliminar tu cuenta de" y `APP_NAME`, porque Google Play pide que la
+    página nombre la app como aparece en su ficha. Después, dos secciones:
+    - **"Desde la app":** los pasos con las etiquetas reales de la pantalla "Mi perfil"
+      (`movil/src/perfil-usuario/textos.ts`): "Mi perfil" en la pantalla principal, "Eliminar mi cuenta" al final del
+      perfil y "Eliminar" en el diálogo "¿Eliminar tu cuenta?". La entrada dice que es para quien usa la app para pedir
+      su servicio, porque la API solo da el borrado a la cuenta de usuario (`autorizar:usuario`). La prueba de E06
+      compara las cuatro etiquetas con `textos.ts`, así que una etiqueta que cambie en la app la hace fallar. El enlace
+      "Mi perfil" bajo el título de la pantalla principal es provisional mientras no exista la barra inferior
+      (`movil/app/inicio.tsx`): cuando llegue la barra, hay que revisar el segundo paso, porque esa prueba no lo detecta.
+    - **"Por correo o por WhatsApp":** el correo de contacto (`landing.contacto.correo`, DD-117) y el WhatsApp de
+      soporte (`soporte.whatsapp`, DD-082), los mismos de "Contacto & Soporte" de la portada, con
+      `App\Landing\MediosDeContacto`: un correo que no es una dirección válida o un número sin dígitos no dan enlace.
+    No dice qué datos se borran ni cuáles se conservan (DD-109, de EL CLIENTE por la Cláusula X), no promete un borrado
+    manual desde el panel, que solo tiene bloqueo (Módulo D #3), y no es el aviso de privacidad (RN-27).
+12. **Sin contacto (textos-legales-E07):** en producción, el medio que falta no aparece, y el título de la sección
+    nombra solo el que queda ("Por correo" o "Por WhatsApp"); sin ninguno no aparece la sección "Por correo o por
+    WhatsApp": la página sigue diciendo cómo eliminar la cuenta desde la app, sin ningún contacto de ejemplo ni de
+    prueba. Fuera de producción, un marcador de contenido de prueba en lugar de cada medio que falta, como la portada.
+13. **Para los buscadores:** entra al mapa del sitio (`MapaDelSitio::PAGINAS`, medicion-E08), con su título "Eliminar tu
+    cuenta ·" y `APP_NAME`, y su descripción en `LANDING_DESCRIPCION_BORRADO_DE_CUENTA` (`landing.descripciones`,
+    medicion-E07), que aprueba EL CLIENTE (DD-117), con la misma lectura que las otras páginas. Por http redirige a
+    https como las demás (medicion-E13).
+14. **Qué no se hace:** ningún enlace nuevo en el pie legal (landing-E24 nombra solo dos) ni en la app; la declaración
+    de la dirección en Play Console es de publicacion-E11, bloqueada por DD-017, DD-084, DD-121 y DD-109.
+
 ## Tablas y migración
 
 No crea tablas ni migraciones, y no lee ni escribe ninguna tabla de `vault/arquitectura/modelo-de-datos.md` (ADR-0016).
@@ -173,7 +176,17 @@ No crea tablas ni migraciones, y no lee ni escribe ninguna tabla de `vault/arqui
 - [Que Google Play rechace la página del borrado de la cuenta si en producción no hay correo ni WhatsApp de contacto:
   pide poder solicitar el borrado sin volver a la app] → la página solo publica el contacto que EL CLIENTE dé
   (DD-117, DD-082), y sin él no inventa uno (textos-legales-E07). Antes del envío a las tiendas (publicacion-E11) hace
-  falta al menos uno de los dos.
+  falta al menos uno de los dos. Para la cuenta de socio repartidor, que se crea desde la app (`POST
+  api/repartidor/registro`, repartidor-E01) pero no tiene el borrado en ella (la API lo da solo a la cuenta de usuario,
+  `autorizar:usuario`), el correo o el WhatsApp es el único camino: sin ninguno, no tiene cómo pedirlo.
+- [Una petición de borrado que llega por correo o por WhatsApp no tiene en la plataforma con qué cumplirse: el Módulo D
+  solo da consulta, historial y bloqueo de usuarios (Módulo D #3, `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`), y las
+  cuentas de socio lavandería y de socio repartidor no tienen borrado en la app] → la página no promete un borrado
+  manual ni un plazo. Cómo atiende EL CLIENTE esa petición sigue en DD-109.
+- [Si al borrar la cuenta se conservan datos, Google Play pide informar esa retención, por ejemplo en el aviso de
+  privacidad (grado E, support.google.com/googleplay/android-developer/answer/13327111, consultado el 2026-11-24, SIN
+  VERIFICAR)] → la página no lo dice, porque qué se conserva es de EL CLIENTE (DD-109) y el aviso también (DD-080).
+  Antes del envío a las tiendas, esa declaración tiene que estar en el aviso si se conservan datos.
 
 ## Open Questions
 
