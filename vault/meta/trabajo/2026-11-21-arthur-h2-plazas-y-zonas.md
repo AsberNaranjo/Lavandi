@@ -221,7 +221,8 @@ foto del perfil (el disco privado).
   Pasan 1298 pruebas del servidor y 1282 de la app, en verde, sobre `21e99bb`.
 - **El lote 3** (P18, los logos de prensa sin borrado; P20, `php artisan administracion:crear-cuenta {correo}`) se
   revisó, se corrigió y se unió en `ed1daae`. Su suite completa la corre la CI de GitHub; la local quedó pendiente.
-- **El lote 4** (P19) se unió en `6789baa`. Con él están los 20 paquetes del concilio.
+- **El lote 4** (P19) se unió en `6789baa`. Con él están los 20 paquetes del concilio, en el PR #4:
+  https://github.com/nhadadn/Lavandi/pull/4. Depende del PR #3.
 - **La CI.** `landing-navegadores` falla en Ubuntu 26.04 con Playwright 1.57; se fijó en `ubuntu-24.04` (`8dcda06`).
 - **2026-11-24, por la noche (C-246, C-247).** Arthur pidió:
   - arreglar la CI;
