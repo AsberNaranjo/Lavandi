@@ -73,7 +73,10 @@ cumple cada escenario; se pueden rehacer sin tocar los requisitos.
   `LANDING_DESCRIPCION_TERMINOS` (`landing.descripciones`), que aprueba EL CLIENTE (DD-117). Mientras falten, la misma
   lectura que el pie legal de `landing`: fuera de producción, un marcador de contenido de prueba propio de cada página;
   en producción, ninguna descripción, porque no se inventa y las páginas legales no admiten texto de prueba
-  (textos-legales-E02). medicion-E07 se acredita en producción cuando lleguen los tres textos.
+  (textos-legales-E02). medicion-E07 se acredita en producción cuando lleguen los textos de todas las páginas públicas.
+  La página para pedir el borrado de la cuenta (textos-legales-E06, 2026-11-24) suma la suya,
+  `LANDING_DESCRIPCION_BORRADO_DE_CUENTA`, con su título "Eliminar tu cuenta · …", y entra al mapa del sitio
+  (`MapaDelSitio::PAGINAS`, medicion-E08).
 - **Mapa del sitio y robots (tarea 2.1):** dos rutas públicas, `GET /sitemap.xml` y `GET /robots.txt`
   (`BuscadoresController`), declaradas en `Autorizacion::rutasSinSesion()`. Las direcciones salen de los nombres de las
   rutas, así que van en el dominio de `APP_URL` aunque la consulta llegue por otro. El `public/robots.txt` fijo se
