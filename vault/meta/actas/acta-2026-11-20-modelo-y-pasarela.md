@@ -168,6 +168,25 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
     explicó y se siguió con él, dentro de "terminar al 100%".
   - **Qué es "al 100%".** Se lee como todo lo que no espera a Nadir, a EL CLIENTE ni a las cuentas de prueba. Lo que
     espera a ellos sigue en sus DD: el concilio lo contó, 119 tareas ([[concilio-2026-11-24]]).
+- C-247 (Arthur Naranjo, 2026-11-24, por la noche). Viendo el emulador:
+  - **Su objeción.** "No me agrada cómo se ve eso, porque estoy viendo que me manda a una página y no abre el inicio de
+    sesión. El administrador debe iniciar sesión. Eso del panel es algo tonto, ya que en sí esta app es una app móvil,
+    no una app web."
+  - **La pregunta y su respuesta.** A la pregunta "¿Hasta dónde llega la administración dentro de la app móvil?", eligió
+    **"Todo el Módulo D en la app"**, la opción recomendada:
+    - el administrador inicia sesión en la app y ahí hace todo lo que pide el contrato (`NSV-2026-001-v8.pdf:19:ANEXO A,
+      Sección A.3, Módulo D` y `:22:ANEXO A, Sección A.5`);
+    - el panel web se queda solo como respaldo interno y no se muestra.
+  - **Las opciones descartadas:** la vista reducida de C-140, y quitar el panel web.
+  - **Lo que revoca:**
+    - en C-140, la parte de "web completo";
+    - la decisión 31;
+    - la decisión 56 del concilio, que había dejado la administración en un botón que abre la web y descartaba las
+      consultas y los avisos que C-140 sí pedía.
+  - **Lo que pidió para el video.** Primero lo quiso solo del modo administrador. Luego lo pidió completo, con un pedido de
+    prueba que cruce cliente, recolector y administrador. La parte del administrador se graba cuando exista en la app.
+  - **Sobre la página de borrado de cuenta (P19):** "no borres la cuenta aún, que no hemos creado ninguna técnicamente".
+    Se le aclaró que P19 solo publica una página informativa y no borra nada.
 
 ## Decisiones tomadas en la sesión
 
@@ -241,6 +260,7 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
 | 66 | DD-109, la parte de Arthur: una página pública informativa para pedir el borrado de la cuenta, desde la app o por el contacto de soporte, sin prometer qué datos se conservan. Lleva una adenda de ADR-0005. El requisito de Google Play se confirma antes de construir | Un flujo web de borrado con inicio de sesión | Concilio, 3 de 3 (C-245) | adenda de [[ADR-0005-autenticacion]]; P19 |
 | 67 | Los respaldos de la base de datos entran como renglón del mapa de cuentas de publicacion-E03: los contrata EL CLIENTE con el alojamiento de DD-070. No hay escenario de restauración | Un escenario de restauración | Concilio, 3 de 3 (C-245) | P12 |
 | 68 | Brecha D-3: la cuenta de administración del dueño se crea con `php artisan administracion:crear-cuenta {correo}`, que pide la contraseña oculta y no le da el rol a una cuenta que ya existe (`:21:A.4.3`, `:44:D.1`). No se corre en ningún entorno hasta DD-070 y el correo que dé EL CLIENTE | Una página para crear administradores | Concilio, 3 de 3 (C-245) | P20 |
+| 69 | El Módulo D completo vive en la app móvil: el administrador inicia sesión en la app y ahí hace las funciones del Módulo D (`:19`) y ve los indicadores del A.5 (`:22`). El panel web de Filament se queda como respaldo interno y no se muestra. Reemplaza la decisión 31, la decisión 56 y la parte de "web completo" de C-140. Antes del código van un ADR y una spec | Vista reducida en la app con el panel web (C-140); un botón que abre la web (decisión 56); quitar el panel web | Arthur (C-247) | ADR y spec por escribir |
 
 **Lo que el concilio no aprobó** ([[concilio-2026-11-24]]):
 - La brecha D-1, el recorrido del pedido en una plaza nueva, salió 2 a 1. El escéptico sostuvo que hasta Entregado depende de DD-014 y DD-022, y que recortarlo hasta Listo sería un atajo. No se hace.
