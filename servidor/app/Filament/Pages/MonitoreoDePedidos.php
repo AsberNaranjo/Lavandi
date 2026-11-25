@@ -3,12 +3,12 @@
 namespace App\Filament\Pages;
 
 use App\Autorizacion\Autorizacion;
-use App\Filament\EstadosDelPedido;
 use App\Filament\MapaDelPanel;
 use App\Models\EstadoPedido;
 use App\Models\Pedido;
 use App\Models\Usuario;
 use App\Pedidos\MarcadoresDelMonitoreo;
+use App\Pedidos\NombresDelEstado;
 use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
@@ -70,7 +70,7 @@ class MonitoreoDePedidos extends Page implements HasTable
                     ->label('Estado')
                     ->badge()
                     ->state(fn (Pedido $record): string => $record->estado->codigo)
-                    ->formatStateUsing(fn (Pedido $record): string => EstadosDelPedido::nombre($record->estado))
+                    ->formatStateUsing(fn (Pedido $record): string => NombresDelEstado::nombre($record->estado))
                     ->color(fn (string $state): string => match ($state) {
                         EstadoPedido::CONFIRMADO => 'warning',
                         EstadoPedido::RECHAZADO => 'danger',

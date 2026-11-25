@@ -2,7 +2,6 @@
 
 namespace App\Pedidos;
 
-use App\Filament\EstadosDelPedido;
 use App\Models\Pedido;
 use App\Models\PedidoDireccion;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *   (pedido_direcciones.id_direcciones). Si salió de la misma, el pedido lleva un solo marcador, el de la recolección,
  *   que dice "Recolección y entrega".
  *
- * Cada marcador lleva el folio, el estado operativo (App\Filament\EstadosDelPedido, como la tabla) y la plaza del pedido,
+ * Cada marcador lleva el folio, el estado operativo (NombresDelEstado, como la tabla) y la plaza del pedido,
  * y el punto que se guardó con la dirección, leído con PostGIS: no se geocodifica nada (presupuesto-de-mapas.md,
  * decisión 3). No hay marcadores de repartidores: su posición está fuera del contrato (proposal.md).
  *
@@ -76,7 +75,7 @@ final class MarcadoresDelMonitoreo
         return [
             'pedido' => $pedido->id_publico,
             'folio' => $pedido->folio,
-            'estado' => EstadosDelPedido::nombre($pedido->estado),
+            'estado' => NombresDelEstado::nombre($pedido->estado),
             'plaza' => $pedido->plaza->nombre,
             'tipo' => $tipo,
             'etiqueta' => $etiqueta,
