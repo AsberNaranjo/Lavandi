@@ -93,15 +93,15 @@ html,body{width:390px;height:844px;overflow:hidden;background:var(--fondo)}
 .dos{display:flex;gap:12px}
 .dos > *{flex:1}
 .pest{display:flex;border:1px solid var(--borde-fuerte);border-radius:8px;overflow:hidden;background:var(--superficie)}
-.pest > button{flex:1;min-height:48px;display:flex;align-items:center;justify-content:center;padding:0 12px;font-size:16px;white-space:nowrap;text-align:center}
-.pest > button + button{border-left:1px solid var(--borde)}
+.pest > *{flex:1;min-height:48px;display:flex;align-items:center;justify-content:center;padding:0 12px;font-size:16px;white-space:nowrap;text-align:center}
+.pest > * + *{border-left:1px solid var(--borde)}
 .pest > .pest-sel{background:var(--accion);color:var(--accion-texto);font-weight:700}
 .desliza{margin:0 -16px;overflow:hidden;flex:none;position:relative}
 .desliza .pest{display:inline-flex;margin:0 16px}
-.desliza .pest > button{flex:none}
-.desvanece{position:absolute;top:0;bottom:0;width:44px;pointer-events:none}
-.desvanece-der{right:0;background:linear-gradient(to right,rgba(247,244,239,0),#F7F4EF 85%)}
-.desvanece-izq{left:0;background:linear-gradient(to left,rgba(247,244,239,0),#F7F4EF 85%)}
+.desliza .pest > *{flex:none}
+.desvanece{position:absolute;top:0;bottom:0;width:64px;pointer-events:none}
+.desvanece-der{right:0;background:linear-gradient(to right,rgba(247,244,239,0),rgba(247,244,239,.92) 55%,#F7F4EF 75%)}
+.desvanece-izq{left:0;background:linear-gradient(to left,rgba(247,244,239,0),rgba(247,244,239,.92) 55%,#F7F4EF 75%)}
 .sep{display:flex;align-items:center;gap:12px}
 .sep-l{flex:1;height:1px;background:var(--borde)}
 .sep-t{font-weight:400;font-size:14px;color:var(--suave)}
@@ -145,7 +145,7 @@ html,body{width:390px;height:844px;overflow:hidden;background:var(--fondo)}
 </head>
 <body>
 <main class="tel" data-raiz="1">
-<header class="enc"><a class="reg" href="03-inicio-del-modulo.html" aria-label="Regresar"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="#171C21" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 class="enc-t">Monitoreo de pedidos</h1><span class="lado"></span></header><section class="cont cont-enc"><p class="par menor ">3 pedidos activos · todas las plazas · se pone al día cada 30 s</p><div class="tarj "><p class="par ">El mapa no está disponible en esta versión de la app.</p></div><h3 class="tsec">Pedidos activos</h3><div class="tarj tarj-compacta"><div class="cab cab-arriba"><span class="nom">Pedido 7K2M9QXA</span><span class="ins ins-cuad " style="color:var(--atencion)"><span class="punto" aria-hidden="true"></span>En proceso</span></div><p class="menor">Plaza de prueba Durango</p><p class="menor suave num">Recolección: 24/11/2026, 09:00 a 10:00</p></div><div class="tarj tarj-compacta"><div class="cab cab-arriba"><span class="nom">Pedido 3HT8W2QZ</span><span class="ins ins-cuad " style="color:var(--atencion)"><span class="punto" aria-hidden="true"></span>Confirmado</span></div><p class="menor">Plaza de prueba Durango</p><p class="menor suave num">Recolección: 24/11/2026, 11:00 a 12:00</p></div><div class="tarj tarj-compacta"><div class="cab cab-arriba"><span class="nom">Pedido M4P7R2KD</span><span class="ins ins-cuad " style="color:var(--p-recolectado)"><span class="punto" aria-hidden="true"></span>Recolectado</span></div><p class="menor">Plaza de prueba Torreón</p><p class="menor suave num">Recolección: 24/11/2026, 12:00 a 13:00</p></div><p class="nota-ej">Ejemplo para ilustrar · datos de prueba</p></section>
+<header class="enc"><a class="reg" href="03-inicio-del-modulo.html" aria-label="Regresar"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="#171C21" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 class="enc-t">Monitoreo de pedidos</h1><span class="lado"></span></header><section class="cont cont-enc"><p class="par menor ">3 pedidos activos · todas las plazas · se pone al día cada 30 s</p><div class="tarj "><p class="par ">El mapa no está disponible en esta versión de la app.</p></div><h3 class="tsec">Pedidos activos</h3><div class="tarj tarj-compacta"><div class="cab cab-arriba"><span class="nom">Pedido 7K2M9QXA</span><span class="ins ins-cuad " style="color:var(--atencion)"><span class="punto" aria-hidden="true"></span>En proceso</span></div><p class="menor">Plaza de prueba Durango</p><p class="menor suave num">Recolección: 24/11/2026, 09:00 a 10:00</p></div><div class="tarj tarj-compacta"><div class="cab cab-arriba"><span class="nom">Pedido R6T3N8VB</span><span class="ins ins-cuad " style="color:var(--atencion)"><span class="punto" aria-hidden="true"></span>Confirmado</span></div><p class="menor">Plaza de prueba Durango</p><p class="menor suave num">Recolección: 24/11/2026, 11:00 a 12:00</p></div><div class="tarj tarj-compacta"><div class="cab cab-arriba"><span class="nom">Pedido W9C4D7PL</span><span class="ins ins-cuad " style="color:var(--p-recolectado)"><span class="punto" aria-hidden="true"></span>Recolectado</span></div><p class="menor">Plaza de prueba Torreón</p><p class="menor suave num">Recolección: 24/11/2026, 12:00 a 13:00</p></div><p class="nota-ej">Ejemplo para ilustrar · datos de prueba</p></section>
 </main>
 <script>
 (function(){
@@ -154,8 +154,8 @@ function deslizar(){
   var p=d.querySelector('.pest'),t=p.children[+d.getAttribute('data-elegida')];
   var ancho=d.getBoundingClientRect().width,fila=p.getBoundingClientRect().width+32;
   var tb=t.getBoundingClientRect(),db=d.getBoundingClientRect();
-  var izq=tb.left-db.left,centro=izq+tb.width/2-ancho/2;
-  var mx=Math.max(0,fila-ancho),x=Math.max(0,Math.min(mx,centro));
+  var izq=tb.left-db.left,mx=Math.max(0,fila-ancho);
+  var x=(izq+tb.width<=ancho-64)?0:mx;
   p.style.transform='translateX(-'+Math.round(x)+'px)';
   if(x>0){var a=document.createElement('span');a.className='desvanece desvanece-izq';a.setAttribute('aria-hidden','true');d.appendChild(a);}
   if(x<mx){var b=document.createElement('span');b.className='desvanece desvanece-der';b.setAttribute('aria-hidden','true');d.appendChild(b);}

@@ -93,15 +93,15 @@ html,body{width:390px;height:844px;overflow:hidden;background:var(--fondo)}
 .dos{display:flex;gap:12px}
 .dos > *{flex:1}
 .pest{display:flex;border:1px solid var(--borde-fuerte);border-radius:8px;overflow:hidden;background:var(--superficie)}
-.pest > button{flex:1;min-height:48px;display:flex;align-items:center;justify-content:center;padding:0 12px;font-size:16px;white-space:nowrap;text-align:center}
-.pest > button + button{border-left:1px solid var(--borde)}
+.pest > *{flex:1;min-height:48px;display:flex;align-items:center;justify-content:center;padding:0 12px;font-size:16px;white-space:nowrap;text-align:center}
+.pest > * + *{border-left:1px solid var(--borde)}
 .pest > .pest-sel{background:var(--accion);color:var(--accion-texto);font-weight:700}
 .desliza{margin:0 -16px;overflow:hidden;flex:none;position:relative}
 .desliza .pest{display:inline-flex;margin:0 16px}
-.desliza .pest > button{flex:none}
-.desvanece{position:absolute;top:0;bottom:0;width:44px;pointer-events:none}
-.desvanece-der{right:0;background:linear-gradient(to right,rgba(247,244,239,0),#F7F4EF 85%)}
-.desvanece-izq{left:0;background:linear-gradient(to left,rgba(247,244,239,0),#F7F4EF 85%)}
+.desliza .pest > *{flex:none}
+.desvanece{position:absolute;top:0;bottom:0;width:64px;pointer-events:none}
+.desvanece-der{right:0;background:linear-gradient(to right,rgba(247,244,239,0),rgba(247,244,239,.92) 55%,#F7F4EF 75%)}
+.desvanece-izq{left:0;background:linear-gradient(to left,rgba(247,244,239,0),rgba(247,244,239,.92) 55%,#F7F4EF 75%)}
 .sep{display:flex;align-items:center;gap:12px}
 .sep-l{flex:1;height:1px;background:var(--borde)}
 .sep-t{font-weight:400;font-size:14px;color:var(--suave)}
@@ -145,7 +145,7 @@ html,body{width:390px;height:844px;overflow:hidden;background:var(--fondo)}
 </head>
 <body>
 <main class="tel" data-raiz="1">
-<header class="enc"><a class="reg" href="14-repartidores.html" aria-label="Regresar"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="#171C21" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 class="enc-t">Repartidor</h1><span class="lado"></span></header><section class="cont cont-enc"><div style="display:flex;align-items:center;gap:16px"><div class="foto-circ" role="img" aria-label="Foto de perfil"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="#98A1AC"/><path d="M4 20c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" fill="#98A1AC"/></svg></div><div class="columna-8" style="min-width:0"><h3 class="tsec">Repartidor de prueba 1</h3><div class="fila-ins"><span class="ins ins-cuad " style="color:var(--exito)"><span class="punto" aria-hidden="true"></span>Activo</span><span class="menor suave">Plaza de prueba Durango</span></div></div></div><div class="cifras"><div class="cifra"><span class="cifra-et">Teléfono</span><span class="cifra-vt">618 000 0001</span></div><div class="cifra cifra-sig"><span class="cifra-et">Correo</span><span class="cifra-vt">repartidor1@prueba.test</span></div><div class="cifra cifra-sig"><span class="cifra-et">Tipo de vehículo</span><span class="cifra-vt">Motocicleta</span></div></div><p class="nota-ej">Ejemplo para ilustrar · datos de prueba</p></section><footer class="acc"><a class="btn" href="20-repartidor-editar.html">Editar</a><div class="botones botones-fila"><a class="btn btn-sec" href="19-repartidor-suspendido.html">Suspender</a><button type="button" class="btn btn-sec">Dar de baja</button></div></footer>
+<header class="enc"><a class="reg" href="14-repartidores.html" aria-label="Regresar"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="#171C21" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 class="enc-t">Repartidor</h1><span class="lado"></span></header><section class="cont cont-enc"><div style="display:flex;align-items:center;gap:16px"><div class="foto-circ" role="img" aria-label="Foto de perfil"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="#98A1AC"/><path d="M4 20c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" fill="#98A1AC"/></svg></div><div class="columna-8" style="min-width:0"><h3 class="tsec">Repartidor de prueba 1</h3><div class="fila-ins"><span class="ins ins-cuad " style="color:var(--exito)"><span class="punto" aria-hidden="true"></span>Activo</span><span class="menor suave">Plaza de prueba Durango</span></div></div></div><div class="cifras"><div class="cifra"><span class="cifra-et">Teléfono</span><span class="cifra-vt">618 000 0001</span></div><div class="cifra cifra-sig"><span class="cifra-et">Correo</span><span class="cifra-vt">repartidor1@prueba.test</span></div><div class="cifra cifra-sig"><span class="cifra-et">Tipo de vehículo</span><span class="cifra-vt">Motocicleta</span></div></div><p class="nota-ej">Ejemplo para ilustrar · datos de prueba</p></section><footer class="acc"><a class="btn" href="20-repartidor-editar.html">Editar</a><div class="botones botones-fila"><a class="btn btn-sec" href="63-repartidor-suspender.html">Suspender</a><a class="btn btn-sec" href="64-repartidor-dar-de-baja.html">Dar de baja</a></div></footer>
 </main>
 <script>
 (function(){
@@ -154,8 +154,8 @@ function deslizar(){
   var p=d.querySelector('.pest'),t=p.children[+d.getAttribute('data-elegida')];
   var ancho=d.getBoundingClientRect().width,fila=p.getBoundingClientRect().width+32;
   var tb=t.getBoundingClientRect(),db=d.getBoundingClientRect();
-  var izq=tb.left-db.left,centro=izq+tb.width/2-ancho/2;
-  var mx=Math.max(0,fila-ancho),x=Math.max(0,Math.min(mx,centro));
+  var izq=tb.left-db.left,mx=Math.max(0,fila-ancho);
+  var x=(izq+tb.width<=ancho-64)?0:mx;
   p.style.transform='translateX(-'+Math.round(x)+'px)';
   if(x>0){var a=document.createElement('span');a.className='desvanece desvanece-izq';a.setAttribute('aria-hidden','true');d.appendChild(a);}
   if(x<mx){var b=document.createElement('span');b.className='desvanece desvanece-der';b.setAttribute('aria-hidden','true');d.appendChild(b);}
