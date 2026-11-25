@@ -35,6 +35,11 @@ import {
   type Plataforma,
 } from '../apoyo/administracion';
 import { LAVANDERIA_DEL_SOCIO } from '../apoyo/lavanderia';
+import {
+  CUENTA_DEL_REPARTIDOR,
+  RUTA_DE_LOS_PEDIDOS as RUTA_DE_LOS_PEDIDOS_DEL_REPARTIDOR,
+  ServidorDelRepartidor,
+} from '../apoyo/repartidor';
 
 // La primera pantalla tarda más mientras Jest prepara el entorno.
 jest.setTimeout(60_000);
@@ -178,7 +183,10 @@ describe('administracion-app-E02: la app abre el módulo de la administración',
     },
   );
 
-  // Las pantallas de la lavandería y del usuario, con lo que piden al entrar.
+  // El perfil del repartidor activo y con su plaza, como lo da el apoyo del Módulo C: entra a sus pedidos.
+  const PERFIL_DEL_REPARTIDOR = new ServidorDelRepartidor('http://api.prueba.invalid/sin-uso').perfil();
+
+  // Las pantallas de la lavandería, del repartidor y del usuario, con lo que piden al entrar.
   const OTROS_ROLES = [
     {
       rol: 'lavandería',
@@ -188,6 +196,17 @@ describe('administracion-app-E02: la app abre el módulo de la administración',
         metodo === 'GET' && ruta === '/socio/lavanderias'
           ? respuesta(200, { lavanderias: [LAVANDERIA_DEL_SOCIO] })
           : metodo === 'GET' && ruta === '/lavanderia/pedidos'
+            ? respuesta(200, { pedidos: [] })
+            : undefined,
+    },
+    {
+      rol: 'repartidor',
+      cuenta: CUENTA_DEL_REPARTIDOR,
+      inicio: RUTA_DE_LOS_PEDIDOS_DEL_REPARTIDOR,
+      contestar: (metodo: string, ruta: string) =>
+        metodo === 'GET' && ruta === '/repartidor/perfil'
+          ? respuesta(200, { repartidor: PERFIL_DEL_REPARTIDOR })
+          : metodo === 'GET' && ruta === '/repartidor/pedidos'
             ? respuesta(200, { pedidos: [] })
             : undefined,
     },

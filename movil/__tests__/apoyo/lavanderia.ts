@@ -623,17 +623,26 @@ const gps = Location as unknown as { __reiniciar(): void };
 const camara = ImagePicker as unknown as { __reiniciar(): void };
 const manipulador = ImageManipulator as unknown as { __reiniciar(): void };
 
+/** Un servidor simulado de las pruebas: su fetch es el que la app usa durante la prueba. */
+export interface ServidorSimulado {
+  readonly fetch: jest.Mock;
+}
+
 /**
- * Prepara cada prueba del archivo con la app recién abierta en esta instalación y el servidor simulado en la dirección
- * base, y deja todo como estaba al terminar. Devuelve el servidor de la prueba en curso.
+ * Prepara cada prueba del archivo con la app recién abierta en esta instalación y el servidor simulado que da crear()
+ * en la dirección base, y deja todo como estaba al terminar. Devuelve el servidor de la prueba en curso. Lo usan el de
+ * la lavandería y el de la administración (__tests__/apoyo/administracion.ts).
  */
-export function usarElServidorDeLaLavanderia(nombre: string): () => ServidorDeLaLavanderia {
+export function usarElServidorSimulado<Servidor extends ServidorSimulado>(
+  nombre: string,
+  crear: (base: string) => Servidor,
+): () => Servidor {
   const base = `http://api.prueba.invalid/${nombre}`;
   const direccionOriginal = process.env.EXPO_PUBLIC_API_URL;
   const nombreOriginal = process.env.EXPO_PUBLIC_NOMBRE_APP;
   const fetchOriginal = global.fetch;
   const formDataOriginal = global.FormData;
-  let servidor: ServidorDeLaLavanderia;
+  let servidor: Servidor;
 
   beforeEach(() => {
     almacen.__vaciar();
@@ -645,7 +654,7 @@ export function usarElServidorDeLaLavanderia(nombre: string): () => ServidorDeLa
     process.env.EXPO_PUBLIC_API_URL = base;
     // El inicio de sesión muestra el nombre de la app, que sale de la configuración (base-E09).
     process.env.EXPO_PUBLIC_NOMBRE_APP = `Nombre de prueba ${nombre}`;
-    servidor = new ServidorDeLaLavanderia(base);
+    servidor = crear(base);
     global.fetch = servidor.fetch as unknown as typeof fetch;
     // El FormData del teléfono: en Jest, el global es el de Node.
     global.FormData = FormDataDelTelefono;
@@ -673,15 +682,31 @@ export function usarElServidorDeLaLavanderia(nombre: string): () => ServidorDeLa
 }
 
 /**
+ * Prepara cada prueba del archivo con la app recién abierta en esta instalación y el servidor simulado de la lavandería
+ * en la dirección base. Devuelve el servidor de la prueba en curso.
+ */
+export function usarElServidorDeLaLavanderia(nombre: string): () => ServidorDeLaLavanderia {
+  return usarElServidorSimulado(nombre, (base) => new ServidorDeLaLavanderia(base));
+}
+
+/**
+ * Deja el teléfono, en esa plataforma, como el de una cuenta que ya entró antes en esta instalación: vio la bienvenida
+ * y tiene su token guardado, el de la lavandería si la prueba no dice otro.
+ */
+export async function prepararElTelefonoConSesion(plataforma: Plataforma, token = TOKEN): Promise<void> {
+  jest.replaceProperty(Platform, 'OS', plataforma);
+  await comprobarInstalacion();
+  await marcarBienvenidaVista();
+  await guardarToken(token);
+}
+
+/**
  * Abre la app como al tocar su ícono, en esa plataforma, con la sesión guardada de una cuenta que ya entró antes en
  * esta instalación (vio la bienvenida y tiene su token). La cuenta es la del servidor: la de la lavandería, si la
  * prueba no dice otra.
  */
-export async function abrirLaAppConSesion(plataforma: Plataforma, ruta = '/'): Promise<void> {
-  jest.replaceProperty(Platform, 'OS', plataforma);
-  await comprobarInstalacion();
-  await marcarBienvenidaVista();
-  await guardarToken(TOKEN);
+export async function abrirLaAppConSesion(plataforma: Plataforma, ruta = '/', token = TOKEN): Promise<void> {
+  await prepararElTelefonoConSesion(plataforma, token);
   await renderRouter(APP, { initialUrl: ruta });
 }
 

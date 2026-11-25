@@ -1,8 +1,8 @@
 // Apoyo de las pruebas del Módulo D en la app, lo que ve y hace la administración
 // (openspec/changes/administracion-en-la-app; ADR-0022). No es una prueba: Jest no lo corre como tal
 // (testPathIgnorePatterns en package.json). Abre la app real, con las rutas de movil/app/ (ADR-0017), y simula el
-// servidor con el contrato de la sesión de design.md, sección 2. La apertura de la app, las respuestas y la lectura de
-// las peticiones son las del apoyo del Módulo B (__tests__/apoyo/lavanderia.ts).
+// servidor con el contrato de la sesión de design.md, sección 2. La preparación de cada prueba, la apertura de la app,
+// las respuestas y la lectura de las peticiones son las del apoyo del Módulo B (__tests__/apoyo/lavanderia.ts).
 //
 // Lo que responde por su cuenta es la sesión, como el servidor real después de la tarea 1.3:
 // - POST /sesion: 200 con el token y la cuenta (administracion-app-E01);
@@ -18,18 +18,18 @@
 // el orden en que los registró; cada función pone los suyos en __tests__/apoyo/administracion/<función>.ts, con el
 // contrato del comentario de su controlador. Una petición que ningún manejador contesta hace fallar la prueba con el
 // método y la ruta.
-import * as ImageManipulator from 'expo-image-manipulator';
-import * as ImagePicker from 'expo-image-picker';
-import { renderRouter } from 'expo-router/testing-library';
-import * as Location from 'expo-location';
-import * as SecureStore from 'expo-secure-store';
-import { AccessibilityInfo, Platform } from 'react-native';
-
-import { marcarBienvenidaVista } from '../../src/bienvenida/vista';
-import { comprobarInstalacion } from '../../src/instalacion/marca';
-import { guardarToken } from '../../src/sesion/almacen';
-import { FormDataDelTelefono } from './formulario';
-import { APP, CUENTAS, leer, recibir, respuesta, type Interceptor, type Peticion, type Plataforma } from './lavanderia';
+import {
+  abrirLaAppConSesion,
+  CUENTAS,
+  leer,
+  prepararElTelefonoConSesion,
+  recibir,
+  respuesta,
+  usarElServidorSimulado,
+  type Interceptor,
+  type Peticion,
+  type Plataforma,
+} from './lavanderia';
 
 export {
   abrirLaAppSinSesion,
@@ -147,57 +147,12 @@ export class ServidorDeLaAdministracion {
   }
 }
 
-// Las simulaciones de __mocks__/, la misma instancia que importa la app.
-const almacen = SecureStore as unknown as { __vaciar(): void };
-const gps = Location as unknown as { __reiniciar(): void };
-const camara = ImagePicker as unknown as { __reiniciar(): void };
-const manipulador = ImageManipulator as unknown as { __reiniciar(): void };
-
 /**
- * Prepara cada prueba del archivo con la app recién abierta en esta instalación y el servidor simulado en la dirección
- * base, y deja todo como estaba al terminar. Devuelve el servidor de la prueba en curso.
+ * Prepara cada prueba del archivo con la app recién abierta en esta instalación y el servidor simulado de la
+ * administración en la dirección base, como el de la lavandería. Devuelve el servidor de la prueba en curso.
  */
 export function usarElServidorDeLaAdministracion(nombre: string): () => ServidorDeLaAdministracion {
-  const base = `http://api.prueba.invalid/${nombre}`;
-  const direccionOriginal = process.env.EXPO_PUBLIC_API_URL;
-  const nombreOriginal = process.env.EXPO_PUBLIC_NOMBRE_APP;
-  const fetchOriginal = global.fetch;
-  const formDataOriginal = global.FormData;
-  let servidor: ServidorDeLaAdministracion;
-
-  beforeEach(() => {
-    almacen.__vaciar();
-    gps.__reiniciar();
-    camara.__reiniciar();
-    manipulador.__reiniciar();
-    process.env.EXPO_PUBLIC_API_URL = base;
-    // El inicio de sesión muestra el nombre de la app, que sale de la configuración (base-E09).
-    process.env.EXPO_PUBLIC_NOMBRE_APP = `Nombre de prueba ${nombre}`;
-    servidor = new ServidorDeLaAdministracion(base);
-    global.fetch = servidor.fetch as unknown as typeof fetch;
-    // El FormData del teléfono: en Jest, el global es el de Node.
-    global.FormData = FormDataDelTelefono;
-    // El selector anuncia la elección al lector de pantalla; en Jest no hay lector.
-    jest.spyOn(AccessibilityInfo, 'announceForAccessibilityWithOptions').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    for (const [variable, original] of [
-      ['EXPO_PUBLIC_API_URL', direccionOriginal],
-      ['EXPO_PUBLIC_NOMBRE_APP', nombreOriginal],
-    ] as const) {
-      if (original === undefined) {
-        delete process.env[variable];
-      } else {
-        process.env[variable] = original;
-      }
-    }
-    global.fetch = fetchOriginal;
-    global.FormData = formDataOriginal;
-    jest.restoreAllMocks();
-  });
-
-  return () => servidor;
+  return usarElServidorSimulado(nombre, (base) => new ServidorDeLaAdministracion(base));
 }
 
 /**
@@ -205,10 +160,7 @@ export function usarElServidorDeLaAdministracion(nombre: string): () => Servidor
  * vio la bienvenida y tiene su token guardado.
  */
 export async function prepararElTelefonoConLaAdministracion(plataforma: Plataforma): Promise<void> {
-  jest.replaceProperty(Platform, 'OS', plataforma);
-  await comprobarInstalacion();
-  await marcarBienvenidaVista();
-  await guardarToken(TOKEN_DE_LA_ADMINISTRACION);
+  await prepararElTelefonoConSesion(plataforma, TOKEN_DE_LA_ADMINISTRACION);
 }
 
 /**
@@ -216,6 +168,5 @@ export async function prepararElTelefonoConLaAdministracion(plataforma: Platafor
  * es la del servidor: la de administración, si la prueba no dice otra.
  */
 export async function abrirLaAppConLaAdministracion(plataforma: Plataforma, ruta = '/'): Promise<void> {
-  await prepararElTelefonoConLaAdministracion(plataforma);
-  await renderRouter(APP, { initialUrl: ruta });
+  await abrirLaAppConSesion(plataforma, ruta, TOKEN_DE_LA_ADMINISTRACION);
 }
