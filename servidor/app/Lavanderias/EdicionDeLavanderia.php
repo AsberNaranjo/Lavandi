@@ -6,16 +6,21 @@ use App\Models\Lavanderia;
 use App\Models\Municipio;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 /**
  * La edición de la información de una lavandería: nombre, dirección, foto, servicios con su precio y ventanas, con las
  * mismas validaciones del registro (App\Lavanderias\ReglasDeLaLavanderia), y la descripción y las fotos de su perfil
  * (alta-lavanderias-E26 a E31). La usan la app del socio (alta-lavanderias-E18; NSV-2026-001-v8.pdf:17:ANEXO A, Sección
- * A.3, Módulo B #6) y el panel de administración (alta-lavanderias-E13 y E31; :19:Módulo D #1).
+ * A.3, Módulo B #6), la API de la administración (administracion-app-E14; :19:Módulo D #1) y el panel web de respaldo
+ * (alta-lavanderias-E13 y E31).
  *
- * No sabe quién la llama: recibe la lavandería ya autorizada (App\Autorizacion\Autorizacion). Cambia solo lo que viene;
- * los servicios, las ventanas y las fotos, si vienen, son la lista completa y reemplazan a las anteriores.
+ * No sabe quién la llama: recibe la lavandería ya autorizada (App\Autorizacion\Autorizacion). Primero valida lo que
+ * cambia (validar()), la misma validación para los tres (ADR-0022, decisión 9), y luego lo guarda (editar()). Cambia
+ * solo lo que viene; los servicios, las ventanas y las fotos, si vienen, son la lista completa y reemplazan a las
+ * anteriores.
  *
  * - La dirección nueva se geocodifica una vez; si es la misma que ya tiene, no se consulta (ADR-0009). Fuera de las
  *   zonas, o en una zona de otra plaza, no se guarda (DireccionNoUbicable).
@@ -35,6 +40,49 @@ final class EdicionDeLavanderia
         private readonly ServiciosYVentanas $serviciosYVentanas,
         private readonly FotosDeLaLavanderia $fotos,
     ) {}
+
+    /**
+     * Lo que cambia, validado con las reglas del registro: ReglasDeLaLavanderia::para() de esos campos, con sus mensajes
+     * (alta-lavanderias-E13 y E31; administracion-app-E14). Qué cambia:
+     *
+     * - Sin lo leído, como en la app, que manda solo lo que cambia: cada campo de la edición que llega.
+     * - Con lo leído al abrir, como en el panel, que manda el formulario entero: solo los campos que son distintos de lo
+     *   leído. Así una lavandería de prueba sin municipio, o con franjas largas de horario, se edita en lo demás. Las
+     *   fotos leídas se nombran por su lugar (0, la primera): la lista cambia si no son esos lugares, en su orden. Se
+     *   comparan idénticas, porque una foto nueva es un archivo y nunca es un lugar; lo demás, con ==, como lo devuelve
+     *   el formulario.
+     *
+     * La lista de fotos se toma en el orden de sus lugares: en multipart, Laravel junta primero los textos y después los
+     * archivos, y fotos[0] como archivo y fotos[1]=0 quedarían al revés.
+     *
+     * @param  array<string, mixed>  $datos  Lo que llega, en la forma de la edición de la app: los campos de
+     *                                       ReglasDeLaLavanderia::CAMPOS_DE_LA_EDICION; lo demás no cuenta.
+     * @param  array<string, mixed>|null  $leidos  Lo que se leyó al abrir, en esa misma forma, con las fotos por su
+     *                                             lugar; null si quien llama manda solo lo que cambia.
+     * @return array<string, mixed> Lo validado que cambia, con la foto principal sola si vino, para editar().
+     *
+     * @throws ValidationException Con el error de cada campo en su llave de la edición: nombre, direccion.calle,
+     *                             servicios.0.precio, ventanas.1, fotos.2...
+     */
+    public function validar(array $datos, ?array $leidos = null): array
+    {
+        if (is_array($datos['fotos'] ?? null)) {
+            ksort($datos['fotos']);
+        }
+
+        $cambian = array_values(array_filter(
+            array_intersect(ReglasDeLaLavanderia::CAMPOS_DE_LA_EDICION, array_keys($datos)),
+            fn (string $campo): bool => $leidos === null
+                || ! array_key_exists($campo, $leidos)
+                || ($campo === 'fotos' ? $datos[$campo] !== $leidos[$campo] : $datos[$campo] != $leidos[$campo]),
+        ));
+
+        return Validator::make(
+            array_intersect_key($datos, array_flip($cambian)),
+            ReglasDeLaLavanderia::para($cambian),
+            ReglasDeLaLavanderia::mensajes(),
+        )->validate();
+    }
 
     /**
      * @param  array<string, mixed>  $datos  Lo validado que cambia, sin la foto principal sola. Las fotos nuevas de la

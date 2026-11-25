@@ -9,7 +9,6 @@ use App\Http\Resources\LavanderiaDelSocioResource;
 use App\Lavanderias\DireccionNoUbicable;
 use App\Lavanderias\EdicionDeLavanderia;
 use App\Lavanderias\FotosDeLaLavanderia;
-use App\Lavanderias\ReglasDeLaLavanderia;
 use App\Models\Lavanderia;
 use App\Models\LavanderiaHorario;
 use App\Models\LavanderiaServicio;
@@ -19,28 +18,26 @@ use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Locked;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 /**
  * La edición de una lavandería en el panel (alta-lavanderias-E13 y E31; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3,
- * Módulo D #1, "edición de socios"). Usa la misma edición y las mismas validaciones del registro que la app
- * (App\Lavanderias\EdicionDeLavanderia y App\Lavanderias\ReglasDeLaLavanderia; design.md, "Decisions").
+ * Módulo D #1, "edición de socios"). Usa la misma edición y la misma validación que la app y la API de la administración
+ * (App\Lavanderias\EdicionDeLavanderia, validar() y editar(), con las reglas de App\Lavanderias\ReglasDeLaLavanderia;
+ * design.md, "Decisions"; ADR-0022, decisión 9).
  *
- * Como en el PATCH de la app, solo se manda lo que cambió desde que se abrió la página: así una lavandería de prueba sin
- * municipio, o con franjas largas de horario, se puede editar en lo demás. Las fotos van como en la app: la lista
- * completa, cada una que ya tiene por su lugar y cada nueva como archivo, y solo si cambió. Los lugares se cuentan sobre
- * las fotos que se leyeron al abrir la página, y la edición rechaza la lista si las fotos cambiaron después, por
- * ejemplo desde la app (alta-lavanderias-E31). Cada error vuelve junto al campo del formulario que lo causó.
+ * Como en el PATCH de la app, solo se valida y se guarda lo que cambió desde que se abrió la página: así una lavandería
+ * de prueba sin municipio, o con franjas largas de horario, se puede editar en lo demás. Las fotos van como en la app:
+ * la lista completa, cada una que ya tiene por su lugar y cada nueva como archivo, y solo si cambió. Los lugares se
+ * cuentan sobre las fotos que se leyeron al abrir la página, y la edición rechaza la lista si las fotos cambiaron
+ * después, por ejemplo desde la app (alta-lavanderias-E31). Cada error vuelve junto al campo del formulario que lo
+ * causó.
  */
 class EditLavanderia extends EditRecord
 {
     protected static string $resource = LavanderiaResource::class;
-
-    /** Los campos de la edición que se comparan con lo que había al abrir, además de las fotos. */
-    private const CAMPOS = ['nombre', 'direccion', 'servicios', 'ventanas', 'descripcion'];
 
     /**
      * Los datos como estaban al abrir la página, en la forma del registro, para mandar solo lo que cambió.
@@ -90,23 +87,17 @@ class EditLavanderia extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         /** @var Lavanderia $record */
-        $nuevos = self::enLaFormaDelRegistro($data);
-        $cambios = array_intersect_key($nuevos, array_filter(
-            array_flip(self::CAMPOS),
-            fn (string $campo): bool => $nuevos[$campo] != ($this->inicial[$campo] ?? null),
-            ARRAY_FILTER_USE_KEY,
-        ));
-        [$fotos, $cambiaron] = $this->fotosDelFormulario();
-        $aValidar = $cambiaron ? [...$cambios, 'fotos' => $fotos] : $cambios;
+        $edicion = app(EdicionDeLavanderia::class);
 
         try {
-            $validados = Validator::make(
-                $aValidar,
-                ReglasDeLaLavanderia::para(array_keys($aValidar)),
-                ReglasDeLaLavanderia::mensajes(),
-            )->validate();
+            // La validación de la edición, la misma de la app y de la API de la administración: solo lo que cambió
+            // desde que se abrió la página, con las fotos leídas por su lugar.
+            $validados = $edicion->validar(
+                [...self::enLaFormaDelRegistro($data), 'fotos' => $this->fotosDelFormulario()],
+                leidos: [...$this->inicial, 'fotos' => array_keys($this->fotosAlAbrir)],
+            );
 
-            app(EdicionDeLavanderia::class)->editar($record, $validados, fotosLeidas: $this->fotosAlAbrir);
+            $edicion->editar($record, $validados, fotosLeidas: $this->fotosAlAbrir);
         } catch (ValidationException $error) {
             throw $this->enElFormulario($error);
         } catch (DireccionNoUbicable $error) {
@@ -125,15 +116,15 @@ class EditLavanderia extends EditRecord
      * Las fotos del formulario en la forma de la edición de la app: cada una que ya tiene, por su lugar en la lista que
      * se leyó al abrir la página (la del selector llega como su ruta), y cada nueva como el archivo que se subió y todavía
      * no está guardado. Una ruta que no es de esta lavandería no se pasa como foto: queda en un lugar que no existe y las
-     * reglas la rechazan. Dice además si la lista cambió desde que se abrió la página.
+     * reglas la rechazan. Si la lista cambió desde que se abrió la página lo decide EdicionDeLavanderia::validar().
      *
-     * @return array{0: list<int|TemporaryUploadedFile>, 1: bool}
+     * @return list<int|TemporaryUploadedFile>
      */
     private function fotosDelFormulario(): array
     {
         $rutas = $this->fotosAlAbrir;
 
-        $fotos = collect(Arr::wrap($this->data['fotos'] ?? []))
+        return collect(Arr::wrap($this->data['fotos'] ?? []))
             ->filter(fn (mixed $foto): bool => $foto instanceof TemporaryUploadedFile || is_string($foto))
             ->map(function (TemporaryUploadedFile|string $foto) use ($rutas): int|TemporaryUploadedFile {
                 if ($foto instanceof TemporaryUploadedFile) {
@@ -146,8 +137,6 @@ class EditLavanderia extends EditRecord
             })
             ->values()
             ->all();
-
-        return [$fotos, $fotos !== array_keys($rutas)];
     }
 
     /**
