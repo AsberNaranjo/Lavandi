@@ -21,7 +21,7 @@ import { TituloDeSeccion } from '../../src/piezas/TituloDeSeccion';
 import { CerrarSesion } from '../../src/sesion/CerrarSesion';
 import { espaciado } from '../../src/tema/theme';
 
-/** Las siete funciones del Módulo D, en su orden. */
+/** Las siete funciones del Módulo D, en su orden, con el #6 en Ingresos y Conciliación. */
 const GESTION: readonly Seccion[] = [
   'lavanderias',
   'repartidores',

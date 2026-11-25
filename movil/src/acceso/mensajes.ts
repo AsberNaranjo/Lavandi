@@ -15,8 +15,10 @@ export const MENSAJES = {
 } as const;
 
 /**
- * El mensaje general de una falla. Con 422, solo si algún error es de un campo que la pantalla no muestra (como el
- * id_token de Google) o si el servidor no dijo qué campo falló.
+ * El mensaje general de una falla. Con 422, solo si algún error es de un campo que la pantalla no muestra o si el
+ * servidor no dijo qué campo falló. El id_token de Google lo muestran el registro y el inicio de sesión bajo su botón
+ * (src/acceso/useEntrada.ts; administracion-app-E08); sale aquí, arriba, en las pantallas que no lo listan, como el
+ * registro del repartidor.
  */
 export function mensajeGeneral(falla: Falla, camposVisibles: readonly string[] = []): string | undefined {
   switch (falla.motivo) {

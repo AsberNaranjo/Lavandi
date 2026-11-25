@@ -95,4 +95,3 @@ const estilos = StyleSheet.create({
     gap: espaciado[1],
   },
 });
-
