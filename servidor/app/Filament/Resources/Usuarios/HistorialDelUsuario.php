@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\Usuarios;
 
 use App\Autorizacion\Autorizacion;
-use App\Filament\EstadosDelPedido;
 use App\Models\Pedido;
 use App\Models\Usuario;
+use App\Pedidos\NombresDelEstado;
 use Illuminate\Support\Number;
 
 /**
@@ -17,7 +17,7 @@ use Illuminate\Support\Number;
  *   ninguno si quien mira no es de administración.
  * - La fecha es la de la recolección en la hora de la plaza, como en el historial del usuario
  *   (openspec/changes/historial-y-calificacion/design.md, decisión 1), escrita DD/MM/AAAA.
- * - El estado es el operativo (App\Filament\EstadosDelPedido).
+ * - El estado es el operativo (App\Pedidos\NombresDelEstado).
  * - El monto es el final si ya se pesó y, si no, el estimado, en pesos. Hoy los dos nacen vacíos (DD-012, DD-010), y
  *   entonces va null: la ficha dice "Sin monto".
  */
@@ -39,7 +39,7 @@ final class HistorialDelUsuario
                 'folio' => (string) $pedido->folio,
                 'fecha' => $pedido->plaza->horaLocal($pedido->ventana_inicio)->format('d/m/Y'),
                 'lavanderia' => $pedido->lavanderia->nombre,
-                'estado' => EstadosDelPedido::nombre($pedido->estado),
+                'estado' => NombresDelEstado::nombre($pedido->estado),
                 'monto' => self::monto($pedido),
             ])
             ->values()
