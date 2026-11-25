@@ -37,13 +37,28 @@ export const RUTA_DE_LOS_PEDIDOS = '/lavanderia/pedidos';
 
 export const TOKEN = 'token-de-la-lavanderia';
 
-/** Las cuentas como las devuelven GET /api/cuenta y POST /api/sesion (registro-E33): el rol dice a qué módulo entra. */
+/**
+ * Las cuentas como las devuelven GET /api/cuenta y POST /api/sesion (registro-E33): el rol dice a qué módulo entra. La
+ * de ningún rol de la app no tiene módulo (administracion-app-E09).
+ */
 export const CUENTAS = {
   lavanderia: { id_publico: '01JD00000000000000000000LV', correo: 'lavanderia@ejemplo.com', rol: 'lavanderia' },
   usuario: { id_publico: '01JD00000000000000000000US', correo: 'persona@ejemplo.com', rol: 'usuario' },
-  administracion: { id_publico: '01JD00000000000000000000AD', correo: 'panel@ejemplo.com', rol: 'administracion' },
+  administracion: { id_publico: '01JD00000000000000000000AD', correo: 'administracion@ejemplo.com', rol: 'administracion' },
+  sinRol: { id_publico: '01JD00000000000000000000SR', correo: 'sin-rol@ejemplo.com', rol: null },
 } as const;
 export type Cuenta = (typeof CUENTAS)[keyof typeof CUENTAS];
+
+/**
+ * Los roles que tienen módulo en la app: con ellos, GET /api/cuenta y DELETE /api/sesion responden, como en el servidor
+ * real después de la tarea 1.3 de administracion-en-la-app (autorizar:usuario,lavanderia,repartidor,administracion).
+ */
+const ROLES_DE_LA_APP: readonly (string | null)[] = ['usuario', 'lavanderia', 'repartidor', 'administracion'];
+
+/** Si la cuenta tiene un rol de la app; si no, la cuenta y la sesión le responden 403 (registro-E33). */
+export function usaLaApp(cuenta: { rol: string | null }): boolean {
+  return ROLES_DE_LA_APP.includes(cuenta.rol);
+}
 
 export type CodigoOperativo =
   | 'confirmado'
@@ -345,17 +360,15 @@ export class ServidorDeLaLavanderia {
     if (autorizacion !== `Bearer ${TOKEN}`) {
       return respuesta(401, { message: 'Unauthenticated.' });
     }
+    // Como el servidor real: la cuenta y el cierre de la sesión son de los cuatro roles de la app, también de la
+    // administración (registro-E33; administracion-app-E02 y E04).
     if (metodo === 'GET' && ruta === '/cuenta') {
-      return this.cuenta.rol === 'administracion'
-        ? respuesta(403, { message: 'Esta cuenta no tiene acceso.' })
-        : respuesta(200, { usuario: this.cuenta });
+      return usaLaApp(this.cuenta)
+        ? respuesta(200, { usuario: this.cuenta })
+        : respuesta(403, { message: 'Esta cuenta no tiene acceso.' });
     }
     if (metodo === 'DELETE' && ruta === '/sesion') {
-      // Como el servidor real: la administración no usa el cierre de sesión de la app y su token no se revoca
-      // (servidor/routes/api.php:58-60; CuentaDeLosRolesDeLaAppTest.php, registro-E33).
-      return this.cuenta.rol === 'administracion'
-        ? respuesta(403, { message: 'Esta cuenta no tiene acceso.' })
-        : respuesta(204);
+      return usaLaApp(this.cuenta) ? respuesta(204) : respuesta(403, { message: 'Esta cuenta no tiene acceso.' });
     }
     // La pantalla principal del usuario, a donde entra una cuenta de usuario.
     if (metodo === 'GET' && ruta.startsWith('/lavanderias/cercanas')) {
@@ -610,17 +623,26 @@ const gps = Location as unknown as { __reiniciar(): void };
 const camara = ImagePicker as unknown as { __reiniciar(): void };
 const manipulador = ImageManipulator as unknown as { __reiniciar(): void };
 
+/** Un servidor simulado de las pruebas: su fetch es el que la app usa durante la prueba. */
+export interface ServidorSimulado {
+  readonly fetch: jest.Mock;
+}
+
 /**
- * Prepara cada prueba del archivo con la app recién abierta en esta instalación y el servidor simulado en la dirección
- * base, y deja todo como estaba al terminar. Devuelve el servidor de la prueba en curso.
+ * Prepara cada prueba del archivo con la app recién abierta en esta instalación y el servidor simulado que da crear()
+ * en la dirección base, y deja todo como estaba al terminar. Devuelve el servidor de la prueba en curso. Lo usan el de
+ * la lavandería y el de la administración (__tests__/apoyo/administracion.ts).
  */
-export function usarElServidorDeLaLavanderia(nombre: string): () => ServidorDeLaLavanderia {
+export function usarElServidorSimulado<Servidor extends ServidorSimulado>(
+  nombre: string,
+  crear: (base: string) => Servidor,
+): () => Servidor {
   const base = `http://api.prueba.invalid/${nombre}`;
   const direccionOriginal = process.env.EXPO_PUBLIC_API_URL;
   const nombreOriginal = process.env.EXPO_PUBLIC_NOMBRE_APP;
   const fetchOriginal = global.fetch;
   const formDataOriginal = global.FormData;
-  let servidor: ServidorDeLaLavanderia;
+  let servidor: Servidor;
 
   beforeEach(() => {
     almacen.__vaciar();
@@ -632,7 +654,7 @@ export function usarElServidorDeLaLavanderia(nombre: string): () => ServidorDeLa
     process.env.EXPO_PUBLIC_API_URL = base;
     // El inicio de sesión muestra el nombre de la app, que sale de la configuración (base-E09).
     process.env.EXPO_PUBLIC_NOMBRE_APP = `Nombre de prueba ${nombre}`;
-    servidor = new ServidorDeLaLavanderia(base);
+    servidor = crear(base);
     global.fetch = servidor.fetch as unknown as typeof fetch;
     // El FormData del teléfono: en Jest, el global es el de Node.
     global.FormData = FormDataDelTelefono;
@@ -660,15 +682,31 @@ export function usarElServidorDeLaLavanderia(nombre: string): () => ServidorDeLa
 }
 
 /**
+ * Prepara cada prueba del archivo con la app recién abierta en esta instalación y el servidor simulado de la lavandería
+ * en la dirección base. Devuelve el servidor de la prueba en curso.
+ */
+export function usarElServidorDeLaLavanderia(nombre: string): () => ServidorDeLaLavanderia {
+  return usarElServidorSimulado(nombre, (base) => new ServidorDeLaLavanderia(base));
+}
+
+/**
+ * Deja el teléfono, en esa plataforma, como el de una cuenta que ya entró antes en esta instalación: vio la bienvenida
+ * y tiene su token guardado, el de la lavandería si la prueba no dice otro.
+ */
+export async function prepararElTelefonoConSesion(plataforma: Plataforma, token = TOKEN): Promise<void> {
+  jest.replaceProperty(Platform, 'OS', plataforma);
+  await comprobarInstalacion();
+  await marcarBienvenidaVista();
+  await guardarToken(token);
+}
+
+/**
  * Abre la app como al tocar su ícono, en esa plataforma, con la sesión guardada de una cuenta que ya entró antes en
  * esta instalación (vio la bienvenida y tiene su token). La cuenta es la del servidor: la de la lavandería, si la
  * prueba no dice otra.
  */
-export async function abrirLaAppConSesion(plataforma: Plataforma, ruta = '/'): Promise<void> {
-  jest.replaceProperty(Platform, 'OS', plataforma);
-  await comprobarInstalacion();
-  await marcarBienvenidaVista();
-  await guardarToken(TOKEN);
+export async function abrirLaAppConSesion(plataforma: Plataforma, ruta = '/', token = TOKEN): Promise<void> {
+  await prepararElTelefonoConSesion(plataforma, token);
   await renderRouter(APP, { initialUrl: ruta });
 }
 

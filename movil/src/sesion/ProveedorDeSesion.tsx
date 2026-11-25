@@ -7,9 +7,9 @@
 //
 // La sesión lleva el módulo al que entra la cuenta, por su rol (registro-E33; src/sesion/modulos.ts): el rol llega al
 // iniciar la sesión y en la cuenta, y se guarda con el token para saberlo aunque al abrir la app no se llegue al
-// servidor. Una cuenta sin módulo en la app, como la de administración, no se queda con la sesión: al iniciarla, o al
-// abrir la app si el servidor dice que no tiene acceso (403), la app la cierra como en "Cerrar sesión" y deja un aviso
-// que la pantalla de entrada muestra.
+// servidor. La de administración se guarda igual que las demás (administracion-app-E02). Una cuenta sin ningún rol de la
+// app no se queda con la sesión: al iniciarla, o al abrir la app si el servidor dice que no tiene acceso (403), la app la
+// cierra como en "Cerrar sesión" y deja un aviso que la pantalla de entrada muestra.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { cerrarSesionEnServidor, consultarCuentaConEstado } from '../acceso/api';

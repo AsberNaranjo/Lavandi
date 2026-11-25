@@ -13,14 +13,14 @@
 // en lugar de la de relleno del mock (DD-133, punto 3). Del mock no entra el botón para ver la contraseña, que no tiene
 // escenario.
 //
-// Una cuenta de administración no recibe sesión en la app (registro-E33): la pantalla muestra el aviso de que entra por
-// el panel y, si la configuración trae la dirección del panel (EXPO_PUBLIC_PANEL_URL), el botón "Abrir el panel", que lo
-// abre en la vista de navegador del sistema dentro de la app (administracion-E25; src/acceso/BotonDelPanel.tsx).
+// La cuenta de administración inicia sesión aquí, como los otros roles, y entra a su módulo (administracion-app-E02); con
+// Google no entra, y el mensaje del servidor va bajo el botón de Google, como en la imagen 02-inicio-de-sesion-google de
+// la Propuesta 06 de los mocks (administracion-app-E08). Nada de esta pantalla lleva al panel web (administracion-app-E09).
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 
 import { iniciarSesion } from '../src/acceso/api';
-import { BotonDelPanel } from '../src/acceso/BotonDelPanel';
 import { googleDisponible } from '../src/acceso/google';
 import { useEntrada } from '../src/acceso/useEntrada';
 import { nombreDeLaApp } from '../src/configuracion/entorno';
@@ -34,11 +34,12 @@ import { MensajeDeError } from '../src/piezas/MensajeDeError';
 import { Pantalla } from '../src/piezas/Pantalla';
 import { Presentacion } from '../src/piezas/Presentacion';
 import { Separador } from '../src/piezas/Separador';
+import { espaciado } from '../src/tema/theme';
 
 export default function InicioDeSesion() {
   const router = useRouter();
   const regresar = useRegresarSiHayAnterior();
-  const { enviando, errorGeneral, sinAccesoALaApp, errorDe, entrarCon, entrarConGoogle } = useEntrada();
+  const { enviando, errorGeneral, errorDe, entrarCon, entrarConGoogle } = useEntrada();
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
 
@@ -64,14 +65,16 @@ export default function InicioDeSesion() {
       />
       <Enlace texto="¿Olvidaste tu contraseña?" alinear="fin" alTocar={() => router.push('/recuperar-contrasena')} />
       <MensajeDeError texto={errorGeneral} />
-      <BotonDelPanel conElAviso={sinAccesoALaApp} />
       <Boton ocupado={enviando} onPress={() => entrarCon(() => iniciarSesion({ correo, password }))}>
         Iniciar sesión
       </Boton>
       {googleDisponible() ? (
         <>
           <Separador texto="o" />
-          <BotonDeGoogle onPress={entrarConGoogle} />
+          <View style={estilos.conGoogle}>
+            <BotonDeGoogle onPress={entrarConGoogle} />
+            <MensajeDeError texto={errorDe('id_token')} />
+          </View>
         </>
       ) : null}
       <Enlace
@@ -83,3 +86,10 @@ export default function InicioDeSesion() {
     </Pantalla>
   );
 }
+
+const estilos = StyleSheet.create({
+  // El botón de Google con su error justo debajo.
+  conGoogle: {
+    gap: espaciado[1],
+  },
+});

@@ -1,13 +1,14 @@
 // Spec: openspec/changes/registro-e-inicio-de-sesion/specs/registro/spec.md, requisito "Cada rol de la app consulta su
-// cuenta y cierra su sesión" (registro-E33): "Con el rol la app sabe a qué módulo entra la cuenta. La administración
-// entra por el panel". Una sola app con los módulos del usuario y de la lavandería (NSV-2026-001-v8.pdf:16:ANEXO A,
-// Sección A.3), con las pantallas separadas por tipo de usuario (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, Medidas
-// de seguridad).
+// cuenta y cierra su sesión" (registro-E33), con su delta en openspec/changes/administracion-en-la-app/specs/registro/:
+// "Con el rol la app sabe a qué módulo entra la cuenta", también la de administración (administracion-app-E02). Una sola
+// app con los módulos del usuario, de la lavandería y de la administración (NSV-2026-001-v8.pdf:3:Cláusula I;
+// NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3), con las pantallas separadas por tipo de usuario
+// (NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3, Medidas de seguridad).
 //
-// Al entrar, la cuenta de usuario llega al inicio del Módulo A y la de socio lavandería a sus pedidos del Módulo B
-// (pedidos-lavanderia-E03); ninguna abre las pantallas de la otra, como ya no se abren sin sesión (ADR-0018). La cuenta
-// de administración no usa la app: si llegara a entrar, la app cierra su sesión y lo dice. La lavandería cierra su
-// sesión como el usuario (registro-E13), con la confirmación de la app.
+// Al entrar, la cuenta de usuario llega al inicio del Módulo A, la de socio lavandería a sus pedidos del Módulo B
+// (pedidos-lavanderia-E03) y la de administración al inicio del Módulo D; ninguna abre las pantallas de otra, como ya no
+// se abren sin sesión (ADR-0018). Una cuenta sin ningún rol de la app no la usa: si llegara a entrar, la app cierra su
+// sesión y lo dice. La lavandería cierra su sesión como el usuario (registro-E13), con la confirmación de la app.
 //
 // Se abre la app real, con las rutas de movil/app/ (ADR-0017), en iPhone y en Android, con el servidor simulado
 // (__tests__/apoyo/lavanderia.ts). Cómo se registra un socio y llega a su cuenta es DD-053: aquí la cuenta ya existe.
@@ -131,13 +132,29 @@ describe('registro-E33: con el rol, cada cuenta entra a su módulo', () => {
     await esperarLosPedidosDeLaLavanderia();
     expect(servidor().peticiones().some(({ ruta }) => ruta.startsWith('/lavanderias/cercanas'))).toBe(false);
   });
+
+  test.each(PLATAFORMAS)(
+    'registro-E33 y administracion-app-E02 — (%s) al iniciar sesión, la cuenta de administración entra al inicio de su módulo y no a las pantallas de la lavandería',
+    async (plataforma) => {
+      servidor().cuenta = CUENTAS.administracion;
+      await abrirLaAppSinSesion(plataforma);
+
+      await iniciarSesion();
+
+      await waitFor(() => expect(screen).toHavePathname('/administracion'));
+      expect(await screen.findByRole('header', { name: 'Administración' })).toBeOnTheScreen();
+      await expect(leerToken()).resolves.toBe(TOKEN);
+      await expect(leerRol()).resolves.toBe('administracion');
+      expect(servidor().consultasDeLaLista()).toBe(0);
+    },
+  );
 });
 
-describe('registro-E33: la cuenta de administración no usa la app', () => {
+describe('registro-E33: una cuenta sin ningún rol de la app no la usa', () => {
   test.each(PLATAFORMAS)(
     'registro-E33 — (%s) si inicia sesión, la app no la abre, pide revocar su token y lo dice',
     async (plataforma) => {
-      servidor().cuenta = CUENTAS.administracion;
+      servidor().cuenta = CUENTAS.sinRol;
       await abrirLaAppSinSesion(plataforma);
 
       await iniciarSesion();
@@ -150,7 +167,7 @@ describe('registro-E33: la cuenta de administración no usa la app', () => {
   );
 
   test('registro-E33 — si después entra con una cuenta que sí usa la app, el mensaje se va', async () => {
-    servidor().cuenta = CUENTAS.administracion;
+    servidor().cuenta = CUENTAS.sinRol;
     await abrirLaAppSinSesion('android');
     await iniciarSesion();
     expect(await screen.findByText(MENSAJES.sinAccesoALaApp)).toBeOnTheScreen();
@@ -166,7 +183,7 @@ describe('registro-E33: la cuenta de administración no usa la app', () => {
   test.each(PLATAFORMAS)(
     'registro-E33 — (%s) al abrir, si el servidor dice que la cuenta guardada no tiene acceso a la app (403), la cierra y lo dice',
     async (plataforma) => {
-      servidor().cuenta = CUENTAS.administracion;
+      servidor().cuenta = CUENTAS.sinRol;
 
       await abrirLaAppConSesion(plataforma);
 
