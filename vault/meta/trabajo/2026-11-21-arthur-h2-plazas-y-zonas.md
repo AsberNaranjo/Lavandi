@@ -221,14 +221,15 @@ foto del perfil (el disco privado).
   Pasan 1298 pruebas del servidor y 1282 de la app, en verde, sobre `21e99bb`.
 - **El lote 3** (P18, los logos de prensa sin borrado; P20, `php artisan administracion:crear-cuenta {correo}`) se
   revisó, se corrigió y se unió en `ed1daae`. Su suite completa la corre la CI de GitHub; la local quedó pendiente.
-- **El lote 4** (P19, la página pública para pedir el borrado de la cuenta) no ha empezado. Va después del lote 3,
-  porque comparte `servidor/routes/web.php`.
-- **Los paquetes** están descritos en el plan del concilio, que se guardó fuera del repo: en el scratchpad de la
-  sesión del 2026-11-23, `plan-concilio.json`. Lo que dice cada uno también está en las decisiones 40 a 68 del acta y en
-  la nota del concilio.
-- **Al terminar todo:**
-  1. completar los resultados por lote en la nota del concilio;
-  2. hacer push;
-  3. abrir el PR de `feat/h3-concilio` hacia `nhadadn/Lavandi`, después del PR #3 o encima de él.
+- **El lote 4** (P19) se unió en `6789baa`. Con él están los 20 paquetes del concilio.
+- **La CI.** `landing-navegadores` falla en Ubuntu 26.04 con Playwright 1.57; se fijó en `ubuntu-24.04` (`8dcda06`).
+- **2026-11-24, por la noche (C-246, C-247).** Arthur pidió:
+  - arreglar la CI;
+  - abrir el PR del concilio;
+  - terminar todo lo que no espera a nadie más;
+  - el video final con el emulador.
+
+  Al ver en el emulador que la administración abría una página web, eligió que todo el Módulo D viva en la app (decisión
+  69). Su diseño (ADR y spec) lo hace un workflow con concilio, y su código irá en una rama nueva con su propio PR.
 
 **Al terminar.** `situacion: terminada`, con el enlace al PR, que va después del del H1.
