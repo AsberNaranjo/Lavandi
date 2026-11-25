@@ -101,6 +101,8 @@ D → ADR-0022, decisiones 2 y 4; D → ADR-0018, decisiones 1 y 6
 - **CUANDO** llama a cualquier ruta de `/api/administracion`, a `GET /api/cuenta` o a `DELETE /api/sesion`
 - **ENTONCES** el servidor responde 403, sin datos, y nada cambia
 - **Y** la habilidad se revisa literal: `*` no cuenta como `administracion`
+- **Y** cuando esa cuenta inicia sesión con su correo y su contraseña, el servidor borra sus tokens que no llevan la
+  habilidad, así que ninguno queda vivo sin poder cerrarse (ADR-0022, decisión 4)
 
 Criterio: SEG-3
 
@@ -129,6 +131,8 @@ D → ADR-0022, decisión 7
   `id_token`, sin token
 - **Y** no liga la cuenta de Google, no anula la contraseña y no cierra la sesión abierta: la cuenta queda como estaba,
   a diferencia de registro-E18
+- **Y** con una cuenta de administración que ya tiene Google ligado (por el hueco de la tarea 6.2 de `administracion`),
+  la respuesta es la misma: 422 en `id_token`, sin token y sin tocar la cuenta
 - **Y** la app muestra ese mensaje bajo el botón de Google y no guarda ninguna sesión
 
 Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (Módulo A #2: Google Sign-In es opción del registro del
@@ -139,10 +143,13 @@ usuario); A → `NSV-2026-001-v8.pdf:10:Cláusula X`; D → ADR-0022, decisión 
 La app NO DEBE (MUST NOT) enlazar ni abrir el panel web de Filament: la administración hace en la app el Módulo D y el
 A.5. El panel DEBE (MUST) seguir como respaldo interno, con su dirección, su entrada con contraseña y rol de
 administración y sus pruebas; no se borra y no recibe funciones nuevas del Módulo D ni del A.5. El contenido de la
-portada (testimonios y logos de prensa) se sigue editando ahí.
+portada (testimonios y logos de prensa) se sigue editando ahí; quién lo edita y por qué vía llega al panel espera
+DD-141 (ADR-0022, decisión 21).
 
-Cita: A → `NSV-2026-001-v8.pdf:3:Cláusula I`; C → C-247 y decisión 69 de `acta-2026-11-20-modelo-y-pasarela.md`; D →
-ADR-0022, decisiones 18 a 21
+Cita: A → `NSV-2026-001-v8.pdf:3:Cláusula I`; A → `NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2` (Testimonios y Prensa
+/ Reconocimientos, el contenido que se edita en el panel); C → C-247 y decisión 69 de
+`acta-2026-11-20-modelo-y-pasarela.md`; D → ADR-0022, decisiones 18 a 21. Que el panel quede como respaldo viene de
+C-247, no del contrato
 
 #### Scenario: administracion-app-E09 — La app no lleva al panel web
 
@@ -153,7 +160,8 @@ ADR-0022, decisiones 18 a 21
 - **Y** a una cuenta sin ningún rol de la app, `POST /api/sesion` le sigue respondiendo 403 sin token, con un mensaje
   que no menciona el panel
 
-Cita: C → C-247; D → ADR-0022, decisiones 1 y 19
+Cita: A → `NSV-2026-001-v8.pdf:3:Cláusula I` (el panel de administración, dentro de la "Aplicación única para iPhone y
+Android"); C → C-247; D → ADR-0022, decisiones 1 y 19
 
 #### Scenario: administracion-app-E10 — El panel de respaldo sigue igual
 
@@ -166,7 +174,10 @@ Cita: C → C-247; D → ADR-0022, decisiones 1 y 19
 
 Criterio: SEG-3
 
-Cita: C → C-247; D → ADR-0022, decisiones 18 a 21
+Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D, las funciones que el panel sigue teniendo); A →
+`NSV-2026-001-v8.pdf:15:ANEXO A, Sección A.2` (Testimonios y Prensa / Reconocimientos, el contenido de la portada que
+se edita en el panel); C → C-247 (que el panel quede como respaldo interno y nada lo muestre es decisión de Arthur, no
+del contrato); D → ADR-0022, decisiones 18 a 21
 
 ### Requirement: Una sola fuente de cada regla
 
@@ -201,7 +212,8 @@ Cita: A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3`; D → ADR-0022, de
 - **Y** 409 a la segunda, con el mensaje de la clase de dominio, sin cambiar nada
 - **Y** la app muestra el mensaje y vuelve a consultar la ficha
 
-Cita: D → ADR-0019, decisión 3; D → ADR-0022, decisión 9
+Cita: A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3` ("Los cuatro módulos [...] accesibles y funcionales conforme
+a A.3"); D → ADR-0019, decisión 3; D → ADR-0022, decisión 9
 
 ### Requirement: Gestión de lavanderías en la app
 
@@ -871,10 +883,11 @@ ADR-0022, decisión 15
 - **CUANDO** la pantalla espera su archivo
 - **ENTONCES** dice que el archivo se está generando y consulta su estado cada 5 segundos
   (`GET /api/administracion/descargas/{descarga}`), solo mientras está visible y la app al frente
-- **Y** cuando está lista ofrece "Guardar .csv" y "Guardar .xlsx", y cada botón sale solo cuando su archivo ya se
-  puede bajar
-- **Y** si un trabajo de la cola que escribe los archivos falla, el estado dice que no se pudo generar, la pantalla lo
-  dice y ofrece pedirla otra vez
+- **Y** la descarga está lista cuando la cola la dio por terminada y sus dos archivos CSV, el encabezado y el de las
+  filas, están en su disco; entonces ofrece "Guardar .csv" y "Guardar .xlsx", porque el Excel se arma de esos CSV
+  (ADR-0022, decisión 15)
+- **Y** si la cola la dio por terminada sin alguno de esos archivos, porque el trabajo que los escribe falló, el estado
+  dice que no se pudo generar, la pantalla lo dice y ofrece pedirla otra vez
 - **Y** en la app esto toma el lugar del aviso del panel de exportacion-E10
 
 Criterio: A44-2
@@ -942,11 +955,13 @@ Cita: A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.4`; D → ADR-0003; D 
   sin sesión
 - **ENTONCES** a la otra cuenta de administración el servidor le responde 404, con la regla de exportacion-E11
 - **Y** a la de otro rol, 403; y sin sesión, 401; ninguno recibe el archivo
+- **Y** la ruta nombra la descarga por su identificador público (un ULID), nunca por el número de su fila, así que nadie
+  llega a la de otro cambiando un número; uno que no es de ninguna descarga responde 404
 
 Criterio: SEG-3, A44-2
 
 Cita: A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3` (Separación por tipo de usuario); D → ADR-0019, decisión 3; D →
-ADR-0022, decisión 15
+ADR-0016, regla 5; D → ADR-0022, decisión 15
 
 #### Scenario: administracion-app-E63 — La descarga de los reportes que esperan respuesta
 

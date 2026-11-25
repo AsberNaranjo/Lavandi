@@ -1,7 +1,7 @@
 ---
 estado: borrador
 grado: mixto
-fuente: NSV-2026-001-v8.pdf ANEXO A.2, A.3, A.5 y ANEXO B.4 (A); restricciones-no-negociables.md (B); ADR-0001 (D); DD-040 por acta-2026-11-12-traspaso-del-proyecto.md C-140 (C); la vista reducida de administración por acta-2026-11-20-modelo-y-pasarela.md, decisión 56, por delegación de C-245 (C)
+fuente: NSV-2026-001-v8.pdf ANEXO A.2, A.3, A.5 y ANEXO B.4 (A); restricciones-no-negociables.md (B); ADR-0001 (D); DD-040 por acta-2026-11-12-traspaso-del-proyecto.md C-140 (C); la vista reducida de administración por acta-2026-11-20-modelo-y-pasarela.md, decisión 56, por delegación de C-245 (C); el Módulo D en la app por C-247 y decisión 69 del mismo acta (C) y ADR-0022 (D)
 fecha: 2026-11-12
 dueño: Nadir Hadad Navarrete
 adr: ADR-0001
@@ -110,6 +110,12 @@ módulo de `app-movil`; el resto del diagrama no cambia. Por eso no bloquea.
 >
 > El diagrama no cambia de contenedores.
 
+> **Cambiado el 2026-11-24 (C-247; decisión 69 de `acta-2026-11-20-modelo-y-pasarela.md`).** Arthur eligió "Todo el
+> Módulo D en la app": el administrador inicia sesión en `app-movil` y ahí hace las 7 funciones y ve los 11
+> indicadores, con la descarga en CSV y Excel, por la API de `api` (`/api/administracion`). Reemplaza la vista reducida
+> de C-140 y la decisión 56. `panel-admin` sigue en el diagrama como **respaldo interno**: mismas rutas y pruebas, sin
+> enlace desde la app ni desde la portada, y sin funciones nuevas. Cómo se construye: [[ADR-0022-administracion-en-la-app]].
+
 ## Cómo se cumple el límite de 60 segundos
 
 RN-05 exige que un cambio de estado hecho por la lavandería o el repartidor se refleje en la app del
@@ -137,4 +143,5 @@ distintos. Un ADR de infraestructura que se salga del rango contradice el contra
 | `ESPECIFICACIÓN PENDIENTE` | Mecanismo de propagación para los 60 s | `ADR-0007`, Fase 6 |
 | Resuelto el 2026-11-12 | Si `panel-admin` es contenedor propio: sí, más una vista reducida en `app-movil` | C-140; DD-040 cerrada |
 | Resuelto el 2026-11-24 | Qué funciones del Módulo D entran en la vista de administración de la app: ninguna nativa, la app abre el panel (administracion-E25) | Decisión 56 de `acta-2026-11-20-modelo-y-pasarela.md` (C-245) |
+| Cambiado el 2026-11-24 | Dónde vive el Módulo D: todo en `app-movil`; `panel-admin` queda como respaldo interno | C-247 y decisión 69 del mismo acta; ADR-0022 |
 | `ESPECIFICACIÓN PENDIENTE` | Presupuesto de consultas de mapas por pedido | `presupuesto-de-mapas.md`, esta fase |

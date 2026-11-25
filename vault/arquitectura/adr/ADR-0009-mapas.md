@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-29 (A); brecha-ejecutivo-tecnico.md BR-42 (B); presupuesto-de-mapas.md (D); verificaciones-fase-6.md, filas 6, 6b, 8a, 8b y sección del 2026-11-12 (E); ADR-0002, ADR-0003 y ADR-0004 (D); adenda del 2026-11-24: acta-2026-11-20-modelo-y-pasarela.md, decisión 40, del concilio del 2026-11-24, por delegación de C-236 y C-245 (C); DD-139 (B); developers.google.com/maps/documentation/geocoding/policies, consultada el 2026-11-23 (E, SIN VERIFICAR contra los términos firmados); developers.google.com/maps/documentation/places/web-service/place-id, consultada el 2026-11-24 (E, SIN VERIFICAR); NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.5 (A)
+fuente: acta-2026-11-13-cierre-de-la-fase-6.md C-152; restricciones-no-negociables.md RN-29 (A); brecha-ejecutivo-tecnico.md BR-42 (B); presupuesto-de-mapas.md (D); verificaciones-fase-6.md, filas 6, 6b, 8a, 8b y sección del 2026-11-12 (E); ADR-0002, ADR-0003 y ADR-0004 (D); adenda del 2026-11-24: acta-2026-11-20-modelo-y-pasarela.md, decisión 40, del concilio del 2026-11-24, por delegación de C-236 y C-245 (C); DD-139 (B); developers.google.com/maps/documentation/geocoding/policies, consultada el 2026-11-23 (E, SIN VERIFICAR contra los términos firmados); developers.google.com/maps/documentation/places/web-service/place-id, consultada el 2026-11-24 (E, SIN VERIFICAR); NSV-2026-001-v8.pdf:29:ANEXO B, Sección B.5 (A); nota del 2026-11-24 a la decisión 3, que remite a ADR-0022: acta-2026-11-20-modelo-y-pasarela.md, C-247 y decisión 69 (C)
 fecha: 2026-11-13
 dueño: Arthur Naranjo
 adr: ADR-0009
@@ -49,6 +49,12 @@ Los de la matriz `vigente` (C-142). RN-29 funciona como puerta.
    - el mapa de calor por colonia, dibujado con zonas o marcadores agregados en el servidor.
 
    No depende de la capa de mapa de calor del proveedor. Cabe en las 10,000 cargas gratis al mes.
+
+   **Nota del 2026-11-24:** desde C-247 (decisión 69 de `acta-2026-11-20-modelo-y-pasarela.md`), el monitoreo y el
+   mapa de calor de la administración viven en la app, con `react-native-maps` sin `provider`, como la decisión 1: Apple
+   en iPhone y Google en Android. El mapa de calor sigue dibujando agregados del servidor, sin la capa de calor del
+   proveedor. Los mapas del panel, con Google Maps JavaScript, se quedan en el panel de respaldo, que nada muestra
+   ([[ADR-0022-administracion-en-la-app]], decisiones 13 y 18).
 4. **Geocodificación:** Google Geocoding, una vez por dirección al guardarla, como dice `presupuesto-de-mapas.md`.
 5. **Landing:** el mapa de cobertura se dibuja con polígonos propios, no con teselas de pago (`presupuesto-de-mapas.md`).
 
