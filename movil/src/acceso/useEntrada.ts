@@ -1,9 +1,12 @@
 // Lo que comparten el registro y el inicio de sesión: mandar la petición, guardar la sesión y entrar al módulo de la
 // cuenta, o quedarse con los errores a la vista (registro-E04, E09 y E19). Cada cuenta entra a su módulo por su rol: la
-// de usuario al inicio, la de lavandería a sus pedidos y la de repartidor a los suyos, o a la espera de su alta; la que
-// no usa la app, como la de administración, no entra y la pantalla muestra el aviso (registro-E33), con el botón que
-// abre el panel si la configuración trae su dirección (administracion-E25). El aviso sale igual si el servidor no le da
-// token (403) que si se lo da y la sesión no se abre.
+// de usuario al inicio, la de lavandería a sus pedidos, la de repartidor a los suyos, o a la espera de su alta, y la de
+// administración al inicio de su módulo (administracion-app-E02); la que no tiene ningún rol de la app no entra y la
+// pantalla muestra el aviso (registro-E33), que no menciona ninguna otra entrada (administracion-app-E09). El aviso sale
+// igual si el servidor no le da token (403) que si se lo da y la sesión no se abre.
+//
+// Con Google, el rechazo del idToken va bajo su botón: el error de id_token es de un campo que la pantalla muestra, como
+// el 422 a la cuenta de administración, que no entra con Google (administracion-app-E08).
 //
 // El registro del repartidor también abre su sesión al registrarse (repartidor-E01) y muestra más campos: los suyos se
 // le pasan a useEntrada, para que sus errores vayan junto a cada uno y no se repitan arriba del botón.
@@ -16,23 +19,24 @@ import { iniciarSesionConGoogle, type Falla, type ResultadoDeEntrada, type Sesio
 import { pedirIdTokenDeGoogle } from './google';
 import { errorDeCampo, MENSAJES, mensajeGeneral } from './mensajes';
 
-// Los campos que el registro y el inicio de sesión muestran: sus errores van junto a ellos; los demás, arriba del botón.
-const CAMPOS = ['correo', 'password'] as const;
+// Los campos que el registro y el inicio de sesión muestran: sus errores van junto a ellos, el del idToken bajo el botón de
+// Google; los demás, arriba del botón.
+const CAMPOS = ['correo', 'password', 'id_token'] as const;
 
-/** campos: los que la pantalla muestra, cada uno con su error junto a él; por omisión, el correo y la contraseña. */
+/**
+ * campos: los que la pantalla muestra, cada uno con su error junto a él; por omisión, el correo, la contraseña y el
+ * idToken de Google.
+ */
 export function useEntrada(campos: readonly string[] = CAMPOS) {
   const abrirComoPrimera = useAbrirComoPrimera();
   const { iniciar, aviso, olvidarAviso } = useSesion();
   const [falla, setFalla] = useState<Falla>();
   const [errorGeneral, setErrorGeneral] = useState<string>();
   const [enviando, setEnviando] = useState(false);
-  // El servidor respondió 403 al pedir la sesión: la cuenta no tiene acceso a la app (registro-E33).
-  const [sinAcceso, setSinAcceso] = useState(false);
 
   function limpiar() {
     setFalla(undefined);
     setErrorGeneral(undefined);
-    setSinAcceso(false);
     olvidarAviso();
   }
 
@@ -53,8 +57,7 @@ export function useEntrada(campos: readonly string[] = CAMPOS) {
       return;
     }
     if (resultado.motivo === 'sin-acceso') {
-      // Sin token, nada que guardar ni que revocar: la pantalla muestra el aviso.
-      setSinAcceso(true);
+      // Sin token, nada que guardar ni que revocar: la pantalla muestra el aviso (registro-E33).
       setErrorGeneral(MENSAJES.sinAccesoALaApp);
       setEnviando(false);
       return;
@@ -81,11 +84,6 @@ export function useEntrada(campos: readonly string[] = CAMPOS) {
   return {
     enviando,
     errorGeneral: errorGeneral ?? aviso ?? undefined,
-    /**
-     * Si la pantalla muestra el aviso de la cuenta que no usa la app, para ofrecerle el panel (administracion-E25): por
-     * el 403, o por el aviso de la sesión, que solo dice eso (ProveedorDeSesion).
-     */
-    sinAccesoALaApp: sinAcceso || aviso !== null,
     errorDe: (campo: string) => errorDeCampo(falla, campo),
     entrarCon,
     entrarConGoogle,

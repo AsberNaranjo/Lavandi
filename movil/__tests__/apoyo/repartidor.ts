@@ -15,7 +15,17 @@ import * as SecureStore from 'expo-secure-store';
 import { AccessibilityInfo } from 'react-native';
 
 import { FormDataDelTelefono, type ArchivoDelFormulario } from './formulario';
-import { CUENTAS, leer, recibir, respuesta, TOKEN, type Cuenta, type Interceptor, type Peticion } from './lavanderia';
+import {
+  CUENTAS,
+  leer,
+  recibir,
+  respuesta,
+  TOKEN,
+  usaLaApp,
+  type Cuenta,
+  type Interceptor,
+  type Peticion,
+} from './lavanderia';
 
 export {
   abrirLaAppConSesion,
@@ -415,10 +425,11 @@ export class ServidorDelRepartidor {
     if (autorizacion !== `Bearer ${TOKEN}`) {
       return respuesta(401, { message: 'Unauthenticated.' });
     }
+    // Como el servidor real: la cuenta es de los cuatro roles de la app, también de la administración (registro-E33).
     if (metodo === 'GET' && ruta === '/cuenta') {
-      return this.cuenta.rol === 'administracion'
-        ? respuesta(403, { message: 'Esta cuenta no tiene acceso.' })
-        : respuesta(200, { usuario: this.cuenta });
+      return usaLaApp(this.cuenta)
+        ? respuesta(200, { usuario: this.cuenta })
+        : respuesta(403, { message: 'Esta cuenta no tiene acceso.' });
     }
     if (metodo === 'DELETE' && ruta === '/sesion') {
       return respuesta(204);

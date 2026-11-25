@@ -20,9 +20,8 @@ export interface SesionNueva {
 }
 
 /**
- * Por qué no se abrió la sesión. Además de las fallas generales, el 403 de una cuenta que no tiene acceso a la app, como
- * la de administración, que entra por el panel: el servidor no le da token (registro-E33) y la app le ofrece abrir el
- * panel (administracion-E25).
+ * Por qué no se abrió la sesión. Además de las fallas generales, el 403 de una cuenta sin ningún rol de la app: el
+ * servidor no le da token (registro-E33) y la pantalla muestra el aviso (administracion-app-E09).
  */
 export type FallaDeEntrada = Falla | { ok: false; motivo: 'sin-acceso' };
 
@@ -49,8 +48,8 @@ export async function consultarCuenta(token: string): Promise<Resultado<{ usuari
 }
 
 /**
- * GET /cuenta, con el código HTTP de la respuesta: el 403 dice que la cuenta no tiene acceso a la app, como la de
- * administración, que entra por el panel (registro-E33).
+ * GET /cuenta, con el código HTTP de la respuesta: el 403 dice que la cuenta no tiene ningún rol de la app
+ * (registro-E33).
  */
 export function consultarCuentaConEstado(token: string): Promise<ResultadoConEstado<{ usuario: Usuario }>> {
   return pedirConEstado<{ usuario: Usuario }>('cuenta', { metodo: 'GET', token });
@@ -69,7 +68,10 @@ export function cerrarSesionEnServidor(token: string, tokenDelTelefono?: string)
   });
 }
 
-/** POST /sesion/google: el servidor valida el idToken y abre la sesión (registro-E16 y E19). */
+/**
+ * POST /sesion/google: el servidor valida el idToken y abre la sesión (registro-E16 y E19). A la cuenta de administración
+ * le responde 422 en id_token, sin token: no entra con Google (administracion-app-E08).
+ */
 export function iniciarSesionConGoogle(idToken: string): Promise<ResultadoDeEntrada<SesionNueva>> {
   return pedirLaSesion('sesion/google', { id_token: idToken });
 }

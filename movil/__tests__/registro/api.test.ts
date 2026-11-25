@@ -222,29 +222,29 @@ describe('registro: cliente de la API de acceso', () => {
     });
   });
 
-  // La cuenta de administración entra por el panel: POST /api/sesion le responde 403, sin token
-  // (servidor/app/Http/Controllers/Api/SesionController.php), y la app le ofrece abrir el panel (administracion-E25).
-  // POST /api/sesion/google todavía le da token: su 403 lo pide la tarea 6.2
-  // (openspec/changes/administracion/tasks.md), y la app ya lo lee igual.
-  describe('registro-E33 y administracion-E25: el 403 al pedir la sesión dice que la cuenta no tiene acceso a la app', () => {
-    const SIN_ACCESO = {
-      message: 'Esta cuenta no tiene acceso a la app. Las cuentas de administración entran por el panel.',
-    };
-
+  // A una cuenta sin ningún rol de la app, POST /api/sesion le responde 403, sin token, con un mensaje que no menciona
+  // el panel (servidor/app/Http/Controllers/Api/SesionController.php; administracion-app-E09). La de administración
+  // recibe su token, como los otros roles (administracion-app-E01).
+  describe('registro-E33: el 403 al pedir la sesión dice que la cuenta no tiene ningún rol de la app', () => {
     test('registro-E33 — con 403 al iniciar sesión, la cuenta no tiene acceso a la app y no hay token', async () => {
-      fetchFalso.mockResolvedValue(respuesta(403, SIN_ACCESO));
+      fetchFalso.mockResolvedValue(respuesta(403, { message: 'Esta cuenta no tiene acceso a la app.' }));
 
-      const resultado = await iniciarSesion({ correo: 'panel@ejemplo.com', password: 'secreta123' });
+      const resultado = await iniciarSesion({ correo: 'sin-rol@ejemplo.com', password: 'secreta123' });
 
       expect(resultado).toEqual({ ok: false, motivo: 'sin-acceso' });
     });
+  });
 
-    test('administracion-E25 — con el 403 al entrar con Google (tarea 6.2), tampoco hay token', async () => {
-      fetchFalso.mockResolvedValue(respuesta(403, SIN_ACCESO));
+  // La administración no entra con Google: POST /api/sesion/google le responde 422 en id_token, sin token (ADR-0022,
+  // decisión 5). Reemplaza al 403 de la tarea 6.2 de openspec/changes/administracion/tasks.md.
+  describe('administracion-app-E08: la administración no entra con Google', () => {
+    test('administracion-app-E08 — con el 422 en id_token, el resultado trae el error del campo y ningún token', async () => {
+      const MENSAJE = 'La administración entra con su correo y su contraseña.';
+      fetchFalso.mockResolvedValue(respuesta(422, { message: MENSAJE, errors: { id_token: [MENSAJE] } }));
 
       const resultado = await iniciarSesionConGoogle('id-token-de-google');
 
-      expect(resultado).toEqual({ ok: false, motivo: 'sin-acceso' });
+      expect(resultado).toEqual({ ok: false, motivo: 'invalido', mensaje: MENSAJE, errores: { id_token: [MENSAJE] } });
     });
   });
 

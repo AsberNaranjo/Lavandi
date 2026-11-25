@@ -12,8 +12,9 @@
 // Con sesión, las pantallas se ven además según el módulo de la cuenta, por su rol (registro-E33): las del usuario,
 // solo con una cuenta de usuario; las de la lavandería (pedidos-de-la-lavanderia y estados-del-pedido, en
 // app/lavanderia/), solo con una de socio lavandería; las del repartidor (repartidor, en app/repartidor/), solo con una
-// de socio repartidor. Las de un módulo que no es el suyo, y las de la entrada con la sesión abierta, llevan al
-// arranque, que abre la primera del módulo de la cuenta.
+// de socio repartidor; las de la administración (administracion-en-la-app, en app/administracion/), solo con una de
+// administración (administracion-app-E02). Las de un módulo que no es el suyo, y las de la entrada con la sesión
+// abierta, llevan al arranque, que abre la primera del módulo de la cuenta.
 //
 // El registro del repartidor (repartidor-E01) es de la entrada: sin sesión. Su enlace desde la bienvenida o el inicio de
 // sesión espera DD-053 (repartidor-E04).
@@ -82,6 +83,9 @@ function Pantallas({ letraLista }: { letraLista: boolean }) {
       </Stack.Protected>
       <Stack.Protected guard={modulo === 'repartidor'} redirectTo="/">
         <Stack.Screen name="repartidor" />
+      </Stack.Protected>
+      <Stack.Protected guard={modulo === 'administracion'} redirectTo="/">
+        <Stack.Screen name="administracion" />
       </Stack.Protected>
       <Stack.Protected guard={!conSesion} redirectTo="/">
         <Stack.Screen name="registro" />

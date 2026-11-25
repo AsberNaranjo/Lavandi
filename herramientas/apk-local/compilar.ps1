@@ -69,18 +69,14 @@ if ($LASTEXITCODE -ne 0) { throw 'No se pudo preparar la copia aparte.' }
 
 $movil = Join-Path $destinoCompleto 'movil'
 # El .env de la copia: el de la máquina, con la dirección del servidor según el modo. El aviso de privacidad y los
-# términos los sirve el mismo servidor local (textos-legales-E05): sin ellos, la app no muestra la sección "Legal". El
-# panel también (su ruta es admin, app/Providers/Filament/AdminPanelProvider.php): sin él, una cuenta de administración
-# ve el aviso sin "Abrir el panel", y con el 127.0.0.1 del .env de la máquina, en wifi, el botón no llegaría
-# (administracion-E25).
+# términos los sirve el mismo servidor local (textos-legales-E05): sin ellos, la app no muestra la sección "Legal".
 $servidor = $api -replace '/api$', ''
 $lineas = Get-Content $envOrigen | Where-Object {
-    $_ -notmatch '^EXPO_PUBLIC_(API_URL|AVISO_DE_PRIVACIDAD_URL|TERMINOS_URL|PANEL_URL)='
+    $_ -notmatch '^EXPO_PUBLIC_(API_URL|AVISO_DE_PRIVACIDAD_URL|TERMINOS_URL)='
 }
 $lineas += "EXPO_PUBLIC_API_URL=$api"
 $lineas += "EXPO_PUBLIC_AVISO_DE_PRIVACIDAD_URL=$servidor/aviso-de-privacidad"
 $lineas += "EXPO_PUBLIC_TERMINOS_URL=$servidor/terminos"
-$lineas += "EXPO_PUBLIC_PANEL_URL=$servidor/admin"
 Set-Content -Path (Join-Path $movil '.env') -Value $lineas -Encoding utf8
 
 Push-Location $movil
