@@ -182,7 +182,10 @@ jobs:
   landing-navegadores:
     needs: detectar
     if: needs.detectar.outputs.servidor == 'true'
-    runs-on: ubuntu-latest
+    # Fijo en 24.04: ubuntu-latest pasó a 26.04 (oct-nov 2026) y Playwright 1.57, la versión fija en package.json,
+    # no sabe instalar ahí las bibliotecas de los navegadores ("Cannot install dependencies for ubuntu26.04-x64").
+    # Se sube junto con Playwright cuando su versión soporte 26.04 (grado E, consultado el 2026-11-24).
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: servidor
