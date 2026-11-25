@@ -10,7 +10,7 @@
 // - un 409, la acción que otra sesión ya hizo, sale como conflicto, con el mensaje del servidor (design.md, sección 3);
 // - un 404, el registro que no existe (ADR-0019, decisión 3), sale como que no existe, con el mensaje del servidor;
 // - un 422 sale con el error de cada campo, como en el resto de la app.
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { pedirConEstado, type Falla, type Peticion, type ResultadoConEstado } from '../configuracion/api';
 import { useAbrirComoPrimera } from '../navegacion/regresar';
@@ -50,14 +50,20 @@ export type PedirALaAdministracion = <T>(
 export function useApiDeLaAdministracion(): PedirALaAdministracion {
   const { token, cerrar } = useSesion();
   const abrirComoPrimera = useAbrirComoPrimera();
-  // Si dos consultas reciben el 401 a la vez, la sesión se cierra una sola vez.
-  const saliendo = useRef(false);
+  // El token de la sesión abierta, mientras ninguna consulta de esta pantalla la haya cerrado. Un 401 cierra la sesión
+  // solo si llegó con este token, y una vez: no la cierra otra consulta de la misma pantalla que recibe el 401 a la vez,
+  // ni uno que llega tarde, cuando la sesión ya se cerró o ya es otra. Si dos pantallas montadas reciben el 401 en el
+  // mismo instante, cada una cierra la sesión, sin daño: la segunda borra lo que ya no está y abre la misma pantalla.
+  const vigente = useRef(token);
+  useEffect(() => {
+    vigente.current = token;
+  }, [token]);
 
-  const salir = useCallback(async () => {
-    if (saliendo.current) {
+  const salir = useCallback(async (conToken: string) => {
+    if (vigente.current !== conToken) {
       return;
     }
-    saliendo.current = true;
+    vigente.current = null;
     try {
       await cerrar();
     } catch {
@@ -81,7 +87,7 @@ export function useApiDeLaAdministracion(): PedirALaAdministracion {
         token,
       });
       if (!respuesta.resultado.ok && respuesta.resultado.motivo === 'sin-sesion') {
-        await salir();
+        await salir(token);
       }
       return conLasFallasDeLaAdministracion(respuesta);
     },

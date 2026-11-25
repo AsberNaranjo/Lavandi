@@ -110,25 +110,49 @@ describe('administracion-app-E04: la administración cierra su sesión', () => {
   });
 });
 
-// Una pantalla de prueba del módulo, con el cliente de la administración: dice el estado de la sesión; "Consultar" pide
-// la ruta de prueba y muestra lo que entregó el cliente; "Confirmar" pide confirmar una acción de prueba y, si se
-// confirma, lo dice.
+// Una pantalla de prueba del módulo, con el cliente de la administración: dice el estado y el token de la sesión;
+// "Consultar" pide la ruta de prueba y muestra lo que entregó el cliente; "Consultar dos veces" pide dos rutas a la vez;
+// "Consultar sin esperar" pide la ruta de prueba y deja la pantalla libre mientras llega la respuesta, que la prueba
+// espera en consultaEnCurso; "Abrir otra sesión" abre la de otro token, como al volver a entrar; "Confirmar" pide
+// confirmar una acción de prueba y, si se confirma, lo dice.
 const RUTA_DE_PRUEBA = '/administracion/prueba-del-cliente';
+const OTRO_TOKEN = 'token-de-otra-sesion-de-la-administracion';
+let consultaEnCurso: Promise<void> = Promise.resolve();
 
 function describir(resultado: ResultadoDeLaAdministracion<unknown>): string {
   return JSON.stringify(resultado);
 }
 
 function PruebaDelCliente() {
-  const { estado } = useSesion();
+  const { estado, token, iniciar } = useSesion();
   const pedir = useApiDeLaAdministracion();
   const [resultado, setResultado] = useState('');
   const [confirmada, setConfirmada] = useState(false);
   return (
     <View>
       <Text testID="estado-de-la-sesion">{estado}</Text>
+      <Text testID="token-de-la-sesion">{token}</Text>
       <Pressable role="button" onPress={async () => setResultado(describir(await pedir('prueba')))}>
         <Text>Consultar</Text>
+      </Pressable>
+      <Pressable
+        role="button"
+        onPress={async () =>
+          setResultado(JSON.stringify(await Promise.all([pedir('prueba'), pedir('prueba/otra')])))
+        }
+      >
+        <Text>Consultar dos veces</Text>
+      </Pressable>
+      <Pressable
+        role="button"
+        onPress={() => {
+          consultaEnCurso = pedir('prueba').then((entregado) => setResultado(describir(entregado)));
+        }}
+      >
+        <Text>Consultar sin esperar</Text>
+      </Pressable>
+      <Pressable role="button" onPress={() => iniciar(OTRO_TOKEN, 'administracion')}>
+        <Text>Abrir otra sesión</Text>
       </Pressable>
       <Pressable
         role="button"
@@ -145,7 +169,6 @@ function PruebaDelCliente() {
             titulo: '¿Hacer la acción de prueba?',
             texto: 'Lo que pasa al hacerla.',
             accion: 'Hacerla',
-            destructiva: true,
             alConfirmar: () => setConfirmada(true),
           })
         }
@@ -227,9 +250,58 @@ describe('administracion-app-E05: la sesión vence o se revoca', () => {
       expect(screen.queryByRole('button', { name: 'Consultar' })).not.toBeOnTheScreen();
     },
   );
+
+  test('administracion-app-E05 — dos consultas de la pantalla que reciben el 401 a la vez cierran la sesión una sola vez', async () => {
+    await abrirLaPantallaDePrueba();
+    servidor().vencerLaSesion();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Consultar dos veces' }));
+
+    await waitFor(() => expect(screen).toHavePathname('/inicio-de-sesion'));
+    expect(
+      servidor()
+        .peticiones()
+        .filter(({ ruta }) => ruta.startsWith('/administracion'))
+        .map(({ ruta }) => ruta),
+    ).toEqual(['/administracion/prueba', '/administracion/prueba/otra']);
+    expect(revocaciones()).toEqual([`DELETE /sesion Bearer ${TOKEN_DE_LA_ADMINISTRACION}`]);
+    await expect(leerToken()).resolves.toBeNull();
+  });
+
+  test('administracion-app-E05 — un 401 que llega tarde, cuando ya se abrió otra sesión, no la cierra', async () => {
+    await abrirLaPantallaDePrueba();
+    // La consulta sale con el token de la sesión y su respuesta tarda.
+    let contestarTarde: (contestada: unknown) => void = () => {};
+    servidor().interceptar = ({ ruta }) =>
+      ruta === '/administracion/prueba'
+        ? new Promise((resolver) => {
+            contestarTarde = resolver;
+          })
+        : undefined;
+    await fireEvent.press(screen.getByRole('button', { name: 'Consultar sin esperar' }));
+    await waitFor(() =>
+      expect(servidor().peticiones()).toContainEqual(
+        expect.objectContaining({ ruta: '/administracion/prueba', autorizacion: `Bearer ${TOKEN_DE_LA_ADMINISTRACION}` }),
+      ),
+    );
+
+    // Mientras tanto, la persona abre otra sesión; después llega el 401 de la consulta vieja.
+    await fireEvent.press(screen.getByRole('button', { name: 'Abrir otra sesión' }));
+    await waitFor(() => expect(screen.getByTestId('token-de-la-sesion')).toHaveTextContent(OTRO_TOKEN));
+    await act(async () => {
+      contestarTarde(respuesta(401, { message: 'Unauthenticated.' }));
+      await consultaEnCurso;
+    });
+
+    await expect(loQueEntrego()).resolves.toMatchObject({ ok: false, motivo: 'sin-sesion' });
+    expect(screen).toHavePathname(RUTA_DE_PRUEBA);
+    expect(screen.getByTestId('estado-de-la-sesion')).toHaveTextContent('con-sesion');
+    await expect(leerToken()).resolves.toBe(OTRO_TOKEN);
+    expect(revocaciones()).toEqual([]);
+  });
 });
 
-describe('ADR-0022, decisiones 7 y 9: lo que el cliente del módulo da a las pantallas (design.md, sección 3)', () => {
+describe('ADR-0022, decisiones 7 y 9: lo que el cliente del módulo da a las pantallas (design.md, sección 3); administracion-app-E12 lo prueba cada pantalla en la suya', () => {
   test('ADR-0022 — la petición va a /administracion/<ruta> con el token de la sesión, y la respuesta llega con sus datos', async () => {
     servidor().agregar(({ metodo, ruta }) =>
       metodo === 'GET' && ruta === '/administracion/prueba' ? respuesta(200, { prueba: 'lista' }) : undefined,
@@ -324,7 +396,7 @@ describe('ADR-0022, decisiones 7 y 9: lo que el cliente del módulo da a las pan
     expect(texto).toBe('Lo que pasa al hacerla.');
     expect(botones.map(({ text, style }) => [text, style])).toEqual([
       ['Cancelar', 'cancel'],
-      ['Hacerla', 'destructive'],
+      ['Hacerla', undefined],
     ]);
 
     await tocar(botones, 'Cancelar');

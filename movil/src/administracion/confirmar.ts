@@ -13,15 +13,13 @@ export interface Confirmacion {
   texto?: string;
   /** El texto del botón que hace la acción. */
   accion: string;
-  /** Si la acción deja a alguien sin servicio o sin entrada, como suspender o bloquear: el sistema la marca así. */
-  destructiva?: boolean;
   /** Lo que hace la acción, solo si la persona la confirma. */
   alConfirmar: () => void;
 }
 
-export function confirmar({ titulo, texto, accion, destructiva = false, alConfirmar }: Confirmacion): void {
+export function confirmar({ titulo, texto, accion, alConfirmar }: Confirmacion): void {
   Alert.alert(titulo, texto, [
     { text: TEXTOS_DE_LA_ADMINISTRACION.cancelar, style: 'cancel' },
-    { text: accion, style: destructiva ? 'destructive' : 'default', onPress: alConfirmar },
+    { text: accion, onPress: alConfirmar },
   ]);
 }
