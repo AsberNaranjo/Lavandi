@@ -10,6 +10,11 @@ una clase de dominio en su propia tarea, antes de la primera ruta que lo usa, y 
 sin cambios (ADR-0022, decisión 9; `design.md`, sección 3). Si no cabe todo en la ventana del contrato, el orden de los
 lotes es el de `design.md`, riesgo "El calendario".
 
+**Las pantallas, como sus maquetas.** Cada pantalla de `movil/` se construye como sus imágenes de la Propuesta 6
+(`mocks/Lavandi - Propuesta 06 - Administracion/`; su `NOTAS.md` dice cuáles son de cada función), con sus textos: el
+desarrollo sigue esa versión (C-248). Lo que las imágenes fijaron y los escenarios no decían ya está en la spec y en
+`design.md` (secciones 4 y 5).
+
 **Las pruebas, dónde viven.** Las del servidor, en `servidor/tests/Feature/AdministracionEnLaApp/`, salvo las de la
 sesión, en `servidor/tests/Feature/Registro/`, y las de la autorización, en `servidor/tests/Feature/Autorizacion/`. Las
 de la app, en `movil/__tests__/administracion/`, con la app real (rutas de `movil/app/`) en iPhone y en Android, y su
@@ -51,9 +56,9 @@ servidor simulado en `movil/__tests__/apoyo/administracion.ts`, sobre el de `mov
 
 ## 4. Lote 1, gestión de lavanderías (`movil/`)
 
-- [ ] 4.1 administracion-app-E13: `app/administracion/lavanderias/index.tsx` (lista con búsqueda) y `lavanderias/[id].tsx` (ficha con solo los botones que su estado permite) — test: `movil/__tests__/administracion/lavanderias.test.tsx` — tamaño M
-- [ ] 4.2 administracion-app-E15, administracion-app-E16 y administracion-app-E12: suspender, levantar la suspensión y dar de baja, cada una con su confirmación; con 409, el mensaje y otra consulta de la ficha — test: `movil/__tests__/administracion/lavanderias.test.tsx` — tamaño S
-- [ ] 4.3 administracion-app-E14: `app/administracion/lavanderias/editar/[id].tsx`, con las piezas del formulario de `src/alta-lavanderias/` donde sirvan, las fotos en multipart y los errores 422 junto a cada campo — test: `movil/__tests__/administracion/edicion-de-lavanderia.test.tsx` — tamaño L
+- [ ] 4.1 administracion-app-E13 y administracion-app-E14: `app/administracion/lavanderias/index.tsx` (lista con búsqueda; el alta en espera de DD-053, sin botón) y `lavanderias/[id].tsx` (ficha con "Editar" en cualquier estado, también de baja, y solo los botones de estado que su estado permite, fijos abajo; lo que espera DD-104, en ámbar sobre ellos) — test: `movil/__tests__/administracion/lavanderias.test.tsx` — tamaño M
+- [ ] 4.2 administracion-app-E15, administracion-app-E16 y administracion-app-E12: suspender, levantar la suspensión y dar de baja, cada una con su confirmación y los textos del panel, con las adaptaciones de `design.md`, sección 5 (la baja "no se deshace desde la app"; suspender, sin el número de DD-104); con 409, el mensaje de la clase de dominio tal cual arriba de la ficha, y otra consulta de la ficha — test: `movil/__tests__/administracion/lavanderias.test.tsx` — tamaño S
+- [ ] 4.3 administracion-app-E14: `app/administracion/lavanderias/editar/[id].tsx`, con las piezas del formulario de `src/alta-lavanderias/` en su orden (los datos y la dirección, el municipio y las fotos, los servicios y precios, y las ventanas), las instrucciones de las fotos y de las ventanas que hablan de la lavandería, el lavado en seco en espera de DD-010 sin interruptor, "Guardar cambios" fijo abajo, las fotos en multipart y los errores 422 junto a cada campo — test: `movil/__tests__/administracion/edicion-de-lavanderia.test.tsx` — tamaño L
 
 ## 5. Lote 2, gestión de repartidores (`servidor/`)
 
@@ -65,7 +70,7 @@ servidor simulado en `movil/__tests__/apoyo/administracion.ts`, sobre el de `mov
 ## 6. Lote 2, gestión de repartidores (`movil/`)
 
 - [ ] 6.1 administracion-app-E19: `app/administracion/repartidores/index.tsx` y `repartidores/[id].tsx` — test: `movil/__tests__/administracion/repartidores.test.tsx` — tamaño M
-- [ ] 6.2 administracion-app-E20, administracion-app-E21 y administracion-app-E22: dar de alta con la plaza elegida en `Selector`, suspender, levantar la suspensión y dar de baja, cada una con su confirmación — test: `movil/__tests__/administracion/repartidores.test.tsx` — tamaño M
+- [ ] 6.2 administracion-app-E20, administracion-app-E21 y administracion-app-E22: dar de alta con la plaza elegida en `Selector`, suspender, levantar la suspensión y dar de baja, cada una con su confirmación y los textos del panel (la baja "no se deshace desde la app": `design.md`, sección 5) — test: `movil/__tests__/administracion/repartidores.test.tsx` — tamaño M
 - [ ] 6.3 administracion-app-E23: `app/administracion/repartidores/editar/[id].tsx`, con foto y los errores 422 junto a cada campo — test: `movil/__tests__/administracion/edicion-de-repartidor.test.tsx` — tamaño M
 
 ## 7. Lote 3, gestión de usuarios (`servidor/`)
@@ -77,7 +82,7 @@ servidor simulado en `movil/__tests__/apoyo/administracion.ts`, sobre el de `mov
 ## 8. Lote 3, gestión de usuarios (`movil/`)
 
 - [ ] 8.1 administracion-app-E24: `app/administracion/usuarios/index.tsx` (lista con búsqueda y páginas) y `usuarios/[id].tsx` (la cuenta y su historial) — test: `movil/__tests__/administracion/usuarios.test.tsx` — tamaño M
-- [ ] 8.2 administracion-app-E25: "Bloquear" o "Levantar el bloqueo" según el estado, con su confirmación — test: `movil/__tests__/administracion/usuarios.test.tsx` — tamaño S
+- [ ] 8.2 administracion-app-E25: "Bloquear" o "Levantar el bloqueo" según el estado, con su confirmación y el texto del panel; el de bloquear, sin el número de DD-016, que va en ámbar en la ficha (`design.md`, sección 5) — test: `movil/__tests__/administracion/usuarios.test.tsx` — tamaño S
 
 ## 9. Lote 4, monitoreo de pedidos (`servidor/`)
 
@@ -87,6 +92,7 @@ servidor simulado en `movil/__tests__/apoyo/administracion.ts`, sobre el de `mov
 
 - [ ] 10.1 administracion-app-E28 y administracion-app-E29: `app/administracion/monitoreo.tsx`, con el mapa arriba (`react-native-maps`, marcadores R y E con su folio, estado y plaza) y la lista debajo; consulta cada 30 s con `src/estados/useConsultaPeriodica.ts`; el mapa se crea una vez y se encuadra solo la primera vez que hay pedidos — test: `movil/__tests__/administracion/monitoreo.test.tsx` — tamaño M
 - [ ] 10.2 administracion-app-E30: el mapa sin `provider` en las dos plataformas, y sin la llave de Android no se monta y la pantalla lo dice (`src/cercanas/mapa.ts`), con la lista — test: `movil/__tests__/administracion/mapa-del-monitoreo.test.tsx` — tamaño S
+- [ ] 10.3 administracion-app-E03: los dos conteos del inicio, de las imágenes 03 y 56 de la Propuesta 6: junto a Repartidores, cuántos están pendientes, de `GET /api/administracion/repartidores` (tarea 5.1), y junto a Monitoreo de pedidos, cuántos pedidos activos hay, de `GET /api/administracion/monitoreo` (tarea 9.1), cada uno en una insignia; sin pendientes, Repartidores va sin insignia. El inicio los consulta cada vez que queda a la vista, sin consulta periódica, y si una consulta falla su entrada va sin insignia y el inicio sigue igual (`design.md`, sección 5). Va después de la 9.1 — test: `movil/__tests__/administracion/entrada.test.tsx` — tamaño S
 
 ## 11. Lote 5, comisiones (`servidor/`)
 
@@ -104,7 +110,7 @@ servidor simulado en `movil/__tests__/apoyo/administracion.ts`, sobre el de `mov
 
 ## 14. Lote 6, reportes financieros (`movil/`)
 
-- [ ] 14.1 administracion-app-E37: `app/administracion/ingresos.tsx`, con el rango, la granularidad, el total, cuántos pagos son y el ingreso de cada periodo, sin consulta periódica; deja debajo el lugar de las comisiones del periodo, que llegan con la 22.6 — test: `movil/__tests__/administracion/ingresos.test.tsx` — tamaño M
+- [ ] 14.1 administracion-app-E37: `app/administracion/ingresos.tsx`, con el rango y la granularidad plegados en la tarjeta con "Cambiar" y su hoja, las mismas de los indicadores, sin "Este mes" ni "Mes anterior" (`design.md`, sección 4; la arma la primera de la 14.1 y la 18.4 que se haga), el total, cuántos pagos son y el ingreso de cada periodo, sin consulta periódica; bajo los pagos, el lugar de "Reembolsos y ajustes" con "Por confirmar · DD-012, DD-016" y el de "Comisiones del periodo" con "Por confirmar · DD-020", sin cifra; las comisiones llegan con la 22.6 — test: `movil/__tests__/administracion/ingresos.test.tsx` — tamaño M
 - [ ] 14.2 administracion-app-E38: `app/administracion/conciliacion.tsx`, con "Conciliar un periodo", su confirmación y la tabla del reporte, con los errores junto al campo — test: `movil/__tests__/administracion/conciliacion.test.tsx` — tamaño M
 
 ## 15. Lote 7, avisos masivos (`servidor/`)
@@ -114,7 +120,7 @@ servidor simulado en `movil/__tests__/apoyo/administracion.ts`, sobre el de `mov
 
 ## 16. Lote 7, avisos masivos (`movil/`)
 
-- [ ] 16.1 administracion-app-E42 y administracion-app-E43: `app/administracion/avisos/index.tsx` (los enviados, con "En cola") y `avisos/nuevo.tsx` (título, texto y la confirmación de que sale a todos los teléfonos registrados), sin segmentos — test: `movil/__tests__/administracion/avisos.test.tsx` — tamaño M
+- [ ] 16.1 administracion-app-E42 y administracion-app-E43: `app/administracion/avisos/index.tsx` (los enviados, con "En cola") y `avisos/nuevo.tsx` (título y texto, cada uno con cuántos caracteres lleva de su tope; "Escribe el título." junto al título con el 422; "A quién le llega" con el texto del panel; y la confirmación de que sale a todos los teléfonos registrados), sin segmentos: el aviso a un segmento, en ámbar con "Por confirmar · DD-113" — test: `movil/__tests__/administracion/avisos.test.tsx` — tamaño M
 
 ## 17. Lote 8, indicadores (`servidor/`)
 
@@ -126,8 +132,8 @@ servidor simulado en `movil/__tests__/apoyo/administracion.ts`, sobre el de `mov
 
 - [ ] 18.1 administracion-app-E46, administracion-app-E47, administracion-app-E48 y administracion-app-E49: las piezas de barras, tabla comparativa, destacado con tendencia y ranking con semáforo en `src/piezas/`, con vistas y los tokens (ADR-0013; ADR-0022, alternativa 5), cada una con sus cifras en texto y el semáforo con su texto — test: `movil/__tests__/piezas/graficas.test.tsx` — tamaño M
 - [ ] 18.2 administracion-app-E46 y administracion-app-E47: las piezas de la línea de tendencia (segmentos girados entre puntos) y de la dona (anillo de marcas giradas), con sus cifras en texto. Si no se leen bien después de 2 sesiones, o Arthur las rechaza en el emulador, se pasa a `react-native-svg` con una adenda de ADR-0022 (criterio de reversión) — test: `movil/__tests__/piezas/graficas.test.tsx` — tamaño M
-- [ ] 18.3 administracion-app-E45: `src/piezas/Pestanas.tsx`, que hoy es una fila sin desplazamiento, se desplaza de lado cuando sus pestañas no caben en el ancho, y cuando caben ocupan el ancho como hoy; sigue anunciando cada pestaña como pestaña y la elegida como seleccionada. La usa también `app/pedido/direccion-nueva.tsx`, cuyas pruebas siguen en verde sin cambios — test: `movil/__tests__/piezas/pestanas.test.tsx`, y `movil/__tests__/direcciones/` sin cambios — tamaño S
-- [ ] 18.4 administracion-app-E45, administracion-app-E51 y administracion-app-E53: `app/administracion/indicadores.tsx`, con `Pestanas` (que ya se desplaza de lado, 18.3), el rango en dos `CampoDeTexto` con "Este mes" y "Mes anterior", la granularidad, la consulta de la pestaña visible con el intervalo de la respuesta, y el lugar de los indicadores en espera — test: `movil/__tests__/administracion/indicadores.test.tsx` — tamaño M
+- [ ] 18.3 administracion-app-E45: `src/piezas/Pestanas.tsx`, que hoy es una fila sin desplazamiento, se desplaza de lado cuando sus pestañas no caben en el ancho, y cuando caben ocupan el ancho como hoy; sigue anunciando cada pestaña como pestaña y la elegida como seleccionada. Cuando se desplaza, la orilla por donde sigue la fila lleva un desvanecido de 64 px hacia el fondo, como en las imágenes 41 y 46 de la Propuesta 6, y la fila no se centra en la elegida: se queda al principio o al final, lo que deje a la elegida entera y fuera del desvanecido, así nunca corta palabras en las dos orillas a la vez. El degradado se dibuja con el `backgroundImage` de React Native, sin librería, si la versión de la app lo dibuja en los dos teléfonos (está en sus tipos: `movil/node_modules/react-native/Libraries/StyleSheet/StyleSheetTypes.js:894`, de la 0.88.1 de `movil/package.json:37`; grado E, que se vea en el teléfono `SIN VERIFICAR`); si no, con el margen y la pestaña asomada. La usa también `app/pedido/direccion-nueva.tsx`, cuyas pruebas siguen en verde sin cambios — test: `movil/__tests__/piezas/pestanas.test.tsx`, y `movil/__tests__/direcciones/` sin cambios — tamaño S
+- [ ] 18.4 administracion-app-E45, administracion-app-E51 y administracion-app-E53: `app/administracion/indicadores.tsx`, con `Pestanas` (que ya se desplaza de lado, 18.3); el rango y la granularidad plegados en una tarjeta con la descripción del rango ajustado, "Las cifras se actualizan solas cada N segundos." y "Cambiar", que abre la hoja "Rango y granularidad" con las dos fechas en dos `CampoDeTexto`, "Este mes", "Mes anterior", Día, Semana o Mes, cómo se ajusta el rango y "Aplicar" (`design.md`, sección 4; la tarjeta es la misma de la 14.1); la consulta de la pestaña visible con el intervalo de la respuesta, y el lugar de los indicadores en espera — test: `movil/__tests__/administracion/indicadores.test.tsx` — tamaño M
 - [ ] 18.5 administracion-app-E46, administracion-app-E47, administracion-app-E48, administracion-app-E49 y administracion-app-E52: cada pestaña con sus indicadores y sus piezas, con las cifras del servidor simulado y sin cifras de ejemplo en el código — test: `movil/__tests__/administracion/indicadores-por-categoria.test.tsx` — tamaño M
 - [ ] 18.6 administracion-app-E50: el mapa de calor con `react-native-maps`, un círculo por colonia o cada zona como polígono, con el color de la respuesta, y la tabla debajo; sin la llave de Android, solo la tabla y el aviso — test: `movil/__tests__/administracion/mapa-de-calor.test.tsx` — tamaño M
 
@@ -201,20 +207,20 @@ El requisito "Cada rol entra solo a su módulo" de `autorizacion` tiene su delta
 
 ## Horas
 
-- **Sin bloqueo:** 207 h. `servidor/`, 89 h; `movil/`, 118 h.
+- **Sin bloqueo:** 209 h. `servidor/`, 89 h; `movil/`, 120 h.
   - Lote 0, la base: 32 h (23 en el servidor y 9 en la app), con las pruebas de la autorización (1.6) y los nombres
     operativos del estado (1.7).
   - Lote 1, lavanderías: 30 h (11 y 19). La edición en la app es la única L.
   - Lote 2, repartidores: 26 h (11 y 15).
   - Lote 3, usuarios: 13 h (6 y 7).
-  - Lote 4, monitoreo: 9 h (2 y 7).
+  - Lote 4, monitoreo: 11 h (2 y 9), con los dos conteos del inicio (10.3), que esperan también a la 5.1.
   - Lote 5, comisiones: 12 h (5 y 7).
   - Lote 6, reportes financieros: 14 h (4 y 10).
   - Lote 7, avisos masivos: 9 h (4 y 5).
   - Lote 8, indicadores: 36 h (9 y 27), con las seis piezas de gráficas y el desplazamiento de `Pestanas`.
   - Lote 9, descargas: 26 h (14 y 12), con la migración de `exports.id_publico`.
 - **Bloqueadas:** 42 h. `servidor/`, 20 h (10 S); `movil/`, 22 h (11 S).
-- **Total:** 249 h.
+- **Total:** 251 h.
 - **De dónde sale el tamaño.** Las reglas y las cifras ya están probadas en el panel: lo nuevo son 32 rutas delgadas,
   17 pantallas, las piezas de las gráficas, el guardado del archivo, una migración, el ajuste de las pruebas de la
   autorización y las reglas que salen de Filament. Las horas no incluyen las tareas abiertas de los cambios de los que

@@ -385,7 +385,8 @@ solo pone la administración dentro de la app (Cláusula I) y dice qué hace (M�
   - No entra ninguna librería nueva.
 - **Negativas:**
   - Son diecisiete pantallas nuevas en la app y treinta y dos rutas nuevas en la API, encima de lo que ya existe. Lo
-    dimensiona el `tasks.md` del cambio: 207 horas sin bloqueo, que **no caben** en la ventana que el contrato le da a
+    dimensiona el `tasks.md` del cambio: 207 horas sin bloqueo al decidir, 209 desde que entraron los dos conteos del
+    inicio de la Propuesta 6 (tarea 10.3), que **no caben** en la ventana que el contrato le da a
     O-21 y O-22, las semanas 12 y 13, del 23 de noviembre al 6 de diciembre (`NSV-2026-001-v8.pdf:5:Cláusula II`). El
     `design.md` del cambio dice el orden en que se hacen.
   - Una migración nueva, `exports.id_publico` (decisión 15).
