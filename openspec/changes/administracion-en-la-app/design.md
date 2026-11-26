@@ -8,16 +8,24 @@
   web en `administracion` (26 escenarios), `indicadores` (24), `exportacion` (12), `alta-de-lavanderias` y `repartidor`.
   Viven en clases de dominio de `servidor/app/` que el panel llama. Este cambio pone encima una API y unas pantallas;
   no cambia ninguna cifra ni ninguna regla.
-- **Lo que hoy hace la app con la administración.** `POST /api/sesion` le responde 403 sin token
-  (`servidor/app/Http/Controllers/Api/SesionController.php:76-81`), `GET /api/cuenta` y `DELETE /api/sesion` la dejan
-  fuera (`servidor/routes/api.php:58`) y la app le ofrece abrir el panel web (`movil/src/acceso/BotonDelPanel.tsx`;
-  administracion-E25). Por Google todavía recibe token (tarea 6.2 de `administracion`, abierta). Todo eso se reemplaza.
+- **Lo que hacía la app con la administración antes del lote 0** (en `9f6b7e5`). `POST /api/sesion` le respondía 403
+  sin token (`servidor/app/Http/Controllers/Api/SesionController.php:76-81`), `GET /api/cuenta` y `DELETE /api/sesion`
+  la dejaban fuera (`servidor/routes/api.php:58`) y la app le ofrecía abrir el panel web
+  (`movil/src/acceso/BotonDelPanel.tsx`; administracion-E25). Por Google todavía recibía token (tarea 6.2 de
+  `administracion`). El lote 0 (tareas 1.1 a 1.7 y 2.1 a 2.3) lo reemplazó: hoy `POST /api/sesion` le da su token
+  (`servidor/app/Http/Controllers/Api/SesionController.php:85-90`), la cuenta y el cierre la admiten
+  (`servidor/routes/api.php:59-62`) y la app abre su módulo (`movil/app/administracion/index.tsx`).
 - **La app.** Cada rol entra a su módulo por el rol de su cuenta (`movil/src/sesion/modulos.ts`;
   `movil/app/_layout.tsx`). Los módulos B y C son pilas de `expo-router` con las entradas a sus pantallas como enlaces
   bajo el título (`movil/app/lavanderia/pedidos/index.tsx:13-15`). Las pruebas abren la app real con un servidor
   simulado (`movil/__tests__/apoyo/lavanderia.ts` y `repartidor.ts`).
-- **Las maquetas.** Solo hay maquetas web de la administración (`mocks/Lavandi - Propuesta 04/Administración/web/`,
-  d01 a d07). Orientan el contenido de cada pantalla, no su forma en el teléfono (`CLAUDE.md` §2-bis, punto 5).
+- **Las maquetas.** Las de la app son las de la Propuesta 6 (`mocks/Lavandi - Propuesta 06 - Administracion/`: 70
+  pantallas en HTML y PNG, con su `NOTAS.md`), que hizo un concilio de agentes. Arthur pidió que el desarrollo siga la
+  versión que el concilio diera por la mejor (C-248, en `acta-2026-11-20-modelo-y-pasarela.md`): cada pantalla se
+  construye como su imagen, con sus textos. Lo que la Propuesta 6 fijó y los escenarios no decían quedó escrito en la
+  spec y aquí (secciones 4 y 5), con su imagen. Las maquetas web de la Propuesta 04
+  (`mocks/Lavandi - Propuesta 04/Administración/web/`, d01 a d07) solo orientaron el contenido. Que una pantalla se vea
+  así es diseño, no contrato.
 
 ## Goals / Non-Goals
 
@@ -78,8 +86,10 @@ Las técnicas están en ADR-0022 y no se repiten. Aquí, cómo se aplican.
 - **El grupo de rutas se parte en dos:** `cuenta` y `sesion` con `autorizar:usuario,lavanderia,repartidor,administracion`;
   `catalogos/municipios` y `codigos-postales/{codigo_postal}/colonias` con los tres roles que los usan.
 - **La pieza que crea los tokens,** `App\Identidad\TokensDeLaApp` (ADR-0022, decisión 3), reemplaza las cuatro llamadas
-  a `createToken()` (`SesionController.php:84`, `SesionConGoogleController.php:30`, `RegistroController.php:23` y
-  `RepartidorController.php:85`). Pregunta a `Autorizacion` la habilidad y el vencimiento; los otros roles siguen como
+  a `createToken()` (en `9f6b7e5`: `SesionController.php:84`, `SesionConGoogleController.php:30`,
+  `RegistroController.php:23` y `RepartidorController.php:85`). Hoy los cuatro llaman a `TokensDeLaApp::crear()`
+  (`SesionController.php:88`, `SesionConGoogleController.php:36`, `RegistroController.php:25` y
+  `RepartidorController.php:89`). Pregunta a `Autorizacion` la habilidad y el vencimiento; los otros roles siguen como
   hoy. Al crear el token de una cuenta de administración, borra los de esa cuenta que no llevan la habilidad (ADR-0022,
   decisión 4). Las pruebas que necesitan un token de la app lo piden a esta pieza.
 - **`Autorizacion::usaLaApp()`** incluye a la administración. El 403 de `SesionController` se queda para una cuenta sin
@@ -94,8 +104,9 @@ Las técnicas están en ADR-0022 y no se repiten. Aquí, cómo se aplican.
   - `permite()` no cambia: la usan el panel (`puedeEntrarAlPanel()`, `puedeVerLosIndicadores()`,
     `puedeDescargarReportes()`), el trabajo de la cola `EscribirArchivoDelReporte` y `usaLaApp()`, donde no hay token.
 - **Google** (ADR-0022, decisión 5): `Autorizacion::puedeEntrarConProveedorExterno(Usuario)` responde que no a la
-  administración, y `EntradaConGoogle::cuentaDe()` lo pregunta antes de la rama de la cuenta ya ligada (`:65-67`) y
-  antes de la del correo (`:78`). La entrada con Apple lo pregunta igual cuando exista (DD-069).
+  administración, y `EntradaConGoogle::cuentaDe()` lo pregunta antes de la rama de la cuenta ya ligada y antes de la del
+  correo (`servidor/app/Identidad/EntradaConGoogle.php:68-70` y `:81`; en `9f6b7e5`, `:65-67` y `:78`), por
+  `siPuedeEntrar()` (`:100-104`). La entrada con Apple lo pregunta igual cuando exista (DD-069).
 - **En la app:** la pantalla de inicio de sesión es la misma. Con el rol `administracion`, la app abre su módulo. Un 401
   en cualquier pantalla del módulo borra la sesión del teléfono y vuelve al inicio de sesión (ADR-0018, decisión 1).
   "Cerrar sesión" va en el inicio del módulo, con la confirmación de la app (registro-E13).
@@ -113,11 +124,11 @@ Las pruebas del panel siguen pasando sin cambios:
 
 | Hoy, dentro de Filament | Qué regla tiene | Lo usan después | Se mueve en |
 |---|---|---|---|
-| `App\Filament\EstadosDelPedido` | El nombre operativo de cada estado (ADR-0021) | El panel, `MarcadoresDelMonitoreo`, la ficha del usuario (`HistorialDelUsuario`) y el monitoreo de la API | El lote 0, antes de la ficha del usuario y del monitoreo |
+| `App\Filament\EstadosDelPedido` | El nombre operativo de cada estado (ADR-0021) | El panel, `MarcadoresDelMonitoreo`, la ficha del usuario (`HistorialDelUsuario`) y el monitoreo de la API | El lote 0, antes de la ficha del usuario y del monitoreo. **Ya se movió** con la tarea 1.7: hoy es `App\Pedidos\NombresDelEstado` |
 | `App\Filament\Resources\Lavanderias\Pages\EditLavanderia::handleRecordUpdate()` | Qué campos cambiaron respecto de lo que se leyó al abrir, y que se validan solo esos con `ReglasDeLaLavanderia::para()` y sus mensajes | El panel y la API, desde `EdicionDeLavanderia` | El lote 1, antes de la edición por la API |
 | `App\Filament\Resources\Repartidores\Pages\EditRepartidor::handleRecordUpdate()` | Los textos recortados y el vacío como nulo; las reglas de `RegistroDeRepartidorRequest::reglasDeLosDatos()` solo de los campos que llegan; `CorreoSinCuenta` salvo la propia cuenta | El panel y la API, desde `EdicionDeRepartidor` | El lote 2, antes de la edición por la API |
 | `App\Filament\Resources\Usuarios\HistorialDelUsuario` | Qué pedidos van en la ficha, su fecha en la hora de la plaza y su monto | La ficha del panel y la de la API | El lote 3 |
-| El formulario de `App\Filament\Pages\Conciliacion` y los campos de `ExportadorDeIndicador::getOptionsFormComponents()` | La regla del rango: las dos fechas, y la de fin no anterior a la de inicio, con su mensaje | La conciliación y la descarga, del panel y de la API | El lote 6; la descarga la usa en el lote 9 |
+| El formulario de `App\Filament\Pages\Conciliacion` y los campos de `ExportadorDeIndicador::getOptionsFormComponents()` | La regla del rango: las dos fechas, y la de fin no anterior a la de inicio, con su mensaje | La conciliación y la descarga, del panel y de la API | El lote 6; la descarga la usa en el lote 9. **La regla ya se movió** a `App\Validacion\RangoDeFechas` (`reglas()` y `mensajes()`), que el panel toma por `App\Filament\CamposDelRango`; faltan las dos rutas (tareas 13.2 y 19.2) |
 | `CreateAvisoMasivo` y `AvisoMasivoForm` | Qué se guarda con el aviso, que sale en cola después de guardarlo, y los topes del título (255) y del texto (1000) | El panel y la API | El lote 7 |
 | `App\Filament\Actions\DescargarReporte::generar()` | Cómo se crea la descarga de la cuenta y se pone en cola su archivo | El botón del panel y la API | El lote 9 |
 
@@ -157,9 +168,19 @@ Resumen. El detalle de cada fila va después.
   la validación que hoy vive en `EditLavanderia::handleRecordUpdate()`, movida antes de la ruta (sección 3);
   `App\Lavanderias\ReglasDeLaLavanderia` y `App\Lavanderias\FotosDeLaLavanderia`. La ficha puede salir con
   `App\Http\Resources\LavanderiaDelSocioResource`, que ya usa la edición del panel.
-- **Pantallas:** la lista; la ficha, con solo los botones de las transiciones que permite, cada uno con su
-  confirmación; la edición, con las piezas del formulario del registro de la lavandería (`movil/src/alta-lavanderias/`)
-  donde sirvan.
+- **Pantallas** (imágenes 06 a 13 y 57 a 61 de la Propuesta 6):
+  - la lista, con la búsqueda; el alta va en ámbar con "Por confirmar · DD-053", sin botón (06);
+  - la ficha, con "Editar" en cualquier estado, también de baja, como el panel
+    (`servidor/app/Filament/Resources/Lavanderias/Tables/LavanderiasTable.php:44`), y solo los botones de las
+    transiciones que permite, cada uno con su confirmación, fijos abajo. Lo que espera DD-104 va en ámbar en la ficha,
+    sobre los botones, y no dentro del diálogo (07 a 11);
+  - con 409, el mensaje de `TransicionNoPermitida` tal cual, arriba de la ficha, que se vuelve a consultar (58);
+  - la edición, con las piezas del formulario del registro de la lavandería (`movil/src/alta-lavanderias/`) en su orden
+    (`movil/src/alta-lavanderias/FormularioDeLaLavanderia.tsx:149-341`): los datos y la dirección (12), el municipio y
+    las fotos (60), otra foto y los servicios y precios (13), y las ventanas de disponibilidad (61), con "Guardar
+    cambios" fijo abajo. El lavado en seco va en ámbar con "Por confirmar · DD-010", sin interruptor, como en el
+    registro (`movil/src/alta-lavanderias/formulario.ts:5-7`; alta-lavanderias-E07). Las instrucciones de las fotos y
+    de las ventanas hablan de la lavandería, no de tú (administracion-app-E14).
 - **Reglas:** alta-lavanderias-E13, E14, E15, E17 y E31; al editar, también E05 a E10, E25 y E26 a E30.
 - **Bloqueados:** el alta, E11 y E12 (DD-053); los pedidos en curso al suspender o dar de baja, E16 (DD-104). No hay
   ruta de alta mientras DD-053 no responda, como en el panel.
@@ -238,11 +259,16 @@ Resumen. El detalle de cada fila va después.
 - **Clases de dominio:** `App\Finanzas\Ingresos` (`delRango()` y `porPeriodo()`); `App\Indicadores\Rango::deLosFiltros()`;
   `App\Finanzas\ConciliacionConLaPasarela` (`conciliar()`, `reporte()` y `resumen()`); `App\Finanzas\Pesos`;
   `Autorizacion::puedeVerLosReportesFinancieros()`.
-- **Pantallas:** los ingresos, con su rango, su granularidad y "Descargar"; la conciliación, con "Conciliar un
-  periodo" y, después de conciliar, la tabla y "Descargar". Ninguna se refresca sola, como en el panel.
+- **Pantallas:** los ingresos (imagen 31 de la Propuesta 6), con el rango y la granularidad plegados en la tarjeta de
+  los indicadores (abajo, "Indicadores del A.5"), cuya hoja no trae "Este mes" ni "Mes anterior", que
+  administracion-app-E37 no nombra; el total, los pagos confirmados, la tabla de cada periodo y "Descargar". La
+  conciliación, con "Conciliar un periodo" y, después de conciliar, la tabla y "Descargar" (32 a 35). Ninguna se
+  refresca sola, como en el panel.
 - **Las comisiones del periodo** (la parte "comisiones" del Módulo D #6; administracion-app-E40) van en `ingresos.tsx`,
-  debajo de los ingresos y con el mismo rango, cuando DD-020 fije su regla. Mientras tanto la pantalla no las muestra ni
-  ofrece su descarga, sin ninguna cifra inventada, y su ruta no existe (tareas 21.5 y 22.6).
+  debajo de los ingresos y con el mismo rango, cuando DD-020 fije su regla. Mientras tanto la pantalla deja su lugar,
+  "Comisiones del periodo", en ámbar con "Por confirmar · DD-020", sin ninguna cifra ni descarga, y su ruta no existe
+  (imagen 31; tareas 14.1, 21.5 y 22.6). Lo mismo con los reembolsos y ajustes: "Reembolsos y ajustes", con "Por
+  confirmar · DD-012, DD-016" (administracion-app-E39). Los dos lugares van bajo los pagos confirmados.
 - **Reglas:** administracion-E17, E20 y E21.
 - **Bloqueados:** los reembolsos y ajustes, E18 (DD-012, DD-016); las comisiones del periodo, E19 (DD-020); la
   comisión de la pasarela, E22 (DD-013).
@@ -254,7 +280,13 @@ Resumen. El detalle de cada fila va después.
   texto.
 - **Clases de dominio:** `Autorizacion::avisosMasivosDelPanel()` y `puedeMandarAvisosMasivos()`; la creación movida
   desde `CreateAvisoMasivo` (sección 3); `App\Avisos\MandarAvisoMasivo`, en cola.
-- **Pantallas:** la lista y "Escribir aviso", con su confirmación: sale a todos los teléfonos registrados.
+- **Pantallas:** la lista y "Escribir aviso", con su confirmación: sale a todos los teléfonos registrados (imágenes 36
+  a 40 de la Propuesta 6). Bajo el título y el texto, cuántos caracteres lleva de su tope ("30 de 255 caracteres", "43
+  de 1000 caracteres"): es un texto de la app, que sale de los topes de administracion-E23. Sin título, el error de
+  `titulo` es "Escribe el título.", con el estilo de los mensajes de `CambiarPerfilRequest` ("Escribe tu nombre.");
+  vive con la creación movida a la clase de dominio (tareas 15.1 y 15.2). "A quién le llega" lleva el texto del panel
+  (`servidor/app/Filament/Resources/AvisosMasivos/Schemas/AvisoMasivoForm.php:39`), y el aviso a un segmento va en
+  ámbar con "Por confirmar · DD-113", sin ofrecerlo.
 - **Reglas:** administracion-E23.
 - **Bloqueado:** el aviso a un segmento, E24 (BR-32, DD-113). La pantalla no ofrece segmentos.
 
@@ -263,11 +295,21 @@ Resumen. El detalle de cada fila va después.
 - **Ruta:** `GET indicadores/{categoria}` con `desde`, `hasta` y `granularidad`, y `agrupacion` en la geográfica. La
   respuesta trae el rango ajustado (`Rango`) y el intervalo de refresco (`App\Indicadores\Refresco`, de
   `indicadores.refresco`). Pregunta a `Autorizacion::puedeVerLosIndicadores()`.
-- **Pantalla:** una pestaña por categoría del A.5, con la pieza `Pestanas`. El rango y la granularidad van arriba y
-  valen para todas. Se consulta la categoría visible, con el intervalo que trae la respuesta (30 s por omisión;
-  adenda del 2026-11-22 de ADR-0007), mientras la pantalla está visible y la app al frente.
-- **El rango** se escribe en dos campos de fecha con `CampoDeTexto`, más los atajos "Este mes" y "Mes anterior". Sin
-  librería de calendario. Sin filtros, el mes en curso hasta hoy, como `Rango::deLosFiltros()`.
+- **Pantalla** (imágenes 41 a 50 y 69 de la Propuesta 6): una pestaña por categoría del A.5, con la pieza `Pestanas`,
+  que se desliza de lado con un desvanecido en la orilla por donde sigue la fila (tarea 18.3). Se consulta la categoría
+  visible, con el intervalo que trae la respuesta (30 s por omisión; adenda del 2026-11-22 de ADR-0007), mientras la
+  pantalla está visible y la app al frente.
+- **El rango y la granularidad** van arriba de las pestañas, plegados en una tarjeta, y valen para las cinco:
+  - la tarjeta dice el rango ajustado con el texto de `Rango::descripcion()` ("Del 26/10/2026 al 29/11/2026, por
+    semana"; `servidor/app/Indicadores/Rango.php:105-108`), debajo "Las cifras se actualizan solas cada N segundos.",
+    con la N del intervalo que trae la respuesta (30 por omisión), y a un lado "Cambiar". Así la primera gráfica queda
+    arriba del pliegue (41);
+  - "Cambiar" abre la hoja "Rango y granularidad", con el `Modal` del `Selector` (pantalla completa en Android y
+    `pageSheet` en iPhone) y "Cerrar": "Vale para las cinco categorías.", las dos fechas, "Desde" y "Hasta", en dos
+    `CampoDeTexto`, los atajos "Este mes" y "Mes anterior", "Ver por" con Día, Semana o Mes, cómo se ajusta el rango
+    ("Por semana, el rango se ajusta a semanas completas, de lunes a domingo: …") y "Aplicar" (42). Sin librería de
+    calendario.
+  - Sin filtros, el mes en curso hasta hoy, como `Rango::deLosFiltros()`.
 
 | Categoría | Indicador | Visualización del A.5 | Clase de dominio | Pieza de la app | Escenarios | Bloqueado |
 |---|---|---|---|---|---|---|
@@ -351,7 +393,7 @@ Resumen. El detalle de cada fila va después.
 | Archivo en `movil/app/administracion/` | Qué es |
 |---|---|
 | `_layout.tsx` | La pila del módulo, sin encabezado nativo, como `lavanderia/` y `repartidor/` |
-| `index.tsx` | El inicio: las secciones en el orden del contrato (lavanderías, repartidores, usuarios, monitoreo, comisiones, ingresos, conciliación y avisos), los indicadores y las descargas, como enlaces; abajo, "Cerrar sesión" |
+| `index.tsx` | El inicio (imágenes 03 y 56 de la Propuesta 6): el título "Administración" y las entradas como enlaces, en dos grupos con `TituloDeSeccion`: "Gestión", con las secciones en el orden del contrato (lavanderías, repartidores, usuarios, monitoreo, comisiones, ingresos, conciliación y avisos), y "Estado del negocio", con los indicadores y las descargas. Junto a Repartidores, una insignia con cuántos repartidores están pendientes de alta, y junto a Monitoreo de pedidos, otra con cuántos pedidos activos hay (tarea 10.3). Abajo, fijo en el área de acciones de `Pantalla`, "Cerrar sesión" |
 | `lavanderias/index.tsx`, `lavanderias/[id].tsx`, `lavanderias/editar/[id].tsx` | F-D01 |
 | `repartidores/index.tsx`, `repartidores/[id].tsx`, `repartidores/editar/[id].tsx` | F-D02 |
 | `usuarios/index.tsx`, `usuarios/[id].tsx` | F-D03 |
@@ -366,9 +408,31 @@ Resumen. El detalle de cada fila va después.
   `administracion`. `movil/src/sesion/modulos.ts` suma el módulo `administracion`, con su inicio en `/administracion`.
 - **El código del módulo** vive en `movil/src/administracion/`: el cliente de la API, los textos y los ganchos de cada
   pantalla, como `src/pedidos-lavanderia/` y `src/repartidor/`.
-- **Las piezas** son las de la app (`Pantalla`, `Titulo`, `Enlace`, `Boton`, `CampoDeTexto`, `Selector`, `Pestanas`,
-  `TarjetaDeCifras`, `MensajeDeError`, `InsigniaDeEstado`) más las de las gráficas. Ningún texto trae la marca ni el
-  dominio (`CLAUDE.md` §5).
+- **Las piezas** son las de la app (`Pantalla`, `Encabezado`, `Titulo`, `TituloDeSeccion`, `Parrafo`, `Enlace`,
+  `Boton`, `CampoDeTexto`, `Selector`, `Pestanas`, `TarjetaDeCifras`, `MensajeDeError`, `InsigniaDeEstado`) más las de
+  las gráficas. Ningún texto trae la marca ni el dominio (`CLAUDE.md` §5).
+- **Los dos conteos del inicio** (administracion-app-E03) salen de las rutas de sus pantallas, sin ruta nueva: los
+  pendientes, de `GET repartidores` (los que están en estado pendiente), y los activos, de `GET monitoreo` (cuántos
+  pedidos trae). Sin repartidores pendientes, Repartidores va sin insignia (imagen 56). La maqueta no dice cuándo se
+  consultan ni qué pasa si la consulta falla; se decide aquí, como aplicación técnica: el inicio los consulta cada vez
+  que queda a la vista, sin consulta periódica, y si una consulta falla su entrada va sin insignia y el inicio sigue
+  igual. Hasta la tarea 10.3 el inicio no consulta nada (`movil/app/administracion/index.tsx:1-11`).
+- **Los textos** son los del panel de respaldo, del servidor y de la app, citados en cada pantalla de la Propuesta 6,
+  para que la app y el panel digan lo mismo. La app adapta solo estos:
+  - "La baja no se deshace desde la app.", donde el panel dice "desde el panel", en la confirmación de dar de baja una
+    lavandería y a un repartidor (administracion-app-E16 y E22; imágenes 57 y 64);
+  - las instrucciones de las fotos y de las ventanas de la edición de la lavandería, que en el perfil del socio le
+    hablan de tú y aquí hablan de la lavandería (administracion-app-E14; imágenes 60 y 61);
+  - los diálogos de suspender una lavandería y de bloquear a un usuario, que dicen la frase del panel sin el número de
+    la DD, porque la DD queda en ámbar en la ficha (imágenes 08 y 23; frente a
+    `servidor/app/Filament/Resources/Lavanderias/Actions/AccionesDeEstado.php:51` y
+    `servidor/app/Filament/Resources/Usuarios/Actions/AccionesDeBloqueo.php:36`).
+
+  El mensaje del 409 no se adapta: es el de `TransicionNoPermitida`, con el estado como lo guarda la base ("Una
+  lavandería en estado baja no se puede suspender."; `servidor/app/Lavanderias/TransicionNoPermitida.php:16`;
+  administracion-app-E12, imagen 58). Otro texto cambiaría la clase de dominio y, con ella, el panel.
+- **Lo que espera una DD** va en ámbar, con la marca "Por confirmar" del resumen del pedido
+  (`movil/src/pedido/ResumenDelPedido.tsx:100`) seguida de su número ("Por confirmar · DD-104"), sin cifra ni botón.
 
 ### 6. Las pruebas
 
@@ -418,7 +482,9 @@ Resumen. El detalle de cada fila va después.
 - [Cinco pestañas no caben en el ancho de un teléfono pequeño] → `Pestanas` (`movil/src/piezas/Pestanas.tsx`) hoy es
   una fila sin desplazamiento, y la usa la dirección nueva (`movil/app/pedido/direccion-nueva.tsx`). Se le agrega el
   desplazamiento de lado en su propia tarea, con su prueba, y las de la dirección nueva siguen en verde: cuando las
-  pestañas caben, ocupan el ancho como hoy. Los nombres son los de las categorías del A.5.
+  pestañas caben, ocupan el ancho como hoy. Los nombres son los de las categorías del A.5. Para que la fila no parezca
+  cortada, la orilla por donde sigue lleva un desvanecido de 64 px y la elegida queda siempre entera, fuera de él
+  (imágenes 41 y 46 de la Propuesta 6; tarea 18.3).
 - [El selector de carpetas y la descarga se ven distinto en cada teléfono (`SIN VERIFICAR`)] → se prueban en el Android
   de Arthur y en un iPhone (C-240; DD-069). Si no sirven, se pasa a `expo-sharing` (ADR-0022, criterio de reversión).
 - [La dona y la línea con vistas no se leen bien] → se pasa a `react-native-svg` (ADR-0022, criterio de reversión).
@@ -440,7 +506,8 @@ Resumen. El detalle de cada fila va después.
 - [Dos caras de la administración que cuidar] → el panel no recibe funciones nuevas (ADR-0022, decisión 20) y las dos
   llaman a las mismas clases.
 - [El calendario] → **no está listo: no cabe.**
-  - La cuenta. El `tasks.md` suma 207 horas sin bloqueo (más 42 bloqueadas). El contrato pone el panel de indicadores
+  - La cuenta. El `tasks.md` suma 209 horas sin bloqueo (más 42 bloqueadas): 207 al escribirlo, y 2 de los conteos del
+    inicio de la Propuesta 6 (tarea 10.3). El contrato pone el panel de indicadores
     (O-21) y su descarga (O-22) en las semanas 12 y 13, del 23 de noviembre al 6 de diciembre, y el desarrollo de la
     app (O-12 y O-16) hasta la semana 13 (`NSV-2026-001-v8.pdf:5:Cláusula II`; `vault/contrato/obligaciones-ejecutivas.md`,
     O-16, O-21 y O-22). Al 2026-11-24 quedan 13 días. Con las 14 horas por semana que declaró Arthur (C-134), son unas 28
