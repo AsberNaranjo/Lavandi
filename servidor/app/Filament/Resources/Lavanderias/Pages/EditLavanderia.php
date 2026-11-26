@@ -104,7 +104,7 @@ class EditLavanderia extends EditRecord
             throw ValidationException::withMessages(['data.direccion.calle' => $error->getMessage()]);
         } catch (GeocodificacionNoDisponible $error) {
             report($error);
-            Notification::make()->danger()->title('No pudimos ubicar la dirección. Inténtalo más tarde.')->send();
+            Notification::make()->danger()->title(GeocodificacionNoDisponible::MENSAJE)->send();
 
             throw new Halt;
         }

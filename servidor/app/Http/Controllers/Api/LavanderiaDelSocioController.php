@@ -238,8 +238,8 @@ class LavanderiaDelSocioController extends Controller
         report($error);
 
         return response()->json([
-            'message' => 'No pudimos ubicar la dirección. Inténtalo más tarde.',
-            'motivo' => 'geocodificacion_no_disponible',
+            'message' => GeocodificacionNoDisponible::MENSAJE,
+            'motivo' => GeocodificacionNoDisponible::MOTIVO,
         ], 503);
     }
 }

@@ -72,9 +72,15 @@ use Illuminate\Support\Str;
  *                                                        ninguna sale de la baja (alta-lavanderias-E14, E15 y E17).
  *
  * Una lavandería que no existe, está borrada o no se ve responde 404 sin ningún dato, igual en todas las rutas que la
- * nombran; un valor que no es ULID también (administracion-app-E12; ADR-0019, decisión 3):
+ * nombran (administracion-app-E12; ADR-0019, decisión 3). El ULID se acepta en mayúsculas o en minúsculas:
  *
  *     404  { "message": "No existe la lavandería." }
+ *
+ * Un valor que no es ULID no llega a ninguna de estas rutas: responde el 404 del enrutador, antes de la sesión (también
+ * sin token, en lugar del 401), con solo "message" y sin ningún dato de una lavandería, pero no con el mensaje de
+ * arriba: el del enrutador, que nombra la ruta pedida.
+ *
+ *     404  { "message": "The route api/administracion/lavanderias/no-es-un-ulid could not be found." }
  *
  * ---------------------------------------------------------------------------------------------------------------------
  *
@@ -112,6 +118,13 @@ use Illuminate\Support\Str;
  *
  *         JSON:       { "nombre": "Lavandería Nueva", "fotos": [2, 0] }
  *         multipart:  _method=PATCH, fotos[0]=2, fotos[1]=<archivo>, fotos[2]=0
+ *
+ *     Como en PATCH /api/socio/lavanderias/{id_publico}, el servidor cuenta esos lugares sobre las fotos que la
+ *     lavandería tiene al guardar: no recibe las que se leyeron. Si otra sesión cambió las fotos después de la lectura,
+ *     por ejemplo su socio desde la app, el servidor no lo detecta ni lo rechaza: un lugar puede nombrar otra foto, y la
+ *     que queda fuera de la lista se quita y se borra su archivo. El panel sí lo rechaza, porque guarda las fotos que
+ *     leyó al abrir. Lo que pide design.md, F-D01 ("con las fotos leídas al abrir, como el panel"), espera que la spec
+ *     defina con qué dato las manda la app.
  *
  *     200  { "lavanderia": { ...la lavandería en la ficha, ya con los cambios... } }
  *     404  Como arriba. La lavandería se busca antes de validar.
@@ -194,8 +207,8 @@ class LavanderiasController extends Controller
             report($error);
 
             return response()->json([
-                'message' => 'No pudimos ubicar la dirección. Inténtalo más tarde.',
-                'motivo' => 'geocodificacion_no_disponible',
+                'message' => GeocodificacionNoDisponible::MENSAJE,
+                'motivo' => GeocodificacionNoDisponible::MOTIVO,
             ], 503);
         }
 

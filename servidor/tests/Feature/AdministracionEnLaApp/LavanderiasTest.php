@@ -104,7 +104,7 @@ class LavanderiasTest extends TestCase
         );
     }
 
-    #[TestDox('administracion-app-E13: la búsqueda por nombre no distingue mayúsculas ni toma en cuenta los espacios de las orillas, busca el texto tal cual, sin comodines, y vacía trae todas')]
+    #[TestDox('administracion-app-E13: la búsqueda por nombre no distingue mayúsculas ni toma en cuenta los espacios de las orillas, busca el texto tal cual, sin comodines, y vacía o que no es texto trae todas')]
     public function test_administracion_app_e13_la_busqueda_por_nombre(): void
     {
         $plaza = $this->plazaDePrueba('Plaza de prueba Centro');
@@ -125,9 +125,17 @@ class LavanderiasTest extends TestCase
         $this->assertSame([], $encontradas('_'));
         $this->assertSame([], $encontradas('Sin coincidencia'));
         $this->assertSame([$burbujas->id_publico, $espuma->id_publico, $cien->id_publico], $encontradas(''));
+        // Una búsqueda que no es texto, como buscar[]=x, no filtra: todas.
+        $this->assertSame(
+            [$burbujas->id_publico, $espuma->id_publico, $cien->id_publico],
+            array_column(
+                $this->pedirComoLaAdministracion('GET', self::LISTA, ['buscar' => ['Burbujas']])->assertOk()->json('lavanderias'),
+                'id_publico',
+            ),
+        );
     }
 
-    #[TestDox('administracion-app-E13 y administracion-app-E11: la ficha trae sus datos editables como los ve su socio en la app, con el recurso de la edición del panel, más su estado, su plaza y las transiciones que EstadoDeLaLavanderia permite para cada estado')]
+    #[TestDox('administracion-app-E13 y administracion-app-E11: la ficha trae sus datos editables como los ve su socio en la app, con el recurso de la edición del panel, más su estado, su plaza y las transiciones que EstadoDeLaLavanderia permite para cada estado; con el ULID en mayúsculas, la misma ficha')]
     public function test_administracion_app_e13_la_ficha_trae_sus_datos_su_estado_su_plaza_y_sus_transiciones(): void
     {
         $this->freezeTime();
@@ -140,6 +148,11 @@ class LavanderiasTest extends TestCase
         $ficha = $this->pedirComoLaAdministracion('GET', self::LISTA."/{$lavanderia->id_publico}")->assertOk()->json('lavanderia');
 
         $this->assertSame($this->fichaSegunElDominio($lavanderia), $ficha);
+        // El ULID en mayúsculas es el mismo: la misma ficha.
+        $this->assertSame(
+            $ficha,
+            $this->pedirComoLaAdministracion('GET', self::LISTA.'/'.Str::upper($lavanderia->id_publico))->assertOk()->json('lavanderia'),
+        );
         // Sus datos editables son los que ve su socio en la app.
         $this->assertSame(
             $this->consultar($cuenta, $lavanderia->id_publico)->assertOk()->json('lavanderia'),
@@ -166,7 +179,7 @@ class LavanderiasTest extends TestCase
         }
     }
 
-    #[TestDox('administracion-app-E12: una lavandería que no existe, una borrada y un valor que no es ULID responden 404 sin ningún dato en la ficha, la edición y las tres transiciones, la edición antes de validar, y nada cambia')]
+    #[TestDox('administracion-app-E12: una lavandería que no existe y una borrada responden 404 sin ningún dato en la ficha, la edición y las tres transiciones, la edición antes de validar; un valor que no es ULID, el 404 del enrutador con solo su message, también sin token; y nada cambia')]
     public function test_administracion_app_e12_una_lavanderia_que_no_existe_responde_404_sin_datos(): void
     {
         $borrada = Lavanderia::factory()->create();
@@ -186,9 +199,14 @@ class LavanderiasTest extends TestCase
             ->assertNotFound()
             ->assertExactJson(self::NO_EXISTE);
 
+        // Un valor que no es ULID no llega a la ruta (whereUlid): el 404 del enrutador, antes de la sesión, también sin
+        // token, con solo su message, que no es el de la lavandería.
         foreach ($this->rutasDeLaLavanderia('no-es-un-ulid') as [$metodo, $url, $cuerpo]) {
-            $respuesta = $this->pedirComoLaAdministracion($metodo, $url, $cuerpo)->assertNotFound();
-            $this->assertSame(['message'], array_keys((array) $respuesta->json()), "{$metodo} {$url}");
+            foreach (['con su token' => $this->token, 'sin token' => null] as $quien => $token) {
+                $respuesta = $this->llamarConToken($token, $metodo, $url, $cuerpo)->assertNotFound();
+                $this->assertSame(['message'], array_keys((array) $respuesta->json()), "{$metodo} {$url} · {$quien}");
+                $this->assertNotSame(self::NO_EXISTE['message'], $respuesta->json('message'), "{$metodo} {$url} · {$quien}");
+            }
         }
 
         $this->assertSame($antes, $this->fotoDeLaBase());
