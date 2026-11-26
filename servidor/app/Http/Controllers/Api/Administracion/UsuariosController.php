@@ -72,8 +72,8 @@ use Illuminate\Support\Str;
  *     GET /api/administracion/usuarios                     La lista de las cuentas de usuario (administracion-app-E24)
  *
  *     ?buscar=ana     opcional: el texto se busca dentro del correo o del nombre, sin distinguir mayúsculas y sin los
- *                     espacios de las orillas; un % o un _ se buscan como letras. Sin texto, o si no es texto, la
- *                     lista completa
+ *                     espacios de las orillas; un % o un _ se buscan como letras. Sin texto, o si no es texto (una
+ *                     lista, o bytes que no son UTF-8 válido), la lista completa
  *     ?pagina=2       opcional: la página, de 1 en adelante; si no es un número, la primera
  *
  *     200  {
@@ -133,7 +133,8 @@ class UsuariosController extends Controller
         $consulta = $this->autorizacion->usuariosDelPanel($this->cuenta($peticion));
         $buscar = $peticion->query('buscar');
 
-        if (is_string($buscar) && trim($buscar) !== '') {
+        // Un texto que no es UTF-8 válido no llega a la base: PostgreSQL lo rechaza en el LIKE y la ruta respondería 500.
+        if (is_string($buscar) && mb_check_encoding($buscar, 'UTF-8') && trim($buscar) !== '') {
             self::buscar($consulta, trim($buscar));
         }
 
@@ -232,6 +233,8 @@ class UsuariosController extends Controller
     {
         $encontrado = $this->usuarioVisible($cuenta, $usuario);
 
+        // Replica el authorize() de AccionesDeBloqueo. Hoy puedeBloquear() consulta lo mismo que usuariosDelPanel(), así
+        // que este 403 no se alcanza: si algún día se separan, la regla nueva necesita su prueba.
         abort_unless($this->autorizacion->puedeBloquear($cuenta, $encontrado), 403, 'Esta cuenta no tiene acceso.');
 
         return $encontrado;

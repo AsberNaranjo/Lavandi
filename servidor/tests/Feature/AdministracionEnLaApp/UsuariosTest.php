@@ -198,7 +198,7 @@ class UsuariosTest extends TestCase
         $this->assertSame([], $this->llamarConToken($token, 'GET', self::USUARIOS, ['pagina' => 3])->assertOk()->json('usuarios'));
     }
 
-    #[TestDox('administracion-app-E24: la lista se busca por correo y por nombre, sin distinguir mayúsculas; un % o un _ se buscan como letras, y la página dice cuántas cuentas encontró')]
+    #[TestDox('administracion-app-E24: la lista se busca por correo y por nombre, sin distinguir mayúsculas; un % o un _ se buscan como letras, la página dice cuántas cuentas encontró, y un texto que no es UTF-8 válido da la lista completa y no un 500')]
     public function test_administracion_app_e24_la_lista_se_busca_por_correo_y_por_nombre(): void
     {
         $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
@@ -217,8 +217,9 @@ class UsuariosTest extends TestCase
             $this->assertSame(0, $respuesta->json('pagina.total'), $texto);
         }
 
-        // Sin texto, o con algo que no es texto, la lista sale completa.
-        foreach (['', '   ', ['ana']] as $vacio) {
+        // Sin texto, o con algo que no es texto (una lista, o bytes que no son UTF-8 válido: ?buscar=%FF), la lista sale
+        // completa y no un 500.
+        foreach (['', '   ', ['ana'], "\xFF", "ana\xFF"] as $vacio) {
             $this->assertSame(2, $this->llamarConToken($token, 'GET', self::USUARIOS, ['buscar' => $vacio])->assertOk()->json('pagina.total'));
         }
     }
