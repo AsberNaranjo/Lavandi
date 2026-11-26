@@ -159,7 +159,7 @@ class MonitoreoTest extends TestCase
         }
     }
 
-    #[TestDox('administracion-app-E11: la lista del monitoreo es la de Autorizacion::pedidosActivosDelPanel(), en su orden y con los nombres de NombresDelEstado, y sus marcadores son los de MarcadoresDelMonitoreo::deLosPedidos() para los mismos datos, los mismos del panel')]
+    #[TestDox('administracion-app-E11: la lista del monitoreo es la de Autorizacion::pedidosActivosDelPanel(), en su orden, con los nombres de NombresDelEstado y la plaza de cada pedido, y sus marcadores son los de MarcadoresDelMonitoreo::deLosPedidos() para los mismos datos, los mismos del panel')]
     public function test_administracion_app_e11_el_monitoreo_da_lo_mismo_que_el_panel(): void
     {
         $this->sembrarElMonitoreo();
@@ -181,16 +181,18 @@ class MonitoreoTest extends TestCase
         $autorizacion = app(Autorizacion::class);
         $delPanel = $autorizacion->pedidosActivosDelPanel($administracion)
             ->deLaRecoleccionMasProxima()
-            ->with('estado')
+            ->with(['estado', 'plaza'])
             ->get();
         $this->assertCount(4, $delPanel);
 
+        // Las columnas de la tabla del panel: el folio, el estado y la plaza.
         $this->assertSame($delPanel->pluck('id_publico')->all(), array_column($respuesta->json('pedidos'), 'id_publico'));
         $this->assertSame($delPanel->pluck('folio')->all(), array_column($respuesta->json('pedidos'), 'folio'));
         $this->assertSame(
             $delPanel->map(fn (Pedido $pedido): array => ['codigo' => $pedido->estado->codigo, 'nombre' => NombresDelEstado::nombre($pedido->estado)])->all(),
             array_column($respuesta->json('pedidos'), 'estado'),
         );
+        $this->assertSame($delPanel->pluck('plaza.nombre')->all(), array_column($respuesta->json('pedidos'), 'plaza'));
         $this->assertNotContains($porPagar->id_publico, array_column($respuesta->json('pedidos'), 'id_publico'));
 
         $this->assertEquals(
