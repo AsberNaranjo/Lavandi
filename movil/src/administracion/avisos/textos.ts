@@ -51,8 +51,10 @@ export function salioA(destinatarios: number): string {
 }
 
 /**
- * "24/11/2026, 10:30 · lo mandaste tú": cuándo lo mandaron, en la hora del teléfono, con el formato del panel
- * (d/m/Y H:i), y quién (imagen 36).
+ * "24/11/2026, 10:30 · lo mandaste tú": cuándo lo mandaron y quién (imagen 36). El formato es el del panel (d/m/Y H:i),
+ * pero la hora no: la app pasa "enviado_en", que llega en UTC, a la hora del teléfono, y el panel la muestra en UTC
+ * (servidor/config/app.php, "timezone"), así que los dos pueden no dar la misma hora. Qué zona va aquí no lo dice
+ * design.md (F-D07) ni administracion-app-E43: queda para que se decida en la spec.
  */
 export function cuandoYQuien(enviadoEn: string, porEstaCuenta: boolean): string {
   const enviado = new Date(enviadoEn);

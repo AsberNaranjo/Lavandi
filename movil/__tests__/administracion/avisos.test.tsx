@@ -440,6 +440,42 @@ describe('administracion-app-E42: mandar un aviso global', () => {
     });
     await waitFor(() => expect(screen).toHavePathname(RUTA_DE_LA_LISTA));
   });
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E42 — (%s) si regresa a la lista mientras manda, el aviso sale igual y el 201 que llega después no la saca de la lista',
+    async (plataforma) => {
+      // El servidor guarda el aviso, pero su 201 no llega hasta que la prueba lo suelta.
+      let soltar: () => void = () => {};
+      servidor().interceptar = (peticion) =>
+        peticion.metodo === 'POST' && peticion.ruta === RUTA_DE_LOS_AVISOS
+          ? new Promise((resolver) => {
+              soltar = () => resolver(avisos().manejador(peticion));
+            })
+          : undefined;
+      // Desde el inicio del módulo, como se llega: bajo la lista queda el inicio, a donde no debe volver.
+      await abrirLaAppConLaAdministracion(plataforma, RUTA_DEL_INICIO);
+      await screen.findByRole('header', { name: 'Administración' });
+      await fireEvent.press(screen.getByRole('link', { name: 'Avisos masivos' }));
+      await waitFor(() => expect(screen.getAllByTestId('aviso')).toHaveLength(3));
+      await fireEvent.press(screen.getByRole('button', { name: 'Escribir aviso' }));
+      await screen.findByRole('header', { name: 'Escribir aviso' });
+      await escribir(TITULO, TEXTO);
+      await mandarY('Mandar');
+
+      await fireEvent.press(screen.getByRole('button', { name: 'Regresar' }));
+      await waitFor(() => expect(screen).toHavePathname(RUTA_DE_LA_LISTA));
+      await act(async () => {
+        soltar();
+        // El 201 se lee y la pantalla del aviso termina de mandarlo (los relojes de expo-router en pruebas son falsos).
+        await jest.advanceTimersByTimeAsync(0);
+      });
+
+      expect(screen).toHavePathname(RUTA_DE_LA_LISTA);
+      expect(await screen.findByRole('header', { name: 'Avisos masivos' })).toBeOnTheScreen();
+      expect(avisosMandados(servidor())).toEqual([{ titulo: TITULO, mensaje: TEXTO }]);
+      expect(avisos().cuantos()).toBe(4);
+    },
+  );
 });
 
 describe('administracion-app-E05: la sesión vence o se revoca', () => {
