@@ -3,13 +3,10 @@
 namespace App\Filament\Actions;
 
 use App\Autorizacion\Autorizacion;
-use App\Exportacion\EscribirArchivoDelReporte;
+use App\Exportacion\CreacionDeDescarga;
 use App\Exportacion\ExportadorDeIndicador;
 use App\Models\Usuario;
 use Filament\Actions\ExportAction;
-use Filament\Actions\Exports\ExportColumn;
-use Filament\Actions\Exports\ExportDispatcher;
-use Filament\Actions\Exports\Models\Export;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Arr;
@@ -23,8 +20,10 @@ use Illuminate\Support\Arr;
  * - no cuenta registros de un modelo: la exportación nace sin filas y el trabajo de la cola (EscribirArchivoDelReporte)
  *   escribe las del reporte y las cuenta.
  *
- * Lo demás es de Filament: la fila de exports, la cola con su lote, el XLSX, el aviso con los enlaces y la ruta de
- * descarga. Solo la administración la ve y la usa, según el componente único de autorización (ADR-0019).
+ * La fila de exports y su cola las crea App\Exportacion\CreacionDeDescarga, la clase de dominio que usa también la API
+ * de la administración (ADR-0022, decisión 15). Lo demás es de Filament: la cola con su lote, el XLSX, el aviso con los
+ * enlaces y la ruta de descarga. Solo la administración la ve y la usa, según el componente único de autorización
+ * (ADR-0019).
  */
 class DescargarReporte extends ExportAction
 {
@@ -61,47 +60,21 @@ class DescargarReporte extends ExportAction
     }
 
     /**
-     * Crea la exportación de la cuenta y pone en cola su archivo, como la acción de Filament, sin contar registros.
+     * Pide la descarga de la cuenta con las opciones del formulario: la crea y pone en cola su archivo la clase de
+     * dominio de la creación, la misma que usa la API de la administración (ADR-0022, decisiones 9 y 15). Aquí solo se
+     * arman las opciones y se avisa en el panel.
      *
      * @param  array<string, mixed>  $data
      */
     public function generar(array $data): void
     {
-        $exportador = $this->exportador();
         $opciones = [...$this->getOptions(), ...Arr::only($data, ['desde', 'hasta', 'granularidad'])];
-        $columnas = collect($exportador::getColumns())
-            ->mapWithKeys(fn (ExportColumn $columna): array => [$columna->getName() => $columna->getLabel()])
-            ->all();
 
-        $exportacion = app(Export::class);
-        $exportacion->user()->associate(self::cuenta());
-        $exportacion->exporter = $exportador;
-        $exportacion->total_rows = 0;
+        /** @var Usuario $cuenta La acción solo corre con una cuenta que puede descargar reportes (setUp()). */
+        $cuenta = self::cuenta();
 
-        $instancia = $exportacion->getExporter(columnMap: $columnas, options: $opciones);
-        $exportacion->file_disk = $instancia->getFileDiskName();
-        $exportacion->save();
-        $exportacion->deleteFileDirectory();
-        $exportacion->file_name = $instancia->getFileName($exportacion);
-        $exportacion->save();
-        $exportacion->unsetRelation('user');
-
-        $conexion = $instancia->getJobConnection();
-
-        app(ExportDispatcher::class)->dispatch(
-            export: $exportacion,
-            serializedQuery: '',
-            columnMap: $columnas,
-            options: $opciones,
-            formats: $instancia->getFormats(),
-            records: null,
-            job: EscribirArchivoDelReporte::class,
-            chunkSize: 1,
-            jobQueue: $instancia->getJobQueue(),
-            jobConnection: $conexion,
-            jobBatchName: $instancia->getJobBatchName(),
-            authGuard: $this->getAuthGuard(),
-        );
+        $exportacion = app(CreacionDeDescarga::class)->crear($cuenta, $this->exportador(), $opciones, $this->getAuthGuard());
+        $conexion = $exportacion->getExporter(columnMap: [], options: $opciones)->getJobConnection();
 
         // Con la cola en la misma petición, el aviso de archivo listo ya salió.
         if ($conexion === 'sync' || (blank($conexion) && config('queue.default') === 'sync')) {
