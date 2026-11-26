@@ -33,7 +33,9 @@ supersede:
   web". Eligió **"Todo el Módulo D en la app"**: el administrador inicia sesión en la app y ahí hace todo lo del
   Módulo D y del A.5; el panel web se queda como respaldo interno y no se muestra. Revoca la parte web de C-140, la
   decisión 31 y la decisión 56 (C-247; decisión 69 de [[acta-2026-11-20-modelo-y-pasarela]]).
-- **Lo que hay (B):**
+- **Lo que hay (B),** en el código de `9f6b7e5`, cuando se decidió. Las citas con número de línea de esta lista son de
+  ese commit: el lote 0 de `administracion-en-la-app` (tareas 1.1 a 1.7 y 2.1 a 2.3, unidas en `ae3cd0e` a `c998b7a`)
+  cambió ese código, y dónde quedó cada pieza lo dicen el `design.md` y el `tasks.md` del cambio.
   - El Módulo D y el A.5 ya están construidos en el panel de Filament, y sus reglas viven en clases de dominio de
     `servidor/app/` que el panel llama: `EstadoDeLaLavanderia`, `EstadoDelRepartidor`, `BloqueoDeCuenta`,
     `PorcentajesDeComision`, `Ingresos`, `ConciliacionConLaPasarela`, `MarcadoresDelMonitoreo`, las consultas de
@@ -234,7 +236,9 @@ solo pone la administración dentro de la app (Cláusula I) y dice qué hace (M�
 5. **La administración no entra con Google.** `POST /api/sesion/google` le responde 422 en `id_token` con "La
    administración entra con su correo y su contraseña.", sin token, sin ligar nada y sin anular su contraseña ni borrar
    sus tokens. Se rechaza **antes de las dos ramas** de `EntradaConGoogle::cuentaDe()`: la de la cuenta con Google ya
-   ligado (`:65-67`), que hoy la devuelve tal cual, y la del correo, que liga y anula la contraseña (`:78`). La pregunta
+   ligado (`:65-67` en `9f6b7e5`), que entonces la devolvía tal cual, y la del correo, que liga y anula la contraseña
+   (`:78`). Con la tarea 1.4 quedó así: las dos ramas (`servidor/app/Identidad/EntradaConGoogle.php:68-70` y `:81`)
+   preguntan en `siPuedeEntrar()` (`:100-104`). La pregunta
    es un método del componente, `Autorizacion::puedeEntrarConProveedorExterno(Usuario)`, que la entrada con Apple usará
    igual cuando exista (DD-069). Cierra el hueco de la tarea 6.2 de `administracion`, con 422 en lugar de 403: la app ya
    muestra el mensaje de `id_token` bajo el botón de Google.
@@ -381,7 +385,8 @@ solo pone la administración dentro de la app (Cláusula I) y dice qué hace (M�
   - No entra ninguna librería nueva.
 - **Negativas:**
   - Son diecisiete pantallas nuevas en la app y treinta y dos rutas nuevas en la API, encima de lo que ya existe. Lo
-    dimensiona el `tasks.md` del cambio: 207 horas sin bloqueo, que **no caben** en la ventana que el contrato le da a
+    dimensiona el `tasks.md` del cambio: 207 horas sin bloqueo al decidir, 209 desde que entraron los dos conteos del
+    inicio de la Propuesta 6 (tarea 10.3), que **no caben** en la ventana que el contrato le da a
     O-21 y O-22, las semanas 12 y 13, del 23 de noviembre al 6 de diciembre (`NSV-2026-001-v8.pdf:5:Cláusula II`). El
     `design.md` del cambio dice el orden en que se hacen.
   - Una migración nueva, `exports.id_publico` (decisión 15).
