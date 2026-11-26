@@ -175,6 +175,9 @@ class RepartidorAsignadoTest extends TestCase
                 'pago' => [$this->sinAsignar->cobro->id_publico => 'el cobro del pedido sin asignar'],
                 // Las rutas de la dirección son del Módulo A: la del usuario del pedido sin asignar.
                 'direccion' => [$this->direcciones['SinAsignar']->id_publico => 'la dirección del usuario sin asignar'],
+                // Las rutas de la cuenta de un usuario son del Módulo D (administracion-app-E24): la del usuario del
+                // pedido sin asignar.
+                'usuario' => [$this->sinAsignar->usuario->id_publico => 'la cuenta del usuario sin asignar'],
             ],
             publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000'],
             datosAjenos: $datosAjenos,

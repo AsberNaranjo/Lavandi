@@ -112,6 +112,8 @@ class UsuarioAisladoTest extends TestCase
                 // El cobro del pedido de Beto, que consulta "Procesando pago" (pago-E08).
                 'pago' => [$this->pedidoDeBeto->cobro->id_publico => 'el cobro del pedido de Beto'],
                 'direccion' => [$this->direccionDeBeto->id_publico => 'la dirección de Beto'],
+                // Las rutas de la cuenta de un usuario son del Módulo D (administracion-app-E24): la de Beto.
+                'usuario' => [$this->beto->id_publico => 'la cuenta de Beto'],
             ],
             // El perfil de las lavanderías es público en el Módulo A (Módulo A #5); el catálogo, de todos.
             publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000'],
