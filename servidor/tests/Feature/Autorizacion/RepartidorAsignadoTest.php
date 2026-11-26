@@ -175,6 +175,9 @@ class RepartidorAsignadoTest extends TestCase
                 'pago' => [$this->sinAsignar->cobro->id_publico => 'el cobro del pedido sin asignar'],
                 // Las rutas de la dirección son del Módulo A: la del usuario del pedido sin asignar.
                 'direccion' => [$this->direcciones['SinAsignar']->id_publico => 'la dirección del usuario sin asignar'],
+                // El segundo repartidor, para las rutas que lo llevan en un parámetro: hoy, solo las de la administración
+                // de la tarea 5.1 de administracion-en-la-app, que al repartidor le responden 403 con cualquier valor.
+                'repartidor' => [$this->segundo->id_publico => 'el segundo repartidor'],
             ],
             publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000'],
             datosAjenos: $datosAjenos,
