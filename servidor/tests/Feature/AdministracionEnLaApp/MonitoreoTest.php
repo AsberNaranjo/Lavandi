@@ -4,6 +4,7 @@ namespace Tests\Feature\AdministracionEnLaApp;
 
 use App\Autorizacion\Autorizacion;
 use App\Cobro\Desarrollo\CobroSimulado;
+use App\Filament\Pages\MonitoreoDePedidos;
 use App\Models\EstadoPedido;
 use App\Models\Pedido;
 use App\Models\Plaza;
@@ -12,8 +13,12 @@ use App\Models\Usuario;
 use App\Pedidos\MarcadoresDelMonitoreo;
 use App\Pedidos\NombresDelEstado;
 use Carbon\CarbonImmutable;
+use Filament\Facades\Filament;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
+use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Feature\AdministracionEnLaApp\Soporte\SesionesDeLaApp;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
@@ -28,7 +33,8 @@ use Tests\TestCase;
  * El monitoreo de pedidos en la API de la administración, GET /api/administracion/monitoreo
  * (NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3, Módulo D #4, "Vista en tiempo real de todos los pedidos activos con
  * mapa"; ADR-0022, decisiones 9, 12 y 13): los pedidos activos de todas las plazas y sus marcadores, en una sola
- * respuesta, para que la lista y el mapa de la app nunca difieran.
+ * respuesta, con los marcadores solo de los pedidos de la lista. Un cambio de estado justo entre las dos lecturas se
+ * corrige en la siguiente consulta.
  *
  * La respuesta es la de las clases que usa el panel para los mismos datos (administracion-app-E11): los pedidos de
  * Autorizacion::pedidosActivosDelPanel(), con la regla de administracion-E06; su estado con los nombres operativos de
@@ -57,7 +63,7 @@ class MonitoreoTest extends TestCase
     private const MONITOREO = '/api/administracion/monitoreo';
 
     /** Las llaves de cada pedido de la lista, en el orden del contrato del controlador. */
-    private const LLAVES_DEL_PEDIDO = ['id_publico', 'folio', 'estado', 'plaza', 'zona_horaria', 'ventana'];
+    private const LLAVES_DEL_PEDIDO = ['id_publico', 'folio', 'estado', 'plaza', 'ventana'];
 
     protected function setUp(): void
     {
@@ -88,7 +94,6 @@ class MonitoreoTest extends TestCase
             'folio' => $confirmado->folio,
             'estado' => ['codigo' => EstadoPedido::CONFIRMADO, 'nombre' => 'Confirmado'],
             'plaza' => $this->plaza->nombre,
-            'zona_horaria' => 'America/Mexico_City',
             'ventana' => [
                 'inicio' => self::JUEVES_DE_PRUEBA.'T10:00:00-06:00',
                 'fin' => self::JUEVES_DE_PRUEBA.'T11:00:00-06:00',
@@ -132,6 +137,37 @@ class MonitoreoTest extends TestCase
         $this->assertSame([], array_diff(array_column($marcadores, 'pedido'), array_column($pedidos, 'id_publico')));
     }
 
+    #[TestDox('administracion-app-E28: la lista y los marcadores son dos lecturas de la misma respuesta; si un pedido se vuelve activo justo entre las dos, esa respuesta no trae un marcador de un pedido que no está en la lista, y la siguiente consulta lo trae en las dos')]
+    public function test_administracion_app_e28_un_pedido_que_se_activa_entre_las_dos_lecturas_no_deja_un_marcador_sin_pedido(): void
+    {
+        $confirmado = $this->pedidoConfirmadoEn($this->lavanderia, $this->cuentaDeUsuario(), '10:00');
+        $porPagar = $this->pedidoPorPagarEn($this->lavanderia, $this->cuentaDeUsuario(), '11:00', latitud: 10.6, longitud: -119.4);
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+
+        // El pago se acredita justo después de que se lee la lista: la primera consulta a los pedidos de la petición.
+        $pagado = false;
+        DB::listen(function (QueryExecuted $consulta) use (&$pagado, $porPagar): void {
+            if ($pagado || ! str_contains($consulta->sql, 'from "pedidos"')) {
+                return;
+            }
+
+            $pagado = true;
+            app(CobroSimulado::class)->pagar($porPagar);
+        });
+
+        $respuesta = $this->llamarConToken($token, 'GET', self::MONITOREO)->assertOk();
+        $this->assertTrue($pagado, 'El pago se acreditó durante la consulta.');
+
+        // La lista se leyó antes del pago; los marcadores, después, pero solo de los pedidos de la lista.
+        $this->assertSame([$confirmado->id_publico], array_column($respuesta->json('pedidos'), 'id_publico'));
+        $this->assertSame([$confirmado->id_publico], array_column($respuesta->json('marcadores'), 'pedido'));
+
+        // La siguiente consulta, a los 30 s, ya lo trae en la lista y en el mapa.
+        $siguiente = $this->llamarConToken($token, 'GET', self::MONITOREO)->assertOk();
+        $this->assertSame([$confirmado->id_publico, $porPagar->id_publico], array_column($siguiente->json('pedidos'), 'id_publico'));
+        $this->assertSame([$confirmado->id_publico, $porPagar->id_publico], array_column($siguiente->json('marcadores'), 'pedido'));
+    }
+
     #[TestDox('administracion-app-E28: el monitoreo no trae nada de ningún repartidor, ni del que lleva un pedido activo ni del que entregó: ni su posición, ni su nombre, ni su teléfono, ni su correo, ni su identificador')]
     public function test_administracion_app_e28_el_monitoreo_no_trae_ningun_repartidor(): void
     {
@@ -159,18 +195,33 @@ class MonitoreoTest extends TestCase
         }
     }
 
-    #[TestDox('administracion-app-E11: la lista del monitoreo es la de Autorizacion::pedidosActivosDelPanel(), en su orden, con los nombres de NombresDelEstado y la plaza de cada pedido, y sus marcadores son los de MarcadoresDelMonitoreo::deLosPedidos() para los mismos datos, los mismos del panel')]
+    #[TestDox('administracion-app-E11: con un pedido en cada uno de los siete estados activos, la lista del monitoreo es la de Autorizacion::pedidosActivosDelPanel(), en el orden de la tabla del monitoreo del panel, con los nombres de NombresDelEstado y la plaza de cada pedido, y sus marcadores son los de MarcadoresDelMonitoreo::deLosPedidos() para los mismos datos, los mismos del panel')]
     public function test_administracion_app_e11_el_monitoreo_da_lo_mismo_que_el_panel(): void
     {
+        // Confirmado y En proceso, y el entregado, que no entra.
         $this->sembrarElMonitoreo();
-        // Con todos los estados activos, también el rechazado, y uno que espera su pago, que no entra (administracion-E06).
+
+        // Los otros cinco estados activos de administracion-E06, también el rechazado, y uno que espera su pago, que no
+        // entra.
         $rechazado = $this->pedidoConfirmadoEn($this->lavanderia, $this->cuentaDeUsuario(), '12:00');
         $this->rechazarComoLaLavanderia($rechazado);
-        $listo = $this->pedidoConfirmadoEn($this->lavanderia, $this->cuentaDeUsuario(), '12:00');
-        $this->aceptarComoLaLavanderia($listo);
 
-        foreach ([EstadoPedido::RECOLECTADO, EstadoPedido::EN_PROCESO, EstadoPedido::LISTO] as $boton) {
-            $this->marcarComoLaLavanderia($listo, $boton);
+        $aceptado = $this->pedidoConfirmadoEn($this->lavanderia, $this->cuentaDeUsuario(), '12:00');
+        $this->aceptarComoLaLavanderia($aceptado);
+
+        foreach ([
+            EstadoPedido::RECOLECTADO => [EstadoPedido::RECOLECTADO],
+            EstadoPedido::LISTO => [EstadoPedido::RECOLECTADO, EstadoPedido::EN_PROCESO, EstadoPedido::LISTO],
+            EstadoPedido::EN_ENTREGA => [EstadoPedido::RECOLECTADO, EstadoPedido::EN_PROCESO, EstadoPedido::LISTO, EstadoPedido::EN_ENTREGA],
+        ] as $estado => $botones) {
+            $pedido = $this->pedidoConfirmadoEn($this->lavanderia, $this->cuentaDeUsuario(), '12:00');
+            $this->aceptarComoLaLavanderia($pedido);
+
+            foreach ($botones as $boton) {
+                $this->marcarComoLaLavanderia($pedido, $boton);
+            }
+
+            $this->assertSame($estado, $pedido->fresh()->estado->codigo);
         }
 
         $porPagar = $this->pedidoPorPagarEn($this->lavanderia, $this->cuentaDeUsuario(), '12:00');
@@ -183,7 +234,29 @@ class MonitoreoTest extends TestCase
             ->deLaRecoleccionMasProxima()
             ->with(['estado', 'plaza'])
             ->get();
-        $this->assertCount(4, $delPanel);
+        $this->assertCount(7, $delPanel);
+        $this->assertEqualsCanonicalizing(
+            [
+                EstadoPedido::CONFIRMADO,
+                EstadoPedido::ACEPTADO,
+                EstadoPedido::RECHAZADO,
+                EstadoPedido::RECOLECTADO,
+                EstadoPedido::EN_PROCESO,
+                EstadoPedido::LISTO,
+                EstadoPedido::EN_ENTREGA,
+            ],
+            $delPanel->pluck('estado.codigo')->all(),
+        );
+
+        // La tabla del monitoreo del panel, con la misma cuenta y los mismos datos, muestra esos pedidos en ese orden:
+        // si el orden de un lado cambia, la app y el panel ya no muestran lo mismo.
+        Filament::setCurrentPanel('admin');
+        $this->actingAs($administracion, 'web');
+
+        Livewire::test(MonitoreoDePedidos::class)
+            ->assertOk()
+            ->assertCountTableRecords(7)
+            ->assertCanSeeTableRecords($delPanel, inOrder: true);
 
         // Las columnas de la tabla del panel: el folio, el estado y la plaza.
         $this->assertSame($delPanel->pluck('id_publico')->all(), array_column($respuesta->json('pedidos'), 'id_publico'));

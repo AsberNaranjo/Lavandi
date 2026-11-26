@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
  * autorizar:administracion, el prefijo administracion/ y el nombre administracion.: aquí no se repiten.
  */
 
-// Los pedidos activos de todas las plazas y sus marcadores, en una sola respuesta: la lista y el mapa de la app nunca
-// difieren. La app la consulta cada 30 s (ADR-0007; ADR-0022, decisión 12). El contrato está en el controlador.
+// Los pedidos activos de todas las plazas y sus marcadores, en una sola respuesta, con los marcadores solo de los
+// pedidos de la lista. Un cambio de estado justo durante la consulta se corrige en la siguiente: la app la consulta
+// cada 30 s (ADR-0007; ADR-0022, decisión 12). El contrato está en el controlador.
 Route::get('monitoreo', MonitoreoController::class)->name('monitoreo');
