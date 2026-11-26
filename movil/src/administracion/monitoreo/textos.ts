@@ -9,10 +9,12 @@ import { TEXTOS as TEXTOS_DE_LAS_CERCANAS } from '../../cercanas/textos';
 import { pedidoConFolio } from '../../estados/textos';
 import { CADA_CUANTO_SE_CONSULTA_MS } from '../../estados/useConsultaPeriodica';
 import type { FallaDeLaAdministracion } from '../api';
+import { TEXTOS_DE_LA_ADMINISTRACION } from '../textos';
 import type { MarcadorDelMonitoreo, TipoDeMarcador, VentanaDelMonitoreo } from './api';
 
 export const TEXTOS_DEL_MONITOREO = {
-  titulo: 'Monitoreo de pedidos',
+  // El nombre de su entrada en el inicio del módulo, para que el inicio y el encabezado digan lo mismo.
+  titulo: TEXTOS_DE_LA_ADMINISTRACION.secciones.monitoreo,
   cargando: 'Cargando los pedidos activos…',
   pedidosActivos: 'Pedidos activos',
   sinPedidos: 'No hay pedidos activos.',

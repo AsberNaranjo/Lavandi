@@ -7,7 +7,9 @@
 //   compilación puede montarlo (src/cercanas/mapa.ts).
 // - Cada marcador lleva su letra, R en la recolección y E en la entrega, y al tocarlo dice, arriba del mapa, el folio, el
 //   estado, si es la recolección o la entrega, y la plaza, como el panel. El marcador tocado sigue dicho con sus datos
-//   nuevos mientras siga en el mapa; si sale, deja de decirse.
+//   nuevos mientras siga en el mapa; si sale, deja de decirse. Tocar el mapa fuera de los marcadores lo deja de decir,
+//   como la ventana del marcador del panel, que se cierra. Lo que dice no recibe los toques: los marcadores que quedan
+//   debajo se siguen tocando y esa parte del mapa se sigue arrastrando.
 // - El mapa se crea una vez: cada consulta cambia sus marcadores, cada uno con su pedido y su tipo como llave, y no el
 //   mapa (presupuesto-de-mapas.md). Se encuadra solo la primera vez que hay marcadores; después, la consulta no mueve lo
 //   que la administración ve. Con uno solo, se centra en él con unas cuadras alrededor, porque encuadrar un solo punto
@@ -81,6 +83,15 @@ export function MapaDelMonitoreo({ marcadores }: { marcadores: MarcadorDelMonito
         style={StyleSheet.absoluteFill}
         accessibilityLabel={TEXTOS.elMapa}
         onMapReady={() => setListo(true)}
+        // El toque de un marcador es de los que suben al mapa, con la acción "marker-press"
+        // (node_modules/react-native-maps/src/specs/NativeComponentMarker.ts, MarkerPressEventHandler): cada marcador
+        // lo detiene (stopPropagation, src/MapMarker.tsx) y, si aun así llega, no cierra lo que dice el marcador que se
+        // acaba de tocar.
+        onPress={({ nativeEvent }) => {
+          if (nativeEvent.action !== 'marker-press') {
+            setElegido(null);
+          }
+        }}
       >
         {marcadores.map((marcador) => (
           <Marker
@@ -88,6 +99,7 @@ export function MapaDelMonitoreo({ marcadores }: { marcadores: MarcadorDelMonito
             testID={`marcador-${marcador.pedido}-${marcador.tipo}`}
             coordinate={puntoDe(marcador)}
             accessibilityLabel={marcadorParaLeer(marcador)}
+            stopPropagation
             onPress={() => setElegido(llaveDelMarcador(marcador))}
           >
             <View style={[estilos.marcador, marcador.tipo === 'entrega' ? estilos.deEntrega : estilos.deRecoleccion]}>
@@ -110,10 +122,12 @@ export function MapaDelMonitoreo({ marcadores }: { marcadores: MarcadorDelMonito
 }
 
 // Lo que dice el marcador tocado, arriba del mapa (imagen 25): "Pedido 7K2M9QXA", "En proceso · Recolección" y "Plaza de
-// prueba Durango". El lector de pantalla lo anuncia al aparecer y al cambiar.
+// prueba Durango". El lector de pantalla lo anuncia al aparecer y al cambiar. Va encima del mapa sin recibir los toques
+// (pointerEvents="none"): si los recibiera, en el teléfono taparía los marcadores que quedan debajo y esa franja del mapa
+// no se podría arrastrar.
 function LoQueDiceElMarcador({ marcador }: { marcador: MarcadorDelMonitoreo }) {
   return (
-    <View style={estilos.dicho} testID="marcador-elegido" accessibilityLiveRegion="polite">
+    <View style={estilos.dicho} testID="marcador-elegido" pointerEvents="none" accessibilityLiveRegion="polite">
       <Text style={[estilos.folio, letra('titulares', 'fuerte')]}>{pedidoConFolio(marcador.folio)}</Text>
       <Text style={[estilos.renglon, letra('cuerpo', 'regular')]}>{estadoYEtiqueta(marcador)}</Text>
       <Text style={[estilos.renglon, estilos.suave, letra('cuerpo', 'regular')]}>{marcador.plaza}</Text>

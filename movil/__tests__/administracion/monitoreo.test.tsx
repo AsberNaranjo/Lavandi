@@ -2,7 +2,8 @@
 // pedidos activos en la app": administracion-app-E28 (los pedidos activos en la lista y en el mapa) y E29 (el monitoreo
 // se pone al día solo), con E03 (cada entrada abre su pantalla dentro de la app) y E05 (el 401 en cada pantalla). Tarea
 // 10.1 de openspec/changes/administracion-en-la-app/tasks.md. El mapa de cada teléfono (E30) está en
-// mapa-del-monitoreo.test.tsx; el pedido cancelado (E31) espera DD-016.
+// mapa-del-monitoreo.test.tsx; el pedido cancelado (E31) espera DD-016. Al final, sin escenario propio, lo que la
+// pantalla hace como la imagen 05 de la Propuesta 06 y como el mapa del panel.
 //
 // El Módulo D #4 pide la "Vista en tiempo real de todos los pedidos activos con mapa" (NSV-2026-001-v8.pdf:19:ANEXO A,
 // Sección A.3). Arthur decidió que la administración la tiene en la app (C-247); cómo, lo decide ADR-0022 (decisiones 9,
@@ -263,6 +264,10 @@ describe('administracion-app-E28: los pedidos activos en la lista y en el mapa',
 
       await fireEvent.press(marcador(EN_PROCESO, 'recoleccion'));
       expect(loQueDiceElMarcador()).toEqual(['Pedido 7K2M9QXA', 'En proceso · Recolección', 'Plaza de prueba Durango']);
+      // Lo que dice va encima del mapa, pero no recibe los toques: en el teléfono, los marcadores que quedan debajo se
+      // siguen tocando y esa parte del mapa se sigue arrastrando. La simulación no reparte los toques como el nativo, así
+      // que se lee la propiedad.
+      expect(screen.getByTestId('marcador-elegido')).toHaveProp('pointerEvents', 'none');
 
       await fireEvent.press(marcador(EN_PROCESO, 'entrega'));
       expect(loQueDiceElMarcador()).toEqual(['Pedido 7K2M9QXA', 'En proceso · Entrega', 'Plaza de prueba Durango']);
@@ -311,33 +316,6 @@ describe('administracion-app-E28: los pedidos activos en la lista y en el mapa',
 
     expect(screen.getByText('1 pedido activo · todas las plazas · se pone al día cada 30 s')).toBeOnTheScreen();
   });
-
-  // Sin escenario propio: si la consulta no llega, los mensajes generales de la app e "Intentar de nuevo", como la
-  // imagen 05 de la Propuesta 06.
-  test.each(PLATAFORMAS)(
-    'administracion-app-E28 — (%s) si el monitoreo no llega, lo dice con el mensaje general y "Intentar de nuevo" lo vuelve a pedir',
-    async (plataforma) => {
-      servidor().interceptar = ({ ruta }) => {
-        if (ruta === RUTA_DEL_MONITOREO) {
-          throw new TypeError('Network request failed');
-        }
-        return undefined;
-      };
-
-      await abrirElMonitoreo(plataforma);
-
-      expect(await screen.findByText(MENSAJES.sinConexion)).toBeOnTheScreen();
-      // El mapa sigue montado, sin marcadores.
-      expect(screen.getByTestId('mapa')).toBeOnTheScreen();
-
-      servidor().interceptar = null;
-      await fireEvent.press(screen.getByRole('button', { name: 'Intentar de nuevo' }));
-
-      expect(await screen.findByTestId(`pedido-${EN_PROCESO.id_publico}`)).toBeOnTheScreen();
-      expect(screen.queryByText(MENSAJES.sinConexion)).not.toBeOnTheScreen();
-      expect(consultas()).toBe(2);
-    },
-  );
 });
 
 describe('administracion-app-E29: el monitoreo se pone al día solo', () => {
@@ -488,7 +466,50 @@ describe('administracion-app-E29: el monitoreo se pone al día solo', () => {
     expect(simulacion.__referenciaDelMapa.fitToCoordinates).toHaveBeenCalledTimes(1);
   });
 
-  test('administracion-app-E29 — con un solo marcador, se centra en él en lugar de encuadrar un solo punto', async () => {
+  test('administracion-app-E29 — el marcador tocado deja de decirse cuando su pedido sale del monitoreo', async () => {
+    await abrirElMonitoreoConLaLista('android', RECOLECTADO);
+    await fireEvent.press(marcador(RECOLECTADO, 'recoleccion'));
+    expect(screen.getByTestId('marcador-elegido')).toBeOnTheScreen();
+
+    monitoreo().cambiar(RECOLECTADO.id_publico, 'entregado');
+    await pasan(TREINTA_SEGUNDOS);
+
+    await waitFor(() => expect(screen.queryByTestId(`pedido-${RECOLECTADO.id_publico}`)).not.toBeOnTheScreen());
+    expect(screen.queryByTestId('marcador-elegido')).not.toBeOnTheScreen();
+  });
+});
+
+// Lo que la pantalla hace sin un escenario propio en la spec: lo que pasa si la consulta no llega, como la imagen 05 de
+// la Propuesta 06, y lo que el mapa hace como el del panel
+// (servidor/resources/views/filament/pages/monitoreo-de-pedidos/mapa.blade.php). No cubren ningún escenario.
+describe('sin escenario propio: como la imagen 05 de la Propuesta 06 y como el mapa del panel', () => {
+  test.each(PLATAFORMAS)(
+    'sin escenario (imagen 05 de la Propuesta 06) — (%s) si el monitoreo no llega, lo dice con el mensaje general y "Intentar de nuevo" lo vuelve a pedir',
+    async (plataforma) => {
+      servidor().interceptar = ({ ruta }) => {
+        if (ruta === RUTA_DEL_MONITOREO) {
+          throw new TypeError('Network request failed');
+        }
+        return undefined;
+      };
+
+      await abrirElMonitoreo(plataforma);
+
+      expect(await screen.findByText(MENSAJES.sinConexion)).toBeOnTheScreen();
+      // El mapa sigue montado, sin marcadores.
+      expect(screen.getByTestId('mapa')).toBeOnTheScreen();
+
+      servidor().interceptar = null;
+      await fireEvent.press(screen.getByRole('button', { name: 'Intentar de nuevo' }));
+
+      expect(await screen.findByTestId(`pedido-${EN_PROCESO.id_publico}`)).toBeOnTheScreen();
+      expect(screen.queryByText(MENSAJES.sinConexion)).not.toBeOnTheScreen();
+      expect(consultas()).toBe(2);
+    },
+  );
+
+  test('sin escenario (como el mapa del panel) — con un solo marcador, se centra en él en lugar de encuadrar un solo punto', async () => {
+    jest.useFakeTimers();
     monitoreo().poner([RECOLECTADO]);
     await abrirElMonitoreoConLaLista('ios', RECOLECTADO);
 
@@ -505,15 +526,31 @@ describe('administracion-app-E29: el monitoreo se pone al día solo', () => {
     );
   });
 
-  test('administracion-app-E29 — el marcador tocado deja de decirse cuando su pedido sale del monitoreo', async () => {
-    await abrirElMonitoreoConLaLista('android', RECOLECTADO);
-    await fireEvent.press(marcador(RECOLECTADO, 'recoleccion'));
-    expect(screen.getByTestId('marcador-elegido')).toBeOnTheScreen();
+  test.each(PLATAFORMAS)(
+    'sin escenario (como la ventana del marcador del panel, que se cierra) — (%s) tocar el mapa fuera de los marcadores deja de decir el marcador tocado',
+    async (plataforma) => {
+      await abrirElMonitoreoConLaLista(plataforma, EN_PROCESO);
+      await fireEvent.press(marcador(EN_PROCESO, 'recoleccion'));
+      expect(screen.getByTestId('marcador-elegido')).toBeOnTheScreen();
 
-    monitoreo().cambiar(RECOLECTADO.id_publico, 'entregado');
-    await pasan(TREINTA_SEGUNDOS);
+      // El toque de un marcador sube al mapa: cada marcador lo detiene (stopPropagation), y si aun así llega, el mapa
+      // lo reconoce por su "marker-press" y no cierra nada (node_modules/react-native-maps/src/MapMarker.tsx).
+      for (const elemento of within(screen.getByTestId('mapa')).getAllByTestId(/^marcador-/)) {
+        expect(elemento).toHaveProp('stopPropagation', true);
+      }
+      await fireEvent.press(screen.getByTestId('mapa'), { nativeEvent: { action: 'marker-press' } });
+      expect(loQueDiceElMarcador()).toEqual(['Pedido 7K2M9QXA', 'En proceso · Recolección', 'Plaza de prueba Durango']);
 
-    await waitFor(() => expect(screen.queryByTestId(`pedido-${RECOLECTADO.id_publico}`)).not.toBeOnTheScreen());
-    expect(screen.queryByTestId('marcador-elegido')).not.toBeOnTheScreen();
-  });
+      await fireEvent.press(screen.getByTestId('mapa'), { nativeEvent: { action: 'press' } });
+      expect(screen.queryByTestId('marcador-elegido')).not.toBeOnTheScreen();
+
+      // Otro marcador lo vuelve a decir.
+      await fireEvent.press(marcador(CONFIRMADO, 'recoleccion'));
+      expect(loQueDiceElMarcador()).toEqual([
+        'Pedido R6T3N8VB',
+        'Confirmado · Recolección y entrega',
+        'Plaza de prueba Torreón',
+      ]);
+    },
+  );
 });
