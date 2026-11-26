@@ -116,8 +116,8 @@ servidor simulado en `movil/__tests__/apoyo/administracion.ts`, sobre el de `mov
 
 ## 15. Lote 7, avisos masivos (`servidor/`)
 
-- [ ] 15.1 administracion-app-E11: mover la creación del aviso masivo (`CreateAvisoMasivo` y `AvisoMasivoForm`: qué se guarda, que sale en cola después de guardarlo y los topes de 255 y 1000 caracteres) a una clase de dominio que el panel llame, sin cambiar lo que hace — test: `servidor/tests/Feature/Administracion/AvisosMasivosTest.php` sin cambios, y `servidor/tests/Feature/AdministracionEnLaApp/AvisosMasivosTest.php` — tamaño S
-- [ ] 15.2 administracion-app-E42 y administracion-app-E43: `POST /api/administracion/avisos-masivos` con título y texto, y `GET /api/administracion/avisos-masivos`, sobre `avisosMasivosDelPanel()`, `puedeMandarAvisosMasivos()` y `MandarAvisoMasivo` en cola (FCM simulado) — test: `servidor/tests/Feature/AdministracionEnLaApp/AvisosMasivosTest.php` — tamaño S
+- [x] 15.1 administracion-app-E11: mover la creación del aviso masivo (`CreateAvisoMasivo` y `AvisoMasivoForm`: qué se guarda, que sale en cola después de guardarlo y los topes de 255 y 1000 caracteres) a una clase de dominio que el panel llame, sin cambiar lo que hace — test: `servidor/tests/Feature/Administracion/AvisosMasivosTest.php` sin cambios, y `servidor/tests/Feature/AdministracionEnLaApp/AvisosMasivosTest.php` — tamaño S
+- [x] 15.2 administracion-app-E42 y administracion-app-E43: `POST /api/administracion/avisos-masivos` con título y texto, y `GET /api/administracion/avisos-masivos`, sobre `avisosMasivosDelPanel()`, `puedeMandarAvisosMasivos()` y `MandarAvisoMasivo` en cola (FCM simulado) — test: `servidor/tests/Feature/AdministracionEnLaApp/AvisosMasivosTest.php` — tamaño S
 
 ## 16. Lote 7, avisos masivos (`movil/`)
 

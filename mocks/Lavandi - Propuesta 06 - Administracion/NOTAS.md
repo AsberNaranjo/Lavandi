@@ -42,7 +42,7 @@ el formulario de la lavandería (`movil/src/alta-lavanderias/`); y, para los tex
 | La granularidad en la hoja de la descarga, porque `POST descargas` la manda | contrato y técnico | 51 |
 | Lavandería con porcentaje propio («Propio: — % · le aplica el propio»), «Quitar porcentaje propio» y la edición del propio dentro de su tarjeta, sin número | técnico (y uso, como variante que faltaba) | 28 a 30 |
 | El alta de una lavandería en ámbar, sin botón: «Dar de alta una lavandería · DD-053 · La lista y las fichas no ofrecen el alta.» | contrato (falla de contrato) | 06 |
-| El aviso a un segmento en ámbar, sin ofrecerlo, y «A quién le llega» con el texto del panel (`AvisoMasivoForm.php:39`) | contrato | 37 a 39 |
+| El aviso a un segmento en ámbar, sin ofrecerlo, y «A quién le llega» con el texto del panel (`AvisoMasivoForm.php:51`) | contrato | 37 a 39 |
 | F-I09 con las mismas cifras de Ingresos para el mismo rango, y la frase que lo dice (E49) | contrato | 31 y 48 |
 | Junto a «Repartidores», cuántos pendientes; junto a «Monitoreo de pedidos», cuántos activos | uso | 03 |
 | El botón de alta nombra la plaza: «Dar de alta en Plaza de prueba Durango» | uso | 17 |
@@ -313,7 +313,7 @@ Cita general: Módulo D #7 (p. 19).
 | # | Archivo | Qué muestra | Cita y escenarios |
 |---|---|---|---|
 | 36 | `36-avisos.html` | **Avisos masivos.** Los avisos enviados, del más reciente al más antiguo, con a cuántos teléfonos salió o «En cola». | NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (Módulo D #7); administracion-app-E43 |
-| 37 | `37-aviso-nuevo.html` | **Escribir un aviso.** Título y texto con sus topes (255 y 1000); a quién le llega, con el texto del panel; el aviso a un segmento en ámbar, sin ofrecerlo. | NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (Módulo D #7, «Envío segmentado o global»); administracion-app-E42 y E44 (DD-113); AvisoMasivoForm.php:28-39 |
+| 37 | `37-aviso-nuevo.html` | **Escribir un aviso.** Título y texto con sus topes (255 y 1000); a quién le llega, con el texto del panel; el aviso a un segmento en ámbar, sin ofrecerlo. | NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (Módulo D #7, «Envío segmentado o global»); administracion-app-E42 y E44 (DD-113); AvisoMasivoForm.php:34-51; CreacionDeAvisoMasivo.php:37-40 |
 | 38 | `38-aviso-error.html` | **Escribir un aviso: falta el título.** El error 422 junto a su campo; no sale nada. | NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (Módulo D #7); administracion-app-E42 (422 con el error de cada campo) |
 | 39 | `39-aviso-confirmar.html` | **Confirmar el aviso.** La confirmación: sale a todos los teléfonos registrados; sin confirmar no sale nada. | NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (Módulo D #7, «global»); administracion-app-E42 |
 | 40 | `40-avisos-vacio.html` | **Avisos masivos, sin avisos.** Antes del primer aviso: el texto del panel y el botón para escribirlo. | NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (Módulo D #7); administracion-app-E43; AvisosMasivosTable.php:32 |
@@ -361,9 +361,10 @@ Fallas que una maqueta no puede cerrar, y líneas que hay que escribir en `desig
 3. **«Editar» en una lavandería dada de baja:** el panel lo permite y E14 no distingue estados, pero ningún escenario
    lo dice con todas sus letras. Hay que agregar a E14 «en cualquier estado, también de baja, como el panel», o
    preguntarlo, antes de construir la ficha.
-4. **El mensaje de «falta el título» del aviso** (38) es provisional: lo fija el request de `POST avisos-masivos`,
-   que todavía no existe, con el estilo de `CambiarPerfilRequest` («Escribe tu nombre.»). El contador bajo el campo es
-   un texto nuevo de la app, no una pieza: sale de los topes de E42.
+4. **El mensaje de «falta el título» del aviso** (38) ya no es provisional: lo fija administracion-app-E42 («Escribe
+   el título.», con el estilo de `CambiarPerfilRequest`: «Escribe tu nombre.») y lo da
+   `CreacionDeAvisoMasivo::mensajes()` (`CreacionDeAvisoMasivo.php:64`), con la que `POST avisos-masivos` crea el
+   aviso. El contador bajo el campo es un texto nuevo de la app, no una pieza: sale de los topes de E42.
 5. **El desvanecido de la fila de pestañas:** la tarea de `design.md` que le da a `Pestanas` el desplazamiento de lado
    tiene que dibujarlo como en 41 y 46 (64 px; la fila al principio o al final, nunca a la mitad), con el degradado de
    fondo de React Native, sin librería, si la versión de la app lo dibuja; si no, con el margen y la pestaña asomada. Su
@@ -376,6 +377,11 @@ Fallas que una maqueta no puede cerrar, y líneas que hay que escribir en `desig
 8. **Los textos adaptados a la app** (57, 60, 61 y 64; ver «Datos») y el mensaje del 409 (58), que es el de
    `TransicionNoPermitida` con el estado como lo guarda la base («en estado baja»): si se quiere otro, cambia la clase
    de dominio, y con ella el panel.
+9. **Quién mandó un aviso que mandó otra cuenta de administración** (36, E43): los tres avisos de 36 son de la cuenta
+   de la sesión (`admin@prueba.test`), y `GET avisos-masivos` solo dice si lo mandó esa cuenta
+   (`enviado_por_esta_cuenta`), sin el correo, el nombre ni la llave de la otra, por el delta de autorizacion-E14. El
+   texto del aviso de otra cuenta no lo fijan E43 ni la imagen 36: lo decide Arthur antes de la tarea 16.1, y con él si
+   el nombre de esa cuenta cuenta como ajeno.
 
 ## Revisión hecha
 

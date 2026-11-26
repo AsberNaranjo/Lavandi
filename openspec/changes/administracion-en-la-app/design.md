@@ -130,7 +130,7 @@ Las pruebas del panel siguen pasando sin cambios:
 | `App\Filament\Resources\Repartidores\Actions\AccionesDeEstado::plazasActivas()` | Las plazas del alta: las activas de las que la cuenta ve en el panel (`plazasDelPanel()`), como pide repartidor-E05 ("entre las plazas activas", `openspec/changes/repartidor/design.md:209`) | El alta del panel, el de la API y `GET plazas`, desde `App\Repartidores\PlazasDelAlta` (`de()` y `laElegida()`) | El lote 2, antes del alta por la API |
 | `App\Filament\Resources\Usuarios\HistorialDelUsuario` | Qué pedidos van en la ficha, su fecha en la hora de la plaza y su monto | La ficha del panel y la de la API | El lote 3 |
 | El formulario de `App\Filament\Pages\Conciliacion` y los campos de `ExportadorDeIndicador::getOptionsFormComponents()` | La regla del rango: las dos fechas, y la de fin no anterior a la de inicio, con su mensaje | La conciliación y la descarga, del panel y de la API | El lote 6; la descarga la usa en el lote 9. **La regla ya se movió** a `App\Validacion\RangoDeFechas` (`reglas()` y `mensajes()`), que el panel toma por `App\Filament\CamposDelRango`; faltan las dos rutas (tareas 13.2 y 19.2) |
-| `CreateAvisoMasivo` y `AvisoMasivoForm` | Qué se guarda con el aviso, que sale en cola después de guardarlo, y los topes del título (255) y del texto (1000) | El panel y la API | El lote 7 |
+| `CreateAvisoMasivo` y `AvisoMasivoForm` | Qué se guarda con el aviso, que sale en cola después de guardarlo, y los topes del título (255) y del texto (1000). Ya se movió con la tarea 15.1: hoy es `App\Avisos\CreacionDeAvisoMasivo`, que recorta el título y el texto antes de validarlos, como el middleware `TrimStrings` de la API, y trae los mensajes de sus reglas; el formulario del panel recorta igual sus dos campos y toma de ella sus reglas y sus mensajes, como `App\Filament\CamposDelRango` toma los de `RangoDeFechas`, así que muestra esos mensajes en lugar de los de Laravel por defecto | El panel y la API | El lote 7 |
 | `App\Filament\Widgets\Indicadores\MapaDeCalor::agrupacion()` | Qué agrupación del mapa de calor vale: por colonia o por zona; por colonia si no se eligió una que exista | El mapa del panel y la API | El lote 8, con la tarea 17.3. **Ya se movió**: hoy es `App\Indicadores\AgrupacionDelMapa` (`elegida()` y `opciones()`) |
 | `App\Filament\Actions\DescargarReporte::generar()` | Cómo se crea la descarga de la cuenta y se pone en cola su archivo | El botón del panel y la API | El lote 9 |
 
@@ -294,6 +294,12 @@ Resumen. El detalle de cada fila va después.
 - **Rutas:** `GET avisos-masivos`, los enviados, del más reciente al más antiguo, con su título, su texto, cuándo y
   quién lo mandó y a cuántos teléfonos salió ("En cola" mientras no se cuentan); `POST avisos-masivos` con título y
   texto.
+- **Quién lo mandó** (administracion-app-E43) va como "esta cuenta u otra", porque el correo de otra cuenta de
+  administración no sale en ninguna respuesta de `/api/administracion` (delta de autorizacion-E14): la ruta dice si lo
+  mandó la cuenta de la sesión (`enviado_por_esta_cuenta`) y no trae el correo, el nombre ni la llave de quien lo
+  mandó. La app pone, en el aviso propio, el correo de la cuenta, que ya tiene de `GET /api/cuenta` (como la imagen
+  36). El texto del aviso que mandó otra cuenta no lo fijan E43 ni la imagen 36: lo decide Arthur antes de la tarea
+  16.1 (`mocks/Lavandi - Propuesta 06 - Administracion/NOTAS.md`, «Lo que queda abierto», punto 9).
 - **Clases de dominio:** `Autorizacion::avisosMasivosDelPanel()` y `puedeMandarAvisosMasivos()`; la creación movida
   desde `CreateAvisoMasivo` (sección 3); `App\Avisos\MandarAvisoMasivo`, en cola.
 - **Pantallas:** la lista y "Escribir aviso", con su confirmación: sale a todos los teléfonos registrados (imágenes 36
@@ -301,7 +307,7 @@ Resumen. El detalle de cada fila va después.
   de 1000 caracteres"): es un texto de la app, que sale de los topes de administracion-E23. Sin título, el error de
   `titulo` es "Escribe el título.", con el estilo de los mensajes de `CambiarPerfilRequest` ("Escribe tu nombre.");
   vive con la creación movida a la clase de dominio (tareas 15.1 y 15.2). "A quién le llega" lleva el texto del panel
-  (`servidor/app/Filament/Resources/AvisosMasivos/Schemas/AvisoMasivoForm.php:39`), y el aviso a un segmento va en
+  (`servidor/app/Filament/Resources/AvisosMasivos/Schemas/AvisoMasivoForm.php:51`), y el aviso a un segmento va en
   ámbar con "Por confirmar · DD-113", sin ofrecerlo.
 - **Reglas:** administracion-E23.
 - **Bloqueado:** el aviso a un segmento, E24 (BR-32, DD-113). La pantalla no ofrece segmentos.
