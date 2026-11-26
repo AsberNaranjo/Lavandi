@@ -2,10 +2,12 @@
 // revisarlos en un solo lugar. Son los de las imágenes 31 a 35 de la Propuesta 06 de los mocks; los de las cifras, de la
 // tabla, de la confirmación y de la pasarela que no responde, los del panel de respaldo, para que la app y el panel digan
 // lo mismo (servidor/app/Filament/Widgets/Finanzas/ y servidor/app/Filament/Pages/Conciliacion.php). Los textos de cada
-// monto, de cada periodo y de cada resultado, y los mensajes de cada error 422, los da el servidor. Ninguno trae el
-// nombre del producto ni el dominio (CLAUDE.md §5; administracion-app-E03).
+// monto, de cada periodo y de cada resultado, y los mensajes de cada error 422, los da el servidor; el de una fecha
+// mal escrita es el de "Mis pedidos" (src/historial/textos.ts). Ninguno trae el nombre del producto ni el dominio
+// (CLAUDE.md §5; administracion-app-E03).
 import { mensajeGeneral } from '../../acceso/mensajes';
 import { pedidoConFolio } from '../../estados/textos';
+import { TEXTOS_DEL_HISTORIAL } from '../../historial/textos';
 import { TEXTOS_DEL_RESUMEN } from '../../pedido/textos';
 import type { FallaDeLaAdministracion } from '../api';
 import { TEXTOS_DE_LA_ADMINISTRACION } from '../textos';
@@ -33,6 +35,8 @@ export const TEXTOS_DE_LA_CONCILIACION = {
   instrucciones: 'Elige un periodo y concilia para leer los pagos de la pasarela.',
   desde: 'Desde',
   hasta: 'Hasta',
+  // Junto al campo vacío, a medias o con una fecha que no existe, el de "Mis pedidos": no se concilia.
+  fechaInvalida: TEXTOS_DEL_HISTORIAL.fechaInvalida,
   conciliarUnPeriodo: 'Conciliar un periodo',
   // La confirmación, con el diálogo del sistema y los textos del panel.
   confirmarTitulo: 'Conciliar con la pasarela',

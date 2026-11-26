@@ -40,7 +40,7 @@ import {
 jest.setTimeout(60_000);
 
 const servidor = usarElServidorDeLaAdministracion('administracion-ingresos');
-usarLosReportesFinancieros(servidor);
+const reportes = usarLosReportesFinancieros(servidor);
 
 // Más que el intervalo de cualquier consulta periódica de la app (30 s, ADR-0007; 5 s, adenda de ADR-0010).
 const CINCO_MINUTOS = 5 * 60_000;
@@ -54,6 +54,7 @@ afterEach(() => {
 });
 
 const RUTA_DE_LA_PANTALLA = '/administracion/ingresos';
+const FECHA_INVALIDA = 'Escribe la fecha como DD/MM/AAAA.';
 
 async function abrirLosIngresos(plataforma: Plataforma) {
   await abrirLaAppConLaAdministracion(plataforma, RUTA_DE_LA_PANTALLA);
@@ -213,6 +214,38 @@ describe('administracion-app-E37: los ingresos de un periodo', () => {
   );
 
   test.each(PLATAFORMAS)(
+    'administracion-app-E37 — (%s) la hoja no aplica una fecha a medias o que no existe: lo dice junto a su campo y sigue abierta; un campo vacío sí se aplica y el servidor pone el suyo',
+    async (plataforma) => {
+      await abrirLosIngresos(plataforma);
+      // Sin "desde", el servidor pone el día 1 del mes en curso: marzo de 2027, como el resto de las pruebas.
+      reportes().responderIngresos({ hasta: '2027-03-31', granularidad: 'semana' }, INGRESOS_DE_MARZO_POR_SEMANA);
+
+      const hoja = await abrirLaHoja();
+      await fireEvent.press(hoja.getByRole('tab', { name: 'Semana' }));
+      for (const [desde, hasta, conError] of [
+        ['01/03/2027', '31/02/2027', 'hasta'],
+        ['05/03/202', '31/03/2027', 'desde'],
+      ] as const) {
+        await fireEvent.changeText(hoja.getByLabelText('Desde'), desde);
+        await fireEvent.changeText(hoja.getByLabelText('Hasta'), hasta);
+        await fireEvent.press(hoja.getByRole('button', { name: 'Aplicar' }));
+
+        expect(screen.getByTestId('hoja-del-rango')).toBeOnTheScreen();
+        expect(within(hoja.getByTestId(`campo-${conError}`)).getByText(FECHA_INVALIDA)).toBeOnTheScreen();
+        expect(hoja.getAllByText(FECHA_INVALIDA)).toHaveLength(1);
+        expect(consultasDeLosIngresos(servidor())).toEqual([{}]);
+      }
+
+      await fireEvent.changeText(hoja.getByLabelText('Desde'), '');
+      await fireEvent.press(hoja.getByRole('button', { name: 'Aplicar' }));
+
+      expect(await screen.findByText(INGRESOS_DE_MARZO_POR_SEMANA.rango.descripcion)).toBeOnTheScreen();
+      expect(screen.queryByTestId('hoja-del-rango')).not.toBeOnTheScreen();
+      expect(consultasDeLosIngresos(servidor())).toEqual([{}, { hasta: '2027-03-31', granularidad: 'semana' }]);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
     'administracion-app-E37 — (%s) los reembolsos y ajustes y las comisiones del periodo dejan su lugar con "Por confirmar" y su DD, sin cifra ni descarga',
     async (plataforma) => {
       await abrirLosIngresos(plataforma);
@@ -229,25 +262,30 @@ describe('administracion-app-E37: los ingresos de un periodo', () => {
       expect(screen.queryByRole('button', { name: 'Descargar' })).not.toBeOnTheScreen();
     },
   );
+});
 
-  // Sin escenario propio: si los ingresos no llegan, los mensajes generales de la app e "Intentar de nuevo".
-  test('administracion-app-E37 — sin conexión lo dice, y "Intentar de nuevo" vuelve a pedir los ingresos', async () => {
-    let sinConexion = true;
-    servidor().interceptar = ({ ruta }) => {
-      if (sinConexion && ruta.startsWith(RUTA_DE_LOS_INGRESOS)) {
-        throw new TypeError('Network request failed');
-      }
-      return undefined;
-    };
-    await abrirLaAppConLaAdministracion('android', RUTA_DE_LA_PANTALLA);
+// Lo general de la app, sin escenario propio: administracion-app-E37 no habla de la conexión.
+describe('los ingresos sin conexión, como el resto de la app', () => {
+  test(
+    'comportamiento general de la app, sin escenario propio — sin conexión, los ingresos lo dicen y "Intentar de nuevo" los vuelve a pedir',
+    async () => {
+      let sinConexion = true;
+      servidor().interceptar = ({ ruta }) => {
+        if (sinConexion && ruta.startsWith(RUTA_DE_LOS_INGRESOS)) {
+          throw new TypeError('Network request failed');
+        }
+        return undefined;
+      };
+      await abrirLaAppConLaAdministracion('android', RUTA_DE_LA_PANTALLA);
 
-    expect(await screen.findByText(MENSAJES.sinConexion)).toBeOnTheScreen();
-    sinConexion = false;
-    await fireEvent.press(screen.getByRole('button', { name: 'Intentar de nuevo' }));
+      expect(await screen.findByText(MENSAJES.sinConexion)).toBeOnTheScreen();
+      sinConexion = false;
+      await fireEvent.press(screen.getByRole('button', { name: 'Intentar de nuevo' }));
 
-    expect(await screen.findByText(INGRESOS_DEL_MES_EN_CURSO.rango.descripcion)).toBeOnTheScreen();
-    expect(screen.queryByText(MENSAJES.sinConexion)).not.toBeOnTheScreen();
-  });
+      expect(await screen.findByText(INGRESOS_DEL_MES_EN_CURSO.rango.descripcion)).toBeOnTheScreen();
+      expect(screen.queryByText(MENSAJES.sinConexion)).not.toBeOnTheScreen();
+    },
+  );
 });
 
 describe('administracion-app-E37: la pantalla no se pone al día sola', () => {

@@ -8,10 +8,14 @@
 // La composición es la de las imágenes 32 a 35 de la Propuesta 06, con la confirmación y los textos del panel de
 // respaldo (servidor/app/Filament/Pages/Conciliacion.php):
 // - el periodo, con "Desde" y "Hasta" en DD/MM/AAAA y el 422 del servidor junto a su campo, como "La fecha de fin no
-//   puede ser anterior a la de inicio." (32);
-// - el reporte: el periodo, cuántas filas hay de cada resultado, en el orden del servidor, con el lugar de la comisión de
-//   la pasarela en ámbar (administracion-app-E41; DD-013), "Otro periodo", y debajo cada diferencia con su tipo y
-//   después las conciliadas (33 y 34). "Descargar" llega con la tarea 20.1;
+//   puede ser anterior a la de inicio." (32). Antes de confirmar, cada fecha tiene que ser una DD/MM/AAAA que existe,
+//   como en el filtro de "Mis pedidos" (src/historial/FiltroPorFecha.tsx): si está vacía, a medias o no existe, lo dice
+//   junto a su campo y no se confirma ni se manda nada. El servidor no impone el formato: una fecha así le llegaría con
+//   un mensaje en inglés o, peor, conciliaría otro periodo (el contrato, en reportes-financieros/api.ts). El rango al
+//   revés sí es su regla;
+// - el reporte: el periodo, cuántas filas hay de cada resultado, en el orden de la imagen 33, con el lugar de la
+//   comisión de la pasarela en ámbar (administracion-app-E41; DD-013), "Otro periodo", y debajo cada diferencia con su
+//   tipo y después las conciliadas (33 y 34). "Descargar" llega con la tarea 20.1;
 // - si la pasarela no responde, "No se pudo leer la pasarela" bajo el botón, sin reporte nuevo (35).
 //
 // Con un 401, el cliente de la administración ya volvió al inicio de sesión (administracion-app-E05).
@@ -20,11 +24,13 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { errorDeCampo } from '../../src/acceso/mensajes';
 import { confirmar } from '../../src/administracion/confirmar';
-import { conDiagonales } from '../../src/administracion/rango/rango';
+import { conDiagonales, fechaDeTexto } from '../../src/administracion/rango/rango';
 import type {
+  ConteoDeLaConciliacion,
   FallaDeLaConciliacion,
   FilaDeLaConciliacion,
   ReporteDeLaConciliacion,
+  ResultadoDeLaConciliacion,
 } from '../../src/administracion/reportes-financieros/api';
 import { TarjetaDeLaFila } from '../../src/administracion/reportes-financieros/TarjetaDeLaFila';
 import { TarjetaDeRenglones } from '../../src/administracion/reportes-financieros/TarjetaDeRenglones';
@@ -49,18 +55,49 @@ type Campo = 'desde' | 'hasta';
 
 const CAMPOS: readonly Campo[] = ['desde', 'hasta'];
 
+// El orden de los renglones del resumen, el de la imagen 33: lo conciliado y después cada diferencia. El servidor los
+// manda en el de App\Finanzas\ResultadoDeConciliacion; la app no cambia ningún texto ni ninguna cuenta.
+const ORDEN_DEL_RESUMEN: readonly ResultadoDeLaConciliacion[] = [
+  'conciliado',
+  'monto_distinto',
+  'movimiento_sin_pedido',
+  'pedido_sin_movimiento',
+];
+
+function enElOrdenDelResumen(resumen: readonly ConteoDeLaConciliacion[]): ConteoDeLaConciliacion[] {
+  return [...resumen].sort(
+    (uno, otro) => ORDEN_DEL_RESUMEN.indexOf(uno.resultado) - ORDEN_DEL_RESUMEN.indexOf(otro.resultado),
+  );
+}
+
 export default function Conciliacion() {
   const regresar = useRegresar(RUTA_DEL_INICIO_DE_LA_ADMINISTRACION);
   const { reporte, falla, conciliando, conciliar, otroPeriodo } = useConciliacion();
   const [periodo, setPeriodo] = useState<Record<Campo, string>>({ desde: '', hasta: '' });
+  // Las fechas que la app no manda, con su error junto al campo.
+  const [errores, setErrores] = useState<Partial<Record<Campo, string>>>({});
 
   function pedirConfirmacion() {
+    const desde = fechaDeTexto(periodo.desde);
+    const hasta = fechaDeTexto(periodo.hasta);
+    setErrores({
+      desde: desde === null ? TEXTOS.fechaInvalida : undefined,
+      hasta: hasta === null ? TEXTOS.fechaInvalida : undefined,
+    });
+    if (desde === null || hasta === null) {
+      return;
+    }
     confirmar({
       titulo: TEXTOS.confirmarTitulo,
       texto: TEXTOS.confirmarTexto,
       accion: TEXTOS.confirmarAccion,
-      alConfirmar: () => void conciliar(periodo),
+      alConfirmar: () => void conciliar({ desde, hasta }),
     });
+  }
+
+  // El error de cada campo: el de la app, o el que dio el servidor con el último periodo.
+  function errorDe(campo: Campo): string | undefined {
+    return errores[campo] ?? errorDeCampo(falla?.motivo === 'invalido' ? falla : undefined, campo);
   }
 
   return (
@@ -78,7 +115,7 @@ export default function Conciliacion() {
               tipo="fecha"
               valor={periodo[campo]}
               alCambiar={(texto) => setPeriodo((anterior) => ({ ...anterior, [campo]: conDiagonales(texto) }))}
-              error={errorDeCampo(falla?.motivo === 'invalido' ? falla : undefined, campo)}
+              error={errorDe(campo)}
             />
           ))}
           <Boton onPress={pedirConfirmacion} ocupado={conciliando}>
@@ -121,7 +158,7 @@ function ElReporte({
       <TarjetaDeRenglones
         testID="resumen-de-la-conciliacion"
         renglones={[
-          ...reporte.resumen.map((conteo) => ({
+          ...enElOrdenDelResumen(reporte.resumen).map((conteo) => ({
             clave: conteo.resultado,
             etiqueta: conteo.resultado_texto,
             valor: String(conteo.cuantos),

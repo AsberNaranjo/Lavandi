@@ -4,6 +4,7 @@
 // y cómo se ajusta el rango, el de App\Indicadores\Rango: por semana, de lunes a domingo; por mes, del día 1 al último
 // día. Los días del rango ajustado los da el servidor: la app no los calcula. Ninguno trae el nombre del producto ni el
 // dominio (CLAUDE.md §5; administracion-app-E03).
+import { TEXTOS_DEL_HISTORIAL } from '../../historial/textos';
 import type { Granularidad } from './rango';
 
 export const TEXTOS_DEL_RANGO = {
@@ -15,6 +16,8 @@ export const TEXTOS_DEL_RANGO = {
   hasta: 'Hasta',
   verPor: 'Ver por',
   aplicar: 'Aplicar',
+  // Junto al campo con una fecha a medias o que no existe, el texto del filtro de "Mis pedidos".
+  fechaInvalida: TEXTOS_DEL_HISTORIAL.fechaInvalida,
   granularidades: {
     dia: 'Día',
     semana: 'Semana',
