@@ -2,9 +2,9 @@
 // con el color del semáforo según los cortes de la configuración (administracion-app-E48; indicadores-E12 y E13), con la
 // forma de la maqueta de la Propuesta 06 de la administración (46 y 47). Los cortes de EL CLIENTE esperan DD-114.
 //
-// - Cada lavandería en una fila: su lugar y su nombre ("1. Lavandería…"), su calificación debajo y, a la derecha, el
-//   semáforo en la insignia cuadrada de InsigniaDeEstado, con su punto y su texto en el color de su estado: cada color
-//   con su texto (design system, reglas transversales).
+// - Cada lavandería en una fila, con una línea arriba: su lugar y su nombre ("1. Lavandería…"), su calificación debajo
+//   y, a la derecha, el semáforo en la insignia cuadrada de InsigniaDeEstado, con su punto y su texto en el color de su
+//   estado: cada color con su texto (design system, reglas transversales).
 // - La que no tiene calificaciones va sin lugar ni semáforo y lo dice; sin cortes, la calificación va sin semáforo, como
 //   en el panel (RankingDeLavanderiasTabla).
 // - Cada fila se anuncia en un solo anuncio: "1. Lavandería…. 4.8 de 5. Semáforo: Verde".
@@ -48,7 +48,7 @@ const TONOS: Record<ColorDelSemaforo, string> = {
 export function RankingConSemaforo({ lugares, testID = 'ranking-con-semaforo' }: Propiedades) {
   return (
     <View testID={testID}>
-      {lugares.map((lugar, indice) => {
+      {lugares.map((lugar) => {
         const nombre = lugar.lugar === null ? lugar.nombre : `${lugar.lugar}. ${lugar.nombre}`;
         const calificacion = lugar.calificacion ?? SIN_CALIFICACIONES;
         const anuncio = [nombre, calificacion, ...(lugar.semaforo ? [`Semáforo: ${lugar.semaforo.texto}`] : [])];
@@ -58,7 +58,7 @@ export function RankingConSemaforo({ lugares, testID = 'ranking-con-semaforo' }:
             accessible
             accessibilityLabel={anuncio.join('. ')}
             testID={`lugar-${lugar.clave}`}
-            style={[estilos.fila, indice > 0 ? estilos.separada : null]}
+            style={estilos.fila}
           >
             <Text style={[estilos.nombre, letra('cuerpo', 'semifuerte')]}>{nombre}</Text>
             <View style={estilos.renglon}>
@@ -80,12 +80,12 @@ export function RankingConSemaforo({ lugares, testID = 'ranking-con-semaforo' }:
   );
 }
 
+// Las medidas de la maqueta (46): ocho arriba y abajo de cada fila y una línea arriba de cada una, también de la primera,
+// que la separa del título de la tarjeta.
 const estilos = StyleSheet.create({
   fila: {
     gap: espaciado[1],
-    paddingVertical: espaciado[3],
-  },
-  separada: {
+    paddingVertical: espaciado[2],
     borderTopWidth: grosor.control,
     borderTopColor: color.semantico.borde,
   },
@@ -99,9 +99,11 @@ const estilos = StyleSheet.create({
     justifyContent: 'space-between',
     gap: espaciado[3],
   },
+  // Los números tabulares, para que las cifras no bailen (design system, reglas transversales).
   calificacion: {
     flex: 1,
     color: color.semantico.texto,
     fontSize: tipografia.escala.menor,
+    fontVariant: ['tabular-nums'],
   },
 });

@@ -4,11 +4,17 @@
 // como seleccionada, así el color no es la única señal (design system, reglas transversales).
 //
 // Cuando las pestañas no caben en el ancho, la fila se desplaza de lado (tarea 18.3 de administracion-en-la-app); cuando
-// caben, ocupan el ancho. Como en la maqueta de la Propuesta 06 de la administración (41, 46 y 48):
+// caben, ocupan el ancho como antes. Como en la maqueta de la Propuesta 06 de la administración (41, 46 y 48):
+// - si cada pestaña cabe en una parte igual del ancho, todas miden esa parte, como antes;
+// - si caben juntas pero no en partes iguales, cada una mide lo que su texto y crecen por igual hasta llenar la fila;
+// - si no caben, cada una mide lo que su texto y la fila se desplaza de lado;
+// - ninguna se encoge, así su texto nunca se parte en dos renglones y lo que mide es siempre el de un renglón: si la
+//   elegida, en negritas, ya no cabe en su parte, la fila lo nota al medirla;
 // - un desvanecido del ancho de espaciado[8] marca la orilla por donde sigue la fila, del fondo transparente al color
 //   del fondo, con el degradado de fondo de React Native, sin librería;
 // - la fila se queda al principio o al final, lo que deje a la elegida entera y fuera del desvanecido; nunca se centra
-//   en ella, así no corta palabras en las dos orillas a la vez.
+//   en ella, así no corta palabras en las dos orillas a la vez. Solo si la elegida no queda entera en ninguno de los
+//   dos, la fila la deja junto al desvanecido izquierdo: la elegida siempre queda entera.
 //
 // No es uno de los seis componentes del design system: se arma con los tokens (ADR-0013). Área táctil mínima de 48.
 import { useEffect, useRef, useState } from 'react';
@@ -35,14 +41,22 @@ const DESVANECIDO = espaciado[8];
 // Lo que sobra al medir: medio punto no es una pestaña que no cabe.
 const TOLERANCIA = 0.5;
 
+/** El relleno de cada lado del texto de una pestaña. */
+const RELLENO = espaciado[3];
+
 export function Pestanas<Clave extends string>({ pestanas, elegida, alElegir }: Propiedades<Clave>) {
   const desplazable = useRef<ScrollViewInstance>(null);
   const [anchoVisible, setAnchoVisible] = useState(0);
   const [anchoDelContenido, setAnchoDelContenido] = useState(0);
   const [desplazamiento, setDesplazamiento] = useState(0);
   const [lugares, setLugares] = useState<Partial<Record<Clave, Lugar>>>({});
+  const [anchosDeLosTextos, setAnchosDeLosTextos] = useState<Partial<Record<Clave, number>>>({});
 
-  const fin = Math.max(0, anchoDelContenido - anchoVisible);
+  const parejas = cabenParejas(pestanas.map(({ clave }) => anchosDeLosTextos[clave]), anchoVisible);
+  const parteIgual = parejas ? anchoDeAdentro(anchoVisible) / pestanas.length : null;
+  // Repartidas por igual, la fila mide lo que se ve: no hay nada que desplazar, aunque el tamaño del contenido que se
+  // midió antes de repartirlas todavía no se ponga al día.
+  const fin = parejas ? 0 : Math.max(0, anchoDelContenido - anchoVisible);
   const seDesplaza = fin > TOLERANCIA;
   const lugarDeLaElegida = lugares[elegida];
 
@@ -59,6 +73,10 @@ export function Pestanas<Clave extends string>({ pestanas, elegida, alElegir }: 
       const anterior = anteriores[clave];
       return anterior?.x === lugar.x && anterior.ancho === lugar.ancho ? anteriores : { ...anteriores, [clave]: lugar };
     });
+  }
+
+  function anotarAnchoDelTexto(clave: Clave, ancho: number) {
+    setAnchosDeLosTextos((anteriores) => (anteriores[clave] === ancho ? anteriores : { ...anteriores, [clave]: ancho }));
   }
 
   return (
@@ -89,11 +107,13 @@ export function Pestanas<Clave extends string>({ pestanas, elegida, alElegir }: 
                 }
                 style={({ pressed }) => [
                   estilos.pestana,
+                  parteIgual === null ? null : { minWidth: parteIgual },
                   esLaElegida ? estilos.elegida : null,
                   pressed && !esLaElegida ? estilos.presionada : null,
                 ]}
               >
                 <Text
+                  onLayout={(evento) => anotarAnchoDelTexto(clave, evento.nativeEvent.layout.width)}
                   style={[
                     estilos.texto,
                     letra('cuerpo', esLaElegida ? 'fuerte' : 'regular'),
@@ -111,6 +131,23 @@ export function Pestanas<Clave extends string>({ pestanas, elegida, alElegir }: 
       {seDesplaza && desplazamiento < fin - TOLERANCIA ? <Desvanecido orilla="derecha" /> : null}
     </View>
   );
+}
+
+/**
+ * Si cada pestaña cabe en una parte igual del ancho de la fila, sin partir su texto: la más ancha, con su relleno, por el
+ * número de pestañas, contra el ancho de adentro del borde. Hasta medir todos los textos y la fila, no.
+ */
+function cabenParejas(anchosDeLosTextos: readonly (number | undefined)[], anchoVisible: number): boolean {
+  if (anchoVisible <= 0 || anchosDeLosTextos.length === 0 || anchosDeLosTextos.some((ancho) => ancho === undefined)) {
+    return false;
+  }
+  const masAncha = Math.max(...(anchosDeLosTextos as number[])) + 2 * RELLENO;
+  return masAncha * anchosDeLosTextos.length <= anchoDeAdentro(anchoVisible) + TOLERANCIA;
+}
+
+/** El ancho de la fila adentro de su borde. */
+function anchoDeAdentro(anchoVisible: number): number {
+  return anchoVisible - 2 * grosor.control;
 }
 
 /**
@@ -173,14 +210,15 @@ const estilos = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: color.semantico.superficie,
   },
-  // Cada pestaña mide lo que su texto y crece por igual hasta llenar la fila; nunca se encoge, así el texto no se parte.
+  // Cada una mide lo que su texto, o la parte igual si cabe en ella, y crece por igual hasta llenar la fila; nunca se
+  // encoge, así el texto no se parte.
   pestana: {
     flexGrow: 1,
     flexShrink: 0,
     minHeight: accesibilidad.area_tactil_minima_dp,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: espaciado[3],
+    paddingHorizontal: RELLENO,
   },
   elegida: {
     backgroundColor: color.semantico.accion,

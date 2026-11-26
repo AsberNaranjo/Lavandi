@@ -6,11 +6,16 @@
 //
 // - Los títulos de las columnas arriba, en el texto suave; las cifras a la derecha, en números tabulares para que no
 //   bailen entre filas (design system, reglas transversales), y una línea entre filas.
+// - Cada columna de cifras tiene un solo ancho, el de su título y el de sus cifras, así cada cifra queda bajo su título:
+//   al menos ANCHO_DE_COLUMNA, como las columnas de la maqueta, o lo que mida su cifra más ancha. Un título más largo
+//   se parte en renglones ("Con primer pedido", 44). El ancho no se encoge mientras la tabla está en pantalla: al
+//   ponerse al día, las columnas no bailan.
 // - Cada fila se anuncia en un solo anuncio, con su nombre y cada cifra con el título de su columna: "Semana del
 //   26/10/2026. Pedidos: 3. Anterior: 2". Por eso la fila de títulos no se anuncia sola.
 //
 // No trae cifras propias: todas llegan por propiedades, ya escritas. No es uno de los seis componentes del design system:
 // se arma con los tokens (ADR-0013), como TarjetaDeCifras.
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { letra } from '../tema/letra';
@@ -38,7 +43,19 @@ interface Propiedades {
   testID?: string;
 }
 
+/** El ancho mínimo de una columna de cifras: el de las columnas de la maqueta (41, 44 y 47: de 64 a 80). */
+export const ANCHO_DE_COLUMNA = espaciado[8] + espaciado[3];
+
 export function TablaComparativa({ primeraColumna, columnas, filas, testID = 'tabla-comparativa' }: Propiedades) {
+  const [cifrasMasAnchas, setCifrasMasAnchas] = useState<Record<string, number>>({});
+  const anchoDe = (clave: string) => Math.max(ANCHO_DE_COLUMNA, cifrasMasAnchas[clave] ?? 0);
+
+  function anotarAncho(clave: string, ancho: number) {
+    setCifrasMasAnchas((anteriores) =>
+      ancho > (anteriores[clave] ?? 0) ? { ...anteriores, [clave]: ancho } : anteriores,
+    );
+  }
+
   return (
     <View testID={testID}>
       <View
@@ -48,7 +65,11 @@ export function TablaComparativa({ primeraColumna, columnas, filas, testID = 'ta
       >
         <Text style={[estilos.primera, estilos.titulo, letra('cuerpo', 'semifuerte')]}>{primeraColumna}</Text>
         {columnas.map((columna) => (
-          <Text key={columna.clave} style={[estilos.cifra, estilos.titulo, letra('cuerpo', 'semifuerte')]}>
+          <Text
+            key={columna.clave}
+            testID={`titulo-${columna.clave}`}
+            style={[estilos.cifra, estilos.titulo, letra('cuerpo', 'semifuerte'), { width: anchoDe(columna.clave) }]}
+          >
             {columna.titulo}
           </Text>
         ))}
@@ -69,7 +90,8 @@ export function TablaComparativa({ primeraColumna, columnas, filas, testID = 'ta
             <Text
               key={columna.clave}
               testID={`cifra-${fila.clave}-${columna.clave}`}
-              style={[estilos.cifra, estilos.valor, letra('cuerpo', 'regular')]}
+              onLayout={(evento) => anotarAncho(columna.clave, evento.nativeEvent.layout.width)}
+              style={[estilos.cifra, estilos.valor, letra('cuerpo', 'regular'), { minWidth: anchoDe(columna.clave) }]}
             >
               {fila.cifras[columna.clave] ?? ''}
             </Text>
@@ -85,15 +107,16 @@ function anuncioDe(fila: FilaDeLaTabla, columnas: readonly ColumnaDeLaTabla[]): 
   return [nombre, ...columnas.map((columna) => `${columna.titulo}: ${fila.cifras[columna.clave] ?? ''}`)].join('. ');
 }
 
+// Las medidas de la maqueta (41): ocho entre columnas y ocho arriba y abajo de cada fila; cuatro en la de los títulos.
 const estilos = StyleSheet.create({
   fila: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: espaciado[3],
-    paddingVertical: espaciado[3],
+    gap: espaciado[2],
+    paddingVertical: espaciado[2],
   },
   titulos: {
-    alignItems: 'flex-end',
+    paddingVertical: espaciado[1],
   },
   separada: {
     borderTopWidth: grosor.control,
@@ -118,9 +141,9 @@ const estilos = StyleSheet.create({
     color: color.semantico.texto_suave,
     fontSize: tipografia.escala.menor,
   },
-  // Las cifras a la derecha, cada columna con su ancho mínimo, para que se alineen entre filas.
+  // Las cifras a la derecha, con el ancho de su columna, para que se alineen entre filas.
   cifra: {
-    minWidth: espaciado[8],
+    flexShrink: 0,
     textAlign: 'right',
   },
   // Los números tabulares, para que las cifras no bailen (design system, reglas transversales).

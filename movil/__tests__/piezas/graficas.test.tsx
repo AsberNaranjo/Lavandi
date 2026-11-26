@@ -23,7 +23,7 @@ import { GraficaDeBarras, type Barra } from '../../src/piezas/GraficaDeBarras';
 import { IndicadorDestacado } from '../../src/piezas/IndicadorDestacado';
 import { LineaDeTendencia, type PuntoDeLaLinea } from '../../src/piezas/LineaDeTendencia';
 import { RankingConSemaforo, type LugarDelRanking } from '../../src/piezas/RankingConSemaforo';
-import { TablaComparativa } from '../../src/piezas/TablaComparativa';
+import { ANCHO_DE_COLUMNA, TablaComparativa } from '../../src/piezas/TablaComparativa';
 import { tema } from '../../src/tema/theme';
 
 // La primera pantalla tarda más mientras Jest prepara el entorno.
@@ -162,6 +162,42 @@ describe('administracion-app-E46 (tarea 18.1): la tabla que pone cada periodo ju
       expect(screen.getByTestId(`cifra-${fila.clave}-anterior`)).toHaveTextContent(fila.cifras.anterior);
       expect(screen.getByTestId(`cifra-${fila.clave}-pedidos`)).toHaveStyle({ fontVariant: ['tabular-nums'] });
     }
+  });
+
+  test('administracion-app-E46 — cada cifra queda bajo su título: la columna tiene un solo ancho, al menos el de la maqueta, y crece con su cifra más ancha', async () => {
+    await render(<TablaComparativa primeraColumna="Periodo" columnas={COLUMNAS} filas={FILAS} />);
+
+    for (const { clave } of COLUMNAS) {
+      expect(screen.getByTestId(`titulo-${clave}`, { includeHiddenElements: true })).toHaveStyle({
+        width: ANCHO_DE_COLUMNA,
+        textAlign: 'right',
+      });
+      for (const fila of FILAS) {
+        expect(screen.getByTestId(`cifra-${fila.clave}-${clave}`)).toHaveStyle({
+          minWidth: ANCHO_DE_COLUMNA,
+          textAlign: 'right',
+        });
+      }
+    }
+
+    // Una cifra más ancha que la columna, como la mide el teléfono: su título y las demás cifras toman su ancho.
+    const ancha = ANCHO_DE_COLUMNA + 20;
+    await fireEvent(screen.getByTestId('cifra-2026-11-02-anterior'), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 0, width: ancha, height: 24 } },
+    });
+
+    expect(screen.getByTestId('titulo-anterior', { includeHiddenElements: true })).toHaveStyle({ width: ancha });
+    expect(screen.getByTestId('cifra-2026-10-26-anterior')).toHaveStyle({ minWidth: ancha });
+    // La otra columna no cambia.
+    expect(screen.getByTestId('titulo-pedidos', { includeHiddenElements: true })).toHaveStyle({
+      width: ANCHO_DE_COLUMNA,
+    });
+
+    // Al ponerse al día con una cifra más angosta, la columna no se encoge: las cifras no bailan.
+    await fireEvent(screen.getByTestId('cifra-2026-11-02-anterior'), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 0, width: ANCHO_DE_COLUMNA, height: 24 } },
+    });
+    expect(screen.getByTestId('titulo-anterior', { includeHiddenElements: true })).toHaveStyle({ width: ancha });
   });
 
   test('administracion-app-E46 — cada fila se anuncia con su periodo y cada cifra con el título de su columna; los títulos no se anuncian solos', async () => {
@@ -463,6 +499,18 @@ describe('administracion-app-E48 (tarea 18.1): el ranking con semáforo y las en
       expect(screen.getByTestId(`semaforo-${clave}`)).toHaveStyle({ borderColor: tono });
       expect(screen.getByText(texto)).toHaveStyle({ color: tono });
     }
+  });
+
+  test('administracion-app-E48 — cada lavandería en su fila, con una línea arriba, también la primera, y su calificación en números tabulares', async () => {
+    await render(<RankingConSemaforo lugares={RANKING} />);
+
+    for (const { clave } of RANKING) {
+      expect(screen.getByTestId(`lugar-${clave}`)).toHaveStyle({
+        borderTopWidth: tema.grosor.control,
+        borderTopColor: color.semantico.borde,
+      });
+    }
+    expect(screen.getByText('4.8 de 5')).toHaveStyle({ fontVariant: ['tabular-nums'] });
   });
 
   test('administracion-app-E48 — la lavandería sin calificaciones va sin lugar ni semáforo, y lo dice', async () => {

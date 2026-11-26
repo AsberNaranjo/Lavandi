@@ -43,6 +43,10 @@ const LUGARES: Record<Categoria, { x: number; ancho: number }> = {
 };
 const ANCHO_DE_LAS_CINCO = 520;
 const ALTO = accesibilidad.area_tactil_minima_dp;
+// El texto de cada pestaña mide lo que la pestaña menos su relleno de los dos lados.
+const RELLENO = espaciado[3];
+// La más ancha, Operaciones, mide 130: las cinco caben en partes iguales desde 5 × 130 más el borde de los dos lados.
+const ANCHO_PAREJO = 5 * 130 + 2 * tema.grosor.control;
 
 function estiloPlano(elemento: { props: { style?: unknown } }) {
   return StyleSheet.flatten(elemento.props.style as never) ?? {};
@@ -67,11 +71,15 @@ function pestana(texto: string) {
   return screen.getByRole('tab', { name: texto });
 }
 
-// Le da a la fila las medidas del teléfono: el ancho que se ve, el de su contenido y dónde queda cada pestaña.
+// Le da a la fila las medidas del teléfono: el ancho que se ve, el de su contenido, dónde queda cada pestaña y cuánto
+// mide su texto.
 async function medir(anchoVisible: number, anchoDelContenido: number) {
   for (const { clave, texto } of CATEGORIAS) {
     const { x, ancho } = LUGARES[clave];
     await fireEvent(pestana(texto), 'layout', { nativeEvent: { layout: { x, y: 0, width: ancho, height: ALTO } } });
+    await fireEvent(screen.getByText(texto), 'layout', {
+      nativeEvent: { layout: { x: RELLENO, y: 0, width: ancho - 2 * RELLENO, height: ALTO } },
+    });
   }
   await fireEvent(fila(), 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: anchoVisible, height: ALTO } } });
   await fireEvent(fila(), 'contentSizeChange', anchoDelContenido, ALTO);
@@ -98,21 +106,62 @@ describe('administracion-app-E45 (tarea 18.3): las pestañas se desplazan de lad
     llevarA.mockRestore();
   });
 
-  test('administracion-app-E45 — cuando caben, ocupan el ancho como antes: la fila no se desplaza y no hay desvanecido', async () => {
+  test('administracion-app-E45 — cuando cada una cabe en una parte igual, se reparten el ancho por igual, como antes, sin desplazarse ni desvanecido', async () => {
     await render(<PestanasDePrueba />);
     // La fila crece hasta el ancho que se ve: su contenido mide lo mismo.
-    await medir(560, 560);
+    await medir(ANCHO_PAREJO, ANCHO_PAREJO);
 
     expect(fila().props.horizontal).toBe(true);
     expect(fila().props.scrollEnabled).toBe(false);
     expect(fila().props.contentContainerStyle).toMatchObject({ flexGrow: 1 });
     expect(screen.getByTestId('pestanas').props.accessibilityRole).toBe('tablist');
     expect(screen.getByTestId('pestanas')).toHaveStyle({ flexGrow: 1, flexDirection: 'row' });
+    // Las cinco con la misma parte del ancho de adentro del borde, sin encogerse.
     for (const { texto } of CATEGORIAS) {
-      expect(estiloPlano(pestana(texto))).toMatchObject({ flexGrow: 1 });
+      expect(estiloPlano(pestana(texto))).toMatchObject({ minWidth: 130, flexGrow: 1, flexShrink: 0 });
     }
     expect(desvanecido('izquierdo')).not.toBeOnTheScreen();
     expect(desvanecido('derecho')).not.toBeOnTheScreen();
+  });
+
+  test('administracion-app-E45 — si la elegida, en negritas, ya no cabe en su parte igual, cada una vuelve a medir lo que su texto', async () => {
+    await render(<PestanasDePrueba />);
+    await medir(ANCHO_PAREJO, ANCHO_PAREJO);
+    expect(estiloPlano(pestana('Socios')).minWidth).toBe(130);
+
+    // Socios elegida mide más que la parte igual: su texto se mide en un renglón, porque la pestaña no se encoge.
+    await fireEvent.press(pestana('Socios'));
+    await fireEvent(screen.getByText('Socios'), 'layout', {
+      nativeEvent: { layout: { x: RELLENO, y: 0, width: 140 - 2 * RELLENO, height: ALTO } },
+    });
+
+    for (const { texto } of CATEGORIAS) {
+      expect(estiloPlano(pestana(texto)).minWidth).toBeUndefined();
+      expect(estiloPlano(pestana(texto))).toMatchObject({ flexGrow: 1, flexShrink: 0 });
+    }
+  });
+
+  test('administracion-app-E45 — cuando caben juntas pero no en partes iguales, cada una mide lo que su texto y crecen hasta llenar la fila, sin desplazarse', async () => {
+    await render(<PestanasDePrueba />);
+    // 560 da para las cinco a su medida (520), no para cinco de 130.
+    await medir(560, 560);
+
+    expect(fila().props.scrollEnabled).toBe(false);
+    for (const { texto } of CATEGORIAS) {
+      expect(estiloPlano(pestana(texto))).toMatchObject({ flexGrow: 1, flexShrink: 0 });
+      expect(estiloPlano(pestana(texto)).minWidth).toBeUndefined();
+    }
+    expect(desvanecido('izquierdo')).not.toBeOnTheScreen();
+    expect(desvanecido('derecho')).not.toBeOnTheScreen();
+  });
+
+  test('administracion-app-E45 — hasta medir los textos, cada una mide lo que su texto: nunca se parte una palabra', async () => {
+    await render(<PestanasDePrueba />);
+
+    for (const { texto } of CATEGORIAS) {
+      expect(estiloPlano(pestana(texto))).toMatchObject({ flexGrow: 1, flexShrink: 0 });
+      expect(estiloPlano(pestana(texto)).minWidth).toBeUndefined();
+    }
   });
 
   test('administracion-app-E45 — cuando no caben, la fila se desplaza de lado y un desvanecido marca la orilla por donde sigue', async () => {
@@ -162,6 +211,16 @@ describe('administracion-app-E45 (tarea 18.3): las pestañas se desplazan de lad
     // Usuarios cabe al principio: la fila vuelve al principio.
     await fireEvent.press(pestana('Usuarios'));
     expect(llevarA).toHaveBeenLastCalledWith({ x: 0, animated: true });
+  });
+
+  test('administracion-app-E45 — si la elegida no queda entera ni al principio ni al final, la fila la deja junto al desvanecido izquierdo, entera', async () => {
+    await render(<PestanasDePrueba />);
+    await medir(300, ANCHO_DE_LAS_CINCO);
+
+    // Socios (de 230 a 320) cae en el desvanecido derecho al principio y en el izquierdo al final (220).
+    await fireEvent.press(pestana('Socios'));
+
+    expect(llevarA).toHaveBeenLastCalledWith({ x: LUGARES.socios.x - espaciado[8], animated: true });
   });
 
   test('administracion-app-E45 — cuando caben, la fila no se mueve al elegir', async () => {
