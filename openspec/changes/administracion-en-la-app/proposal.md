@@ -60,7 +60,7 @@ Hoy todo eso vive en el panel web de Filament, y la app, a una cuenta de adminis
   - la pieza que crea los tokens de la app, `App\Identidad\TokensDeLaApp`, con la habilidad y el vencimiento de la administración, y los días en `config/acceso.php`;
   - `POST /api/sesion/google` rechaza a la administración antes de las dos ramas, la de Google ya ligado y la del correo (`App\Identidad\EntradaConGoogle`);
   - el grupo de `GET /api/cuenta` y `DELETE /api/sesion` se separa del catálogo del territorio;
-  - se mueven a clases de dominio, sin cambiar lo que hacen, `App\Filament\EstadosDelPedido`, `HistorialDelUsuario`, la validación de `EditLavanderia` y de `EditRepartidor`, la regla del rango, la creación del aviso masivo y la de la descarga;
+  - se mueven a clases de dominio, sin cambiar lo que hacen, `App\Filament\EstadosDelPedido`, `HistorialDelUsuario`, la validación de `EditLavanderia` y de `EditRepartidor`, la regla del rango, la creación del aviso masivo y la de la descarga (los nombres del estado ya están en `App\Pedidos\NombresDelEstado`, tarea 1.7, y la regla del rango en `App\Validacion\RangoDeFechas`);
   - `App\Exportacion\Exportacion` asigna el `id_publico` de cada descarga;
   - pruebas en `servidor/tests/Feature/AdministracionEnLaApp/` y, las de la sesión, en `servidor/tests/Feature/Registro/`; cambian las de la autorización que fijaban la regla vieja: `RolPorModuloTest`, `BarridoContraFugasTest` y su apoyo `LlamadasSinEfecto` (autorizacion-E02 y E14).
 - **`movil/`:**

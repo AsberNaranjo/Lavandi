@@ -61,16 +61,22 @@ ADR-0022, decisión 11
 
 - **DADO** la administración con la sesión iniciada en la app
 - **CUANDO** abre el inicio de su módulo
-- **ENTONCES** ve las entradas a Lavanderías, Repartidores, Usuarios, Monitoreo de pedidos, Comisiones, Ingresos,
-  Conciliación y Avisos masivos, en el orden del Módulo D, y después las de Indicadores y Descargas
+- **ENTONCES** ve el título "Administración" y las entradas en dos grupos
+- **Y** en "Gestión", las de Lavanderías, Repartidores, Usuarios, Monitoreo de pedidos, Comisiones, Ingresos,
+  Conciliación y Avisos masivos, en el orden del Módulo D; en "Estado del negocio", las de Indicadores y Descargas
+- **Y** junto a Repartidores, cuántos repartidores están pendientes de alta, y junto a Monitoreo de pedidos, cuántos
+  pedidos activos hay, los mismos que dan esas pantallas (administracion-app-E19 y E28); sin repartidores pendientes,
+  Repartidores no lleva conteo
 - **Y** cada entrada abre su pantalla dentro de la app
-- **Y** abajo está "Cerrar sesión"
+- **Y** abajo, fijo, está "Cerrar sesión"
 - **Y** ningún texto del módulo trae escritos en el código el nombre del producto ni el dominio
 
 Criterio: A43-6
 
 Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #1 a #7); A → `NSV-2026-001-v8.pdf:22:ANEXO A,
-Sección A.5`; D → ADR-0022, decisiones 11 y 17
+Sección A.5`; C → C-248 de `acta-2026-11-20-modelo-y-pasarela.md` (el desarrollo sigue la Propuesta 6 del concilio:
+los grupos y los dos conteos son de sus imágenes 03 y 56, en `mocks/Lavandi - Propuesta 06 - Administracion/`; son
+diseño, no contrato); D → ADR-0022, decisiones 11 y 17
 
 #### Scenario: administracion-app-E04 — Cierra su sesión
 
@@ -209,11 +215,14 @@ Cita: A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3`; D → ADR-0022, de
   sesión acaba de dar de baja
 - **CUANDO** la administración pide el primero, o intenta suspender la segunda
 - **ENTONCES** el servidor responde 404 al primero, sin datos
-- **Y** 409 a la segunda, con el mensaje de la clase de dominio, sin cambiar nada
-- **Y** la app muestra el mensaje y vuelve a consultar la ficha
+- **Y** 409 a la segunda, con el mensaje de la clase de dominio tal cual, sin cambiar nada: "Una lavandería en estado
+  baja no se puede suspender.", con el estado como lo guarda la base
+- **Y** la app muestra ese mensaje arriba de la ficha, sin reescribirlo, y vuelve a consultarla: ya no ofrece ninguna
+  acción de estado
 
 Cita: A → `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3` ("Los cuatro módulos [...] accesibles y funcionales conforme
-a A.3"); D → ADR-0019, decisión 3; D → ADR-0022, decisión 9
+a A.3"); B → `servidor/app/Lavanderias/TransicionNoPermitida.php:16` (el mensaje); C → C-248 (imagen 58 de la
+Propuesta 6); D → ADR-0019, decisión 3; D → ADR-0022, decisión 9
 
 ### Requirement: Gestión de lavanderías en la app
 
@@ -240,19 +249,33 @@ Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #1); D →
 
 #### Scenario: administracion-app-E14 — Editar una lavandería
 
-- **DADO** una lavandería
-- **CUANDO** la administración cambia en la app su nombre, su dirección, su foto, sus servicios y precios, su horario,
-  su descripción o sus fotos, y guarda (`PATCH /api/administracion/lavanderias/{lavanderia}`, en multipart si lleva
-  fotos)
+- **DADO** una lavandería en cualquier estado: pendiente, activa, suspendida o de baja, como en el panel, que ofrece
+  "Editar" en toda lavandería
+- **CUANDO** la administración toca "Editar" en su ficha, cambia su nombre, su descripción, su dirección con su
+  municipio, sus fotos (la primera es la principal), sus servicios y precios o su horario, y toca "Guardar cambios"
+  (`PATCH /api/administracion/lavanderias/{lavanderia}`, en multipart si lleva fotos)
 - **ENTONCES** se guardan con la regla de alta-lavanderias-E13 y E31, y con las validaciones del registro
   (alta-lavanderias-E05 a E10, E25 y E26 a E30, con los mismos bloqueos que esos escenarios tengan)
+- **Y** la edición sigue el orden del formulario del registro de la lavandería: los datos y la dirección, el municipio,
+  las fotos, los servicios y precios, y las ventanas de disponibilidad
+- **Y** las fotos dicen "La primera es la principal. Puede tener hasta N.", con la N del máximo que da el servidor (5
+  por omisión); cada una se puede mover antes o quitar, y se agrega otra con la cámara o la galería
+- **Y** las ventanas dicen "Marca, día por día, las horas en que la lavandería puede recolectar. Cada ventana dura una
+  hora.", con el día en el selector y las horas de ese día para marcarlas
+- **Y** el lavado en seco no se ofrece mientras DD-010 no fije su unidad (alta-lavanderias-E07): la pantalla lo dice
+  en su lugar, sin interruptor
 - **Y** un dato que no las cumple responde 422 con el error de cada campo, la app lo muestra junto a su campo y nada
   cambia
 - **Y** la lavandería ve los datos nuevos en su perfil de la app
 
 Criterio: A43-6
 
-Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #1, "edición"); D → ADR-0022, decisión 9
+Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #1, "edición"); B →
+`servidor/app/Filament/Resources/Lavanderias/Tables/LavanderiasTable.php:44` ("Editar" en toda fila del panel, sin
+condición de estado); B → `movil/src/alta-lavanderias/textos.ts:48` y `:75` (las instrucciones del perfil del socio,
+que hablan de tú; la app de la administración las adapta para hablar de la lavandería), `servidor/config/fotos.php:44`
+(5 fotos por omisión) y `movil/src/alta-lavanderias/formulario.ts:5-7` (el lavado en seco, DD-010); C → C-248
+(imágenes 11, 12, 13, 60 y 61 de la Propuesta 6); D → ADR-0022, decisión 9
 
 #### Scenario: administracion-app-E15 — Suspender una lavandería y levantar la suspensión
 
@@ -274,11 +297,16 @@ Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #1, "suspe
 - **CUANDO** la administración toca "Dar de baja" en su ficha y lo confirma
   (`POST /api/administracion/lavanderias/{lavanderia}/baja`)
 - **ENTONCES** queda de baja con la regla de alta-lavanderias-E17, con sus datos y su historial guardados
+- **Y** la confirmación dice "Dar de baja la lavandería" y "Deja de aparecer a los usuarios y de recibir pedidos. Sus
+  datos y sus pedidos pasados se quedan en la base. La baja no se deshace desde la app.": el texto del panel, con "desde
+  la app" donde el panel dice "desde el panel"
 - **Y** su ficha ya no ofrece ninguna acción de estado, porque ninguna sale de la baja
 
 Criterio: A43-6
 
-Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #1, "baja"); D → ADR-0022, decisión 9
+Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #1, "baja"); B →
+`servidor/app/Filament/Resources/Lavanderias/Actions/AccionesDeEstado.php:32-33` (el texto del panel); C → C-248
+(imagen 57 de la Propuesta 6); D → ADR-0022, decisión 9
 
 #### Scenario: administracion-app-E17 — Dar de alta una lavandería
 
@@ -356,11 +384,16 @@ Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #2, "suspe
 - **CUANDO** la administración da de baja a cada uno desde su ficha y lo confirma
   (`POST /api/administracion/repartidores/{repartidor}/baja`)
 - **ENTONCES** el primero queda de baja con la regla de repartidor-E07 y el segundo con la de repartidor-E31
+- **Y** la confirmación dice "Dar de baja al repartidor" y "Ya no podrá iniciar sesión y se cierran sus sesiones
+  abiertas. Sus entregas completadas se quedan en la base. La baja no se deshace desde la app.": el texto del panel, con
+  "desde la app" donde el panel dice "desde el panel"
 - **Y** sus fichas ya no ofrecen ninguna acción de estado
 
 Criterio: A43-6
 
-Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #2, "baja"); D → ADR-0022, decisión 9
+Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #2, "baja"); B →
+`servidor/app/Filament/Resources/Repartidores/Actions/AccionesDeEstado.php:102-103` (el texto del panel); C → C-248
+(imagen 64 de la Propuesta 6); D → ADR-0022, decisión 9
 
 #### Scenario: administracion-app-E23 — Editar a un repartidor
 
@@ -583,10 +616,14 @@ conciliación con Conekta."); D → ADR-0010, segunda adenda del 2026-11-22; D �
   administracion-E17
 - **Y** sin rango elegido ve el mes en curso hasta hoy, por día, como el panel
 - **Y** cada cifra es la misma que da el panel para ese rango
+- **Y** bajo los pagos confirmados, la pantalla deja el lugar de "Reembolsos y ajustes" (administracion-app-E39) y el
+  de "Comisiones del periodo" (administracion-app-E40), cada uno con "Por confirmar" y su DD (DD-012 y DD-016; DD-020),
+  sin ninguna cifra ni descarga mientras su regla no exista
 
 Criterio: A43-6, A43-7
 
-Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #6, "Ingresos por periodo"); D → ADR-0022, decisión 9
+Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #6, "Ingresos por periodo, comisiones y
+conciliación"); C → C-248 (imagen 31 de la Propuesta 6: los dos lugares en espera); D → ADR-0022, decisión 9
 
 #### Scenario: administracion-app-E38 — Conciliar un periodo
 
@@ -655,12 +692,16 @@ D → ADR-0022, decisiones 9 y 16
   más (FCM simulado)
 - **Y** sin título o sin texto, o con un título de más de 255 caracteres o un texto de más de 1000, el servidor responde
   422 con el error de cada campo, la app lo muestra junto a su campo y no sale nada
+- **Y** sin título, el error de `titulo` dice "Escribe el título."
+- **Y** bajo el título y bajo el texto, la app dice cuántos caracteres lleva de su tope: "30 de 255 caracteres", "43 de
+  1000 caracteres"
 - **Y** si no confirma, no sale nada
 
 Criterio: A43-6
 
-Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #7, "global"); D → ADR-0008; D → ADR-0022,
-decisiones 9 y 16
+Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #7, "global"); C → C-248 (imágenes 37 y 38 de la
+Propuesta 6: el mensaje, con el estilo de `servidor/app/Http/Requests/CambiarPerfilRequest.php:40`, y los
+contadores); D → ADR-0008; D → ADR-0022, decisiones 9 y 16
 
 #### Scenario: administracion-app-E43 — Los avisos enviados
 
