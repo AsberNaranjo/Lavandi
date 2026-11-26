@@ -56,12 +56,12 @@ use Illuminate\Http\Request;
  *          El aviso guardado, con la forma de la lista y "destinatarios": null: sale en cola a todas las cuentas de la
  *          app con un teléfono registrado para avisos, salvo las bloqueadas, sin que la respuesta espere a FCM.
  *          Confirmar que sale a todos los teléfonos registrados es de la app, antes de llamar aquí.
- *     422  { "message": "...", "errors": { "titulo": ["Escribe el título del aviso."] } }
+ *     422  { "message": "...", "errors": { "titulo": ["Escribe el título."] } }
  *          Un error por campo, con los mensajes de CreacionDeAvisoMasivo::mensajes():
- *            titulo   "Escribe el título del aviso."                 falta, llega null, vacío o solo con espacios
+ *            titulo   "Escribe el título."                           falta, llega null, vacío o solo con espacios
  *            titulo   "El título va en texto."                       un número, una lista
  *            titulo   "El título no puede pasar de 255 caracteres."
- *            mensaje  "Escribe el texto del aviso."                  falta, llega null, vacío o solo con espacios
+ *            mensaje  "Escribe el texto."                            falta, llega null, vacío o solo con espacios
  *            mensaje  "El texto del aviso va en texto."              un número, una lista
  *            mensaje  "El texto no puede pasar de 1000 caracteres."
  *          No se guarda nada y no sale nada.

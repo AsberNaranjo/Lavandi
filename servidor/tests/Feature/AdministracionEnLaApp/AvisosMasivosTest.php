@@ -120,7 +120,7 @@ class AvisosMasivosTest extends TestCase
         $this->assertSame(3, $aviso->refresh()->destinatarios);
     }
 
-    #[TestDox('administracion-app-E42: sin título o sin texto, con solo espacios, con un título de más de 255 caracteres o un texto de más de 1000, o sin texto en el campo, responde 422 con el error de cada campo y no guarda ni manda nada')]
+    #[TestDox('administracion-app-E42: sin título o sin texto, con solo espacios, con un título de más de 255 caracteres o un texto de más de 1000, o sin texto en el campo, responde 422 con el error de cada campo y no guarda ni manda nada; sin título, el error de titulo dice "Escribe el título."')]
     public function test_administracion_app_e42_un_aviso_incompleto_o_que_pasa_sus_topes_responde_422_y_no_sale(): void
     {
         $this->simularFcm();
@@ -138,7 +138,8 @@ class AvisosMasivosTest extends TestCase
                 'titulo' => [$mensajes['titulo.required']],
                 'mensaje' => [$mensajes['mensaje.required']],
             ]],
-            'sin título' => [['titulo' => null, 'mensaje' => self::MENSAJE], ['titulo' => [$mensajes['titulo.required']]]],
+            // El texto lo fija la spec (imagen 38 de la Propuesta 6), con el estilo de CambiarPerfilRequest.
+            'sin título' => [['titulo' => null, 'mensaje' => self::MENSAJE], ['titulo' => ['Escribe el título.']]],
             'sin texto' => [['titulo' => self::TITULO], ['mensaje' => [$mensajes['mensaje.required']]]],
             'un título de 256 caracteres' => [
                 ['titulo' => str_repeat('ñ', CreacionDeAvisoMasivo::TOPE_DEL_TITULO + 1), 'mensaje' => self::MENSAJE],

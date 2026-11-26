@@ -49,17 +49,18 @@ final class CreacionDeAvisoMasivo
     }
 
     /**
-     * Los mensajes de las reglas, para pasarlos al validador.
+     * Los mensajes de las reglas, para pasarlos al validador. El de un aviso sin título lo fija administracion-app-E42
+     * ("Escribe el título.", con el estilo de CambiarPerfilRequest: "Escribe tu nombre."), y el del texto lo sigue.
      *
      * @return array<string, string>
      */
     public static function mensajes(): array
     {
         return [
-            'titulo.required' => 'Escribe el título del aviso.',
+            'titulo.required' => 'Escribe el título.',
             'titulo.string' => 'El título va en texto.',
             'titulo.max' => 'El título no puede pasar de '.self::TOPE_DEL_TITULO.' caracteres.',
-            'mensaje.required' => 'Escribe el texto del aviso.',
+            'mensaje.required' => 'Escribe el texto.',
             'mensaje.string' => 'El texto del aviso va en texto.',
             'mensaje.max' => 'El texto no puede pasar de '.self::TOPE_DEL_MENSAJE.' caracteres.',
         ];
