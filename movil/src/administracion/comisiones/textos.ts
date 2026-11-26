@@ -6,7 +6,6 @@
 // que pasan en el teléfono. Ninguno trae el nombre del producto ni el dominio (CLAUDE.md §5; administracion-app-E03), y
 // ninguno trae un porcentaje: los captura EL CLIENTE.
 import { MENSAJES, mensajeGeneral } from '../../acceso/mensajes';
-import { TEXTOS_DEL_RESUMEN } from '../../pedido/textos';
 import type { FallaDeLaAdministracion } from '../api';
 import { TEXTOS_DE_LA_ADMINISTRACION } from '../textos';
 import type { ComisionDeLaLavanderia, PorcentajeGlobal } from './api';
@@ -48,9 +47,9 @@ export const TEXTOS_DE_LAS_COMISIONES = {
   noExiste: 'No existe la lavandería.',
 
   // La comisión de los socios repartidores espera DD-019 (administracion-app-E35): solo su lugar, en ámbar, con la
-  // marca "Por confirmar" del resumen del pedido y su número (design.md, sección 5), sin cifra ni botón.
+  // marca "Por confirmar" del resumen del pedido seguida de su número (design.md, sección 5), sin cifra ni botón.
   comisionDeLosRepartidores: 'Comisión de los socios repartidores',
-  esperaDeLosRepartidores: `${TEXTOS_DEL_RESUMEN.porConfirmar} · DD-019`,
+  decisionDeLosRepartidores: 'DD-019',
 } as const;
 
 const TEXTOS = TEXTOS_DE_LAS_COMISIONES;

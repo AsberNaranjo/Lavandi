@@ -5,12 +5,15 @@
 //
 // El porcentaje se escribe en un formulario dentro de la tarjeta del global o de la lavandería, uno a la vez (imágenes 29
 // y 30 de la Propuesta 06): se abre vacío, sin ningún número propuesto, porque los porcentajes los captura EL CLIENTE. Se
-// manda como se escribió: la regla (de 0 a 100, con a lo más dos decimales) la aplica el servidor. Con un 422, el error
-// de "porcentaje" va junto al campo, el formulario sigue abierto con lo escrito y las comisiones siguen como estaban,
-// porque el vigente no cambió (administracion-app-E34). Quitar el propio pide confirmarlo antes (imagen 68).
+// manda lo que se escribió, solo sin los espacios de los lados, como los quita el servidor: la regla (de 0 a 100, con a
+// lo más dos decimales) la aplica él. Con un 422, el error de "porcentaje" va junto al campo, el formulario sigue abierto
+// con lo escrito y las comisiones siguen como estaban, porque el vigente no cambió (administracion-app-E34). Quitar el
+// propio pide confirmarlo antes (imagen 68).
 //
 // La respuesta de una consulta que ya no es la última (porque la pantalla puso lo que devolvió una acción, o porque dejó
-// de verse) no se pinta. Lo que responde un formulario que ya se cerró solo pone las comisiones, si llegaron.
+// de verse) no se pinta. Con dos acciones en camino, las respuestas pueden llegar en otro orden: la pantalla se queda con
+// la de la acción que se mandó al último, y la de una anterior que llegue después ya no se pinta. Lo que responde un
+// formulario que ya se cerró solo pone las comisiones, si llegaron.
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useApiDeLaAdministracion, type FallaDeLaAdministracion, type ResultadoDeLaAdministracion } from '../api';
@@ -91,6 +94,9 @@ export function useComisiones(): ComisionesDeLaPantalla {
   const abierto = useRef(0);
   // Mientras se quita un propio, otro toque no abre otra confirmación.
   const quitandoAhora = useRef(false);
+  // Cada acción toma un número al mandarse; la pantalla recuerda el de la última cuya respuesta puso.
+  const mandada = useRef(0);
+  const puesta = useRef(0);
 
   // Consulta ya. Devuelve lo que hace al dejar de verse la pantalla: lo que llegue tarde ya no se pinta.
   const consultar = useCallback(() => {
@@ -118,8 +124,13 @@ export function useComisiones(): ComisionesDeLaPantalla {
     consultar();
   }, [consultar]);
 
-  // Las comisiones que devolvió una acción: son las más nuevas, así que una consulta que siga en camino ya no se pinta.
-  const poner = useCallback((nuevas: Comisiones) => {
+  // Las comisiones que devolvió la acción con ese número. Si en pantalla ya están las de una acción mandada después, estas
+  // son viejas y no se ponen; si no, son las más nuevas, así que una consulta que siga en camino ya no se pinta.
+  const poner = useCallback((nuevas: Comisiones, accion: number) => {
+    if (accion < puesta.current) {
+      return;
+    }
+    puesta.current = accion;
     vigente.current++;
     setComisiones(nuevas);
     setFalla(null);
@@ -145,6 +156,7 @@ export function useComisiones(): ComisionesDeLaPantalla {
       return;
     }
     const este = abierto.current;
+    const accion = ++mandada.current;
     const { destino, texto } = formulario;
     setFormulario({ ...formulario, guardando: true, error: undefined, mensaje: undefined });
     const porcentaje = texto.trim();
@@ -154,7 +166,7 @@ export function useComisiones(): ComisionesDeLaPantalla {
         : fijarElPropio(pedir, destino.idPublico, porcentaje);
     void peticion.then((resultado: ResultadoDeLaAdministracion<Comisiones>) => {
       if (resultado.ok) {
-        poner(resultado.datos);
+        poner(resultado.datos, accion);
       }
       if (este !== abierto.current) {
         return;
@@ -188,6 +200,7 @@ export function useComisiones(): ComisionesDeLaPantalla {
         accion: TEXTOS.quitar,
         alConfirmar: () => {
           const { id_publico: idPublico } = lavanderia;
+          const accion = ++mandada.current;
           quitandoAhora.current = true;
           setQuitando(idPublico);
           setFallaAlQuitar(null);
@@ -195,7 +208,7 @@ export function useComisiones(): ComisionesDeLaPantalla {
             quitandoAhora.current = false;
             setQuitando(null);
             if (resultado.ok) {
-              poner(resultado.datos);
+              poner(resultado.datos, accion);
             } else {
               setFallaAlQuitar({ idPublico, mensaje: mensajeDeLasComisiones(resultado) });
             }

@@ -1,7 +1,9 @@
 // Spec: openspec/changes/administracion-en-la-app/specs/administracion-en-la-app/spec.md, requisito "Comisiones en la
 // app": administracion-app-E32 (el porcentaje global y el de cada lavandería), E33 (fijar el global y el propio, y quitar
 // el propio) y E34 (un porcentaje fuera de rango), con E03 (cada entrada abre su pantalla dentro de la app) y E05 (el 401
-// en cada pantalla). Tareas 12.1 y 12.2 de openspec/changes/administracion-en-la-app/tasks.md.
+// en cada pantalla). Tareas 12.1 y 12.2 de openspec/changes/administracion-en-la-app/tasks.md. La comisión de los socios
+// repartidores, administracion-app-E35, está bloqueada por DD-019 (tarea 22.5): aquí solo se prueba que su lugar se ve
+// en ámbar, sin cifra ni botón.
 //
 // El Módulo D #5 pide "Porcentaje de comisión por socio o global." (NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3). Arthur
 // decidió que la administración lo hace en la app (C-247); cómo, lo decide ADR-0022 (decisiones 9 y 11). Las reglas son
@@ -211,18 +213,20 @@ describe('administracion-app-E32: el porcentaje global y el de cada lavandería'
   );
 
   test.each(PLATAFORMAS)(
-    'administracion-app-E32 — (%s) la comisión de los socios repartidores espera DD-019: solo su lugar, en ámbar, sin cifra ni botón',
+    'administracion-app-E32 — (%s) sin ninguna lavandería, "Por lavandería" dice que no hay y la tarjeta del global sigue igual',
     async (plataforma) => {
+      guardarEnElServidor({ global: GLOBAL, lavanderias: [] });
+
       await abrirLasComisiones(plataforma);
 
-      const espera = within(screen.getByTestId('comision-de-los-repartidores'));
-      expect(espera.getAllByText(/.+/).map((texto) => texto.props.children)).toEqual([
-        'Comisión de los socios repartidores',
-        'Por confirmar · DD-019',
-      ]);
-      expect(espera.queryAllByRole('button')).toEqual([]);
-      expect(espera.queryAllByRole('link')).toEqual([]);
-      expect(espera.queryAllByText(/%/)).toEqual([]);
+      expect(tarjetaDelGlobal().getByText('12.50 %')).toBeOnTheScreen();
+      expect(tarjetaDelGlobal().getByText('01/12/2026 12:00 UTC')).toBeOnTheScreen();
+      expect(tarjetaDelGlobal().getByRole('button', { name: 'Fijar porcentaje' })).toBeOnTheScreen();
+      expect(screen.queryAllByTestId(/^comision-[0-9a-z]{26}$/)).toEqual([]);
+      // El aviso va justo debajo del título "Por lavandería".
+      expect(screen.getByRole('header', { name: 'Por lavandería' })).toBeOnTheScreen();
+      const textos = screen.getAllByText(/.+/).map((texto) => texto.props.children as string);
+      expect(textos.indexOf('No hay lavanderías.')).toBe(textos.indexOf('Por lavandería') + 1);
     },
   );
 
@@ -432,6 +436,48 @@ describe('administracion-app-E33: fijar el porcentaje global y el propio, y quit
   );
 
   test.each(PLATAFORMAS)(
+    'administracion-app-E33 — (%s) con dos cambios en camino, la pantalla se queda con la respuesta del último que se mandó, aunque la del primero llegue después',
+    async (plataforma) => {
+      await abrirLasComisiones(plataforma);
+      // El servidor fija el porcentaje en cuanto le llega, pero su respuesta tarda.
+      let soltarLaRespuesta: () => void = () => {};
+      servidor().interceptar = (peticion) => {
+        if (peticion.metodo !== 'PUT') {
+          return undefined;
+        }
+        const contestada = comisiones().manejador(peticion);
+        return new Promise((resolver) => {
+          soltarLaRespuesta = () => resolver(contestada);
+        });
+      };
+
+      await fireEvent.press(enlace('Fijar porcentaje propio', DE_TORREON));
+      await escribirYGuardar('Porcentaje propio', '8.5');
+      await waitFor(() => expect(cambiosMandados(servidor())).toHaveLength(1));
+      // Mientras se guarda, la administración quita el propio de otra lavandería, y esa respuesta llega primero, con los
+      // dos cambios.
+      await fireEvent.press(enlace('Quitar porcentaje propio', DURANGO_CENTRO));
+      await tocar(ultimoDialogo().botones, 'Quitar');
+      await waitFor(() =>
+        expect(textosDe(DURANGO_CENTRO)).toContain('Sin porcentaje propio · le aplica el global: 12.50 %'),
+      );
+
+      // Llega la respuesta del porcentaje, que no trae el propio quitado: el formulario se cierra y la pantalla no la
+      // pinta.
+      await act(async () => {
+        soltarLaRespuesta();
+      });
+
+      await waitFor(() => expect(screen.queryByLabelText('Porcentaje propio')).toBeNull());
+      expect(textosDe(DURANGO_CENTRO)).toContain('Sin porcentaje propio · le aplica el global: 12.50 %');
+      expect(textosDe(DE_TORREON)).toContain('Propio: 8.50 % · le aplica el propio');
+      expect(cambiosMandados(servidor()).map(({ metodo }) => metodo)).toEqual(['PUT', 'DELETE']);
+      expect(comisiones().de(DE_TORREON.id_publico).propio).toBe('8.50');
+      expect(comisiones().de(DURANGO_CENTRO.id_publico).propio).toBeNull();
+    },
+  );
+
+  test.each(PLATAFORMAS)(
     'administracion-app-E33 — (%s) sin conexión al guardar, el campo sigue abierto con lo escrito y el mensaje de la app',
     async (plataforma) => {
       await abrirLasComisiones(plataforma);
@@ -510,6 +556,24 @@ describe('administracion-app-E34: un porcentaje fuera de rango', () => {
       await waitFor(() => expect(tarjetaDelGlobal().getByText('100.00 %')).toBeOnTheScreen());
       expect(screen.queryByText(MENSAJES_DEL_PORCENTAJE.between)).toBeNull();
       expect(screen.queryByLabelText('Porcentaje')).toBeNull();
+    },
+  );
+});
+
+describe('administracion-app-E35 (bloqueado por DD-019): la comisión de los socios repartidores solo tiene su lugar', () => {
+  test.each(PLATAFORMAS)(
+    'administracion-app-E35 — (%s) al final de la pantalla, en ámbar, "Por confirmar · DD-019", sin cifra ni botón',
+    async (plataforma) => {
+      await abrirLasComisiones(plataforma);
+
+      const espera = within(screen.getByTestId('comision-de-los-repartidores'));
+      expect(espera.getAllByText(/.+/).map((texto) => texto.props.children)).toEqual([
+        'Comisión de los socios repartidores',
+        'Por confirmar · DD-019',
+      ]);
+      expect(espera.queryAllByRole('button')).toEqual([]);
+      expect(espera.queryAllByRole('link')).toEqual([]);
+      expect(espera.queryAllByText(/%/)).toEqual([]);
     },
   );
 });

@@ -5,8 +5,9 @@
 // El contrato es el del comentario de servidor/app/Http/Controllers/Api/Administracion/ComisionesController.php, copiado
 // aquí. Las reglas (de 0 a 100, con a lo más dos decimales; cuál le aplica a cada lavandería; qué queda como historial)
 // las aplica el servidor, con la misma clase que el panel, App\Comisiones\PorcentajesDeComision (ADR-0022, decisión 9):
-// la app no valida ni calcula ninguna. Manda el porcentaje como se escribió y muestra lo que el servidor responde, con el
-// error 422 de "porcentaje" junto a su campo. Ningún porcentaje viene de fábrica: los captura EL CLIENTE.
+// la app no valida ni calcula ninguna. Manda el porcentaje que se escribió, solo sin los espacios de los lados, y muestra
+// lo que el servidor responde, con el error 422 de "porcentaje" junto a su campo. Ningún porcentaje viene de fábrica: los
+// captura EL CLIENTE.
 //
 //     GET    comisiones                              El global y el de cada lavandería (administracion-app-E32)
 //     PUT    comisiones/global                       Fija el global: { porcentaje } (administracion-app-E33 y E34)
@@ -92,7 +93,7 @@ export async function consultarComisiones(pedir: PedirALaAdministracion): Promis
 }
 
 /**
- * PUT comisiones/global: fija el porcentaje global, como se escribió (administracion-app-E33). Le aplica a toda
+ * PUT comisiones/global: fija el porcentaje global que se escribió (administracion-app-E33). Le aplica a toda
  * lavandería sin porcentaje propio, de cualquier plaza; el anterior queda como historial. Con un porcentaje que no vale,
  * 422 en "porcentaje" y el vigente no cambia (administracion-app-E34).
  */
@@ -106,7 +107,7 @@ export async function fijarElGlobal(pedir: PedirALaAdministracion, porcentaje: s
 }
 
 /**
- * PUT comisiones/lavanderias/{id_publico}: fija el porcentaje propio de la lavandería, como se escribió
+ * PUT comisiones/lavanderias/{id_publico}: fija el porcentaje propio de la lavandería que se escribió
  * (administracion-app-E33). Le aplica el suyo y no el global; el anterior queda como historial. El 422, como en el
  * global.
  */

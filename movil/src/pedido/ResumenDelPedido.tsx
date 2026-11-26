@@ -89,18 +89,23 @@ function DatoDeDireccion({ etiqueta, direccion, testID }: { etiqueta: string; di
 
 /**
  * Un renglón cuyo contenido todavía no existe: su etiqueta y, en lugar de la cifra o del texto, la marca "Por
- * confirmar", con su borde además del color (design system, reglas transversales). No se inventa ni un monto ni una
- * política (componente 6, punto 2).
+ * confirmar", con su borde además del color (design system, reglas transversales); con dd, seguida del número de la
+ * decisión que espera: "Por confirmar · DD-019". No se inventa ni un monto ni una política (componente 6, punto 2).
  */
-export function RenglonReservado({ etiqueta, testID }: { etiqueta: string; testID: string }) {
+export function RenglonReservado({ etiqueta, dd, testID }: { etiqueta: string; dd?: string; testID: string }) {
   return (
     <View style={estilos.renglon} testID={testID}>
       <Text style={[estilos.etiquetaDelRenglon, letra('cuerpo', 'regular')]}>{etiqueta}</Text>
       <View style={estilos.marca}>
-        <Text style={[estilos.textoDeLaMarca, letra('cuerpo', 'semifuerte')]}>{TEXTOS_DEL_RESUMEN.porConfirmar}</Text>
+        <Text style={[estilos.textoDeLaMarca, letra('cuerpo', 'semifuerte')]}>{marcaDelRenglon(dd)}</Text>
       </View>
     </View>
   );
+}
+
+// La marca del renglón reservado: "Por confirmar" y, si se pasa, el número de la decisión que espera.
+function marcaDelRenglon(dd: string | undefined): string {
+  return dd ? `${TEXTOS_DEL_RESUMEN.porConfirmar} · ${dd}` : TEXTOS_DEL_RESUMEN.porConfirmar;
 }
 
 const estilos = StyleSheet.create({

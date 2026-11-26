@@ -11,7 +11,8 @@
 //   guardar, la pantalla pone las comisiones que responde el servidor (administracion-app-E33); con un 422, su mensaje
 //   va junto al campo y el porcentaje vigente sigue a la vista, sin cambio (administracion-app-E34).
 // - Al final, la comisión de los socios repartidores, que espera DD-019 (administracion-app-E35): solo su lugar, en
-//   ámbar, sin cifra ni botón (design.md, sección 5). La de cada pedido espera DD-020 y DD-013 y no se calcula aquí.
+//   ámbar, con el renglón reservado del resumen del pedido, sin cifra ni botón (design.md, sección 5). La de cada pedido
+//   espera DD-020 y DD-013 y no se calcula aquí.
 //
 // Si las comisiones no llegan, sin escenario propio: los mensajes generales de la app e "Intentar de nuevo", como la
 // imagen 05 de la Propuesta 06. Con un 401, el cliente de la administración ya volvió al inicio de sesión
@@ -39,6 +40,7 @@ import {
 } from '../../src/administracion/comisiones/useComisiones';
 import { RUTA_DEL_INICIO_DE_LA_ADMINISTRACION } from '../../src/administracion/rutas';
 import { useRegresar } from '../../src/navegacion/regresar';
+import { RenglonReservado } from '../../src/pedido/ResumenDelPedido';
 import { Boton } from '../../src/piezas/Boton';
 import { CampoDeTexto } from '../../src/piezas/CampoDeTexto';
 import { Enlace } from '../../src/piezas/Enlace';
@@ -204,16 +206,16 @@ function Formulario({
   );
 }
 
-// El lugar de la comisión de los socios repartidores, que espera DD-019: su nombre y la marca en ámbar, con su borde
-// además del color (design system, reglas transversales), como el renglón reservado del resumen del pedido
-// (src/pedido/ResumenDelPedido.tsx), sin cifra ni botón.
+// El lugar de la comisión de los socios repartidores, que espera DD-019, en su tarjeta: el renglón reservado del
+// resumen del pedido, con su nombre y la marca en ámbar "Por confirmar · DD-019", sin cifra ni botón.
 function EsperaDeLosRepartidores() {
   return (
-    <View style={[estilos.tarjeta, estilos.renglon]} testID="comision-de-los-repartidores">
-      <Text style={[estilos.etiquetaDelRenglon, letra('cuerpo', 'regular')]}>{TEXTOS.comisionDeLosRepartidores}</Text>
-      <View style={estilos.marca}>
-        <Text style={[estilos.textoDeLaMarca, letra('cuerpo', 'semifuerte')]}>{TEXTOS.esperaDeLosRepartidores}</Text>
-      </View>
+    <View style={estilos.tarjeta}>
+      <RenglonReservado
+        testID="comision-de-los-repartidores"
+        etiqueta={TEXTOS.comisionDeLosRepartidores}
+        dd={TEXTOS.decisionDeLosRepartidores}
+      />
     </View>
   );
 }
@@ -289,26 +291,5 @@ const estilos = StyleSheet.create({
   },
   boton: {
     flex: 1,
-  },
-  renglon: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  etiquetaDelRenglon: {
-    flex: 1,
-    color: color.semantico.texto_suave,
-    fontSize: tipografia.escala.cuerpo,
-  },
-  marca: {
-    paddingHorizontal: espaciado[2],
-    paddingVertical: espaciado[1],
-    borderWidth: grosor.control,
-    borderColor: color.estado.atencion,
-    borderRadius: radio.chico,
-  },
-  textoDeLaMarca: {
-    color: color.estado.atencion,
-    fontSize: tipografia.escala.menor,
   },
 });
