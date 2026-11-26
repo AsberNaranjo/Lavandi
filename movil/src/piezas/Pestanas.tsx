@@ -179,10 +179,14 @@ function Desvanecido({ orilla }: { orilla: 'izquierda' | 'derecha' }) {
   );
 }
 
-/** Un color de tokens.json (#RRGGBB) con su transparencia, para el degradado. */
+/** Un color de tokens.json (#RRGGBB) con su transparencia (#RRGGBBAA), para el degradado. */
 function conTransparencia(hexadecimal: string, opacidad: number): string {
-  const [rojo, verde, azul] = [1, 3, 5].map((inicio) => parseInt(hexadecimal.slice(inicio, inicio + 2), 16));
-  return `rgba(${rojo}, ${verde}, ${azul}, ${opacidad})`;
+  // El mismo color del tema con su transparencia en los dos últimos dígitos (#RRGGBBAA), que React Native entiende: así
+  // ningún color se escribe a mano fuera de theme.ts (ADR-0013).
+  const alfa = Math.round(opacidad * 255)
+    .toString(16)
+    .padStart(2, '0');
+  return `${hexadecimal}${alfa}`;
 }
 
 // Del fondo transparente al color del fondo, con los pasos de la maqueta 41: casi entero a la mitad y entero a tres

@@ -21,6 +21,11 @@ import { tema } from '../../src/tema/theme';
 // La primera pantalla tarda más mientras Jest prepara el entorno.
 jest.setTimeout(30_000);
 
+// El que lee el degradado de backgroundImage antes de dibujarlo en el teléfono. React Native no publica sus tipos.
+const { default: processBackgroundImage } = jest.requireActual<{
+  default: (valor: string) => { type: string; colorStops: { color: unknown }[] }[];
+}>('react-native/Libraries/StyleSheet/processBackgroundImage');
+
 const { accesibilidad, color, espaciado } = tema;
 
 // Las cinco categorías del A.5, como las nombra la pantalla de indicadores (ADR-0022, decisión 14).
@@ -191,8 +196,15 @@ describe('administracion-app-E45 (tarea 18.3): las pestañas se desplazan de lad
 
     const derecho = desvanecido('derecho')!;
     const degradado = String(estiloPlano(derecho).backgroundImage);
-    expect(degradado).toMatch(/^linear-gradient\(to right, /);
-    expect(degradado).toContain(color.semantico.fondo);
+    // Del color del fondo transparente, casi entero a la mitad y entero a tres cuartos (maqueta 41), con el color del
+    // tema y su transparencia en #RRGGBBAA: ningún color escrito a mano (ADR-0013).
+    const fondo = color.semantico.fondo;
+    expect(degradado).toBe(`linear-gradient(to right, ${fondo}00, ${fondo}eb 55%, ${fondo} 75%)`);
+    // React Native lo entiende: un degradado lineal con sus tres pasos, ninguno descartado.
+    const [procesado] = processBackgroundImage(degradado);
+    expect(procesado).toMatchObject({ type: 'linear-gradient' });
+    expect(procesado.colorStops).toHaveLength(3);
+    expect(procesado.colorStops.every(({ color: paso }) => paso != null)).toBe(true);
     expect(derecho.props.accessibilityElementsHidden).toBe(true);
     expect(derecho.props.importantForAccessibility).toBe('no-hide-descendants');
   });
