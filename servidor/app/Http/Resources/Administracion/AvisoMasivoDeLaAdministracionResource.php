@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Administracion;
 
 use App\Models\AvisoMasivo;
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *
  * @mixin AvisoMasivo
  */
-class AvisoMasivoResource extends JsonResource
+class AvisoMasivoDeLaAdministracionResource extends JsonResource
 {
     /**
      * @return array<string, mixed>

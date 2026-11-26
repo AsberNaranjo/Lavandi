@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\Administracion;
 use App\Autorizacion\Autorizacion;
 use App\Avisos\CreacionDeAvisoMasivo;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\AvisoMasivoResource;
+use App\Http\Resources\Administracion\AvisoMasivoDeLaAdministracionResource;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -80,7 +80,7 @@ class AvisosMasivosController extends Controller
             ->orderByDesc('id_avisos_masivos')
             ->get();
 
-        return response()->json(['avisos' => AvisoMasivoResource::collection($avisos)]);
+        return response()->json(['avisos' => AvisoMasivoDeLaAdministracionResource::collection($avisos)]);
     }
 
     public function crear(Request $peticion, CreacionDeAvisoMasivo $creacion): JsonResponse
@@ -92,6 +92,6 @@ class AvisosMasivosController extends Controller
 
         $aviso = $creacion->crear($cuenta, $peticion->input('titulo'), $peticion->input('mensaje'));
 
-        return response()->json(['aviso' => new AvisoMasivoResource($aviso)], 201);
+        return response()->json(['aviso' => new AvisoMasivoDeLaAdministracionResource($aviso)], 201);
     }
 }
