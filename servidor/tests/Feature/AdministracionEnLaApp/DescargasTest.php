@@ -478,7 +478,7 @@ class DescargasTest extends TestCase
             ->assertJsonPath('descarga.archivos.csv', 'pedidos-totales-2026-12-01-al-2026-12-05.csv');
     }
 
-    #[TestDox('administracion-app-E61:con una colonia con acento y eñe, otra capturada como "=1+1" y una cifra negativa, el CSV y el XLSX que baja la app son los que baja el panel para el mismo reporte y el mismo rango, y cumplen exportacion-E07, E08 y E09')]
+    #[TestDox('administracion-app-E61: con una colonia con acento y eñe, otra capturada como "=1+1" y una cifra negativa, el CSV y el XLSX que baja la app son los que baja el panel para el mismo reporte y el mismo rango, y cumplen exportacion-E07, E08 y E09')]
     public function test_administracion_app_e61_el_archivo_es_el_del_panel(): void
     {
         // El monto promedio baja de 300 a 200: la diferencia es -100.00.
