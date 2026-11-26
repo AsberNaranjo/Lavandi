@@ -227,6 +227,51 @@ class ComisionesTest extends TestCase
         $this->assertSame($antes, $this->fotoDeLaBase());
     }
 
+    #[TestDox('administracion-app-E33: el ULID de la lavandería escrito en mayúsculas es el mismo: PUT fija su porcentaje propio y DELETE lo quita, y las demás lavanderías no cambian')]
+    public function test_administracion_app_e33_el_ulid_de_la_lavanderia_en_mayusculas(): void
+    {
+        $this->porcentajes()->fijarGlobal('10');
+        $this->travelTo(CarbonImmutable::parse('2026-12-02 12:00:00', 'UTC'));
+        $enMayusculas = self::COMISIONES.'/lavanderias/'.Str::upper($this->primera->id_publico);
+        $this->assertNotSame($this->primera->id_publico, Str::upper($this->primera->id_publico));
+
+        $this->llamarConToken($this->token, 'PUT', $enMayusculas, ['porcentaje' => '6.5'])
+            ->assertOk()
+            ->assertJsonPath('lavanderias.0', $this->fila($this->primera, $this->plazaUno, propio: '6.50', aplica: ['porcentaje' => '6.50', 'origen' => 'propio']));
+
+        $this->assertSame('6.50', $this->porcentajes()->propioVigente($this->primera)?->porcentaje);
+        $this->assertNull($this->porcentajes()->propioVigente($this->segunda));
+        $this->assertNull($this->porcentajes()->propioVigente($this->tercera));
+
+        $this->travelTo(CarbonImmutable::parse('2026-12-03 12:00:00', 'UTC'));
+        $this->llamarConToken($this->token, 'DELETE', $enMayusculas)
+            ->assertOk()
+            ->assertJsonPath('lavanderias.0', $this->fila($this->primera, $this->plazaUno, propio: null, aplica: ['porcentaje' => '10.00', 'origen' => 'global']));
+
+        $this->assertNull($this->porcentajes()->propioVigente($this->primera));
+    }
+
+    #[TestDox('administracion-app-E11: el porcentaje va en el cuerpo: uno que llega solo en la consulta (?porcentaje=) no cuenta y responde 422 con el error que da PorcentajesDeComision sin porcentaje, "Escribe el porcentaje.", en el global y en el propio, y el vigente no cambia')]
+    public function test_administracion_app_e11_el_porcentaje_solo_en_la_consulta_no_cuenta(): void
+    {
+        $this->porcentajes()->fijarGlobal('10');
+        $this->porcentajes()->fijarPropio($this->primera, '8');
+        $antes = $this->fotoDeLaBase();
+        $this->travelTo(CarbonImmutable::parse('2026-12-02 12:00:00', 'UTC'));
+        $sinPorcentaje = $this->erroresDeLasComisiones(null);
+        $this->assertSame(['porcentaje' => ['Escribe el porcentaje.']], $sinPorcentaje);
+
+        foreach ([self::GLOBAL, self::COMISIONES.'/lavanderias/'.$this->primera->id_publico] as $url) {
+            $this->llamarConToken($this->token, 'PUT', $url.'?porcentaje=7')
+                ->assertUnprocessable()
+                ->assertExactJson(['message' => 'Escribe el porcentaje.', 'errors' => $sinPorcentaje]);
+        }
+
+        $this->assertSame($antes, $this->fotoDeLaBase());
+        $this->assertSame('10.00', $this->porcentajes()->globalVigente()?->porcentaje);
+        $this->assertSame('8.00', $this->porcentajes()->propioVigente($this->primera)?->porcentaje);
+    }
+
     #[TestDox('administracion-app-E34: con un porcentaje vigente, uno menor que 0 o mayor que 100 responde 422 con el mensaje de administracion-E13 en porcentaje, en el global y en el propio, y el vigente no cambia')]
     public function test_administracion_app_e34_un_porcentaje_fuera_de_rango(): void
     {

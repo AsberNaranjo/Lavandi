@@ -64,7 +64,8 @@ use Illuminate\Support\Str;
  *     PUT /api/administracion/comisiones/global              Fija el porcentaje global (administracion-app-E33, con la
  *                                                            regla de administracion-E11)
  *
- *       porcentaje     obligatorio: de 0 a 100, con a lo más dos decimales, como "12.5" o 12.5
+ *       porcentaje     obligatorio: de 0 a 100, con a lo más dos decimales, como "12.5" o 12.5. Va en el cuerpo: uno
+ *                      en la consulta (?porcentaje=) no cuenta y responde 422 con "Escribe el porcentaje."
  *
  *     Le aplica a toda lavandería sin porcentaje propio, de cualquier plaza. El vigente se cierra en este instante y
  *     queda como historial.
@@ -81,7 +82,7 @@ use Illuminate\Support\Str;
  *                                                                     (administracion-app-E33, con la regla de
  *                                                                     administracion-E12)
  *
- *       porcentaje     obligatorio, como en el global
+ *       porcentaje     obligatorio y en el cuerpo, como en el global
  *
  *     Le aplica el suyo y no el global. El propio vigente se cierra en este instante y queda como historial.
  *
@@ -123,7 +124,7 @@ class ComisionesController extends Controller
 
         abort_unless($this->autorizacion->puedeFijarLaComisionGlobal($cuenta), 403, 'Esta cuenta no tiene acceso.');
 
-        $this->porcentajes->fijarGlobal($peticion->input('porcentaje'));
+        $this->porcentajes->fijarGlobal(self::porcentaje($peticion));
 
         return $this->comisiones($cuenta);
     }
@@ -135,7 +136,7 @@ class ComisionesController extends Controller
     {
         $cuenta = self::cuenta($peticion);
 
-        $this->porcentajes->fijarPropio($this->delPanel($cuenta, $lavanderia), $peticion->input('porcentaje'));
+        $this->porcentajes->fijarPropio($this->delPanel($cuenta, $lavanderia), self::porcentaje($peticion));
 
         return $this->comisiones($cuenta);
     }
@@ -163,17 +164,19 @@ class ComisionesController extends Controller
             ->orderBy('id_lavanderias')
             ->get()
             ->map(function (Lavanderia $lavanderia): array {
+                // Una sola vez por lavandería: queAplica() da el propio vigente si lo tiene, y si no, el global.
                 $aplica = $this->porcentajes->queAplica($lavanderia);
+                // De dónde sale, como lo dice el panel: el propio lleva su lavandería; el global, ninguna.
+                $esPropio = $aplica?->id_lavanderias !== null;
 
                 return [
                     'id_publico' => $lavanderia->id_publico,
                     'nombre' => $lavanderia->nombre,
                     'plaza' => ['nombre' => $lavanderia->plaza->nombre],
-                    'propio' => $this->porcentajes->propioVigente($lavanderia)?->porcentaje,
+                    'propio' => $esPropio ? $aplica->porcentaje : null,
                     'aplica' => $aplica === null ? null : [
                         'porcentaje' => $aplica->porcentaje,
-                        // De dónde sale, como lo dice el panel: el propio lleva su lavandería; el global, ninguna.
-                        'origen' => $aplica->id_lavanderias === null ? 'global' : 'propio',
+                        'origen' => $esPropio ? 'propio' : 'global',
                     ],
                 ];
             });
@@ -193,14 +196,25 @@ class ComisionesController extends Controller
      */
     private function delPanel(Usuario $cuenta, string $lavanderia): Lavanderia
     {
-        $encontrada = $this->autorizacion->lavanderiasDelPanel($cuenta)
-            // HasUlids guarda el ULID en minúsculas.
-            ->where('id_publico', Str::lower($lavanderia))
-            ->first();
+        $encontrada = Str::isUlid($lavanderia)
+            ? $this->autorizacion->lavanderiasDelPanel($cuenta)
+                // HasUlids guarda el ULID en minúsculas.
+                ->where('id_publico', Str::lower($lavanderia))
+                ->first()
+            : null;
 
         abort_if($encontrada === null, 404, 'No existe la lavandería.');
 
         return $encontrada;
+    }
+
+    /**
+     * El porcentaje, solo del cuerpo (JSON o formulario): uno que llega en la consulta no cuenta, para que no termine
+     * en la URL ni en las bitácoras.
+     */
+    private static function porcentaje(Request $peticion): mixed
+    {
+        return $peticion->post('porcentaje');
     }
 
     private static function cuenta(Request $peticion): Usuario
