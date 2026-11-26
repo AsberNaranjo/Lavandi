@@ -361,9 +361,10 @@ Fallas que una maqueta no puede cerrar, y líneas que hay que escribir en `desig
 3. **«Editar» en una lavandería dada de baja:** el panel lo permite y E14 no distingue estados, pero ningún escenario
    lo dice con todas sus letras. Hay que agregar a E14 «en cualquier estado, también de baja, como el panel», o
    preguntarlo, antes de construir la ficha.
-4. **El mensaje de «falta el título» del aviso** (38) es provisional: lo fija el request de `POST avisos-masivos`,
-   que todavía no existe, con el estilo de `CambiarPerfilRequest` («Escribe tu nombre.»). El contador bajo el campo es
-   un texto nuevo de la app, no una pieza: sale de los topes de E42.
+4. **El mensaje de «falta el título» del aviso** (38) ya no es provisional: lo fija administracion-app-E42 («Escribe
+   el título.», con el estilo de `CambiarPerfilRequest`: «Escribe tu nombre.») y lo da
+   `CreacionDeAvisoMasivo::mensajes()` (`CreacionDeAvisoMasivo.php:64`), con la que `POST avisos-masivos` crea el
+   aviso. El contador bajo el campo es un texto nuevo de la app, no una pieza: sale de los topes de E42.
 5. **El desvanecido de la fila de pestañas:** la tarea de `design.md` que le da a `Pestanas` el desplazamiento de lado
    tiene que dibujarlo como en 41 y 46 (64 px; la fila al principio o al final, nunca a la mitad), con el degradado de
    fondo de React Native, sin librería, si la versión de la app lo dibuja; si no, con el margen y la pestaña asomada. Su
@@ -376,6 +377,11 @@ Fallas que una maqueta no puede cerrar, y líneas que hay que escribir en `desig
 8. **Los textos adaptados a la app** (57, 60, 61 y 64; ver «Datos») y el mensaje del 409 (58), que es el de
    `TransicionNoPermitida` con el estado como lo guarda la base («en estado baja»): si se quiere otro, cambia la clase
    de dominio, y con ella el panel.
+9. **Quién mandó un aviso que mandó otra cuenta de administración** (36, E43): los tres avisos de 36 son de la cuenta
+   de la sesión (`admin@prueba.test`), y `GET avisos-masivos` solo dice si lo mandó esa cuenta
+   (`enviado_por_esta_cuenta`), sin el correo, el nombre ni la llave de la otra, por el delta de autorizacion-E14. El
+   texto del aviso de otra cuenta no lo fijan E43 ni la imagen 36: lo decide Arthur antes de la tarea 16.1, y con él si
+   el nombre de esa cuenta cuenta como ajeno.
 
 ## Revisión hecha
 

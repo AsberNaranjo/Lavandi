@@ -282,7 +282,8 @@ Resumen. El detalle de cada fila va después.
   administración no sale en ninguna respuesta de `/api/administracion` (delta de autorizacion-E14): la ruta dice si lo
   mandó la cuenta de la sesión (`enviado_por_esta_cuenta`) y no trae el correo, el nombre ni la llave de quien lo
   mandó. La app pone, en el aviso propio, el correo de la cuenta, que ya tiene de `GET /api/cuenta` (como la imagen
-  36); en el de otra cuenta, "Otra cuenta de administración", con las palabras de autorizacion-E14.
+  36). El texto del aviso que mandó otra cuenta no lo fijan E43 ni la imagen 36: lo decide Arthur antes de la tarea
+  16.1 (`mocks/Lavandi - Propuesta 06 - Administracion/NOTAS.md`, «Lo que queda abierto», punto 9).
 - **Clases de dominio:** `Autorizacion::avisosMasivosDelPanel()` y `puedeMandarAvisosMasivos()`; la creación movida
   desde `CreateAvisoMasivo` (sección 3); `App\Avisos\MandarAvisoMasivo`, en cola.
 - **Pantallas:** la lista y "Escribir aviso", con su confirmación: sale a todos los teléfonos registrados (imágenes 36

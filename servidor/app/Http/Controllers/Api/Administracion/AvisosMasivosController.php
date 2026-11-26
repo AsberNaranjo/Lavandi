@@ -35,11 +35,10 @@ use Illuminate\Http\Request;
  *                "titulo": "Mantenimiento",
  *                "mensaje": "La app no estará disponible el domingo.",
  *                "enviado_en": "2027-03-15T09:05:00Z",     cuándo lo mandaron, en UTC
- *                "enviado_por_esta_cuenta": true,          quién lo mandó: true si fue la cuenta de la sesión, y la app
- *                                                          pone su correo, el de GET /api/cuenta; false si fue otra
- *                                                          cuenta de administración, cuyo correo no sale aquí, y la app
- *                                                          dice "Otra cuenta de administración"
- *                "destinatarios": 3                        a cuántos teléfonos salió; null mientras sigue en la cola,
+ *                "enviado_por_esta_cuenta": true,          quién lo mandó: true si fue la cuenta de la sesión, cuyo
+ *                                                          correo es el de GET /api/cuenta; false si fue otra cuenta
+ *                                                          de administración, cuyo correo, nombre y llave no salen aquí
+ *                "destinatarios": 3                       a cuántos teléfonos salió; null mientras sigue en la cola,
  *              }                                           y la app dice "En cola"
  *            ]
  *          }
