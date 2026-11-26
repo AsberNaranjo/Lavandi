@@ -409,7 +409,9 @@ abierta 6:
 - **Qué crea:** en una transacción, la cuenta con el correo normalizado, la contraseña cifrada con `Hash::make`, como
   `App\Identidad\AltaDeCuenta` (registro-E05), y solo el rol de administración. Nace activa. Con ella entra al panel
   (autorizacion-E03) y, si inicia sesión en la app con su correo y su contraseña, recibe 403 sin token (registro-E33).
-  Por Google todavía recibe token y, si su Google no estaba ligado, se le anula la contraseña, hasta la tarea 6.2. Qué
+  Por Google todavía recibe token y, si su Google no estaba ligado, se le anula la contraseña, hasta la tarea 6.2.
+  Desde el lote 0 de `administracion-en-la-app` ya no es así: con su contraseña recibe su token de administración
+  (tarea 1.1), y por Google, 422 sin token y sin tocar su cuenta (tarea 1.4, que cierra la 6.2). Qué
   puede hacer la cuenta lo decide después `App\Autorizacion\Autorizacion` (ADR-0019); quien corre el comando ya tiene la
   terminal del servidor.
 - **Corre en cualquier entorno, también en producción:** no lleva la guarda de solo-local de `CuentasDeDesarrolloSeeder`,
@@ -443,13 +445,18 @@ abierta 6:
   llega por http con `solo_https` encendido. Con una compilación o un proxy mal configurados, cualquier cuenta vería el
   aviso de la administración y "Abrir el panel" en vez de "Algo salió mal". Es el mismo criterio que ya sigue
   `ProveedorDeSesion` con el 403 de `GET /api/cuenta`, y solo pasa con una mala configuración. Se queda como riesgo
-  conocido; si se quiere distinguir, el servidor tendría que mandar un motivo propio en ese 403.
+  conocido; si se quiere distinguir, el servidor tendría que mandar un motivo propio en ese 403. Desde la tarea 2.1 de
+  `administracion-en-la-app`, ese aviso ya no menciona el panel ni ofrece abrirlo: la cuenta vería "Esta cuenta no tiene
+  acceso a la app." (`movil/src/acceso/mensajes.ts:14`).
 
 ## Open Questions
 
 1. **Qué entra en la vista reducida de administración de la app** (C-140). Pregunta para Arthur; no se diseña aquí.
    **Resuelta** por el concilio del 2026-11-24, por delegación de Arthur (C-245; `acta-2026-11-20-modelo-y-pasarela.md`,
-   decisión 56, que complementa la 31), 3 de 3, con la opción b, la mínima (administracion-E25, tareas 6.1 y 6.2):
+   decisión 56, que complementa la 31), 3 de 3, con la opción b, la mínima (administracion-E25, tareas 6.1 y 6.2).
+   **Reemplazada después** por C-247 (decisión 69): la administración inicia sesión en la app y hace ahí todo el Módulo
+   D (`openspec/changes/administracion-en-la-app/`; ADR-0022). Lo de abajo es la respuesta de entonces, y sus citas son
+   del código de `9f6b7e5`:
    - Una cuenta de administración que inicia sesión en la app no recibe token: el 403 de `POST /api/sesion`
      (registro-E33) no cambia en el servidor, y con esa respuesta la app no guarda nada.
    - **Hueco, hasta la tarea 6.2:** por Google el servidor sí le da token. `SesionConGoogleController` y

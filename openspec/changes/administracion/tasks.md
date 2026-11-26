@@ -43,8 +43,10 @@ de S-006, banda media: S = 2 h, M = 5 h.
 
 ## 6. La administración en la app (movil/ y servidor/)
 
-- [x] 6.1 administracion-E25: el aviso de la cuenta de administración con el botón que abre el panel en expo-web-browser — test: `movil/__tests__/administracion/abrir-el-panel.test.tsx` — tamaño S
-- [ ] 6.2 administracion-E25 y registro-E33: POST /api/sesion/google responde 403 sin token a una cuenta de administración — test: `servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php` — tamaño S
+- [x] 6.1 administracion-E25: el aviso de la cuenta de administración con el botón que abre el panel en expo-web-browser — test: `movil/__tests__/administracion/abrir-el-panel.test.tsx` — tamaño S. **La reemplaza la tarea 2.1 de `administracion-en-la-app`** (C-247; decisión 69 de `acta-2026-11-20-modelo-y-pasarela.md`): el aviso, el botón `BotonDelPanel` y `EXPO_PUBLIC_PANEL_URL` se quitaron, y la prueba la reemplaza `movil/__tests__/administracion/entrada.test.tsx`
+- [x] 6.2 administracion-E25 y registro-E33: POST /api/sesion/google responde 403 sin token a una cuenta de administración — test: `servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php` — tamaño S. **La cierra la tarea 1.4 de `administracion-en-la-app`, con 422 en lugar de 403:** `POST /api/sesion/google` responde 422 en `id_token` con "La administración entra con su correo y su contraseña.", sin token, sin ligar nada y sin anular la contraseña ni borrar los tokens, tenga o no Google ligado (administracion-app-E08; ADR-0022, decisión 5) — test: `servidor/tests/Feature/Registro/GoogleTest.php`. Los tokens que la administración ya recibió así no abren nada y se borran cuando esa cuenta inicia sesión con su contraseña (tarea 1.1 de `administracion-en-la-app`; ADR-0022, decisión 4)
+
+Lo que sigue es la nota de cuando se planeó la 6.2. Sus citas con número de línea son del código de `9f6b7e5`.
 
 La 6.2 vive en `servidor/`. Hoy `POST /api/sesion/google` no pregunta a `Autorizacion::usaLaApp()` y le da token a la
 cuenta de administración; si su Google no estaba ligado, `EntradaConGoogle` además le anula la contraseña y le borra
