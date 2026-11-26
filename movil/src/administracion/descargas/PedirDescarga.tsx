@@ -59,9 +59,12 @@ import { useGuardarElArchivo } from './useGuardarElArchivo';
 interface Propiedades {
   /** El reporte que se descarga: uno de los doce códigos del contrato. */
   reporte: CodigoDelReporte;
-  /** El rango de la pantalla, AAAA-MM-DD, los dos días incluidos: el que se ofrece por omisión. */
-  desde: string;
-  hasta: string;
+  /**
+   * El rango de la pantalla, AAAA-MM-DD, los dos días incluidos: el que se ofrece por omisión. Con null no hay rango que
+   * ofrecer, como en la descarga que no se pudo generar y cuyo rango no dio el servidor: el campo empieza vacío.
+   */
+  desde: string | null;
+  hasta: string | null;
   /** La granularidad de la pantalla. Sin ella, el reporte no la lleva, como la conciliación, y no se pregunta. */
   granularidad?: Granularidad;
   /** "Cancelar" antes de pedirla: la pantalla cierra la pieza. */
@@ -76,7 +79,10 @@ const PESTANAS_DE_LA_GRANULARIDAD = GRANULARIDADES.map((clave) => ({ clave, text
 
 export function PedirDescarga({ reporte, desde, hasta, granularidad, alCancelar, alPedir }: Propiedades) {
   const pedir = useApiDeLaAdministracion();
-  const [escrito, setEscrito] = useState({ desde: fechaEnElCampo(desde), hasta: fechaEnElCampo(hasta) });
+  const [escrito, setEscrito] = useState({
+    desde: desde ? fechaEnElCampo(desde) : '',
+    hasta: hasta ? fechaEnElCampo(hasta) : '',
+  });
   const [elegida, setElegida] = useState<Granularidad | undefined>(granularidad);
   const [errores, setErrores] = useState<Partial<Record<Campo, string>>>({});
   const [mensaje, setMensaje] = useState<string | undefined>(undefined);

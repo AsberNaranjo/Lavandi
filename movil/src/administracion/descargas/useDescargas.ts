@@ -4,10 +4,11 @@
 // la suya cada 5 segundos (useEsperaDeLaDescarga) y la pone al día aquí con actualizar(). La que se pide otra vez desde
 // una tarjeta entra al principio con agregar(), como la más nueva. Con la lista llegan los días que vive cada descarga.
 //
-// Mientras llega la nueva, se queda la que había; si llegara una respuesta después de salir de la pantalla, no se pinta.
-// Con un 401, el cliente del módulo cierra la sesión (administracion-app-E05).
+// Mientras llega la nueva, se queda la que había. La respuesta de una consulta que ya no es la última (porque salió otra
+// con "Intentar de nuevo" o porque la pantalla dejó de verse) no se pinta. Con un 401, el cliente del módulo cierra la
+// sesión (administracion-app-E05).
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { useApiDeLaAdministracion, type FallaDeLaAdministracion } from '../api';
 import { consultarLasDescargas, type Descarga } from './api';
@@ -23,6 +24,8 @@ export interface DescargasDeLaCuenta {
   actualizar(descarga: Descarga): void;
   /** Pone al principio de la lista una descarga recién pedida, la más nueva. */
   agregar(descarga: Descarga): void;
+  /** Consulta ya, con "Intentar de nuevo". */
+  consultarDeNuevo(): void;
 }
 
 export function useDescargas(): DescargasDeLaCuenta {
@@ -30,27 +33,35 @@ export function useDescargas(): DescargasDeLaCuenta {
   const [descargas, setDescargas] = useState<Descarga[] | null>(null);
   const [diasDeVida, setDiasDeVida] = useState<number | null>(null);
   const [falla, setFalla] = useState<FallaDeLaAdministracion | null>(null);
+  // La consulta vigente: cada consulta y cada salida de la pantalla toman un número nuevo.
+  const vigente = useRef(0);
 
-  useFocusEffect(
-    useCallback(() => {
-      let vigente = true;
-      consultarLasDescargas(pedir).then((resultado) => {
-        if (!vigente) {
-          return;
-        }
-        if (resultado.ok) {
-          setDescargas(resultado.datos.descargas);
-          setDiasDeVida(resultado.datos.dias_de_vida);
-          setFalla(null);
-        } else if (resultado.motivo !== 'sin-sesion') {
-          setFalla(resultado);
-        }
-      });
-      return () => {
-        vigente = false;
-      };
-    }, [pedir]),
-  );
+  // Consulta ya. Devuelve lo que hace al dejar de verse la pantalla: lo que llegue tarde ya no se pinta.
+  const consultarYa = useCallback(() => {
+    const esta = ++vigente.current;
+    void consultarLasDescargas(pedir).then((resultado) => {
+      if (esta !== vigente.current) {
+        return;
+      }
+      if (resultado.ok) {
+        setDescargas(resultado.datos.descargas);
+        setDiasDeVida(resultado.datos.dias_de_vida);
+        setFalla(null);
+      } else if (resultado.motivo !== 'sin-sesion') {
+        setFalla(resultado);
+      }
+    });
+    return () => {
+      vigente.current++;
+    };
+  }, [pedir]);
+
+  useFocusEffect(consultarYa);
+
+  const consultarDeNuevo = useCallback(() => {
+    setFalla(null);
+    consultarYa();
+  }, [consultarYa]);
 
   const actualizar = useCallback((descarga: Descarga) => {
     setDescargas((anteriores) =>
@@ -65,5 +76,5 @@ export function useDescargas(): DescargasDeLaCuenta {
     ]);
   }, []);
 
-  return { descargas, diasDeVida, falla, actualizar, agregar };
+  return { descargas, diasDeVida, falla, actualizar, agregar, consultarDeNuevo };
 }

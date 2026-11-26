@@ -8,7 +8,9 @@
 // reporte y el mismo rango; la nueva entra al principio de la lista (alPedirOtra):
 // - la de la conciliación, que no lleva granularidad, se pide en cuanto se toca, como en la imagen 54;
 // - las demás abren la pieza de la descarga con su rango, para elegir "Ver por" antes de pedirla, con la del panel por
-//   omisión: la descarga no trae su granularidad, porque el servidor no la guarda (ADR-0022, decisión 15).
+//   omisión: la descarga no trae su granularidad, porque el servidor no la guarda (ADR-0022, decisión 15);
+// - si el servidor no dio su rango (desde y hasta en null: no lo pudo leer del nombre del archivo), la pieza se abre con
+//   los dos campos vacíos, para escribirlo, también en la conciliación.
 //
 // Por lo mismo, el renglón del rango no dice la granularidad, como "por semana" en la imagen 54: espera la respuesta que
 // anota design.md, sección 4, "Descargas en CSV y Excel".
@@ -30,7 +32,13 @@ import {
 } from './api';
 import { BotonesParaGuardar } from './BotonesParaGuardar';
 import { PedirDescarga } from './PedirDescarga';
-import { mensajeDeLaFalla, pedidaEnTexto, rangoEnTexto, TEXTOS_DE_LAS_DESCARGAS as TEXTOS } from './textos';
+import {
+  mensajeDeLaFalla,
+  nombreDeLaDescarga,
+  pedidaEnTexto,
+  rangoEnTexto,
+  TEXTOS_DE_LAS_DESCARGAS as TEXTOS,
+} from './textos';
 import { useEsperaDeLaDescarga } from './useEsperaDeLaDescarga';
 import type { GuardadoDeArchivos } from './useGuardarElArchivo';
 
@@ -62,14 +70,15 @@ export function TarjetaDeDescarga({ descarga, alCambiar, alPedirOtra, archivo }:
   const yaNoExiste = fallaDeLaEspera?.motivo === 'no-existe';
   const falla = fallaDeLaEspera ? mensajeDeLaFalla(fallaDeLaEspera) : (archivo.fallaDe(descarga) ?? mensaje);
 
-  async function pedirlaOtraVez(desdeDelArchivo: string, hastaDelArchivo: string) {
-    if (reporte !== REPORTE_SIN_GRANULARIDAD) {
+  async function pedirlaOtraVez() {
+    // Con granularidad que elegir, o sin el rango que dio el servidor, se abre la pieza de la descarga.
+    if (reporte !== REPORTE_SIN_GRANULARIDAD || !desde || !hasta) {
       setEligiendo(true);
       return;
     }
     setPidiendo(true);
     setMensaje(undefined);
-    const resultado = await pedirLaDescarga(pedir, { reporte, desde: desdeDelArchivo, hasta: hastaDelArchivo });
+    const resultado = await pedirLaDescarga(pedir, { reporte, desde, hasta });
     setPidiendo(false);
     if (resultado.ok) {
       alPedirOtra(resultado.datos.descarga);
@@ -84,7 +93,7 @@ export function TarjetaDeDescarga({ descarga, alCambiar, alPedirOtra, archivo }:
   return (
     <View style={estilos.tarjeta} testID={`descarga-${descarga.id_publico}`}>
       <View style={estilos.cabecera}>
-        <Text style={[estilos.nombre, letra('cuerpo', 'semifuerte')]}>{descarga.titulo}</Text>
+        <Text style={[estilos.nombre, letra('cuerpo', 'semifuerte')]}>{nombreDeLaDescarga(descarga)}</Text>
         <InsigniaDeEstado
           codigo={descarga.estado}
           nombre={TEXTOS.estados[descarga.estado]}
@@ -103,13 +112,13 @@ export function TarjetaDeDescarga({ descarga, alCambiar, alPedirOtra, archivo }:
         <Text style={[estilos.suave, letra('cuerpo', 'regular')]}>{TEXTOS.seRevisa}</Text>
       ) : null}
       {descarga.estado === 'lista' ? <BotonesParaGuardar descarga={descarga} archivo={archivo} /> : null}
-      {descarga.estado === 'no_se_pudo' && desde && hasta ? (
+      {descarga.estado === 'no_se_pudo' ? (
         eligiendo ? (
           <PedirDescarga
             reporte={reporte}
             desde={desde}
             hasta={hasta}
-            granularidad={GRANULARIDAD_POR_OMISION}
+            granularidad={reporte === REPORTE_SIN_GRANULARIDAD ? undefined : GRANULARIDAD_POR_OMISION}
             alCancelar={() => setEligiendo(false)}
             alPedir={(nueva) => {
               setEligiendo(false);
@@ -118,7 +127,7 @@ export function TarjetaDeDescarga({ descarga, alCambiar, alPedirOtra, archivo }:
           />
         ) : (
           <View style={estilos.boton}>
-            <Boton variante="secundario" ocupado={pidiendo} onPress={() => void pedirlaOtraVez(desde, hasta)}>
+            <Boton variante="secundario" ocupado={pidiendo} onPress={() => void pedirlaOtraVez()}>
               {TEXTOS.pedirlaOtraVez}
             </Boton>
           </View>

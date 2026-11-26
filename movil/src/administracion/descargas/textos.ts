@@ -6,7 +6,7 @@ import { MENSAJES } from '../../acceso/mensajes';
 import { TEXTOS_DEL_HISTORIAL } from '../../historial/textos';
 import type { FallaDeLaAdministracion } from '../api';
 import { TEXTOS_DE_LA_ADMINISTRACION } from '../textos';
-import type { EstadoDeLaDescarga, Formato, Granularidad } from './api';
+import type { CodigoDelReporte, Descarga, EstadoDeLaDescarga, Formato, Granularidad } from './api';
 
 /** ADR-0022, decisión 15: mientras se genera, la app consulta su estado cada 5 segundos, como "Procesando pago". */
 export const CADA_CUANTO_SE_CONSULTA_LA_DESCARGA_MS = 5_000;
@@ -14,6 +14,8 @@ export const CADA_CUANTO_SE_CONSULTA_LA_DESCARGA_MS = 5_000;
 export const TEXTOS_DE_LAS_DESCARGAS = {
   titulo: TEXTOS_DE_LA_ADMINISTRACION.secciones.descargas,
   cargando: 'Cargando las descargas…',
+  /** Si la lista no llega, debajo del mensaje de la app, como la imagen 05. */
+  intentarDeNuevo: 'Intentar de nuevo',
   sinDescargas: 'Todavía no hay descargas. Pide una con «Descargar» en Indicadores, Ingresos o Conciliación.',
   /** El botón o el enlace con el que cada pantalla abre la pieza de la descarga. */
   descargar: 'Descargar',
@@ -40,6 +42,23 @@ export const TEXTOS_DE_LAS_DESCARGAS = {
   } satisfies Record<EstadoDeLaDescarga, string>,
   guardar: { csv: 'Guardar .csv', xlsx: 'Guardar .xlsx' } satisfies Record<Formato, string>,
 } as const;
+
+/**
+ * Los dos reportes que son una pantalla del módulo: en la app llevan el nombre de su pantalla, como en la imagen 54
+ * ("Ingresos" y "Conciliación") y en el texto de la pantalla Descargas sin descargas.
+ */
+const NOMBRE_DE_SU_PANTALLA: Partial<Record<CodigoDelReporte, string>> = {
+  'ingresos-por-periodo': TEXTOS_DE_LA_ADMINISTRACION.secciones.ingresos,
+  'conciliacion-con-la-pasarela': TEXTOS_DE_LA_ADMINISTRACION.secciones.conciliacion,
+};
+
+/**
+ * El nombre de una descarga en la app: el que da el servidor, como en el botón del panel ("Pedidos totales"), salvo los
+ * ingresos y la conciliación, que llevan el de su pantalla.
+ */
+export function nombreDeLaDescarga({ reporte, titulo }: Pick<Descarga, 'reporte' | 'titulo'>): string {
+  return NOMBRE_DE_SU_PANTALLA[reporte] ?? titulo;
+}
 
 /**
  * El mensaje de una falla de la administración: sin conexión, el de la app; la descarga que no existe (404) o un 422 de

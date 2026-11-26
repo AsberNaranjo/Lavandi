@@ -53,9 +53,12 @@ export interface DescargaDelServidor {
   id_publico: string;
   reporte: string;
   titulo: string;
-  /** El rango que cubre su archivo, AAAA-MM-DD, ya ajustado a periodos completos: el de su nombre. */
-  desde: string;
-  hasta: string;
+  /**
+   * El rango que cubre su archivo, AAAA-MM-DD, ya ajustado a periodos completos: el de su nombre. null si el servidor no
+   * lo pudo leer del nombre (ExportadorDeIndicador::diasDelArchivo()).
+   */
+  desde: string | null;
+  hasta: string | null;
   pedida_en: string;
   estado: Estado;
   archivos: Record<Formato, string>;

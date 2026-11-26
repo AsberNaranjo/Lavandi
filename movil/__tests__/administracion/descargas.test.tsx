@@ -279,7 +279,7 @@ describe('administracion-app-E59: las descargas de la cuenta', () => {
       ]);
 
       const nueva = within(tarjetas[0]);
-      expect(nueva.getByText('Conciliación con la pasarela')).toBeOnTheScreen();
+      expect(nueva.getByText('Conciliación')).toBeOnTheScreen();
       // El rango arriba y cuándo se pidió abajo, en dos renglones; la conciliación no lleva granularidad.
       expect(nueva.getAllByText(/^(Del|Pedida) /).map((renglon) => renglon.props.children)).toEqual([
         'Del 01/11/2026 al 15/11/2026',
@@ -342,19 +342,57 @@ describe('administracion-app-E59: las descargas de la cuenta', () => {
     },
   );
 
-  test('administracion-app-E59 — si la lista no llega, lo dice con el mensaje de la app', async () => {
-    servidor().interceptar = ({ ruta }) => {
-      if (ruta === RUTA_DE_LAS_DESCARGAS) {
-        throw new TypeError('Network request failed');
-      }
-      return undefined;
-    };
+  test.each(PLATAFORMAS)(
+    'administracion-app-E59 — (%s) los ingresos y la conciliación llevan el nombre de su pantalla, como en la imagen 54; los indicadores, el que da el servidor',
+    async (plataforma) => {
+      descargas.descargas = [
+        descarga({ id_publico: '01JDDESCARGAINGRESOS000001', reporte: 'ingresos-por-periodo', pedida_en: instante(10, 45) }),
+        descarga({ id_publico: '01JDDESCARGATOTALES0000001', pedida_en: instante(10, 42) }),
+        descarga({
+          id_publico: '01JDDESCARGACONCILIA000001',
+          reporte: 'conciliacion-con-la-pasarela',
+          pedida_en: instante(17, 20, 1),
+        }),
+      ];
 
-    await abrirLaAppConLaAdministracion('ios', RUTA_DE_LAS_DESCARGAS);
+      await abrirLaAppConLaAdministracion(plataforma, RUTA_DE_LAS_DESCARGAS);
 
-    expect(await screen.findByText(MENSAJES.sinConexion)).toBeOnTheScreen();
-    await expect(leerToken()).resolves.toBe(TOKEN_DE_LA_ADMINISTRACION);
-  });
+      const nombres = (await screen.findAllByTestId(/^descarga-/)).map(
+        (tarjeta) => within(tarjeta).getAllByText(/^(Ingresos|Pedidos totales|Conciliación)/)[0].props.children,
+      );
+      expect(nombres).toEqual(['Ingresos', 'Pedidos totales', 'Conciliación']);
+      expect(screen.queryByText('Ingresos por periodo')).not.toBeOnTheScreen();
+      expect(screen.queryByText('Conciliación con la pasarela')).not.toBeOnTheScreen();
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E59 — (%s) si la lista no llega, lo dice con el mensaje de la app y ofrece "Intentar de nuevo", que la vuelve a pedir',
+    async (plataforma) => {
+      descargas.descargas = [descarga({ id_publico: '01JDDESCARGALISTA000000001' })];
+      servidor().interceptar = ({ ruta }) => {
+        if (ruta === RUTA_DE_LAS_DESCARGAS) {
+          throw new TypeError('Network request failed');
+        }
+        return undefined;
+      };
+
+      await abrirLaAppConLaAdministracion(plataforma, RUTA_DE_LAS_DESCARGAS);
+
+      expect(await screen.findByText(MENSAJES.sinConexion)).toBeOnTheScreen();
+      expect(screen.queryByTestId(/^descarga-/)).not.toBeOnTheScreen();
+      await expect(leerToken()).resolves.toBe(TOKEN_DE_LA_ADMINISTRACION);
+
+      // Vuelve la conexión.
+      servidor().interceptar = null;
+      await fireEvent.press(screen.getByRole('button', { name: 'Intentar de nuevo' }));
+
+      expect(await screen.findByTestId('descarga-01JDDESCARGALISTA000000001')).toBeOnTheScreen();
+      expect(screen.queryByText(MENSAJES.sinConexion)).not.toBeOnTheScreen();
+      expect(screen.queryByRole('button', { name: 'Intentar de nuevo' })).not.toBeOnTheScreen();
+      expect(descargas.consultasDeLaLista()).toBe(2);
+    },
+  );
 });
 
 describe('administracion-app-E56: pedir la descarga de un reporte', () => {
@@ -772,6 +810,45 @@ describe('administracion-app-E57: mientras se genera y cuando está lista', () =
       ]);
       expect(screen.queryByTestId('pedir-descarga')).not.toBeOnTheScreen();
       expect(within(screen.getByTestId(`descarga-${nueva.id_publico}`)).getByText('Del 26/10/2026 al 29/11/2026')).toBeOnTheScreen();
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E57 — (%s) en la pantalla Descargas, la que no se pudo generar y llega sin su rango también ofrece "Pedirla otra vez": abre la pieza con los campos vacíos, aun en la conciliación, y la nueva se pide con el rango que se escriba',
+    async (plataforma) => {
+      descargas.descargas = [
+        descarga({
+          id_publico: '01JDDESCARGAFALLO000000001',
+          reporte: 'conciliacion-con-la-pasarela',
+          desde: null,
+          hasta: null,
+          estado: 'no_se_pudo',
+        }),
+      ];
+      await abrirLaAppConLaAdministracion(plataforma, RUTA_DE_LAS_DESCARGAS);
+      const fallida = within(await screen.findByTestId('descarga-01JDDESCARGAFALLO000000001'));
+      expect(fallida.queryByText(/^Del /)).not.toBeOnTheScreen();
+
+      await fireEvent.press(fallida.getByRole('button', { name: 'Pedirla otra vez' }));
+
+      const enLaTarjeta = within(fallida.getByTestId('pedir-descarga'));
+      expect(enLaTarjeta.getByLabelText('Desde').props.value).toBe('');
+      expect(enLaTarjeta.getByLabelText('Hasta').props.value).toBe('');
+      // La conciliación no lleva granularidad: no pregunta "Ver por".
+      expect(enLaTarjeta.queryByText('Ver por')).not.toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([]);
+
+      await fireEvent.changeText(enLaTarjeta.getByLabelText('Desde'), '01112026');
+      await fireEvent.changeText(enLaTarjeta.getByLabelText('Hasta'), '15112026');
+      await fireEvent.press(enLaTarjeta.getByRole('button', { name: 'Pedir la descarga' }));
+
+      await waitFor(() => expect(screen.getAllByTestId(/^descarga-/)).toHaveLength(2));
+      expect(descargas.pedidas()).toEqual([
+        { reporte: 'conciliacion-con-la-pasarela', desde: '2026-11-01', hasta: '2026-11-15' },
+      ]);
+      const [, nueva] = descargas.descargas;
+      expect(screen.getAllByTestId(/^descarga-/)[0].props.testID).toBe(`descarga-${nueva.id_publico}`);
+      expect(within(screen.getByTestId(`descarga-${nueva.id_publico}`)).getByText('Del 01/11/2026 al 15/11/2026')).toBeOnTheScreen();
     },
   );
 });

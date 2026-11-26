@@ -383,10 +383,13 @@ Resumen. El detalle de cada fila va después.
     pago" (adenda del 2026-11-22 de ADR-0010). Lista, ofrece "Guardar .csv" y "Guardar .xlsx". Si no se pudo, lo dice
     y ofrece pedirla otra vez.
   - La pantalla "Descargas" lista las de la cuenta, para guardarlas después, con los días de vida que da el servidor.
-    Cada una lleva el rango de su archivo y cuándo se pidió, en renglones separados (imagen 54). La que no se pudo
-    generar ofrece "Pedirla otra vez": la de la conciliación se pide con el mismo rango; las demás abren la pieza de la
-    descarga con su rango, para elegir la granularidad, por día por omisión, como el formulario del panel. La nueva
-    entra al principio de la lista.
+    Cada una lleva el nombre de su reporte, el que da el servidor, salvo los ingresos y la conciliación, que llevan el
+    de su pantalla, "Ingresos" y "Conciliación", y el rango de su archivo y cuándo se pidió, en renglones separados
+    (imagen 54). La que no se pudo generar ofrece "Pedirla otra vez": la de la conciliación se pide con el mismo rango;
+    las demás abren la pieza de la descarga con su rango, para elegir la granularidad, por día por omisión, como el
+    formulario del panel. Si el servidor no dio su rango, la pieza se abre con los dos campos vacíos, también en la
+    conciliación. La nueva entra al principio de la lista. Si la lista no llega, la pantalla lo dice con los mensajes
+    generales de la app y ofrece "Intentar de nuevo", como la imagen 05 y las demás listas del módulo.
 
     SIN RESPUESTA — bloquea: la granularidad en el renglón del rango de "Descargas" ("por semana", imagen 54) y que
     "Pedirla otra vez" la repita sin preguntarla. Guardarla pide una columna en `exports`, con su adenda de ADR-0022,
