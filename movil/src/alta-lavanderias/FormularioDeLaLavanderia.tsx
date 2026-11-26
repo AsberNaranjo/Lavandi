@@ -12,11 +12,15 @@
 // una foto nueva, comprimida como la del registro, que va al final, mientras haya menos que el máximo que da el
 // servidor. El registro conserva su foto única y no pide descripción (Módulo B #1).
 //
+// La administración edita cualquier lavandería con este mismo formulario, el del perfil y horarios
+// (administracion-app-E14): pone sus textos, que hablan de la lavandería y no de tú, y lo que la pantalla dice en lugar
+// del lavado en seco, al final de los servicios. Sin ellos, el formulario es el del socio, como siempre.
+//
 // La composición sigue las imágenes b01-registro y b06-perfil de la Propuesta 04, por secciones. Ni el registro ni el
 // perfil tienen componente en el design system (design.md del cambio, pregunta abierta 4): se arman con las piezas y los
 // tokens (ADR-0013), como las demás pantallas. Del mock no entran el cupo por ventana ("Sin cupo", DD-099 y
 // alta-lavanderias-E23) ni el horario de atención aparte de las ventanas (DD-078 y alta-lavanderias-E24).
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { ventanaEnTexto } from '../agenda/textos';
@@ -67,6 +71,13 @@ interface Propiedades {
    * ella, es el registro, con su foto única.
    */
   edicion?: { maximoDeFotos: number };
+  /** Los textos que le hablan a quien edita, si no es el socio (TextosDeQuienEdita, abajo). Sin ellos, los del socio. */
+  textos?: TextosDeQuienEdita;
+  /**
+   * Lo que va al final de la sección de servicios y precios, antes de su aviso: en la edición de la administración, el
+   * lavado en seco en espera de DD-010 (administracion-app-E14). Sin él, nada.
+   */
+  alFinalDeLosServicios?: ReactNode;
 }
 
 // Las partes de la dirección que se escriben, con su nombre en la API.
@@ -79,7 +90,14 @@ const PARTES_DE_LA_DIRECCION = [
 // La foto se ve en la proporción de la cámara de los teléfonos, a todo lo ancho.
 const PROPORCION_DE_LA_FOTO = 4 / 3;
 
-export function FormularioDeLaLavanderia({ formulario, alCambiar, errores, edicion }: Propiedades) {
+export function FormularioDeLaLavanderia({
+  formulario,
+  alCambiar,
+  errores,
+  edicion,
+  textos = TEXTOS_DEL_SOCIO,
+  alFinalDeLosServicios = null,
+}: Propiedades) {
   const municipios = useMunicipios();
   // El día cuyas ventanas se ven: al abrir, el primero que tiene alguna.
   const [dia, setDia] = useState(() => primerDiaConVentanas(formulario.ventanas));
@@ -149,7 +167,7 @@ export function FormularioDeLaLavanderia({ formulario, alCambiar, errores, edici
   return (
     <View style={estilos.formulario}>
       <View style={estilos.seccion}>
-        <TituloDeSeccion>{TEXTOS.tuLavanderia}</TituloDeSeccion>
+        <TituloDeSeccion>{textos.datos}</TituloDeSeccion>
         <CampoDeTexto
           nombre="nombre"
           etiqueta={TEXTOS.nombre}
@@ -217,7 +235,7 @@ export function FormularioDeLaLavanderia({ formulario, alCambiar, errores, edici
       {edicion ? (
         <View style={estilos.seccion} testID="campo-fotos">
           <TituloDeSeccion>{TEXTOS.fotos}</TituloDeSeccion>
-          <Parrafo alineacion="inicio">{instruccionDeLasFotos(edicion.maximoDeFotos)}</Parrafo>
+          <Parrafo alineacion="inicio">{textos.fotos(edicion.maximoDeFotos)}</Parrafo>
           {formulario.fotos.map((foto, lugar) => (
             <View key={`${lugar}-${foto.uri}`} testID={`foto-${lugar + 1}`} style={estilos.fotoDeLaLista}>
               <Image
@@ -303,12 +321,13 @@ export function FormularioDeLaLavanderia({ formulario, alCambiar, errores, edici
             </View>
           );
         })}
+        {alFinalDeLosServicios}
         <AvisoDeLaSeccion testID="campo-servicios" texto={errores.servicios} />
       </View>
 
       <View style={estilos.seccion}>
         <TituloDeSeccion>{TEXTOS.ventanas}</TituloDeSeccion>
-        <Parrafo alineacion="inicio">{TEXTOS.instruccionDeLasVentanas}</Parrafo>
+        <Parrafo alineacion="inicio">{textos.ventanas}</Parrafo>
         <Selector
           nombre="dia"
           etiqueta={TEXTOS.dia}
@@ -341,6 +360,28 @@ export function FormularioDeLaLavanderia({ formulario, alCambiar, errores, edici
     </View>
   );
 }
+
+/**
+ * Los textos del formulario que cambian según quién edita la lavandería. El socio edita la suya y el formulario le habla
+ * de tú ("Tu lavandería", "Puedes tener hasta…", "las horas en que puedes recolectar"); la administración edita
+ * cualquiera con este mismo formulario y pone los suyos, que hablan de la lavandería (administracion-app-E14; imágenes
+ * 12, 60 y 61 de la Propuesta 06).
+ */
+export interface TextosDeQuienEdita {
+  /** El título de la sección del nombre y la descripción. */
+  datos: string;
+  /** Lo que dice la sección de fotos del perfil, con el máximo que da el servidor. */
+  fotos: (maximo: number) => string;
+  /** Lo que dice la sección de las ventanas de disponibilidad. */
+  ventanas: string;
+}
+
+// Los del socio, que edita su propia lavandería.
+const TEXTOS_DEL_SOCIO: TextosDeQuienEdita = {
+  datos: TEXTOS.tuLavanderia,
+  fotos: instruccionDeLasFotos,
+  ventanas: TEXTOS.instruccionDeLasVentanas,
+};
 
 // El aviso de una sección, al final de ella: lo que no es de un solo campo. Sin texto, no ocupa lugar.
 function AvisoDeLaSeccion({ testID, texto }: { testID?: string; texto?: string }) {
