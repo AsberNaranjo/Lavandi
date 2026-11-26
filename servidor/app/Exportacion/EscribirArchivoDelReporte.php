@@ -22,9 +22,18 @@ use SplTempFileObject;
  *   Filament con los mismos archivos: el aviso de archivo listo, el XLSX y la descarga.
  * - Antes de escribir, vuelve a preguntar al componente único de autorización si la cuenta que pidió la descarga
  *   todavía puede bajar reportes: si ya no, no escribe nada.
+ *
+ * Sus dos archivos son los que dicen si la descarga quedó lista (App\Exportacion\Exportacion::estado(); ADR-0022,
+ * decisión 15).
  */
 class EscribirArchivoDelReporte extends PrepareCsvExport
 {
+    /** El archivo del encabezado, con el nombre que le da Filament. */
+    public const ARCHIVO_DEL_ENCABEZADO = 'headers.csv';
+
+    /** El archivo de las filas: la primera y única página, con el nombre de las páginas de Filament. */
+    public const ARCHIVO_DE_LAS_FILAS = '0000000000000001.csv';
+
     public function handle(): void
     {
         if ($this->batch()?->cancelled()) {
@@ -50,8 +59,8 @@ class EscribirArchivoDelReporte extends PrepareCsvExport
         $contenido->setDelimiter($exportador::getCsvDelimiter());
         $contenido->insertAll($filas);
 
-        $this->escribir('headers.csv', $encabezado->toString());
-        $this->escribir(str_pad('1', 16, '0', STR_PAD_LEFT).'.csv', $contenido->toString());
+        $this->escribir(self::ARCHIVO_DEL_ENCABEZADO, $encabezado->toString());
+        $this->escribir(self::ARCHIVO_DE_LAS_FILAS, $contenido->toString());
 
         $this->export->forceFill([
             'total_rows' => count($filas),

@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\Administracion\DescargasController;
+use Illuminate\Support\Facades\Route;
+
 /*
  * F-T14, la descarga de los reportes en CSV y en Excel (NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5), en la API de la
  * administración: administracion-app-E56 a E63. La de F-I06, F-I10 y las comisiones del periodo, E63, espera DD-083,
@@ -10,3 +13,13 @@
  * les da auth:sanctum, autorizar:administracion, el prefijo administracion/ y el nombre administracion.: aquí no se
  * repiten.
  */
+
+// El contrato de cada ruta está en el controlador. {descarga} es el id_publico de la descarga, un ULID, nunca el id de
+// exports (ADR-0022, decisión 15). Lo busca el controlador, no el enlace implícito de Laravel, que corre antes que
+// autorizar:administracion: así una cuenta de otro rol recibe 403 con cualquier valor, y un valor que no es ULID, una
+// descarga que no existe y la de otra cuenta responden el mismo 404 (administracion-app-E62). Sin where en {formato} a
+// propósito: uno que no es csv ni xlsx responde el 404 del controlador, sin datos.
+Route::post('descargas', [DescargasController::class, 'pedir'])->name('descargas.pedir');
+Route::get('descargas', [DescargasController::class, 'lista'])->name('descargas.lista');
+Route::get('descargas/{descarga}', [DescargasController::class, 'mostrar'])->name('descargas.mostrar');
+Route::get('descargas/{descarga}/{formato}', [DescargasController::class, 'archivo'])->name('descargas.archivo');

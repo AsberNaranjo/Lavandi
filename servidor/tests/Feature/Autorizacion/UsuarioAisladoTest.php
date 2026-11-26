@@ -104,6 +104,9 @@ class UsuarioAisladoTest extends TestCase
      */
     private function fugasDeAna(): array
     {
+        // Las rutas de las descargas son del Módulo D: la de una cuenta de administración (administracion-app-E62).
+        $descarga = $this->descargaDeLaAdministracion(Usuario::factory()->conRol(Rol::ADMINISTRACION)->create());
+
         return $this->fugasDe(
             $this->ana,
             Rol::USUARIO,
@@ -112,10 +115,13 @@ class UsuarioAisladoTest extends TestCase
                 // El cobro del pedido de Beto, que consulta "Procesando pago" (pago-E08).
                 'pago' => [$this->pedidoDeBeto->cobro->id_publico => 'el cobro del pedido de Beto'],
                 'direccion' => [$this->direccionDeBeto->id_publico => 'la dirección de Beto'],
+                'descarga' => [$descarga->id_publico => 'la descarga de la administración'],
             ],
-            // El perfil de las lavanderías es público en el Módulo A (Módulo A #5); el catálogo, de todos.
-            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000'],
+            // El perfil de las lavanderías es público en el Módulo A (Módulo A #5); el catálogo, de todos; el formato de
+            // una descarga, también.
+            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000', 'formato' => 'csv'],
             datosAjenos: [
+                $descarga->id_publico => 'el id_publico de la descarga de la administración',
                 $this->pedidoDeBeto->id_publico => 'el id_publico del pedido de Beto',
                 $this->pedidoDeBeto->folio => 'el folio del pedido de Beto',
                 $this->pedidoDeBeto->cobro->id_publico => 'el id_publico del cobro del pedido de Beto',

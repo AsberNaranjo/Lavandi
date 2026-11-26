@@ -3,6 +3,7 @@
 namespace Tests\Feature\Autorizacion;
 
 use App\Autorizacion\Autorizacion;
+use App\Exportacion\Exportacion;
 use App\Models\Lavanderia;
 use App\Models\Pedido;
 use App\Models\Plaza;
@@ -42,15 +43,18 @@ use Tests\TestCase;
  * La administración entra con su token de administración y recorre aparte las rutas de su módulo y las demás. En su
  * módulo, /api/administracion, ve todas las plazas (autorizacion-E13; NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3,
  * Módulo D #1 a #4): lo de las cadenas, la plaza Dos y la cuenta y el reporte sin plaza no le son ajenos. Sí lo es lo de
- * otra cuenta de administración, que el sembrado suma aquí: su correo. Fuera de su módulo, todo eso le es ajeno, salvo
+ * otra cuenta de administración, que el sembrado suma aquí: su correo y su descarga de un reporte, que solo baja la
+ * cuenta que la pidió (exportacion-E11; administracion-app-E62). Fuera de su módulo, todo eso le es ajeno, salvo
  * su propio correo, que le da GET /api/cuenta, y las rutas de los Módulos A, B y C le responden 403 sin datos (ADR-0022,
  * decisiones 8 y 15).
  *
  * Las rutas salen de la tabla de rutas: una ruta nueva entra sola, y una con un parámetro que el barrido no conoce hace
  * fallar la prueba. Los parámetros de las rutas de la administración que llegan con las tareas 5.1, 7.2 y 17.1 de
  * administracion-en-la-app ya tienen sus datos: {repartidor} y {usuario}, los de las otras cadenas como ajenos, y los de
- * la otra plaza como públicos para la administración en su módulo; {categoria}, su valor público para todos. Corre en
- * su propio paso de la integración continua (SEG-3).
+ * la otra plaza como públicos para la administración en su módulo; {categoria}, su valor público para todos. Los de las
+ * descargas, de la tarea 19.3: {descarga}, la de la otra cuenta de administración como ajena para todos, también para la
+ * administración en su módulo; {formato}, csv como valor público. Corre en su propio paso de la integración continua
+ * (SEG-3).
  *
  * Al sembrado se agrega el reporte de Soporte de una cuenta sin plaza, que se guarda sin ella (perfil-usuario-E17): no
  * es de ninguna plaza, así que ninguna ruta se lo da a nadie, y del componente solo lo recibe la administración, que es
@@ -88,6 +92,9 @@ class BarridoContraFugasTest extends TestCase
     /** La segunda cuenta de administración: lo suyo es lo único ajeno para la primera (autorizacion-E14). */
     private Usuario $otraAdministracion;
 
+    /** La descarga de un reporte que pidió la segunda cuenta de administración: solo ella la baja (exportacion-E11). */
+    private Exportacion $descargaDeLaOtraAdministracion;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -101,6 +108,8 @@ class BarridoContraFugasTest extends TestCase
         $this->otraAdministracion = Usuario::factory()->conRol(Rol::ADMINISTRACION)->create([
             'correo' => 'barrido.otra.administracion@ejemplo.com',
         ]);
+
+        $this->descargaDeLaOtraAdministracion = $this->descargaDeLaAdministracion($this->otraAdministracion);
     }
 
     #[TestDox('autorizacion-E14: con dos plazas, y dos lavanderías, dos repartidores y dos usuarios en cada una, la sesión de cada rol recorre todas las rutas de la API pidiendo lo que no le corresponde: ninguna respuesta trae datos de otro socio, de otro usuario ni de otra plaza')]
@@ -259,6 +268,7 @@ class BarridoContraFugasTest extends TestCase
         }
 
         $datosAjenos[$this->otraAdministracion->correo] = 'el correo de la otra cuenta de administración';
+        $datosAjenos[$this->descargaDeLaOtraAdministracion->id_publico] = 'la descarga de la otra cuenta de administración';
         // El reporte sin plaza de otra cuenta no es de nadie más (perfil-usuario-E17).
         $datosAjenos[self::REPORTE_SIN_PLAZA] = 'el reporte sin plaza de otra cuenta';
         $datosAjenos[$this->sinPlaza->correo] = 'el correo de la cuenta sin plaza';
@@ -273,6 +283,10 @@ class BarridoContraFugasTest extends TestCase
         // El repartidor y el usuario de las otras cadenas, para las rutas que los lleven en un parámetro: hoy, solo las
         // de la administración que llegan con las tareas 5.1 y 7.2 de administracion-en-la-app, que a los otros roles
         // les responden 403 con cualquier valor; mañana, también una de los Módulos A, B o C, que se prueba con lo ajeno.
+        // La descarga de la otra cuenta de administración es ajena para todos (tarea 19.3).
+        $ajenoDeLaOtraAdministracion = [
+            'descarga' => [$this->descargaDeLaOtraAdministracion->id_publico => 'la descarga de la otra cuenta de administración'],
+        ];
         $ajenos = [
             'pedido' => $pedidos,
             'pago' => $pagos,
@@ -280,14 +294,17 @@ class BarridoContraFugasTest extends TestCase
             ...($esUsuario ? [] : ['lavanderia' => $lavanderias]),
             'repartidor' => $repartidores,
             'usuario' => $usuarios,
+            ...$ajenoDeLaOtraAdministracion,
         ];
 
         // Al usuario, la lavandería de otra plaza, que es pública en el Módulo A; el catálogo es de todos, y una categoría
-        // del A.5, de las rutas de la administración que llegan con la tarea 17.1, también.
+        // del A.5, de las rutas de la administración que llegan con la tarea 17.1, también; y el formato de una descarga,
+        // de las que llegan con la tarea 19.3.
         $publicos = [
             ...($esUsuario ? ['lavanderia' => $otraPlaza['lavanderia']->id_publico] : []),
             'codigo_postal' => '00000',
             'categoria' => 'operaciones',
+            'formato' => 'csv',
         ];
 
         // En el cuerpo y en la consulta, lo de otras cadenas, con un pedido que pasa la validación y un punto de la otra
@@ -323,8 +340,9 @@ class BarridoContraFugasTest extends TestCase
         );
 
         // En su módulo ve todas las plazas (autorizacion-E13): nada de las cadenas le es ajeno, ni la plaza Dos, ni la
-        // cuenta y el reporte sin plaza. Lo único ajeno es lo de la otra cuenta de administración: su correo. El módulo
-        // se recorre en cuanto tenga rutas; la primera llega con la tarea 3.1 de administracion-en-la-app.
+        // cuenta y el reporte sin plaza. Lo único ajeno es lo de la otra cuenta de administración: su correo y su
+        // descarga, que pide en {descarga} y que ninguna respuesta puede traer (exportacion-E11). El módulo se recorre en
+        // cuanto tenga rutas; la primera llega con la tarea 3.1 de administracion-en-la-app.
         if (array_filter($this->rutasDeLaApi(), $deSuModulo) === []) {
             return $fugas;
         }
@@ -332,7 +350,7 @@ class BarridoContraFugasTest extends TestCase
         return [...$fugas, ...$this->fugasDe(
             $cuenta,
             $rol,
-            ajenos: [],
+            ajenos: $ajenoDeLaOtraAdministracion,
             publicos: [
                 ...$publicos,
                 'pedido' => $otraPlaza['enCurso']->id_publico,
@@ -342,7 +360,10 @@ class BarridoContraFugasTest extends TestCase
                 'repartidor' => $otraPlaza['repartidor']->id_publico,
                 'usuario' => $otraPlaza['usuario']->id_publico,
             ],
-            datosAjenos: [$this->otraAdministracion->correo => 'el correo de la otra cuenta de administración'],
+            datosAjenos: [
+                $this->otraAdministracion->correo => 'el correo de la otra cuenta de administración',
+                $this->descargaDeLaOtraAdministracion->id_publico => 'la descarga de la otra cuenta de administración',
+            ],
             datos: $datos,
             soloLasRutas: $deSuModulo,
         )];
