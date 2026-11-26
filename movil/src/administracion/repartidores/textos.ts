@@ -2,17 +2,26 @@
 // revisarlos en un solo lugar. Son los de las imágenes 14 a 20 y 62 a 65 de la Propuesta 06 de los mocks; los de las
 // confirmaciones y los nombres de los estados, los del panel de respaldo, para que la app y el panel digan lo mismo
 // (servidor/app/Filament/Resources/Repartidores/Actions/AccionesDeEstado.php y Tables/RepartidoresTable.php), con "desde
-// la app" en lugar de "desde el panel". Los mensajes de cada error (422, 404 y 409) los da el servidor; aquí viven los
-// que pasan en el teléfono. Ninguno trae el nombre del producto ni el dominio (CLAUDE.md §5; administracion-app-E03).
-import { mensajeGeneral } from '../../acceso/mensajes';
+// la app" en lugar de "desde el panel" (design.md, sección 5). Los de la foto son los del registro del repartidor, que ya
+// están en la app. Los que ninguna imagen dibuja (la carga, la lista vacía y el buscador de la hoja) dicen de dónde
+// salen. Los mensajes de cada error (422, 404 y 409) los da el servidor; aquí viven los que pasan en el teléfono.
+// Ninguno trae el nombre del producto ni el dominio (CLAUDE.md §5; administracion-app-E03).
+import { errorDeCampo, MENSAJES, mensajeGeneral } from '../../acceso/mensajes';
+import { TEXTOS_DEL_REPARTIDOR } from '../../repartidor/textos';
 import type { FallaDeLaAdministracion } from '../api';
 import type { EstadoDelRepartidor } from './api';
 
 export const TEXTOS_DE_LOS_REPARTIDORES = {
   // La lista (imagen 14).
   titulo: 'Repartidores',
+  // Mientras llega: ninguna imagen dibuja la carga, así que va con la forma de las de la app ("Cargando la lavandería…",
+  // src/perfil/textos.ts:7).
   cargando: 'Cargando los repartidores…',
-  sinRepartidores: 'Todavía no hay repartidores registrados.',
+  // Sin ningún repartidor: ninguna imagen la dibuja, así que dice lo que el panel con su tabla vacía, el encabezado de
+  // Filament en español (filament/tables v5.11.4, servidor/composer.lock:1569-1570, resources/lang/es/table.php,
+  // "empty.heading"; APP_LOCALE=es, servidor/.env.example:12).
+  sinRepartidores: 'No se encontraron registros',
+  // El de la imagen 05.
   intentarDeNuevo: 'Intentar de nuevo',
   // Los nombres de los estados, como los lee el panel.
   estados: {
@@ -21,22 +30,24 @@ export const TEXTOS_DE_LOS_REPARTIDORES = {
     suspendido: 'Suspendido',
     baja: 'Dado de baja',
   } satisfies Record<EstadoDelRepartidor, string>,
-  // Lo que el panel pone cuando falta el dato.
+  // Lo que el panel pone cuando falta el dato (RepartidoresTable.php:43 y :29).
   sinPlaza: 'Sin plaza',
   sinNombre: 'Sin nombre',
 
   // La ficha (imágenes 15, 18 y 19).
   tituloDeLaFicha: 'Repartidor',
+  // Como la carga de la lista.
   cargandoLaFicha: 'Cargando al repartidor…',
-  // El 404 sin mensaje del servidor; el servidor manda el mismo.
+  // El 404 sin mensaje del servidor: el mismo que manda (el contrato de RepartidoresController, paquete A06).
   noExiste: 'No existe el repartidor.',
-  laFoto: 'Foto de perfil del repartidor',
   telefono: 'Teléfono',
   correo: 'Correo',
   tipoDeVehiculo: 'Tipo de vehículo',
   // El alta (imágenes 15 a 17): la plaza se elige en la hoja del Selector, con las plazas del alta.
   plazaParaElAlta: 'Plaza para el alta',
   eligeLaPlaza: 'Elige la plaza',
+  // El buscador que la hoja del Selector siempre trae (src/piezas/Selector.tsx:47) y la imagen 16 no dibuja, con la
+  // forma de "Buscar municipio" (src/alta-lavanderias/textos.ts:28).
   buscarPlaza: 'Buscar plaza',
   validacionFuera: 'La validación de sus datos ocurre fuera de la plataforma.',
   siNoLoAutorizas: 'Si no autorizas el registro, dale de baja: ya no podrá iniciar sesión.',
@@ -44,8 +55,6 @@ export const TEXTOS_DE_LOS_REPARTIDORES = {
   eligeUnaPlaza: 'Elige una plaza para darlo de alta',
   // Lo que pasa al levantar la suspensión (imagen 19).
   alLevantarLaSuspension: 'Al levantar la suspensión, vuelve a estar activo, en su misma plaza, y recupera sus pedidos.',
-  // De baja, ninguna acción de estado (administracion-app-E22), con lo que dice el panel de la baja.
-  deBaja: 'Ninguna acción de estado sale de la baja. Sus entregas completadas se quedan en la base.',
   editar: 'Editar',
   darDeAlta: 'Dar de alta',
   suspender: 'Suspender',
@@ -61,19 +70,18 @@ export const TEXTOS_DE_LOS_REPARTIDORES = {
   confirmarLaBaja: 'Dar de baja al repartidor',
   queHaceLaBaja:
     'Ya no podrá iniciar sesión y se cierran sus sesiones abiertas. Sus entregas completadas se quedan en la base. La baja no se deshace desde la app.',
-  // El 409 sin mensaje del servidor: otra sesión ya lo cambió. El servidor manda el suyo, como "Un repartidor en estado
-  // suspendido no se puede suspender.".
-  yaCambio: 'El repartidor ya cambió. Revisa cómo está.',
 
   // La edición (imagen 20).
   tituloDeLaEdicion: 'Editar repartidor',
   nombre: 'Nombre',
   correoElectronico: 'Correo electrónico',
-  fotoDePerfil: 'Foto de perfil',
-  tomarFoto: 'Tomar foto',
-  elegirDeLaGaleria: 'Elegir de la galería',
-  sinPermisoDeLaCamara: 'Sin permiso de la cámara no podemos tomar la foto. Puedes elegirla de la galería.',
-  fotoNoPreparada: 'No pudimos preparar la foto. Intenta con otra.',
+  // La foto, con los textos del registro del repartidor (src/repartidor/textos.ts:20 y :32-35): la galería es la del
+  // teléfono de quien edita. La foto se anuncia "Foto de perfil", como en las imágenes 15 a 20.
+  fotoDePerfil: TEXTOS_DEL_REPARTIDOR.fotoDePerfil,
+  tomarFoto: TEXTOS_DEL_REPARTIDOR.tomarFoto,
+  elegirDeLaGaleria: TEXTOS_DEL_REPARTIDOR.elegirDeLaGaleria,
+  sinPermisoDeLaCamara: TEXTOS_DEL_REPARTIDOR.sinPermisoDeLaCamara,
+  fotoNoPreparada: TEXTOS_DEL_REPARTIDOR.fotoNoPreparada,
   guardarCambios: 'Guardar cambios',
 } as const;
 
@@ -91,6 +99,9 @@ export function queHaceElAlta(plaza: string): string {
  * El mensaje de una consulta o una acción que no salió, sin los errores que van junto a su campo: el del servidor con
  * el 409 y el 404; con un 422, el de los campos que la pantalla no muestra; sin conexión o con otro error, los mensajes
  * generales de la app. Con el 401 no hay nada que decir: la app ya volvió al inicio de sesión.
+ *
+ * El 409 trae siempre el mensaje de App\Repartidores\TransicionNoPermitida (administracion-app-E12); si una respuesta
+ * llegara sin él, sale el mensaje general de la app, como en la ficha de la lavandería.
  */
 export function mensajeDeLosRepartidores(
   falla: FallaDeLaAdministracion,
@@ -98,7 +109,7 @@ export function mensajeDeLosRepartidores(
 ): string | undefined {
   switch (falla.motivo) {
     case 'conflicto':
-      return falla.mensaje || TEXTOS_DE_LOS_REPARTIDORES.yaCambio;
+      return falla.mensaje || MENSAJES.servidor;
     case 'no-existe':
       return falla.mensaje || TEXTOS_DE_LOS_REPARTIDORES.noExiste;
     case 'sin-sesion':
@@ -108,7 +119,10 @@ export function mensajeDeLosRepartidores(
   }
 }
 
-/** El primer error del servidor para un campo, para mostrarlo junto a él. */
+/** El primer error del servidor para un campo, para mostrarlo junto a él: el de la app (errorDeCampo). */
 export function errorDelCampo(falla: FallaDeLaAdministracion | null, campo: string): string | undefined {
-  return falla?.motivo === 'invalido' ? falla.errores[campo]?.[0] : undefined;
+  if (!falla || falla.motivo === 'conflicto' || falla.motivo === 'no-existe') {
+    return undefined;
+  }
+  return errorDeCampo(falla, campo);
 }

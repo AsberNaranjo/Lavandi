@@ -197,10 +197,11 @@ describe('administracion-app-E19: la lista y la ficha de los repartidores', () =
       expect(screen.getByLabelText(`Teléfono: ${repartidor.telefono}`)).toBeOnTheScreen();
       expect(screen.getByLabelText(`Correo: ${repartidor.correo}`)).toBeOnTheScreen();
       expect(screen.getByLabelText(`Tipo de vehículo: ${repartidor.tipo_vehiculo}`)).toBeOnTheScreen();
+      // La foto se anuncia "Foto de perfil", como en las imágenes 15 a 19; sin foto, el círculo vacío no se anuncia.
       if (repartidor.foto) {
-        expect(screen.getByLabelText('Foto de perfil del repartidor').props.source).toEqual({ uri: repartidor.foto.url });
+        expect(screen.getByLabelText('Foto de perfil').props.source).toEqual({ uri: repartidor.foto.url });
       } else {
-        expect(screen.queryByLabelText('Foto de perfil del repartidor')).not.toBeOnTheScreen();
+        expect(screen.queryByLabelText('Foto de perfil')).not.toBeOnTheScreen();
       }
       expect(botonesDeLaFicha()).toEqual(botones);
       // Su posición no sale (DD-077), y la ficha no pide más que al repartidor y, si se puede dar de alta, las plazas.
@@ -231,6 +232,16 @@ describe('administracion-app-E19: la lista y la ficha de los repartidores', () =
 
     expect(screen.getByText('Activo')).toBeOnTheScreen();
     expect(botonesDeLaFicha()).toEqual(['Editar', 'Dar de baja']);
+  });
+
+  test('administracion-app-E19 — sin ningún repartidor, la lista lo dice como el panel con su tabla vacía', async () => {
+    servidor().interceptar = ({ metodo, ruta }) =>
+      metodo === 'GET' && ruta === RUTA_DE_LA_LISTA ? respuesta(200, { repartidores: [] }) : undefined;
+
+    await abrirLaAppConLaAdministracion('android', RUTA_DE_LA_LISTA);
+
+    expect(await screen.findByText('No se encontraron registros')).toBeOnTheScreen();
+    expect(screen.queryAllByRole('link')).toEqual([]);
   });
 
   test('administracion-app-E19 — sin conexión, la lista lo dice con el mensaje de la app y "Intentar de nuevo" la vuelve a pedir', async () => {
@@ -297,6 +308,30 @@ describe('administracion-app-E20: dar de alta a un repartidor en una plaza', () 
       expect(dialogo).not.toHaveBeenCalled();
       expect(accionesMandadas(servidor())).toEqual([]);
       expect(repartidores().de(PENDIENTE.id_publico).estado).toBe('pendiente');
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E20 — (%s) sin conexión, las plazas lo dicen con el mensaje de la app y "Intentar de nuevo" las vuelve a pedir',
+    async (plataforma) => {
+      servidor().interceptar = ({ metodo, ruta }) => {
+        if (metodo === 'GET' && ruta === '/administracion/plazas') {
+          throw new TypeError('Network request failed');
+        }
+        return undefined;
+      };
+      await abrirLaFicha(plataforma, PENDIENTE);
+
+      expect(await screen.findByText(MENSAJES.sinConexion)).toBeOnTheScreen();
+      expect(screen.getByRole('button', { name: 'Plaza para el alta' })).toBeDisabled();
+
+      servidor().interceptar = null;
+      await fireEvent.press(screen.getByRole('button', { name: 'Intentar de nuevo' }));
+
+      await elegirPlaza(DURANGO);
+      expect(screen.queryByText(MENSAJES.sinConexion)).not.toBeOnTheScreen();
+      expect(botonDeLaFicha(`Dar de alta en ${DURANGO}`)).toBeEnabled();
+      expect(consultas(servidor(), '/administracion/plazas')).toBe(2);
     },
   );
 
@@ -388,9 +423,6 @@ describe('administracion-app-E22: dar de baja a un repartidor', () => {
       await waitFor(() => expect(botonesDeLaFicha()).toEqual(['Editar']));
       expect(screen.getByText('Dado de baja')).toBeOnTheScreen();
       expect(screen.getByText(DURANGO)).toBeOnTheScreen();
-      expect(
-        screen.getByText('Ninguna acción de estado sale de la baja. Sus entregas completadas se quedan en la base.'),
-      ).toBeOnTheScreen();
       expect(accionesMandadas(servidor())).toEqual([
         { metodo: 'POST', ruta: `${rutaDeLaFicha(ACTIVO)}/baja`, cuerpo: undefined },
       ]);

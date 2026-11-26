@@ -4,7 +4,11 @@
 // La app no valida por su cuenta: el servidor aplica las reglas del registro del repartidor y responde 422 con el error
 // de cada campo, también el del correo que ya es de otra cuenta; la pantalla lo pone junto a su campo y no cambia nada.
 // Mientras manda, el botón queda ocupado: no sale otro envío encima.
-import { useMemo, useRef, useState } from 'react';
+//
+// Con el 200, la pantalla regresa a la ficha solo si todavía se ve: si la persona ya regresó mientras se mandaba (con
+// "Regresar" o con el regreso del sistema), otro regreso la sacaría también de la ficha.
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { useApiDeLaAdministracion, type FallaDeLaAdministracion, type PedirALaAdministracion } from '../api';
 import {
@@ -28,7 +32,7 @@ export interface EdicionDelRepartidor {
   errorDe(campo: string): string | undefined;
   /** El mensaje del último envío que no salió, si no va junto a un campo. */
   aviso: string | undefined;
-  /** Manda los cambios; con el 200, llama a alGuardar. */
+  /** Manda los cambios; con el 200, llama a alGuardar si la pantalla todavía se ve. */
   guardar(cambios: CambiosDelRepartidor, alGuardar: () => void): void;
 }
 
@@ -43,6 +47,16 @@ export function useEdicionDelRepartidor(idPublico: string | undefined): EdicionD
   const [enviando, setEnviando] = useState(false);
   const [falla, setFalla] = useState<FallaDeLaAdministracion | null>(null);
   const enCurso = useRef(false);
+  // Si la pantalla se ve: deja de verse al regresar, aunque la respuesta todavía no llegue.
+  const aLaVista = useRef(false);
+  useFocusEffect(
+    useCallback(() => {
+      aLaVista.current = true;
+      return () => {
+        aLaVista.current = false;
+      };
+    }, []),
+  );
 
   async function guardar(cambios: CambiosDelRepartidor, alGuardar: () => void) {
     if (enCurso.current || !idPublico) {
@@ -56,7 +70,9 @@ export function useEdicionDelRepartidor(idPublico: string | undefined): EdicionD
     setEnviando(false);
     if (resultado.ok) {
       repartidor.poner(resultado.datos);
-      alGuardar();
+      if (aLaVista.current) {
+        alGuardar();
+      }
       return;
     }
     setFalla(resultado);

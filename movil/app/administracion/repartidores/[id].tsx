@@ -5,7 +5,8 @@
 // botones de las acciones que el servidor dice que su estado permite, además de "Editar":
 //
 // - pendiente: la plaza se elige en el Selector, con las plazas de GET /api/administracion/plazas; sin plaza elegida, el
-//   botón del alta no se puede tocar y dice qué falta, y la app no lo manda (administracion-app-E20);
+//   botón del alta no se puede tocar y dice qué falta, y la app no lo manda (administracion-app-E20). Si las plazas no
+//   llegan, el mensaje y "Intentar de nuevo", como la imagen 05;
 // - activo: "Suspender" y "Dar de baja"; suspendido: "Levantar la suspensión" y "Dar de baja" (administracion-app-E21 y
 //   E22);
 // - de baja: ninguna acción de estado, porque ninguna sale de la baja (administracion-app-E22).
@@ -15,10 +16,10 @@
 // (administracion-app-E12). Un repartidor que no existe responde 404 y la pantalla lo dice. Con un 401, el cliente de la
 // administración ya volvió al inicio de sesión (administracion-app-E05). No muestra su posición (DD-077).
 //
-// La composición es la de las imágenes 15 a 19 y 63 a 65 de la Propuesta 06: la foto en un círculo junto al nombre, la
-// insignia y la plaza; los datos en una tarjeta; y los botones fijos abajo, el principal entero y los secundarios en un
-// renglón. De baja no hay imagen: se sigue la de la lavandería de baja (imagen 11), con "Editar" como secundario, como el
-// panel, que no esconde la edición.
+// La composición es la de las imágenes 15 a 19 y 63 a 65 de la Propuesta 06: la foto en un círculo junto al nombre (un
+// título de sección), la insignia y la plaza; los datos en una tarjeta; y los botones fijos abajo, el principal entero y
+// los secundarios en un renglón. De baja no hay imagen: "Editar" queda solo, como secundario, como en la lavandería de
+// baja (imagen 11) y en el panel, que no esconde la edición; sin otro texto, que administracion-app-E22 no pide.
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
@@ -42,7 +43,7 @@ import { MensajeDeError } from '../../../src/piezas/MensajeDeError';
 import { Pantalla } from '../../../src/piezas/Pantalla';
 import { Parrafo } from '../../../src/piezas/Parrafo';
 import { Selector } from '../../../src/piezas/Selector';
-import { Titulo } from '../../../src/piezas/Titulo';
+import { TituloDeSeccion } from '../../../src/piezas/TituloDeSeccion';
 import { letra } from '../../../src/tema/letra';
 import { color, espaciado, grosor, radio, tipografia } from '../../../src/tema/theme';
 
@@ -91,7 +92,7 @@ export default function FichaDelRepartidorEnLaAdministracion() {
           <View style={estilos.cabecera}>
             <FotoDelRepartidor foto={repartidor.foto} />
             <View style={estilos.presentacion}>
-              <Titulo alineacion="inicio">{repartidor.nombre ?? TEXTOS.sinNombre}</Titulo>
+              <TituloDeSeccion>{repartidor.nombre ?? TEXTOS.sinNombre}</TituloDeSeccion>
               <InsigniaYPlaza estado={repartidor.estado} plaza={repartidor.plaza} />
             </View>
           </View>
@@ -114,7 +115,14 @@ export default function FichaDelRepartidorEnLaAdministracion() {
                 error={ficha.errorDeLaPlaza}
                 deshabilitado={ficha.plazas.datos === null || ficha.enviando !== null}
               />
-              {ficha.plazas.falla ? <MensajeDeError texto={mensajeDeLosRepartidores(ficha.plazas.falla)} /> : null}
+              {ficha.plazas.falla ? (
+                <>
+                  <MensajeDeError texto={mensajeDeLosRepartidores(ficha.plazas.falla)} />
+                  <Boton variante="secundario" onPress={ficha.plazas.consultarDeNuevo}>
+                    {TEXTOS.intentarDeNuevo}
+                  </Boton>
+                </>
+              ) : null}
               <Parrafo alineacion="inicio">{TEXTOS.validacionFuera}</Parrafo>
               {repartidor.acciones.dar_de_baja ? <Parrafo alineacion="inicio">{TEXTOS.siNoLoAutorizas}</Parrafo> : null}
             </>
@@ -122,14 +130,16 @@ export default function FichaDelRepartidorEnLaAdministracion() {
           {repartidor.acciones.levantar_suspension ? (
             <Parrafo alineacion="inicio">{TEXTOS.alLevantarLaSuspension}</Parrafo>
           ) : null}
-          {repartidor.estado === 'baja' ? <Parrafo alineacion="inicio">{TEXTOS.deBaja}</Parrafo> : null}
         </>
       ) : null}
     </Pantalla>
   );
 }
 
-// La foto en un círculo, desde su URL firmada. Sin foto, el círculo queda vacío y el lector de pantalla lo salta.
+// La foto en un círculo, desde su URL firmada, que se anuncia "Foto de perfil" (imágenes 15 a 19). Sin foto, el círculo
+// queda vacío y el lector de pantalla lo salta, como la foto de perfil del resto de la app
+// (src/perfil-usuario/FotoDePerfil.tsx:16): la silueta de las imágenes es un SVG, y la app no tiene librería para
+// dibujarlo ni un token semántico con su color (#98A1AC; vault/design-system/design-system.md, decisión 3).
 function FotoDelRepartidor({ foto }: { foto: RepartidorDeLaAdministracion['foto'] }) {
   if (!foto) {
     return (
@@ -140,7 +150,7 @@ function FotoDelRepartidor({ foto }: { foto: RepartidorDeLaAdministracion['foto'
     <Image
       accessible
       accessibilityRole="image"
-      accessibilityLabel={TEXTOS.laFoto}
+      accessibilityLabel={TEXTOS.fotoDePerfil}
       source={{ uri: foto.url }}
       resizeMode="cover"
       style={estilos.foto}

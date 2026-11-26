@@ -14,7 +14,7 @@
 // foto sale en multipart como la manda el teléfono (__tests__/apoyo/formulario.ts).
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
-import { fireEvent, screen, waitFor, within } from 'expo-router/testing-library';
+import { act, fireEvent, screen, waitFor, within } from 'expo-router/testing-library';
 
 import { MENSAJES } from '../../src/acceso/mensajes';
 import { leerToken } from '../../src/sesion/almacen';
@@ -137,7 +137,7 @@ describe('administracion-app-E23: editar a un repartidor', () => {
         .getAllByText(/^(Nombre|Teléfono|Correo electrónico|Tipo de vehículo|Foto de perfil)$/)
         .map((texto) => texto.props.children as string);
       expect(etiquetas).toEqual(['Nombre', 'Teléfono', 'Correo electrónico', 'Tipo de vehículo', 'Foto de perfil']);
-      expect(screen.getByLabelText('Foto de perfil del repartidor').props.source).toEqual({ uri: ACTIVO.foto?.url });
+      expect(screen.getByLabelText('Foto de perfil').props.source).toEqual({ uri: ACTIVO.foto?.url });
       expect(within(screen.getByTestId('acciones')).getByRole('button', { name: 'Guardar cambios' })).toBeEnabled();
       // La contraseña no se edita.
       expect(screen.queryByLabelText('Contraseña')).not.toBeOnTheScreen();
@@ -184,7 +184,7 @@ describe('administracion-app-E23: editar a un repartidor', () => {
 
       await fireEvent.press(screen.getByRole('button', { name: 'Tomar foto' }));
       await waitFor(() =>
-        expect(screen.getByLabelText('Foto de perfil del repartidor').props.source).toEqual({
+        expect(screen.getByLabelText('Foto de perfil').props.source).toEqual({
           uri: manipulador.__preparada(FOTO_DE_LA_CAMARA.uri),
         }),
       );
@@ -207,7 +207,7 @@ describe('administracion-app-E23: editar a un repartidor', () => {
       ]);
       // La ficha trae la URL firmada nueva de la foto.
       await waitFor(() =>
-        expect(screen.getByLabelText('Foto de perfil del repartidor').props.source).toEqual({
+        expect(screen.getByLabelText('Foto de perfil').props.source).toEqual({
           uri: repartidores().de(ACTIVO.id_publico).foto?.url,
         }),
       );
@@ -218,11 +218,11 @@ describe('administracion-app-E23: editar a un repartidor', () => {
 
   test('administracion-app-E23 — la foto también se puede elegir de la galería, a un repartidor que no tenía', async () => {
     await abrirLaEdicion('ios', PENDIENTE);
-    expect(screen.queryByLabelText('Foto de perfil del repartidor')).not.toBeOnTheScreen();
+    expect(screen.queryByLabelText('Foto de perfil')).not.toBeOnTheScreen();
     camara.__fotoDeLaGaleria(FOTO_DE_LA_GALERIA);
 
     await fireEvent.press(screen.getByRole('button', { name: 'Elegir de la galería' }));
-    await screen.findByLabelText('Foto de perfil del repartidor');
+    await screen.findByLabelText('Foto de perfil');
     await guardar();
 
     await waitFor(() => expect(screen).toHavePathname(rutaDeLaFicha(PENDIENTE)));
@@ -283,7 +283,7 @@ describe('administracion-app-E23: editar a un repartidor', () => {
       camara.__fotoDeLaGaleria(FOTO_DE_LA_GALERIA);
       await fireEvent.press(screen.getByRole('button', { name: 'Elegir de la galería' }));
       await waitFor(() =>
-        expect(screen.getByLabelText('Foto de perfil del repartidor').props.source).toEqual({
+        expect(screen.getByLabelText('Foto de perfil').props.source).toEqual({
           uri: manipulador.__preparada(FOTO_DE_LA_GALERIA.uri),
         }),
       );
@@ -355,6 +355,41 @@ describe('administracion-app-E23: editar a un repartidor', () => {
       expect(within(screen.getByTestId('acciones')).getByRole('button', { name: 'Guardar cambios' })).toBeDisabled();
       soltar();
       await waitFor(() => expect(screen).toHavePathname(rutaDeLaFicha(ACTIVO)));
+      expect(ediciones()).toHaveLength(1);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E23 — (%s) si regresa a la ficha mientras guarda, la respuesta que llega después no lo saca de la ficha',
+    async (plataforma) => {
+      let soltar: () => void = () => {};
+      servidor().interceptar = ({ metodo, ruta }) =>
+        metodo === 'PATCH' && ruta === rutaDeLaFicha(ACTIVO)
+          ? new Promise((resolver) => {
+              soltar = () => {
+                repartidores().cambiar(ACTIVO.id_publico, { nombre: 'Otro nombre' });
+                resolver(respuesta(200, { repartidor: comoSale(repartidores().de(ACTIVO.id_publico)) }));
+              };
+            })
+          : undefined;
+      // Desde la lista: un segundo regreso, el de guardar, la sacaría de la ficha.
+      await abrirLaAppConLaAdministracion(plataforma, RUTA_DE_LA_LISTA);
+      await fireEvent.press(await screen.findByRole('link', { name: /^Repartidor de prueba 1,/ }));
+      await screen.findByRole('header', { name: ACTIVO.nombre as string });
+      await fireEvent.press(within(screen.getByTestId('acciones')).getByRole('button', { name: 'Editar' }));
+      await fireEvent.changeText(await screen.findByLabelText('Nombre'), 'Otro nombre');
+
+      await guardar();
+      await fireEvent.press(screen.getByRole('button', { name: 'Regresar' }));
+      await waitFor(() => expect(screen).toHavePathname(rutaDeLaFicha(ACTIVO)));
+      await act(async () => {
+        soltar();
+        // La respuesta llega cuando la edición ya no se ve, y la app termina de leerla.
+        await jest.advanceTimersByTimeAsync(0);
+      });
+
+      expect(screen).toHavePathname(rutaDeLaFicha(ACTIVO));
+      expect(screen.getByRole('header', { name: 'Repartidor' })).toBeOnTheScreen();
       expect(ediciones()).toHaveLength(1);
     },
   );

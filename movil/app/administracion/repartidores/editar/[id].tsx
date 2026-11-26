@@ -7,8 +7,9 @@
 // "Guardar cambios" manda solo los datos que cambiaron, como se escribieron; con una foto nueva, en multipart
 // (PATCH /api/administracion/repartidores/{id_publico}). La app no valida por su cuenta: si el servidor rechaza un dato,
 // o el correo ya es de otra cuenta, responde 422 y su error va junto a su campo, y nada cambia. Con el 200, la app vuelve
-// a la ficha, que se pide de nuevo y muestra los datos nuevos. Un repartidor que no existe responde 404 y la pantalla lo
-// dice. Con un 401, el cliente de la administración ya volvió al inicio de sesión (administracion-app-E05).
+// a la ficha, que se pide de nuevo y muestra los datos nuevos; si la persona ya regresó mientras se mandaba, se queda
+// donde está. Un repartidor que no existe responde 404 y la pantalla lo dice. Con un 401, el cliente de la
+// administración ya volvió al inicio de sesión (administracion-app-E05).
 //
 // La composición es la de la imagen 20 de la Propuesta 06: los campos en el orden del registro, la foto de perfil al
 // final y "Guardar cambios" fijo abajo. Es un formulario propio de la administración: no parte el registro del
@@ -139,7 +140,7 @@ function Formulario({
         forma="circulo"
         textos={{
           titulo: TEXTOS.fotoDePerfil,
-          laFoto: TEXTOS.laFoto,
+          laFoto: TEXTOS.fotoDePerfil,
           tomarFoto: TEXTOS.tomarFoto,
           elegirDeLaGaleria: TEXTOS.elegirDeLaGaleria,
           sinPermisoDeLaCamara: TEXTOS.sinPermisoDeLaCamara,
