@@ -454,7 +454,29 @@ class DescargasTest extends TestCase
         $this->assertSame($antes, Exportacion::count());
     }
 
-    #[TestDox('administracion-app-E61: con una colonia con acento y eñe, otra capturada como "=1+1" y una cifra negativa, el CSV y el XLSX que baja la app son los que baja el panel para el mismo reporte y el mismo rango, y cumplen exportacion-E07, E08 y E09')]
+    #[TestDox('administracion-app-E60: una fecha que no viene en AAAA-MM-DD, aunque se lea como fecha, como "December 5, 2026", "05/12/2026" o con su hora, responde 422 en su campo y no crea ninguna descarga: el archivo no sale de otro rango sin avisar')]
+    public function test_administracion_app_e60_una_fecha_que_no_viene_en_aaaa_mm_dd_responde_422_sin_crear_nada(): void
+    {
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+
+        foreach (['December 5, 2026', '05/12/2026', '2026-12-05 00:00:00'] as $fecha) {
+            $this->pedirPorLaApp($token, PedidosTotalesExportador::NOMBRE, ['desde' => '2026-12-01', 'hasta' => $fecha, 'granularidad' => 'dia'])
+                ->assertStatus(422)
+                ->assertJsonValidationErrors(['hasta']);
+            $this->pedirPorLaApp($token, PedidosTotalesExportador::NOMBRE, ['desde' => $fecha, 'hasta' => '2026-12-31', 'granularidad' => 'dia'])
+                ->assertStatus(422)
+                ->assertJsonValidationErrors(['desde']);
+        }
+
+        $this->assertSame(0, Exportacion::count());
+
+        // En AAAA-MM-DD, el mismo rango sí se pide, y su archivo es del 1 al 5 de diciembre.
+        $this->pedirPorLaApp($token, PedidosTotalesExportador::NOMBRE, ['desde' => '2026-12-01', 'hasta' => '2026-12-05', 'granularidad' => 'dia'])
+            ->assertStatus(202)
+            ->assertJsonPath('descarga.archivos.csv', 'pedidos-totales-2026-12-01-al-2026-12-05.csv');
+    }
+
+    #[TestDox('administracion-app-E61:con una colonia con acento y eñe, otra capturada como "=1+1" y una cifra negativa, el CSV y el XLSX que baja la app son los que baja el panel para el mismo reporte y el mismo rango, y cumplen exportacion-E07, E08 y E09')]
     public function test_administracion_app_e61_el_archivo_es_el_del_panel(): void
     {
         // El monto promedio baja de 300 a 200: la diferencia es -100.00.
