@@ -69,7 +69,7 @@ export function Dona({ titulo, porciones, centro, testID = 'dona' }: Propiedades
           <View
             key={indice}
             testID={`marca-${indice}`}
-            style={[estilos.marca, lugarDeLaMarca(indice), { backgroundColor: tono }]}
+            style={[estilos.marca, LUGARES_DE_LAS_MARCAS[indice], { backgroundColor: tono }]}
           />
         ))}
         {centro ? (
@@ -132,6 +132,9 @@ function lugarDeLaMarca(indice: number) {
     transform: [{ rotate: `${grados}deg` }],
   };
 }
+
+// Los lugares no dependen de las cifras: se calculan una vez, no en cada dibujo ni en cada refresco de la pantalla.
+const LUGARES_DE_LAS_MARCAS = Array.from({ length: MARCAS }, (_, indice) => lugarDeLaMarca(indice));
 
 const estilos = StyleSheet.create({
   dona: {

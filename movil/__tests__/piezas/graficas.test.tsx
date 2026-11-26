@@ -24,12 +24,13 @@ import { IndicadorDestacado } from '../../src/piezas/IndicadorDestacado';
 import { LineaDeTendencia, type PuntoDeLaLinea } from '../../src/piezas/LineaDeTendencia';
 import { RankingConSemaforo, type LugarDelRanking } from '../../src/piezas/RankingConSemaforo';
 import { ANCHO_DE_COLUMNA, TablaComparativa } from '../../src/piezas/TablaComparativa';
+import { letra } from '../../src/tema/letra';
 import { tema } from '../../src/tema/theme';
 
 // La primera pantalla tarda más mientras Jest prepara el entorno.
 jest.setTimeout(30_000);
 
-const { color, espaciado } = tema;
+const { color, espaciado, grosor, tipografia } = tema;
 
 function estiloPlano(elemento: { props: { style?: unknown } }) {
   return StyleSheet.flatten(elemento.props.style as never) ?? {};
@@ -94,8 +95,27 @@ describe('administracion-app-E46 (tarea 18.1): las barras de los pedidos totales
     await render(<GraficaDeBarras titulo="Pedidos totales" barras={PEDIDOS_POR_SEMANA} />);
 
     for (const { valor, etiqueta } of PEDIDOS_POR_SEMANA) {
-      expect(screen.getByText(String(valor))).toHaveStyle({ color: color.semantico.texto });
+      // La cifra en la letra de la maqueta 41: menor y semifuerte.
+      expect(screen.getByText(String(valor))).toHaveStyle({
+        color: color.semantico.texto,
+        fontSize: tipografia.escala.menor,
+        ...letra('cuerpo', 'semifuerte'),
+      });
       expect(screen.getByText(etiqueta)).toHaveStyle({ color: color.semantico.texto_suave });
+    }
+  });
+
+  test('administracion-app-E46 — la línea base es una sola: el área de cada columna crece hasta el alto de la más alta', async () => {
+    await render(<GraficaDeBarras titulo="Pedidos totales" barras={PEDIDOS_POR_SEMANA} />);
+
+    // Las columnas miden lo que la más alta; cada área crece hasta llenar la suya, así su orilla de abajo, que es la
+    // línea base, queda a la misma altura aunque una cifra mida más con la letra agrandada.
+    for (const { clave } of PEDIDOS_POR_SEMANA) {
+      expect(screen.getByTestId(`area-${clave}`)).toHaveStyle({
+        flexGrow: 1,
+        borderBottomWidth: grosor.control,
+        borderBottomColor: color.semantico.borde_fuerte,
+      });
     }
   });
 
@@ -343,7 +363,8 @@ describe('administracion-app-E47 (tarea 18.2): la línea de tendencia de los usu
     await dibujar(TRES, 300);
 
     expect(screen.getAllByText('4')).toHaveLength(2);
-    expect(screen.getByText('8')).toBeOnTheScreen();
+    // La cifra en la letra de la maqueta 44: menor y semifuerte.
+    expect(screen.getByText('8')).toHaveStyle({ fontSize: tipografia.escala.menor, ...letra('cuerpo', 'semifuerte') });
     for (const { etiqueta } of TRES) {
       expect(screen.getByText(etiqueta)).toHaveStyle({ color: color.semantico.texto_suave });
     }
@@ -352,6 +373,29 @@ describe('administracion-app-E47 (tarea 18.2): la línea de tendencia de los usu
         name: 'Usuarios activos. Semana del 26/10/2026: 4. Semana del 02/11/2026: 4. Semana del 09/11/2026: 8',
       }),
     ).toBeOnTheScreen();
+  });
+
+  test('administracion-app-E47 — con la letra del teléfono agrandada, cada cifra queda apoyada sobre su punto, sin encimarse, y la del más alto cabe en el dibujo', async () => {
+    await dibujar(TRES, 300);
+    const altoAntes = numero(estiloPlano(screen.getByTestId('linea-dibujo')).height);
+
+    // El teléfono mide las cifras más altas que de costumbre.
+    const ALTO_DE_LA_CIFRA = 40;
+    for (const { clave } of TRES) {
+      await fireEvent(screen.getByTestId(`cifra-${clave}`), 'layout', {
+        nativeEvent: { layout: { x: 0, y: 0, width: 100, height: ALTO_DE_LA_CIFRA } },
+      });
+    }
+
+    const alto = numero(estiloPlano(screen.getByTestId('linea-dibujo')).height);
+    expect(alto).toBeGreaterThan(altoAntes);
+    for (const { clave } of TRES) {
+      // La cifra se pone desde la línea base, por dentro del borde: su orilla de abajo, contada desde arriba.
+      const abajoDeLaCifra = alto - grosor.control - numero(estiloPlano(screen.getByTestId(`cifra-${clave}`)).bottom);
+      const arribaDelPunto = numero(estiloPlano(screen.getByTestId(`punto-${clave}`)).top);
+      expect(abajoDeLaCifra).toBeCloseTo(arribaDelPunto, 5);
+      expect(abajoDeLaCifra - ALTO_DE_LA_CIFRA).toBeGreaterThanOrEqual(-1e-9);
+    }
   });
 
   test('administracion-app-E47 — con muchos periodos, cada columna guarda su ancho mínimo y la línea se desplaza de lado', async () => {
@@ -380,7 +424,12 @@ describe('administracion-app-E47 (tarea 18.1): el monto promedio, destacado con 
       />,
     );
 
-    expect(screen.getByText('$250.00')).toHaveStyle({ color: color.semantico.texto, fontVariant: ['tabular-nums'] });
+    // Del tamaño de la maqueta 45.
+    expect(screen.getByText('$250.00')).toHaveStyle({
+      color: color.semantico.texto,
+      fontSize: tipografia.escala.titulo_mayor,
+      fontVariant: ['tabular-nums'],
+    });
     expect(screen.getByText('Subió $50.00 frente al periodo anterior ($200.00)')).toBeOnTheScreen();
     expect(screen.getByTestId('tendencia-flecha')).toHaveTextContent('↑');
     expect(screen.getByTestId('tendencia-flecha')).toHaveStyle({ color: color.estado.exito });
@@ -577,6 +626,28 @@ describe('administracion-app-E49 (tarea 18.1): los ingresos brutos en barras', (
     const enero = numero(estiloPlano(screen.getByTestId('barra-2026-01')).height);
     const febrero = numero(estiloPlano(screen.getByTestId('barra-2026-02')).height);
     expect(febrero / enero).toBeCloseTo(0.75);
+  });
+
+  test('administracion-app-E49 — con pocos periodos, cada barra mide el 70 % de su columna, hasta 40, como en las maquetas 41 y 48', async () => {
+    await render(<GraficaDeBarras titulo="Ingresos brutos" barras={INGRESOS} />);
+
+    for (const { clave } of INGRESOS) {
+      expect(screen.getByTestId(`barra-${clave}`)).toHaveStyle({ width: '70%', maxWidth: espaciado[6] + espaciado[2] });
+      expect(estiloPlano(screen.getByTestId(`barra-${clave}`)).alignSelf).toBeUndefined();
+    }
+  });
+
+  test('administracion-app-E49 — el monto encima de la barra va en micro y semifuerte, para que quepa', async () => {
+    await render(<GraficaDeBarras titulo="Ingresos brutos" barras={INGRESOS} />);
+
+    // La maqueta 48 lo pone a 13, que no está en tokens.json: el tamaño de abajo que sí está.
+    for (const { texto } of INGRESOS) {
+      expect(screen.getByText(texto!)).toHaveStyle({
+        fontSize: tipografia.escala.micro,
+        fontVariant: ['tabular-nums'],
+        ...letra('cuerpo', 'semifuerte'),
+      });
+    }
   });
 
   test('administracion-app-E49 — se anuncia con cada mes y su monto', async () => {

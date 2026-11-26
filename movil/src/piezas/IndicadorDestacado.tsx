@@ -61,10 +61,11 @@ const estilos = StyleSheet.create({
   indicador: {
     gap: espaciado[2],
   },
-  // Los números tabulares, para que las cifras no bailen (design system, reglas transversales).
+  // Del tamaño de la maqueta 45, en números tabulares, para que las cifras no bailen (design system, reglas
+  // transversales).
   valor: {
     color: color.semantico.texto,
-    fontSize: tipografia.escala.despliegue,
+    fontSize: tipografia.escala.titulo_mayor,
     fontVariant: ['tabular-nums'],
   },
   tendencia: {

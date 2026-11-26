@@ -12,7 +12,7 @@
 // las medidas que daría el teléfono, con los eventos de layout, de tamaño del contenido y de desplazamiento. Cada color
 // y cada medida sale de theme.ts (ADR-0013): las pruebas comparan contra el tema, no contra números.
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
-import { useState } from 'react';
+import { Profiler, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import { Pestanas } from '../../src/piezas/Pestanas';
@@ -58,9 +58,25 @@ function estiloPlano(elemento: { props: { style?: unknown } }) {
 }
 
 // Las pestañas como las usa una pantalla: guarda la elegida.
-function PestanasDePrueba({ inicial = 'operaciones' }: { inicial?: Categoria }) {
+function PestanasDePrueba({
+  inicial = 'operaciones',
+  sangrado,
+  conSeparadores,
+}: {
+  inicial?: Categoria;
+  sangrado?: number;
+  conSeparadores?: boolean;
+}) {
   const [elegida, setElegida] = useState<Categoria>(inicial);
-  return <Pestanas pestanas={CATEGORIAS} elegida={elegida} alElegir={setElegida} />;
+  return (
+    <Pestanas
+      pestanas={CATEGORIAS}
+      elegida={elegida}
+      alElegir={setElegida}
+      sangrado={sangrado}
+      conSeparadores={conSeparadores}
+    />
+  );
 }
 
 function fila() {
@@ -199,6 +215,9 @@ describe('administracion-app-E45 (tarea 18.3): las pestañas se desplazan de lad
     // Del color del fondo transparente, casi entero a la mitad y entero a tres cuartos (maqueta 41), con el color del
     // tema y su transparencia en #RRGGBBAA: ningún color escrito a mano (ADR-0013).
     const fondo = color.semantico.fondo;
+    // tokens.json no trae el fondo transparente: la pieza le pega la transparencia al fondo, y eso solo sirve si el
+    // fondo es #RRGGBB.
+    expect(fondo).toMatch(/^#[0-9a-f]{6}$/i);
     expect(degradado).toBe(`linear-gradient(to right, ${fondo}00, ${fondo}eb 55%, ${fondo} 75%)`);
     // React Native lo entiende: un degradado lineal con sus tres pasos, ninguno descartado.
     const [procesado] = processBackgroundImage(degradado);
@@ -213,8 +232,8 @@ describe('administracion-app-E45 (tarea 18.3): las pestañas se desplazan de lad
     await render(<PestanasDePrueba />);
     await medir(300, ANCHO_DE_LAS_CINCO);
 
-    // Operaciones cabe entera al principio, antes del desvanecido derecho.
-    expect(llevarA).toHaveBeenLastCalledWith({ x: 0, animated: true });
+    // Operaciones cabe entera al principio, antes del desvanecido derecho. Al abrir, la fila se coloca sin deslizarse.
+    expect(llevarA).toHaveBeenLastCalledWith({ x: 0, animated: false });
 
     // Financiero no cabe al principio: la fila va al final, y queda después del desvanecido izquierdo.
     await fireEvent.press(pestana('Financiero'));
@@ -233,6 +252,110 @@ describe('administracion-app-E45 (tarea 18.3): las pestañas se desplazan de lad
     await fireEvent.press(pestana('Socios'));
 
     expect(llevarA).toHaveBeenLastCalledWith({ x: LUGARES.socios.x - espaciado[8], animated: true });
+  });
+
+  test('administracion-app-E45 — al abrir con una pestaña del final elegida, la fila ya está al final, sin deslizarse; al elegir otra, se desliza', async () => {
+    await render(<PestanasDePrueba inicial="geografico" />);
+    await medir(300, ANCHO_DE_LAS_CINCO);
+
+    expect(llevarA).toHaveBeenCalledTimes(1);
+    expect(llevarA).toHaveBeenLastCalledWith({ x: ANCHO_DE_LAS_CINCO - 300, animated: false });
+
+    await fireEvent.press(pestana('Operaciones'));
+    expect(llevarA).toHaveBeenLastCalledWith({ x: 0, animated: true });
+  });
+
+  test('administracion-app-E45 — al desplazarla, la fila solo se vuelve a dibujar cuando llega a una orilla o sale de ella', async () => {
+    const dibujos = jest.fn();
+    await render(
+      <Profiler id="pestanas" onRender={dibujos}>
+        <PestanasDePrueba />
+      </Profiler>,
+    );
+    await medir(300, ANCHO_DE_LAS_CINCO);
+
+    // Sale de la orilla izquierda: aparece su desvanecido.
+    await desplazarA(100);
+    expect(desvanecido('izquierdo')).toBeOnTheScreen();
+    const alSalir = dibujos.mock.calls.length;
+
+    // A la mitad, los desvanecidos no cambian: no se vuelve a dibujar.
+    await desplazarA(120);
+    await desplazarA(140);
+    expect(dibujos).toHaveBeenCalledTimes(alSalir);
+
+    // Llega a la orilla derecha: su desvanecido se va.
+    await desplazarA(ANCHO_DE_LAS_CINCO - 300);
+    expect(dibujos.mock.calls.length).toBeGreaterThan(alSalir);
+    expect(desvanecido('derecho')).not.toBeOnTheScreen();
+  });
+
+  test('administracion-app-E45 — con el sangrado de la pantalla, la fila se sale hasta la orilla y la elegida queda entera fuera del desvanecido', async () => {
+    // La pantalla de indicadores le da su relleno, como .desliza en las maquetas 41, 46 y 48: la fila mide 32 más y su
+    // contenido también.
+    const sangrado = espaciado[4];
+    await render(<PestanasDePrueba sangrado={sangrado} />);
+    await medir(290, ANCHO_DE_LAS_CINCO + 2 * sangrado);
+
+    expect(screen.getByTestId('pestanas-marco')).toHaveStyle({ marginHorizontal: -sangrado });
+    expect(StyleSheet.flatten(fila().props.contentContainerStyle)).toMatchObject({
+      flexGrow: 1,
+      paddingHorizontal: sangrado,
+    });
+    expect(fila().props.scrollEnabled).toBe(true);
+    expect(desvanecido('derecho')).toHaveStyle({ right: 0 });
+    expect(llevarA).toHaveBeenLastCalledWith({ x: 0, animated: false });
+
+    // Financiero empieza 16 después de donde empieza en la fila: al final queda 74 adentro, fuera del desvanecido.
+    await fireEvent.press(pestana('Financiero'));
+    expect(llevarA).toHaveBeenLastCalledWith({ x: ANCHO_DE_LAS_CINCO + 2 * sangrado - 290, animated: true });
+  });
+
+  test('administracion-app-E45 — con el sangrado, cuando cada una cabe en una parte igual, se reparten el ancho que quedaría sin él', async () => {
+    const sangrado = espaciado[4];
+    await render(<PestanasDePrueba sangrado={sangrado} />);
+    await medir(ANCHO_PAREJO + 2 * sangrado, ANCHO_PAREJO + 2 * sangrado);
+
+    expect(fila().props.scrollEnabled).toBe(false);
+    for (const { texto } of CATEGORIAS) {
+      expect(estiloPlano(pestana(texto))).toMatchObject({ minWidth: 130, flexGrow: 1, flexShrink: 0 });
+    }
+  });
+
+  test('administracion-app-E45 — con separadores, una línea del color del borde entre cada pestaña y la anterior, que cuenta en la parte igual', async () => {
+    await render(<PestanasDePrueba conSeparadores />);
+    // Con su línea, cada una pide 131: a 652 ya no caben en partes iguales.
+    await medir(ANCHO_PAREJO, ANCHO_PAREJO);
+
+    expect(estiloPlano(pestana('Operaciones')).borderLeftWidth).toBeUndefined();
+    for (const { texto } of CATEGORIAS.slice(1)) {
+      expect(pestana(texto)).toHaveStyle({
+        borderLeftWidth: tema.grosor.control,
+        borderLeftColor: color.semantico.borde,
+      });
+    }
+    for (const { texto } of CATEGORIAS) {
+      expect(estiloPlano(pestana(texto)).minWidth).toBeUndefined();
+    }
+
+    // Con 5 más, sí: cada una mide 131.
+    await fireEvent(fila(), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 0, width: ANCHO_PAREJO + 5, height: ALTO } },
+    });
+    for (const { texto } of CATEGORIAS) {
+      expect(estiloPlano(pestana(texto)).minWidth).toBe(131);
+    }
+  });
+
+  test('administracion-app-E45 — sin sangrado ni separadores, como la usa la dirección nueva, la fila se queda dentro del relleno y sin líneas', async () => {
+    await render(<PestanasDePrueba />);
+    await medir(300, ANCHO_DE_LAS_CINCO);
+
+    expect(estiloPlano(screen.getByTestId('pestanas-marco')).marginHorizontal).toBeUndefined();
+    expect(fila().props.contentContainerStyle).toEqual({ flexGrow: 1 });
+    for (const { texto } of CATEGORIAS) {
+      expect(estiloPlano(pestana(texto)).borderLeftWidth).toBeUndefined();
+    }
   });
 
   test('administracion-app-E45 — cuando caben, la fila no se mueve al elegir', async () => {

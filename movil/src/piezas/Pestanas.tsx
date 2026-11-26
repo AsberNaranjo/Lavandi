@@ -14,11 +14,27 @@
 //   del fondo, con el degradado de fondo de React Native, sin librería;
 // - la fila se queda al principio o al final, lo que deje a la elegida entera y fuera del desvanecido; nunca se centra
 //   en ella, así no corta palabras en las dos orillas a la vez. Solo si la elegida no queda entera en ninguno de los
-//   dos, la fila la deja junto al desvanecido izquierdo: la elegida siempre queda entera.
+//   dos, la fila la deja junto al desvanecido izquierdo: la elegida siempre queda entera;
+// - al abrir, la fila ya está en su lugar: la primera vez se coloca sin deslizarse, y después se desliza al elegir;
+// - al desplazarla, solo se vuelve a dibujar cuando llega a una orilla o sale de ella, que es cuando cambian los
+//   desvanecidos.
+//
+// La pantalla de indicadores la pone como en las maquetas 41, 44, 46, 48, 49 y 69 con dos propiedades que la dirección
+// nueva no usa: el sangrado, para que la fila se deslice hasta la orilla de la pantalla y el desvanecido quede en ella
+// (.desliza, con margen de -16), y los separadores, una línea del color del borde entre pestañas.
 //
 // No es uno de los seis componentes del design system: se arma con los tokens (ADR-0013). Área táctil mínima de 48.
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, type ScrollViewInstance } from 'react-native';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  type ScrollViewInstance,
+} from 'react-native';
 
 import { letra } from '../tema/letra';
 import { accesibilidad, color, espaciado, grosor, radio, tipografia } from '../tema/theme';
@@ -27,12 +43,26 @@ interface Propiedades<Clave extends string> {
   pestanas: readonly { clave: Clave; texto: string }[];
   elegida: Clave;
   alElegir: (clave: Clave) => void;
+  /**
+   * El relleno de la pantalla a cada lado: la fila se sale ese tanto, llega hasta la orilla al deslizarse y deja el
+   * desvanecido en la orilla de la pantalla. Cuando no se desliza, queda donde quedaría sin él. Sin él, la fila se
+   * queda dentro del relleno.
+   */
+  sangrado?: number;
+  /** Una línea del color del borde entre cada pestaña y la anterior. */
+  conSeparadores?: boolean;
 }
 
 /** Dónde queda una pestaña dentro de la fila y cuánto mide. */
 interface Lugar {
   x: number;
   ancho: number;
+}
+
+/** Si la fila está al principio o al final de su desplazamiento. */
+interface Orillas {
+  alPrincipio: boolean;
+  alFinal: boolean;
 }
 
 /** El ancho del desvanecido de cada orilla (maqueta 41). */
@@ -44,29 +74,60 @@ const TOLERANCIA = 0.5;
 /** El relleno de cada lado del texto de una pestaña. */
 const RELLENO = espaciado[3];
 
-export function Pestanas<Clave extends string>({ pestanas, elegida, alElegir }: Propiedades<Clave>) {
+export function Pestanas<Clave extends string>({
+  pestanas,
+  elegida,
+  alElegir,
+  sangrado = 0,
+  conSeparadores = false,
+}: Propiedades<Clave>) {
   const desplazable = useRef<ScrollViewInstance>(null);
+  // Si la fila ya se colocó una vez: la primera, al abrir, va sin deslizarse.
+  const yaSeColoco = useRef(false);
   const [anchoVisible, setAnchoVisible] = useState(0);
   const [anchoDelContenido, setAnchoDelContenido] = useState(0);
-  const [desplazamiento, setDesplazamiento] = useState(0);
+  const [orillas, setOrillas] = useState<Orillas>({ alPrincipio: true, alFinal: false });
   const [lugares, setLugares] = useState<Partial<Record<Clave, Lugar>>>({});
   const [anchosDeLosTextos, setAnchosDeLosTextos] = useState<Partial<Record<Clave, number>>>({});
 
-  const parejas = cabenParejas(pestanas.map(({ clave }) => anchosDeLosTextos[clave]), anchoVisible);
-  const parteIgual = parejas ? anchoDeAdentro(anchoVisible) / pestanas.length : null;
+  // El ancho de la fila adentro de su borde y del sangrado de los dos lados.
+  const adentro = anchoVisible - 2 * sangrado - 2 * grosor.control;
+  const parejas = cabenParejas(
+    pestanas.map(({ clave }) => anchosDeLosTextos[clave]),
+    anchoVisible > 0 ? adentro : 0,
+    conSeparadores ? grosor.control : 0,
+  );
+  const parteIgual = parejas ? adentro / pestanas.length : null;
   // Repartidas por igual, la fila mide lo que se ve: no hay nada que desplazar, aunque el tamaño del contenido que se
   // midió antes de repartirlas todavía no se ponga al día.
   const fin = parejas ? 0 : Math.max(0, anchoDelContenido - anchoVisible);
   const seDesplaza = fin > TOLERANCIA;
   const lugarDeLaElegida = lugares[elegida];
 
-  // Al elegir, o si cambian las medidas, la fila va adonde la elegida queda entera.
+  // Al elegir, o si cambian las medidas, la fila va adonde la elegida queda entera. La pestaña se mide dentro de la
+  // fila, y la fila empieza después del sangrado.
   useEffect(() => {
     if (!seDesplaza || lugarDeLaElegida === undefined) {
       return;
     }
-    desplazable.current?.scrollTo({ x: desplazamientoParaVer(lugarDeLaElegida, anchoVisible, fin), animated: true });
-  }, [seDesplaza, lugarDeLaElegida, anchoVisible, fin]);
+    const enElContenido = { x: lugarDeLaElegida.x + sangrado, ancho: lugarDeLaElegida.ancho };
+    desplazable.current?.scrollTo({
+      x: desplazamientoParaVer(enElContenido, anchoVisible, fin),
+      animated: yaSeColoco.current,
+    });
+    yaSeColoco.current = true;
+  }, [seDesplaza, lugarDeLaElegida, anchoVisible, fin, sangrado]);
+
+  // Al desplazarla, si está en una orilla. El estado se toca solo cuando llega a una o sale de ella: así la fila no se
+  // vuelve a dibujar en cada cuadro mientras se desliza.
+  function anotarOrillas({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) {
+    const x = nativeEvent.contentOffset.x;
+    const alPrincipio = x <= TOLERANCIA;
+    const alFinal = x >= nativeEvent.contentSize.width - nativeEvent.layoutMeasurement.width - TOLERANCIA;
+    if (alPrincipio !== orillas.alPrincipio || alFinal !== orillas.alFinal) {
+      setOrillas({ alPrincipio, alFinal });
+    }
+  }
 
   function anotarLugar(clave: Clave, lugar: Lugar) {
     setLugares((anteriores) => {
@@ -80,7 +141,7 @@ export function Pestanas<Clave extends string>({ pestanas, elegida, alElegir }: 
   }
 
   return (
-    <View style={estilos.marco}>
+    <View style={[estilos.marco, sangrado > 0 ? { marginHorizontal: -sangrado } : null]} testID="pestanas-marco">
       <ScrollView
         ref={desplazable}
         testID="pestanas-desplazable"
@@ -90,11 +151,11 @@ export function Pestanas<Clave extends string>({ pestanas, elegida, alElegir }: 
         scrollEventThrottle={16}
         onLayout={(evento) => setAnchoVisible(evento.nativeEvent.layout.width)}
         onContentSizeChange={(ancho) => setAnchoDelContenido(ancho)}
-        onScroll={(evento) => setDesplazamiento(evento.nativeEvent.contentOffset.x)}
-        contentContainerStyle={estilos.contenido}
+        onScroll={anotarOrillas}
+        contentContainerStyle={sangrado > 0 ? [estilos.contenido, { paddingHorizontal: sangrado }] : estilos.contenido}
       >
         <View accessibilityRole="tablist" testID="pestanas" style={estilos.fila}>
-          {pestanas.map(({ clave, texto }) => {
+          {pestanas.map(({ clave, texto }, indice) => {
             const esLaElegida = clave === elegida;
             return (
               <Pressable
@@ -108,6 +169,7 @@ export function Pestanas<Clave extends string>({ pestanas, elegida, alElegir }: 
                 style={({ pressed }) => [
                   estilos.pestana,
                   parteIgual === null ? null : { minWidth: parteIgual },
+                  conSeparadores && indice > 0 ? estilos.separada : null,
                   esLaElegida ? estilos.elegida : null,
                   pressed && !esLaElegida ? estilos.presionada : null,
                 ]}
@@ -127,27 +189,23 @@ export function Pestanas<Clave extends string>({ pestanas, elegida, alElegir }: 
           })}
         </View>
       </ScrollView>
-      {seDesplaza && desplazamiento > TOLERANCIA ? <Desvanecido orilla="izquierda" /> : null}
-      {seDesplaza && desplazamiento < fin - TOLERANCIA ? <Desvanecido orilla="derecha" /> : null}
+      {seDesplaza && !orillas.alPrincipio ? <Desvanecido orilla="izquierda" /> : null}
+      {seDesplaza && !orillas.alFinal ? <Desvanecido orilla="derecha" /> : null}
     </View>
   );
 }
 
 /**
- * Si cada pestaña cabe en una parte igual del ancho de la fila, sin partir su texto: la más ancha, con su relleno, por el
- * número de pestañas, contra el ancho de adentro del borde. Hasta medir todos los textos y la fila, no.
+ * Si cada pestaña cabe en una parte igual del ancho de la fila, sin partir su texto: la más ancha, con su relleno y su
+ * separador, por el número de pestañas, contra el ancho de adentro del borde y del sangrado. Hasta medir todos los
+ * textos y la fila, no.
  */
-function cabenParejas(anchosDeLosTextos: readonly (number | undefined)[], anchoVisible: number): boolean {
-  if (anchoVisible <= 0 || anchosDeLosTextos.length === 0 || anchosDeLosTextos.some((ancho) => ancho === undefined)) {
+function cabenParejas(anchosDeLosTextos: readonly (number | undefined)[], adentro: number, separador: number): boolean {
+  if (adentro <= 0 || anchosDeLosTextos.length === 0 || anchosDeLosTextos.some((ancho) => ancho === undefined)) {
     return false;
   }
-  const masAncha = Math.max(...(anchosDeLosTextos as number[])) + 2 * RELLENO;
-  return masAncha * anchosDeLosTextos.length <= anchoDeAdentro(anchoVisible) + TOLERANCIA;
-}
-
-/** El ancho de la fila adentro de su borde. */
-function anchoDeAdentro(anchoVisible: number): number {
-  return anchoVisible - 2 * grosor.control;
+  const masAncha = Math.max(...(anchosDeLosTextos as number[])) + 2 * RELLENO + separador;
+  return masAncha * anchosDeLosTextos.length <= adentro + TOLERANCIA;
 }
 
 /**
@@ -179,7 +237,10 @@ function Desvanecido({ orilla }: { orilla: 'izquierda' | 'derecha' }) {
   );
 }
 
-/** Un color de tokens.json (#RRGGBB) con su transparencia (#RRGGBBAA), para el degradado. */
+/**
+ * Un color de tokens.json (#RRGGBB) con su transparencia (#RRGGBBAA), para el degradado. tokens.json no trae el fondo
+ * transparente: se deriva del fondo, y solo sirve si el fondo es #RRGGBB, lo que comprueba la prueba de la pieza.
+ */
 function conTransparencia(hexadecimal: string, opacidad: number): string {
   // El mismo color del tema con su transparencia en los dos últimos dígitos (#RRGGBBAA), que React Native entiende: así
   // ningún color se escribe a mano fuera de theme.ts (ADR-0013).
@@ -229,6 +290,10 @@ const estilos = StyleSheet.create({
   },
   presionada: {
     backgroundColor: color.semantico.fondo,
+  },
+  separada: {
+    borderLeftWidth: grosor.control,
+    borderLeftColor: color.semantico.borde,
   },
   texto: {
     color: color.semantico.texto,

@@ -8,7 +8,9 @@
 // puntos.
 //
 // - Cada punto lleva su cifra encima y su periodo debajo de la línea base, en texto: se lee sin el dibujo (design
-//   system, reglas transversales).
+//   system, reglas transversales). La cifra va en la letra de la maqueta (menor y semifuerte) y se apoya en su punto:
+//   crece hacia arriba, así no se le encima aunque la letra del teléfono crezca, y el dibujo crece con la cifra que
+//   mide el teléfono para que la del punto más alto quepa.
 // - El ancho de las columnas sale del ancho que mide la línea al dibujarse, con un mínimo: con muchos periodos, como un
 //   mes por día, la línea se desplaza de lado en lugar de encimar sus textos.
 // - Se anuncia al lector de pantalla como una imagen con cada periodo y su cifra.
@@ -44,12 +46,11 @@ interface Propiedades {
   testID?: string;
 }
 
-// Las medidas del dibujo, de la maqueta 44: arriba, el lugar de la cifra del punto más alto; en medio, la altura en que
-// se reparten las cifras; abajo, lo que separa el punto de cero de la línea base.
-const ARRIBA = espaciado[5];
+// Las medidas del dibujo, de la maqueta 44: arriba, al menos el lugar de la cifra del punto más alto; en medio, la altura
+// en que se reparten las cifras; abajo, lo que separa el punto de cero de la línea base.
+const ARRIBA_MINIMO = espaciado[5];
 const ALTO_UTIL = espaciado[8];
 const ABAJO = espaciado[3];
-const ALTO_DEL_DIBUJO = ARRIBA + ALTO_UTIL + ABAJO;
 const ANCHO_MINIMO_DE_COLUMNA = espaciado[8];
 const LADO_DEL_PUNTO = espaciado[3];
 const GROSOR_DE_LA_LINEA = grosor.foco;
@@ -62,13 +63,22 @@ interface Lugar {
 
 export function LineaDeTendencia({ titulo, puntos, testID = 'linea-de-tendencia' }: Propiedades) {
   const [anchoVisible, setAnchoVisible] = useState(0);
+  // El alto de la cifra más alta, como la mide el teléfono: crece con la letra del sistema.
+  const [altoDeLaCifra, setAltoDeLaCifra] = useState(0);
   const columna = Math.max(ANCHO_MINIMO_DE_COLUMNA, puntos.length > 0 ? anchoVisible / puntos.length : 0);
+  // Arriba del punto más alto cabe su cifra, apoyada en él.
+  const arriba = Math.max(ARRIBA_MINIMO, altoDeLaCifra + LADO_DEL_PUNTO / 2);
+  const altoDelDibujo = arriba + ALTO_UTIL + ABAJO;
   const mayor = Math.max(0, ...puntos.map(({ valor }) => valor));
   const lugares: Lugar[] = puntos.map(({ valor }, indice) => ({
     x: columna * (indice + 0.5),
-    y: ARRIBA + ALTO_UTIL * (1 - (mayor > 0 ? Math.max(0, valor) / mayor : 0)),
+    y: arriba + ALTO_UTIL * (1 - (mayor > 0 ? Math.max(0, valor) / mayor : 0)),
   }));
   const anuncio = [titulo, ...puntos.map((punto) => `${punto.etiquetaCompleta ?? punto.etiqueta}: ${textoDe(punto)}`)];
+
+  function anotarAltoDeLaCifra(alto: number) {
+    setAltoDeLaCifra((anterior) => Math.max(anterior, alto));
+  }
 
   return (
     <View accessible accessibilityRole="image" accessibilityLabel={anuncio.join('. ')} testID={testID}>
@@ -79,7 +89,10 @@ export function LineaDeTendencia({ titulo, puntos, testID = 'linea-de-tendencia'
         onLayout={(evento) => setAnchoVisible(evento.nativeEvent.layout.width)}
       >
         <View>
-          <View style={[estilos.dibujo, { width: columna * puntos.length }]} testID="linea-dibujo">
+          <View
+            style={[estilos.dibujo, { width: columna * puntos.length, height: altoDelDibujo }]}
+            testID="linea-dibujo"
+          >
             {lugares.slice(1).map((hasta, indice) => (
               <View
                 key={puntos[indice + 1].clave}
@@ -90,10 +103,17 @@ export function LineaDeTendencia({ titulo, puntos, testID = 'linea-de-tendencia'
             {puntos.map((punto, indice) => (
               <Fragment key={punto.clave}>
                 <Text
+                  testID={`cifra-${punto.clave}`}
+                  onLayout={(evento) => anotarAltoDeLaCifra(evento.nativeEvent.layout.height)}
                   style={[
                     estilos.cifra,
-                    letra('cuerpo', 'fuerte'),
-                    { left: lugares[indice].x - columna / 2, top: lugares[indice].y - ARRIBA, width: columna },
+                    letra('cuerpo', 'semifuerte'),
+                    {
+                      left: lugares[indice].x - columna / 2,
+                      // Su orilla de abajo, en la de arriba del punto; se cuenta desde la línea base, por dentro.
+                      bottom: altoDelDibujo - grosor.control - (lugares[indice].y - LADO_DEL_PUNTO / 2),
+                      width: columna,
+                    },
                   ]}
                 >
                   {textoDe(punto)}
@@ -142,7 +162,6 @@ function segmentoEntre(desde: Lugar, hasta: Lugar) {
 
 const estilos = StyleSheet.create({
   dibujo: {
-    height: ALTO_DEL_DIBUJO,
     borderBottomWidth: grosor.control,
     borderBottomColor: color.semantico.borde_fuerte,
   },
@@ -159,12 +178,12 @@ const estilos = StyleSheet.create({
     borderRadius: radio.pildora,
     backgroundColor: color.semantico.accion,
   },
-  // La cifra, centrada sobre su punto, en el lugar de ARRIBA.
+  // La cifra, centrada sobre su punto y apoyada en él.
   cifra: {
     position: 'absolute',
     textAlign: 'center',
     color: color.semantico.texto,
-    fontSize: tipografia.escala.micro,
+    fontSize: tipografia.escala.menor,
     fontVariant: ['tabular-nums'],
   },
   etiquetas: {
