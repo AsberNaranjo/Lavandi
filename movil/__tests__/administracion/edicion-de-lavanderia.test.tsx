@@ -4,8 +4,10 @@
 // edición). Tarea 4.3. El contrato: "Alta, baja, suspensión y edición de socios." (NSV-2026-001-v8.pdf:19:ANEXO A,
 // Sección A.3, Módulo D #1). Las reglas son las del registro de la lavandería, en ReglasDeLaLavanderia y
 // EdicionDeLavanderia; las prueba el servidor (servidor/tests/Feature/AdministracionEnLaApp/LavanderiasTest.php). Aquí,
-// que la app manda solo lo que cambió, con las fotos en multipart por POST con _method=PATCH, que pone cada 422 junto a
-// su campo sin validar nada por su cuenta, y que la lavandería ve los datos nuevos en su perfil.
+// que la app manda solo lo que cambió, con las fotos en multipart por POST con _method=PATCH, que al guardar regresa a la
+// ficha con los datos nuevos, que pone cada 422 junto a su campo sin validar nada por su cuenta, y que la pantalla del
+// perfil del socio muestra lo que quedó. El cambio de municipio que pide E14 espera que se resuelva el bloqueo de la
+// tarea 4.3 (tasks.md del cambio): el catálogo no se abre a la administración.
 //
 // Se abre la app real, con las rutas de movil/app/ (ADR-0017), en iPhone y en Android, con el servidor simulado de la
 // administración (__tests__/apoyo/administracion.ts) y sus lavanderías (__tests__/apoyo/administracion/lavanderias.ts);
@@ -26,6 +28,7 @@ import {
   ACTIVA,
   DE_BAJA,
   LavanderiasDelServidor,
+  NO_EXISTE_LA_LAVANDERIA,
   RUTA_DE_LAS_LAVANDERIAS,
   rutaDe,
   type LavanderiaDelServidor,
@@ -163,7 +166,7 @@ describe('administracion-app-E14: editar una lavandería', () => {
   );
 
   test.each(PLATAFORMAS)(
-    'administracion-app-E14 — (%s) cambia su nombre, su descripción, su dirección, sus servicios y su horario: manda solo lo que cambió, en JSON, y la ficha muestra los datos nuevos',
+    'administracion-app-E14 — (%s) cambia su nombre, su descripción, su dirección, sus servicios y su horario: manda solo lo que cambió, en JSON, y regresa a la ficha, que muestra los datos nuevos',
     async (plataforma) => {
       await abrirLaEdicion(plataforma);
 
@@ -176,7 +179,16 @@ describe('administracion-app-E14: editar una lavandería', () => {
       await marcar('11:00 – 12:00');
       await guardar();
 
-      expect(await screen.findByText('Guardamos los cambios.')).toBeOnTheScreen();
+      // "Guardar cambios" lleva a la ficha (imágenes 12, 60 y 61 de la Propuesta 06), que vuelve a pedir la lavandería.
+      await waitFor(() => expect(screen).toHavePathname(rutaDe(ACTIVA)));
+      expect(await screen.findByRole('header', { name: 'Lavandería de prueba renovada' })).toBeOnTheScreen();
+      expect(lavanderias.pedidas()).toEqual([
+        `GET ${RUTA_DE_LAS_LAVANDERIAS}`,
+        `GET ${rutaDe(ACTIVA)}`,
+        `GET ${rutaDe(ACTIVA)}`,
+        `PATCH ${rutaDe(ACTIVA)}`,
+        `GET ${rutaDe(ACTIVA)}`,
+      ]);
       expect(lavanderias.envios(ACTIVA)).toEqual([
         {
           metodo: 'PATCH',
@@ -205,21 +217,18 @@ describe('administracion-app-E14: editar una lavandería', () => {
           },
         },
       ]);
-      // La pantalla queda con lo que devolvió el servidor.
-      expect(screen.getByLabelText('Precio por kilo de lavado estándar')).toHaveDisplayValue('20.00');
       // La edición no cambia su estado.
       expect(enElServidor(ACTIVA).estado).toBe('activa');
-
-      await fireEvent.press(screen.getByRole('button', { name: 'Regresar' }));
-      await waitFor(() => expect(screen).toHavePathname(rutaDe(ACTIVA)));
-      expect(await screen.findByRole('header', { name: 'Lavandería de prueba renovada' })).toBeOnTheScreen();
+      expect(screen.getByTestId('estado-de-la-lavanderia')).toHaveTextContent('Activa');
       expect(screen.getByTestId('dato-direccion')).toHaveTextContent(
         'Dirección' + 'Calle Nueva 100, Zona Centro, C. P. 34000, Durango, Durango',
       );
       expect(screen.getByTestId('dato-servicios')).toHaveTextContent(
         'Servicios y precios' + 'Lavado estándar: $20.00 por kilo · Lavado con planchado: $25.50 por kilo',
       );
-      expect(screen.getByTestId('dato-ventanas')).toHaveTextContent('Ventanas de disponibilidad' + 'Lunes: 09:00 – 12:00');
+      expect(screen.getByTestId('dato-ventanas')).toHaveTextContent(
+        'Ventanas de disponibilidad' + 'Lunes, de 09:00 a 12:00',
+      );
       expect(screen.getByTestId('dato-descripcion-y-fotos')).toHaveTextContent(
         'Descripción y fotos' + 'Lavamos y entregamos el mismo día. · 2 fotos',
       );
@@ -232,8 +241,20 @@ describe('administracion-app-E14: editar una lavandería', () => {
     await escribir('Nombre', 'Otro nombre');
     await guardar();
 
-    await waitFor(() => expect(lavanderias.envios(ACTIVA)).toHaveLength(1));
+    await waitFor(() => expect(screen).toHavePathname(rutaDe(ACTIVA)));
+    expect(lavanderias.envios(ACTIVA)).toHaveLength(1);
     expect(lavanderias.envios(ACTIVA)[0].cuerpo).toEqual({ nombre: 'Otro nombre' });
+  });
+
+  test('administracion-app-E14 — abierta sin la ficha detrás, al guardar abre la ficha de esa lavandería', async () => {
+    await abrirLaAppConLaAdministracion('android', edicionEnLaApp(ACTIVA));
+    await screen.findByLabelText('Nombre');
+
+    await escribir('Nombre', 'Otro nombre');
+    await guardar();
+
+    await waitFor(() => expect(screen).toHavePathname(rutaDe(ACTIVA)));
+    expect(await screen.findByRole('header', { name: 'Otro nombre' })).toBeOnTheScreen();
   });
 
   test.each(PLATAFORMAS)(
@@ -255,7 +276,7 @@ describe('administracion-app-E14: editar una lavandería', () => {
       expect(fotosEnLaPantalla()).toEqual([segunda.url, nueva]);
       await guardar();
 
-      expect(await screen.findByText('Guardamos los cambios.')).toBeOnTheScreen();
+      await waitFor(() => expect(screen).toHavePathname(rutaDe(ACTIVA)));
       expect(lavanderias.envios(ACTIVA)).toEqual([
         {
           metodo: 'POST',
@@ -274,7 +295,13 @@ describe('administracion-app-E14: editar una lavandería', () => {
         segunda.url,
         `https://fotos.prueba.invalid/${encodeURIComponent(contenidoDelArchivo(nueva))}?firma=2`,
       ]);
-      expect(fotosEnLaPantalla()).toEqual(guardadas.map(({ url }) => url));
+      // La ficha se pide otra vez y cuenta las fotos que quedaron.
+      await waitFor(() =>
+        expect(lavanderias.pedidas().slice(-2)).toEqual([`POST ${rutaDe(ACTIVA)}`, `GET ${rutaDe(ACTIVA)}`]),
+      );
+      expect(screen.getByTestId('dato-descripcion-y-fotos')).toHaveTextContent(
+        'Descripción y fotos' + 'Texto de prueba. · 2 fotos',
+      );
     },
   );
 
@@ -301,8 +328,9 @@ describe('administracion-app-E14: editar una lavandería', () => {
         'El precio va en pesos, sin signo y con hasta dos decimales.',
       );
       expect(await within(screen.getByTestId('campo-fotos')).findByText('La foto debe ser una imagen JPG, PNG o WebP.')).toBeOnTheScreen();
-      expect(screen.queryByText('Guardamos los cambios.')).not.toBeOnTheScreen();
-      // Nada cambió en el servidor, y lo escrito se queda para corregirlo.
+      // La pantalla se queda (imagen 13): nada cambió en el servidor, y lo escrito sigue ahí para corregirlo.
+      expect(screen).toHavePathname(edicionEnLaApp(ACTIVA));
+      expect(within(screen.getByTestId('acciones')).getByRole('button', { name: 'Guardar cambios' })).toBeEnabled();
       expect(enElServidor(ACTIVA).datos).toEqual(ACTIVA.datos);
       expect(screen.getByLabelText('Precio por kilo de lavado estándar')).toHaveDisplayValue('$20');
     },
@@ -323,6 +351,18 @@ describe('administracion-app-E14: editar una lavandería', () => {
       'La dirección nueva queda en otra plaza de servicio. Ese cambio todavía no se puede hacer.',
     );
     expect(enElServidor(ACTIVA).datos.direccion.calle).toBe('Calle de Prueba');
+    expect(screen).toHavePathname(edicionEnLaApp(ACTIVA));
+  });
+
+  test('administracion-app-E14 — si la lavandería ya no existe al guardar, el mensaje del servidor va arriba del botón y la pantalla se queda', async () => {
+    await abrirLaEdicion('ios');
+    lavanderias.lavanderias = lavanderias.lavanderias.filter(({ datos }) => datos.id_publico !== ACTIVA.datos.id_publico);
+
+    await escribir('Nombre', 'Otro nombre');
+    await guardar();
+
+    expect(await screen.findByText(NO_EXISTE_LA_LAVANDERIA)).toBeOnTheScreen();
+    expect(screen).toHavePathname(edicionEnLaApp(ACTIVA));
   });
 
   test.each(PLATAFORMAS)(
@@ -333,23 +373,36 @@ describe('administracion-app-E14: editar una lavandería', () => {
       await escribir('Descripción', 'Descripción corregida.');
       await guardar();
 
-      expect(await screen.findByText('Guardamos los cambios.')).toBeOnTheScreen();
+      await waitFor(() => expect(screen).toHavePathname(rutaDe(DE_BAJA)));
       expect(lavanderias.envios(DE_BAJA)).toEqual([
         { metodo: 'PATCH', ruta: rutaDe(DE_BAJA), multipart: false, cuerpo: { descripcion: 'Descripción corregida.' } },
       ]);
       expect(enElServidor(DE_BAJA).estado).toBe('baja');
       expect(enElServidor(DE_BAJA).datos.descripcion).toBe('Descripción corregida.');
+      // La ficha, pedida otra vez, sigue de baja y con la descripción nueva.
+      await waitFor(() =>
+        expect(screen.getByTestId('dato-descripcion-y-fotos')).toHaveTextContent(
+          'Descripción y fotos' + 'Descripción corregida. · 2 fotos',
+        ),
+      );
+      expect(screen.getByTestId('estado-de-la-lavanderia')).toHaveTextContent('Dada de baja');
     },
   );
 
+  // Aquí, la pantalla del socio pinta la lavandería como la dejó la edición en el servidor simulado, que se le copia a
+  // mano. Que la ruta del socio lea lo que editó la administración es del servidor, y lo prueba de punta a punta
+  // servidor/tests/Feature/AdministracionEnLaApp/LavanderiasTest.php (paquete A05, rama admin/a05):
+  // test_administracion_app_e14_edita_sus_datos_como_la_edicion_del_panel y
+  // test_administracion_app_e14_edita_una_lavanderia_en_cualquier_estado editan por la API de la administración y leen por
+  // GET /api/socio/lavanderias/{id_publico} con el token del socio.
   test.each(PLATAFORMAS)(
-    'administracion-app-E14 — (%s) la lavandería ve los datos nuevos en su perfil de la app',
+    'administracion-app-E14 — (%s) la pantalla del perfil del socio muestra la lavandería como la dejó la edición; la garantía de punta a punta es la prueba del servidor (LavanderiasTest.php)',
     async (plataforma) => {
       await abrirLaEdicion(plataforma);
       await escribir('Nombre', 'Lavandería de prueba renovada');
       await escribir('Descripción', 'Lavamos y entregamos el mismo día.');
       await guardar();
-      expect(await screen.findByText('Guardamos los cambios.')).toBeOnTheScreen();
+      await waitFor(() => expect(screen).toHavePathname(rutaDe(ACTIVA)));
 
       // Su socio abre la app en su teléfono, y el servidor le da su lavandería como la dejó la administración.
       screen.unmount();
@@ -368,6 +421,14 @@ describe('administracion-app-E14: editar una lavandería', () => {
       );
     },
   );
+});
+
+describe('administracion-app-E14 (bloqueada en el municipio: tasks.md, tarea 4.3)', () => {
+  // E14 pide cambiar "su dirección con su municipio", y el catálogo de municipios no se abre a la administración
+  // (design.md, sección 2; ADR-0022, decisión 6): la contradicción la resuelve Arthur. Al resolverla, esta prueba elige
+  // otro municipio, comprueba que viaja direccion.municipio con el código nuevo y que no sale "No pudimos cargar la lista
+  // de municipios".
+  test.todo('administracion-app-E14 — cambia el municipio de su dirección: viaja direccion.municipio con el código nuevo');
 });
 
 describe('administracion-app-E05: la sesión vence en la edición', () => {

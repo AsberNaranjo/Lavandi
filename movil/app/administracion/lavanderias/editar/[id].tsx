@@ -7,12 +7,17 @@
 //
 // "Guardar cambios", fijo abajo, manda solo lo que cambió (PATCH /api/administracion/lavanderias/{id_publico}); con una
 // foto nueva, en multipart por POST con _method=PATCH. Las reglas son las del registro y las aplica el servidor: cada
-// error del 422 va junto a su campo y nada cambia. Al guardar, la pantalla queda con lo que devolvió el servidor y lo
-// dice; la ficha lo muestra al regresar, y su socio en su perfil. Si la lavandería no llega, los mensajes generales con
-// "Intentar de nuevo"; con un 401, el cliente del módulo cierra la sesión (administracion-app-E05).
+// error del 422 va junto a su campo, nada cambia y la pantalla se queda. Al guardar, regresa a la ficha, que vuelve a
+// pedir la lavandería y muestra los datos nuevos, como "Guardar cambios" en las imágenes 12, 60 y 61 (lleva a la 07); su
+// socio los ve en su perfil. Si la lavandería no llega, los mensajes generales con "Intentar de nuevo"; con un 401, el
+// cliente del módulo cierra la sesión (administracion-app-E05).
 //
-// La composición es la de las imágenes 12, 60, 13 y 61 de la Propuesta 06. Del mock no entra "Número" junto a "Código
-// postal" en un renglón: el formulario es el del socio, en su orden, y no cambia.
+// La composición es la de las imágenes 12, 60, 13 y 61 de la Propuesta 06, salvo la dirección. La imagen 12 la pone en
+// este orden: Calle; Número y Código postal en un renglón; Colonia. Aquí va en el orden del formulario del socio
+// (FormularioDeLaLavanderia.tsx: PARTES_DE_LA_DIRECCION y, después, el código postal): Calle, Número, Colonia y Código
+// postal, cada uno en su renglón. Manda el formulario: administracion-app-E14 y design.md, sección 4 (F-D01), piden su
+// orden, y el formulario no cambia. El municipio todavía no se puede cambiar: el catálogo no se abre a la administración
+// (tasks.md, tarea 4.3, bloqueada en el municipio).
 import { useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
@@ -36,8 +41,13 @@ import { color, espaciado, tipografia } from '../../../../src/tema/theme';
 export default function EdicionDeLaLavanderia() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const regresar = useRegresar(rutaDeLaFicha(id));
-  const { edicion, fallaDeLaLectura, errores, guardando, guardado, cambiar, guardar, reintentar } =
-    useEdicionDeLavanderia(id);
+  const { edicion, fallaDeLaLectura, errores, guardando, cambiar, guardar, reintentar } = useEdicionDeLavanderia(id);
+
+  async function guardarYRegresar() {
+    if (await guardar()) {
+      regresar();
+    }
+  }
 
   return (
     <Pantalla
@@ -45,7 +55,7 @@ export default function EdicionDeLaLavanderia() {
       encabezado={{ titulo: TEXTOS.editarLavanderia, alRegresar: regresar }}
       acciones={
         edicion ? (
-          <Boton ocupado={guardando} onPress={() => void guardar()}>
+          <Boton ocupado={guardando} onPress={() => void guardarYRegresar()}>
             {TEXTOS.guardarCambios}
           </Boton>
         ) : undefined
@@ -86,11 +96,6 @@ export default function EdicionDeLaLavanderia() {
         />
       ) : null}
       <MensajeDeError texto={errores.general} />
-      {guardado ? (
-        <Text accessibilityLiveRegion="polite" style={[estilos.guardado, letra('cuerpo', 'semifuerte')]}>
-          {TEXTOS.cambiosGuardados}
-        </Text>
-      ) : null}
     </Pantalla>
   );
 }
@@ -104,9 +109,5 @@ const estilos = StyleSheet.create({
   suave: {
     color: color.semantico.texto_suave,
     fontSize: tipografia.escala.cuerpo,
-  },
-  guardado: {
-    color: color.estado.exito,
-    fontSize: tipografia.escala.menor,
   },
 });

@@ -17,8 +17,10 @@
 // El 401 y el 403 los responde antes el servidor simulado de la administración.
 //
 // El catálogo de municipios (GET /catalogos/municipios), que pide el formulario de la edición, responde 403 a la
-// administración, como el servidor real: solo lo abre a usuario, lavandería y repartidor (servidor/routes/api.php:67-70;
-// design.md del cambio, sección 2).
+// administración, como el servidor real: solo lo abre a usuario, lavandería y repartidor (servidor/routes/api.php:64-70;
+// design.md del cambio, sección 2). Por eso la edición todavía no cambia el municipio que pide administracion-app-E14: la
+// tarea 4.3 queda bloqueada en el municipio (tasks.md del cambio). Cuando Arthur resuelva el bloqueo, este apoyo responde
+// el catálogo a la administración y la edición prueba el cambio de municipio.
 import type { ArchivoDelFormulario } from '../formulario';
 import {
   copia,

@@ -6,6 +6,10 @@
 // imagen 13); sin ella, como los pedidos en curso sobre los botones de la ficha (DD-104, imágenes 07 y 10). Ninguna
 // pieza de src/piezas/ lleva el número de la decisión: RenglonReservado solo dice "Por confirmar". Colores y medidas de
 // theme.ts (ADR-0013); la marca lleva su borde además del color (design system, reglas transversales).
+//
+// Deuda: la marca copia los estilos de la de RenglonReservado (src/pedido/ResumenDelPedido.tsx), y las fichas de
+// repartidores y usuarios esperan otras DD con la misma marca. Va a una pieza común, junto a RenglonReservado y con el
+// número de la DD por propiedad, en un cambio aparte que la use en todas.
 import { StyleSheet, Text, View } from 'react-native';
 
 import { letra } from '../../tema/letra';

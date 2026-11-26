@@ -5,9 +5,11 @@
 //
 // "Guardar cambios" manda solo lo que cambió, como el socio: la dirección completa si cambió alguna de sus partes, y los
 // servicios, las ventanas y las fotos completos si cambió alguno; con una foto nueva, en multipart por POST con
-// _method=PATCH. La app no valida nada por su cuenta: cada error del servidor va junto a su campo y nada cambia. Al
-// guardar, el formulario queda con la lavandería que devolvió el servidor y lo dice. Mientras guarda, el botón se
-// bloquea: un doble toque no manda dos veces. Un 401 lo atiende el cliente del módulo, que ya llevó al inicio de sesión.
+// _method=PATCH. La app no valida nada por su cuenta: cada error del servidor va junto a su campo y nada cambia, y la
+// pantalla se queda. Si se guardó, guardar() responde true y la pantalla regresa a la ficha, que vuelve a pedir la
+// lavandería al verse y muestra los datos nuevos: en las imágenes 12, 60 y 61 de la Propuesta 06, "Guardar cambios" lleva
+// a la ficha (07); en la 13, con un error, la pantalla se queda. Mientras guarda, el botón se bloquea: un doble toque no
+// manda dos veces. Un 401 lo atiende el cliente del módulo, que ya llevó al inicio de sesión.
 import { useCallback, useEffect, useRef, useState, type SetStateAction } from 'react';
 
 import { MENSAJES } from '../../acceso/mensajes';
@@ -23,9 +25,7 @@ import { consultarLavanderia, editarLavanderia, type LavanderiaDeLaAdministracio
 
 const SIN_ERRORES: ErroresDelFormulario = { campos: {} };
 
-/**
- * El formulario como se abrió (o como quedó al guardar) y como está ahora, con el máximo de fotos que dio el servidor.
- */
+/** El formulario como se abrió y como está ahora, con el máximo de fotos que dio el servidor. */
 export interface Edicion {
   original: Formulario;
   actual: Formulario;
@@ -43,7 +43,6 @@ export function useEdicionDeLavanderia(idPublico: string) {
   const [fallaDeLaLectura, setFallaDeLaLectura] = useState<FallaDeLaAdministracion | null>(null);
   const [errores, setErrores] = useState<ErroresDelFormulario>(SIN_ERRORES);
   const [guardando, setGuardando] = useState(false);
-  const [guardado, setGuardado] = useState(false);
   // Cada intento nuevo vuelve a pedir la lavandería.
   const [intento, setIntento] = useState(0);
   // Ataja el segundo toque antes de que el botón se bloquee.
@@ -80,41 +79,41 @@ export function useEdicionDeLavanderia(idPublico: string) {
     setIntento((anterior) => anterior + 1);
   }, []);
 
-  // Lo que la persona cambia: el aviso de lo guardado se va con el primer cambio.
+  // Lo que la persona cambia.
   const cambiar = useCallback((cambio: SetStateAction<Formulario>) => {
-    setGuardado(false);
     setEdicion((anterior) =>
       anterior ? { ...anterior, actual: typeof cambio === 'function' ? cambio(anterior.actual) : cambio } : anterior,
     );
   }, []);
 
-  const guardar = useCallback(async () => {
+  /** Manda lo que cambió; true si el servidor lo guardó y la pantalla ya puede regresar a la ficha. */
+  const guardar = useCallback(async (): Promise<boolean> => {
     if (!edicion || enCamino.current) {
-      return;
+      return false;
     }
     enCamino.current = true;
     setGuardando(true);
-    setGuardado(false);
     setErrores(SIN_ERRORES);
     const cambios = cambiosEntre(edicion.original, edicion.actual);
     const resultado = await editarLavanderia(pedir, idPublico, cambios);
     enCamino.current = false;
+    // Si la persona ya regresó, o la sesión venció, no hay pantalla de la cual regresar.
     if (!montada.current || (!resultado.ok && resultado.motivo === 'sin-sesion')) {
-      return;
+      return false;
+    }
+    if (resultado.ok) {
+      // El botón sigue ocupado mientras la pantalla regresa: no se manda otra vez.
+      return true;
     }
     setGuardando(false);
-    if (resultado.ok) {
-      setEdicion(edicionDe(resultado.datos));
-      setGuardado(true);
-      return;
-    }
     // La lavandería que ya no existe no es de un campo: su mensaje va arriba del botón, como el de una falla general.
     setErrores(
       resultado.motivo === 'no-existe'
         ? { campos: {}, general: resultado.mensaje || MENSAJES.servidor }
         : erroresDelEnvio(resultado, cambios),
     );
+    return false;
   }, [edicion, pedir, idPublico]);
 
-  return { edicion, fallaDeLaLectura, errores, guardando, guardado, cambiar, guardar, reintentar };
+  return { edicion, fallaDeLaLectura, errores, guardando, cambiar, guardar, reintentar };
 }

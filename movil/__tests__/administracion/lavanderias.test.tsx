@@ -175,7 +175,10 @@ describe('administracion-app-E13: la lista y la ficha de las lavanderías', () =
       expect(lavanderias.pedidas()).toContain(`GET ${RUTA_DE_LAS_LAVANDERIAS}?buscar=NORTE`);
 
       await fireEvent.changeText(screen.getByLabelText('Buscar por nombre'), 'Ninguna así');
+      // Texto provisional: la Propuesta 06 no dibuja la búsqueda sin coincidencias (src/administracion/lavanderias/
+      // textos.ts). Lo de E13 aquí es que la búsqueda la hace el servidor y la lista se queda sin filas.
       expect(await screen.findByText('Ninguna lavandería tiene ese nombre.')).toBeOnTheScreen();
+      expect(screen.queryByTestId('lista-de-lavanderias')).not.toBeOnTheScreen();
       expect(lavanderias.pedidas()).toContain(`GET ${RUTA_DE_LAS_LAVANDERIAS}?buscar=Ninguna%20as%C3%AD`);
 
       // Sin texto, otra vez todas.
@@ -185,14 +188,6 @@ describe('administracion-app-E13: la lista y la ficha de las lavanderías', () =
       );
     },
   );
-
-  test('administracion-app-E13 — sin ninguna lavandería, la lista lo dice', async () => {
-    lavanderias.lavanderias = [];
-    await abrirLaAppConLaAdministracion('android');
-    await fireEvent.press(await screen.findByRole('link', { name: 'Lavanderías' }));
-
-    expect(await screen.findByText('Todavía no hay lavanderías.')).toBeOnTheScreen();
-  });
 
   test.each(PLATAFORMAS)(
     'administracion-app-E13 — (%s) si la lista no llega, la pantalla lo dice y ofrece intentar de nuevo',
@@ -232,7 +227,9 @@ describe('administracion-app-E13: la lista y la ficha de las lavanderías', () =
       expect(screen.getByTestId('dato-servicios')).toHaveTextContent(
         'Servicios y precios' + 'Lavado estándar: $18.50 por kilo',
       );
-      expect(screen.getByTestId('dato-ventanas')).toHaveTextContent('Ventanas de disponibilidad' + 'Lunes: 09:00 – 11:00');
+      expect(screen.getByTestId('dato-ventanas')).toHaveTextContent(
+        'Ventanas de disponibilidad' + 'Lunes, de 09:00 a 11:00',
+      );
       expect(screen.getByTestId('dato-descripcion-y-fotos')).toHaveTextContent(
         'Descripción y fotos' + 'Texto de prueba. · 2 fotos',
       );
@@ -244,6 +241,27 @@ describe('administracion-app-E13: la lista y la ficha de las lavanderías', () =
       await waitFor(() => expect(screen).toHavePathname(RUTA_DE_LAS_LAVANDERIAS));
     },
   );
+
+  test('administracion-app-E13 — la ficha junta en un renglón los días seguidos con las mismas horas, como la imagen 07: "Lunes a sábado, de 09:00 a 18:00"', async () => {
+    // Las ventanas de una hora de ese día, de una hora a otra, como las da el servidor.
+    const horas = (dia: number, desde: number, hasta: number) =>
+      Array.from({ length: hasta - desde }, (_, cual) => ({
+        dia_semana: dia,
+        hora_inicio: `${String(desde + cual).padStart(2, '0')}:00`,
+        hora_fin: `${String(desde + cual + 1).padStart(2, '0')}:00`,
+      }));
+    lavanderias.de(ACTIVA.datos.id_publico).datos.ventanas = [
+      ...[1, 2, 3, 4, 5, 6].flatMap((dia) => horas(dia, 9, 18)),
+      ...horas(7, 10, 12),
+      ...horas(7, 16, 18),
+    ];
+
+    await abrirLaFicha('android', ACTIVA);
+
+    expect(within(screen.getByTestId('dato-ventanas')).getByText(/^Lunes/).props.children).toBe(
+      'Lunes a sábado, de 09:00 a 18:00\nDomingo, de 10:00 a 12:00 y de 16:00 a 18:00',
+    );
+  });
 
   test('administracion-app-E13 — cada estado ofrece solo las acciones que trae la respuesta: pendiente, suspendida y de baja', async () => {
     await abrirLaFicha('ios', PENDIENTE);
@@ -377,6 +395,36 @@ describe('administracion-app-E15: suspender una lavandería y levantar la suspen
     await esperarElEstado('Suspendida');
     expect(lavanderias.envios(ACTIVA)).toHaveLength(1);
   });
+
+  test('administracion-app-E15 — una consulta que salió antes de suspender y llega después no regresa la ficha a su estado viejo', async () => {
+    await abrirLaFicha('android', ACTIVA);
+    await tocar('Editar');
+    await screen.findByLabelText('Nombre');
+    // La consulta que la ficha hace al volver a verse se queda en camino, con la lavandería todavía activa.
+    const antes = servidor().interceptar;
+    let soltar: () => void = () => {};
+    servidor().interceptar = (peticion) => {
+      if (peticion.metodo !== 'GET' || peticion.ruta !== rutaDe(ACTIVA)) {
+        return antes?.(peticion);
+      }
+      const activa = fichaDe(lavanderias.de(ACTIVA.datos.id_publico));
+      return new Promise((resolver) => {
+        soltar = () => resolver(respuesta(200, { lavanderia: activa }));
+      });
+    };
+    await fireEvent.press(screen.getByRole('button', { name: 'Regresar' }));
+    await waitFor(() => expect(lavanderias.pedidas()).toHaveLength(4));
+
+    await tocar('Suspender');
+    await responder('Suspender');
+    await esperarElEstado('Suspendida');
+    await act(async () => {
+      soltar();
+    });
+
+    expect(screen.getByTestId('estado-de-la-lavanderia')).toHaveTextContent('Suspendida');
+    expect(botonesDeLaFicha()).toEqual(['Levantar la suspensión', 'Editar', 'Dar de baja']);
+  });
 });
 
 describe('administracion-app-E16: dar de baja una lavandería', () => {
@@ -455,6 +503,53 @@ describe('administracion-app-E12: un registro que no existe y una acción que ya
       expect(screen.queryByRole('button', { name: 'Intentar de nuevo' })).not.toBeOnTheScreen();
     },
   );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E12 — (%s) si la lavandería ya no existe al suspender, el 404 dice el mensaje del servidor una sola vez y la ficha, pedida otra vez, no ofrece acciones',
+    async (plataforma) => {
+      await abrirLaFicha(plataforma, ACTIVA);
+      lavanderias.lavanderias = lavanderias.lavanderias.filter(
+        ({ datos }) => datos.id_publico !== ACTIVA.datos.id_publico,
+      );
+
+      await tocar('Suspender');
+      await responder('Suspender');
+
+      await waitFor(() => expect(screen.queryByTestId('acciones')).not.toBeOnTheScreen());
+      expect(screen.getAllByText(NO_EXISTE_LA_LAVANDERIA)).toHaveLength(1);
+      expect(lavanderias.pedidas().slice(-2)).toEqual([`POST ${rutaDe(ACTIVA)}/suspension`, `GET ${rutaDe(ACTIVA)}`]);
+    },
+  );
+
+  test('administracion-app-E12 — el mensaje del 409 se va al volver a la ficha desde la edición, que se pide otra vez', async () => {
+    await abrirLaFicha('ios', ACTIVA);
+    lavanderias.de(ACTIVA.datos.id_publico).estado = 'baja';
+    await tocar('Suspender');
+    await responder('Suspender');
+    const mensaje = transicionNoPermitida('baja', 'suspender');
+    expect(await screen.findByText(mensaje)).toBeOnTheScreen();
+
+    await tocar('Editar');
+    await screen.findByLabelText('Nombre');
+    await fireEvent.press(screen.getByRole('button', { name: 'Regresar' }));
+
+    await waitFor(() => expect(screen).toHavePathname(rutaDe(ACTIVA)));
+    await waitFor(() => expect(screen.queryByText(mensaje)).not.toBeOnTheScreen());
+    expect(lavanderias.pedidas().slice(-1)).toEqual([`GET ${rutaDe(ACTIVA)}`]);
+    expect(botonesDeLaFicha()).toEqual(['Editar']);
+  });
+});
+
+describe('Lo que la Propuesta 06 no dibuja (textos provisionales, sin escenario)', () => {
+  // La lista sin ninguna lavandería no está en la Propuesta 06 ni en un escenario: su texto es nuevo de la app y espera
+  // que Arthur lo apruebe en la spec o en una adenda de los mocks (src/administracion/lavanderias/textos.ts).
+  test('sin ninguna lavandería, la lista lo dice con su texto provisional', async () => {
+    lavanderias.lavanderias = [];
+    await abrirLaAppConLaAdministracion('android');
+    await fireEvent.press(await screen.findByRole('link', { name: 'Lavanderías' }));
+
+    expect(await screen.findByText('Todavía no hay lavanderías.')).toBeOnTheScreen();
+  });
 });
 
 describe('administracion-app-E17 (en espera de DD-053): el alta de una lavandería', () => {

@@ -8,38 +8,52 @@
 // instrucciones de las fotos y de las ventanas de la edición, que hablan de la lavandería y no de tú.
 //
 // Los errores de cada dato al editar son los del servidor (ReglasDeLaLavanderia); el 409 de un cambio de estado trae el
-// mensaje de EstadoDeLaLavanderia tal cual (administracion-app-E12), y el 404, el del servidor.
+// mensaje de EstadoDeLaLavanderia tal cual (administracion-app-E12), y el 404, el del servidor. Los que la app ya dice
+// en el perfil de la lavandería o en su perfil y horarios se toman de ahí, para que digan lo mismo.
+//
+// Los marcados "Provisional" son textos nuevos de la app: no salen de una imagen de la Propuesta 06 ni de un escenario.
+// La Propuesta 06 no dibuja la lista sin lavanderías, la búsqueda sin coincidencias, la lista mientras carga ni una
+// ficha sin servicios, sin ventanas, sin descripción o sin fotos (sus estados vacíos son los de las imágenes 27, 40 y
+// 55). Esperan que Arthur los apruebe en la spec o en una adenda de los mocks, como "Todavía no hay descargas." de la 55.
 import { MENSAJES } from '../../acceso/mensajes';
-import { ventanaEnTexto } from '../../agenda/textos';
 import type { LavanderiaDelSocio } from '../../alta-lavanderias/api';
 import { nombreDelDia } from '../../alta-lavanderias/formulario';
 import type { TextosDeQuienEdita } from '../../alta-lavanderias/FormularioDeLaLavanderia';
+import { cuantasVentanas, TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO } from '../../alta-lavanderias/textos';
 import { mensajeDeLaFalla } from '../../cercanas/textos';
 import { TEXTOS_DEL_RESUMEN } from '../../pedido/textos';
-import { precioEnTexto } from '../../perfil/textos';
+import { precioEnTexto, TEXTOS_DEL_PERFIL } from '../../perfil/textos';
 import type { FallaDeLaAdministracion } from '../api';
 import type { EstadoDeLaLavanderia, Transicion } from './api';
 
 export const TEXTOS_DE_LAS_LAVANDERIAS = {
   // La lista (administracion-app-E13; imágenes 05 y 06). Su título es el de su entrada en el inicio del módulo.
   buscarPorNombre: 'Buscar por nombre',
+  /** Provisional: texto nuevo de la app. */
   cargandoLaLista: 'Cargando las lavanderías…',
+  /** Provisional: texto nuevo de la app. */
   sinLavanderias: 'Todavía no hay lavanderías.',
+  /** Provisional: texto nuevo de la app. */
   sinCoincidencias: 'Ninguna lavandería tiene ese nombre.',
-  intentarDeNuevo: 'Intentar de nuevo',
+  intentarDeNuevo: TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO.intentarDeNuevo,
   // El alta espera DD-053 (administracion-app-E17): ni la lista ni la ficha la ofrecen (imagen 06).
   darDeAltaUnaLavanderia: 'Dar de alta una lavandería',
   sinAlta: 'La lista y las fichas no ofrecen el alta.',
   // La ficha (administracion-app-E13; imágenes 07, 09, 10 y 11).
-  lavanderia: 'Lavandería',
-  cargandoLaFicha: 'Cargando la lavandería…',
-  direccion: 'Dirección',
-  serviciosYPrecios: 'Servicios y precios',
+  lavanderia: TEXTOS_DEL_PERFIL.encabezado,
+  cargandoLaFicha: TEXTOS_DEL_PERFIL.cargando,
+  direccion: TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO.direccion,
+  serviciosYPrecios: TEXTOS_DEL_PERFIL.servicios,
   ventanas: 'Ventanas de disponibilidad',
   descripcionYFotos: 'Descripción y fotos',
+  /** Provisional: texto nuevo de la app. */
   sinServicios: 'Sin servicios',
-  sinVentanas: 'Sin ventanas',
+  /** Provisional: el del día sin ventanas del perfil y horarios, para la lavandería que no tiene ninguna. */
+  sinVentanas: cuantasVentanas(0),
+  /** Provisional: texto nuevo de la app. */
   sinDescripcion: 'Sin descripción',
+  /** Provisional: texto nuevo de la app. */
+  sinFotos: 'Sin fotos',
   editar: 'Editar',
   // Lo que pasa con los pedidos en curso espera DD-104 (administracion-app-E18): la ficha lo marca sobre los botones.
   pedidosEnCursoAlSuspenderODarDeBaja: 'Pedidos en curso al suspender o dar de baja',
@@ -49,8 +63,7 @@ export const TEXTOS_DE_LAS_LAVANDERIAS = {
   deBaja: 'Ninguna acción de estado sale de la baja. Sus datos y sus pedidos pasados se quedan.',
   // La edición (administracion-app-E14; imágenes 12, 60, 13 y 61).
   editarLavanderia: 'Editar lavandería',
-  guardarCambios: 'Guardar cambios',
-  cambiosGuardados: 'Guardamos los cambios.',
+  guardarCambios: TEXTOS_DE_LA_LAVANDERIA_DEL_SOCIO.guardarCambios,
   // El lavado en seco espera la unidad que fije DD-010 (alta-lavanderias-E07): sin interruptor (imagen 13).
   lavadoEnSeco: 'Lavado en seco',
   sinLavadoEnSeco: 'La app no lo ofrece mientras no se fije su unidad.',
@@ -144,8 +157,9 @@ export function serviciosEnTexto(servicios: LavanderiaDelSocio['servicios']): st
 }
 
 /**
- * Las ventanas, un renglón por día, con las de una hora seguidas juntas: "Lunes: 09:00 – 14:00, 16:00 – 18:00". Las da
- * el servidor por día y por hora, en la hora de la plaza.
+ * Las ventanas como las dice la ficha de las imágenes 07 y 10: "Lunes a sábado, de 09:00 a 18:00". Las de una hora
+ * seguidas van en un tramo; los tramos de un día, juntos con "y": "Domingo, de 10:00 a 12:00 y de 16:00 a 18:00"; y los
+ * días seguidos con los mismos tramos, en un renglón. Las da el servidor por día y por hora, en la hora de la plaza.
  */
 export function ventanasEnTexto(ventanas: LavanderiaDelSocio['ventanas']): string {
   if (ventanas.length === 0) {
@@ -165,13 +179,31 @@ export function ventanasEnTexto(ventanas: LavanderiaDelSocio['ventanas']): strin
     }
     porDia.set(dia_semana, delDia);
   }
-  return [...porDia.entries()]
-    .map(([dia, tramos]) => `${nombreDelDia(dia)}: ${tramos.map(ventanaEnTexto).join(', ')}`)
-    .join('\n');
+  // Cada renglón va del primer día al último seguido con los mismos tramos; el Map guarda los días en orden.
+  const renglones: { desde: number; hasta: number; tramos: string }[] = [];
+  for (const [dia, delDia] of porDia) {
+    const tramos = delDia.map(({ hora_inicio, hora_fin }) => `de ${hora_inicio} a ${hora_fin}`).join(' y ');
+    const anterior = renglones[renglones.length - 1];
+    if (anterior && anterior.hasta === dia - 1 && anterior.tramos === tramos) {
+      anterior.hasta = dia;
+    } else {
+      renglones.push({ desde: dia, hasta: dia, tramos });
+    }
+  }
+  return renglones.map(({ desde, hasta, tramos }) => `${diasEnTexto(desde, hasta)}, ${tramos}`).join('\n');
+}
+
+/** "Lunes", o "Lunes a sábado" si son varios días seguidos. */
+function diasEnTexto(desde: number, hasta: number): string {
+  if (desde === hasta) {
+    return nombreDelDia(desde);
+  }
+  return `${nombreDelDia(desde)} a ${nombreDelDia(hasta).toLocaleLowerCase('es')}`;
 }
 
 /** "Lavamos el mismo día. · 3 fotos": la descripción, o que no tiene, y cuántas fotos tiene su perfil. */
 export function descripcionYFotosEnTexto({ descripcion, fotos }: Pick<LavanderiaDelSocio, 'descripcion' | 'fotos'>) {
-  const cuantas = fotos.length === 0 ? 'Sin fotos' : fotos.length === 1 ? '1 foto' : `${fotos.length} fotos`;
+  const cuantas =
+    fotos.length === 0 ? TEXTOS_DE_LAS_LAVANDERIAS.sinFotos : fotos.length === 1 ? '1 foto' : `${fotos.length} fotos`;
   return `${descripcion?.trim() || TEXTOS_DE_LAS_LAVANDERIAS.sinDescripcion} · ${cuantas}`;
 }
