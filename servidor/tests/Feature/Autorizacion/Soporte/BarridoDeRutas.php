@@ -2,9 +2,13 @@
 
 namespace Tests\Feature\Autorizacion\Soporte;
 
+use App\Exportacion\CreacionDeDescarga;
+use App\Exportacion\Exportacion;
+use App\Exportacion\Exportadores\PedidosTotalesExportador;
 use App\Models\Usuario;
 use Closure;
 use Illuminate\Routing\Route as Ruta;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
 
 /**
@@ -89,6 +93,22 @@ trait BarridoDeRutas
         $this->assertGreaterThan(0, $llamadas);
 
         return $fugas;
+    }
+
+    /**
+     * La descarga de un reporte, lista, que pidió esa cuenta de administración: el dato de {descarga} en el barrido, que
+     * solo baja la cuenta que la pidió (exportacion-E11; administracion-app-E62). La crea la misma clase que el botón
+     * del panel y la API (App\Exportacion\CreacionDeDescarga), con su archivo en un disco de prueba.
+     */
+    protected function descargaDeLaAdministracion(Usuario $administracion): Exportacion
+    {
+        Storage::fake((string) config('exportacion.disco'));
+
+        return app(CreacionDeDescarga::class)->crear(
+            $administracion,
+            PedidosTotalesExportador::class,
+            ['desde' => '2026-12-03', 'hasta' => '2026-12-03', 'granularidad' => 'dia'],
+        );
     }
 
     /**
