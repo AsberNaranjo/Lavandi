@@ -225,6 +225,46 @@ class AvisosMasivosTest extends TestCase
         Queue::assertPushed(MandarAvisoMasivo::class, fn (MandarAvisoMasivo $trabajo): bool => $trabajo->aviso->is($deLaApi));
     }
 
+    #[TestDox('administracion-app-E11: con espacios en los extremos, el panel y la API guardan lo mismo, sin esos espacios, y cuentan los topes igual: un título de 255 caracteres con un espacio al final y un texto de 1000 con uno al principio salen por los dos; la clase, llamada sola, recorta igual')]
+    public function test_administracion_app_e11_el_panel_y_la_api_recortan_igual_los_espacios_de_los_extremos(): void
+    {
+        Queue::fake();
+        $administracion = $this->comoAdministracion();
+        $token = $this->tokenDeLaApp($administracion);
+        $enSusTopes = [
+            str_repeat('ñ', CreacionDeAvisoMasivo::TOPE_DEL_TITULO),
+            str_repeat('é', CreacionDeAvisoMasivo::TOPE_DEL_MENSAJE),
+        ];
+        $casos = [
+            'con espacios en los extremos' => [
+                ['titulo' => '  '.self::TITULO.'  ', 'mensaje' => "\n ".self::MENSAJE."\t "],
+                [self::TITULO, self::MENSAJE],
+            ],
+            'justo en sus topes, más un espacio' => [
+                ['titulo' => $enSusTopes[0].' ', 'mensaje' => ' '.$enSusTopes[1]],
+                $enSusTopes,
+            ],
+        ];
+
+        foreach ($casos as $caso => [$datos, $esperado]) {
+            // La llamada con token olvida la sesión web: el panel vuelve a entrar con la misma cuenta.
+            $this->actingAs($administracion, 'web');
+            Livewire::test(CreateAvisoMasivo::class)
+                ->fillForm($datos)
+                ->call('create')
+                ->assertHasNoFormErrors();
+            $this->llamarConToken($token, 'POST', self::RUTA, $datos)->assertCreated();
+
+            [$delPanel, $deLaApi] = AvisoMasivo::query()->latest('id_avisos_masivos')->take(2)->get()->reverse()->values()->all();
+            $this->assertSame($esperado, [$delPanel->titulo, $delPanel->mensaje], "{$caso}: el panel");
+            $this->assertSame($esperado, [$deLaApi->titulo, $deLaApi->mensaje], "{$caso}: la API");
+        }
+
+        $sola = app(CreacionDeAvisoMasivo::class)->crear($administracion, ' '.self::TITULO.' ', ' '.self::MENSAJE.' ');
+        $this->assertSame([self::TITULO, self::MENSAJE], [$sola->titulo, $sola->mensaje]);
+        Queue::assertPushed(MandarAvisoMasivo::class, 5);
+    }
+
     #[TestDox('administracion-app-E43: con un aviso ya contado y otro todavía en la cola, la administración los ve del más reciente al más antiguo, con su título, su texto, cuándo y quién lo mandó, y a cuántos teléfonos salió, o nulo el que sigue en la cola; son los avisos del componente que usa el panel')]
     public function test_administracion_app_e43_los_avisos_enviados_del_mas_reciente_al_mas_antiguo(): void
     {

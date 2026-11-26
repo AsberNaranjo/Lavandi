@@ -5,6 +5,7 @@ namespace App\Avisos;
 use App\Models\AvisoMasivo;
 use App\Models\Usuario;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -18,6 +19,9 @@ use Illuminate\Validation\ValidationException;
  * - El título y el texto son obligatorios y van en texto. El título llega a 255 caracteres, lo que cabe en su columna;
  *   el texto, a 1000, para que el mensaje quepa en lo que acepta FCM por mensaje (grado E, SIN VERIFICAR: 4096 bytes;
  *   openspec/changes/administracion/design.md, "El panel").
+ * - Los dos se recortan antes de validarlos, con Str::trim, el mismo recorte del middleware TrimStrings de la API: así
+ *   el panel, al que Livewire no le pasa ese middleware, guarda lo mismo que la API para los mismos datos, y los topes
+ *   se cuentan sin los espacios de los extremos (administracion-app-E11).
  *
  * Salió del panel, donde vivía en la página que escribe el aviso (CreateAvisoMasivo) y en su formulario
  * (AvisoMasivoForm), para que el panel y la API de la administración creen el aviso con la misma clase (ADR-0022,
@@ -61,7 +65,7 @@ final class CreacionDeAvisoMasivo
             'titulo.string' => 'El título va en texto.',
             'titulo.max' => 'El título no puede pasar de '.self::TOPE_DEL_TITULO.' caracteres.',
             'mensaje.required' => 'Escribe el texto.',
-            'mensaje.string' => 'El texto del aviso va en texto.',
+            'mensaje.string' => 'El texto va en texto.',
             'mensaje.max' => 'El texto no puede pasar de '.self::TOPE_DEL_MENSAJE.' caracteres.',
         ];
     }
@@ -75,7 +79,7 @@ final class CreacionDeAvisoMasivo
     public function crear(Usuario $cuenta, mixed $titulo, mixed $mensaje): AvisoMasivo
     {
         $datos = Validator::make(
-            ['titulo' => $titulo, 'mensaje' => $mensaje],
+            ['titulo' => self::recortado($titulo), 'mensaje' => self::recortado($mensaje)],
             self::reglas(),
             self::mensajes(),
         )->validate();
@@ -92,5 +96,13 @@ final class CreacionDeAvisoMasivo
         MandarAvisoMasivo::dispatch($aviso)->afterCommit();
 
         return $aviso;
+    }
+
+    /**
+     * El texto sin los espacios de los extremos; lo que no es texto pasa igual, para que lo rechace su regla.
+     */
+    private static function recortado(mixed $valor): mixed
+    {
+        return is_string($valor) ? Str::trim($valor) : $valor;
     }
 }

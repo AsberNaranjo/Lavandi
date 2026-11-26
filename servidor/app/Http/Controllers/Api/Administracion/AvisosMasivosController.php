@@ -49,8 +49,9 @@ use Illuminate\Http\Request;
  *     {
  *       "titulo": "Mantenimiento",                         obligatorio: texto de hasta 255 caracteres
  *       "mensaje": "La app no estará disponible el domingo."   obligatorio: texto de hasta 1000 caracteres
- *     }                                                    Los dos se guardan sin los espacios de los extremos;
- *                                                          cualquier otro campo se ignora
+ *     }                                                    Los dos se guardan sin los espacios de los extremos, que
+ *                                                          quita CreacionDeAvisoMasivo antes de contar sus caracteres,
+ *                                                          igual que en el panel; cualquier otro campo se ignora
  *
  *     201  { "aviso": { ... } }
  *          El aviso guardado, con la forma de la lista y "destinatarios": null: sale en cola a todas las cuentas de la
@@ -62,7 +63,7 @@ use Illuminate\Http\Request;
  *            titulo   "El título va en texto."                       un número, una lista
  *            titulo   "El título no puede pasar de 255 caracteres."
  *            mensaje  "Escribe el texto."                            falta, llega null, vacío o solo con espacios
- *            mensaje  "El texto del aviso va en texto."              un número, una lista
+ *            mensaje  "El texto va en texto."                        un número, una lista
  *            mensaje  "El texto no puede pasar de 1000 caracteres."
  *          No se guarda nada y no sale nada.
  */

@@ -15,7 +15,9 @@ use Filament\Schemas\Schema;
  * (administracion-E24), así que el formulario no lo pide.
  *
  * Los topes y los mensajes de los dos campos son los de App\Avisos\CreacionDeAvisoMasivo, que crea el aviso del panel y
- * el de la API (administracion-app-E11); el panel pone los mensajes bajo cada campo.
+ * el de la API (administracion-app-E11); el panel pone los mensajes bajo cada campo. Los dos campos se recortan antes de
+ * validarlos, como los recorta esa clase: Livewire no pasa por el middleware TrimStrings, y sin el recorte el panel
+ * contaría los espacios de los extremos que la API no cuenta.
  */
 class AvisoMasivoForm
 {
@@ -25,11 +27,13 @@ class AvisoMasivoForm
             ->components([
                 TextInput::make('titulo')
                     ->label('Título')
+                    ->trim()
                     ->required()
                     ->maxLength(CreacionDeAvisoMasivo::TOPE_DEL_TITULO)
                     ->validationMessages(self::mensajesDe('titulo')),
                 Textarea::make('mensaje')
                     ->label('Texto')
+                    ->trim()
                     ->required()
                     ->maxLength(CreacionDeAvisoMasivo::TOPE_DEL_MENSAJE)
                     ->validationMessages(self::mensajesDe('mensaje'))
