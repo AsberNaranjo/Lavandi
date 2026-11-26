@@ -5,10 +5,12 @@
 //
 //     POST /api/administracion/descargas                        (administracion-app-E56 y E60)
 //          { reporte, desde, hasta, granularidad }            granularidad: dia, semana o mes; la conciliación no la lleva
-//          202 { descarga }                                    nace generándose y la cola escribe su archivo
+//          202 { descarga }                                    nace generándose y la cola escribe su archivo; con la
+//                                                              cola en la misma petición, ya llega lista
 //          422 { message, errors: { reporte | desde | hasta | granularidad } }   no crea ninguna descarga
 //     GET  /api/administracion/descargas                        (administracion-app-E59)
-//          200 { descargas: [ descarga ] }                     las vivas de la cuenta, de la más nueva a la más vieja
+//          200 { descargas: [ descarga ], dias_de_vida }       las vivas de la cuenta, de la más nueva a la más vieja, y
+//                                                              cuántos días vive cada una (exportacion-E12)
 //     GET  /api/administracion/descargas/{id_publico}           (administracion-app-E57)
 //          200 { descarga }                                    lo que la app consulta cada 5 s mientras se genera
 //          404 { message: "No existe la descarga." }           no existe, no es ULID, ya se borró o es de otra cuenta
@@ -45,10 +47,19 @@ export type CodigoDelReporte =
   | 'ingresos-por-periodo'
   | 'conciliacion-con-la-pasarela';
 
+/** El reporte que no lleva granularidad: la conciliación, que va por su periodo (CreacionDeDescarga::reglas()). */
+export const REPORTE_SIN_GRANULARIDAD: CodigoDelReporte = 'conciliacion-con-la-pasarela';
+
 /** Cómo se agrupa el reporte: por día, por semana o por mes (App\Indicadores\Granularidad). */
 export type Granularidad = 'dia' | 'semana' | 'mes';
 
 export const GRANULARIDADES: readonly Granularidad[] = ['dia', 'semana', 'mes'];
+
+/**
+ * La granularidad que ofrece por omisión el formulario de la descarga del panel cuando la página no tiene una elegida:
+ * por día (ExportadorDeIndicador::getOptionsFormComponents(); App\Indicadores\Rango::deLosFiltros()).
+ */
+export const GRANULARIDAD_POR_OMISION: Granularidad = 'dia';
 
 /**
  * generandose: la cola todavía no la termina; lista: sus dos archivos se bajan; no_se_pudo: la cola terminó sin escribir
@@ -68,11 +79,23 @@ export interface Descarga {
   reporte: CodigoDelReporte;
   /** Su nombre, como en el botón del panel: "Pedidos totales". */
   titulo: string;
+  /**
+   * Los dos días del rango que cubre su archivo, AAAA-MM-DD, ya ajustado a periodos completos: los de su nombre. La
+   * granularidad no llega: el servidor no la guarda (ADR-0022, decisión 15).
+   */
+  desde: string | null;
+  hasta: string | null;
   /** Cuándo se pidió, en UTC. */
   pedida_en: string | null;
   estado: EstadoDeLaDescarga;
   /** El nombre de cada archivo, con su extensión. */
   archivos: Record<Formato, string>;
+}
+
+/** La lista de la pantalla Descargas: las vivas de la cuenta y cuántos días vive cada una (exportacion-E12). */
+export interface ListaDeDescargas {
+  descargas: Descarga[];
+  dias_de_vida: number;
 }
 
 /** Lo que manda "Pedir la descarga": el reporte, los dos días incluidos (AAAA-MM-DD) y, si la lleva, la granularidad. */
@@ -110,11 +133,11 @@ export function consultarLaDescarga(
   return pedir<{ descarga: Descarga }>(`${RUTA}/${encodeURIComponent(idPublico)}`);
 }
 
-/** Las descargas vivas de la cuenta, de la más nueva a la más vieja (administracion-app-E59). */
+/** Las descargas vivas de la cuenta, de la más nueva a la más vieja, y sus días de vida (administracion-app-E59). */
 export function consultarLasDescargas(
   pedir: PedirALaAdministracion,
-): Promise<ResultadoDeLaAdministracion<{ descargas: Descarga[] }>> {
-  return pedir<{ descargas: Descarga[] }>(RUTA);
+): Promise<ResultadoDeLaAdministracion<ListaDeDescargas>> {
+  return pedir<ListaDeDescargas>(RUTA);
 }
 
 /** La dirección completa del archivo de una descarga en ese formato, de la dirección base del entorno (base-E07). */

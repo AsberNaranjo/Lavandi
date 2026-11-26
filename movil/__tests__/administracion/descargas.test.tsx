@@ -43,6 +43,7 @@ import {
   MENSAJE_DE_LA_GRANULARIDAD,
   MENSAJE_DEL_RANGO_AL_REVES,
   MENSAJE_DEL_REPORTE,
+  NO_EXISTE_LA_DESCARGA,
 } from '../apoyo/administracion/descargas';
 
 // La primera pantalla tarda más mientras Jest prepara el entorno.
@@ -193,7 +194,7 @@ describe('administracion-app-E03: la entrada a Descargas', () => {
 
       await waitFor(() => expect(screen).toHavePathname(RUTA_DE_LAS_DESCARGAS));
       expect(await screen.findByRole('header', { name: 'Descargas' })).toBeOnTheScreen();
-      expect(screen.getByText('Tus descargas de los últimos 7 días.')).toBeOnTheScreen();
+      expect(await screen.findByText('Tus descargas de los últimos 7 días.')).toBeOnTheScreen();
       expect(servidor().peticiones().map(({ metodo, ruta }) => `${metodo} ${ruta}`)).toEqual([
         'GET /cuenta',
         `GET ${RUTA_DE_LAS_DESCARGAS}`,
@@ -251,7 +252,7 @@ describe('administracion-app-E05: la sesión vence en la pantalla Descargas', ()
 
 describe('administracion-app-E59: las descargas de la cuenta', () => {
   test.each(PLATAFORMAS)(
-    'administracion-app-E59 — (%s) muestra sus descargas vivas, de la más nueva a la más vieja, con su reporte, cuándo se pidió, su estado y, si está lista, sus botones para guardar; ni la borrada ni la de otra cuenta',
+    'administracion-app-E59 — (%s) muestra sus descargas vivas, de la más nueva a la más vieja, con su reporte, el rango de su archivo y cuándo se pidió en renglones separados, su estado y, si está lista, sus botones para guardar; ni la borrada ni la de otra cuenta',
     async (plataforma) => {
       descargas.descargas = [
         // Más vieja que los días de vida: ya se borró (exportacion-E12).
@@ -260,6 +261,8 @@ describe('administracion-app-E59: las descargas de la cuenta', () => {
         descarga({
           id_publico: '01JDDESCARGAFALLO000000001',
           reporte: 'conciliacion-con-la-pasarela',
+          desde: '2026-11-01',
+          hasta: '2026-11-15',
           pedida_en: instante(10, 42),
           estado: 'no_se_pudo',
         }),
@@ -277,13 +280,21 @@ describe('administracion-app-E59: las descargas de la cuenta', () => {
 
       const nueva = within(tarjetas[0]);
       expect(nueva.getByText('Conciliación con la pasarela')).toBeOnTheScreen();
-      expect(nueva.getByText('Pedida hoy, 10:42')).toBeOnTheScreen();
+      // El rango arriba y cuándo se pidió abajo, en dos renglones; la conciliación no lleva granularidad.
+      expect(nueva.getAllByText(/^(Del|Pedida) /).map((renglon) => renglon.props.children)).toEqual([
+        'Del 01/11/2026 al 15/11/2026',
+        'Pedida hoy, 10:42',
+      ]);
       expect(within(nueva.getByTestId('estado-de-la-descarga')).getByText('No se pudo generar')).toBeOnTheScreen();
       expect(nueva.queryByRole('button', { name: /^Guardar/ })).not.toBeOnTheScreen();
+      expect(nueva.getByRole('button', { name: 'Pedirla otra vez' })).toBeOnTheScreen();
 
       const vieja = within(tarjetas[1]);
       expect(vieja.getByText('Pedidos totales')).toBeOnTheScreen();
-      expect(vieja.getByText('Pedida ayer, 17:20')).toBeOnTheScreen();
+      expect(vieja.getAllByText(/^(Del|Pedida) /).map((renglon) => renglon.props.children)).toEqual([
+        'Del 26/10/2026 al 29/11/2026',
+        'Pedida ayer, 17:20',
+      ]);
       expect(within(vieja.getByTestId('estado-de-la-descarga')).getByText('Lista')).toBeOnTheScreen();
       expect(vieja.getByRole('button', { name: 'Guardar .csv' })).toBeOnTheScreen();
       expect(vieja.getByRole('button', { name: 'Guardar .xlsx' })).toBeOnTheScreen();
@@ -315,6 +326,21 @@ describe('administracion-app-E59: las descargas de la cuenta', () => {
     ).toBeOnTheScreen();
     expect(screen.queryByTestId(/^descarga-/)).not.toBeOnTheScreen();
   });
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E59 — (%s) dice los días que vive una descarga como los da el servidor, no un número de la app',
+    async (plataforma) => {
+      descargas.diasDeVida = 3;
+      await abrirLaAppConLaAdministracion(plataforma, RUTA_DE_LAS_DESCARGAS);
+      expect(await screen.findByText('Tus descargas de los últimos 3 días.')).toBeOnTheScreen();
+      expect(screen.queryByText('Tus descargas de los últimos 7 días.')).not.toBeOnTheScreen();
+
+      await screen.unmount();
+      descargas.diasDeVida = 1;
+      await abrirLaAppConLaAdministracion(plataforma, RUTA_DE_LAS_DESCARGAS);
+      expect(await screen.findByText('Tus descargas del último día.')).toBeOnTheScreen();
+    },
+  );
 
   test('administracion-app-E59 — si la lista no llega, lo dice con el mensaje de la app', async () => {
     servidor().interceptar = ({ ruta }) => {
@@ -600,6 +626,154 @@ describe('administracion-app-E57: mientras se genera y cuando está lista', () =
       expect(descargas.consultasDe('01JDDESCARGAGENERA00000001')).toBe(2);
     },
   );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E56 y administracion-app-E57 — (%s) con la cola en la misma petición, la descarga llega lista: ofrece "Guardar .csv" y "Guardar .xlsx" sin consultar su estado',
+    async (plataforma) => {
+      descargas.estadoAlNacer = 'lista';
+      await abrirLaPieza(plataforma);
+      jest.useFakeTimers();
+
+      await pedirLaDescarga();
+
+      expect(await pieza().findByRole('button', { name: 'Guardar .csv' })).toBeOnTheScreen();
+      expect(pieza().getByRole('button', { name: 'Guardar .xlsx' })).toBeOnTheScreen();
+      expect(pieza().queryByText('El archivo se está generando.')).not.toBeOnTheScreen();
+      await pasan(CINCO_SEGUNDOS * 3);
+      expect(descargas.consultasDe(laCreada().id_publico)).toBe(0);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E57 — (%s) si la consulta responde que la descarga ya no existe, deja de consultar, ya no dice que se genera ni que se revisa, y ofrece pedirla otra vez',
+    async (plataforma) => {
+      const creada = await pedirlaYEsperar(plataforma);
+      await waitFor(() => expect(descargas.consultasDe(creada.id_publico)).toBe(1));
+
+      // Se borró a sus días de vida mientras se esperaba (exportacion-E12).
+      descargas.de(creada.id_publico).viva = false;
+      await pasan(CINCO_SEGUNDOS);
+
+      expect(await pieza().findByText(NO_EXISTE_LA_DESCARGA)).toBeOnTheScreen();
+      expect(pieza().queryByText('El archivo se está generando.')).not.toBeOnTheScreen();
+      expect(pieza().queryByText('Se revisa cada 5 s mientras esta pantalla está abierta.')).not.toBeOnTheScreen();
+      await pasan(CINCO_SEGUNDOS * 2);
+      expect(descargas.consultasDe(creada.id_publico)).toBe(2);
+
+      await fireEvent.press(pieza().getByRole('button', { name: 'Pedirla otra vez' }));
+
+      expect(await pieza().findByText('El archivo se está generando.')).toBeOnTheScreen();
+      expect(pieza().queryByText(NO_EXISTE_LA_DESCARGA)).not.toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([
+        { reporte: 'pedidos-totales', desde: '2026-10-26', hasta: '2026-11-29', granularidad: 'semana' },
+        { reporte: 'pedidos-totales', desde: '2026-10-26', hasta: '2026-11-29', granularidad: 'semana' },
+      ]);
+    },
+  );
+
+  test('administracion-app-E57 — en la pantalla Descargas, si la que se genera ya no existe, lo dice y deja de decir que se revisa', async () => {
+    descargas.descargas = [descarga({ id_publico: '01JDDESCARGAGENERA00000001', estado: 'generandose' })];
+    jest.useFakeTimers();
+    await abrirLaAppConLaAdministracion('android', RUTA_DE_LAS_DESCARGAS);
+    const tarjeta = within(await screen.findByTestId('descarga-01JDDESCARGAGENERA00000001'));
+    await waitFor(() => expect(descargas.consultasDe('01JDDESCARGAGENERA00000001')).toBe(1));
+
+    descargas.de('01JDDESCARGAGENERA00000001').viva = false;
+    await pasan(CINCO_SEGUNDOS);
+
+    expect(await tarjeta.findByText(NO_EXISTE_LA_DESCARGA)).toBeOnTheScreen();
+    expect(tarjeta.queryByText('Se revisa cada 5 s mientras esta pantalla está abierta.')).not.toBeOnTheScreen();
+    await pasan(CINCO_SEGUNDOS * 2);
+    expect(descargas.consultasDe('01JDDESCARGAGENERA00000001')).toBe(2);
+  });
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E57 — (%s) en la pantalla Descargas, la de la conciliación que pasa a no se pudo lo dice y ofrece "Pedirla otra vez", que pide otra con el mismo reporte y el mismo rango; la nueva entra arriba y se revisa cada 5 s',
+    async (plataforma) => {
+      descargas.descargas = [
+        descarga({
+          id_publico: '01JDDESCARGAFALLO000000001',
+          reporte: 'conciliacion-con-la-pasarela',
+          desde: '2026-11-01',
+          hasta: '2026-11-15',
+          pedida_en: instante(17, 20, 1),
+          estado: 'generandose',
+        }),
+      ];
+      jest.useFakeTimers();
+      await abrirLaAppConLaAdministracion(plataforma, RUTA_DE_LAS_DESCARGAS);
+      const fallida = within(await screen.findByTestId('descarga-01JDDESCARGAFALLO000000001'));
+      await waitFor(() => expect(descargas.consultasDe('01JDDESCARGAFALLO000000001')).toBe(1));
+      expect(fallida.queryByRole('button', { name: 'Pedirla otra vez' })).not.toBeOnTheScreen();
+
+      // La cola la dio por terminada sin su archivo: el trabajo que lo escribe falló.
+      descargas.de('01JDDESCARGAFALLO000000001').estado = 'no_se_pudo';
+      await pasan(CINCO_SEGUNDOS);
+
+      expect(await within(fallida.getByTestId('estado-de-la-descarga')).findByText('No se pudo generar')).toBeOnTheScreen();
+      expect(fallida.queryByText('Se revisa cada 5 s mientras esta pantalla está abierta.')).not.toBeOnTheScreen();
+      await fireEvent.press(fallida.getByRole('button', { name: 'Pedirla otra vez' }));
+
+      await waitFor(() => expect(screen.getAllByTestId(/^descarga-/)).toHaveLength(2));
+      // La conciliación no lleva granularidad: se pide con el mismo rango, sin preguntar nada.
+      expect(descargas.pedidas()).toEqual([
+        { reporte: 'conciliacion-con-la-pasarela', desde: '2026-11-01', hasta: '2026-11-15' },
+      ]);
+      const [, otra] = descargas.descargas;
+      expect(screen.getAllByTestId(/^descarga-/).map((tarjeta) => tarjeta.props.testID)).toEqual([
+        `descarga-${otra.id_publico}`,
+        'descarga-01JDDESCARGAFALLO000000001',
+      ]);
+      const nueva = within(screen.getByTestId(`descarga-${otra.id_publico}`));
+      expect(within(nueva.getByTestId('estado-de-la-descarga')).getByText('Generándose')).toBeOnTheScreen();
+      expect(nueva.getByText('Del 01/11/2026 al 15/11/2026')).toBeOnTheScreen();
+      await waitFor(() => expect(descargas.consultasDe(otra.id_publico)).toBe(1));
+      await pasan(CINCO_SEGUNDOS);
+      expect(descargas.consultasDe(otra.id_publico)).toBe(2);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E57 — (%s) en la pantalla Descargas, "Pedirla otra vez" en la de otro reporte abre la pieza de la descarga con su rango y "Ver por", porque la descarga no trae su granularidad; la nueva se pide con lo que se elija y entra arriba',
+    async (plataforma) => {
+      descargas.descargas = [
+        descarga({ id_publico: '01JDDESCARGAFALLO000000001', reporte: 'pedidos-totales', estado: 'no_se_pudo' }),
+      ];
+      await abrirLaAppConLaAdministracion(plataforma, RUTA_DE_LAS_DESCARGAS);
+      const fallida = within(await screen.findByTestId('descarga-01JDDESCARGAFALLO000000001'));
+
+      await fireEvent.press(fallida.getByRole('button', { name: 'Pedirla otra vez' }));
+
+      const enLaTarjeta = within(fallida.getByTestId('pedir-descarga'));
+      expect(enLaTarjeta.getByLabelText('Desde').props.value).toBe('26/10/2026');
+      expect(enLaTarjeta.getByLabelText('Hasta').props.value).toBe('29/11/2026');
+      // La del formulario del panel por omisión: por día.
+      expect(enLaTarjeta.getByRole('tab', { name: 'Día', selected: true })).toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([]);
+
+      // "Cancelar" la cierra sin pedir nada.
+      await fireEvent.press(enLaTarjeta.getByRole('button', { name: 'Cancelar' }));
+      expect(fallida.queryByTestId('pedir-descarga')).not.toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([]);
+
+      await fireEvent.press(fallida.getByRole('button', { name: 'Pedirla otra vez' }));
+      const otraVez = within(fallida.getByTestId('pedir-descarga'));
+      await fireEvent.press(otraVez.getByRole('tab', { name: 'Semana' }));
+      await fireEvent.press(otraVez.getByRole('button', { name: 'Pedir la descarga' }));
+
+      await waitFor(() => expect(screen.getAllByTestId(/^descarga-/)).toHaveLength(2));
+      expect(descargas.pedidas()).toEqual([
+        { reporte: 'pedidos-totales', desde: '2026-10-26', hasta: '2026-11-29', granularidad: 'semana' },
+      ]);
+      const [, nueva] = descargas.descargas;
+      expect(screen.getAllByTestId(/^descarga-/).map((tarjeta) => tarjeta.props.testID)).toEqual([
+        `descarga-${nueva.id_publico}`,
+        'descarga-01JDDESCARGAFALLO000000001',
+      ]);
+      expect(screen.queryByTestId('pedir-descarga')).not.toBeOnTheScreen();
+      expect(within(screen.getByTestId(`descarga-${nueva.id_publico}`)).getByText('Del 26/10/2026 al 29/11/2026')).toBeOnTheScreen();
+    },
+  );
 });
 
 describe('administracion-app-E60: el rango de la descarga', () => {
@@ -610,10 +784,11 @@ describe('administracion-app-E60: el rango de la descarga', () => {
 
       await escribir('Desde', '10032026');
       await escribir('Hasta', '20032026');
+      await fireEvent.press(pieza().getByRole('tab', { name: 'Día' }));
       await pedirLaDescarga();
-      expect(await screen.findByText('Del 10/03/2026 al 20/03/2026, por semana')).toBeOnTheScreen();
+      expect(await screen.findByText('Del 10/03/2026 al 20/03/2026, por día')).toBeOnTheScreen();
       expect(descargas.pedidas()).toEqual([
-        { reporte: 'pedidos-totales', desde: '2026-03-10', hasta: '2026-03-20', granularidad: 'semana' },
+        { reporte: 'pedidos-totales', desde: '2026-03-10', hasta: '2026-03-20', granularidad: 'dia' },
       ]);
 
       await screen.unmount();
@@ -656,11 +831,30 @@ describe('administracion-app-E60: el rango de la descarga', () => {
       await escribir('Hasta', '30112026');
       await pedirLaDescarga();
       expect(await screen.findByText('El archivo se está generando.')).toBeOnTheScreen();
-      expect(laCreada()).toMatchObject({ archivos: { csv: 'pedidos-totales-2026-11-29-al-2026-11-30.csv' } });
+      // Por semana, el servidor lo ajusta a semanas completas: del lunes 23 de noviembre al domingo 6 de diciembre.
+      expect(laCreada()).toMatchObject({ archivos: { csv: 'pedidos-totales-2026-11-23-al-2026-12-06.csv' } });
     },
   );
 
-  test('administracion-app-E60 — una fecha a medias se dice junto a su campo, sin pedir nada', async () => {
+  test.each(PLATAFORMAS)(
+    'administracion-app-E60 — (%s) por semana, la pieza dice el rango que cubre el archivo, ya ajustado por el servidor a semanas completas, no el que se escribió',
+    async (plataforma) => {
+      await abrirLaPieza(plataforma);
+
+      await escribir('Desde', '10032026');
+      await escribir('Hasta', '20032026');
+      await pedirLaDescarga();
+
+      expect(await screen.findByText('Del 09/03/2026 al 22/03/2026, por semana')).toBeOnTheScreen();
+      expect(screen.queryByText('Del 10/03/2026 al 20/03/2026, por semana')).not.toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([
+        { reporte: 'pedidos-totales', desde: '2026-03-10', hasta: '2026-03-20', granularidad: 'semana' },
+      ]);
+      expect(laCreada()).toMatchObject({ archivos: { csv: 'pedidos-totales-2026-03-09-al-2026-03-22.csv' } });
+    },
+  );
+
+  test('administracion-app-E60 — una fecha a medias se dice junto a su campo, sin pedir nada (el formato de la fecha, como el filtro de «Mis pedidos»: design.md, sección 4, «Descargas en CSV y Excel»)', async () => {
     await abrirLaPieza('android');
 
     await escribir('Desde', '1003');

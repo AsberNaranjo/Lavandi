@@ -6,8 +6,9 @@
 //
 // - POST /administracion/descargas: 422 a un reporte que no es de los doce, a una fecha que falta y al rango al revés
 //   (exportacion-E06), y a la granularidad que falta salvo en la conciliación, sin crear nada; si no, 202 con la descarga
-//   generándose, de la cuenta de la sesión;
-// - GET /administracion/descargas: las vivas de la cuenta, de la más nueva a la más vieja;
+//   de la cuenta de la sesión, generándose (o como diga estadoAlNacer), con el rango de su archivo ya ajustado a
+//   periodos completos, como App\Indicadores\Rango;
+// - GET /administracion/descargas: las vivas de la cuenta, de la más nueva a la más vieja, y sus días de vida;
 // - GET /administracion/descargas/{id_publico}: la descarga, o 404 si no existe, ya se borró o es de otra cuenta;
 // - GET /administracion/descargas/{id_publico}/{formato}: el contenido del archivo, o 404 como arriba, o con el formato
 //   que no es csv ni xlsx, o si no está lista.
@@ -52,6 +53,9 @@ export interface DescargaDelServidor {
   id_publico: string;
   reporte: string;
   titulo: string;
+  /** El rango que cubre su archivo, AAAA-MM-DD, ya ajustado a periodos completos: el de su nombre. */
+  desde: string;
+  hasta: string;
   pedida_en: string;
   estado: Estado;
   archivos: Record<Formato, string>;
@@ -62,17 +66,24 @@ export interface DescargaDelServidor {
   contenido: Record<Formato, string>;
 }
 
-/** Una descarga de la cuenta de administración, con lo que la prueba cambie. */
+/**
+ * Una descarga de la cuenta de administración, con lo que la prueba cambie. Por omisión, lista, del 26 de octubre al 29
+ * de noviembre de 2026, con su rango en el nombre de sus archivos.
+ */
 export function descarga(datos: Partial<DescargaDelServidor> & { id_publico: string }): DescargaDelServidor {
   const reporte = datos.reporte ?? 'pedidos-totales';
+  const desde = datos.desde ?? '2026-10-26';
+  const hasta = datos.hasta ?? '2026-11-29';
   return {
     reporte,
     titulo: REPORTES[reporte],
+    desde,
+    hasta,
     pedida_en: new Date().toISOString(),
     estado: 'lista',
     archivos: {
-      csv: `${reporte}-2026-10-26-al-2026-11-29.csv`,
-      xlsx: `${reporte}-2026-10-26-al-2026-11-29.xlsx`,
+      csv: `${reporte}-${desde}-al-${hasta}.csv`,
+      xlsx: `${reporte}-${desde}-al-${hasta}.xlsx`,
     },
     cuenta: CUENTA_DE_LA_ADMINISTRACION.id_publico,
     viva: true,
@@ -87,8 +98,26 @@ export function contenidoDelCsv(reporte: string): string {
 }
 
 /** La descarga como la manda la API, sin lo que solo sabe el servidor. */
-function comoLaDaLaApi({ id_publico, reporte, titulo, pedida_en, estado, archivos }: DescargaDelServidor) {
-  return { id_publico, reporte, titulo, pedida_en, estado, archivos };
+function comoLaDaLaApi({ id_publico, reporte, titulo, desde, hasta, pedida_en, estado, archivos }: DescargaDelServidor) {
+  return { id_publico, reporte, titulo, desde, hasta, pedida_en, estado, archivos };
+}
+
+/**
+ * El rango del archivo, ajustado a periodos completos como App\Indicadores\Rango (inicioDe() y finDe()): por semana, del
+ * lunes de la semana del primer día al domingo de la del último; por mes, del día 1 del primer mes al último día del
+ * último; por día, y en la conciliación, que no lleva granularidad, los mismos días.
+ */
+function rangoDelArchivo(desde: string, hasta: string, granularidad: unknown): [string, string] {
+  const inicio = new Date(`${desde}T00:00:00Z`);
+  const fin = new Date(`${hasta}T00:00:00Z`);
+  if (granularidad === 'semana') {
+    inicio.setUTCDate(inicio.getUTCDate() - ((inicio.getUTCDay() + 6) % 7));
+    fin.setUTCDate(fin.getUTCDate() + ((7 - fin.getUTCDay()) % 7));
+  } else if (granularidad === 'mes') {
+    inicio.setUTCDate(1);
+    fin.setUTCMonth(fin.getUTCMonth() + 1, 0);
+  }
+  return [inicio.toISOString().slice(0, 10), fin.toISOString().slice(0, 10)];
 }
 
 /** El archivo que entrega el servidor: su contenido, que lee la simulación de File.downloadFileAsync. */
@@ -104,6 +133,10 @@ const DIA = /^\d{4}-\d{2}-\d{2}$/;
 /** Las descargas del servidor simulado, con lo que la app le pidió. */
 export class DescargasDelServidor {
   descargas: DescargaDelServidor[] = [];
+  /** Cuántos días vive cada descarga: EXPORTACION_DIAS_DE_VIDA, 7 por omisión (exportacion-E12). */
+  diasDeVida = 7;
+  /** Cómo nace la descarga que crea POST: generándose, o ya lista si la cola corrió en la misma petición. */
+  estadoAlNacer: Estado = 'generandose';
   /** Cuántas descargas creó POST: con cada una, el id_publico que sigue. */
   private creadas = 0;
 
@@ -151,7 +184,7 @@ export class DescargasDelServidor {
       const vivas = this.descargas
         .filter((otra) => otra.cuenta === cuenta && otra.viva)
         .sort((una, otra) => otra.pedida_en.localeCompare(una.pedida_en));
-      return respuesta(200, { descargas: vivas.map(comoLaDaLaApi) });
+      return respuesta(200, { descargas: vivas.map(comoLaDaLaApi), dias_de_vida: this.diasDeVida });
     }
     const una = UNA_DESCARGA.exec(ruta);
     if (metodo === 'GET' && una) {
@@ -200,14 +233,17 @@ export class DescargasDelServidor {
       return respuesta(422, { message: primero[0], errors: errores });
     }
     this.creadas += 1;
+    const [desdeDelArchivo, hastaDelArchivo] = rangoDelArchivo(
+      desde as string,
+      hasta as string,
+      reporte === CONCILIACION ? undefined : granularidad,
+    );
     const nueva = descarga({
       id_publico: `01JDDESCARGANUEVA0000000${String(this.creadas).padStart(2, '0')}`,
       reporte: reporte as string,
-      estado: 'generandose',
-      archivos: {
-        csv: `${reporte}-${desde}-al-${hasta}.csv`,
-        xlsx: `${reporte}-${desde}-al-${hasta}.xlsx`,
-      },
+      desde: desdeDelArchivo,
+      hasta: hastaDelArchivo,
+      estado: this.estadoAlNacer,
       cuenta,
     });
     this.descargas.push(nueva);

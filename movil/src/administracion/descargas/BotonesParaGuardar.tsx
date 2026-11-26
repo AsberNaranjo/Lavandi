@@ -1,7 +1,7 @@
 // "Guardar .csv" y "Guardar .xlsx" de una descarga lista, en un renglón, como en las imágenes 53 y 54 de la Propuesta 06
 // (administracion-app-E57 y E58). Los dos formatos se pueden bajar: el Excel lo arma el servidor de los CSV (ADR-0022,
-// decisión 15). Mientras se guarda uno, ese trabaja y el otro no se puede tocar. Los usan la pieza que pide la descarga y
-// cada tarjeta de la pantalla Descargas.
+// decisión 15). Mientras se guarda uno, ese trabaja y ningún otro de la pantalla se puede tocar, tampoco los de otra
+// descarga. Los usan la pieza que pide la descarga y cada tarjeta de la pantalla Descargas.
 import { StyleSheet, View } from 'react-native';
 
 import { Boton } from '../../piezas/Boton';
@@ -24,7 +24,7 @@ export function BotonesParaGuardar({ descarga, archivo }: Propiedades) {
           <Boton
             variante="secundario"
             ocupado={guardando === formato}
-            deshabilitado={guardando !== null}
+            deshabilitado={archivo.ocupado}
             onPress={() => void archivo.guardar(descarga, formato)}
           >
             {TEXTOS.guardar[formato]}

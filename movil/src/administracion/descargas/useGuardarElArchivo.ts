@@ -6,6 +6,8 @@
 // - El servidor no entregó el archivo: se vuelve a consultar la descarga con el cliente del módulo, que con la sesión
 //   vencida (401) la cierra y abre el inicio de sesión, como en cualquier pantalla del módulo (administracion-app-E05).
 //   Si la descarga sigue, se pone al día con lo que dice el servidor; si ya no existe, lo dice.
+// - Se guarda un archivo a la vez: mientras uno se baja o espera su carpeta, ningún botón para guardar de la pantalla
+//   se puede tocar (ocupado). Así dos guardados no comparten la copia de la caché ni se pisan lo que dicen.
 import { useCallback, useState } from 'react';
 
 import { MENSAJES } from '../../acceso/mensajes';
@@ -26,6 +28,8 @@ export interface GuardadoDeArchivos {
   guardar(descarga: Descarga, formato: Formato): Promise<void>;
   /** El formato que se está guardando de esa descarga, o null. */
   guardandoDe(descarga: Descarga): Formato | null;
+  /** Si se está guardando un archivo, de cualquier descarga. */
+  ocupado: boolean;
   /** El último archivo que se guardó, o null. */
   guardado: ArchivoGuardado | null;
   /** Lo que no salió al guardar un archivo de esa descarga, o undefined. */
@@ -83,5 +87,5 @@ export function useGuardarElArchivo(alCambiar: (descarga: Descarga) => void): Gu
     [falla],
   );
 
-  return { guardar, guardandoDe, guardado, fallaDe };
+  return { guardar, guardandoDe, ocupado: guardando !== null, guardado, fallaDe };
 }

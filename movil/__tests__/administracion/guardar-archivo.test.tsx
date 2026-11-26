@@ -172,6 +172,69 @@ describe('administracion-app-E58: guardar el archivo en el teléfono', () => {
     },
   );
 
+  test.each(PLATAFORMAS)(
+    'administracion-app-E58 — (%s) guardar otra vez el mismo archivo en la misma carpeta no lo reemplaza ni falla: lo crea con el siguiente nombre libre, con el mismo contenido',
+    async (plataforma) => {
+      const carpeta = carpetaElegida();
+      jest.spyOn(Directory, 'pickDirectoryAsync').mockResolvedValue(carpeta);
+      const tarjeta = await abrirLasDescargas(plataforma);
+      const nombre = descargas.de(LISTA).archivos.csv;
+
+      await fireEvent.press(tarjeta.getByRole('button', { name: 'Guardar .csv' }));
+      await waitFor(() => expect(carpeta.list()).toHaveLength(1));
+      await waitFor(() => expect(tarjeta.getByRole('button', { name: 'Guardar .csv' })).toBeEnabled());
+      await fireEvent.press(tarjeta.getByRole('button', { name: 'Guardar .csv' }));
+
+      // Cada archivo se busca por su nombre: la simulación de expo-file-system lista dos veces el que lleva un espacio,
+      // una con la dirección sin codificar que da createFile, con el tipo, y otra con la codificada que escribe write(),
+      // con el contenido. El tipo de cada archivo lo comprueba la primera prueba.
+      const segundo = nombre.replace(/\.csv$/, ' (2).csv');
+      await waitFor(() => expect(new File(carpeta, segundo).exists).toBe(true));
+      expect(new File(carpeta, nombre.replace(/\.csv$/, ' (3).csv')).exists).toBe(false);
+      for (const guardado of [new File(carpeta, nombre), new File(carpeta, segundo)]) {
+        expect([...guardado.bytesSync()]).toEqual(bytesDe(descargas.de(LISTA).contenido.csv));
+      }
+      expect(
+        await screen.findByText('Se guardó el archivo .csv de Pedidos totales en la carpeta Descargas.'),
+      ).toBeOnTheScreen();
+      expect(screen.queryByText(MENSAJES.servidor)).not.toBeOnTheScreen();
+    },
+  );
+
+  test('administracion-app-E58 — mientras se guarda un archivo, ningún botón para guardar de la pantalla se puede tocar, tampoco los de otra descarga; al terminar, se pueden otra vez', async () => {
+    const OTRA = '01JDDESCARGALISTA000000002';
+    descargas.descargas.push(descarga({ id_publico: OTRA, reporte: 'usuarios-activos', estado: 'lista' }));
+    jest.spyOn(Directory, 'pickDirectoryAsync').mockResolvedValue(carpetaElegida());
+    // La primera bajada espera hasta que la prueba la suelta.
+    let soltar: () => void = () => undefined;
+    const espera = new Promise<void>((resolver) => {
+      soltar = resolver;
+    });
+    const comoElServidor = bajar.getMockImplementation() as (...argumentos: unknown[]) => Promise<File>;
+    bajar.mockImplementationOnce(async (...argumentos: unknown[]) => {
+      await espera;
+      return comoElServidor(...argumentos);
+    });
+    const tarjeta = await abrirLasDescargas('android');
+    const otra = within(screen.getByTestId(`descarga-${OTRA}`));
+
+    await fireEvent.press(tarjeta.getByRole('button', { name: 'Guardar .csv' }));
+
+    await waitFor(() => expect(bajar).toHaveBeenCalledTimes(1));
+    expect(tarjeta.getByRole('button', { name: 'Guardar .xlsx' })).toBeDisabled();
+    expect(otra.getByRole('button', { name: 'Guardar .csv' })).toBeDisabled();
+    expect(otra.getByRole('button', { name: 'Guardar .xlsx' })).toBeDisabled();
+
+    soltar();
+
+    expect(
+      await screen.findByText('Se guardó el archivo .csv de Pedidos totales en la carpeta Descargas.'),
+    ).toBeOnTheScreen();
+    expect(otra.getByRole('button', { name: 'Guardar .csv' })).toBeEnabled();
+    expect(tarjeta.getByRole('button', { name: 'Guardar .xlsx' })).toBeEnabled();
+    expect(bajar).toHaveBeenCalledTimes(1);
+  });
+
   test('administracion-app-E58 — si el servidor ya no tiene la descarga, no se guarda nada y la app dice su mensaje', async () => {
     const carpeta = carpetaElegida();
     const selector = jest.spyOn(Directory, 'pickDirectoryAsync').mockResolvedValue(carpeta);

@@ -2,7 +2,8 @@
 // Sección A.5, "Descarga de reportes en formato CSV y Excel para cualquier rango de fechas"; administracion-app-E56, E57,
 // E58 y E60; tarea 20.1; design.md, sección 4, "Descargas en CSV y Excel"). La ponen la pantalla de indicadores (un
 // reporte por indicador con cifra), la de ingresos y la de conciliación después de conciliar, cada una debajo de su
-// propio "Descargar" (TEXTOS_DE_LAS_DESCARGAS.descargar), con el rango y la granularidad de la pantalla.
+// propio "Descargar" (TEXTOS_DE_LAS_DESCARGAS.descargar), con el rango y la granularidad de la pantalla. La pone también
+// la tarjeta de una descarga que no se pudo generar en la pantalla Descargas, para pedirla otra vez (alPedir).
 //
 // Lo que hace, como en las imágenes 51, 52, 53 y 70 de la Propuesta 06 de los mocks:
 // 1. Pide confirmar el rango: "Desde" y "Hasta" en dos CampoDeTexto, DD/MM/AAAA, con los de la pantalla por omisión, y
@@ -10,9 +11,14 @@
 //    POST /api/administracion/descargas; "Cancelar" le dice a la pantalla que la cierre. Una fecha a medias o que no
 //    existe se dice junto a su campo antes de mandarla. El rango al revés lo rechaza el servidor (422, exportacion-E06):
 //    su mensaje va junto al campo y no se crea ninguna descarga (administracion-app-E60).
-// 2. Mientras se genera, lo dice y consulta su estado cada 5 s, solo con la pantalla visible y la app al frente
-//    (useEsperaDeLaDescarga).
-// 3. Lista, ofrece "Guardar .csv" y "Guardar .xlsx", y dice dónde quedó el archivo (useGuardarElArchivo).
+//    La pantalla que da alPedir recibe ahí la descarga pedida y la pieza no sigue: así la pantalla Descargas la pone al
+//    principio de su lista, que la espera y la guarda.
+// 2. Arriba dice el rango que cubre el archivo, como lo da el servidor, ya ajustado a periodos completos. Mientras se
+//    genera, lo dice y consulta su estado cada 5 s, solo con la pantalla visible y la app al frente
+//    (useEsperaDeLaDescarga). Si la consulta responde que ya no existe (404), deja de consultar, lo dice y ofrece
+//    pedirla otra vez.
+// 3. Lista, ofrece "Guardar .csv" y "Guardar .xlsx", y dice dónde quedó el archivo (useGuardarElArchivo). Con la cola en
+//    la misma petición, la descarga ya llega lista y no se consulta.
 // 4. Si no se pudo generar, lo dice y ofrece pedirla otra vez, con el mismo rango.
 //
 // No trae el "Descargar" que la abre ni la línea que la separa de la gráfica: son de cada pantalla, que los pone donde
@@ -60,13 +66,15 @@ interface Propiedades {
   granularidad?: Granularidad;
   /** "Cancelar" antes de pedirla: la pantalla cierra la pieza. */
   alCancelar: () => void;
+  /** Si la pantalla la da, recibe la descarga recién pedida, y la pieza no la espera ni la guarda: lo hace la pantalla. */
+  alPedir?: (descarga: Descarga) => void;
 }
 
 type Campo = (typeof CAMPOS_DE_LA_DESCARGA)[number];
 
 const PESTANAS_DE_LA_GRANULARIDAD = GRANULARIDADES.map((clave) => ({ clave, texto: TEXTOS.granularidades[clave] }));
 
-export function PedirDescarga({ reporte, desde, hasta, granularidad, alCancelar }: Propiedades) {
+export function PedirDescarga({ reporte, desde, hasta, granularidad, alCancelar, alPedir }: Propiedades) {
   const pedir = useApiDeLaAdministracion();
   const [escrito, setEscrito] = useState({ desde: fechaEnElCampo(desde), hasta: fechaEnElCampo(hasta) });
   const [elegida, setElegida] = useState<Granularidad | undefined>(granularidad);
@@ -91,6 +99,10 @@ export function PedirDescarga({ reporte, desde, hasta, granularidad, alCancelar 
     setEnviando(false);
     if (resultado.ok) {
       setErrores({});
+      if (alPedir) {
+        alPedir(resultado.datos.descarga);
+        return;
+      }
       setPedida({ peticion, descarga: resultado.datos.descarga });
       return;
     }
@@ -171,12 +183,20 @@ export function PedirDescarga({ reporte, desde, hasta, granularidad, alCancelar 
   const { peticion, descarga } = pedida;
   const guardado = archivo.guardado?.descarga.id_publico === descarga.id_publico ? archivo.guardado : null;
   const falla = fallaDeLaEspera ? mensajeDeLaFalla(fallaDeLaEspera) : (archivo.fallaDe(descarga) ?? mensaje);
+  // La consulta respondió 404: la descarga ya no existe y no se espera más (useEsperaDeLaDescarga).
+  const yaNoExiste = fallaDeLaEspera?.motivo === 'no-existe';
+  const pedirlaOtraVez = (
+    <Boton variante="secundario" ocupado={enviando} onPress={() => void mandar(peticion, [])}>
+      {TEXTOS.pedirlaOtraVez}
+    </Boton>
+  );
   return (
     <View style={estilos.pieza} testID="pedir-descarga">
       <Text style={[estilos.fuerte, letra('cuerpo', 'semifuerte')]}>
-        {rangoEnTexto(peticion.desde, peticion.hasta, peticion.granularidad)}
+        {rangoEnTexto(descarga.desde ?? peticion.desde, descarga.hasta ?? peticion.hasta, peticion.granularidad)}
       </Text>
-      {descarga.estado === 'generandose' ? (
+      {descarga.estado === 'generandose' && yaNoExiste ? pedirlaOtraVez : null}
+      {descarga.estado === 'generandose' && !yaNoExiste ? (
         <>
           <View style={estilos.generandose}>
             <ActivityIndicator color={color.semantico.accion} />
@@ -196,9 +216,7 @@ export function PedirDescarga({ reporte, desde, hasta, granularidad, alCancelar 
       {descarga.estado === 'no_se_pudo' ? (
         <>
           <Text style={[estilos.texto, letra('cuerpo', 'regular')]}>{TEXTOS.noSePudoGenerar}</Text>
-          <Boton variante="secundario" ocupado={enviando} onPress={() => void mandar(peticion, [])}>
-            {TEXTOS.pedirlaOtraVez}
-          </Boton>
+          {pedirlaOtraVez}
         </>
       ) : null}
       <MensajeDeError texto={falla} />

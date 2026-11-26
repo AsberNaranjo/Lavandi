@@ -11,15 +11,8 @@ import type { EstadoDeLaDescarga, Formato, Granularidad } from './api';
 /** ADR-0022, decisión 15: mientras se genera, la app consulta su estado cada 5 segundos, como "Procesando pago". */
 export const CADA_CUANTO_SE_CONSULTA_LA_DESCARGA_MS = 5_000;
 
-/**
- * Los días que vive una descarga: el valor por omisión de EXPORTACION_DIAS_DE_VIDA en el servidor (exportacion-E12;
- * ADR-0022, decisión 15). La API no lo manda; el texto de la imagen 54 lo dice con este número.
- */
-const DIAS_DE_VIDA = 7;
-
 export const TEXTOS_DE_LAS_DESCARGAS = {
   titulo: TEXTOS_DE_LA_ADMINISTRACION.secciones.descargas,
-  vigencia: `Tus descargas de los últimos ${DIAS_DE_VIDA} días.`,
   cargando: 'Cargando las descargas…',
   sinDescargas: 'Todavía no hay descargas. Pide una con «Descargar» en Indicadores, Ingresos o Conciliación.',
   /** El botón o el enlace con el que cada pantalla abre la pieza de la descarga. */
@@ -75,6 +68,14 @@ export function seGuardoDe(formato: Formato, titulo: string, carpeta: string): s
   return `Se guardó el archivo .${formato} de ${titulo} en la carpeta ${carpeta}.`;
 }
 
+/**
+ * "Tus descargas de los últimos 7 días.", arriba de la pantalla Descargas (imagen 54), con los días de vida que da el
+ * servidor (EXPORTACION_DIAS_DE_VIDA; exportacion-E12). Con uno solo, "del último día".
+ */
+export function vigencia(diasDeVida: number): string {
+  return diasDeVida === 1 ? 'Tus descargas del último día.' : `Tus descargas de los últimos ${diasDeVida} días.`;
+}
+
 /** "26/10/2026": un día AAAA-MM-DD como se escribe en el campo y como se lee en el rango. */
 export function fechaEnElCampo(fecha: string): string {
   const [anio, mes, dia] = fecha.split('-');
@@ -82,8 +83,11 @@ export function fechaEnElCampo(fecha: string): string {
 }
 
 /**
- * El rango que se pidió, como lo dice el servidor (App\Indicadores\Rango::descripcion() y dias()): "Del 26/10/2026 al
- * 29/11/2026, por semana", o sin la granularidad si el reporte no la lleva, como la conciliación.
+ * El rango de una descarga en un renglón, como en las imágenes 52 y 54: "Del 26/10/2026 al 29/11/2026, por semana", o
+ * sin la granularidad si el reporte no la lleva, como la conciliación, o si no se sabe. Los días son los que el servidor
+ * da con la descarga: los del archivo, ya ajustados a periodos completos (App\Indicadores\Rango, inicioDe() y finDe()),
+ * que pueden no ser los que se escribieron. La granularidad es la que se pidió; la descarga no la trae (ADR-0022,
+ * decisión 15).
  */
 export function rangoEnTexto(desde: string, hasta: string, granularidad?: Granularidad): string {
   const dias = `Del ${fechaEnElCampo(desde)} al ${fechaEnElCampo(hasta)}`;
