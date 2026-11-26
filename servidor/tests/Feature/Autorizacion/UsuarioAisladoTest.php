@@ -116,6 +116,8 @@ class UsuarioAisladoTest extends TestCase
                 // Un repartidor, para las rutas que lo llevan en un parámetro: hoy, solo las de la administración de la
                 // tarea 5.1 de administracion-en-la-app, que al usuario le responden 403 con cualquier valor.
                 'repartidor' => [Repartidor::factory()->en($this->plaza)->create()->id_publico => 'un repartidor'],
+                // Las rutas de la cuenta de un usuario son del Módulo D (administracion-app-E24): la de Beto.
+                'usuario' => [$this->beto->id_publico => 'la cuenta de Beto'],
             ],
             // El perfil de las lavanderías es público en el Módulo A (Módulo A #5); el catálogo, de todos.
             publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000'],

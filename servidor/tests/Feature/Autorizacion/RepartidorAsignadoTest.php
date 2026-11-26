@@ -178,6 +178,9 @@ class RepartidorAsignadoTest extends TestCase
                 // El segundo repartidor, para las rutas que lo llevan en un parámetro: hoy, solo las de la administración
                 // de la tarea 5.1 de administracion-en-la-app, que al repartidor le responden 403 con cualquier valor.
                 'repartidor' => [$this->segundo->id_publico => 'el segundo repartidor'],
+                // Las rutas de la cuenta de un usuario son del Módulo D (administracion-app-E24): la del usuario del
+                // pedido sin asignar.
+                'usuario' => [$this->sinAsignar->usuario->id_publico => 'la cuenta del usuario sin asignar'],
             ],
             publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000'],
             datosAjenos: $datosAjenos,
