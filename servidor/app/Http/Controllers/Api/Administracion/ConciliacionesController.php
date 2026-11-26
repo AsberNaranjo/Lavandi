@@ -37,7 +37,9 @@ use Illuminate\Http\Request;
  *
  *     POST /api/administracion/conciliaciones
  *
- *     { "desde": "2027-03-01", "hasta": "2027-03-31" }     los dos días incluidos, AAAA-MM-DD; los dos obligatorios
+ *     { "desde": "2027-03-01", "hasta": "2027-03-31" }     los dos días incluidos; los dos obligatorios. La app los
+ *                                                          manda siempre en AAAA-MM-DD: el servidor no impone ese
+ *                                                          formato (ver el 422)
  *
  *     200  {
  *            "rango": { "desde": "2027-03-01", "hasta": "2027-03-31", "descripcion": "Del 01/03/2027 al 31/03/2027" },
@@ -71,7 +73,13 @@ use Illuminate\Http\Request;
  *          periodo vuelve a leer la pasarela y no repite ningún movimiento. La comisión que retiene la pasarela se
  *          guarda, pero no viene en la respuesta: quién la absorbe espera DD-013 (administracion-app-E41).
  *     422  { "message": "…", "errors": { "hasta": ["La fecha de fin no puede ser anterior a la de inicio."] } }
- *          también sin alguna de las dos fechas, o con una que no es fecha, en la suya. No lee la pasarela.
+ *          también sin alguna de las dos fechas, o con una que no es fecha, en la suya. No lee la pasarela. En esos dos
+ *          casos el mensaje es el del validador de Laravel, en inglés: RangoDeFechas solo trae el del rango al revés.
+ *          La regla pide una fecha, no su formato: una fecha que se entiende pero no viene en AAAA-MM-DD ("03/01/2027",
+ *          "1 March 2027") no da 422. Rango::deLosFiltros() solo lee AAAA-MM-DD y la toma como no dada: el inicio pasa
+ *          al día 1 del mes en curso y el fin a hoy, y si quedan al revés se voltean. La conciliación corre entonces
+ *          sobre ese otro periodo; "rango", en el 200, dice el que de verdad se usó. El panel no llega a este caso: su
+ *          selector de fecha manda siempre AAAA-MM-DD.
  *     503  { "message": "No se pudo leer la pasarela" }
  *          no hay pasarela en el entorno, le falta su llave o no responde. No guarda nada; se puede conciliar otra vez
  *          más tarde.
