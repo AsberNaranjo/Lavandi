@@ -75,7 +75,7 @@ nunca en las dos.
 - [ ] 4.6 registro-E29: la aceptación en la pantalla de registro, si EL CLIENTE la pide. Bloqueada por DD-080 — test:
   `movil/__tests__/registro/documentos-legales.test.tsx` — tamaño S
 
-- [x] 3.9 registro-E33: la cuenta y el cierre de la sesión para toda cuenta con un rol de la app (decisión 31) — test: `servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php` — tamaño S. La línea de la app que entró con la decisión 56 (con el 403, la app no guarda nada y le ofrece abrir el panel) la cubre la tarea 6.1 de `administracion`, con `movil/__tests__/administracion/abrir-el-panel.test.tsx`
+- [x] 3.9 registro-E33: la cuenta y el cierre de la sesión para toda cuenta con un rol de la app (decisión 31) — test: `servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php` — tamaño S. La línea de la app que entró con la decisión 56 (con el 403, la app no guarda nada y le ofrece abrir el panel) la cubrió la tarea 6.1 de `administracion`, con `movil/__tests__/administracion/abrir-el-panel.test.tsx`, hasta que C-247 (decisión 69) la reemplazó: la administración recibe su token y entra a su módulo, y el 403 queda para una cuenta sin ningún rol de la app, sin mencionar el panel. Hoy la cubren las tareas 2.1 y 2.3 de `administracion-en-la-app`, con `movil/__tests__/administracion/entrada.test.tsx`, y el delta de registro-E33 está en `openspec/changes/administracion-en-la-app/specs/registro/spec.md`
 
 ## Horas
 
