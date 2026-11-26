@@ -111,8 +111,8 @@ servidor simulado en `movil/__tests__/apoyo/administracion.ts`, sobre el de `mov
 
 ## 14. Lote 6, reportes financieros (`movil/`)
 
-- [ ] 14.1 administracion-app-E37: `app/administracion/ingresos.tsx`, con el rango y la granularidad plegados en la tarjeta con "Cambiar" y su hoja, las mismas de los indicadores, sin "Este mes" ni "Mes anterior" (`design.md`, sección 4; la arma la primera de la 14.1 y la 18.4 que se haga), el total, cuántos pagos son y el ingreso de cada periodo, sin consulta periódica; bajo los pagos, el lugar de "Reembolsos y ajustes" con "Por confirmar · DD-012, DD-016" y el de "Comisiones del periodo" con "Por confirmar · DD-020", sin cifra; las comisiones llegan con la 22.6 — test: `movil/__tests__/administracion/ingresos.test.tsx` — tamaño M
-- [ ] 14.2 administracion-app-E38: `app/administracion/conciliacion.tsx`, con "Conciliar un periodo", su confirmación y la tabla del reporte, con los errores junto al campo — test: `movil/__tests__/administracion/conciliacion.test.tsx` — tamaño M
+- [x] 14.1 administracion-app-E37: `app/administracion/ingresos.tsx`, con el rango y la granularidad plegados en la tarjeta con "Cambiar" y su hoja, las mismas de los indicadores, sin "Este mes" ni "Mes anterior" (`design.md`, sección 4; la arma la primera de la 14.1 y la 18.4 que se haga), el total, cuántos pagos son y el ingreso de cada periodo, sin consulta periódica; bajo los pagos, el lugar de "Reembolsos y ajustes" con "Por confirmar · DD-012, DD-016" y el de "Comisiones del periodo" con "Por confirmar · DD-020", sin cifra; las comisiones llegan con la 22.6 — test: `movil/__tests__/administracion/ingresos.test.tsx` — tamaño M
+- [x] 14.2 administracion-app-E38: `app/administracion/conciliacion.tsx`, con "Conciliar un periodo", su confirmación y la tabla del reporte, con los errores junto al campo — test: `movil/__tests__/administracion/conciliacion.test.tsx` — tamaño M
 
 ## 15. Lote 7, avisos masivos (`servidor/`)
 
