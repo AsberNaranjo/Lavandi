@@ -176,7 +176,9 @@ class RepartidorAsignadoTest extends TestCase
                 // Las rutas de la dirección son del Módulo A: la del usuario del pedido sin asignar.
                 'direccion' => [$this->direcciones['SinAsignar']->id_publico => 'la dirección del usuario sin asignar'],
             ],
-            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000'],
+            // Una categoría del A.5, de las rutas de la administración que llegan con la tarea 17.1 de
+            // administracion-en-la-app, es pública, como el catálogo.
+            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000', 'categoria' => 'operaciones'],
             datosAjenos: $datosAjenos,
             datos: ['pedido' => $this->sinAsignar->id_publico],
         );

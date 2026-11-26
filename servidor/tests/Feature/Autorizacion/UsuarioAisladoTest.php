@@ -113,8 +113,9 @@ class UsuarioAisladoTest extends TestCase
                 'pago' => [$this->pedidoDeBeto->cobro->id_publico => 'el cobro del pedido de Beto'],
                 'direccion' => [$this->direccionDeBeto->id_publico => 'la dirección de Beto'],
             ],
-            // El perfil de las lavanderías es público en el Módulo A (Módulo A #5); el catálogo, de todos.
-            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000'],
+            // El perfil de las lavanderías es público en el Módulo A (Módulo A #5); el catálogo, de todos; y una categoría
+            // del A.5, de las rutas de la administración que llegan con la tarea 17.1 de administracion-en-la-app, también.
+            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000', 'categoria' => 'operaciones'],
             datosAjenos: [
                 $this->pedidoDeBeto->id_publico => 'el id_publico del pedido de Beto',
                 $this->pedidoDeBeto->folio => 'el folio del pedido de Beto',
