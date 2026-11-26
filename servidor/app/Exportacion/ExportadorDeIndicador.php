@@ -154,6 +154,25 @@ abstract class ExportadorDeIndicador extends Exporter
         return sprintf('%s-%s-al-%s', static::NOMBRE, $rango->desde->toDateString(), $rango->hasta->toDateString());
     }
 
+    /**
+     * Los dos días que lleva el nombre de un archivo de este reporte, AAAA-MM-DD: el rango que cubre el archivo, ya
+     * ajustado a periodos completos. Es lo contrario de getFileName(). Con él la API dice el rango de una descarga después
+     * de pedirla: la fila de exports no guarda sus opciones, y la única migración del cambio es la del id_publico
+     * (ADR-0022, decisión 15). Ninguno si el nombre no es de este reporte.
+     *
+     * @return array{desde: string, hasta: string}|null
+     */
+    public static function diasDelArchivo(string $nombre): ?array
+    {
+        $dia = '(\d{4}-\d{2}-\d{2})';
+
+        if (preg_match('/^'.preg_quote(static::NOMBRE, '/')."-{$dia}-al-{$dia}$/", $nombre, $dias) !== 1) {
+            return null;
+        }
+
+        return ['desde' => $dias[1], 'hasta' => $dias[2]];
+    }
+
     public function getFileDisk(): string
     {
         return (string) config('exportacion.disco');

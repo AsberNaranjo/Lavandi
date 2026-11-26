@@ -7,6 +7,7 @@ use App\Models\Direccion;
 use App\Models\Pedido;
 use App\Models\Repartidor;
 use App\Models\Rol;
+use App\Models\Usuario;
 use Database\Factories\RepartidorFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
@@ -166,6 +167,10 @@ class RepartidorAsignadoTest extends TestCase
             $datosAjenos["Usuario{$marca}Asignado"] = "el nombre del usuario de {$marca}";
         }
 
+        // Las rutas de las descargas son del Módulo D: la de una cuenta de administración (administracion-app-E62).
+        $descarga = $this->descargaDeLaAdministracion(Usuario::factory()->conRol(Rol::ADMINISTRACION)->create());
+        $datosAjenos[$descarga->id_publico] = 'el id_publico de la descarga de la administración';
+
         return $this->fugasDe(
             $this->primero->cuenta,
             Rol::REPARTIDOR,
@@ -181,8 +186,9 @@ class RepartidorAsignadoTest extends TestCase
                 // Las rutas de la cuenta de un usuario son del Módulo D (administracion-app-E24): la del usuario del
                 // pedido sin asignar.
                 'usuario' => [$this->sinAsignar->usuario->id_publico => 'la cuenta del usuario sin asignar'],
+                'descarga' => [$descarga->id_publico => 'la descarga de la administración'],
             ],
-            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000'],
+            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000', 'formato' => 'csv'],
             datosAjenos: $datosAjenos,
             datos: ['pedido' => $this->sinAsignar->id_publico],
         );
