@@ -342,8 +342,12 @@ Resumen. El detalle de cada fila va después.
     archivo; responde 202 con la descarga. `reporte` es uno de los doce exportadores de `App\Exportacion\Exportadores\`.
     La de la conciliación no relee la pasarela. Un rango al revés responde 422 (exportacion-E06).
   - `GET descargas`: las de la cuenta que siguen vivas (7 días, `EXPORTACION_DIAS_DE_VIDA`) y tienen `id_publico`, de
-    la más nueva a la más vieja.
+    la más nueva a la más vieja, con `dias_de_vida`, los de la configuración, para que la app los diga.
   - `GET descargas/{descarga:id_publico}`: su estado (generándose, lista o no se pudo) y el nombre de cada archivo.
+  - Cada descarga, en las tres respuestas, trae también `desde` y `hasta`: el rango que cubre su archivo, ya ajustado a
+    periodos completos, leído del nombre del archivo (`ExportadorDeIndicador::diasDelArchivo()`, lo contrario de
+    `getFileName()`). La granularidad no llega: la fila de `exports` no guarda las opciones de la descarga y la única
+    migración del cambio es la del `id_publico` (ADR-0022, decisión 15).
   - `GET descargas/{descarga:id_publico}/{formato}`, con `csv` o `xlsx`: el archivo. Pregunta a
     `Autorizacion::puedeDescargarLaExportacion()`; a otra cuenta le responde 404. Lo entrega el mismo descargador que
     usa la ruta de Filament (`$export->exporter::getDownloader($format)($export)`; ADR-0022, contexto). Un formato que
@@ -378,11 +382,24 @@ Resumen. El detalle de cada fila va después.
   - Mientras se genera, la pantalla lo dice y consulta su estado cada 5 s, solo visible y al frente, como "Procesando
     pago" (adenda del 2026-11-22 de ADR-0010). Lista, ofrece "Guardar .csv" y "Guardar .xlsx". Si no se pudo, lo dice
     y ofrece pedirla otra vez.
-  - La pantalla "Descargas" lista las de la cuenta, para guardarlas después.
+  - La pantalla "Descargas" lista las de la cuenta, para guardarlas después, con los días de vida que da el servidor.
+    Cada una lleva el rango de su archivo y cuándo se pidió, en renglones separados (imagen 54). La que no se pudo
+    generar ofrece "Pedirla otra vez": la de la conciliación se pide con el mismo rango; las demás abren la pieza de la
+    descarga con su rango, para elegir la granularidad, por día por omisión, como el formulario del panel. La nueva
+    entra al principio de la lista.
+
+    SIN RESPUESTA — bloquea: la granularidad en el renglón del rango de "Descargas" ("por semana", imagen 54) y que
+    "Pedirla otra vez" la repita sin preguntarla. Guardarla pide una columna en `exports`, con su adenda de ADR-0022,
+    decisión 15; o se acepta la desviación en acta y en `NOTAS.md` de la Propuesta 6. Lo decide Arthur.
+  - Los campos de fecha de la pieza revisan el formato como el filtro de "Mis pedidos" (`src/historial/fechas.ts`,
+    `fechaDeTexto()` y `conDiagonales()`): una fecha a medias o que no existe se dice junto a su campo, con su texto, y
+    no se manda. La regla del rango la sigue juzgando el servidor (exportacion-E06; administracion-app-E60).
   - **Guardar** (ADR-0022, alternativa 6): la app baja el archivo con su token a su caché (`File.downloadFileAsync` con el
     encabezado de autorización), pide la carpeta con el selector del sistema (`Directory.pickDirectoryAsync()`), crea
     ahí el archivo con su nombre y su tipo y le escribe el contenido. Dice dónde quedó. Si la persona cierra el
-    selector, no se guarda nada y la descarga sigue en la lista.
+    selector, no se guarda nada y la descarga sigue en la lista. Si en la carpeta ya hay un archivo con ese nombre, lo
+    crea con el primero libre, "nombre (2).csv": en iPhone, `createFile` no reemplaza uno que ya existe. Se guarda un
+    archivo a la vez: mientras tanto, ningún botón para guardar de la pantalla se puede tocar.
 - **Reglas:** exportacion-E01 a E09, E11 y E12. E10 es el aviso del panel; en la app su lugar lo toma el estado de la
   descarga, con su escenario nuevo.
 - **Bloqueados:** un reporte sin cifra no tiene descarga: F-I06, F-I10 y las comisiones del periodo
