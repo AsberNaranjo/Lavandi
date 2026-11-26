@@ -15,8 +15,10 @@ use App\Models\Pedido;
 use App\Models\Usuario;
 use Carbon\CarbonImmutable;
 use Filament\Facades\Filament;
+use Illuminate\Contracts\Routing\UrlRoutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -523,6 +525,28 @@ class DescargasTest extends TestCase
         $this->assertSame('-100.00', $csv[1][4]);
         $this->assertInstanceOf(NumericCell::class, $xlsx[1][4]);
         $this->assertEquals(-100.0, $xlsx[1][4]->getValue());
+    }
+
+    #[TestDox('administracion-app-E62: las rutas del estado y del archivo nombran la descarga por su campo id_publico, {descarga:id_publico}, y su dirección queda descargas/{descarga}; el controlador la recibe como texto, sin el enlace implícito de Laravel, y la dirección de una descarga lleva su ULID, nunca su número de fila')]
+    public function test_administracion_app_e62_las_rutas_nombran_la_descarga_por_su_id_publico(): void
+    {
+        $exportacion = (new Exportacion)->forceFill(['id' => 41, 'id_publico' => strtolower((string) Str::ulid())]);
+        $rutas = [
+            'administracion.descargas.mostrar' => ['api/administracion/descargas/{descarga}', []],
+            'administracion.descargas.archivo' => ['api/administracion/descargas/{descarga}/{formato}', ['formato' => 'csv']],
+        ];
+
+        foreach ($rutas as $nombre => [$direccion, $demas]) {
+            $ruta = Route::getRoutes()->getByName($nombre);
+            $this->assertNotNull($ruta, $nombre);
+            $this->assertSame($direccion, $ruta->uri(), $nombre);
+            $this->assertSame('id_publico', $ruta->bindingFieldFor('descarga'), $nombre);
+            $this->assertSame([], $ruta->signatureParameters(['subClass' => UrlRoutable::class]), $nombre);
+
+            $enlace = route($nombre, ['descarga' => $exportacion, ...$demas], absolute: false);
+            $this->assertStringStartsWith("/api/administracion/descargas/{$exportacion->id_publico}", $enlace, $nombre);
+            $this->assertStringNotContainsString('/descargas/41', $enlace, $nombre);
+        }
     }
 
     #[TestDox('administracion-app-E62: con una descarga lista de una cuenta de administración, otra cuenta de administración que pide su estado o su archivo recibe 404 sin datos (exportacion-E11), y la ruta la nombra por su ULID: su número de fila, un valor que no es ULID y un formato que no es csv ni xlsx responden 404; la dueña sí la ve y la baja')]

@@ -14,12 +14,14 @@ use Illuminate\Support\Facades\Route;
  * repiten.
  */
 
-// El contrato de cada ruta está en el controlador. {descarga} es el id_publico de la descarga, un ULID, nunca el id de
-// exports (ADR-0022, decisión 15). Lo busca el controlador, no el enlace implícito de Laravel, que corre antes que
-// autorizar:administracion: así una cuenta de otro rol recibe 403 con cualquier valor, y un valor que no es ULID, una
-// descarga que no existe y la de otra cuenta responden el mismo 404 (administracion-app-E62). Sin where en {formato} a
-// propósito: uno que no es csv ni xlsx responde el 404 del controlador, sin datos.
+// El contrato de cada ruta está en el controlador. {descarga:id_publico}: la descarga se nombra por su id_publico, un
+// ULID, nunca por el id de exports (ADR-0022, decisión 15; design.md, sección 4). La busca el controlador por ese campo,
+// y no el enlace implícito de Laravel, que corre antes que autorizar:administracion: el controlador recibe el valor como
+// texto, así que Laravel no la resuelve. Por eso una cuenta de otro rol recibe 403 con cualquier valor, y un valor que no
+// es ULID, una descarga que no existe y la de otra cuenta responden el mismo 404 (administracion-app-E62). El campo no
+// entra en la dirección: la tabla de rutas las guarda como descargas/{descarga}. Sin where en {formato} a propósito: uno
+// que no es csv ni xlsx responde el 404 del controlador, sin datos.
 Route::post('descargas', [DescargasController::class, 'pedir'])->name('descargas.pedir');
 Route::get('descargas', [DescargasController::class, 'lista'])->name('descargas.lista');
-Route::get('descargas/{descarga}', [DescargasController::class, 'mostrar'])->name('descargas.mostrar');
-Route::get('descargas/{descarga}/{formato}', [DescargasController::class, 'archivo'])->name('descargas.archivo');
+Route::get('descargas/{descarga:id_publico}', [DescargasController::class, 'mostrar'])->name('descargas.mostrar');
+Route::get('descargas/{descarga:id_publico}/{formato}', [DescargasController::class, 'archivo'])->name('descargas.archivo');
