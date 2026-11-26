@@ -110,6 +110,10 @@ class MapaDeCalorTest extends TestCase
             $colonias,
         );
 
+        // La respuesta no trae la llave interna de cada colonia, que lleva el id_plazas: las colonias van en lista.
+        $this->assertTrue(array_is_list($colonias));
+        $this->assertStringNotContainsString('"'.$this->plaza->getKey().'|', (string) $respuesta->getContent());
+
         // Sin agrupación, el mapa es por colonia.
         $this->assertSame($respuesta->json(), $this->geografico($token, self::SEMANA)->json());
     }
@@ -144,9 +148,9 @@ class MapaDeCalorTest extends TestCase
         }
         $this->assertSame(array_column($delDominio, 'pedidos'), array_column($zonas, 'pedidos'));
 
-        // La respuesta no trae la llave interna de la zona.
-        $this->assertStringNotContainsString((string) $this->norte->getKey().'"', (string) json_encode(array_column($zonas, 'zona')));
-        $this->assertArrayNotHasKey('id_zonas', $zonas[0]);
+        // La respuesta no trae la llave interna de la zona, su id_zonas: las zonas van en lista.
+        $this->assertTrue(array_is_list($zonas));
+        $this->assertStringNotContainsString('"'.$this->norte->getKey().'":', (string) $respuesta->getContent());
     }
 
     #[TestDox('administracion-app-E50 y administracion-app-E52: por colonia y por zona, las cifras, la intensidad y el color de cada punto y de cada zona son los mismos que le da al mapa el widget del panel para ese rango')]

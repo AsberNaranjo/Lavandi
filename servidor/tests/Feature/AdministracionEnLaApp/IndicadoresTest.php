@@ -295,12 +295,12 @@ class IndicadoresTest extends TestCase
             array_keys($respuesta->json('indicadores')),
         );
 
-        // F-I07: el ranking, con el semáforo de los dos cortes; cada color con su texto.
+        // F-I07: el ranking, con el semáforo de los dos cortes; cada color con su texto. Las cifras de los cortes no van:
+        // las fija EL CLIENTE (DD-114) y la app no las muestra (imágenes 46 y 47 de la Propuesta 6).
         $ranking = $respuesta->json('indicadores.calificacion_por_lavanderia');
-        // En JSON, un número sin decimales llega sin ellos: el corte bajo de 4.0 llega como 4.
-        $this->assertEquals(['alto' => 4.5, 'bajo' => 4.0], $ranking['cortes_del_semaforo']);
-        $cortes = CortesDelSemaforo::deLaConfiguracion();
-        $this->assertEquals(['alto' => $cortes?->alto, 'bajo' => $cortes?->bajo], $ranking['cortes_del_semaforo']);
+        $this->assertSame(['semaforo_configurado', 'lavanderias'], array_keys($ranking));
+        $this->assertNotNull(CortesDelSemaforo::deLaConfiguracion());
+        $this->assertTrue($ranking['semaforo_configurado']);
         $this->assertSame([
             ['id_publico' => $lavanderias['alta']->id_publico, 'lugar' => 1, 'lavanderia' => 'Lavandería de cuatro ocho', 'promedio' => 4.8, 'semaforo' => 'verde', 'semaforo_texto' => 'Verde'],
             ['id_publico' => $lavanderias['media']->id_publico, 'lugar' => 2, 'lavanderia' => 'Lavandería de cuatro dos', 'promedio' => 4.2, 'semaforo' => 'amarillo', 'semaforo_texto' => 'Amarillo'],
@@ -339,7 +339,7 @@ class IndicadoresTest extends TestCase
         );
     }
 
-    #[TestDox('administracion-app-E48: sin los dos cortes del semáforo en la configuración (DD-114), el ranking va sin cortes y sin color, como en el panel')]
+    #[TestDox('administracion-app-E48: sin los dos cortes del semáforo en la configuración (DD-114), el ranking va sin semáforo configurado y sin color, como el "Sin cortes configurados" del panel')]
     public function test_administracion_app_e48_sin_cortes_el_ranking_va_sin_semaforo(): void
     {
         $this->cortes(null, null);
@@ -349,14 +349,14 @@ class IndicadoresTest extends TestCase
         $ranking = $this->indicadores($token, 'socios', self::SEMANA)->assertOk()->json('indicadores.calificacion_por_lavanderia');
 
         $this->assertNull(CortesDelSemaforo::deLaConfiguracion());
-        $this->assertNull($ranking['cortes_del_semaforo']);
+        $this->assertFalse($ranking['semaforo_configurado']);
         $this->assertSame($lavanderias['alta']->id_publico, $ranking['lavanderias'][0]['id_publico']);
         $this->assertSame(4.8, $ranking['lavanderias'][0]['promedio']);
         $this->assertSame([null], array_values(array_unique(array_column($ranking['lavanderias'], 'semaforo'))));
         $this->assertSame([null], array_values(array_unique(array_column($ranking['lavanderias'], 'semaforo_texto'))));
     }
 
-    #[TestDox('administracion-app-E49, administracion-app-E52 y administracion-app-E11: con pagos confirmados en enero y en febrero, la pestaña Financiero por mes da los ingresos brutos de cada mes, y cada cifra es la misma de App\Finanzas\Ingresos::porPeriodo(), la que da la pantalla de ingresos, y la del panel')]
+    #[TestDox('administracion-app-E49, administracion-app-E52 y administracion-app-E11: con pagos confirmados en enero y en febrero, la pestaña Financiero por mes da los ingresos brutos de cada mes, y cada cifra es la misma de App\Finanzas\Ingresos::porPeriodo(), la clase de la pantalla de ingresos, y la del panel')]
     public function test_administracion_app_e49_los_ingresos_brutos(): void
     {
         $this->sembrarEneroYFebrero();
@@ -370,7 +370,9 @@ class IndicadoresTest extends TestCase
             ['inicio' => '2027-02-01', 'periodo' => 'febrero 2027', 'pagos' => 1, 'ingresos' => '125.50', 'ingresos_texto' => '$125.50'],
         ], $respuesta->json('indicadores.ingresos_brutos.periodos'));
 
-        // La misma cifra que da App\Finanzas\Ingresos::porPeriodo() para el mismo rango, la de la pantalla de ingresos.
+        // La misma cifra que da App\Finanzas\Ingresos::porPeriodo() para el mismo rango, la clase que usará
+        // GET /api/administracion/ingresos (tarea 13.1, que no está en esta rama). La comparación entre las dos rutas
+        // entra con esa tarea.
         $porPeriodo = app(Ingresos::class)->porPeriodo(Rango::deLosFiltros(self::ENERO_Y_FEBRERO));
         $comoElDominio = [];
         foreach ($porPeriodo as $inicio => $periodo) {

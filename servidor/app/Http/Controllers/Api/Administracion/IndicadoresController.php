@@ -6,6 +6,7 @@ use App\Autorizacion\Autorizacion;
 use App\Finanzas\Ingresos;
 use App\Finanzas\Pesos;
 use App\Http\Controllers\Controller;
+use App\Indicadores\AgrupacionDelMapa;
 use App\Indicadores\CortesDelSemaforo;
 use App\Indicadores\EntregasPorRepartidor;
 use App\Indicadores\Intensidad;
@@ -53,7 +54,7 @@ use Illuminate\Http\Request;
  *                      toma como no dado, y un rango al revés se voltea, como en el panel: nunca responde 422.
  *     granularidad     Opcional: dia (por omisión), semana o mes. Otro valor es por día.
  *     agrupacion       Solo en geografico, opcional: colonia (por omisión) o zona. Otro valor es por colonia, como en el
- *                      panel.
+ *                      panel: la regla es la de App\Indicadores\AgrupacionDelMapa.
  *
  *     200  {
  *            "categoria": "operaciones",                    la que se pidió
@@ -71,9 +72,10 @@ use Illuminate\Http\Request;
  *            "indicadores": { ... }                         los de la categoría, abajo
  *          }
  *
- *     Los montos van como texto con dos decimales, en pesos, y cada uno con su "_texto", la misma cifra como la lee el
- *     panel ("$350.00"). Un indicador que espera una respuesta va con "en_espera", la lista de sus DD, y sin ninguna
- *     cifra (administracion-app-E53).
+ *     Los montos van como texto con dos decimales, en pesos. El promedio, el promedio anterior y los ingresos llevan
+ *     además su "_texto", la misma cifra como la lee el panel ("$350.00"); la diferencia del monto promedio va sin él.
+ *     Un indicador que espera una respuesta va con "en_espera", la lista de sus DD, y sin ninguna cifra
+ *     (administracion-app-E53).
  *
  *     operaciones (administracion-app-E46)
  *       "pedidos_totales": {                                F-I01, de PedidosTotales::porPeriodo()
@@ -117,9 +119,12 @@ use Illuminate\Http\Request;
  *     socios (administracion-app-E48)
  *       "activas_frente_a_registradas": { "en_espera": ["DD-083"] }  F-I06, sin cifra (administracion-app-E54)
  *       "calificacion_por_lavanderia": {                    F-I07, de RankingDeLavanderias::calcular(), con
- *         "cortes_del_semaforo": { "alto": 4.5, "bajo": 4.0 },        CortesDelSemaforo y Semaforo. No depende del
- *                                                                     rango. Los cortes son null si la configuración no
- *                                                                     trae dos que sirvan (DD-114): sin semáforo
+ *         "semaforo_configurado": true,                     CortesDelSemaforo y Semaforo. No depende del rango. false
+ *                                                           si la configuración no trae dos cortes que sirvan: sin
+ *                                                           semáforo, el "Sin cortes configurados" del panel. Las
+ *                                                           cifras de los cortes no van: las fija EL CLIENTE (DD-114),
+ *                                                           y la app no las muestra (imágenes 46 y 47 de la
+ *                                                           Propuesta 6)
  *         "lavanderias": [                                  en el orden del ranking; las que no tienen calificaciones
  *           {                                               van al final
  *             "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",   el de la lavandería
@@ -143,8 +148,8 @@ use Illuminate\Http\Request;
  *       }
  *
  *     financiero (administracion-app-E49)
- *       "ingresos_brutos": {                                F-I09, de App\Finanzas\Ingresos::porPeriodo(): las mismas
- *         "periodos": [                                     cifras de GET /api/administracion/ingresos
+ *       "ingresos_brutos": {                                F-I09, de App\Finanzas\Ingresos::porPeriodo(), la clase
+ *         "periodos": [                                     que usa GET /api/administracion/ingresos (tarea 13.1)
  *           {
  *             "inicio": "2027-01-01",
  *             "periodo": "enero 2027",
@@ -193,11 +198,6 @@ class IndicadoresController extends Controller
     /** Las cinco categorías del A.5, en su orden. */
     public const CATEGORIAS = ['operaciones', 'usuarios', 'socios', 'financiero', 'geografico'];
 
-    /** El mapa de calor por colonia, el de omisión, o por zona de servicio. */
-    public const POR_COLONIA = 'colonia';
-
-    public const POR_ZONA = 'zona';
-
     /** Los filtros del rango, los mismos del formulario de la página de indicadores del panel. */
     private const FILTROS = ['desde', 'hasta', 'granularidad'];
 
@@ -227,7 +227,7 @@ class IndicadoresController extends Controller
                 'usuarios' => $this->usuarios($rango),
                 'socios' => $this->socios($rango),
                 'financiero' => $this->financiero($rango),
-                'geografico' => $this->geografico($rango, $this->filtros($peticion, ['agrupacion'])['agrupacion'] ?? null),
+                'geografico' => $this->geografico($rango, AgrupacionDelMapa::elegida($this->filtros($peticion, ['agrupacion'])['agrupacion'] ?? null)),
             },
         ]);
     }
@@ -276,7 +276,6 @@ class IndicadoresController extends Controller
      */
     private function socios(Rango $rango): array
     {
-        $cortes = CortesDelSemaforo::deLaConfiguracion();
         $ranking = [];
 
         foreach ($this->conSuClave(app(RankingDeLavanderias::class)->calcular(), 'id_publico') as $fila) {
@@ -291,7 +290,7 @@ class IndicadoresController extends Controller
             // Qué lavandería cuenta como activa espera DD-083 (indicadores-E11).
             'activas_frente_a_registradas' => ['en_espera' => ['DD-083']],
             'calificacion_por_lavanderia' => [
-                'cortes_del_semaforo' => $cortes === null ? null : ['alto' => $cortes->alto, 'bajo' => $cortes->bajo],
+                'semaforo_configurado' => CortesDelSemaforo::deLaConfiguracion() !== null,
                 'lavanderias' => $ranking,
             ],
             'entregas_por_repartidor' => [
@@ -326,16 +325,16 @@ class IndicadoresController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function geografico(Rango $rango, ?string $agrupacion): array
+    private function geografico(Rango $rango, AgrupacionDelMapa $agrupacion): array
     {
-        if ($agrupacion === self::POR_ZONA) {
+        if ($agrupacion === AgrupacionDelMapa::Zona) {
             $zonas = array_map(fn (array $zona): array => [
                 ...array_diff_key($zona, ['geometria' => true]),
                 'color' => Intensidad::color($zona['intensidad']),
                 'geometria' => $zona['geometria'],
             ], array_values(app(PedidosPorZona::class)->delRango($rango)));
 
-            return ['mapa_de_calor' => ['agrupacion' => self::POR_ZONA, 'zonas' => $zonas]];
+            return ['mapa_de_calor' => ['agrupacion' => $agrupacion->value, 'zonas' => $zonas]];
         }
 
         $colonias = array_map(fn (array $colonia): array => [
@@ -345,7 +344,7 @@ class IndicadoresController extends Controller
             'longitud' => $colonia['longitud'],
         ], array_values(app(PedidosPorColonia::class)->delRango($rango)));
 
-        return ['mapa_de_calor' => ['agrupacion' => self::POR_COLONIA, 'colonias' => $colonias]];
+        return ['mapa_de_calor' => ['agrupacion' => $agrupacion->value, 'colonias' => $colonias]];
     }
 
     /**
