@@ -101,6 +101,9 @@ use Illuminate\Support\Str;
  *
  *     PATCH /api/administracion/lavanderias/{id_publico}   Edita sus datos (administracion-app-E14)
  *
+ *     En cualquier estado, pendiente, activa, suspendida o de baja, como el panel, que ofrece "Editar" en toda
+ *     lavandería; la edición no cambia su estado ni sus transiciones.
+ *
  *     Los mismos campos, con las mismas reglas y los mismos errores que PATCH /api/socio/lavanderias/{id_publico}
  *     (alta-lavanderias-E13 y E31, y las validaciones del registro), y solo van los que cambian: nombre, direccion
  *     completa, foto, servicios, ventanas, descripcion y fotos. Las fotos se nombran por su lugar en "fotos" de la

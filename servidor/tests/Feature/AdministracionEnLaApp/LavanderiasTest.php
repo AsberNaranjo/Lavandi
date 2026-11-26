@@ -244,6 +244,37 @@ class LavanderiasTest extends TestCase
         $this->assertSame($this->editables($gemela), $this->editables($lavanderia));
     }
 
+    #[TestDox('administracion-app-E14: la administración edita una lavandería en cualquier estado, pendiente, activa, suspendida o de baja, como el panel, que ofrece "Editar" en toda lavandería; la edición no cambia su estado ni sus transiciones')]
+    public function test_administracion_app_e14_edita_una_lavanderia_en_cualquier_estado(): void
+    {
+        $this->freezeTime();
+        $this->prepararAlta();
+        $cuenta = $this->cuentaDeLavanderia();
+        $lavanderia = $this->registrada($cuenta);
+
+        foreach ([Lavanderia::PENDIENTE, Lavanderia::ACTIVA, Lavanderia::SUSPENDIDA, Lavanderia::BAJA] as $estado) {
+            $lavanderia->update(['estado' => $estado]);
+            $transiciones = $this->transicionesSegunElDominio($lavanderia);
+
+            $ficha = $this->pedirComoLaAdministracion('PATCH', self::LISTA."/{$lavanderia->id_publico}", [
+                'nombre' => "Lavandería de prueba editada {$estado}",
+                'descripcion' => "Descripción de prueba editada {$estado}.",
+            ])->assertOk()->json('lavanderia');
+
+            $this->assertSame($this->fichaSegunElDominio($lavanderia), $ficha, $estado);
+            $this->assertSame(
+                [$estado, $transiciones, "Lavandería de prueba editada {$estado}", "Descripción de prueba editada {$estado}."],
+                [$ficha['estado'], $ficha['transiciones'], $ficha['nombre'], $ficha['descripcion']],
+                $estado,
+            );
+            $this->assertSame($estado, $lavanderia->fresh()->estado);
+            // Su socio ve los datos nuevos en la app, en cualquier estado.
+            $this->consultar($cuenta, $lavanderia->id_publico)
+                ->assertOk()
+                ->assertJsonPath('lavanderia.nombre', "Lavandería de prueba editada {$estado}");
+        }
+    }
+
     #[TestDox('administracion-app-E14: con fotos, la edición va en multipart por POST con _method=PATCH: quita una, cambia el orden y agrega una nueva en medio, y la foto principal sola reemplaza a la primera')]
     public function test_administracion_app_e14_edita_las_fotos_en_multipart(): void
     {
