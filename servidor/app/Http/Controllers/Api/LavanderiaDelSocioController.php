@@ -9,13 +9,11 @@ use App\Http\Requests\RegistroDeLavanderiaRequest;
 use App\Http\Resources\LavanderiaDelSocioResource;
 use App\Lavanderias\EdicionDeLavanderia;
 use App\Lavanderias\RegistroDeLavanderia;
-use App\Lavanderias\ReglasDeLaLavanderia;
 use App\Models\Lavanderia;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 /**
@@ -182,9 +180,8 @@ class LavanderiaDelSocioController extends Controller
     {
         $propia = $this->deLaCuenta($peticion, $lavanderia);
 
-        $recibidos = self::conLasFotosEnOrden($peticion->all());
-        $campos = array_values(array_intersect(ReglasDeLaLavanderia::CAMPOS_DE_LA_EDICION, array_keys($recibidos)));
-        $datos = Validator::make($recibidos, ReglasDeLaLavanderia::para($campos), ReglasDeLaLavanderia::mensajes())->validate();
+        // La validación de la edición, la misma del panel y de la API de la administración: los campos que llegan.
+        $datos = $edicion->validar($peticion->all());
 
         try {
             $edicion->editar($propia, Arr::except($datos, ['foto']), $peticion->file('foto'));
@@ -211,22 +208,6 @@ class LavanderiaDelSocioController extends Controller
         return response()->json([
             'lavanderia' => new LavanderiaDelSocioResource(LavanderiaDelSocioResource::cargar($lavanderia)),
         ], 201);
-    }
-
-    /**
-     * Lo que llegó, con la lista de fotos en el orden de sus lugares. En multipart, Laravel junta primero los textos y
-     * después los archivos: fotos[0] como archivo y fotos[1]=0 quedarían al revés.
-     *
-     * @param  array<string, mixed>  $recibidos
-     * @return array<string, mixed>
-     */
-    private static function conLasFotosEnOrden(array $recibidos): array
-    {
-        if (is_array($recibidos['fotos'] ?? null)) {
-            ksort($recibidos['fotos']);
-        }
-
-        return $recibidos;
     }
 
     /**
@@ -257,8 +238,8 @@ class LavanderiaDelSocioController extends Controller
         report($error);
 
         return response()->json([
-            'message' => 'No pudimos ubicar la dirección. Inténtalo más tarde.',
-            'motivo' => 'geocodificacion_no_disponible',
+            'message' => GeocodificacionNoDisponible::MENSAJE,
+            'motivo' => GeocodificacionNoDisponible::MOTIVO,
         ], 503);
     }
 }
