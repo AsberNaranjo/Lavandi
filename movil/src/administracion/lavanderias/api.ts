@@ -9,7 +9,8 @@
 // se edita con las piezas del Módulo B (src/alta-lavanderias/api.ts): leerLavanderiaDelSocio() y peticionDeLaEdicion().
 //
 // El contrato, copiado del comentario de servidor/app/Http/Controllers/Api/Administracion/LavanderiasController.php
-// (tareas 3.1, 3.3 y 3.4):
+// (tareas 3.1, 3.3 y 3.4). La URL de ejemplo de las fotos va como <URL firmada>: el código de la app no lleva
+// direcciones escritas (registro-E28).
 //
 // Todas las rutas llevan la sesión de la administración, con su token de administración (ADR-0022, decisiones 7 y 8):
 //
@@ -32,8 +33,8 @@
 //         "codigo_postal": "34000",
 //         "municipio": { "codigo": "10005", "nombre": "Durango", "estado": "Durango" } | null
 //       },
-//       "foto": { "url": "https://…firmada…", "vence_en": "2026-11-22T18:00:00Z" } | null,
-//       "fotos": [ { "url": "https://…firmada…", "vence_en": "2026-11-22T18:00:00Z" } ],
+//       "foto": { "url": "<URL firmada>", "vence_en": "2026-11-22T18:00:00Z" } | null,
+//       "fotos": [ { "url": "<URL firmada>", "vence_en": "2026-11-22T18:00:00Z" } ],
 //       "maximo_de_fotos": 5,
 //       "servicios": [
 //         { "tipo": "estandar", "nombre": "Lavado estándar", "precio": "18.50",
