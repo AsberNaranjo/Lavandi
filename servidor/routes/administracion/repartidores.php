@@ -22,9 +22,9 @@ Route::get('repartidores/{repartidor}', [RepartidoresController::class, 'mostrar
 Route::patch('repartidores/{repartidor}', [RepartidoresController::class, 'editar'])->name('repartidores.editar');
 Route::post('repartidores/{repartidor}/alta', [RepartidoresController::class, 'darDeAlta'])->name('repartidores.alta');
 Route::post('repartidores/{repartidor}/suspension', [RepartidoresController::class, 'suspender'])
-    ->name('repartidores.suspender');
+    ->name('repartidores.suspension.poner');
 Route::delete('repartidores/{repartidor}/suspension', [RepartidoresController::class, 'levantarSuspension'])
-    ->name('repartidores.levantar-suspension');
+    ->name('repartidores.suspension.levantar');
 Route::post('repartidores/{repartidor}/baja', [RepartidoresController::class, 'darDeBaja'])->name('repartidores.baja');
 
 // Las plazas en que se da de alta a un repartidor.

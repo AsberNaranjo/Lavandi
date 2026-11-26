@@ -101,19 +101,22 @@ class RepartidoresTest extends TestCase
         $this->assertCount(count($repartidores), $lista);
         $porId = array_column($lista, null, 'id_publico');
 
+        // Cada uno con su nombre, su estado y su plaza, y nada más: el resto está en su ficha.
         foreach ($repartidores as $quien => $repartidor) {
             $this->assertArrayHasKey($repartidor->id_publico, $porId, "Falta {$quien} en la lista.");
-            $fila = $porId[$repartidor->id_publico];
-            $this->assertSame($repartidor->cuenta->nombre, $fila['nombre'], $quien);
-            $this->assertSame($repartidor->estado, $fila['estado'], $quien);
-            $this->assertSame($repartidor->plaza === null ? null : ['nombre' => $repartidor->plaza->nombre], $fila['plaza'], $quien);
+            $this->assertSame([
+                'id_publico' => $repartidor->id_publico,
+                'nombre' => $repartidor->cuenta->nombre,
+                'estado' => $repartidor->estado,
+                'plaza' => $repartidor->plaza === null ? null : ['nombre' => $repartidor->plaza->nombre],
+            ], $porId[$repartidor->id_publico], $quien);
         }
 
         $this->assertNull($porId[$repartidores['el pendiente']->id_publico]['plaza']);
         $this->assertSame(['nombre' => 'Plaza Dos'], $porId[$repartidores['el suspendido']->id_publico]['plaza']);
     }
 
-    #[TestDox('administracion-app-E11: la lista da los mismos repartidores que Autorizacion::repartidoresDelPanel(), la consulta del panel, y cada uno como su ficha')]
+    #[TestDox('administracion-app-E11: la lista da los mismos repartidores que Autorizacion::repartidoresDelPanel(), la consulta del panel, cada uno con su nombre, su estado y su plaza')]
     public function test_administracion_app_e11_la_lista_da_lo_mismo_que_el_panel(): void
     {
         $this->repartidoresEnCadaEstado();
@@ -124,12 +127,12 @@ class RepartidoresTest extends TestCase
         $this->assertEqualsCanonicalizing($delPanel->pluck('id_publico')->all(), array_column($lista, 'id_publico'));
 
         foreach ($lista as $fila) {
-            $this->assertSame($this->fichaEsperada($delPanel->firstWhere('id_publico', $fila['id_publico'])), $fila);
+            $this->assertSame($this->resumenEsperado($delPanel->firstWhere('id_publico', $fila['id_publico'])), $fila);
         }
     }
 
-    #[TestDox('administracion-app-E19: la ficha trae su nombre, su teléfono, su correo, su foto, su tipo de vehículo, su estado y su plaza, y solo las acciones que su estado permite')]
-    public function test_administracion_app_e19_la_ficha_trae_sus_datos_y_solo_las_acciones_que_su_estado_permite(): void
+    #[TestDox('administracion-app-E19: la ficha trae su nombre, su teléfono, su correo, su foto, su tipo de vehículo, su estado y su plaza, y solo las transiciones que su estado permite, en el orden de los botones del panel')]
+    public function test_administracion_app_e19_la_ficha_trae_sus_datos_y_solo_las_transiciones_que_su_estado_permite(): void
     {
         $cuenta = RepartidorFactory::cuentaDeRepartidor(['correo' => 'ficha@ejemplo.com', 'nombre' => 'Repartidor de la ficha']);
         app(FotoDePerfil::class)->poner($cuenta, $this->fotoDePrueba());
@@ -148,19 +151,20 @@ class RepartidoresTest extends TestCase
         $this->assertSame(Repartidor::ACTIVO, $ficha['estado']);
         $this->assertSame(['nombre' => 'Plaza Uno'], $ficha['plaza']);
 
-        // Solo las acciones que su estado permite (repartidor-E05 a E07 y E31).
+        // Solo las transiciones que su estado permite, en el orden de los botones del panel (repartidor-E05 a E07 y
+        // E31).
         $esperadas = [
-            'el pendiente' => ['dar_de_alta' => true, 'suspender' => false, 'levantar_suspension' => false, 'dar_de_baja' => true],
-            'el activo' => ['dar_de_alta' => false, 'suspender' => true, 'levantar_suspension' => false, 'dar_de_baja' => true],
-            'el suspendido' => ['dar_de_alta' => false, 'suspender' => false, 'levantar_suspension' => true, 'dar_de_baja' => true],
-            'el de baja' => ['dar_de_alta' => false, 'suspender' => false, 'levantar_suspension' => false, 'dar_de_baja' => false],
-            'el pendiente de baja' => ['dar_de_alta' => false, 'suspender' => false, 'levantar_suspension' => false, 'dar_de_baja' => false],
+            'el pendiente' => ['dar_de_alta', 'dar_de_baja'],
+            'el activo' => ['suspender', 'dar_de_baja'],
+            'el suspendido' => ['levantar_suspension', 'dar_de_baja'],
+            'el de baja' => [],
+            'el pendiente de baja' => [],
         ];
 
         foreach ($this->repartidoresEnCadaEstado() as $quien => $repartidor) {
             $this->comoLaAdministracion('GET', "/api/administracion/repartidores/{$repartidor->id_publico}")
                 ->assertOk()
-                ->assertJsonPath('repartidor.acciones', $esperadas[$quien]);
+                ->assertJsonPath('repartidor.transiciones', $esperadas[$quien]);
         }
     }
 
@@ -209,7 +213,7 @@ class RepartidoresTest extends TestCase
         $this->assertSame(now()->utc()->toIso8601ZuluString(), $pendiente->aprobado_en->utc()->toIso8601ZuluString());
         // La respuesta es la ficha nueva: ya no ofrece el alta.
         $this->assertSame(['repartidor' => $this->fichaEsperada($pendiente)], $respuesta->json());
-        $respuesta->assertJsonPath('repartidor.acciones.dar_de_alta', false);
+        $respuesta->assertJsonPath('repartidor.transiciones', ['suspender', 'dar_de_baja']);
 
         $this->comoRepartidor($pendiente)->getJson('/api/repartidor/perfil')
             ->assertOk()
@@ -255,7 +259,7 @@ class RepartidoresTest extends TestCase
         $activo->refresh();
         $this->assertSame(Repartidor::SUSPENDIDO, $activo->estado);
         $this->assertSame(['repartidor' => $this->fichaEsperada($activo)], $respuesta->json());
-        $respuesta->assertJsonPath('repartidor.acciones.levantar_suspension', true);
+        $respuesta->assertJsonPath('repartidor.transiciones', ['levantar_suspension', 'dar_de_baja']);
         $this->comoRepartidor($activo)->getJson('/api/repartidor/pedidos')->assertForbidden();
         $this->comoRepartidor($activo)->getJson('/api/repartidor/perfil')->assertOk()->assertJsonPath('repartidor.puede_operar', false);
 
@@ -287,12 +291,7 @@ class RepartidoresTest extends TestCase
             $this->comoLaAdministracion('POST', "/api/administracion/repartidores/{$repartidor->id_publico}/baja")
                 ->assertOk()
                 ->assertJsonPath('repartidor.estado', Repartidor::BAJA)
-                ->assertJsonPath('repartidor.acciones', [
-                    'dar_de_alta' => false,
-                    'suspender' => false,
-                    'levantar_suspension' => false,
-                    'dar_de_baja' => false,
-                ]);
+                ->assertJsonPath('repartidor.transiciones', []);
 
             $deBaja = Repartidor::withTrashed()->whereKey($repartidor->getKey())->sole();
             $this->assertSame(Repartidor::BAJA, $deBaja->estado, $quien);
@@ -508,9 +507,26 @@ class RepartidoresTest extends TestCase
     }
 
     /**
+     * El repartidor en la lista, leído de la base: su nombre, su estado y su plaza (administracion-app-E11 y E19).
+     *
+     * @return array<string, mixed>
+     */
+    private function resumenEsperado(Repartidor $repartidor): array
+    {
+        $leido = Repartidor::withTrashed()->with(['cuenta', 'plaza'])->whereKey($repartidor->getKey())->sole();
+
+        return [
+            'id_publico' => $leido->id_publico,
+            'nombre' => $leido->cuenta->nombre,
+            'estado' => $leido->estado,
+            'plaza' => $leido->plaza === null ? null : ['nombre' => $leido->plaza->nombre],
+        ];
+    }
+
+    /**
      * La ficha que dan para ese repartidor, leído otra vez de la base, las clases que usa el panel: su cuenta, la foto
-     * de App\Identidad\FotoDePerfil, su plaza y los puede…() de App\Repartidores\EstadoDelRepartidor
-     * (administracion-app-E11).
+     * de App\Identidad\FotoDePerfil, su plaza y los puede…() de App\Repartidores\EstadoDelRepartidor, en el orden de
+     * los botones del panel (administracion-app-E11).
      *
      * @return array<string, mixed>
      */
@@ -528,12 +544,12 @@ class RepartidoresTest extends TestCase
             'tipo_vehiculo' => $leido->tipo_vehiculo,
             'estado' => $leido->estado,
             'plaza' => $leido->plaza === null ? null : ['nombre' => $leido->plaza->nombre],
-            'acciones' => [
+            'transiciones' => array_keys(array_filter([
                 'dar_de_alta' => $estado->puedeDarseDeAlta($leido),
                 'suspender' => $estado->puedeSuspenderse($leido),
                 'levantar_suspension' => $estado->puedeLevantarseLaSuspension($leido),
                 'dar_de_baja' => $estado->puedeDarseDeBaja($leido),
-            ],
+            ])),
         ];
     }
 

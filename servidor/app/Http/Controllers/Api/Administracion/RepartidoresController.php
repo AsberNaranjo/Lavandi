@@ -39,7 +39,7 @@ use Illuminate\Support\Str;
  *     404  { "message": "No existe el repartidor." }      el repartidor no existe, o el valor no es un ULID: los dos
  *                                                         responden igual y sin ningún dato (ADR-0019, decisión 3)
  *
- * El repartidor, como sale en todas las respuestas:
+ * El repartidor en la ficha, como sale en todas las respuestas que la traen:
  *
  *     {
  *       "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",   el ULID del repartidor; la API nunca usa otro
@@ -52,27 +52,39 @@ use Illuminate\Support\Str;
  *       "estado": "pendiente" | "activo" | "suspendido" | "baja",
  *       "plaza": { "nombre": "Durango" } | null,      la de su alta; null mientras está pendiente, y en la baja de uno
  *                                                     que nunca se dio de alta (repartidor-E31)
- *       "acciones": {                                 las que su estado permite ahora: la app muestra solo esos botones
- *         "dar_de_alta": true,                        pendiente, sin baja (repartidor-E05)
- *         "suspender": false,                         activo (repartidor-E06)
- *         "levantar_suspension": false,               suspendido (repartidor-E06)
- *         "dar_de_baja": true                         activo, suspendido, o pendiente que nunca se dio de alta
- *       }                                             (repartidor-E07 y E31); de baja, las cuatro en false
- *     }
+ *                                                     hasta aquí, lo mismo que ve él en su perfil, con el mismo
+ *                                                     significado: el contrato de
+ *                                                     App\Http\Controllers\Api\RepartidorController
+ *       "transiciones": ["suspender", "dar_de_baja"]  las que su estado permite ahora, en este orden, y solo esas; la
+ *     }                                               app muestra solo esos botones:
+ *                                                       "dar_de_alta"         POST …/alta
+ *                                                       "suspender"           POST …/suspension
+ *                                                       "levantar_suspension" DELETE …/suspension
+ *                                                       "dar_de_baja"         POST …/baja
+ *                                                     Pendiente: dar_de_alta y dar_de_baja (repartidor-E05 y E31).
+ *                                                     Activo: suspender y dar_de_baja. Suspendido: levantar_suspension
+ *                                                     y dar_de_baja (repartidor-E06 y E07). De baja: ninguna, porque
+ *                                                     ninguna sale de la baja. Es la forma de la ficha de la
+ *                                                     lavandería (design.md, sección 4, F-D01 y F-D02).
  *
  * ---------------------------------------------------------------------------------------------------------------------
  *
  *     GET /api/administracion/repartidores          Todos los repartidores, de todas las plazas y en cualquier estado,
  *                                                   también los pendientes sin plaza y los de baja (administracion-app-E19)
  *
- *     200  { "repartidores": [ { ...el repartidor... } ] }
- *          Del registro más nuevo al más viejo. Sin paginación ni búsqueda. Sin repartidores, la lista llega vacía.
+ *     200  { "repartidores": [
+ *            { "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z", "nombre": "Nombre del repartidor", "estado": "pendiente",
+ *              "plaza": null }
+ *          ] }
+ *          Cada uno con su nombre, su estado y su plaza, o null sin plaza; el resto está en su ficha. Del registro más
+ *          nuevo al más viejo, como la lista del panel: la pantalla los ordena por estado, con los pendientes primero
+ *          (imágenes 14 y 62 de la Propuesta 6). Sin paginación ni búsqueda. Sin repartidores, la lista llega vacía.
  *
  * ---------------------------------------------------------------------------------------------------------------------
  *
  *     GET /api/administracion/repartidores/{id_publico}       La ficha del repartidor (administracion-app-E19)
  *
- *     200  { "repartidor": { ...el repartidor... } }
+ *     200  { "repartidor": { ...el repartidor en la ficha... } }
  *          También la de uno de baja.
  *     404  { "message": "No existe el repartidor." }
  *
@@ -91,7 +103,7 @@ use Illuminate\Support\Str;
  *     ignora. La contraseña no se edita. Sin foto, en JSON. Con foto, en multipart/form-data por POST con el campo
  *     _method=PATCH, porque PHP solo lee los archivos de un POST.
  *
- *     200  { "repartidor": { ...el repartidor, ya con los cambios... } }
+ *     200  { "repartidor": { ...el repartidor en la ficha, ya con los cambios... } }
  *          El repartidor ve el cambio en su perfil.
  *     404  { "message": "No existe el repartidor." }
  *          La búsqueda va antes de validar.
@@ -107,7 +119,7 @@ use Illuminate\Support\Str;
  *
  *     { "plaza": "Durango" }        obligatorio: el nombre de una de las plazas de GET /api/administracion/plazas
  *
- *     200  { "repartidor": { ...el repartidor, "activo" y con su plaza... } }
+ *     200  { "repartidor": { ...el repartidor en la ficha, "activo" y con su plaza... } }
  *          Queda activo en esa plaza, con la hora del alta, y ve los pedidos que se le asignen en ella.
  *     404  { "message": "No existe el repartidor." }
  *          La búsqueda va antes de validar.
@@ -128,7 +140,7 @@ use Illuminate\Support\Str;
  *
  *     Sin cuerpo.
  *
- *     200  { "repartidor": { ...el repartidor en su estado nuevo... } }
+ *     200  { "repartidor": { ...el repartidor en la ficha, en su estado nuevo... } }
  *          Suspendido, no ve ni mueve pedidos. Sin la suspensión, vuelve a estar activo en su misma plaza. De baja, ya
  *          no inicia sesión y sus sesiones abiertas dejan de servir; sus entregas se conservan, y el pendiente que nunca
  *          se dio de alta queda de baja sin plaza. La baja no se deshace.
@@ -147,7 +159,8 @@ class RepartidoresController extends Controller
     ) {}
 
     /**
-     * Todos los que ve la administración, como la lista del panel, del registro más nuevo al más viejo.
+     * Todos los que ve la administración, como la lista del panel, del registro más nuevo al más viejo, cada uno en su
+     * resumen.
      */
     public function lista(Request $peticion): JsonResponse
     {
@@ -155,9 +168,10 @@ class RepartidoresController extends Controller
             ->with(RepartidorDeLaAdministracionResource::RELACIONES)
             ->latest()
             ->orderByDesc('id_repartidores')
-            ->get();
+            ->get()
+            ->map(fn (Repartidor $repartidor): array => RepartidorDeLaAdministracionResource::resumen($repartidor));
 
-        return response()->json(['repartidores' => RepartidorDeLaAdministracionResource::collection($repartidores)]);
+        return response()->json(['repartidores' => $repartidores]);
     }
 
     public function mostrar(Request $peticion, string $repartidor): JsonResponse
