@@ -278,6 +278,11 @@ Resumen. El detalle de cada fila va después.
 - **Rutas:** `GET avisos-masivos`, los enviados, del más reciente al más antiguo, con su título, su texto, cuándo y
   quién lo mandó y a cuántos teléfonos salió ("En cola" mientras no se cuentan); `POST avisos-masivos` con título y
   texto.
+- **Quién lo mandó** (administracion-app-E43) va como "esta cuenta u otra", porque el correo de otra cuenta de
+  administración no sale en ninguna respuesta de `/api/administracion` (delta de autorizacion-E14): la ruta dice si lo
+  mandó la cuenta de la sesión (`enviado_por_esta_cuenta`) y no trae el correo, el nombre ni la llave de quien lo
+  mandó. La app pone, en el aviso propio, el correo de la cuenta, que ya tiene de `GET /api/cuenta` (como la imagen
+  36); en el de otra cuenta, "Otra cuenta de administración", con las palabras de autorizacion-E14.
 - **Clases de dominio:** `Autorizacion::avisosMasivosDelPanel()` y `puedeMandarAvisosMasivos()`; la creación movida
   desde `CreateAvisoMasivo` (sección 3); `App\Avisos\MandarAvisoMasivo`, en cola.
 - **Pantallas:** la lista y "Escribir aviso", con su confirmación: sale a todos los teléfonos registrados (imágenes 36

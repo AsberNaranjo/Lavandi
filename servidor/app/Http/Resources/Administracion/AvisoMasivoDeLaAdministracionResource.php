@@ -8,9 +8,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * Un aviso masivo enviado, como lo ve la administración en la app: su título, su texto, cuándo lo mandaron, si lo mandó
- * la cuenta de la sesión y a cuántos teléfonos salió (administracion-app-E43). No lleva la llave interna ni la cuenta que
- * lo mandó: el correo de otra cuenta de administración no sale en ninguna respuesta (delta de autorizacion-E14). La
- * forma exacta está en App\Http\Controllers\Api\Administracion\AvisosMasivosController.
+ * la cuenta de la sesión y a cuántos teléfonos salió (administracion-app-E43). La forma exacta está en
+ * App\Http\Controllers\Api\Administracion\AvisosMasivosController.
+ *
+ * Quién lo mandó va como "esta cuenta u otra": no lleva la llave interna ni el correo de la cuenta que lo mandó, porque
+ * el correo de otra cuenta de administración no sale en ninguna respuesta (delta de autorizacion-E14). La app pone el
+ * correo de la propia cuenta, que ya tiene de GET /api/cuenta, y en el aviso de otra cuenta dice "Otra cuenta de
+ * administración" (openspec/changes/administracion-en-la-app/design.md, F-D07).
  *
  * @mixin AvisoMasivo
  */

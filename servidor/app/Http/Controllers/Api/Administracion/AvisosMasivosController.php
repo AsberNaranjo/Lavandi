@@ -35,14 +35,17 @@ use Illuminate\Http\Request;
  *                "titulo": "Mantenimiento",
  *                "mensaje": "La app no estará disponible el domingo.",
  *                "enviado_en": "2027-03-15T09:05:00Z",     cuándo lo mandaron, en UTC
- *                "enviado_por_esta_cuenta": true,          si lo mandó la cuenta de la sesión; false si lo mandó otra
- *                                                          cuenta de administración, cuyo correo no sale aquí
+ *                "enviado_por_esta_cuenta": true,          quién lo mandó: true si fue la cuenta de la sesión, y la app
+ *                                                          pone su correo, el de GET /api/cuenta; false si fue otra
+ *                                                          cuenta de administración, cuyo correo no sale aquí, y la app
+ *                                                          dice "Otra cuenta de administración"
  *                "destinatarios": 3                        a cuántos teléfonos salió; null mientras sigue en la cola,
  *              }                                           y la app dice "En cola"
  *            ]
  *          }
  *          Todos los avisos enviados, los mandara la cuenta de administración que fuera, como en el panel: del más
- *          reciente al más antiguo, sin páginas. Sin ninguno, "avisos" llega vacío.
+ *          reciente al más antiguo, sin páginas. Sin ninguno, "avisos" llega vacío. Por qué "quién" es "esta cuenta u
+ *          otra": openspec/changes/administracion-en-la-app/design.md, F-D07 (delta de autorizacion-E14).
  *
  *     POST /api/administracion/avisos-masivos              Manda un aviso global (administracion-app-E42)
  *
