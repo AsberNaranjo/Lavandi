@@ -42,7 +42,7 @@ el formulario de la lavandería (`movil/src/alta-lavanderias/`); y, para los tex
 | La granularidad en la hoja de la descarga, porque `POST descargas` la manda | contrato y técnico | 51 |
 | Lavandería con porcentaje propio («Propio: — % · le aplica el propio»), «Quitar porcentaje propio» y la edición del propio dentro de su tarjeta, sin número | técnico (y uso, como variante que faltaba) | 28 a 30 |
 | El alta de una lavandería en ámbar, sin botón: «Dar de alta una lavandería · DD-053 · La lista y las fichas no ofrecen el alta.» | contrato (falla de contrato) | 06 |
-| El aviso a un segmento en ámbar, sin ofrecerlo, y «A quién le llega» con el texto del panel (`AvisoMasivoForm.php:43`) | contrato | 37 a 39 |
+| El aviso a un segmento en ámbar, sin ofrecerlo, y «A quién le llega» con el texto del panel (`AvisoMasivoForm.php:51`) | contrato | 37 a 39 |
 | F-I09 con las mismas cifras de Ingresos para el mismo rango, y la frase que lo dice (E49) | contrato | 31 y 48 |
 | Junto a «Repartidores», cuántos pendientes; junto a «Monitoreo de pedidos», cuántos activos | uso | 03 |
 | El botón de alta nombra la plaza: «Dar de alta en Plaza de prueba Durango» | uso | 17 |
@@ -313,7 +313,7 @@ Cita general: Módulo D #7 (p. 19).
 | # | Archivo | Qué muestra | Cita y escenarios |
 |---|---|---|---|
 | 36 | `36-avisos.html` | **Avisos masivos.** Los avisos enviados, del más reciente al más antiguo, con a cuántos teléfonos salió o «En cola». | NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (Módulo D #7); administracion-app-E43 |
-| 37 | `37-aviso-nuevo.html` | **Escribir un aviso.** Título y texto con sus topes (255 y 1000); a quién le llega, con el texto del panel; el aviso a un segmento en ámbar, sin ofrecerlo. | NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (Módulo D #7, «Envío segmentado o global»); administracion-app-E42 y E44 (DD-113); AvisoMasivoForm.php:28-43; CreacionDeAvisoMasivo.php:37-40 |
+| 37 | `37-aviso-nuevo.html` | **Escribir un aviso.** Título y texto con sus topes (255 y 1000); a quién le llega, con el texto del panel; el aviso a un segmento en ámbar, sin ofrecerlo. | NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (Módulo D #7, «Envío segmentado o global»); administracion-app-E42 y E44 (DD-113); AvisoMasivoForm.php:34-51; CreacionDeAvisoMasivo.php:37-40 |
 | 38 | `38-aviso-error.html` | **Escribir un aviso: falta el título.** El error 422 junto a su campo; no sale nada. | NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (Módulo D #7); administracion-app-E42 (422 con el error de cada campo) |
 | 39 | `39-aviso-confirmar.html` | **Confirmar el aviso.** La confirmación: sale a todos los teléfonos registrados; sin confirmar no sale nada. | NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (Módulo D #7, «global»); administracion-app-E42 |
 | 40 | `40-avisos-vacio.html` | **Avisos masivos, sin avisos.** Antes del primer aviso: el texto del panel y el botón para escribirlo. | NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3 (Módulo D #7); administracion-app-E43; AvisosMasivosTable.php:32 |

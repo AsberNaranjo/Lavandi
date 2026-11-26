@@ -129,7 +129,7 @@ Las pruebas del panel siguen pasando sin cambios:
 | `App\Filament\Resources\Repartidores\Pages\EditRepartidor::handleRecordUpdate()` | Los textos recortados y el vacío como nulo; las reglas de `RegistroDeRepartidorRequest::reglasDeLosDatos()` solo de los campos que llegan; `CorreoSinCuenta` salvo la propia cuenta | El panel y la API, desde `EdicionDeRepartidor` | El lote 2, antes de la edición por la API |
 | `App\Filament\Resources\Usuarios\HistorialDelUsuario` | Qué pedidos van en la ficha, su fecha en la hora de la plaza y su monto | La ficha del panel y la de la API | El lote 3 |
 | El formulario de `App\Filament\Pages\Conciliacion` y los campos de `ExportadorDeIndicador::getOptionsFormComponents()` | La regla del rango: las dos fechas, y la de fin no anterior a la de inicio, con su mensaje | La conciliación y la descarga, del panel y de la API | El lote 6; la descarga la usa en el lote 9. **La regla ya se movió** a `App\Validacion\RangoDeFechas` (`reglas()` y `mensajes()`), que el panel toma por `App\Filament\CamposDelRango`; faltan las dos rutas (tareas 13.2 y 19.2) |
-| `CreateAvisoMasivo` y `AvisoMasivoForm` | Qué se guarda con el aviso, que sale en cola después de guardarlo, y los topes del título (255) y del texto (1000). Ya se movió con la tarea 15.1: hoy es `App\Avisos\CreacionDeAvisoMasivo`, que recorta el título y el texto antes de validarlos, como el middleware `TrimStrings` de la API, y trae los mensajes de sus reglas; el formulario del panel recorta igual sus dos campos y muestra esos mensajes, en lugar de los de Laravel por defecto | El panel y la API | El lote 7 |
+| `CreateAvisoMasivo` y `AvisoMasivoForm` | Qué se guarda con el aviso, que sale en cola después de guardarlo, y los topes del título (255) y del texto (1000). Ya se movió con la tarea 15.1: hoy es `App\Avisos\CreacionDeAvisoMasivo`, que recorta el título y el texto antes de validarlos, como el middleware `TrimStrings` de la API, y trae los mensajes de sus reglas; el formulario del panel recorta igual sus dos campos y toma de ella sus reglas y sus mensajes, como `App\Filament\CamposDelRango` toma los de `RangoDeFechas`, así que muestra esos mensajes en lugar de los de Laravel por defecto | El panel y la API | El lote 7 |
 | `App\Filament\Actions\DescargarReporte::generar()` | Cómo se crea la descarga de la cuenta y se pone en cola su archivo | El botón del panel y la API | El lote 9 |
 
 Cada lado sigue convirtiendo los errores a su forma: el panel los pone bajo `data.<campo>` de su formulario, y la API
@@ -291,7 +291,7 @@ Resumen. El detalle de cada fila va después.
   de 1000 caracteres"): es un texto de la app, que sale de los topes de administracion-E23. Sin título, el error de
   `titulo` es "Escribe el título.", con el estilo de los mensajes de `CambiarPerfilRequest` ("Escribe tu nombre.");
   vive con la creación movida a la clase de dominio (tareas 15.1 y 15.2). "A quién le llega" lleva el texto del panel
-  (`servidor/app/Filament/Resources/AvisosMasivos/Schemas/AvisoMasivoForm.php:43`), y el aviso a un segmento va en
+  (`servidor/app/Filament/Resources/AvisosMasivos/Schemas/AvisoMasivoForm.php:51`), y el aviso a un segmento va en
   ámbar con "Por confirmar · DD-113", sin ofrecerlo.
 - **Reglas:** administracion-E23.
 - **Bloqueado:** el aviso a un segmento, E24 (BR-32, DD-113). La pantalla no ofrece segmentos.

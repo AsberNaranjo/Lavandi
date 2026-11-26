@@ -181,7 +181,7 @@ class AvisosMasivosTest extends TestCase
         Queue::assertPushed(MandarAvisoMasivo::class, 1);
     }
 
-    #[TestDox('administracion-app-E11: el panel y la API crean el aviso con la misma clase: guardan lo mismo para los mismos datos, los dos lo ponen en cola, y rechazan lo mismo con los mismos mensajes que da la clase')]
+    #[TestDox('administracion-app-E11: el panel y la API crean el aviso con la misma clase: guardan lo mismo para los mismos datos, los dos lo ponen en cola, y rechazan lo mismo, con las reglas y los mensajes que da la clase y ninguna lista propia del panel')]
     public function test_administracion_app_e11_el_panel_y_la_api_crean_el_aviso_con_la_misma_clase(): void
     {
         Queue::fake();
@@ -199,6 +199,12 @@ class AvisosMasivosTest extends TestCase
         $this->assertSame($deLaClase['titulo'], $panel->errors()->get('data.titulo'));
         $this->assertSame($deLaClase['mensaje'], $panel->errors()->get('data.mensaje'));
         $this->assertSame(0, AvisoMasivo::count());
+
+        // Los campos del panel validan con las reglas de la clase, ni una más ni una menos: no tienen una lista suya.
+        $campos = $panel->instance()->form->getFlatFields();
+        foreach (CreacionDeAvisoMasivo::reglas() as $campo => $reglas) {
+            $this->assertEqualsCanonicalizing($reglas, $campos[$campo]->getValidationRules(), "Las reglas de {$campo}");
+        }
 
         Livewire::test(CreateAvisoMasivo::class)
             ->fillForm(['titulo' => self::TITULO, 'mensaje' => self::MENSAJE])

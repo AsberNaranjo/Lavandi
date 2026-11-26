@@ -25,8 +25,8 @@ use Illuminate\Validation\ValidationException;
  *
  * Salió del panel, donde vivía en la página que escribe el aviso (CreateAvisoMasivo) y en su formulario
  * (AvisoMasivoForm), para que el panel y la API de la administración creen el aviso con la misma clase (ADR-0022,
- * decisiones 9 y 16; openspec/changes/administracion-en-la-app/design.md, sección 3; administracion-app-E11 y E42). Cada
- * lado pone los errores a su forma: el panel bajo data.<campo>, y la API con un 422 por campo.
+ * decisiones 9 y 16; openspec/changes/administracion-en-la-app/design.md, sección 3; administracion-app-E11 y E42). El
+ * formulario del panel valida con estas reglas y pone sus errores bajo data.<campo>; la API, con un 422 por campo.
  *
  * Quién puede mandar un aviso lo decide el componente de autorización (Autorizacion::puedeMandarAvisosMasivos()), antes
  * de llamar aquí.
