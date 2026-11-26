@@ -205,7 +205,9 @@ const estilos = StyleSheet.create({
     justifyContent: 'flex-end',
     gap: espaciado[2],
   },
+  // "Página 1 de 3" en el texto menor, como en la imagen 21.
   pagina: {
     flexGrow: 1,
+    fontSize: tipografia.escala.menor,
   },
 });
