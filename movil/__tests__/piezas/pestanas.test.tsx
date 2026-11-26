@@ -1,0 +1,216 @@
+// Spec: openspec/changes/administracion-en-la-app/specs/administracion-en-la-app/spec.md, administracion-app-E45
+// (tarea 18.3). Las cinco categorías del A.5 (Operaciones, Usuarios, Socios, Financiero y Geográfico) van en la pieza
+// Pestanas (ADR-0022, decisión 14), que hasta ahora era una fila sin desplazamiento: en un teléfono pequeño no caben.
+// Aquí se desplaza de lado cuando sus pestañas no caben en el ancho, y cuando caben ocupan el ancho como antes. Como en
+// la maqueta de la Propuesta 06 de la administración (41, 46 y 48; NOTAS.md, puntos 5 y 7 de lo abierto y de la
+// verificación final), un desvanecido de 64 puntos marca la orilla por donde sigue la fila, y la fila se queda al
+// principio o al final, lo que deje a la elegida entera y fuera del desvanecido. La pestaña se sigue anunciando como
+// pestaña y la elegida como seleccionada.
+//
+// Este escenario lo cumple del todo la pantalla de indicadores (tarea 18.4): aquí se prueba la pieza. La dirección nueva
+// también la usa (direcciones-E01 y E04), y sus pruebas siguen sin cambios. Jest no mide: las pruebas le dan a la fila
+// las medidas que daría el teléfono, con los eventos de layout, de tamaño del contenido y de desplazamiento. Cada color
+// y cada medida sale de theme.ts (ADR-0013): las pruebas comparan contra el tema, no contra números.
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
+import { useState } from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
+
+import { Pestanas } from '../../src/piezas/Pestanas';
+import { tema } from '../../src/tema/theme';
+
+// La primera pantalla tarda más mientras Jest prepara el entorno.
+jest.setTimeout(30_000);
+
+const { accesibilidad, color, espaciado } = tema;
+
+// Las cinco categorías del A.5, como las nombra la pantalla de indicadores (ADR-0022, decisión 14).
+const CATEGORIAS = [
+  { clave: 'operaciones', texto: 'Operaciones' },
+  { clave: 'usuarios', texto: 'Usuarios' },
+  { clave: 'socios', texto: 'Socios' },
+  { clave: 'financiero', texto: 'Financiero' },
+  { clave: 'geografico', texto: 'Geográfico' },
+] as const;
+type Categoria = (typeof CATEGORIAS)[number]['clave'];
+
+// Dónde queda cada pestaña dentro de la fila y cuánto mide, como lo mediría un teléfono: 520 puntos en total.
+const LUGARES: Record<Categoria, { x: number; ancho: number }> = {
+  operaciones: { x: 0, ancho: 130 },
+  usuarios: { x: 130, ancho: 100 },
+  socios: { x: 230, ancho: 90 },
+  financiero: { x: 320, ancho: 100 },
+  geografico: { x: 420, ancho: 100 },
+};
+const ANCHO_DE_LAS_CINCO = 520;
+const ALTO = accesibilidad.area_tactil_minima_dp;
+
+function estiloPlano(elemento: { props: { style?: unknown } }) {
+  return StyleSheet.flatten(elemento.props.style as never) ?? {};
+}
+
+// Las pestañas como las usa una pantalla: guarda la elegida.
+function PestanasDePrueba({ inicial = 'operaciones' }: { inicial?: Categoria }) {
+  const [elegida, setElegida] = useState<Categoria>(inicial);
+  return <Pestanas pestanas={CATEGORIAS} elegida={elegida} alElegir={setElegida} />;
+}
+
+function fila() {
+  return screen.getByTestId('pestanas-desplazable');
+}
+
+// El desvanecido de una orilla, si está. Es adorno escondido del lector de pantalla: se busca también entre lo escondido.
+function desvanecido(orilla: 'izquierdo' | 'derecho') {
+  return screen.queryByTestId(`desvanecido-${orilla}`, { includeHiddenElements: true });
+}
+
+function pestana(texto: string) {
+  return screen.getByRole('tab', { name: texto });
+}
+
+// Le da a la fila las medidas del teléfono: el ancho que se ve, el de su contenido y dónde queda cada pestaña.
+async function medir(anchoVisible: number, anchoDelContenido: number) {
+  for (const { clave, texto } of CATEGORIAS) {
+    const { x, ancho } = LUGARES[clave];
+    await fireEvent(pestana(texto), 'layout', { nativeEvent: { layout: { x, y: 0, width: ancho, height: ALTO } } });
+  }
+  await fireEvent(fila(), 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: anchoVisible, height: ALTO } } });
+  await fireEvent(fila(), 'contentSizeChange', anchoDelContenido, ALTO);
+}
+
+async function desplazarA(x: number) {
+  await fireEvent.scroll(fila(), {
+    nativeEvent: {
+      contentOffset: { x, y: 0 },
+      contentSize: { width: ANCHO_DE_LAS_CINCO, height: ALTO },
+      layoutMeasurement: { width: 300, height: ALTO },
+    },
+  });
+}
+
+describe('administracion-app-E45 (tarea 18.3): las pestañas se desplazan de lado cuando no caben', () => {
+  let llevarA: jest.SpyInstance;
+
+  beforeEach(() => {
+    llevarA = jest.spyOn(ScrollView.prototype, 'scrollTo');
+  });
+
+  afterEach(() => {
+    llevarA.mockRestore();
+  });
+
+  test('administracion-app-E45 — cuando caben, ocupan el ancho como antes: la fila no se desplaza y no hay desvanecido', async () => {
+    await render(<PestanasDePrueba />);
+    // La fila crece hasta el ancho que se ve: su contenido mide lo mismo.
+    await medir(560, 560);
+
+    expect(fila().props.horizontal).toBe(true);
+    expect(fila().props.scrollEnabled).toBe(false);
+    expect(fila().props.contentContainerStyle).toMatchObject({ flexGrow: 1 });
+    expect(screen.getByTestId('pestanas').props.accessibilityRole).toBe('tablist');
+    expect(screen.getByTestId('pestanas')).toHaveStyle({ flexGrow: 1, flexDirection: 'row' });
+    for (const { texto } of CATEGORIAS) {
+      expect(estiloPlano(pestana(texto))).toMatchObject({ flexGrow: 1 });
+    }
+    expect(desvanecido('izquierdo')).not.toBeOnTheScreen();
+    expect(desvanecido('derecho')).not.toBeOnTheScreen();
+  });
+
+  test('administracion-app-E45 — cuando no caben, la fila se desplaza de lado y un desvanecido marca la orilla por donde sigue', async () => {
+    await render(<PestanasDePrueba />);
+    await medir(300, ANCHO_DE_LAS_CINCO);
+
+    expect(fila().props.scrollEnabled).toBe(true);
+    // Al principio, la fila sigue a la derecha.
+    expect(desvanecido('izquierdo')).not.toBeOnTheScreen();
+    expect(desvanecido('derecho')).toHaveStyle({ width: espaciado[8], right: 0 });
+    expect(desvanecido('derecho')?.props.pointerEvents).toBe('none');
+
+    // A la mitad, sigue por los dos lados.
+    await desplazarA(100);
+    expect(desvanecido('izquierdo')).toHaveStyle({ width: espaciado[8], left: 0 });
+    expect(desvanecido('derecho')).toBeOnTheScreen();
+
+    // Al final, solo a la izquierda.
+    await desplazarA(ANCHO_DE_LAS_CINCO - 300);
+    expect(desvanecido('izquierdo')).toBeOnTheScreen();
+    expect(desvanecido('derecho')).not.toBeOnTheScreen();
+  });
+
+  test('administracion-app-E45 — el desvanecido va del fondo transparente al color del fondo, sin anunciarse', async () => {
+    await render(<PestanasDePrueba />);
+    await medir(300, ANCHO_DE_LAS_CINCO);
+
+    const derecho = desvanecido('derecho')!;
+    const degradado = String(estiloPlano(derecho).backgroundImage);
+    expect(degradado).toMatch(/^linear-gradient\(to right, /);
+    expect(degradado).toContain(color.semantico.fondo);
+    expect(derecho.props.accessibilityElementsHidden).toBe(true);
+    expect(derecho.props.importantForAccessibility).toBe('no-hide-descendants');
+  });
+
+  test('administracion-app-E45 — la fila se queda al principio o al final, lo que deje a la elegida entera y fuera del desvanecido', async () => {
+    await render(<PestanasDePrueba />);
+    await medir(300, ANCHO_DE_LAS_CINCO);
+
+    // Operaciones cabe entera al principio, antes del desvanecido derecho.
+    expect(llevarA).toHaveBeenLastCalledWith({ x: 0, animated: true });
+
+    // Financiero no cabe al principio: la fila va al final, y queda después del desvanecido izquierdo.
+    await fireEvent.press(pestana('Financiero'));
+    expect(llevarA).toHaveBeenLastCalledWith({ x: ANCHO_DE_LAS_CINCO - 300, animated: true });
+
+    // Usuarios cabe al principio: la fila vuelve al principio.
+    await fireEvent.press(pestana('Usuarios'));
+    expect(llevarA).toHaveBeenLastCalledWith({ x: 0, animated: true });
+  });
+
+  test('administracion-app-E45 — cuando caben, la fila no se mueve al elegir', async () => {
+    await render(<PestanasDePrueba />);
+    await medir(560, 560);
+
+    await fireEvent.press(pestana('Geográfico'));
+
+    expect(llevarA).not.toHaveBeenCalled();
+  });
+
+  test('administracion-app-E45 — cada pestaña se anuncia como pestaña de la lista, y la elegida como seleccionada, también al desplazarse', async () => {
+    await render(<PestanasDePrueba />);
+    await medir(300, ANCHO_DE_LAS_CINCO);
+
+    expect(screen.getAllByRole('tab')).toHaveLength(CATEGORIAS.length);
+    expect(pestana('Operaciones')).toBeSelected();
+    expect(pestana('Socios')).not.toBeSelected();
+
+    await desplazarA(ANCHO_DE_LAS_CINCO - 300);
+    await fireEvent.press(pestana('Geográfico'));
+
+    expect(pestana('Geográfico')).toBeSelected();
+    expect(pestana('Operaciones')).not.toBeSelected();
+  });
+
+  test('administracion-app-E45 — cada pestaña guarda el área táctil mínima y la elegida va en el color de acción', async () => {
+    await render(<PestanasDePrueba inicial="socios" />);
+
+    for (const { texto } of CATEGORIAS) {
+      expect(estiloPlano(pestana(texto)).minHeight).toBeGreaterThanOrEqual(accesibilidad.area_tactil_minima_dp);
+    }
+    expect(pestana('Socios')).toHaveStyle({ backgroundColor: color.semantico.accion });
+    expect(screen.getByText('Socios')).toHaveStyle({ color: color.semantico.accion_texto });
+    expect(screen.getByText('Usuarios')).toHaveStyle({ color: color.semantico.texto });
+  });
+
+  test('administracion-app-E45 — si cambian las medidas y ya caben, el desvanecido se va y la fila deja de desplazarse', async () => {
+    await render(<PestanasDePrueba />);
+    await medir(300, ANCHO_DE_LAS_CINCO);
+    expect(fila().props.scrollEnabled).toBe(true);
+
+    // El teléfono se gira: ahora sobra ancho, y el contenido crece hasta él.
+    await act(async () => {
+      await fireEvent(fila(), 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: 700, height: ALTO } } });
+      await fireEvent(fila(), 'contentSizeChange', 700, ALTO);
+    });
+
+    expect(fila().props.scrollEnabled).toBe(false);
+    expect(desvanecido('derecho')).not.toBeOnTheScreen();
+  });
+});
