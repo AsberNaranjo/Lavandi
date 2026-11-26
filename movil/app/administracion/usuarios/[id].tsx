@@ -17,7 +17,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
-import { confirmar } from '../../../src/administracion/confirmar';
 import type { FichaDelUsuario, PedidoDelUsuario } from '../../../src/administracion/usuarios/api';
 import { InsigniaDelUsuario } from '../../../src/administracion/usuarios/InsigniaDelUsuario';
 import { PorConfirmar } from '../../../src/administracion/usuarios/PorConfirmar';
@@ -131,6 +130,13 @@ function Dato({
 // Los estados con que un pedido ya terminó, como los nombra la administración (servidor/app/Pedidos/NombresDelEstado.php):
 // van en el texto suave, como "Entregado" en las imágenes 22 y 24; los que siguen en curso, en atención, como "En
 // proceso". El nombre siempre va escrito: el color nunca va solo.
+//
+// Pendiente de la integración: esta regla no es la de la app. El color de un estado operativo es el de
+// colorDelEstadoOperativo (src/piezas/TarjetaDePedidoDeLavanderia.tsx, adenda de ADR-0021), que pide su código, y el
+// historial de UsuariosController solo trae su nombre. "Recolectado", "Aceptado", "Listo" y "En proceso de entrega"
+// salen aquí en atención y no en su color. Cuando el contrato agregue el código del estado a cada pedido del historial,
+// la tarjeta usa colorDelEstadoOperativo(codigo) y esta regla se va. No se traduce el nombre a su código en la app:
+// sería otra copia de NombresDelEstado.
 const TERMINADOS: ReadonlySet<string> = new Set(['Entregado', 'Rechazado']);
 
 function tonoDelPedido(estado: string): string {
@@ -159,22 +165,14 @@ function PedidoDelHistorial({ pedido }: { pedido: PedidoDelUsuario }) {
 
 // El botón fijo abajo, según el estado de la cuenta. Activa: lo que espera DD-016 sobre "Bloquear", secundario.
 // Bloqueada: lo que pasa al levantarlo sobre "Levantar el bloqueo", principal. Cada uno pide su confirmación con el
-// diálogo del sistema; con "Cancelar" no pasa nada. Mientras la acción va, el botón no se puede volver a tocar.
+// diálogo del sistema (useFichaDelUsuario); con "Cancelar" no pasa nada. Mientras la acción va, el botón no se puede
+// volver a tocar.
 function AccionesDelBloqueo({ usuario, ficha }: { usuario: FichaDelUsuario; ficha: FichaDeLaPantalla }) {
   if (usuario.estado === 'bloqueado') {
     return (
       <>
         <Parrafo alineacion="inicio">{TEXTOS.alLevantarlo}</Parrafo>
-        <Boton
-          ocupado={ficha.enCurso === 'levantar'}
-          onPress={() =>
-            confirmar({
-              ...TEXTOS.confirmarElLevantamiento,
-              accion: TEXTOS.levantarElBloqueo,
-              alConfirmar: ficha.levantarElBloqueo,
-            })
-          }
-        >
+        <Boton ocupado={ficha.enCurso === 'levantar'} onPress={ficha.levantarElBloqueo}>
           {TEXTOS.levantarElBloqueo}
         </Boton>
       </>
@@ -187,17 +185,7 @@ function AccionesDelBloqueo({ usuario, ficha }: { usuario: FichaDelUsuario; fich
         dd={TEXTOS.esperaElPedidoEnCurso}
         testID="bloqueo-con-pedido-en-curso"
       />
-      <Boton
-        variante="secundario"
-        ocupado={ficha.enCurso === 'bloquear'}
-        onPress={() =>
-          confirmar({
-            ...TEXTOS.confirmarElBloqueo,
-            accion: TEXTOS.bloquear,
-            alConfirmar: ficha.bloquear,
-          })
-        }
-      >
+      <Boton variante="secundario" ocupado={ficha.enCurso === 'bloquear'} onPress={ficha.bloquear}>
         {TEXTOS.bloquear}
       </Boton>
     </>

@@ -5,9 +5,12 @@
 // no existe. Como las demás consultas, nunca lanza: devuelve un Resultado.
 //
 // El contrato es el del comentario de servidor/app/Http/Controllers/Api/Administracion/UsuariosController.php, copiado
-// aquí al pie de la letra para leerlo sin abrir el servidor:
+// aquí al pie de la letra para leerlo sin abrir el servidor. Todas las rutas llevan el token de administración y pasan
+// por el componente de autorización:
 //
-//     401  { "message": "Unauthenticated." }              sin sesión, o con el token vencido o revocado
+//     Authorization: Bearer <token de administración>     (auth:sanctum y autorizar:administracion)
+//
+//     401  { "message": "Unauthenticated." }            sin sesión, o con el token vencido o revocado
 //     403  { "message": "Esta cuenta no tiene acceso." }  la cuenta no es de administración, o su token no lleva la
 //                                                         habilidad administracion (administracion-app-E06 y E07)
 //     404  { "message": "No existe el usuario." }         la cuenta no existe, no es de usuario (la de un socio o la de
@@ -58,6 +61,8 @@
 //              "total": 61                           cuántas cuentas hay con esa búsqueda, en todas las páginas
 //            }
 //          }
+//          Las cuentas con el rol de usuario, cualquiera que sea la plaza de sus pedidos. Las de los socios se gestionan
+//          con su lavandería y su repartidor (Módulo D #1 y #2), y las de la administración no se listan.
 //
 //     GET /api/administracion/usuarios/{id_publico}        La ficha de la cuenta, con su historial
 //                                                          (administracion-app-E24, con la regla de administracion-E01)

@@ -166,8 +166,10 @@ describe('administracion-app-E24: la lista de usuarios, con búsqueda y en pági
     },
   );
 
+  // El filtro de usuarios activos es el de administracion-app-E26, que espera DD-111 (tarea 22.3): esta prueba no lo
+  // cubre, solo comprueba que la lista no lo ofrece mientras tanto.
   test.each(PLATAFORMAS)(
-    'administracion-app-E24 — (%s) el filtro de usuarios activos no se ofrece: espera DD-111 (administracion-app-E26), y la lista no da de alta, no edita ni borra',
+    'administracion-app-E24 — (%s) el filtro de usuarios activos no se ofrece: espera DD-111, y la lista no da de alta, no edita ni borra',
     async (plataforma) => {
       agregarLosUsuarios(servidor());
 
@@ -285,7 +287,7 @@ describe('administracion-app-E24: la lista de usuarios, con búsqueda y en pági
 
 describe('administracion-app-E24: la ficha del usuario con su historial', () => {
   test.each(PLATAFORMAS)(
-    'administracion-app-E24 — (%s) la ficha trae su correo, su nombre, su teléfono, su estado y sus pedidos del más reciente al más antiguo, con folio, fecha, lavandería, estado y monto, y ninguno de otra cuenta',
+    'administracion-app-E24 — (%s) la ficha trae su correo, su nombre, su teléfono, su estado y sus pedidos del más reciente al más antiguo, con folio, fecha, lavandería, estado y monto',
     async (plataforma) => {
       agregarLosUsuarios(servidor());
 
@@ -315,7 +317,9 @@ describe('administracion-app-E24: la ficha del usuario con su historial', () => 
         'Pedido 7K2M9QXA, En proceso, Lavandería de prueba Durango, 24/11/2026, Sin monto',
       );
 
-      // Nada del pedido de la otra cuenta.
+      // Nada del pedido de la otra cuenta. La app pinta lo que responde la ficha: que una cuenta no reciba el historial
+      // de otra lo prueba el servidor (A07: test_administracion_app_e24_la_ficha_trae_el_historial_del_usuario de
+      // AdministracionEnLaApp/UsuariosTest.php, BarridoContraFugasTest.php y UsuarioAisladoTest.php), no esta prueba.
       expect(screen.queryByText(`Pedido ${BETO.historial[0].folio}`)).not.toBeOnTheScreen();
       expect(screen.queryByText('Lavandería de prueba Torreón')).not.toBeOnTheScreen();
       sinAltaEdicionNiBorrado();
@@ -445,6 +449,45 @@ describe('administracion-app-E25: bloquear a un usuario y levantar el bloqueo', 
     );
   });
 
+  test('administracion-app-E25 — mientras se manda el bloqueo, el botón se bloquea: un doble toque manda un solo POST', async () => {
+    const usuarios = agregarLosUsuarios(servidor());
+    await abrirLaFicha('ios', ANA.id_publico);
+    await screen.findByRole('header', { name: 'Ana Prueba' });
+    // El servidor se queda con el bloqueo hasta que la prueba lo suelte; entonces lo contesta como siempre.
+    let soltar: () => void = () => {};
+    servidor().interceptar = (peticion) => {
+      if (peticion.metodo !== 'POST') {
+        return undefined;
+      }
+      return new Promise((resolver) => {
+        soltar = () => resolver(usuarios.contestar(peticion));
+      });
+    };
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Bloquear' }));
+    const bloquear = ultimoDialogo().botones.find(({ text }) => text === 'Bloquear');
+    await act(async () => {
+      bloquear?.onPress?.();
+      bloquear?.onPress?.();
+    });
+
+    const posts = () => servidor().peticiones().filter(({ metodo }) => metodo === 'POST');
+    expect(posts()).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Bloquear' })).toBeDisabled();
+    // Tocarlo otra vez no abre otra confirmación.
+    const dialogosAbiertos = dialogo.mock.calls.length;
+    await fireEvent.press(screen.getByRole('button', { name: 'Bloquear' }));
+    expect(dialogo.mock.calls).toHaveLength(dialogosAbiertos);
+
+    await act(async () => {
+      soltar();
+    });
+    await waitFor(() => expect(screen.getByTestId('estado-del-usuario')).toHaveTextContent('Bloqueado'));
+    expect(screen.getByRole('button', { name: 'Levantar el bloqueo' })).toBeEnabled();
+    expect(posts()).toHaveLength(1);
+    expect(usuarios.cuenta(ANA.id_publico)?.estado).toBe('bloqueado');
+  });
+
   test('administracion-app-E25 — sin conexión al bloquear, lo dice y la ficha sigue como estaba', async () => {
     const usuarios = agregarLosUsuarios(servidor());
     await abrirLaFicha('android', ANA.id_publico);
@@ -555,6 +598,26 @@ describe('administracion-app-E05: un 401 en la gestión de usuarios vuelve al in
 
       await esperarElInicioDeSesion();
       expect(usuarios.cuenta(ANA.id_publico)?.estado).toBe('activo');
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E05 — (%s) con el 401 al levantar el bloqueo, la app borra la sesión y abre el inicio de sesión',
+    async (plataforma) => {
+      const usuarios = agregarLosUsuarios(servidor());
+      await abrirLaFicha(plataforma, BETO.id_publico);
+      await screen.findByRole('header', { name: 'Beto Prueba' });
+      servidor().vencerLaSesion();
+
+      await fireEvent.press(screen.getByRole('button', { name: 'Levantar el bloqueo' }));
+      await tocar(ultimoDialogo().botones, 'Levantar el bloqueo');
+
+      await esperarElInicioDeSesion();
+      expect(peticionesDeUsuarios()).toEqual([
+        `GET ${rutaDeLaFicha(BETO.id_publico)}`,
+        `DELETE ${rutaDeLaFicha(BETO.id_publico)}/bloqueo`,
+      ]);
+      expect(usuarios.cuenta(BETO.id_publico)?.estado).toBe('bloqueado');
     },
   );
 });
