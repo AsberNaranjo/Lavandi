@@ -120,6 +120,8 @@ class DescargasTest extends TestCase
             'id_publico' => $exportacion->id_publico,
             'reporte' => 'pedidos-totales',
             'titulo' => 'Pedidos totales',
+            'desde' => '2026-11-30',
+            'hasta' => '2026-12-06',
             'pedida_en' => $exportacion->created_at->utc()->toIso8601ZuluString(),
             'estado' => 'lista',
             'archivos' => [
@@ -398,7 +400,8 @@ class DescargasTest extends TestCase
         $this->assertNotNull(Exportacion::porIdPublico($ajena));
 
         $lista = $this->llamarConToken($token, 'GET', self::DESCARGAS)->assertOk();
-        $this->assertSame(['descargas'], array_keys($lista->json()));
+        $this->assertSame(['descargas', 'dias_de_vida'], array_keys($lista->json()));
+        $this->assertSame(7, $lista->json('dias_de_vida'));
         $this->assertSame([$nueva, $intermedia], array_column($lista->json('descargas'), 'id_publico'));
 
         $primera = Exportacion::porIdPublico($nueva);
@@ -407,6 +410,8 @@ class DescargasTest extends TestCase
             'id_publico' => $nueva,
             'reporte' => 'ingresos-por-periodo',
             'titulo' => 'Ingresos por periodo',
+            'desde' => '2026-11-30',
+            'hasta' => '2026-12-06',
             'pedida_en' => $primera->created_at->utc()->toIso8601ZuluString(),
             'estado' => 'lista',
             'archivos' => ['csv' => "{$primera->file_name}.csv", 'xlsx' => "{$primera->file_name}.xlsx"],
@@ -415,6 +420,44 @@ class DescargasTest extends TestCase
 
         // La otra cuenta ve solo la suya.
         $this->assertSame([$ajena], $this->idsDeLaLista($deLaOtra));
+    }
+
+    #[TestDox('administracion-app-E59 y administracion-app-E57: cada descarga trae el rango que cubre su archivo, ya ajustado a periodos completos, igual al responder POST, en la lista y al consultarla: por semana, del lunes de la primera semana al domingo de la última; la conciliación, su periodo tal cual; la granularidad no llega, porque la fila de exports no guarda las opciones de la descarga (ADR-0022, decisión 15)')]
+    public function test_administracion_app_e59_y_e57_cada_descarga_trae_el_rango_de_su_archivo(): void
+    {
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+
+        // Del miércoles 4 al miércoles 18 de noviembre, por semana: del lunes 2 al domingo 22.
+        $porSemana = $this->pedirPorLaApp($token, PedidosTotalesExportador::NOMBRE, ['desde' => '2026-11-04', 'hasta' => '2026-11-18', 'granularidad' => 'semana'])
+            ->assertStatus(202)
+            ->json('descarga');
+        // La conciliación no ajusta su periodo, aunque llegue una granularidad.
+        $conciliacion = $this->pedirPorLaApp($token, 'conciliacion-con-la-pasarela', ['desde' => '2026-11-01', 'hasta' => '2026-11-15', 'granularidad' => 'mes'])
+            ->assertStatus(202)
+            ->json('descarga');
+
+        $this->assertSame(['desde' => '2026-11-02', 'hasta' => '2026-11-22'], array_intersect_key($porSemana, ['desde' => 0, 'hasta' => 0]));
+        $this->assertSame('pedidos-totales-2026-11-02-al-2026-11-22.csv', $porSemana['archivos']['csv']);
+        $this->assertSame(['desde' => '2026-11-01', 'hasta' => '2026-11-15'], array_intersect_key($conciliacion, ['desde' => 0, 'hasta' => 0]));
+
+        foreach ([$porSemana, $conciliacion] as $descarga) {
+            $this->assertArrayNotHasKey('granularidad', $descarga);
+            $this->assertSame($descarga, $this->consultarPorLaApp($token, $descarga['id_publico'])->assertOk()->json('descarga'));
+        }
+
+        $this->assertSame([$conciliacion, $porSemana], $this->llamarConToken($token, 'GET', self::DESCARGAS)->assertOk()->json('descargas'));
+    }
+
+    #[TestDox('administracion-app-E59: la lista de Descargas trae cuántos días vive cada descarga, los de EXPORTACION_DIAS_DE_VIDA de la configuración (exportacion-E12), al menos uno, para que la app los diga')]
+    public function test_administracion_app_e59_la_lista_trae_los_dias_de_vida_de_la_configuracion(): void
+    {
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+
+        foreach ([7 => 7, 3 => 3, 0 => 1] as $configurados => $dias) {
+            config(['exportacion.dias_de_vida' => $configurados]);
+
+            $this->llamarConToken($token, 'GET', self::DESCARGAS)->assertOk()->assertJsonPath('dias_de_vida', $dias);
+        }
     }
 
     #[TestDox('administracion-app-E60: la descarga del 10 al 20 de marzo trae esos días, incluidos los dos; la de un rango de dos años se acepta; y la de un rango al revés responde 422 en hasta con el mensaje de exportacion-E06, sin crear ninguna descarga')]
@@ -561,7 +604,7 @@ class DescargasTest extends TestCase
 
         $this->consultarPorLaApp($token, $ninguna)->assertNotFound()->assertExactJson(self::NO_EXISTE_LA_DESCARGA);
         $this->archivoPorLaApp($token, $ninguna, 'csv')->assertNotFound()->assertExactJson(self::NO_EXISTE_LA_DESCARGA);
-        $this->llamarConToken($token, 'GET', self::DESCARGAS)->assertOk()->assertExactJson(['descargas' => []]);
+        $this->llamarConToken($token, 'GET', self::DESCARGAS)->assertOk()->assertExactJson(['descargas' => [], 'dias_de_vida' => Exportacion::diasDeVida()]);
     }
 
     /**

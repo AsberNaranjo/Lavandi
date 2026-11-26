@@ -39,6 +39,12 @@ use Symfony\Component\HttpFoundation\Response;
  *       "id_publico": "01jd8x6m3v2c9q4w5e7r8t0y1z",       el ULID con el que se nombra en las rutas de abajo
  *       "reporte": "pedidos-totales",                     su código: uno de los doce de POST, abajo
  *       "titulo": "Pedidos totales",                      su nombre, como en el botón del panel
+ *       "desde": "2026-11-30",                            los dos días del rango que cubre su archivo, AAAA-MM-DD, ya
+ *       "hasta": "2026-12-06",                            ajustado a periodos completos: los de su nombre, en "archivos"
+ *                                                         (ExportadorDeIndicador::diasDelArchivo()). La granularidad no
+ *                                                         llega: la fila de exports no guarda las opciones de la
+ *                                                         descarga, y la única migración del cambio es la del
+ *                                                         id_publico (ADR-0022, decisión 15)
  *       "pedida_en": "2026-11-25T18:00:00Z",              cuándo se pidió, en UTC
  *       "estado": "generandose" | "lista" | "no_se_pudo",
  *                                                         generandose: la cola todavía no la termina; se consulta otra
@@ -88,10 +94,10 @@ use Symfony\Component\HttpFoundation\Response;
  *
  *     GET /api/administracion/descargas                       (administracion-app-E59)
  *
- *     200  { "descargas": [ { …la descarga… } ] }
+ *     200  { "descargas": [ { …la descarga… } ], "dias_de_vida": 7 }
  *          Las de la cuenta que siguen vivas (los días de EXPORTACION_DIAS_DE_VIDA, 7 por omisión; exportacion-E12), de
  *          la más nueva a la más vieja. Ni las de otra cuenta, ni las borradas, ni las de antes de que existiera su
- *          id_publico. Vacía si no hay.
+ *          id_publico. Vacía si no hay. dias_de_vida: cuántos días vive cada una, al menos uno, para que la app los diga.
  *
  *     GET /api/administracion/descargas/{id_publico}           (administracion-app-E57)
  *
@@ -151,7 +157,10 @@ class DescargasController extends Controller
             ->get()
             ->filter(fn (Exportacion $exportacion): bool => $this->autorizacion->puedeDescargarLaExportacion($cuenta, $exportacion));
 
-        return response()->json(['descargas' => $descargas->map(self::descarga(...))->values()->all()]);
+        return response()->json([
+            'descargas' => $descargas->map(self::descarga(...))->values()->all(),
+            'dias_de_vida' => Exportacion::diasDeVida(),
+        ]);
     }
 
     /**
@@ -206,14 +215,18 @@ class DescargasController extends Controller
     /**
      * La descarga como la recibe la app.
      *
-     * @return array{id_publico: string, reporte: string, titulo: string, pedida_en: string|null, estado: string, archivos: array{csv: string, xlsx: string}}
+     * @return array{id_publico: string, reporte: string, titulo: string, desde: string|null, hasta: string|null, pedida_en: string|null, estado: string, archivos: array{csv: string, xlsx: string}}
      */
     private static function descarga(Exportacion $exportacion): array
     {
+        $dias = $exportacion->exporter::diasDelArchivo((string) $exportacion->file_name);
+
         return [
             'id_publico' => (string) $exportacion->id_publico,
             'reporte' => $exportacion->exporter::NOMBRE,
             'titulo' => $exportacion->exporter::titulo(),
+            'desde' => $dias['desde'] ?? null,
+            'hasta' => $dias['hasta'] ?? null,
             'pedida_en' => $exportacion->created_at?->utc()->toIso8601ZuluString(),
             'estado' => $exportacion->estado()->value,
             'archivos' => [

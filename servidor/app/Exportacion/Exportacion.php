@@ -140,10 +140,19 @@ class Exportacion extends Export
     }
 
     /**
+     * Cuántos días vive una descarga: los de exportacion.dias_de_vida, al menos uno (exportacion-E12). La API los da con
+     * la lista de Descargas, para que la app los diga.
+     */
+    public static function diasDeVida(): int
+    {
+        return max(1, (int) config('exportacion.dias_de_vida'));
+    }
+
+    /**
      * El instante hasta el que una descarga ya cumplió sus días de vida: una pedida en él o antes se borra.
      */
     private static function finDeLaVida(): CarbonInterface
     {
-        return now()->subDays(max(1, (int) config('exportacion.dias_de_vida')));
+        return now()->subDays(self::diasDeVida());
     }
 }
