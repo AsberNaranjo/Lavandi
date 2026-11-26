@@ -1,0 +1,55 @@
+// Las descargas de la cuenta para la pantalla Descargas (administracion-app-E59): las vivas, de la más nueva a la más
+// vieja, como las da GET /api/administracion/descargas. Se piden al abrir la pantalla y cada vez que vuelve a verse
+// (useFocusEffect de expo-router), así aparece la que se pidió desde otra pantalla. Cada tarjeta que se genera consulta
+// la suya cada 5 segundos (useEsperaDeLaDescarga) y la pone al día aquí con actualizar().
+//
+// Mientras llega la nueva, se queda la que había; si llegara una respuesta después de salir de la pantalla, no se pinta.
+// Con un 401, el cliente del módulo cierra la sesión (administracion-app-E05).
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+
+import { useApiDeLaAdministracion, type FallaDeLaAdministracion } from '../api';
+import { consultarLasDescargas, type Descarga } from './api';
+
+export interface DescargasDeLaCuenta {
+  /** null mientras llega la primera lista. */
+  descargas: Descarga[] | null;
+  /** La falla de la última consulta, o null. */
+  falla: FallaDeLaAdministracion | null;
+  /** Pone en la lista la descarga como la dio el servidor, en el lugar de la que tenía. */
+  actualizar(descarga: Descarga): void;
+}
+
+export function useDescargas(): DescargasDeLaCuenta {
+  const pedir = useApiDeLaAdministracion();
+  const [descargas, setDescargas] = useState<Descarga[] | null>(null);
+  const [falla, setFalla] = useState<FallaDeLaAdministracion | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      let vigente = true;
+      consultarLasDescargas(pedir).then((resultado) => {
+        if (!vigente) {
+          return;
+        }
+        if (resultado.ok) {
+          setDescargas(resultado.datos.descargas);
+          setFalla(null);
+        } else if (resultado.motivo !== 'sin-sesion') {
+          setFalla(resultado);
+        }
+      });
+      return () => {
+        vigente = false;
+      };
+    }, [pedir]),
+  );
+
+  const actualizar = useCallback((descarga: Descarga) => {
+    setDescargas((anteriores) =>
+      anteriores?.map((otra) => (otra.id_publico === descarga.id_publico ? descarga : otra)) ?? anteriores,
+    );
+  }, []);
+
+  return { descargas, falla, actualizar };
+}
