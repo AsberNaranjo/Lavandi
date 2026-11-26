@@ -4,6 +4,7 @@ namespace App\Filament\Widgets\Indicadores;
 
 use App\Filament\MapaDelPanel;
 use App\Filament\Widgets\Indicadores\Concerns\EsDeIndicadores;
+use App\Indicadores\AgrupacionDelMapa;
 use App\Indicadores\Intensidad;
 use App\Indicadores\PedidosPorColonia;
 use App\Indicadores\PedidosPorZona;
@@ -22,17 +23,15 @@ use Filament\Widgets\Widget;
  * - La llave, el aviso sin ella, el contenedor y el cargador de la API son los de todos los mapas del panel
  *   (App\Filament\MapaDelPanel). Sin llave, el mapa no se monta y el panel lo dice, como la app sin la llave de Android.
  * - Las mismas cifras van en una tabla, para leerlas sin el mapa y sin depender del color.
+ * - Qué agrupación vale, y la de omisión, lo dice App\Indicadores\AgrupacionDelMapa, la misma de la API.
  */
 class MapaDeCalor extends Widget
 {
     use EsDeIndicadores;
 
-    public const POR_COLONIA = 'colonia';
+    public const POR_COLONIA = AgrupacionDelMapa::Colonia->value;
 
-    public const POR_ZONA = 'zona';
-
-    /** Las agrupaciones que elige la administración, con su nombre. */
-    public const AGRUPACIONES = [self::POR_COLONIA => 'Colonia', self::POR_ZONA => 'Zona de servicio'];
+    public const POR_ZONA = AgrupacionDelMapa::Zona->value;
 
     protected string $view = 'filament.widgets.indicadores.mapa-de-calor';
 
@@ -50,17 +49,12 @@ class MapaDeCalor extends Widget
             'llave' => MapaDelPanel::llave(),
             'intervalo' => $this->getPollingInterval(),
             'rampa' => Intensidad::RAMPA,
-            'agrupaciones' => self::AGRUPACIONES,
+            'agrupaciones' => AgrupacionDelMapa::opciones(),
         ];
 
-        return $this->agrupacion() === self::POR_ZONA
+        return AgrupacionDelMapa::elegida($this->agrupacion) === AgrupacionDelMapa::Zona
             ? [...$comun, ...$this->porZona()]
             : [...$comun, ...$this->porColonia()];
-    }
-
-    private function agrupacion(): string
-    {
-        return array_key_exists($this->agrupacion, self::AGRUPACIONES) ? $this->agrupacion : self::POR_COLONIA;
     }
 
     /**

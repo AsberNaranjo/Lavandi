@@ -124,8 +124,9 @@ class UsuarioAisladoTest extends TestCase
                 'descarga' => [$descarga->id_publico => 'la descarga de la administración'],
             ],
             // El perfil de las lavanderías es público en el Módulo A (Módulo A #5); el catálogo, de todos; el formato de
-            // una descarga, también.
-            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000', 'formato' => 'csv'],
+            // una descarga y una categoría del A.5, de las rutas de la administración que llegan con la tarea 17.1 de
+            // administracion-en-la-app, también.
+            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000', 'formato' => 'csv', 'categoria' => 'operaciones'],
             datosAjenos: [
                 $descarga->id_publico => 'el id_publico de la descarga de la administración',
                 $this->pedidoDeBeto->id_publico => 'el id_publico del pedido de Beto',

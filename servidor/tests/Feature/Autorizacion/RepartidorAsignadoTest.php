@@ -188,7 +188,9 @@ class RepartidorAsignadoTest extends TestCase
                 'usuario' => [$this->sinAsignar->usuario->id_publico => 'la cuenta del usuario sin asignar'],
                 'descarga' => [$descarga->id_publico => 'la descarga de la administración'],
             ],
-            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000', 'formato' => 'csv'],
+            // El formato de una descarga y una categoría del A.5, de las rutas de la administración que llegan con la
+            // tarea 17.1 de administracion-en-la-app, son públicos, como el catálogo.
+            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000', 'formato' => 'csv', 'categoria' => 'operaciones'],
             datosAjenos: $datosAjenos,
             datos: ['pedido' => $this->sinAsignar->id_publico],
         );

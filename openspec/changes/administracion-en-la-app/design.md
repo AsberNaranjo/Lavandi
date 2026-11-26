@@ -131,6 +131,7 @@ Las pruebas del panel siguen pasando sin cambios:
 | `App\Filament\Resources\Usuarios\HistorialDelUsuario` | Qué pedidos van en la ficha, su fecha en la hora de la plaza y su monto | La ficha del panel y la de la API | El lote 3 |
 | El formulario de `App\Filament\Pages\Conciliacion` y los campos de `ExportadorDeIndicador::getOptionsFormComponents()` | La regla del rango: las dos fechas, y la de fin no anterior a la de inicio, con su mensaje | La conciliación y la descarga, del panel y de la API | El lote 6; la descarga la usa en el lote 9. **La regla ya se movió** a `App\Validacion\RangoDeFechas` (`reglas()` y `mensajes()`), que el panel toma por `App\Filament\CamposDelRango`; faltan las dos rutas (tareas 13.2 y 19.2) |
 | `CreateAvisoMasivo` y `AvisoMasivoForm` | Qué se guarda con el aviso, que sale en cola después de guardarlo, y los topes del título (255) y del texto (1000) | El panel y la API | El lote 7 |
+| `App\Filament\Widgets\Indicadores\MapaDeCalor::agrupacion()` | Qué agrupación del mapa de calor vale: por colonia o por zona; por colonia si no se eligió una que exista | El mapa del panel y la API | El lote 8, con la tarea 17.3. **Ya se movió**: hoy es `App\Indicadores\AgrupacionDelMapa` (`elegida()` y `opciones()`) |
 | `App\Filament\Actions\DescargarReporte::generar()` | Cómo se crea la descarga de la cuenta y se pone en cola su archivo | El botón del panel y la API | El lote 9 |
 
 Cada lado sigue convirtiendo los errores a su forma: el panel los pone bajo `data.<campo>` de su formulario, y la API
