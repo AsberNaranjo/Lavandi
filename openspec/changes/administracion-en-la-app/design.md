@@ -85,6 +85,12 @@ Las técnicas están en ADR-0022 y no se repiten. Aquí, cómo se aplican.
 
 - **El grupo de rutas se parte en dos:** `cuenta` y `sesion` con `autorizar:usuario,lavanderia,repartidor,administracion`;
   `catalogos/municipios` y `codigos-postales/{codigo_postal}/colonias` con los tres roles que los usan.
+- **El catálogo de municipios, también para la administración** (adenda del 2026-11-26 de ADR-0022, decisión 6, por
+  delegación de Arthur, C-245). La edición de la lavandería elige el municipio de esa lista
+  (`movil/src/direcciones/useMunicipios.ts`), y administracion-app-E14 pide que la administración lo cambie. Es un
+  catálogo sin datos personales. `catalogos/municipios` va en su propio grupo, con
+  `autorizar:usuario,lavanderia,repartidor,administracion`; las colonias por código postal siguen con los tres roles,
+  porque la edición no las pide. Un token de administración sin la habilidad no lo abre (administracion-app-E06).
 - **La pieza que crea los tokens,** `App\Identidad\TokensDeLaApp` (ADR-0022, decisión 3), reemplaza las cuatro llamadas
   a `createToken()` (en `9f6b7e5`: `SesionController.php:84`, `SesionConGoogleController.php:30`,
   `RegistroController.php:23` y `RepartidorController.php:85`). Hoy los cuatro llaman a `TokensDeLaApp::crear()`
@@ -489,11 +495,12 @@ Resumen. El detalle de cada fila va después.
   - la prueba de cobertura de la autorización (autorizacion-E01) recorre las rutas nuevas sin cambios;
   - **autorizacion-E02 y E14 sí cambian** (su delta en `specs/autorizacion/spec.md`), porque hoy fijan que la
     administración no tiene módulo en la API:
-    - `servidor/tests/Feature/Autorizacion/RolPorModuloTest.php`: la cuenta y la sesión, comunes a los cuatro roles, y
-      el catálogo del territorio, a los tres de siempre; las rutas bajo `api/administracion/` como Módulo D, que admite
-      solo a la administración; la comprobación de que la administración es rechazada, solo en las rutas de los
-      Módulos A, B y C (en `9f6b7e5`, en todas: `:115`; hoy, solo en esas: `:132-137`); y la administración entre las
-      cuentas que llegan a su módulo;
+    - `servidor/tests/Feature/Autorizacion/RolPorModuloTest.php`: la cuenta, la sesión y el catálogo de municipios,
+      comunes a los cuatro roles, y las colonias del catálogo, a los tres de siempre (los municipios se sumaron con la
+      tarea 4.3; adenda del 2026-11-26 de ADR-0022, decisión 6); las rutas bajo `api/administracion/` como Módulo D,
+      que admite solo a la administración; la comprobación de que la administración es rechazada, solo en las rutas de
+      los Módulos A, B y C (en `9f6b7e5`, en todas: `:115`; hoy, solo en esas: `:136-142`); y la administración entre
+      las cuentas que llegan a su módulo;
     - `servidor/tests/Feature/Autorizacion/Soporte/LlamadasSinEfecto.php`: el token sale de `TokensDeLaApp` (en
       `9f6b7e5`, `createToken('app')`, que lleva `*`: `:39`; hoy, `:41`), así la cuenta de administración llega con su
       habilidad `administracion` y no recibe 403 en su propio módulo;

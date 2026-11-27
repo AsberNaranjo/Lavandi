@@ -24,13 +24,14 @@ use Tests\TestCase;
  *
  * - Módulo B: las rutas bajo api/lavanderia/ y api/socio/. Módulo C: las de api/repartidor/, salvo el registro, que no
  *   pide sesión. Módulo D: las de api/administracion/. Módulo A: las demás con el rol de usuario.
- * - Comunes a los cuatro roles: la cuenta y el cierre de la sesión (registro-E33). El catálogo del territorio (C-238), a
- *   los tres roles de los Módulos A, B y C.
+ * - Comunes a los cuatro roles: la cuenta y el cierre de la sesión (registro-E33), y el catálogo de municipios (C-238),
+ *   que la administración lee para cambiar el municipio de una lavandería (administracion-app-E14; adenda del 2026-11-26
+ *   de ADR-0022, decisión 6). Las colonias de un código postal, a los tres roles de los Módulos A, B y C.
  * - Que cada ruta del panel rechace a los demás roles lo recorre autorizacion-E03.
  *
  * Escenario: autorizacion-E02 · Spec: openspec/changes/autorizacion-por-rol/specs/autorizacion/spec.md, con el delta de
- * openspec/changes/administracion-en-la-app/specs/autorizacion/spec.md · Tareas 1.2 de autorizacion-por-rol, y 1.6 y
- * 3.1 de administracion-en-la-app
+ * openspec/changes/administracion-en-la-app/specs/autorizacion/spec.md · Tareas 1.2 de autorizacion-por-rol, y 1.6,
+ * 3.1 y 4.3 de administracion-en-la-app
  */
 class RolPorModuloTest extends TestCase
 {
@@ -40,18 +41,21 @@ class RolPorModuloTest extends TestCase
 
     private const ROLES = [Rol::USUARIO, Rol::LAVANDERIA, Rol::REPARTIDOR, Rol::ADMINISTRACION];
 
-    /** Los roles de los Módulos A, B y C, los que usan el catálogo del territorio. */
+    /** Los roles de los Módulos A, B y C, los que usan las colonias del catálogo del territorio. */
     private const ROLES_DEL_CATALOGO = [Rol::USUARIO, Rol::LAVANDERIA, Rol::REPARTIDOR];
 
-    /** Las rutas comunes a los cuatro roles: no son de un módulo. */
+    /**
+     * Las rutas comunes a los cuatro roles: no son de un módulo. El catálogo de municipios también, desde la tarea 4.3 de
+     * administracion-en-la-app (administracion-app-E14).
+     */
     private const COMUNES_DE_LA_APP = [
         'DELETE api/sesion',
         'GET api/cuenta',
+        'GET api/catalogos/municipios',
     ];
 
-    /** Las rutas del catálogo del territorio, comunes a los tres roles de los Módulos A, B y C. */
+    /** Las rutas del catálogo del territorio comunes a los tres roles de los Módulos A, B y C: las colonias. */
     private const DEL_CATALOGO = [
-        'GET api/catalogos/municipios',
         'GET api/codigos-postales/{codigo_postal}/colonias',
     ];
 
@@ -73,7 +77,7 @@ class RolPorModuloTest extends TestCase
         }
     }
 
-    #[TestDox('autorizacion-E02: cada ruta de un módulo admite solo al rol de ese módulo: la del Módulo A al usuario, la del B a la lavandería, la del C al repartidor y la del D a la administración; la cuenta y la sesión son comunes a los cuatro, y el catálogo, a los tres de los Módulos A, B y C')]
+    #[TestDox('autorizacion-E02: cada ruta de un módulo admite solo al rol de ese módulo: la del Módulo A al usuario, la del B a la lavandería, la del C al repartidor y la del D a la administración; la cuenta, la sesión y el catálogo de municipios son comunes a los cuatro, y las colonias del catálogo, a los tres de los Módulos A, B y C')]
     public function test_autorizacion_e02_cada_ruta_de_un_modulo_admite_solo_a_su_rol(): void
     {
         $fueraDeSuModulo = [];
@@ -129,7 +133,8 @@ class RolPorModuloTest extends TestCase
         // Cada rol tiene módulos ajenos que lo rechazan: la prueba no pasa en vacío.
         $this->assertSame([], array_keys(array_filter($rechazos, fn (int $veces): bool => $veces === 0)));
 
-        // La administración es rechazada en todas las rutas de los Módulos A, B y C, con el catálogo, y solo en esas.
+        // La administración es rechazada en todas las rutas de los Módulos A, B y C, con las colonias del catálogo, y solo
+        // en esas: no en las comunes, que incluyen el catálogo de municipios.
         $deLosModulosABC = array_filter(
             array_keys($this->rutasDeLaApiConRol()),
             fn (string $nombre): bool => ! in_array($nombre, self::COMUNES_DE_LA_APP, true) && $this->moduloDe($nombre) !== 'D',

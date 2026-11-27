@@ -5,9 +5,9 @@
 // Sección A.3, Módulo D #1). Las reglas son las del registro de la lavandería, en ReglasDeLaLavanderia y
 // EdicionDeLavanderia; las prueba el servidor (servidor/tests/Feature/AdministracionEnLaApp/LavanderiasTest.php). Aquí,
 // que la app manda solo lo que cambió, con las fotos en multipart por POST con _method=PATCH, que al guardar regresa a la
-// ficha con los datos nuevos, que pone cada 422 junto a su campo sin validar nada por su cuenta, y que la pantalla del
-// perfil del socio muestra lo que quedó. El cambio de municipio que pide E14 espera que se resuelva el bloqueo de la
-// tarea 4.3 (tasks.md del cambio): el catálogo no se abre a la administración.
+// ficha con los datos nuevos, que pone cada 422 junto a su campo sin validar nada por su cuenta, que el municipio se
+// elige de la lista del territorio, que la administración lee (adenda del 2026-11-26 de ADR-0022, decisión 6), y que la
+// pantalla del perfil del socio muestra lo que quedó.
 //
 // Se abre la app real, con las rutas de movil/app/ (ADR-0017), en iPhone y en Android, con el servidor simulado de la
 // administración (__tests__/apoyo/administracion.ts) y sus lavanderías (__tests__/apoyo/administracion/lavanderias.ts);
@@ -21,6 +21,7 @@ import {
   abrirLaAppConLaAdministracion,
   copia,
   PLATAFORMAS,
+  TOKEN_DE_LA_ADMINISTRACION,
   usarElServidorDeLaAdministracion,
   type Plataforma,
 } from '../apoyo/administracion';
@@ -423,12 +424,63 @@ describe('administracion-app-E14: editar una lavandería', () => {
   );
 });
 
-describe('administracion-app-E14 (bloqueada en el municipio: tasks.md, tarea 4.3)', () => {
-  // E14 pide cambiar "su dirección con su municipio", y el catálogo de municipios no se abre a la administración
-  // (design.md, sección 2; ADR-0022, decisión 6): la contradicción la resuelve Arthur. Al resolverla, esta prueba elige
-  // otro municipio, comprueba que viaja direccion.municipio con el código nuevo y que no sale "No pudimos cargar la lista
-  // de municipios".
-  test.todo('administracion-app-E14 — cambia el municipio de su dirección: viaja direccion.municipio con el código nuevo');
+describe('administracion-app-E14: el municipio de su dirección', () => {
+  // E14 pide cambiar "su dirección con su municipio": la lista es la del territorio, GET /api/catalogos/municipios, que
+  // también es de la administración (adenda del 2026-11-26 de ADR-0022, decisión 6; registro-E33).
+  test.each(PLATAFORMAS)(
+    'administracion-app-E14 — (%s) elige otro municipio de la lista del territorio: viaja la dirección completa con el código nuevo, y la ficha lo muestra',
+    async (plataforma) => {
+      await abrirLaEdicion(plataforma);
+
+      // La lista llega con la sesión de la administración, sin el error de la lista.
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Municipio' })).toBeEnabled());
+      expect(screen.queryByText(/No pudimos cargar la lista de municipios/)).not.toBeOnTheScreen();
+      expect(
+        servidor()
+          .peticiones()
+          .filter(({ metodo, ruta }) => metodo === 'GET' && ruta === '/catalogos/municipios')
+          .map(({ autorizacion }) => autorizacion),
+      ).toEqual([`Bearer ${TOKEN_DE_LA_ADMINISTRACION}`]);
+
+      await fireEvent.press(screen.getByRole('button', { name: 'Municipio' }));
+      await fireEvent.press(
+        within(screen.getByTestId('hoja-direccion.municipio')).getByRole('radio', {
+          name: 'Torreón, Coahuila de Zaragoza',
+        }),
+      );
+      expect(screen.getByRole('button', { name: 'Municipio' })).toHaveAccessibilityValue({
+        text: 'Torreón, Coahuila de Zaragoza',
+      });
+      await guardar();
+
+      await waitFor(() => expect(screen).toHavePathname(rutaDe(ACTIVA)));
+      expect(lavanderias.envios(ACTIVA)).toEqual([
+        {
+          metodo: 'PATCH',
+          ruta: rutaDe(ACTIVA),
+          multipart: false,
+          cuerpo: {
+            // La dirección va completa, con las señas que tenía y el municipio nuevo.
+            direccion: {
+              calle: 'Calle de Prueba',
+              numero: '100',
+              colonia: 'Zona Centro',
+              codigo_postal: '34000',
+              municipio: '05035',
+            },
+          },
+        },
+      ]);
+      expect(enElServidor(ACTIVA).datos.direccion.municipio).toEqual({
+        codigo: '05035',
+        nombre: 'Torreón',
+        estado: 'Coahuila de Zaragoza',
+      });
+      expect(await screen.findByTestId('dato-direccion')).toHaveTextContent(
+        'Dirección' + 'Calle de Prueba 100, Zona Centro, C. P. 34000, Torreón, Coahuila de Zaragoza',
+      );
+    },
+  );
 });
 
 describe('administracion-app-E05: la sesión vence en la edición', () => {

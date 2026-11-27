@@ -9,6 +9,9 @@
 // - POST /sesion/google: 422 en id_token a la cuenta de administración, sin token (administracion-app-E08);
 // - GET /cuenta: 200 con la cuenta y su rol;
 // - DELETE /sesion: 204, y el token queda revocado (administracion-app-E04);
+// - GET /catalogos/municipios: 200 con los municipios del territorio, que la edición de la lavandería ofrece para
+//   elegir: el catálogo de municipios es de los cuatro roles (adenda del 2026-11-26 de ADR-0022, decisión 6;
+//   administracion-app-E14);
 // - 401 a todo con un token que no es el de la sesión, con uno revocado o después de vencerLaSesion()
 //   (administracion-app-E05);
 // - 403 con solo su mensaje a cualquier ruta de /administracion si la cuenta no es de administración: la prueba le pone
@@ -22,6 +25,7 @@ import {
   abrirLaAppConSesion,
   CUENTAS,
   leer,
+  MUNICIPIOS,
   prepararElTelefonoConSesion,
   recibir,
   respuesta,
@@ -129,6 +133,9 @@ export class ServidorDeLaAdministracion {
     if (metodo === 'DELETE' && ruta === '/sesion') {
       this.revocados.add(token);
       return respuesta(204);
+    }
+    if (metodo === 'GET' && ruta === '/catalogos/municipios') {
+      return respuesta(200, { municipios: MUNICIPIOS });
     }
     if (ruta !== PREFIJO && !ruta.startsWith(`${PREFIJO}/`)) {
       throw new Error(`El servidor simulado de la administración no esperaba ${metodo} ${ruta}`);

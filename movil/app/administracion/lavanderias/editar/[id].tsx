@@ -16,8 +16,8 @@
 // este orden: Calle; Número y Código postal en un renglón; Colonia. Aquí va en el orden del formulario del socio
 // (FormularioDeLaLavanderia.tsx: PARTES_DE_LA_DIRECCION y, después, el código postal): Calle, Número, Colonia y Código
 // postal, cada uno en su renglón. Manda el formulario: administracion-app-E14 y design.md, sección 4 (F-D01), piden su
-// orden, y el formulario no cambia. El municipio todavía no se puede cambiar: el catálogo no se abre a la administración
-// (tasks.md, tarea 4.3, bloqueada en el municipio).
+// orden, y el formulario no cambia. El municipio se elige de GET /api/catalogos/municipios, que también es de la
+// administración (adenda del 2026-11-26 de ADR-0022, decisión 6).
 import { useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 

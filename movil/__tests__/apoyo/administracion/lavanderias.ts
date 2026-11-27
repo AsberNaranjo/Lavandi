@@ -14,13 +14,9 @@
 // - POST y DELETE …/{id_publico}/suspension, POST …/{id_publico}/baja: el cambio de estado, con la regla de
 //   EstadoDeLaLavanderia; si su estado ya no lo permite, 409 con el mensaje de TransicionNoPermitida y nada cambia.
 //
-// El 401 y el 403 los responde antes el servidor simulado de la administración.
-//
-// El catálogo de municipios (GET /catalogos/municipios), que pide el formulario de la edición, responde 403 a la
-// administración, como el servidor real: solo lo abre a usuario, lavandería y repartidor (servidor/routes/api.php:64-70;
-// design.md del cambio, sección 2). Por eso la edición todavía no cambia el municipio que pide administracion-app-E14: la
-// tarea 4.3 queda bloqueada en el municipio (tasks.md del cambio). Cuando Arthur resuelva el bloqueo, este apoyo responde
-// el catálogo a la administración y la edición prueba el cambio de municipio.
+// El 401 y el 403 los responde antes el servidor simulado de la administración, y también el catálogo de municipios
+// (GET /catalogos/municipios), que pide el formulario de la edición: como el servidor real, se lo da a la administración
+// (adenda del 2026-11-26 de ADR-0022, decisión 6; administracion-app-E14).
 import type { ArchivoDelFormulario } from '../formulario';
 import {
   copia,
@@ -48,8 +44,6 @@ export const PLAZA_DURANGO = 'Plaza de prueba Durango';
 export const PLAZA_TORREON = 'Plaza de prueba Torreón';
 
 export const RUTA_DE_LAS_LAVANDERIAS = '/administracion/lavanderias';
-
-const RUTA_DE_LOS_MUNICIPIOS = '/catalogos/municipios';
 
 /** El mensaje del 404 de una lavandería que no existe. */
 export const NO_EXISTE_LA_LAVANDERIA = 'No existe la lavandería.';
@@ -140,10 +134,6 @@ export class LavanderiasDelServidor {
   ) {
     this.lavanderias = lavanderias.map(copia);
     servidor.agregar((peticion) => this.contestar(peticion));
-    servidor.interceptar = ({ metodo, ruta }) =>
-      metodo === 'GET' && ruta === RUTA_DE_LOS_MUNICIPIOS
-        ? respuesta(403, { message: 'Esta cuenta no tiene acceso.' })
-        : undefined;
   }
 
   /** La lavandería del servidor con ese id_publico, como está ahora. */

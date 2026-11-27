@@ -107,8 +107,9 @@ Google (administracion-app-E08).
 Cita: A → `NSV-2026-001-v8.pdf:16:ANEXO A, Sección A.3` (una sola app con los módulos del usuario, la lavandería y el
 repartidor) y `NSV-2026-001-v8.pdf:3:Cláusula I` ("Aplicación única para iPhone y Android, con módulo de usuario, módulo
 de socio lavandería, módulo de socio repartidor y panel de administración") · D → ADR-0019 (la autorización en un solo
-componente) y ADR-0022 (decisiones 1, 5, 6 y 8) · C → C-247 y decisión 69 de `acta-2026-11-20-modelo-y-pasarela.md`,
-que reemplazan la decisión 31, la decisión 56 y la parte web de C-140
+componente) y ADR-0022 (decisiones 1, 5, 6 y 8, y la adenda del 2026-11-26 de la decisión 6) · C → C-247 y decisión 69
+de `acta-2026-11-20-modelo-y-pasarela.md`, que reemplazan la decisión 31, la decisión 56 y la parte web de C-140; C →
+C-245 (la adenda, por delegación de Arthur)
 
 #### Scenario: registro-E33 — Una cuenta de lavandería consulta su cuenta y cierra su sesión
 
@@ -124,5 +125,6 @@ que reemplazan la decisión 31, la decisión 56 y la parte web de C-140
   datos (administracion-app-E06)
 - **Y** una cuenta de administración que entra con Google recibe 422 en `id_token`, sin token y sin que su cuenta
   cambie (administracion-app-E08)
-- **Y** el catálogo del territorio (`catalogos/municipios` y las colonias por código postal) sigue solo para el
-  usuario, la lavandería y el repartidor
+- **Y** del catálogo del territorio, la lista de municipios (`catalogos/municipios`) la lee también la administración
+  con su token de administración, para cambiar el municipio de una lavandería (administracion-app-E14); las colonias por
+  código postal siguen solo para el usuario, la lavandería y el repartidor
