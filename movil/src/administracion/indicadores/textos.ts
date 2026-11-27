@@ -9,6 +9,7 @@ import { TEXTOS as TEXTOS_DE_LAS_CERCANAS } from '../../cercanas/textos';
 import { TEXTOS_DEL_RESUMEN } from '../../pedido/textos';
 import type { SentidoDeLaTendencia } from '../../piezas/IndicadorDestacado';
 import type { FallaDeLaAdministracion } from '../api';
+import { TEXTOS_DE_LAS_DESCARGAS } from '../descargas/textos';
 import type { Granularidad } from '../rango/rango';
 import { TEXTOS_DE_LA_ADMINISTRACION } from '../textos';
 import type { Agrupacion, Categoria, ColoniaDelMapa, MontoPromedio, Refresco } from './api';
@@ -103,6 +104,14 @@ export const DD_DE_LOS_INDICADORES = {
   cortesDelSemaforo: ['DD-114'],
   comoSeAgrupanLasBarras: ['DD-115'],
 } as const;
+
+/**
+ * Lo que lee el lector de pantalla en el "Descargar" de un indicador: "Descargar Pedidos totales". Cada indicador con
+ * cifra trae el suyo, y el texto solo no dice cuál reporte baja.
+ */
+export function descargarElIndicador(titulo: string): string {
+  return `${TEXTOS_DE_LAS_DESCARGAS.descargar} ${titulo}`;
+}
 
 /** "Por confirmar · DD-020, DD-013": la marca del resumen del pedido con las DD que espera (design.md, sección 5). */
 export function porConfirmar(dds: readonly string[]): string {

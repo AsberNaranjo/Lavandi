@@ -8,28 +8,35 @@
 //   indicadores-E04 ("Gráfica de dona"). Los cancelados esperan DD-016 (indicadores-E05; administracion-app-E55).
 //
 // Cada gráfica trae sus cifras en texto (las piezas de src/piezas/). Ninguna cifra sale de aquí: todas las da el
-// servidor.
+// servidor. Cada indicador lleva su "Descargar", con el rango de la pantalla (administracion-app-E56): F-I01 en la
+// tarjeta de las barras, como en la imagen 41, y F-I02 en la de la dona.
 import { Dona } from '../../piezas/Dona';
 import { GraficaDeBarras } from '../../piezas/GraficaDeBarras';
 import { TablaComparativa } from '../../piezas/TablaComparativa';
 import { color } from '../../tema/theme';
-import type { Granularidad } from '../rango/rango';
+import type { RangoAjustado } from '../rango/rango';
 import type { IndicadoresDeOperaciones } from './api';
 import { RenglonQueEspera, TarjetaDelIndicador } from './TarjetaDelIndicador';
 import { centroDeLaDona, DD_DE_LOS_INDICADORES, periodoCorto, TEXTOS_DE_LOS_INDICADORES as TEXTOS } from './textos';
 
 interface Propiedades {
   indicadores: IndicadoresDeOperaciones;
-  granularidad: Granularidad;
+  /** El rango que usó el servidor: su granularidad para los periodos cortos, y el de la descarga por omisión. */
+  rango: RangoAjustado;
 }
 
-export function PestanaDeOperaciones({ indicadores, granularidad }: Propiedades) {
+export function PestanaDeOperaciones({ indicadores, rango }: Propiedades) {
+  const { granularidad } = rango;
   const { periodos } = indicadores.pedidos_totales;
   const { activos, completados } = indicadores.pedidos_por_estado;
 
   return (
     <>
-      <TarjetaDelIndicador titulo={TEXTOS.pedidosTotales} testID="indicador-pedidos-totales">
+      <TarjetaDelIndicador
+        titulo={TEXTOS.pedidosTotales}
+        testID="indicador-pedidos-totales"
+        descarga={{ reporte: 'pedidos-totales', rango }}
+      >
         <GraficaDeBarras
           titulo={TEXTOS.pedidosTotales}
           barras={periodos.map((periodo) => ({
@@ -54,7 +61,11 @@ export function PestanaDeOperaciones({ indicadores, granularidad }: Propiedades)
           }))}
         />
       </TarjetaDelIndicador>
-      <TarjetaDelIndicador titulo={TEXTOS.pedidosPorEstado} testID="indicador-pedidos-por-estado">
+      <TarjetaDelIndicador
+        titulo={TEXTOS.pedidosPorEstado}
+        testID="indicador-pedidos-por-estado"
+        descarga={{ reporte: 'pedidos-por-estado', rango }}
+      >
         <Dona
           titulo={TEXTOS.pedidosPorEstado}
           centro={centroDeLaDona(activos + completados)}

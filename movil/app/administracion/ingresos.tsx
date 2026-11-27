@@ -8,8 +8,9 @@
 // La composición es la de la imagen 31 de la Propuesta 06: el rango plegado en su tarjeta con "Cambiar", que abre la
 // hoja del rango sin "Este mes" ni "Mes anterior" (design.md, sección 4); debajo, las cifras del periodo, con el lugar
 // de los reembolsos y ajustes (administracion-app-E39; DD-012 y DD-016) y el de las comisiones del periodo
-// (administracion-app-E40; DD-020) en ámbar, sin cifra ni descarga; y la tabla de cada periodo. "Descargar" llega con la
-// tarea 20.1.
+// (administracion-app-E40; DD-020) en ámbar, sin cifra ni descarga; la tabla de cada periodo; y "Descargar", el reporte
+// de los ingresos con el rango y la granularidad de la pantalla por omisión (administracion-app-E56, E57 y E60; tarea
+// 20.1; src/administracion/reportes-financieros/DescargaDelReporte.tsx).
 //
 // Si los ingresos no llegan, sin escenario propio: los mensajes generales de la app e "Intentar de nuevo". Con un 401,
 // el cliente de la administración ya volvió al inicio de sesión (administracion-app-E05).
@@ -20,6 +21,7 @@ import { HojaDelRango } from '../../src/administracion/rango/HojaDelRango';
 import { diaALaVista, elegidoDelServidor } from '../../src/administracion/rango/rango';
 import { TarjetaDelRango } from '../../src/administracion/rango/TarjetaDelRango';
 import type { IngresosDelPeriodo, PeriodoDeLosIngresos } from '../../src/administracion/reportes-financieros/api';
+import { DescargaDelReporte } from '../../src/administracion/reportes-financieros/DescargaDelReporte';
 import { TarjetaDeRenglones } from '../../src/administracion/reportes-financieros/TarjetaDeRenglones';
 import {
   DD_DE_LOS_REPORTES,
@@ -61,6 +63,12 @@ export default function Ingresos() {
           <TarjetaDelRango descripcion={cifras.ingresos.rango.descripcion} alCambiar={() => setHojaAbierta(true)} />
           <CifrasDelPeriodo ingresos={cifras.ingresos} />
           <TablaDeLosPeriodos periodos={cifras.ingresos.periodos} />
+          <DescargaDelReporte
+            reporte="ingresos-por-periodo"
+            desde={cifras.ingresos.rango.desde}
+            hasta={cifras.ingresos.rango.hasta}
+            granularidad={cifras.ingresos.rango.granularidad}
+          />
           {/*
             Aquí, debajo de los ingresos y con el mismo rango, van las comisiones del periodo, por socio y en total, cuando
             DD-020 fije su regla (administracion-app-E40; tarea 22.6). Mientras tanto, solo su lugar en las cifras.

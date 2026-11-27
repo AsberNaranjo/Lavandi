@@ -224,10 +224,11 @@ describe('administracion-app-E38: conciliar un periodo', () => {
       expect(conciliado.getByLabelText('En la plataforma: $100.00')).toBeOnTheScreen();
       expect(conciliado.getByLabelText('En la pasarela: $100.00')).toBeOnTheScreen();
 
-      // Después de conciliar, el periodo ya no se edita: "Otro periodo" vuelve a él. "Descargar" llega con la tarea 20.1.
+      // Después de conciliar, el periodo ya no se edita: "Otro periodo" vuelve a él. A su lado, "Descargar" pide el
+      // reporte (tarea 20.1; administracion-app-E56, en descargas.test.tsx).
       expect(screen.queryByLabelText('Desde')).not.toBeOnTheScreen();
       expect(screen.getByRole('button', { name: 'Otro periodo' })).toBeOnTheScreen();
-      expect(screen.queryByRole('button', { name: 'Descargar' })).not.toBeOnTheScreen();
+      expect(screen.getByRole('button', { name: 'Descargar' })).toBeOnTheScreen();
     },
   );
 

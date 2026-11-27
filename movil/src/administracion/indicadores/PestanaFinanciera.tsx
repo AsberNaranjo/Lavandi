@@ -8,23 +8,30 @@
 // - F-I10, las comisiones por socio y en total, en su lugar y sin cifra: su regla espera las DD que da el servidor
 //   (DD-020 y DD-013; indicadores-E18; administracion-app-E53 y E54).
 //
-// Ninguna cifra sale de aquí: todas las da el servidor.
+// Ninguna cifra sale de aquí: todas las da el servidor. F-I09 lleva su "Descargar", con el rango de la pantalla
+// (administracion-app-E56; imagen 48); F-I10, sin cifra, no ofrece descarga (administracion-app-E53).
 import { numero } from '../../configuracion/lectura';
 import { GraficaDeBarras } from '../../piezas/GraficaDeBarras';
-import type { Granularidad } from '../rango/rango';
+import type { RangoAjustado } from '../rango/rango';
 import type { IndicadoresFinancieros } from './api';
 import { IndicadorEnEspera, NotaDelIndicador, RenglonQueEspera, TarjetaDelIndicador } from './TarjetaDelIndicador';
 import { DD_DE_LOS_INDICADORES, periodoCorto, TEXTOS_DE_LOS_INDICADORES as TEXTOS } from './textos';
 
 interface Propiedades {
   indicadores: IndicadoresFinancieros;
-  granularidad: Granularidad;
+  /** El rango que usó el servidor: su granularidad para los periodos cortos, y el de la descarga por omisión. */
+  rango: RangoAjustado;
 }
 
-export function PestanaFinanciera({ indicadores, granularidad }: Propiedades) {
+export function PestanaFinanciera({ indicadores, rango }: Propiedades) {
+  const { granularidad } = rango;
   return (
     <>
-      <TarjetaDelIndicador titulo={TEXTOS.ingresosBrutos} testID="indicador-ingresos-brutos">
+      <TarjetaDelIndicador
+        titulo={TEXTOS.ingresosBrutos}
+        testID="indicador-ingresos-brutos"
+        descarga={{ reporte: 'ingresos-brutos', rango }}
+      >
         <NotaDelIndicador>{TEXTOS.loQueCuentanLosIngresos}</NotaDelIndicador>
         <GraficaDeBarras
           titulo={TEXTOS.ingresosBrutos}
