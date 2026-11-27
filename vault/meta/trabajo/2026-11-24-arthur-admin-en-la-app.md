@@ -2,10 +2,10 @@
 estado: vigente
 grado: B
 fuente: acta-2026-11-20-modelo-y-pasarela.md, C-246 a C-248 y decisión 69; ADR-0022; openspec/changes/administracion-en-la-app/
-fecha: 2026-11-25
+fecha: 2026-11-26
 dueño: Arthur Naranjo
 rama: feat/h4-admin-en-app
-situacion: en-curso
+situacion: terminada
 toca: openspec/changes/administracion-en-la-app/, servidor/ (API de la administración), movil/app/administracion/, mocks/Lavandi - Propuesta 06 - Administracion/, vault/arquitectura/adr/ADR-0022-administracion-en-la-app.md
 ---
 # La administración completa dentro de la app móvil, y el video final
@@ -38,12 +38,20 @@ que cruce cliente, recolector y administrador (C-246, C-247).
 - **La spec al pie de la letra de la Propuesta 6** (`1acadf4`): lo que los mocks dejaron en "Lo que queda abierto" de
   su `NOTAS.md` quedó fijado en la spec y en el design.md antes de las pantallas.
 
-**Lo que sigue.**
-1. Los paquetes A05 a A24. El 2026-11-25 se reinició el equipo a media corrida: los paquetes que ya tenían trabajo
-   (A05 a A11 y A13 a A17) siguen en sus worktrees, con la spec de `1acadf4` mezclada; A12 y A18 a A24 empiezan sobre
-   esa misma base. A22 sale de A14 (las gráficas) y A24 de A23 (las descargas).
-2. Unir los paquetes en esta rama y correr las suites completas.
-3. Grabar la administración en el emulador y cerrar el video final.
-4. El PR hacia `nhadadn/Lavandi`.
+**Lo que se cerró el 2026-11-26.**
+- **Los 24 paquetes.** Están unidos en `feat/h4-admin-en-app`, cada uno con dos revisores, su corrección y su
+  re-verificación.
+- **Los contratos de la API.** Al grabar la app real contra el servidor real aparecieron cuatro diferencias que el
+  servidor simulado escondía. Están corregidas, con pruebas de contrato que las detectan
+  (`servidor/tests/Contratos/administracion/`, `movil/__tests__/administracion/contratos.test.ts`).
+- **Las tareas 3.3, 4.3 y 10.3.** La 4.3 se resolvió con la decisión 70.
+- **La spec.** Tiene 59 de 80 tareas hechas y probadas; las 21 abiertas esperan una DD de EL CLIENTE o de Nadir.
+- **Las pruebas.** La app pasa 2,039 de 2,039 y el servidor 1,483 de 1,483 en la suite completa, más los contratos.
+- **El video final.** Está en `notas-locales/lavandi-video-final-2026-11-26.mp4`, con el capítulo del administrador.
+- **El PR.** https://github.com/nhadadn/Lavandi/pull/6
 
-**Al terminar.** `situacion: terminada`, con el enlace al PR y al video.
+**Lo que sigue en otra tarea.**
+- **El tablero de la administración** (C-249): el inicio pasa a ser un tablero, por concilio.
+- **Los puntos técnicos de la auditoría de Nadir al PR #4.**
+
+**Al terminar.** Terminada, con el PR #6 y el video.
