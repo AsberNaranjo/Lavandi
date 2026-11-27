@@ -13,6 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\AdministracionEnLaApp\Soporte\ContratosDeLaApp;
 use Tests\Feature\AdministracionEnLaApp\Soporte\SesionesDeLaApp;
 use Tests\Feature\Plazas\Soporte\PlazasDePrueba;
 use Tests\TestCase;
@@ -37,6 +38,7 @@ use Tests\TestCase;
  */
 class ComisionesTest extends TestCase
 {
+    use ContratosDeLaApp;
     use PlazasDePrueba;
     use RefreshDatabase;
     use SesionesDeLaApp;
@@ -372,6 +374,55 @@ class ComisionesTest extends TestCase
 
         $this->assertSame('10.00', $this->porcentajes()->globalVigente()?->porcentaje);
         $this->assertNull($this->porcentajes()->propioVigente($this->primera));
+    }
+
+    #[TestDox('administracion-app-E32: el contrato de las comisiones con la app: el global con desde cuándo rige y cada lavandería con su propio y el que le aplica; sin ningún porcentaje, el global en null y sin número')]
+    public function test_administracion_app_e32_el_contrato_de_las_comisiones(): void
+    {
+        $this->assertCumpleSuContrato('comisiones.sin-global', 'GET /api/administracion/comisiones', $this->llamarConToken($this->token, 'GET', self::COMISIONES));
+
+        $this->porcentajes()->fijarGlobal('10');
+        $this->porcentajes()->fijarPropio($this->segunda, '7.25');
+
+        $this->assertCumpleSuContrato('comisiones', 'GET /api/administracion/comisiones', $this->llamarConToken($this->token, 'GET', self::COMISIONES));
+    }
+
+    #[TestDox('administracion-app-E33 y administracion-app-E34: el contrato del porcentaje global con la app: las comisiones con el global nuevo, y el 422 en porcentaje del que no vale')]
+    public function test_administracion_app_e33_el_contrato_del_global(): void
+    {
+        $peticion = 'PUT /api/administracion/comisiones/global';
+
+        $this->assertCumpleSuContrato('comisiones.global', $peticion, $this->llamarConToken($this->token, 'PUT', self::GLOBAL, ['porcentaje' => '12.5']));
+        $this->assertCumpleSuContrato(
+            'comisiones.global-invalido',
+            $peticion,
+            $this->llamarConToken($this->token, 'PUT', self::GLOBAL, ['porcentaje' => '120']),
+            422,
+        );
+    }
+
+    #[TestDox('administracion-app-E33 y administracion-app-E12: el contrato del porcentaje propio con la app: las comisiones con el propio nuevo, sin él al quitarlo, y el 404 de la lavandería que no existe')]
+    public function test_administracion_app_e33_el_contrato_del_propio(): void
+    {
+        $this->porcentajes()->fijarGlobal('10');
+        $url = self::COMISIONES."/lavanderias/{$this->primera->id_publico}";
+
+        $this->assertCumpleSuContrato(
+            'comisiones.propio',
+            'PUT /api/administracion/comisiones/lavanderias/{lavanderia}',
+            $this->llamarConToken($this->token, 'PUT', $url, ['porcentaje' => '7.25']),
+        );
+        $this->assertCumpleSuContrato(
+            'comisiones.quitar-propio',
+            'DELETE /api/administracion/comisiones/lavanderias/{lavanderia}',
+            $this->llamarConToken($this->token, 'DELETE', $url),
+        );
+        $this->assertCumpleSuContrato(
+            'comisiones.no-existe',
+            'PUT /api/administracion/comisiones/lavanderias/{lavanderia}',
+            $this->llamarConToken($this->token, 'PUT', self::COMISIONES.'/lavanderias/'.Str::ulid(), ['porcentaje' => '7.25']),
+            404,
+        );
     }
 
     /**

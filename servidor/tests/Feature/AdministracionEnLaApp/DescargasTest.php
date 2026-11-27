@@ -28,6 +28,7 @@ use OpenSpout\Common\Entity\Cell\NumericCell;
 use OpenSpout\Common\Entity\Cell\StringCell;
 use OpenSpout\Reader\XLSX\Reader as LectorDeXlsx;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\AdministracionEnLaApp\Soporte\ContratosDeLaApp;
 use Tests\Feature\AdministracionEnLaApp\Soporte\SesionesDeLaApp;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
 use Tests\Feature\AltaLavanderias\Soporte\PanelDePrueba;
@@ -69,6 +70,7 @@ use ZipArchive;
 class DescargasTest extends TestCase
 {
     use AgendaDePrueba;
+    use ContratosDeLaApp;
     use DescargasDePrueba;
     use IndicadoresDePrueba;
     use LavanderiasDePrueba;
@@ -651,6 +653,55 @@ class DescargasTest extends TestCase
         $this->consultarPorLaApp($token, $ninguna)->assertNotFound()->assertExactJson(self::NO_EXISTE_LA_DESCARGA);
         $this->archivoPorLaApp($token, $ninguna, 'csv')->assertNotFound()->assertExactJson(self::NO_EXISTE_LA_DESCARGA);
         $this->llamarConToken($token, 'GET', self::DESCARGAS)->assertOk()->assertExactJson(['descargas' => [], 'dias_de_vida' => Exportacion::diasDeVida()]);
+    }
+
+    #[TestDox('administracion-app-E56 y administracion-app-E60: el contrato de pedir una descarga con la app: el 202 con la descarga, y el 422 con el error de cada campo')]
+    public function test_administracion_app_e56_el_contrato_de_pedir_una_descarga(): void
+    {
+        $this->sembrarLaSemana();
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+
+        $this->assertCumpleSuContrato('descargas.nueva', 'POST /api/administracion/descargas', $this->pedirPorLaApp($token, PedidosTotalesExportador::NOMBRE), 202);
+        $this->assertCumpleSuContrato(
+            'descargas.nueva-invalida',
+            'POST /api/administracion/descargas',
+            $this->pedirPorLaApp($token, PedidosTotalesExportador::NOMBRE, ['desde' => '2026-12-06', 'hasta' => '2026-11-30', 'granularidad' => 'dia']),
+            422,
+        );
+    }
+
+    #[TestDox('administracion-app-E59: el contrato de la lista de descargas con la app: cada descarga y sus días de vida; sin descargas, la lista vacía')]
+    public function test_administracion_app_e59_el_contrato_de_la_lista(): void
+    {
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+        $this->assertCumpleSuContrato('descargas.lista-vacia', 'GET /api/administracion/descargas', $this->llamarConToken($token, 'GET', self::DESCARGAS));
+
+        $this->sembrarLaSemana();
+        $this->pedirPorLaApp($token, PedidosTotalesExportador::NOMBRE)->assertStatus(202);
+
+        $this->assertCumpleSuContrato('descargas.lista', 'GET /api/administracion/descargas', $this->llamarConToken($token, 'GET', self::DESCARGAS));
+    }
+
+    #[TestDox('administracion-app-E57, administracion-app-E58 y administracion-app-E62: el contrato de una descarga con la app: su estado, el 404 de la que no existe, y el 404 del archivo en un formato que no hay')]
+    public function test_administracion_app_e57_el_contrato_de_una_descarga(): void
+    {
+        $this->sembrarLaSemana();
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+        $idPublico = $this->pedirPorLaApp($token, PedidosTotalesExportador::NOMBRE)->assertStatus(202)->json('descarga.id_publico');
+
+        $this->assertCumpleSuContrato('descargas.descarga', 'GET /api/administracion/descargas/{descarga}', $this->consultarPorLaApp($token, $idPublico));
+        $this->assertCumpleSuContrato(
+            'descargas.no-existe',
+            'GET /api/administracion/descargas/{descarga}',
+            $this->consultarPorLaApp($token, (string) Str::ulid()),
+            404,
+        );
+        $this->assertCumpleSuContrato(
+            'descargas.archivo-que-no-existe',
+            'GET /api/administracion/descargas/{descarga}/{formato}',
+            $this->archivoPorLaApp($token, $idPublico, 'pdf'),
+            404,
+        );
     }
 
     /**

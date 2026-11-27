@@ -22,6 +22,7 @@ use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\AdministracionEnLaApp\Soporte\ContratosDeLaApp;
 use Tests\Feature\AdministracionEnLaApp\Soporte\SesionesDeLaApp;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
 use Tests\Feature\AltaLavanderias\Soporte\AltaDePrueba;
@@ -51,6 +52,7 @@ class LavanderiasTest extends TestCase
 {
     use AgendaDePrueba;
     use AltaDePrueba;
+    use ContratosDeLaApp;
     use EstadosDePrueba;
     use LavanderiasDePrueba;
     use PedidosDePrueba;
@@ -569,6 +571,109 @@ class LavanderiasTest extends TestCase
         // La administración sí entra: el rechazo no es de toda llamada.
         $this->pedirComoLaAdministracion('POST', self::LISTA."/{$lavanderia->id_publico}/suspension")->assertOk();
         $this->assertSame(Lavanderia::SUSPENDIDA, $lavanderia->fresh()->estado);
+    }
+
+    #[TestDox('administracion-app-E13: el contrato de la lista con la app: cada lavandería con su id_publico, su nombre, su estado y su plaza; con una búsqueda sin coincidencias, la lista vacía (design.md, F-D01)')]
+    public function test_administracion_app_e13_el_contrato_de_la_lista(): void
+    {
+        $plaza = $this->plazaDePrueba('Plaza de prueba Norte');
+        Lavanderia::factory()->en($plaza)->create(['nombre' => 'Lavandería de prueba A Activa']);
+        Lavanderia::factory()->en($this->plazaDePrueba('Plaza de prueba Sur'))->suspendida()->create(['nombre' => 'Lavandería de prueba B Suspendida']);
+
+        $this->assertCumpleSuContrato('lavanderias.lista', 'GET /api/administracion/lavanderias', $this->pedirComoLaAdministracion('GET', self::LISTA));
+        $this->assertCumpleSuContrato(
+            'lavanderias.lista-vacia',
+            'GET /api/administracion/lavanderias',
+            $this->pedirComoLaAdministracion('GET', self::LISTA, ['buscar' => 'Sin coincidencia']),
+        );
+    }
+
+    #[TestDox('administracion-app-E13 y administracion-app-E12: el contrato de la ficha con la app: sus datos editables con sus fotos, sus servicios y sus ventanas, su estado, su plaza y sus transiciones en una lista; y el 404 de la que no existe')]
+    public function test_administracion_app_e13_el_contrato_de_la_ficha(): void
+    {
+        $lavanderia = $this->lavanderiaDelContrato();
+
+        $this->assertCumpleSuContrato(
+            'lavanderias.ficha',
+            'GET /api/administracion/lavanderias/{lavanderia}',
+            $this->pedirComoLaAdministracion('GET', self::LISTA."/{$lavanderia->id_publico}"),
+        );
+        $this->assertCumpleSuContrato(
+            'lavanderias.no-existe',
+            'GET /api/administracion/lavanderias/{lavanderia}',
+            $this->pedirComoLaAdministracion('GET', self::LISTA.'/'.Str::ulid()),
+            404,
+        );
+    }
+
+    #[TestDox('administracion-app-E14: el contrato de la edición con la app: la ficha ya con los cambios, y el 422 con el error de cada campo')]
+    public function test_administracion_app_e14_el_contrato_de_la_edicion(): void
+    {
+        $lavanderia = $this->lavanderiaDelContrato();
+        $url = self::LISTA."/{$lavanderia->id_publico}";
+
+        $this->assertCumpleSuContrato(
+            'lavanderias.edicion',
+            'PATCH /api/administracion/lavanderias/{lavanderia}',
+            $this->pedirComoLaAdministracion('PATCH', $url, ['nombre' => 'Lavandería de prueba Editada', 'descripcion' => 'Descripción de prueba editada.']),
+        );
+        $this->assertCumpleSuContrato(
+            'lavanderias.edicion-invalida',
+            'PATCH /api/administracion/lavanderias/{lavanderia}',
+            $this->pedirComoLaAdministracion('PATCH', $url, ['nombre' => '', 'servicios' => [['tipo' => 'estandar', 'precio' => '-1']]]),
+            422,
+        );
+    }
+
+    #[TestDox('administracion-app-E15 y administracion-app-E12: el contrato de la suspensión con la app: la ficha de la suspendida, la de la que vuelve a estar activa y el 409 de la que ya está suspendida')]
+    public function test_administracion_app_e15_el_contrato_de_la_suspension(): void
+    {
+        $lavanderia = $this->lavanderiaDelContrato();
+        $url = self::LISTA."/{$lavanderia->id_publico}/suspension";
+
+        $this->assertCumpleSuContrato(
+            'lavanderias.suspension',
+            'POST /api/administracion/lavanderias/{lavanderia}/suspension',
+            $this->pedirComoLaAdministracion('POST', $url),
+        );
+        $this->assertCumpleSuContrato(
+            'lavanderias.suspension-ya-no-se-puede',
+            'POST /api/administracion/lavanderias/{lavanderia}/suspension',
+            $this->pedirComoLaAdministracion('POST', $url),
+            409,
+        );
+        $this->assertCumpleSuContrato(
+            'lavanderias.levantar-suspension',
+            'DELETE /api/administracion/lavanderias/{lavanderia}/suspension',
+            $this->pedirComoLaAdministracion('DELETE', $url),
+        );
+    }
+
+    #[TestDox('administracion-app-E16: el contrato de la baja con la app: la ficha de la lavandería de baja, sin ninguna transición')]
+    public function test_administracion_app_e16_el_contrato_de_la_baja(): void
+    {
+        $lavanderia = $this->lavanderiaDelContrato();
+
+        $this->assertCumpleSuContrato(
+            'lavanderias.baja',
+            'POST /api/administracion/lavanderias/{lavanderia}/baja',
+            $this->pedirComoLaAdministracion('POST', self::LISTA."/{$lavanderia->id_publico}/baja"),
+        );
+    }
+
+    /**
+     * La lavandería de los contratos: registrada completa desde la app, con su descripción y dos fotos, y ya activa, para
+     * que la ficha traiga cada parte con datos.
+     */
+    private function lavanderiaDelContrato(): Lavanderia
+    {
+        $this->freezeTime();
+        $this->prepararAlta();
+        $lavanderia = $this->registrada(null, ['nombre' => 'Lavandería de prueba del contrato']);
+        $lavanderia->update(['descripcion' => 'Descripción de prueba del contrato.', 'estado' => Lavanderia::ACTIVA]);
+        $this->conFotos($lavanderia, 2);
+
+        return $lavanderia;
     }
 
     /**

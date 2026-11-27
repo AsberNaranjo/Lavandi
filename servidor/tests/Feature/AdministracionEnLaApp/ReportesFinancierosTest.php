@@ -15,6 +15,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Feature\Administracion\Soporte\PagosDelPeriodoDePrueba;
+use Tests\Feature\AdministracionEnLaApp\Soporte\ContratosDeLaApp;
 use Tests\Feature\AdministracionEnLaApp\Soporte\SesionesDeLaApp;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
 use Tests\Feature\AltaLavanderias\Soporte\PanelDePrueba;
@@ -51,6 +52,7 @@ use Tests\TestCase;
 class ReportesFinancierosTest extends TestCase
 {
     use AgendaDePrueba;
+    use ContratosDeLaApp;
     use IndicadoresDePrueba;
     use LavanderiasDePrueba;
     use PagosDelPeriodoDePrueba;
@@ -325,6 +327,37 @@ class ReportesFinancierosTest extends TestCase
 
         $this->assertSame([], $this->lecturasDeLaPasarela());
         $this->assertSame(0, MovimientoPasarela::query()->count());
+    }
+
+    #[TestDox('administracion-app-E37: el contrato de los ingresos con la app: el rango ajustado, el total y cada periodo, con sus montos también como los lee el panel')]
+    public function test_administracion_app_e37_el_contrato_de_los_ingresos(): void
+    {
+        $this->sembrarMarzoYAbril();
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+
+        $this->assertCumpleSuContrato('ingresos', 'GET /api/administracion/ingresos', $this->llamarConToken($token, 'GET', self::INGRESOS, self::MARZO_POR_SEMANA));
+    }
+
+    #[TestDox('administracion-app-E38: el contrato de la conciliación con la app: el rango, el resumen y una fila de cada resultado; el 422 del rango al revés en hasta; y el 503 de la pasarela que no responde')]
+    public function test_administracion_app_e38_el_contrato_de_la_conciliacion(): void
+    {
+        $peticion = 'POST /api/administracion/conciliaciones';
+        $this->pagadoEl('2027-03-05 10:00:00', '100.00');
+        $this->simulada()->acreditar('orden-de-otro-sistema', '80.00', CarbonImmutable::parse('2027-03-10 16:00:00', 'UTC'));
+        $sinMovimiento = $this->cobroDe($this->pagadoEl('2027-03-12 10:00:00', '120.00'));
+        $this->simulada()->quitarPago($sinMovimiento->id_pasarela_orden);
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+
+        $this->assertCumpleSuContrato('conciliaciones', $peticion, $this->llamarConToken($token, 'POST', self::CONCILIACIONES, self::MARZO));
+        $this->assertCumpleSuContrato(
+            'conciliaciones.rango-al-reves',
+            $peticion,
+            $this->llamarConToken($token, 'POST', self::CONCILIACIONES, ['desde' => '2027-03-31', 'hasta' => '2027-03-01']),
+            422,
+        );
+
+        config(['pasarela.simulada.llave' => '']);
+        $this->assertCumpleSuContrato('conciliaciones.sin-pasarela', $peticion, $this->llamarConToken($token, 'POST', self::CONCILIACIONES, self::MARZO), 503);
     }
 
     /**

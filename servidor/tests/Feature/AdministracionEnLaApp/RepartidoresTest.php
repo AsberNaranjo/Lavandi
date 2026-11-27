@@ -25,6 +25,7 @@ use Illuminate\Testing\TestResponse;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\AdministracionEnLaApp\Soporte\ContratosDeLaApp;
 use Tests\Feature\AdministracionEnLaApp\Soporte\SesionesDeLaApp;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
 use Tests\Feature\AltaLavanderias\Soporte\PanelDePrueba;
@@ -53,6 +54,7 @@ use Tests\TestCase;
 class RepartidoresTest extends TestCase
 {
     use AgendaDePrueba;
+    use ContratosDeLaApp;
     use DiscoLocalDeFotos;
     use EstadosDePrueba;
     use LavanderiasDePrueba;
@@ -484,6 +486,134 @@ class RepartidoresTest extends TestCase
 
         $this->assertSame(Repartidor::PENDIENTE, $pendiente->fresh()->estado);
         $this->assertSame(Repartidor::ACTIVO, $activo->fresh()->estado);
+    }
+
+    #[TestDox('administracion-app-E19: el contrato de la lista con la app: cada repartidor solo con su id_publico, su nombre, su estado y su plaza, o null sin plaza; sin repartidores, la lista vacía (design.md, F-D02)')]
+    public function test_administracion_app_e19_el_contrato_de_la_lista(): void
+    {
+        $peticion = 'GET /api/administracion/repartidores';
+        $this->assertCumpleSuContrato('repartidores.lista-vacia', $peticion, $this->comoLaAdministracion('GET', '/api/administracion/repartidores'));
+
+        $this->repartidoresEnCadaEstado();
+        $respuesta = $this->comoLaAdministracion('GET', '/api/administracion/repartidores');
+
+        $this->assertCumpleSuContrato('repartidores.lista', $peticion, $respuesta);
+        // La lista no trae lo que solo se ve en la ficha: ni el correo, ni el teléfono, ni la foto, ni el vehículo.
+        $respuesta->assertJsonStructure(['repartidores' => ['*' => ['id_publico', 'nombre', 'estado', 'plaza']]]);
+        foreach ($respuesta->json('repartidores') as $fila) {
+            $this->assertSame(['id_publico', 'nombre', 'estado', 'plaza'], array_keys($fila));
+        }
+    }
+
+    #[TestDox('administracion-app-E19 y administracion-app-E12: el contrato de la ficha con la app: la del activo con su foto y su plaza, la del pendiente sin ninguna, las dos con sus transiciones en una lista; y el 404 del que no existe')]
+    public function test_administracion_app_e19_el_contrato_de_la_ficha(): void
+    {
+        $peticion = 'GET /api/administracion/repartidores/{repartidor}';
+        $cuenta = RepartidorFactory::cuentaDeRepartidor(['correo' => 'repartidor1@ejemplo.com', 'nombre' => 'Repartidor de prueba 1']);
+        app(FotoDePerfil::class)->poner($cuenta, $this->fotoDePrueba());
+        $activo = Repartidor::factory()->en($this->plazaUno)->deLaCuenta($cuenta)->create(['tipo_vehiculo' => 'Motocicleta']);
+        $pendiente = Repartidor::factory()->pendiente()->create();
+
+        $ficha = $this->comoLaAdministracion('GET', "/api/administracion/repartidores/{$activo->id_publico}");
+        $this->assertCumpleSuContrato('repartidores.ficha', $peticion, $ficha);
+        $ficha->assertJsonStructure(['repartidor' => [
+            'id_publico', 'nombre', 'telefono', 'correo', 'foto' => ['url', 'vence_en'], 'tipo_vehiculo', 'estado',
+            'plaza' => ['nombre'], 'transiciones',
+        ]]);
+        $this->assertCumpleSuContrato(
+            'repartidores.ficha-pendiente',
+            $peticion,
+            $this->comoLaAdministracion('GET', "/api/administracion/repartidores/{$pendiente->id_publico}"),
+        );
+        $this->assertCumpleSuContrato(
+            'repartidores.no-existe',
+            $peticion,
+            $this->comoLaAdministracion('GET', '/api/administracion/repartidores/'.Str::ulid()),
+            404,
+        );
+    }
+
+    #[TestDox('administracion-app-E23: el contrato de la edición con la app: la ficha con los cambios, y el 422 con el error de cada campo')]
+    public function test_administracion_app_e23_el_contrato_de_la_edicion(): void
+    {
+        $peticion = 'PATCH /api/administracion/repartidores/{repartidor}';
+        $cuenta = RepartidorFactory::cuentaDeRepartidor(['correo' => 'repartidor2@ejemplo.com', 'nombre' => 'Repartidor de prueba 2']);
+        app(FotoDePerfil::class)->poner($cuenta, $this->fotoDePrueba());
+        $repartidor = Repartidor::factory()->en($this->plazaUno)->deLaCuenta($cuenta)->create(['tipo_vehiculo' => 'Bicicleta']);
+        $url = "/api/administracion/repartidores/{$repartidor->id_publico}";
+
+        $this->assertCumpleSuContrato('repartidores.edicion', $peticion, $this->comoLaAdministracion('PATCH', $url, [
+            'nombre' => 'Repartidor de prueba 2 editado',
+            'tipo_vehiculo' => 'Motocicleta',
+        ]));
+        $this->assertCumpleSuContrato(
+            'repartidores.edicion-invalida',
+            $peticion,
+            $this->comoLaAdministracion('PATCH', $url, ['nombre' => '', 'telefono' => 'no es teléfono']),
+            422,
+        );
+    }
+
+    #[TestDox('administracion-app-E20 y administracion-app-E12: el contrato del alta con la app: la ficha del repartidor ya activo en su plaza, el 422 sin plaza y el 409 del que ya no está pendiente')]
+    public function test_administracion_app_e20_el_contrato_del_alta(): void
+    {
+        $peticion = 'POST /api/administracion/repartidores/{repartidor}/alta';
+        $pendiente = Repartidor::factory()->pendiente()->create();
+        $url = "/api/administracion/repartidores/{$pendiente->id_publico}/alta";
+
+        $this->assertCumpleSuContrato('repartidores.alta-sin-plaza', $peticion, $this->comoLaAdministracion('POST', $url), 422);
+        $this->assertCumpleSuContrato('repartidores.alta', $peticion, $this->comoLaAdministracion('POST', $url, ['plaza' => 'Plaza Uno']));
+        $this->assertCumpleSuContrato(
+            'repartidores.alta-ya-no-se-puede',
+            $peticion,
+            $this->comoLaAdministracion('POST', $url, ['plaza' => 'Plaza Uno']),
+            409,
+        );
+    }
+
+    #[TestDox('administracion-app-E21 y administracion-app-E12: el contrato de la suspensión con la app: la ficha del suspendido, la del que vuelve a estar activo y el 409 del que ya está suspendido')]
+    public function test_administracion_app_e21_el_contrato_de_la_suspension(): void
+    {
+        $activo = Repartidor::factory()->en($this->plazaUno)->create();
+        $url = "/api/administracion/repartidores/{$activo->id_publico}/suspension";
+
+        $this->assertCumpleSuContrato(
+            'repartidores.suspension',
+            'POST /api/administracion/repartidores/{repartidor}/suspension',
+            $this->comoLaAdministracion('POST', $url),
+        );
+        $this->assertCumpleSuContrato(
+            'repartidores.suspension-ya-no-se-puede',
+            'POST /api/administracion/repartidores/{repartidor}/suspension',
+            $this->comoLaAdministracion('POST', $url),
+            409,
+        );
+        $this->assertCumpleSuContrato(
+            'repartidores.levantar-suspension',
+            'DELETE /api/administracion/repartidores/{repartidor}/suspension',
+            $this->comoLaAdministracion('DELETE', $url),
+        );
+    }
+
+    #[TestDox('administracion-app-E22: el contrato de la baja con la app: la ficha del repartidor de baja, sin ninguna transición')]
+    public function test_administracion_app_e22_el_contrato_de_la_baja(): void
+    {
+        $activo = Repartidor::factory()->en($this->plazaUno)->create();
+
+        $this->assertCumpleSuContrato(
+            'repartidores.baja',
+            'POST /api/administracion/repartidores/{repartidor}/baja',
+            $this->comoLaAdministracion('POST', "/api/administracion/repartidores/{$activo->id_publico}/baja"),
+        );
+    }
+
+    #[TestDox('administracion-app-E20: el contrato de las plazas del alta con la app: cada una solo con su nombre')]
+    public function test_administracion_app_e20_el_contrato_de_las_plazas(): void
+    {
+        $respuesta = $this->comoLaAdministracion('GET', '/api/administracion/plazas');
+
+        $this->assertCumpleSuContrato('plazas.lista', 'GET /api/administracion/plazas', $respuesta);
+        $respuesta->assertExactJson(['plazas' => [['nombre' => 'Plaza Dos'], ['nombre' => 'Plaza Uno']]]);
     }
 
     /**

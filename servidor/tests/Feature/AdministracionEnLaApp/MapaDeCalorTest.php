@@ -11,6 +11,7 @@ use App\Models\Zona;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\AdministracionEnLaApp\Soporte\ContratosDeLaApp;
 use Tests\Feature\AdministracionEnLaApp\Soporte\SesionesDeLaApp;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
 use Tests\Feature\AltaLavanderias\Soporte\PanelDePrueba;
@@ -45,6 +46,7 @@ use Tests\TestCase;
 class MapaDeCalorTest extends TestCase
 {
     use AgendaDePrueba;
+    use ContratosDeLaApp;
     use IndicadoresDePrueba;
     use LavanderiasDePrueba;
     use PanelDePrueba;
@@ -204,6 +206,17 @@ class MapaDeCalorTest extends TestCase
 
         $this->assertSoloEntraLaAdministracion('GET', self::GEOGRAFICO, [...self::SEMANA, 'agrupacion' => 'colonia']);
         $this->assertSoloEntraLaAdministracion('GET', self::GEOGRAFICO, [...self::SEMANA, 'agrupacion' => 'zona']);
+    }
+
+    #[TestDox('administracion-app-E50: el contrato del mapa de calor con la app: por colonia, cada una con su color y su centro; por zona, cada una con su color y su geometría en GeoJSON')]
+    public function test_administracion_app_e50_el_contrato_del_mapa_de_calor(): void
+    {
+        $this->sembrarLasColoniasYLasZonas();
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+        $peticion = 'GET /api/administracion/indicadores/{categoria}';
+
+        $this->assertCumpleSuContrato('indicadores.geografico-por-colonia', $peticion, $this->geografico($token, [...self::SEMANA, 'agrupacion' => 'colonia']));
+        $this->assertCumpleSuContrato('indicadores.geografico-por-zona', $peticion, $this->geografico($token, [...self::SEMANA, 'agrupacion' => 'zona']));
     }
 
     /**

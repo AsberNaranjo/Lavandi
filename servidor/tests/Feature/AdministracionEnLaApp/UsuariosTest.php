@@ -22,6 +22,7 @@ use Illuminate\Routing\Route as Ruta;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\AdministracionEnLaApp\Soporte\ContratosDeLaApp;
 use Tests\Feature\AdministracionEnLaApp\Soporte\SesionesDeLaApp;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
 use Tests\Feature\Autorizacion\Soporte\TablaDeRutas;
@@ -62,6 +63,7 @@ use Tests\TestCase;
 class UsuariosTest extends TestCase
 {
     use AgendaDePrueba;
+    use ContratosDeLaApp;
     use EstadosDePrueba;
     use HistorialDePrueba;
     use LavanderiasDePrueba;
@@ -464,6 +466,50 @@ class UsuariosTest extends TestCase
             'GET api/administracion/usuarios/{usuario}',
             'POST api/administracion/usuarios/{usuario}/bloqueo',
         ], array_keys($rutas));
+    }
+
+    #[TestDox('administracion-app-E24: el contrato de la lista con la app: cada cuenta con su id_publico, su correo, su nombre y su estado, y la página; con una búsqueda sin coincidencias, la lista vacía')]
+    public function test_administracion_app_e24_el_contrato_de_la_lista(): void
+    {
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+        $this->beto->forceFill(['estado' => Usuario::BLOQUEADO, 'bloqueado_en' => now()])->save();
+
+        $this->assertCumpleSuContrato('usuarios.lista', 'GET /api/administracion/usuarios', $this->llamarConToken($token, 'GET', self::USUARIOS));
+        $this->assertCumpleSuContrato(
+            'usuarios.lista-vacia',
+            'GET /api/administracion/usuarios',
+            $this->llamarConToken($token, 'GET', self::USUARIOS, ['buscar' => 'Sin coincidencia']),
+        );
+    }
+
+    #[TestDox('administracion-app-E24 y administracion-app-E12: el contrato de la ficha con la app: la cuenta con su teléfono y su historial, un pedido con monto y otro sin él; y el 404 de la que no existe')]
+    public function test_administracion_app_e24_el_contrato_de_la_ficha(): void
+    {
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+        $ficha = $this->llamarConToken($token, 'GET', $this->fichaDe($this->ana));
+
+        $this->assertCumpleSuContrato('usuarios.ficha', 'GET /api/administracion/usuarios/{usuario}', $ficha);
+        $this->assertCount(3, $ficha->json('usuario.historial'));
+        $this->assertCumpleSuContrato(
+            'usuarios.no-existe',
+            'GET /api/administracion/usuarios/{usuario}',
+            $this->llamarConToken($token, 'GET', self::USUARIOS.'/'.Str::ulid()),
+            404,
+        );
+    }
+
+    #[TestDox('administracion-app-E25: el contrato del bloqueo con la app: la ficha de la cuenta bloqueada y la de la que vuelve a estar activa')]
+    public function test_administracion_app_e25_el_contrato_del_bloqueo(): void
+    {
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+        $url = $this->fichaDe($this->ana).'/bloqueo';
+
+        $this->assertCumpleSuContrato('usuarios.bloqueo', 'POST /api/administracion/usuarios/{usuario}/bloqueo', $this->llamarConToken($token, 'POST', $url));
+        $this->assertCumpleSuContrato(
+            'usuarios.levantar-bloqueo',
+            'DELETE /api/administracion/usuarios/{usuario}/bloqueo',
+            $this->llamarConToken($token, 'DELETE', $url),
+        );
     }
 
     private function fichaDe(Usuario $cuenta): string
