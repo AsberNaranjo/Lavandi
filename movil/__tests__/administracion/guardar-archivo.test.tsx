@@ -14,11 +14,12 @@
 // Que el archivo quede en la carpeta y se abra desde ahí en cada teléfono no se prueba aquí: se hace en el Android de
 // Arthur y en un iPhone (ADR-0022, criterio de reversión).
 import { Directory, File, Paths } from 'expo-file-system';
-import { fireEvent, screen, waitFor, within } from 'expo-router/testing-library';
+import { act, fireEvent, screen, waitFor, within } from 'expo-router/testing-library';
 import * as WebBrowser from 'expo-web-browser';
 import { Linking } from 'react-native';
 
 import { MENSAJES } from '../../src/acceso/mensajes';
+import * as guardar from '../../src/administracion/descargas/guardar';
 import { leerToken } from '../../src/sesion/almacen';
 import {
   abrirLaAppConLaAdministracion,
@@ -171,6 +172,50 @@ describe('administracion-app-E58: guardar el archivo en el teléfono', () => {
       expect(carpeta.list().map((archivo) => archivo.name)).toEqual([descargas.de(LISTA).archivos.csv]);
     },
   );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E58 — (%s) mientras el selector está abierto, "Guardar .csv" se anuncia ocupado; al cerrarlo sin elegir carpeta, ninguno de los dos queda ocupado ni apagado para el lector de pantalla',
+    async (plataforma) => {
+      // El selector queda abierto hasta que la prueba lo cierra, como la persona.
+      let cerrar: () => void = () => undefined;
+      const selector = jest.spyOn(Directory, 'pickDirectoryAsync').mockImplementation(
+        () =>
+          new Promise<Directory>((_, rechazar) => {
+            cerrar = () => rechazar(Object.assign(new Error('cancelado'), { code: SELECTOR_CERRADO[plataforma] }));
+          }),
+      );
+      const tarjeta = await abrirLasDescargas(plataforma);
+      const csv = () => tarjeta.getByRole('button', { name: 'Guardar .csv' });
+      const xlsx = () => tarjeta.getByRole('button', { name: 'Guardar .xlsx' });
+
+      await fireEvent.press(csv());
+
+      await waitFor(() => expect(selector).toHaveBeenCalledTimes(1));
+      expect(csv()).toBeBusy();
+      expect(xlsx()).not.toBeBusy();
+      expect(xlsx()).toBeDisabled();
+
+      await act(async () => cerrar());
+
+      await waitFor(() => expect(csv()).not.toBeBusy());
+      expect(csv().props.accessibilityState).toEqual({ busy: false, disabled: false });
+      expect(xlsx().props.accessibilityState).toEqual({ busy: false, disabled: false });
+      expect(screen.queryByRole('alert')).not.toBeOnTheScreen();
+    },
+  );
+
+  test('administracion-app-E58 — si el guardado se corta de un modo que no esperaba, el botón deja de estar ocupado, nada se guarda y lo dice con el mensaje de la app', async () => {
+    jest.spyOn(guardar, 'guardarElArchivo').mockRejectedValue(new Error('El teléfono cortó el guardado.'));
+    const tarjeta = await abrirLasDescargas('android');
+
+    await fireEvent.press(tarjeta.getByRole('button', { name: 'Guardar .csv' }));
+
+    expect(await tarjeta.findByText(MENSAJES.servidor)).toBeOnTheScreen();
+    expect(tarjeta.getByRole('button', { name: 'Guardar .csv' })).not.toBeBusy();
+    expect(tarjeta.getByRole('button', { name: 'Guardar .csv' })).toBeEnabled();
+    expect(tarjeta.getByRole('button', { name: 'Guardar .xlsx' })).toBeEnabled();
+    expect(screen.queryByText(/^Se guardó/)).not.toBeOnTheScreen();
+  });
 
   test.each(PLATAFORMAS)(
     'administracion-app-E58 — (%s) guardar otra vez el mismo archivo en la misma carpeta no lo reemplaza ni falla: lo crea con el siguiente nombre libre, con el mismo contenido',

@@ -8,13 +8,15 @@
 //   Si la descarga sigue, se pone al día con lo que dice el servidor; si ya no existe, lo dice.
 // - Se guarda un archivo a la vez: mientras uno se baja o espera su carpeta, ningún botón para guardar de la pantalla
 //   se puede tocar (ocupado). Así dos guardados no comparten la copia de la caché ni se pisan lo que dicen.
+// - Al terminar, salga como salga, también si la persona cerró el selector, el botón deja de estar ocupado, en la
+//   pantalla y para el lector de pantalla (accessibilityState.busy): nada queda esperando un guardado que ya acabó.
 import { useCallback, useState } from 'react';
 
 import { MENSAJES } from '../../acceso/mensajes';
 import { useSesion } from '../../sesion/ProveedorDeSesion';
 import { useApiDeLaAdministracion } from '../api';
 import { consultarLaDescarga, type Descarga, type Formato } from './api';
-import { guardarElArchivo } from './guardar';
+import { guardarElArchivo, type ResultadoDelGuardado } from './guardar';
 import { mensajeDeLaFalla } from './textos';
 
 /** El último archivo que se guardó: de qué descarga, en qué formato y en qué carpeta. */
@@ -53,8 +55,15 @@ export function useGuardarElArchivo(alCambiar: (descarga: Descarga) => void): Gu
       const idPublico = descarga.id_publico;
       setGuardando({ idPublico, formato });
       setFalla(null);
-      const resultado = await guardarElArchivo(descarga, formato, token);
-      setGuardando(null);
+      let resultado: ResultadoDelGuardado;
+      try {
+        resultado = await guardarElArchivo(descarga, formato, token);
+      } catch {
+        // guardarElArchivo dice cómo salió y no lanza; si algo lanzara, no se guardó nada y se dice como tal.
+        resultado = { guardado: false, motivo: 'no-se-guardo' };
+      } finally {
+        setGuardando(null);
+      }
       if (resultado.guardado) {
         setGuardado({ descarga, formato, carpeta: resultado.carpeta });
         return;
