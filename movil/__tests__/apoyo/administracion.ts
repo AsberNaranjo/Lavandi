@@ -20,7 +20,9 @@
 // Las rutas de /administracion de cada función las contestan los manejadores que la prueba registra con agregar(), en
 // el orden en que los registró; cada función pone los suyos en __tests__/apoyo/administracion/<función>.ts, con el
 // contrato del comentario de su controlador. Una petición que ningún manejador contesta hace fallar la prueba con el
-// método y la ruta.
+// método y la ruta, salvo las dos que pide el inicio del módulo para sus conteos (administracion-app-E03): GET
+// /administracion/repartidores y GET /administracion/monitoreo, que sin su manejador responden sin repartidores ni
+// pedidos activos.
 import {
   abrirLaAppConSesion,
   CUENTAS,
@@ -72,6 +74,12 @@ export interface CuentaDePrueba {
 export type Manejador = (peticion: Peticion) => unknown;
 
 const PREFIJO = '/administracion';
+
+/** Las dos rutas que consulta el inicio del módulo para sus conteos (administracion-app-E03). */
+export const RUTAS_DE_LOS_CONTEOS = {
+  repartidores: `${PREFIJO}/repartidores`,
+  monitoreo: `${PREFIJO}/monitoreo`,
+} as const;
 
 /** El servidor simulado de la administración, con lo que la app le pidió. */
 export class ServidorDeLaAdministracion {
@@ -149,6 +157,14 @@ export class ServidorDeLaAdministracion {
       if (contestada !== undefined) {
         return contestada;
       }
+    }
+    // Los dos conteos del inicio del módulo (administracion-app-E03), si la prueba no puso los manejadores de los
+    // repartidores o del monitoreo: como un servidor sin repartidores ni pedidos activos.
+    if (metodo === 'GET' && ruta === RUTAS_DE_LOS_CONTEOS.repartidores) {
+      return respuesta(200, { repartidores: [] });
+    }
+    if (metodo === 'GET' && ruta === RUTAS_DE_LOS_CONTEOS.monitoreo) {
+      return respuesta(200, { pedidos: [], marcadores: [] });
     }
     throw new Error(`El servidor simulado de la administración no esperaba ${metodo} ${ruta}`);
   }

@@ -129,6 +129,8 @@ describe('administracion-app-E03: cada entrada abre su pantalla dentro de la app
     async (plataforma) => {
       await abrirLaAppConLaAdministracion(plataforma, RUTA_DEL_INICIO);
       await screen.findByRole('header', { name: 'Administración' });
+      // El inicio pide la misma lista para su conteo de pendientes (administracion-app-E03).
+      await waitFor(() => expect(consultas(servidor(), RUTA_DE_LA_LISTA)).toBe(1));
 
       await fireEvent.press(screen.getByRole('link', { name: 'Repartidores' }));
 
@@ -139,11 +141,12 @@ describe('administracion-app-E03: cada entrada abre su pantalla dentro de la app
       await waitFor(() => expect(screen).toHavePathname(rutaDeLaFicha(ACTIVO)));
       expect(await screen.findByRole('header', { name: ACTIVO.nombre as string })).toBeOnTheScreen();
       expect(consultas(servidor(), rutaDeLaFicha(ACTIVO))).toBe(1);
+      expect(consultas(servidor(), RUTA_DE_LA_LISTA)).toBe(2);
 
       await fireEvent.press(screen.getByRole('button', { name: 'Regresar' }));
 
       await waitFor(() => expect(screen).toHavePathname(RUTA_DE_LA_LISTA));
-      await waitFor(() => expect(consultas(servidor(), RUTA_DE_LA_LISTA)).toBe(2));
+      await waitFor(() => expect(consultas(servidor(), RUTA_DE_LA_LISTA)).toBe(3));
     },
   );
 });

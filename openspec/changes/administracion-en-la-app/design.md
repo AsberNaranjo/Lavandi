@@ -482,7 +482,9 @@ Resumen. El detalle de cada fila va después.
   pedidos trae). Sin repartidores pendientes, Repartidores va sin insignia (imagen 56). La maqueta no dice cuándo se
   consultan ni qué pasa si la consulta falla; se decide aquí, como aplicación técnica: el inicio los consulta cada vez
   que queda a la vista, sin consulta periódica, y si una consulta falla su entrada va sin insignia y el inicio sigue
-  igual. Hasta la tarea 10.3 el inicio no consulta nada (`movil/app/administracion/index.tsx:1-11`).
+  igual. Con la tarea 10.3 lo hace `movil/src/administracion/useConteosDelInicio.ts`, con las mismas funciones de las
+  dos pantallas, y cada insignia lleva su texto ("2 pendientes", "3 activos", en singular con uno), en el color de
+  atención y en el de información de los tokens, como las imágenes 03 y 56.
 - **Los textos** son los del panel de respaldo, del servidor y de la app, citados en cada pantalla de la Propuesta 6,
   para que la app y el panel digan lo mismo. La app adapta solo estos:
   - "La baja no se deshace desde la app.", donde el panel dice "desde el panel", en la confirmación de dar de baja una

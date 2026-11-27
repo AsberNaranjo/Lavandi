@@ -94,8 +94,8 @@ servidor simulado en `movil/__tests__/apoyo/administracion.ts`, sobre el de `mov
 
 - [x] 10.1 administracion-app-E28 y administracion-app-E29: `app/administracion/monitoreo.tsx`, con el mapa arriba (`react-native-maps`, marcadores R y E con su folio, estado y plaza) y la lista debajo; consulta cada 30 s con `src/estados/useConsultaPeriodica.ts`; el mapa se crea una vez y se encuadra solo la primera vez que hay pedidos — test: `movil/__tests__/administracion/monitoreo.test.tsx` — tamaño M
 - [x] 10.2 administracion-app-E30: el mapa sin `provider` en las dos plataformas, y sin la llave de Android no se monta y la pantalla lo dice (`src/cercanas/mapa.ts`), con la lista — test: `movil/__tests__/administracion/mapa-del-monitoreo.test.tsx` — tamaño S
-- [ ] 10.3 administracion-app-E03: los dos conteos del inicio, de las imágenes 03 y 56 de la Propuesta 6: junto a Repartidores, cuántos están pendientes, de `GET /api/administracion/repartidores` (tarea 5.1), y junto a Monitoreo de pedidos, cuántos pedidos activos hay, de `GET /api/administracion/monitoreo` (tarea 9.1), cada uno en una insignia; sin pendientes, Repartidores va sin insignia. El inicio los consulta cada vez que queda a la vista, sin consulta periódica, y si una consulta falla su entrada va sin insignia y el inicio sigue igual (`design.md`, sección 5). Va después de la 9.1 — test: `movil/__tests__/administracion/entrada.test.tsx` — tamaño S
-  - **Sin hacer.** Ningún paquete de A05 a A24 la tomó: el inicio sigue sin conteos y sin consultar nada (`movil/app/administracion/index.tsx:10-11`), y `entrada.test.tsx` no los prueba. Ya no espera a nadie: la 5.1 y la 9.1 están hechas.
+- [x] 10.3 administracion-app-E03: los dos conteos del inicio, de las imágenes 03 y 56 de la Propuesta 6: junto a Repartidores, cuántos están pendientes, de `GET /api/administracion/repartidores` (tarea 5.1), y junto a Monitoreo de pedidos, cuántos pedidos activos hay, de `GET /api/administracion/monitoreo` (tarea 9.1), cada uno en una insignia; sin pendientes, Repartidores va sin insignia. El inicio los consulta cada vez que queda a la vista, sin consulta periódica, y si una consulta falla su entrada va sin insignia y el inicio sigue igual (`design.md`, sección 5). Va después de la 9.1 — test: `movil/__tests__/administracion/entrada.test.tsx` — tamaño S
+  - **Hecha.** `movil/src/administracion/useConteosDelInicio.ts` pide `GET repartidores` y `GET monitoreo` con el cliente del módulo y las mismas funciones de sus pantallas (`consultarRepartidores()` y `consultarElMonitoreo()`), con `useFocusEffect`; `movil/app/administracion/index.tsx` pone cada conteo en la insignia de la app (`InsigniaDeEstado`), "2 pendientes" en el color de atención y "3 activos" en el de información. El servidor simulado responde las dos rutas sin repartidores ni pedidos si la prueba no pone sus manejadores (`movil/__tests__/apoyo/administracion.ts`), y las pruebas que contaban las peticiones al abrir el inicio cuentan ahora las dos consultas (`lavanderias`, `repartidores`, `monitoreo`, `descargas` y `sesion`). Lo prueba `entrada.test.tsx`: los dos conteos, sin pendientes (imagen 56), en singular y en cero activos, otra consulta al volver de Repartidores, ninguna con el tiempo, y cada consulta que falla.
 
 ## 11. Lote 5, comisiones (`servidor/`)
 
@@ -198,8 +198,8 @@ implemente. Con el lote 0 ya quedaron al día:
 Siguen pendientes:
 
 - las filas A43-6, A44-1 y A44-2 de `vault/formas-de-trabajo/trazabilidad-criterio-test.md`; en A43-6,
-  administracion-app-E03 queda a medias sin los dos conteos, hasta la 10.3: las diez entradas del inicio ya abren su
-  pantalla (`movil/src/administracion/rutas.ts:10-21`);
+  administracion-app-E03 ya tiene sus dos conteos (tarea 10.3), y las diez entradas del inicio abren su pantalla
+  (`movil/src/administracion/rutas.ts:10-21`);
 - la fila de DD-040 en `vault/meta/deuda-de-decision.md`, que dice que C-140 la cerró con "panel web completo, más una
   vista reducida de administración en la app": C-247 (decisión 69) reemplaza esa respuesta en su parte web. Esa tabla
   no se edita en esta rama.
