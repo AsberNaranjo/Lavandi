@@ -195,6 +195,16 @@ Continúa la numeración de [[acta-2026-11-19-normativa-y-arranque]], que llega 
     distintos, tres jueces que eligen y una versión convergida, que es la Propuesta 6 del lienzo.
   - **El desarrollo.** Sigue esa versión.
   - **El video completo** espera a que la administración exista en la app.
+- C-249 (Arthur Naranjo, 2026-11-26). Viendo en el emulador el inicio de la administración (una lista de enlaces):
+  "Ayúdame con las pantallas de administración: están muy sencillas. Yo creo que de inicio debería ser un dashboard."
+  - **El inicio.** El inicio de la administración en la app pasa a ser un tablero, con las cifras del A.5 y las
+    secciones del Módulo D. Reemplaza el inicio de enlaces de la Propuesta 6 (imagen 03) y la decisión de ADR-0022 de
+    navegar desde un inicio de enlaces.
+  - **Las demás pantallas.** Ganan jerarquía visual con el mismo lenguaje del tablero.
+  - **El método.** Como en C-248: un concilio de diseñadores y jueces elige la versión, que se construye sin esperar
+    otra revisión de Arthur.
+  - **El límite.** Ninguna cifra se inventa: el tablero solo muestra lo que ya calculan las rutas de la
+    administración, y lo que espera una DD sale "Por confirmar".
 
 ## Decisiones tomadas en la sesión
 
