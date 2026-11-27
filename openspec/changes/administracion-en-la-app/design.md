@@ -167,9 +167,11 @@ Resumen. El detalle de cada fila va después.
   - `GET lavanderias/{lavanderia}`: la ficha con sus datos editables (nombre, dirección, foto, servicios y precios,
     horario, descripción y fotos), su estado, su plaza y qué transiciones permite ahora, en `transiciones`: la lista de
     las que permite, en el orden de los botones del panel (`suspender`, `levantar_suspension`, `dar_de_baja`). Es la
-    misma forma que la ficha del repartidor (F-D02).
+    misma forma que la ficha del repartidor (F-D02). Trae además `fotos_leidas`, la marca de las fotos de esa lectura
+    (abajo, "Las fotos leídas al abrir").
   - `PATCH lavanderias/{lavanderia}`: la edición. Con fotos va en multipart por `POST` con `_method=PATCH`, como
-    `PATCH /api/socio/lavanderias/{lavanderia}`.
+    `PATCH /api/socio/lavanderias/{lavanderia}`. Con la lista de fotos va `fotos_leidas`, la marca de la ficha con que
+    se abrió la edición, tal cual.
   - `POST lavanderias/{lavanderia}/suspension`, `DELETE lavanderias/{lavanderia}/suspension` y
     `POST lavanderias/{lavanderia}/baja`.
 - **Clases de dominio:** `Autorizacion::lavanderiasDelPanel()`; `App\Lavanderias\EstadoDeLaLavanderia`
@@ -178,6 +180,22 @@ Resumen. El detalle de cada fila va después.
   la validación que hoy vive en `EditLavanderia::handleRecordUpdate()`, movida antes de la ruta (sección 3);
   `App\Lavanderias\ReglasDeLaLavanderia` y `App\Lavanderias\FotosDeLaLavanderia`. La ficha puede salir con
   `App\Http\Resources\LavanderiaDelSocioResource`, que ya usa la edición del panel.
+- **Las fotos leídas al abrir** (administracion-app-E14). El panel nombra cada foto por su lugar en la lista que leyó
+  al abrir la página, guarda sus rutas (`EditLavanderia::$fotosAlAbrir`) y se las pasa a `editar()`, que rechaza la
+  lista si las fotos cambiaron desde entonces (`FotosDeLaLavanderia::reemplazarTodas()`, con
+  `FotosDeLaLavanderia::FOTOS_QUE_CAMBIARON`). La API hace lo mismo con la lectura de la app:
+  - la ficha trae `fotos_leidas`, una marca de las fotos de esa lectura: sus rutas en su orden, cifradas con la llave
+    de la aplicación (`FotosDeLaLavanderia::marcaDeLaLectura()`). La ruta no sale de la API, ni siquiera en la marca, y
+    la app no la puede cambiar. Es un texto que cambia en cada respuesta y que la app no lee;
+  - la app la guarda al abrir la edición y la devuelve tal cual, con la lista de fotos;
+  - la ruta saca de la marca las rutas leídas (`FotosDeLaLavanderia::rutasDeLaMarca()`) y se las pasa a `editar()` como
+    `fotosLeidas`, igual que el panel: la regla vive en `reemplazarTodas()`, no en la ruta. Sin la marca, o con una
+    que no dio el servidor, las rutas leídas son ninguna, y la lista de una lavandería con fotos se rechaza igual;
+  - si se rechaza, responde 422 en `fotos` con el mensaje de `FotosDeLaLavanderia` y nada cambia; la app lo pone junto
+    a las fotos, y la persona vuelve a abrir la edición. Sin la lista de fotos, la marca no cuenta.
+  - **Alternativas descartadas:** un `id_publico` en `lavanderia_fotos`, que pide una segunda migración en este cambio
+    (ADR-0016, regla 9; ADR-0022, decisión 15); y mandar las rutas, que nunca salen como campo de la API
+    (`App\Models\LavanderiaFoto`).
 - **Pantallas** (imágenes 06 a 13 y 57 a 61 de la Propuesta 6):
   - la lista, con la búsqueda; el alta va en ámbar con "Por confirmar · DD-053", sin botón (06);
   - la ficha, con "Editar" en cualquier estado, también de baja, como el panel
@@ -478,7 +496,9 @@ Resumen. El detalle de cada fila va después.
 
   El mensaje del 409 no se adapta: es el de `TransicionNoPermitida`, con el estado como lo guarda la base ("Una
   lavandería en estado baja no se puede suspender."; `servidor/app/Lavanderias/TransicionNoPermitida.php:16`;
-  administracion-app-E12, imagen 58). Otro texto cambiaría la clase de dominio y, con ella, el panel.
+  administracion-app-E12, imagen 58). Otro texto cambiaría la clase de dominio y, con ella, el panel. Tampoco el 422 de
+  las fotos que cambiaron desde que se abrió la edición, que dice "página" como en el panel
+  (`FotosDeLaLavanderia::FOTOS_QUE_CAMBIARON`; administracion-app-E14).
 - **Lo que espera una DD** va en ámbar, con la marca "Por confirmar" del resumen del pedido
   (`movil/src/pedido/ResumenDelPedido.tsx:100`) seguida de su número ("Por confirmar · DD-104"), sin cifra ni botón.
 

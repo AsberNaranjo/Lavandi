@@ -5,7 +5,9 @@
 //
 // "Guardar cambios" manda solo lo que cambió, como el socio: la dirección completa si cambió alguna de sus partes, y los
 // servicios, las ventanas y las fotos completos si cambió alguno; con una foto nueva, en multipart por POST con
-// _method=PATCH. La app no valida nada por su cuenta: cada error del servidor va junto a su campo y nada cambia, y la
+// _method=PATCH. Con la lista de fotos va la marca de las fotos que se leyeron al abrir la pantalla, la de la ficha, y
+// el servidor la rechaza si su socio las cambió mientras tanto, como el panel (administracion-app-E14; design.md del
+// cambio, F-D01). La app no valida nada por su cuenta: cada error del servidor va junto a su campo y nada cambia, y la
 // pantalla se queda. Si se guardó, guardar() responde true y la pantalla regresa a la ficha, que vuelve a pedir la
 // lavandería al verse y muestra los datos nuevos: en las imágenes 12, 60 y 61 de la Propuesta 06, "Guardar cambios" lleva
 // a la ficha (07); en la 13, con un error, la pantalla se queda. Mientras guarda, el botón se bloquea: un doble toque no
@@ -25,16 +27,25 @@ import { consultarLavanderia, editarLavanderia, type LavanderiaDeLaAdministracio
 
 const SIN_ERRORES: ErroresDelFormulario = { campos: {} };
 
-/** El formulario como se abrió y como está ahora, con el máximo de fotos que dio el servidor. */
+/**
+ * El formulario como se abrió y como está ahora, con el máximo de fotos que dio el servidor y la marca de las fotos que
+ * se leyeron al abrir.
+ */
 export interface Edicion {
   original: Formulario;
   actual: Formulario;
   maximoDeFotos: number;
+  fotosLeidas: string;
 }
 
 function edicionDe(lavanderia: LavanderiaDeLaAdministracion): Edicion {
   const formulario = formularioDe(lavanderia);
-  return { original: formulario, actual: formulario, maximoDeFotos: lavanderia.maximo_de_fotos };
+  return {
+    original: formulario,
+    actual: formulario,
+    maximoDeFotos: lavanderia.maximo_de_fotos,
+    fotosLeidas: lavanderia.fotos_leidas,
+  };
 }
 
 export function useEdicionDeLavanderia(idPublico: string) {
@@ -95,7 +106,7 @@ export function useEdicionDeLavanderia(idPublico: string) {
     setGuardando(true);
     setErrores(SIN_ERRORES);
     const cambios = cambiosEntre(edicion.original, edicion.actual);
-    const resultado = await editarLavanderia(pedir, idPublico, cambios);
+    const resultado = await editarLavanderia(pedir, idPublico, cambios, edicion.fotosLeidas);
     enCamino.current = false;
     // Si la persona ya regresó, o la sesión venció, no hay pantalla de la cual regresar.
     if (!montada.current || (!resultado.ok && resultado.motivo === 'sin-sesion')) {

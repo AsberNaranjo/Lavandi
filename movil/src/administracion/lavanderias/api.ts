@@ -7,6 +7,7 @@
 // La app no valida ni decide nada por su cuenta: las transiciones que ofrece la ficha son las que da el servidor, y los
 // errores de la edición son los suyos. La ficha trae lo mismo que ve y edita el socio de su lavandería, así que se lee y
 // se edita con las piezas del Módulo B (src/alta-lavanderias/api.ts): leerLavanderiaDelSocio() y peticionDeLaEdicion().
+// Trae además la marca de las fotos que se leyeron, que la edición devuelve tal cual con la lista de fotos.
 //
 // El contrato, copiado del comentario de servidor/app/Http/Controllers/Api/Administracion/LavanderiasController.php
 // (tareas 3.1, 3.3 y 3.4). La URL de ejemplo de las fotos va como <URL firmada>: el código de la app no lleva
@@ -46,13 +47,16 @@
 //                                                        App\Http\Controllers\Api\LavanderiaDelSocioController
 //       "estado": "pendiente" | "activa" | "suspendida" | "baja",
 //       "plaza": { "nombre": "Durango" },
-//       "transiciones": ["suspender", "dar_de_baja"]     las que su estado permite ahora, en este orden, y solo esas:
-//     }                                                    "suspender"           POST …/suspension
+//       "transiciones": ["suspender", "dar_de_baja"],    las que su estado permite ahora, en este orden, y solo esas:
+//                                                          "suspender"           POST …/suspension
 //                                                          "levantar_suspension" DELETE …/suspension
 //                                                          "dar_de_baja"         POST …/baja
 //                                                        Activa o pendiente: suspender y dar_de_baja. Suspendida:
 //                                                        levantar_suspension y dar_de_baja. De baja: ninguna, porque
 //                                                        ninguna sale de la baja (alta-lavanderias-E14, E15 y E17).
+//       "fotos_leidas": "eyJpdiI6…"                     la marca de las fotos de esta lectura: un texto cifrado, que
+//     }                                                  cambia en cada respuesta y que la app no lee; lo devuelve tal
+//                                                        cual con la lista de fotos (PATCH, abajo)
 //
 // Una lavandería que no existe, está borrada o no se ve responde 404 sin ningún dato, igual en todas las rutas que la
 // nombran; un valor que no es ULID también (administracion-app-E12; ADR-0019, decisión 3):
@@ -90,11 +94,17 @@
 //     Los mismos campos, con las mismas reglas y los mismos errores que PATCH /api/socio/lavanderias/{id_publico}
 //     (alta-lavanderias-E13 y E31, y las validaciones del registro), y solo van los que cambian: nombre, direccion
 //     completa, foto, servicios, ventanas, descripcion y fotos. Las fotos se nombran por su lugar en "fotos" de la
-//     última lectura de la ficha (0, la primera). Sin archivos, en JSON. Con foto o con una foto nueva en fotos, en
-//     multipart/form-data por POST con el campo _method=PATCH, porque PHP solo lee los archivos de un POST:
+//     lectura de la ficha con que se abrió la edición (0, la primera), y con ellas va "fotos_leidas", la marca de esa
+//     misma lectura, tal cual. Sin archivos, en JSON. Con foto o con una foto nueva en fotos, en multipart/form-data por
+//     POST con el campo _method=PATCH, porque PHP solo lee los archivos de un POST:
 //
-//         JSON:       { "nombre": "Lavandería Nueva", "fotos": [2, 0] }
-//         multipart:  _method=PATCH, fotos[0]=2, fotos[1]=<archivo>, fotos[2]=0
+//         JSON:       { "nombre": "Lavandería Nueva", "fotos": [2, 0], "fotos_leidas": "eyJpdiI6…" }
+//         multipart:  _method=PATCH, fotos[0]=2, fotos[1]=<archivo>, fotos[2]=0, fotos_leidas=eyJpdiI6…
+//
+//     El servidor cuenta los lugares sobre las fotos de esa marca, como el panel sobre las que leyó al abrir la página
+//     (administracion-app-E14; design.md, F-D01): si otra sesión cambió las fotos después de la lectura, por ejemplo su
+//     socio desde su app, la lista se rechaza y nada cambia. Sin la marca, o con una que no dio el servidor, la lista
+//     tampoco nombra las fotos que tiene la lavandería, y se rechaza igual. Sin la lista de fotos, la marca no cuenta.
 //
 //     200  { "lavanderia": { ...la lavandería en la ficha, ya con los cambios... } }
 //     404  Como arriba. La lavandería se busca antes de validar.
@@ -102,6 +112,13 @@
 //            "errors": { "nombre": ["Falta el nombre de la lavandería."], "servicios.0.precio": ["..."] } }
 //          Un dato que no cumple las reglas, cada error en su campo; nada cambia. Los de la lista de fotos van en fotos
 //          o en su lugar, fotos.N.
+//     422  { "message": "Las fotos de la lavandería cambiaron desde que abriste la página. Vuelve a abrirla y haz el
+//                        cambio otra vez.",
+//            "errors": { "fotos": ["Las fotos de la lavandería cambiaron desde que abriste la página. Vuelve a abrirla y
+//                                   haz el cambio otra vez."] } }
+//          Las fotos de la lavandería ya no son las de "fotos_leidas", o la marca no vino o no la dio el servidor. El
+//          mensaje es el de FotosDeLaLavanderia, el mismo del panel. Nada cambia; al volver a abrir la edición, la ficha
+//          trae las fotos y la marca de ahora.
 //     422  { "message": "...", "errors": { "direccion": ["..."] },
 //            "motivo": "direccion_no_encontrada" | "fuera_de_la_zona_de_servicio" | "en_otra_plaza" }
 //          La dirección nueva no se ubica, cae fuera de las zonas de servicio o en una zona de otra plaza: la
@@ -147,6 +164,8 @@ export const CONTRATO_DE_LAS_LAVANDERIAS = {
   buscar: 'buscar',
   /** Lo que devuelven la ficha, la edición y cada cambio de estado: { "<clave>": LavanderiaDeLaAdministracion }. */
   clave: 'lavanderia',
+  /** La marca de las fotos de la lectura: la trae la ficha y la edición la devuelve con la lista de fotos. */
+  fotosLeidas: 'fotos_leidas',
 } as const;
 
 /** Los estados de una lavandería. */
@@ -179,6 +198,8 @@ export interface LavanderiaDeLaAdministracion extends LavanderiaDelSocio {
   estado: EstadoDeLaLavanderia;
   plaza: PlazaDeLaLavanderia;
   transiciones: Transicion[];
+  /** La marca de las fotos de esta lectura: la app no la lee, solo la devuelve con la lista de fotos. */
+  fotos_leidas: string;
 }
 
 /** GET de todas las lavanderías, con la búsqueda por nombre; sin texto, todas (administracion-app-E13). */
@@ -224,14 +245,25 @@ export async function cambiarElEstado(
 
 /**
  * PATCH de lo que cambió (administracion-app-E14): la misma petición que la edición del socio, a la ruta de la
- * administración. Con una foto nueva, en multipart por POST con _method=PATCH; sin ella, en JSON.
+ * administración. Con una foto nueva, en multipart por POST con _method=PATCH; sin ella, en JSON. Con la lista de fotos
+ * va la marca de la lectura con que se abrió la edición, tal cual: el servidor cuenta los lugares sobre esas fotos.
  */
 export async function editarLavanderia(
   pedir: PedirALaAdministracion,
   idPublico: string,
   cambios: CambiosDeLaLavanderia,
+  fotosLeidas: string,
 ): Promise<ResultadoDeLaAdministracion<LavanderiaDeLaAdministracion>> {
-  return fichaDeLaRespuesta(await pedir<unknown>(rutaDe(idPublico), peticionDeLaEdicion(cambios)));
+  const peticion = peticionDeLaEdicion(cambios);
+  if (cambios.fotos) {
+    const campo = CONTRATO_DE_LAS_LAVANDERIAS.fotosLeidas;
+    if (peticion.formulario) {
+      peticion.formulario.append(campo, fotosLeidas);
+    } else if (esObjeto(peticion.cuerpo)) {
+      peticion.cuerpo[campo] = fotosLeidas;
+    }
+  }
+  return fichaDeLaRespuesta(await pedir<unknown>(rutaDe(idPublico), peticion));
 }
 
 function rutaDe(idPublico: string): string {
@@ -273,16 +305,25 @@ function leerDeLaLista(datos: unknown): LavanderiaEnLaLista | null {
   return { id_publico: datos.id_publico, nombre: datos.nombre, estado: datos.estado, plaza };
 }
 
-/** La ficha leída campo por campo: lo del socio, con su lectura, más el estado, la plaza y las transiciones. */
+/**
+ * La ficha leída campo por campo: lo del socio, con su lectura, más el estado, la plaza, las transiciones y la marca de
+ * las fotos leídas.
+ */
 function leerLaFicha(datos: unknown): LavanderiaDeLaAdministracion | null {
   const delSocio = leerLavanderiaDelSocio(datos);
   if (!delSocio || !esObjeto(datos)) {
     return null;
   }
   const plaza = leerPlaza(datos.plaza);
-  const { estado, transiciones } = datos;
-  if (!esEstado(estado) || !plaza || !Array.isArray(transiciones) || !transiciones.every(esTransicion)) {
+  const { estado, transiciones, fotos_leidas: fotosLeidas } = datos;
+  if (
+    !esEstado(estado) ||
+    !plaza ||
+    !Array.isArray(transiciones) ||
+    !transiciones.every(esTransicion) ||
+    typeof fotosLeidas !== 'string'
+  ) {
     return null;
   }
-  return { ...delSocio, estado, plaza, transiciones };
+  return { ...delSocio, estado, plaza, transiciones, fotos_leidas: fotosLeidas };
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Administracion\LavanderiaDeLaAdministracionResource;
 use App\Lavanderias\EdicionDeLavanderia;
 use App\Lavanderias\EstadoDeLaLavanderia;
+use App\Lavanderias\FotosDeLaLavanderia;
 use App\Lavanderias\TransicionNoPermitida;
 use App\Models\Lavanderia;
 use App\Models\Usuario;
@@ -25,7 +26,8 @@ use Illuminate\Support\Str;
  * No valida ni decide nada por su cuenta: llama a las mismas clases que el panel web de respaldo (ADR-0022, decisión 9).
  * Lo que ve sale de Autorizacion::lavanderiasDelPanel(), todas las de todas las plazas (autorizacion-E13); la edición,
  * de App\Lavanderias\EdicionDeLavanderia, con su validación (validar()) y las reglas del registro; y los cambios de
- * estado, de App\Lavanderias\EstadoDeLaLavanderia. No hay alta: espera DD-053 (administracion-app-E17), como en el
+ * estado, de App\Lavanderias\EstadoDeLaLavanderia. La lista de fotos se cuenta sobre las fotos que la app leyó al abrir,
+ * como en el panel (App\Lavanderias\FotosDeLaLavanderia). No hay alta: espera DD-053 (administracion-app-E17), como en el
  * panel. Lo que pasa con los pedidos en curso al suspender o dar de baja espera DD-104 (administracion-app-E18): no se
  * tocan.
  *
@@ -63,13 +65,16 @@ use Illuminate\Support\Str;
  *                                                        App\Http\Controllers\Api\LavanderiaDelSocioController
  *       "estado": "pendiente" | "activa" | "suspendida" | "baja",
  *       "plaza": { "nombre": "Durango" },
- *       "transiciones": ["suspender", "dar_de_baja"]     las que su estado permite ahora, en este orden, y solo esas:
- *     }                                                    "suspender"           POST …/suspension
+ *       "transiciones": ["suspender", "dar_de_baja"],    las que su estado permite ahora, en este orden, y solo esas:
+ *                                                          "suspender"           POST …/suspension
  *                                                          "levantar_suspension" DELETE …/suspension
  *                                                          "dar_de_baja"         POST …/baja
  *                                                        Activa o pendiente: suspender y dar_de_baja. Suspendida:
  *                                                        levantar_suspension y dar_de_baja. De baja: ninguna, porque
  *                                                        ninguna sale de la baja (alta-lavanderias-E14, E15 y E17).
+ *       "fotos_leidas": "eyJpdiI6…"                     la marca de las fotos de esta lectura: un texto cifrado, que
+ *     }                                                  cambia en cada respuesta y que la app no lee; lo devuelve tal
+ *                                                        cual con la lista de fotos (PATCH, abajo)
  *
  * Una lavandería que no existe, está borrada o no se ve responde 404 sin ningún dato, igual en todas las rutas que la
  * nombran (administracion-app-E12; ADR-0019, decisión 3). El ULID se acepta en mayúsculas o en minúsculas:
@@ -113,18 +118,17 @@ use Illuminate\Support\Str;
  *     Los mismos campos, con las mismas reglas y los mismos errores que PATCH /api/socio/lavanderias/{id_publico}
  *     (alta-lavanderias-E13 y E31, y las validaciones del registro), y solo van los que cambian: nombre, direccion
  *     completa, foto, servicios, ventanas, descripcion y fotos. Las fotos se nombran por su lugar en "fotos" de la
- *     última lectura de la ficha (0, la primera). Sin archivos, en JSON. Con foto o con una foto nueva en fotos, en
- *     multipart/form-data por POST con el campo _method=PATCH, porque PHP solo lee los archivos de un POST:
+ *     lectura de la ficha con que se abrió la edición (0, la primera), y con ellas va "fotos_leidas", la marca de esa
+ *     misma lectura, tal cual. Sin archivos, en JSON. Con foto o con una foto nueva en fotos, en multipart/form-data por
+ *     POST con el campo _method=PATCH, porque PHP solo lee los archivos de un POST:
  *
- *         JSON:       { "nombre": "Lavandería Nueva", "fotos": [2, 0] }
- *         multipart:  _method=PATCH, fotos[0]=2, fotos[1]=<archivo>, fotos[2]=0
+ *         JSON:       { "nombre": "Lavandería Nueva", "fotos": [2, 0], "fotos_leidas": "eyJpdiI6…" }
+ *         multipart:  _method=PATCH, fotos[0]=2, fotos[1]=<archivo>, fotos[2]=0, fotos_leidas=eyJpdiI6…
  *
- *     Como en PATCH /api/socio/lavanderias/{id_publico}, el servidor cuenta esos lugares sobre las fotos que la
- *     lavandería tiene al guardar: no recibe las que se leyeron. Si otra sesión cambió las fotos después de la lectura,
- *     por ejemplo su socio desde la app, el servidor no lo detecta ni lo rechaza: un lugar puede nombrar otra foto, y la
- *     que queda fuera de la lista se quita y se borra su archivo. El panel sí lo rechaza, porque guarda las fotos que
- *     leyó al abrir. Lo que pide design.md, F-D01 ("con las fotos leídas al abrir, como el panel"), espera que la spec
- *     defina con qué dato las manda la app.
+ *     El servidor cuenta los lugares sobre las fotos de esa marca, como el panel sobre las que leyó al abrir la página
+ *     (administracion-app-E14; design.md, F-D01): si otra sesión cambió las fotos después de la lectura, por ejemplo su
+ *     socio desde su app, la lista se rechaza y nada cambia. Sin la marca, o con una que no dio el servidor, la lista
+ *     tampoco nombra las fotos que tiene la lavandería, y se rechaza igual. Sin la lista de fotos, la marca no cuenta.
  *
  *     200  { "lavanderia": { ...la lavandería en la ficha, ya con los cambios... } }
  *     404  Como arriba. La lavandería se busca antes de validar.
@@ -132,6 +136,13 @@ use Illuminate\Support\Str;
  *            "errors": { "nombre": ["Falta el nombre de la lavandería."], "servicios.0.precio": ["..."] } }
  *          Un dato que no cumple las reglas, cada error en su campo; nada cambia. Los de la lista de fotos van en fotos
  *          o en su lugar, fotos.N.
+ *     422  { "message": "Las fotos de la lavandería cambiaron desde que abriste la página. Vuelve a abrirla y haz el
+ *                        cambio otra vez.",
+ *            "errors": { "fotos": ["Las fotos de la lavandería cambiaron desde que abriste la página. Vuelve a abrirla y
+ *                                   haz el cambio otra vez."] } }
+ *          Las fotos de la lavandería ya no son las de "fotos_leidas", o la marca no vino o no la dio el servidor. El
+ *          mensaje es el de FotosDeLaLavanderia, el mismo del panel. Nada cambia; al volver a abrir la edición, la ficha
+ *          trae las fotos y la marca de ahora.
  *     422  { "message": "...", "errors": { "direccion": ["..."] },
  *            "motivo": "direccion_no_encontrada" | "fuera_de_la_zona_de_servicio" | "en_otra_plaza" }
  *          La dirección nueva no se ubica, cae fuera de las zonas de servicio o en una zona de otra plaza: la
@@ -192,15 +203,26 @@ class LavanderiasController extends Controller
     /**
      * La lavandería se busca antes de validar: una que no existe responde 404 aunque lo que se mande no sea válido.
      */
-    public function editar(Request $peticion, EdicionDeLavanderia $edicion, string $lavanderia): JsonResponse
-    {
+    public function editar(
+        Request $peticion,
+        EdicionDeLavanderia $edicion,
+        FotosDeLaLavanderia $fotos,
+        string $lavanderia,
+    ): JsonResponse {
         $encontrada = $this->delPanel($peticion, $lavanderia);
 
         // La validación de la edición, la misma de la app del socio y del panel: los campos que llegan.
         $datos = $edicion->validar($peticion->all());
 
         try {
-            $edicion->editar($encontrada, Arr::except($datos, ['foto']), $peticion->file('foto'));
+            // Las fotos leídas al abrir, como las que el panel guarda en la página: si ya no son las que tiene, la lista
+            // de fotos se rechaza en FotosDeLaLavanderia::reemplazarTodas().
+            $edicion->editar(
+                $encontrada,
+                Arr::except($datos, ['foto']),
+                $peticion->file('foto'),
+                fotosLeidas: $fotos->rutasDeLaMarca($peticion->input('fotos_leidas')),
+            );
         } catch (GeocodificacionNoDisponible $error) {
             // No se sabe si la dirección existe, así que no se guardó nada y la app puede volver a intentar. Queda en
             // el registro, como en la edición del socio.

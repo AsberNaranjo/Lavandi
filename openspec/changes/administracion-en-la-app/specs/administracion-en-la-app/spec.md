@@ -260,6 +260,11 @@ Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #1); D →
   las fotos, los servicios y precios, y las ventanas de disponibilidad
 - **Y** las fotos dicen "La primera es la principal. Puede tener hasta N.", con la N del máximo que da el servidor (5
   por omisión); cada una se puede mover antes o quitar, y se agrega otra con la cámara o la galería
+- **Y** cada foto se nombra por su lugar en la ficha con que se abrió la edición, y la app manda con la lista de fotos
+  la marca de esa lectura que trae la ficha, `fotos_leidas`, tal cual: si las fotos de la lavandería cambiaron después,
+  por ejemplo porque su socio las cambió desde su app, o si la marca no viene, el servidor responde 422 en `fotos` con
+  el mensaje del panel, "Las fotos de la lavandería cambiaron desde que abriste la página. Vuelve a abrirla y haz el
+  cambio otra vez.", la app lo muestra junto a las fotos y nada cambia, como en el panel
 - **Y** las ventanas dicen "Marca, día por día, las horas en que la lavandería puede recolectar. Cada ventana dura una
   hora.", con el día en el selector y las horas de ese día para marcarlas
 - **Y** el lavado en seco no se ofrece mientras DD-010 no fije su unidad (alta-lavanderias-E07): la pantalla lo dice
@@ -274,8 +279,11 @@ Cita: A → `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3` (Módulo D #1, "edici
 `servidor/app/Filament/Resources/Lavanderias/Tables/LavanderiasTable.php:44` ("Editar" en toda fila del panel, sin
 condición de estado); B → `movil/src/alta-lavanderias/textos.ts:48` y `:75` (las instrucciones del perfil del socio,
 que hablan de tú; la app de la administración las adapta para hablar de la lavandería), `servidor/config/fotos.php:44`
-(5 fotos por omisión) y `movil/src/alta-lavanderias/formulario.ts:5-7` (el lavado en seco, DD-010); C → C-248
-(imágenes 11, 12, 13, 60 y 61 de la Propuesta 6); D → ADR-0022, decisión 9
+(5 fotos por omisión) y `movil/src/alta-lavanderias/formulario.ts:5-7` (el lavado en seco, DD-010); B →
+`servidor/app/Filament/Resources/Lavanderias/Pages/EditLavanderia.php` (`$fotosAlAbrir`, las fotos que el panel leyó
+al abrir) y `servidor/app/Lavanderias/FotosDeLaLavanderia.php` (`FOTOS_QUE_CAMBIARON`, el mensaje); C → C-248
+(imágenes 11, 12, 13, 60 y 61 de la Propuesta 6); D → ADR-0022, decisión 9, y `design.md`, F-D01 (la marca de la
+lectura)
 
 #### Scenario: administracion-app-E15 — Suspender una lavandería y levantar la suspensión
 

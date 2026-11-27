@@ -10,7 +10,9 @@
 //   transiciones; 404 si no existe;
 // - PATCH …/{id_publico}, en JSON, o POST con _method=PATCH en multipart si lleva fotos: pone lo que llegó, como lo
 //   guardaría el servidor, y responde la ficha; las validaciones las prueba el servidor, y cada prueba pone con
-//   interceptar el 422 que necesita;
+//   rechazo el 422 que necesita. La lista de fotos se cuenta sobre las de su marca, fotos_leidas, como el servidor: si
+//   la marca no es la de las fotos de ahora, 422 en fotos con el mensaje de FotosDeLaLavanderia y nada cambia. La marca
+//   de prueba es un texto con las URL de las fotos, no la cifrada del servidor: la app no la lee;
 // - POST y DELETE …/{id_publico}/suspension, POST …/{id_publico}/baja: el cambio de estado, con la regla de
 //   EstadoDeLaLavanderia; si su estado ya no lo permite, 409 con el mensaje de TransicionNoPermitida y nada cambia.
 //
@@ -47,6 +49,15 @@ export const RUTA_DE_LAS_LAVANDERIAS = '/administracion/lavanderias';
 
 /** El mensaje del 404 de una lavandería que no existe. */
 export const NO_EXISTE_LA_LAVANDERIA = 'No existe la lavandería.';
+
+/** El 422 de una lista de fotos que ya no es la que se leyó (FotosDeLaLavanderia::FOTOS_QUE_CAMBIARON). */
+export const FOTOS_QUE_CAMBIARON =
+  'Las fotos de la lavandería cambiaron desde que abriste la página. Vuelve a abrirla y haz el cambio otra vez.';
+
+/** La marca de prueba de las fotos de una lectura: la ficha la trae como fotos_leidas. */
+export function marcaDeLasFotos(lavanderia: LavanderiaDelServidor): string {
+  return `lectura de prueba: ${lavanderia.datos.fotos.map(({ url }) => url).join(' | ')}`;
+}
 
 /** La ruta de la API de una lavandería: "/administracion/lavanderias/<id_publico>". */
 export function rutaDe(lavanderia: LavanderiaDelServidor | string): string {
@@ -113,8 +124,15 @@ const TRANSICIONES: Record<EstadoDeLaLavanderia, string[]> = {
 };
 
 /** La ficha como sale en todas las respuestas que la traen. */
-export function fichaDe({ datos, estado, plaza }: LavanderiaDelServidor) {
-  return { ...datos, estado, plaza: { nombre: plaza }, transiciones: TRANSICIONES[estado] };
+export function fichaDe(lavanderia: LavanderiaDelServidor) {
+  const { datos, estado, plaza } = lavanderia;
+  return {
+    ...datos,
+    estado,
+    plaza: { nombre: plaza },
+    transiciones: TRANSICIONES[estado],
+    fotos_leidas: marcaDeLasFotos(lavanderia),
+  };
 }
 
 /** El mensaje del 409 de una transición que ya no se puede, como TransicionNoPermitida::de(). */
@@ -190,6 +208,9 @@ export class LavanderiasDelServidor {
       if (edicion && esObjeto(cuerpo)) {
         if (this.rechazo) {
           return respuesta(422, this.rechazo);
+        }
+        if (cuerpo.fotos !== undefined && cuerpo.fotos_leidas !== marcaDeLasFotos(lavanderia)) {
+          return respuesta(422, { message: FOTOS_QUE_CAMBIARON, errors: { fotos: [FOTOS_QUE_CAMBIARON] } });
         }
         aplicar(lavanderia.datos, cuerpo);
         return respuesta(200, { lavanderia: fichaDe(lavanderia) });

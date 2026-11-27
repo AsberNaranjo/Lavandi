@@ -6,8 +6,9 @@
 // EdicionDeLavanderia; las prueba el servidor (servidor/tests/Feature/AdministracionEnLaApp/LavanderiasTest.php). Aquí,
 // que la app manda solo lo que cambió, con las fotos en multipart por POST con _method=PATCH, que al guardar regresa a la
 // ficha con los datos nuevos, que pone cada 422 junto a su campo sin validar nada por su cuenta, que el municipio se
-// elige de la lista del territorio, que la administración lee (adenda del 2026-11-26 de ADR-0022, decisión 6), y que la
-// pantalla del perfil del socio muestra lo que quedó.
+// elige de la lista del territorio, que la administración lee (adenda del 2026-11-26 de ADR-0022, decisión 6), que la
+// lista de fotos va con la marca de las fotos que se leyeron al abrir (design.md del cambio, F-D01), y que la pantalla
+// del perfil del socio muestra lo que quedó.
 //
 // Se abre la app real, con las rutas de movil/app/ (ADR-0017), en iPhone y en Android, con el servidor simulado de la
 // administración (__tests__/apoyo/administracion.ts) y sus lavanderías (__tests__/apoyo/administracion/lavanderias.ts);
@@ -28,7 +29,9 @@ import {
 import {
   ACTIVA,
   DE_BAJA,
+  FOTOS_QUE_CAMBIARON,
   LavanderiasDelServidor,
+  marcaDeLasFotos,
   NO_EXISTE_LA_LAVANDERIA,
   RUTA_DE_LAS_LAVANDERIAS,
   rutaDe,
@@ -287,6 +290,8 @@ describe('administracion-app-E14: editar una lavandería', () => {
             _method: 'PATCH',
             // Cada una que ya tiene, por su lugar en la lectura; la nueva, con su archivo.
             fotos: ['1', { nombre: 'foto.jpg', tipo: 'image/jpeg', contenido: contenidoDelArchivo(nueva) }],
+            // Y la marca de la lectura con que se abrió la edición, tal cual.
+            fotos_leidas: marcaDeLasFotos(ACTIVA),
           },
         },
       ]);
@@ -303,6 +308,60 @@ describe('administracion-app-E14: editar una lavandería', () => {
       expect(screen.getByTestId('dato-descripcion-y-fotos')).toHaveTextContent(
         'Descripción y fotos' + 'Texto de prueba. · 2 fotos',
       );
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E14 — (%s) sus fotos en otro orden, sin una nueva: la lista va en JSON con la marca de la lectura con que se abrió',
+    async (plataforma) => {
+      await abrirLaEdicion(plataforma);
+      const [primera, segunda] = ACTIVA.datos.fotos;
+
+      await fireEvent.press(
+        within(screen.getByTestId('foto-2')).getByRole('button', { name: 'Mover antes la foto 2' }),
+      );
+      await guardar();
+
+      await waitFor(() => expect(screen).toHavePathname(rutaDe(ACTIVA)));
+      expect(lavanderias.envios(ACTIVA)).toEqual([
+        {
+          metodo: 'PATCH',
+          ruta: rutaDe(ACTIVA),
+          multipart: false,
+          cuerpo: { fotos: [1, 0], fotos_leidas: marcaDeLasFotos(ACTIVA) },
+        },
+      ]);
+      expect(enElServidor(ACTIVA).datos.fotos.map(({ url }) => url)).toEqual([segunda.url, primera.url]);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E14 — (%s) si su socio cambió las fotos después de abrir la edición, el 422 del servidor va junto a las fotos, nada cambia y la pantalla se queda',
+    async (plataforma) => {
+      await abrirLaEdicion(plataforma);
+      // Su socio, desde su app, quita la segunda foto mientras la administración edita.
+      const [primera] = ACTIVA.datos.fotos;
+      enElServidor(ACTIVA).datos.fotos = [primera];
+      enElServidor(ACTIVA).datos.foto = primera;
+
+      await fireEvent.press(
+        within(screen.getByTestId('foto-2')).getByRole('button', { name: 'Mover antes la foto 2' }),
+      );
+      await guardar();
+
+      expect(await within(screen.getByTestId('campo-fotos')).findByText(FOTOS_QUE_CAMBIARON)).toBeOnTheScreen();
+      // Mandó la marca de lo que leyó al abrir, y el servidor no cambió nada.
+      expect(lavanderias.envios(ACTIVA)).toEqual([
+        {
+          metodo: 'PATCH',
+          ruta: rutaDe(ACTIVA),
+          multipart: false,
+          cuerpo: { fotos: [1, 0], fotos_leidas: marcaDeLasFotos(ACTIVA) },
+        },
+      ]);
+      expect(enElServidor(ACTIVA).datos.fotos).toEqual([primera]);
+      expect(screen).toHavePathname(edicionEnLaApp(ACTIVA));
+      expect(within(screen.getByTestId('acciones')).getByRole('button', { name: 'Guardar cambios' })).toBeEnabled();
     },
   );
 
