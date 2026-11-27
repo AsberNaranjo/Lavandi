@@ -14,8 +14,11 @@
 //   un mensaje en inglés o, peor, conciliaría otro periodo (el contrato, en reportes-financieros/api.ts). El rango al
 //   revés sí es su regla;
 // - el reporte: el periodo, cuántas filas hay de cada resultado, en el orden de la imagen 33, con el lugar de la
-//   comisión de la pasarela en ámbar (administracion-app-E41; DD-013), "Otro periodo", y debajo cada diferencia con su
-//   tipo y después las conciliadas (33 y 34). "Descargar" llega con la tarea 20.1;
+//   comisión de la pasarela en ámbar (administracion-app-E41; DD-013), "Descargar" y "Otro periodo", y debajo cada
+//   diferencia con su tipo y después las conciliadas (33 y 34). "Descargar" pide el reporte de la conciliación con el
+//   periodo conciliado por omisión, sin granularidad, y el servidor lo arma con los movimientos ya guardados, sin volver
+//   a leer la pasarela (administracion-app-E56, E57 y E60; tarea 20.1; src/administracion/reportes-financieros/
+//   DescargaDelReporte.tsx);
 // - si la pasarela no responde, "No se pudo leer la pasarela" bajo el botón, sin reporte nuevo (35).
 //
 // Con un 401, el cliente de la administración ya volvió al inicio de sesión (administracion-app-E05).
@@ -32,6 +35,7 @@ import type {
   ReporteDeLaConciliacion,
   ResultadoDeLaConciliacion,
 } from '../../src/administracion/reportes-financieros/api';
+import { DescargaDelReporte } from '../../src/administracion/reportes-financieros/DescargaDelReporte';
 import { TarjetaDeLaFila } from '../../src/administracion/reportes-financieros/TarjetaDeLaFila';
 import { TarjetaDeRenglones } from '../../src/administracion/reportes-financieros/TarjetaDeRenglones';
 import {
@@ -142,7 +146,8 @@ function LoQueNoSalio({ falla }: { falla: FallaDeLaConciliacion }) {
   );
 }
 
-// El reporte del periodo conciliado: el periodo, el resumen, "Otro periodo" y las filas, primero las diferencias.
+// El reporte del periodo conciliado: el periodo, el resumen, "Descargar" y "Otro periodo", y las filas, primero las
+// diferencias.
 function ElReporte({
   reporte,
   alPedirOtroPeriodo,
@@ -170,9 +175,16 @@ function ElReporte({
           },
         ]}
       />
-      <Boton variante="secundario" onPress={alPedirOtroPeriodo}>
-        {TEXTOS.otroPeriodo}
-      </Boton>
+      <DescargaDelReporte
+        reporte="conciliacion-con-la-pasarela"
+        desde={reporte.rango.desde}
+        hasta={reporte.rango.hasta}
+        junto={
+          <Boton variante="secundario" onPress={alPedirOtroPeriodo}>
+            {TEXTOS.otroPeriodo}
+          </Boton>
+        }
+      />
       {reporte.filas.length === 0 ? <Parrafo alineacion="inicio">{TEXTOS.sinPagos}</Parrafo> : null}
       <Filas titulo={TEXTOS.diferencias} testID="diferencias" filas={diferencias} />
       <Filas titulo={TEXTOS.conciliados} testID="conciliados" filas={conciliados} />

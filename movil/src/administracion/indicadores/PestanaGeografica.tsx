@@ -10,7 +10,9 @@
 // - en una compilación de Android sin la llave del mapa, el mapa no se monta y la tarjeta lo dice; la tabla sigue
 //   (imagen 50; src/cercanas/mapa.ts). En iPhone no pasa.
 //
-// Ninguna cifra sale de aquí: todas las da el servidor, también el color de cada figura.
+// Ninguna cifra sale de aquí: todas las da el servidor, también el color de cada figura. La tarjeta lleva su
+// "Descargar", con el rango de la pantalla: los pedidos por colonia o por zona, según la agrupación elegida
+// (administracion-app-E56; imágenes 49, 50 y 69).
 import { StyleSheet, Text, View } from 'react-native';
 
 import { hayMapaNativo } from '../../cercanas/mapa';
@@ -18,12 +20,20 @@ import { Pestanas } from '../../piezas/Pestanas';
 import { TablaComparativa, type FilaDeLaTabla } from '../../piezas/TablaComparativa';
 import { letra } from '../../tema/letra';
 import { color, espaciado, grosor, radio, tipografia } from '../../tema/theme';
+import type { CodigoDelReporte } from '../descargas/api';
+import type { RangoAjustado } from '../rango/rango';
 import { AGRUPACIONES, type Agrupacion, type MapaDeCalor as ElMapaDeCalor } from './api';
 import { MapaDeCalor } from './MapaDeCalor';
 import { TarjetaDelIndicador } from './TarjetaDelIndicador';
 import { coloniaEnTexto, letraDeLaColonia, TEXTOS_DE_LOS_INDICADORES as TEXTOS } from './textos';
 
 const PESTANAS = AGRUPACIONES.map((clave) => ({ clave, texto: TEXTOS.agrupaciones[clave] }));
+
+/** El reporte de F-I11 en cada agrupación: uno por colonia y otro por zona, como los dos botones del panel. */
+const REPORTE_DEL_MAPA: Record<Agrupacion, CodigoDelReporte> = {
+  colonia: 'pedidos-por-colonia',
+  zona: 'pedidos-por-zona',
+};
 
 /** "Ver el mapa por", con Colonia y Zona de servicio (imágenes 49 y 69). */
 export function SelectorDeLaAgrupacion({
@@ -58,11 +68,21 @@ function filasDe(mapa: ElMapaDeCalor): FilaDeLaTabla[] {
   }));
 }
 
-export function PestanaGeografica({ mapa }: { mapa: ElMapaDeCalor }) {
+interface Propiedades {
+  mapa: ElMapaDeCalor;
+  /** El rango que usó el servidor: el de la descarga por omisión. */
+  rango: RangoAjustado;
+}
+
+export function PestanaGeografica({ mapa, rango }: Propiedades) {
   const filas = filasDe(mapa);
 
   return (
-    <TarjetaDelIndicador titulo={TEXTOS.pedidosPor[mapa.agrupacion]} testID="indicador-mapa-de-calor">
+    <TarjetaDelIndicador
+      titulo={TEXTOS.pedidosPor[mapa.agrupacion]}
+      testID="indicador-mapa-de-calor"
+      descarga={{ reporte: REPORTE_DEL_MAPA[mapa.agrupacion], rango }}
+    >
       {hayMapaNativo() ? (
         <MapaDeCalor mapa={mapa} />
       ) : (

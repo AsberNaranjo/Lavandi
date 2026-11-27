@@ -10,11 +10,12 @@
 //   duración, con la regla de indicadores-E09 ("Indicador destacado con tendencia"). Qué monto cuenta espera DD-012
 //   (indicadores-E10).
 //
-// Ninguna cifra sale de aquí: todas las da el servidor, también el texto de cada monto y de la tendencia.
+// Ninguna cifra sale de aquí: todas las da el servidor, también el texto de cada monto y de la tendencia. Cada uno lleva
+// su "Descargar", con el rango de la pantalla (administracion-app-E56; imágenes 44 y 45).
 import { IndicadorDestacado } from '../../piezas/IndicadorDestacado';
 import { LineaDeTendencia } from '../../piezas/LineaDeTendencia';
 import { TablaComparativa } from '../../piezas/TablaComparativa';
-import type { Granularidad } from '../rango/rango';
+import type { RangoAjustado } from '../rango/rango';
 import type { IndicadoresDeUsuarios } from './api';
 import { NotaDelIndicador, RenglonQueEspera, TarjetaDelIndicador } from './TarjetaDelIndicador';
 import {
@@ -27,15 +28,21 @@ import {
 
 interface Propiedades {
   indicadores: IndicadoresDeUsuarios;
-  granularidad: Granularidad;
+  /** El rango que usó el servidor: su granularidad para los periodos cortos, y el de la descarga por omisión. */
+  rango: RangoAjustado;
 }
 
-export function PestanaDeUsuarios({ indicadores, granularidad }: Propiedades) {
+export function PestanaDeUsuarios({ indicadores, rango }: Propiedades) {
+  const { granularidad } = rango;
   const monto = montoALaVista(indicadores.monto_promedio);
 
   return (
     <>
-      <TarjetaDelIndicador titulo={TEXTOS.usuariosActivos} testID="indicador-usuarios-activos">
+      <TarjetaDelIndicador
+        titulo={TEXTOS.usuariosActivos}
+        testID="indicador-usuarios-activos"
+        descarga={{ reporte: 'usuarios-activos', rango }}
+      >
         <NotaDelIndicador>{TEXTOS.personasDistintas}</NotaDelIndicador>
         <LineaDeTendencia
           titulo={TEXTOS.usuariosActivos}
@@ -52,7 +59,11 @@ export function PestanaDeUsuarios({ indicadores, granularidad }: Propiedades) {
           testID="espera-que-actividad-cuenta"
         />
       </TarjetaDelIndicador>
-      <TarjetaDelIndicador titulo={TEXTOS.vuelvenAPedir} testID="indicador-vuelven-a-pedir">
+      <TarjetaDelIndicador
+        titulo={TEXTOS.vuelvenAPedir}
+        testID="indicador-vuelven-a-pedir"
+        descarga={{ reporte: 'usuarios-que-vuelven-a-pedir', rango }}
+      >
         <TablaComparativa
           primeraColumna={TEXTOS.mesDeRegistro}
           columnas={[
@@ -66,7 +77,11 @@ export function PestanaDeUsuarios({ indicadores, granularidad }: Propiedades) {
           }))}
         />
       </TarjetaDelIndicador>
-      <TarjetaDelIndicador titulo={TEXTOS.montoPromedio} testID="indicador-monto-promedio">
+      <TarjetaDelIndicador
+        titulo={TEXTOS.montoPromedio}
+        testID="indicador-monto-promedio"
+        descarga={{ reporte: 'monto-promedio-por-pedido', rango }}
+      >
         <IndicadorDestacado
           titulo={TEXTOS.montoPromedio}
           valor={monto.valor}

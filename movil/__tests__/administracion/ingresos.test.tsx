@@ -258,8 +258,11 @@ describe('administracion-app-E37: los ingresos de un periodo', () => {
       expect(comisiones.getByText('Comisiones del periodo')).toBeOnTheScreen();
       expect(comisiones.getByText('Por confirmar · DD-020')).toBeOnTheScreen();
       expect(comisiones.queryByText(/\$/)).not.toBeOnTheScreen();
-      // "Descargar" llega con la tarea 20.1.
-      expect(screen.queryByRole('button', { name: 'Descargar' })).not.toBeOnTheScreen();
+      // Ninguno de los dos ofrece su descarga: el único "Descargar" de la pantalla es el de los ingresos (tarea 20.1;
+      // administracion-app-E63, en descargas.test.tsx).
+      expect(reembolsos.queryByText('Descargar')).not.toBeOnTheScreen();
+      expect(comisiones.queryByText('Descargar')).not.toBeOnTheScreen();
+      expect(screen.getAllByRole('button', { name: 'Descargar' })).toHaveLength(1);
     },
   );
 });

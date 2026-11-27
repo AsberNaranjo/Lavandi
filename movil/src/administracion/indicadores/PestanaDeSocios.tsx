@@ -10,18 +10,26 @@
 // - F-I08, las entregas completadas por repartidor en una tabla, con su plaza, con la regla de indicadores-E15 ("Tabla
 //   comparativa"), en el orden del servidor, de más a menos entregas.
 //
-// Ninguna cifra sale de aquí: todas las da el servidor.
+// Ninguna cifra sale de aquí: todas las da el servidor. F-I07 y F-I08 llevan su "Descargar", con el rango de la
+// pantalla (administracion-app-E56; imágenes 46 y 47); F-I06, sin cifra, no ofrece descarga (administracion-app-E53).
 import { StyleSheet, Text } from 'react-native';
 
 import { RankingConSemaforo } from '../../piezas/RankingConSemaforo';
 import { TablaComparativa } from '../../piezas/TablaComparativa';
 import { letra } from '../../tema/letra';
 import { color, tipografia } from '../../tema/theme';
+import type { RangoAjustado } from '../rango/rango';
 import type { IndicadoresDeSocios } from './api';
 import { IndicadorEnEspera, RenglonQueEspera, TarjetaDelIndicador } from './TarjetaDelIndicador';
 import { calificacionEnTexto, DD_DE_LOS_INDICADORES, TEXTOS_DE_LOS_INDICADORES as TEXTOS } from './textos';
 
-export function PestanaDeSocios({ indicadores }: { indicadores: IndicadoresDeSocios }) {
+interface Propiedades {
+  indicadores: IndicadoresDeSocios;
+  /** El rango que usó el servidor: el de la descarga por omisión. */
+  rango: RangoAjustado;
+}
+
+export function PestanaDeSocios({ indicadores, rango }: Propiedades) {
   const { lavanderias } = indicadores.calificacion_por_lavanderia;
   const { repartidores } = indicadores.entregas_por_repartidor;
 
@@ -32,7 +40,11 @@ export function PestanaDeSocios({ indicadores }: { indicadores: IndicadoresDeSoc
         dds={indicadores.activas_frente_a_registradas.en_espera}
         testID="indicador-activas-frente-a-registradas"
       />
-      <TarjetaDelIndicador titulo={TEXTOS.calificacionPorLavanderia} testID="indicador-calificacion-por-lavanderia">
+      <TarjetaDelIndicador
+        titulo={TEXTOS.calificacionPorLavanderia}
+        testID="indicador-calificacion-por-lavanderia"
+        descarga={{ reporte: 'calificacion-por-lavanderia', rango }}
+      >
         <RankingConSemaforo
           lugares={lavanderias.map((lavanderia) => ({
             clave: lavanderia.id_publico,
@@ -51,7 +63,11 @@ export function PestanaDeSocios({ indicadores }: { indicadores: IndicadoresDeSoc
           testID="espera-cortes-del-semaforo"
         />
       </TarjetaDelIndicador>
-      <TarjetaDelIndicador titulo={TEXTOS.entregasPorRepartidor} testID="indicador-entregas-por-repartidor">
+      <TarjetaDelIndicador
+        titulo={TEXTOS.entregasPorRepartidor}
+        testID="indicador-entregas-por-repartidor"
+        descarga={{ reporte: 'entregas-por-repartidor', rango }}
+      >
         {repartidores.length === 0 ? (
           <Text style={[estilos.vacio, letra('cuerpo', 'regular')]}>{TEXTOS.sinRepartidores}</Text>
         ) : (

@@ -11,13 +11,15 @@
 //   servidor: el mes en curso hasta hoy, por día (indicadores-E24).
 // - Se consulta solo la pestaña que se ve, con el intervalo que trae la respuesta (30 s por omisión), solo con la
 //   pantalla visible y la app al frente (administracion-app-E51; src/administracion/indicadores/useIndicadores.ts).
+// - Cada indicador con cifra lleva "Descargar", un reporte por indicador (F-I01 a F-I05, F-I07 a F-I09, y F-I11 por
+//   colonia o por zona, según la agrupación elegida), con el rango y la granularidad que usó el servidor por omisión
+//   (administracion-app-E56, E57 y E60; tarea 20.1; src/administracion/indicadores/TarjetaDelIndicador.tsx).
 // - F-I06 y F-I10 dejan su lugar, con su nombre y que esperan una respuesta, sin cifra ni descarga
-//   (administracion-app-E53).
+//   (administracion-app-E53 y E63).
 //
-// La composición y los textos son los de las imágenes 41 a 50 y 69 de la Propuesta 06. "Descargar" en cada indicador
-// llega con la tarea 20.1. Si una consulta no llega, sin escenario propio: lo último que llegó, con los mensajes
-// generales de la app e "Intentar de nuevo". Con un 401, el cliente de la administración ya volvió al inicio de sesión
-// (administracion-app-E05).
+// La composición y los textos son los de las imágenes 41 a 53, 69 y 70 de la Propuesta 06. Si una consulta no llega,
+// sin escenario propio: lo último que llegó, con los mensajes generales de la app e "Intentar de nuevo". Con un 401, el
+// cliente de la administración ya volvió al inicio de sesión (administracion-app-E05).
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
@@ -135,19 +137,20 @@ function ContenidoDeLaPestana({ indicadores }: { indicadores: LosIndicadores }) 
   return <Pestana respuesta={respuesta} />;
 }
 
+// Cada pestaña recibe el rango que usó el servidor: el de sus periodos y el que ofrece su "Descargar" por omisión.
 function Pestana({ respuesta }: { respuesta: IndicadoresDeLaCategoria }) {
-  const { granularidad } = respuesta.rango;
+  const { rango } = respuesta;
   switch (respuesta.categoria) {
     case 'operaciones':
-      return <PestanaDeOperaciones indicadores={respuesta.indicadores} granularidad={granularidad} />;
+      return <PestanaDeOperaciones indicadores={respuesta.indicadores} rango={rango} />;
     case 'usuarios':
-      return <PestanaDeUsuarios indicadores={respuesta.indicadores} granularidad={granularidad} />;
+      return <PestanaDeUsuarios indicadores={respuesta.indicadores} rango={rango} />;
     case 'socios':
-      return <PestanaDeSocios indicadores={respuesta.indicadores} />;
+      return <PestanaDeSocios indicadores={respuesta.indicadores} rango={rango} />;
     case 'financiero':
-      return <PestanaFinanciera indicadores={respuesta.indicadores} granularidad={granularidad} />;
+      return <PestanaFinanciera indicadores={respuesta.indicadores} rango={rango} />;
     case 'geografico':
-      return <PestanaGeografica mapa={respuesta.indicadores.mapa_de_calor} />;
+      return <PestanaGeografica mapa={respuesta.indicadores.mapa_de_calor} rango={rango} />;
   }
 }
 
