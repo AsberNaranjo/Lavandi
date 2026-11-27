@@ -20,7 +20,6 @@
 //                                                              el estado operativo y su nombre, el mismo del panel y
 //                                                              de los marcadores
 //                "plaza": "Plaza de prueba",                   el nombre de la plaza del pedido
-//                "zona_horaria": "America/Mexico_City",        la de esa plaza
 //                "ventana": {                                  la recolección: instantes con el desfase de la plaza,
 //                  "inicio": "2026-12-03T11:00:00-06:00",      y la fecha y las horas en su hora
 //                  "fin": "2026-12-03T12:00:00-06:00",
@@ -44,8 +43,10 @@
 //            ]
 //          }
 //
-//          "pedidos": de la recolección más próxima a la más lejana, sin paginación. Sin pedidos activos, "pedidos" y
-//          "marcadores" llegan vacías. "marcadores": en el orden de "pedidos", uno en la recolección de cada pedido y,
+//          "pedidos": cada uno con su folio, su estado operativo, su plaza y su recolección, y nada más (design.md,
+//          F-D04): sin la zona horaria de la plaza, porque la recolección ya llega en su hora. De la recolección más
+//          próxima a la más lejana, sin paginación. Sin pedidos activos, "pedidos" y "marcadores" llegan vacías.
+//          "marcadores": solo de los pedidos de "pedidos" y en su orden, uno en la recolección de cada pedido y,
 //          después, otro en la entrega cuando es en otra dirección; si se entrega en la misma, un solo marcador, el de la
 //          recolección, con la etiqueta "Recolección y entrega". Ningún marcador es de un repartidor.
 //
@@ -82,7 +83,6 @@ export interface PedidoDelMonitoreo {
   folio: string;
   estado: { codigo: string; nombre: string };
   plaza: string;
-  zona_horaria: string;
   ventana: VentanaDelMonitoreo;
 }
 
@@ -141,8 +141,8 @@ function leerPedido(valor: unknown): PedidoDelMonitoreo | null {
   if (!esObjeto(valor) || !esObjeto(valor.estado) || !esObjeto(valor.ventana)) {
     return null;
   }
-  const { id_publico: idPublico, folio, estado, plaza, zona_horaria: zonaHoraria, ventana } = valor;
-  const textos = [idPublico, folio, estado.codigo, estado.nombre, plaza, zonaHoraria];
+  const { id_publico: idPublico, folio, estado, plaza, ventana } = valor;
+  const textos = [idPublico, folio, estado.codigo, estado.nombre, plaza];
   const horas = [ventana.inicio, ventana.fin, ventana.fecha, ventana.hora_inicio, ventana.hora_fin];
   if (![...textos, ...horas].every(esTexto)) {
     return null;
@@ -152,7 +152,6 @@ function leerPedido(valor: unknown): PedidoDelMonitoreo | null {
     folio: folio as string,
     estado: { codigo: estado.codigo as string, nombre: estado.nombre as string },
     plaza: plaza as string,
-    zona_horaria: zonaHoraria as string,
     ventana: {
       inicio: ventana.inicio as string,
       fin: ventana.fin as string,

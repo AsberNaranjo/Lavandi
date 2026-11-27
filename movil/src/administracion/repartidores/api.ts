@@ -3,9 +3,24 @@
 // ficha, el alta en una plaza, la suspensión, su levantamiento, la baja y la edición, con las plazas del alta.
 //
 // El contrato es el del comentario de servidor/app/Http/Controllers/Api/Administracion/RepartidoresController.php y
-// PlazasController.php, copiado aquí. Las reglas (qué estado permite qué acción, qué dato es válido, qué plaza sirve) las
-// aplica el servidor, con las mismas clases que el panel (ADR-0022, decisión 9): la app no decide ninguna. Muestra los
-// botones que dice "acciones" y los errores 422 de cada campo.
+// PlazasController.php, el de design.md, sección 4, F-D02:
+//
+//     GET repartidores                  { "repartidores": [ { id_publico, nombre, estado, plaza: { nombre } | null } ] }
+//                                       en la lista, solo lo que muestra su fila (imágenes 14 y 62 de la Propuesta 06):
+//                                       el teléfono, el correo, la foto y el vehículo son de la ficha
+//     GET repartidores/{id_publico}     { "repartidor": <la ficha> }, y lo mismo responden la edición, el alta, la
+//                                       suspensión, su levantamiento y la baja
+//     <la ficha> = { id_publico, nombre, telefono, correo, foto: { url, vence_en } | null, tipo_vehiculo, estado,
+//                    plaza: { nombre } | null, transiciones: [...] }
+//                                       "transiciones": las que su estado permite ahora, en el orden de los botones del
+//                                       panel (dar_de_alta, suspender, levantar_suspension, dar_de_baja), como la ficha
+//                                       de la lavandería
+//     GET plazas                        { "plazas": [ { nombre } ] }
+//
+// Las reglas (qué estado permite qué acción, qué dato es válido, qué plaza sirve) las aplica el servidor, con las mismas
+// clases que el panel (ADR-0022, decisión 9): la app no decide ninguna. Muestra los botones de las transiciones que da el
+// servidor y los errores 422 de cada campo. Que la app lee lo que manda el servidor lo prueba
+// __tests__/administracion/contratos.test.ts con sus respuestas reales.
 //
 // Va sobre el cliente de la administración (src/administracion/api.ts), que pone el token, borra la sesión con un 401 y
 // entrega el 404 y el 409 con su propio motivo. Como las demás consultas, nunca lanza: devuelve un Resultado. Una
@@ -33,27 +48,28 @@ export const CONTRATO_DE_LOS_REPARTIDORES = {
 export const ESTADOS_DEL_REPARTIDOR = ['pendiente', 'activo', 'suspendido', 'baja'] as const;
 export type EstadoDelRepartidor = (typeof ESTADOS_DEL_REPARTIDOR)[number];
 
-/** Las acciones de estado que el repartidor permite ahora: la ficha muestra solo esos botones. */
-export interface AccionesDelRepartidor {
-  dar_de_alta: boolean;
-  suspender: boolean;
-  levantar_suspension: boolean;
-  dar_de_baja: boolean;
-}
+/** Las transiciones de estado que puede dar el servidor, en el orden de los botones del panel. */
+export const TRANSICIONES_DEL_REPARTIDOR = ['dar_de_alta', 'suspender', 'levantar_suspension', 'dar_de_baja'] as const;
+export type TransicionDelRepartidor = (typeof TRANSICIONES_DEL_REPARTIDOR)[number];
 
-/** El repartidor como sale en todas las respuestas de /api/administracion/repartidores. */
-export interface RepartidorDeLaAdministracion {
+/** El repartidor en la lista: su nombre, su estado y su plaza; lo demás está en su ficha. */
+export interface RepartidorEnLaLista {
   id_publico: string;
   nombre: string | null;
+  estado: EstadoDelRepartidor;
+  /** La de su alta; null mientras está pendiente, y en la baja de uno que nunca se dio de alta. */
+  plaza: { nombre: string } | null;
+}
+
+/** La ficha del repartidor, como sale en todas las respuestas que la traen. */
+export interface RepartidorDeLaAdministracion extends RepartidorEnLaLista {
   telefono: string | null;
   correo: string;
   /** La URL firmada vence: al volver a pedir al repartidor llega otra. */
   foto: FotoFirmada | null;
   tipo_vehiculo: string | null;
-  estado: EstadoDelRepartidor;
-  /** La de su alta; null mientras está pendiente, y en la baja de uno que nunca se dio de alta. */
-  plaza: { nombre: string } | null;
-  acciones: AccionesDelRepartidor;
+  /** Las que su estado permite ahora: la ficha muestra solo esos botones. */
+  transiciones: TransicionDelRepartidor[];
 }
 
 /** Una plaza del alta, por su nombre: es el que se manda en "plaza" al dar de alta. */
@@ -73,16 +89,14 @@ type Resultado<T> = ResultadoDeLaAdministracion<T>;
 const FUERA_DEL_CONTRATO = { ok: false, motivo: 'servidor' } as const;
 
 /** GET repartidores: todos, de todas las plazas y en cualquier estado (administracion-app-E19). */
-export async function consultarRepartidores(
-  pedir: PedirALaAdministracion,
-): Promise<Resultado<RepartidorDeLaAdministracion[]>> {
+export async function consultarRepartidores(pedir: PedirALaAdministracion): Promise<Resultado<RepartidorEnLaLista[]>> {
   const resultado = await pedir<unknown>(CONTRATO_DE_LOS_REPARTIDORES.repartidores);
   if (!resultado.ok) {
     return resultado;
   }
   const filas = esObjeto(resultado.datos) ? resultado.datos.repartidores : undefined;
-  const repartidores = Array.isArray(filas) ? filas.map(leerRepartidor) : null;
-  return repartidores && repartidores.every(esRepartidor) ? { ok: true, datos: repartidores } : FUERA_DEL_CONTRATO;
+  const repartidores = Array.isArray(filas) ? filas.map(leerDeLaLista) : null;
+  return repartidores && repartidores.every(noEsNulo) ? { ok: true, datos: repartidores } : FUERA_DEL_CONTRATO;
 }
 
 /** GET repartidores/{id_publico}: la ficha (administracion-app-E19). */
@@ -101,7 +115,7 @@ export async function consultarPlazas(pedir: PedirALaAdministracion): Promise<Re
   }
   const filas = esObjeto(resultado.datos) ? resultado.datos.plazas : undefined;
   const plazas = Array.isArray(filas) ? filas.map(leerPlaza) : null;
-  return plazas && plazas.every(esPlaza) ? { ok: true, datos: plazas } : FUERA_DEL_CONTRATO;
+  return plazas && plazas.every(noEsNulo) ? { ok: true, datos: plazas } : FUERA_DEL_CONTRATO;
 }
 
 /** POST repartidores/{id_publico}/alta con la plaza elegida, por su nombre (administracion-app-E20). */
@@ -180,56 +194,57 @@ function fichaDeLaRespuesta(resultado: Resultado<unknown>): Resultado<Repartidor
   if (!resultado.ok) {
     return resultado;
   }
-  const repartidor = esObjeto(resultado.datos) ? leerRepartidor(resultado.datos.repartidor) : null;
+  const repartidor = esObjeto(resultado.datos) ? leerLaFicha(resultado.datos.repartidor) : null;
   return repartidor ? { ok: true, datos: repartidor } : FUERA_DEL_CONTRATO;
 }
 
-/** El repartidor leído campo por campo; null si no es del contrato. */
-function leerRepartidor(fila: unknown): RepartidorDeLaAdministracion | null {
+/** Un repartidor de la lista leído campo por campo; null si no es del contrato. */
+function leerDeLaLista(fila: unknown): RepartidorEnLaLista | null {
   if (
     !esObjeto(fila) ||
     typeof fila.id_publico !== 'string' ||
-    typeof fila.correo !== 'string' ||
     !textoOVacio(fila.nombre) ||
-    !textoOVacio(fila.telefono) ||
-    !textoOVacio(fila.tipo_vehiculo) ||
     !ESTADOS_DEL_REPARTIDOR.includes(fila.estado as EstadoDelRepartidor)
   ) {
     return null;
   }
-  const foto = fila.foto === null ? null : fotoFirmada(fila.foto);
   const plaza = fila.plaza === null ? null : leerPlaza(fila.plaza);
-  const acciones = leerAcciones(fila.acciones);
-  if ((fila.foto !== null && !foto) || (fila.plaza !== null && !plaza) || !acciones) {
+  if (fila.plaza !== null && !plaza) {
+    return null;
+  }
+  return { id_publico: fila.id_publico, nombre: fila.nombre, estado: fila.estado as EstadoDelRepartidor, plaza };
+}
+
+/** La ficha leída campo por campo: lo de la lista, sus datos y sus transiciones; null si no es del contrato. */
+function leerLaFicha(fila: unknown): RepartidorDeLaAdministracion | null {
+  const enLaLista = leerDeLaLista(fila);
+  if (
+    !enLaLista ||
+    !esObjeto(fila) ||
+    typeof fila.correo !== 'string' ||
+    !textoOVacio(fila.telefono) ||
+    !textoOVacio(fila.tipo_vehiculo) ||
+    !Array.isArray(fila.transiciones) ||
+    !fila.transiciones.every(esTransicion)
+  ) {
+    return null;
+  }
+  const foto = fila.foto === null ? null : fotoFirmada(fila.foto);
+  if (fila.foto !== null && !foto) {
     return null;
   }
   return {
-    id_publico: fila.id_publico,
-    nombre: fila.nombre,
+    ...enLaLista,
     telefono: fila.telefono,
     correo: fila.correo,
     foto,
     tipo_vehiculo: fila.tipo_vehiculo,
-    estado: fila.estado as EstadoDelRepartidor,
-    plaza,
-    acciones,
+    transiciones: fila.transiciones,
   };
 }
 
-function leerAcciones(valor: unknown): AccionesDelRepartidor | null {
-  if (!esObjeto(valor)) {
-    return null;
-  }
-  const { dar_de_alta, suspender, levantar_suspension, dar_de_baja } = valor;
-  if (![dar_de_alta, suspender, levantar_suspension, dar_de_baja].every((accion) => typeof accion === 'boolean')) {
-    return null;
-  }
-  return {
-    dar_de_alta: dar_de_alta as boolean,
-    suspender: suspender as boolean,
-    levantar_suspension: levantar_suspension as boolean,
-    dar_de_baja: dar_de_baja as boolean,
-  };
+function esTransicion(valor: unknown): valor is TransicionDelRepartidor {
+  return TRANSICIONES_DEL_REPARTIDOR.includes(valor as TransicionDelRepartidor);
 }
 
 function leerPlaza(valor: unknown): PlazaDelAlta | null {
@@ -241,10 +256,6 @@ function textoOVacio(valor: unknown): valor is string | null {
   return valor === null || typeof valor === 'string';
 }
 
-function esRepartidor(valor: RepartidorDeLaAdministracion | null): valor is RepartidorDeLaAdministracion {
-  return valor !== null;
-}
-
-function esPlaza(valor: PlazaDelAlta | null): valor is PlazaDelAlta {
+function noEsNulo<T>(valor: T | null): valor is T {
   return valor !== null;
 }

@@ -2,7 +2,7 @@
 // #2, "Alta, baja, suspensión y edición de socios repartidores"; :18, Módulo C #1, "El alta, validación y autorización
 // del repartidor corresponden a EL CLIENTE"): se abre al tocarlo en la lista, por su id_publico. Muestra su nombre, su
 // foto, su estado, su plaza, su teléfono, su correo y su tipo de vehículo (administracion-app-E19), y abajo solo los
-// botones de las acciones que el servidor dice que su estado permite, además de "Editar":
+// botones de las transiciones que el servidor dice que su estado permite ("transiciones"), además de "Editar":
 //
 // - pendiente: la plaza se elige en el Selector, con las plazas de GET /api/administracion/plazas; sin plaza elegida, el
 //   botón del alta no se puede tocar y dice qué falta, y la app no lo manda (administracion-app-E20). Si las plazas no
@@ -24,7 +24,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
 
-import type { RepartidorDeLaAdministracion } from '../../../src/administracion/repartidores/api';
+import type {
+  RepartidorDeLaAdministracion,
+  TransicionDelRepartidor,
+} from '../../../src/administracion/repartidores/api';
 import { InsigniaYPlaza } from '../../../src/administracion/repartidores/InsigniaYPlaza';
 import { RUTA_DE_LOS_REPARTIDORES, rutaDeLaEdicionDelRepartidor } from '../../../src/administracion/repartidores/rutas';
 import {
@@ -101,7 +104,7 @@ export default function FichaDelRepartidorEnLaAdministracion() {
             <Dato etiqueta={TEXTOS.correo} valor={repartidor.correo} />
             <Dato etiqueta={TEXTOS.tipoDeVehiculo} valor={repartidor.tipo_vehiculo} ultimo />
           </View>
-          {repartidor.acciones.dar_de_alta ? (
+          {repartidor.transiciones.includes('dar_de_alta') ? (
             <>
               <Selector
                 nombre="plaza"
@@ -124,10 +127,12 @@ export default function FichaDelRepartidorEnLaAdministracion() {
                 </>
               ) : null}
               <Parrafo alineacion="inicio">{TEXTOS.validacionFuera}</Parrafo>
-              {repartidor.acciones.dar_de_baja ? <Parrafo alineacion="inicio">{TEXTOS.siNoLoAutorizas}</Parrafo> : null}
+              {repartidor.transiciones.includes('dar_de_baja') ? (
+                <Parrafo alineacion="inicio">{TEXTOS.siNoLoAutorizas}</Parrafo>
+              ) : null}
             </>
           ) : null}
-          {repartidor.acciones.levantar_suspension ? (
+          {repartidor.transiciones.includes('levantar_suspension') ? (
             <Parrafo alineacion="inicio">{TEXTOS.alLevantarLaSuspension}</Parrafo>
           ) : null}
         </>
@@ -193,9 +198,9 @@ function AccionesDeLaFicha({
   plazaElegida: string | null;
   alEditar: () => void;
 }) {
-  const { acciones } = repartidor;
+  const permite = (transicion: TransicionDelRepartidor) => repartidor.transiciones.includes(transicion);
   const editar: BotonDeLaFicha = { clave: 'editar', texto: TEXTOS.editar, alTocar: alEditar };
-  const alta: BotonDeLaFicha | null = acciones.dar_de_alta
+  const alta: BotonDeLaFicha | null = permite('dar_de_alta')
     ? {
         clave: 'alta',
         accion: 'alta',
@@ -208,7 +213,7 @@ function AccionesDeLaFicha({
         },
       }
     : null;
-  const levantamiento: BotonDeLaFicha | null = acciones.levantar_suspension
+  const levantamiento: BotonDeLaFicha | null = permite('levantar_suspension')
     ? {
         clave: 'levantamiento',
         accion: 'levantamiento',
@@ -217,10 +222,10 @@ function AccionesDeLaFicha({
       }
     : null;
   const deEstado: BotonDeLaFicha[] = [];
-  if (acciones.suspender) {
+  if (permite('suspender')) {
     deEstado.push({ clave: 'suspension', accion: 'suspension', texto: TEXTOS.suspender, alTocar: ficha.suspender });
   }
-  if (acciones.dar_de_baja) {
+  if (permite('dar_de_baja')) {
     deEstado.push({ clave: 'baja', accion: 'baja', texto: TEXTOS.darDeBaja, alTocar: ficha.darDeBaja });
   }
 

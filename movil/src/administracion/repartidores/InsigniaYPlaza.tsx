@@ -9,7 +9,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { InsigniaDeEstado } from '../../piezas/InsigniaDeEstado';
 import { letra } from '../../tema/letra';
 import { color, espaciado, tipografia } from '../../tema/theme';
-import type { EstadoDelRepartidor, RepartidorDeLaAdministracion } from './api';
+import type { EstadoDelRepartidor, RepartidorEnLaLista } from './api';
 import { TEXTOS_DE_LOS_REPARTIDORES as TEXTOS } from './textos';
 
 const TONO: Record<EstadoDelRepartidor, string> = {
@@ -20,11 +20,11 @@ const TONO: Record<EstadoDelRepartidor, string> = {
 };
 
 /** "Pendiente, Sin plaza": el estado y la plaza, como los lee el lector de pantalla. */
-export function estadoYPlazaEnTexto({ estado, plaza }: Pick<RepartidorDeLaAdministracion, 'estado' | 'plaza'>): string {
+export function estadoYPlazaEnTexto({ estado, plaza }: Pick<RepartidorEnLaLista, 'estado' | 'plaza'>): string {
   return `${TEXTOS.estados[estado]}, ${plaza?.nombre ?? TEXTOS.sinPlaza}`;
 }
 
-export function InsigniaYPlaza({ estado, plaza }: Pick<RepartidorDeLaAdministracion, 'estado' | 'plaza'>) {
+export function InsigniaYPlaza({ estado, plaza }: Pick<RepartidorEnLaLista, 'estado' | 'plaza'>) {
   return (
     <View style={estilos.renglon}>
       <InsigniaDeEstado codigo={estado} nombre={TEXTOS.estados[estado]} forma="cuadrada" tono={TONO[estado]} />

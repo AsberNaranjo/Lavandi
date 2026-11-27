@@ -194,11 +194,15 @@ Resumen. El detalle de cada fila va después.
 - **Rutas:**
   - `GET repartidores`: todos, en cualquier estado, también los pendientes sin plaza y los de baja, cada uno con su
     nombre, su estado y su plaza, o ninguna (`id_publico`, `nombre`, `estado` y `plaza`, como la lista de F-D01). Del
-    registro más nuevo al más viejo, como la lista del panel.
+    registro más nuevo al más viejo, como la lista del panel. Solo esas cuatro llaves: el teléfono, el correo, la foto
+    y el tipo de vehículo son datos de la ficha, que la fila de la lista no muestra (imágenes 14 y 62 de la Propuesta
+    6), así que no salen en la lista y la app no los pide ahí.
   - `GET repartidores/{repartidor}`: la ficha, con su nombre, su teléfono, su correo, su foto, su tipo de vehículo, su
     estado y su plaza, como los ve él en su perfil (`App\Http\Resources\RepartidorResource`, sin `puede_operar`), y
     qué transiciones permite en `transiciones`: la lista de las que permite, en el orden de los botones del panel
-    (`dar_de_alta`, `suspender`, `levantar_suspension`, `dar_de_baja`). Es la misma forma que la ficha de F-D01.
+    (`dar_de_alta`, `suspender`, `levantar_suspension`, `dar_de_baja`). Es la misma forma que la ficha de F-D01: una
+    lista de nombres, no un objeto de banderas, y la app muestra los botones de los nombres que trae. La edición, el
+    alta, la suspensión, su levantamiento y la baja responden `{ "repartidor": <la ficha> }`.
   - `PATCH repartidores/{repartidor}`: nombre, teléfono, correo, foto y tipo de vehículo; con foto, en multipart.
   - `POST repartidores/{repartidor}/alta` con la plaza por su nombre, que es único
     (`servidor/database/migrations/2026_11_21_100000_crear_plazas_zonas_y_parametros_plaza.php:24`): la plaza no tiene
@@ -235,7 +239,12 @@ Resumen. El detalle de cada fila va después.
 #### F-D04 — Monitoreo de pedidos
 
 - **Ruta:** `GET monitoreo`. Una sola consulta da los pedidos activos (folio, estado operativo, plaza y recolección) y
-  sus marcadores, así que la lista y el mapa nunca difieren.
+  sus marcadores, así que la lista y el mapa nunca difieren. El contrato, llave por llave:
+  - cada pedido: `id_publico`, `folio`, `estado` (`codigo` y `nombre`), `plaza` (su nombre) y `ventana` (`inicio`,
+    `fin`, `fecha`, `hora_inicio`, `hora_fin`), y nada más. Sin `zona_horaria`: la recolección ya llega en la hora de
+    la plaza y ninguna pantalla la muestra (imágenes 25 a 27 de la Propuesta 6);
+  - cada marcador: `pedido` (el `id_publico` de su pedido), `folio`, `estado`, `plaza`, `tipo` (`recoleccion` o
+    `entrega`), `etiqueta`, `latitud` y `longitud`, solo de los pedidos de la lista.
 - **Clases de dominio:** `Autorizacion::pedidosActivosDelPanel()`, que usa `Pedido::activosDelMonitoreo()`;
   `App\Pedidos\MarcadoresDelMonitoreo::deLosPedidos()`; los nombres operativos (sección 3).
 - **Pantalla:** el mapa arriba y la lista debajo.
@@ -349,6 +358,11 @@ Resumen. El detalle de cada fila va después.
 
 - **Para todo el panel de indicadores:** indicadores-E21 y E22 (el refresco y su intervalo), E23 (cifras de la base) y
   E24 (el día de lo que no tiene plaza).
+- **F-I07 en la respuesta:** `calificacion_por_lavanderia` trae `semaforo_configurado` (verdadero si la configuración
+  trae los dos cortes; sin ellos, ninguna lavandería lleva color, como el "Sin cortes configurados" del panel) y
+  `lavanderias`, cada una con `id_publico`, `lugar`, `lavanderia`, `promedio`, `semaforo` y `semaforo_texto`. Las
+  cifras de los cortes no salen: las fija EL CLIENTE (DD-114) y la pantalla solo dice "Cortes del semáforo" con "Por
+  confirmar · DD-114" (imágenes 46 y 47 de la Propuesta 6), así que la app no las pide.
 - **Las piezas nuevas** viven en `movil/src/piezas/` y se arman con vistas y los tokens (ADR-0022, alternativa 5; ADR-0013):
   barras, línea, dona, destacado con tendencia, tabla comparativa y ranking con semáforo. Cada una trae sus cifras en
   texto, para leerse sin el dibujo y sin depender del color.
@@ -369,7 +383,9 @@ Resumen. El detalle de cada fila va después.
   - Cada descarga, en las tres respuestas, trae también `desde` y `hasta`: el rango que cubre su archivo, ya ajustado a
     periodos completos, leído del nombre del archivo (`ExportadorDeIndicador::diasDelArchivo()`, lo contrario de
     `getFileName()`). La granularidad no llega: la fila de `exports` no guarda las opciones de la descarga y la única
-    migración del cambio es la del `id_publico` (ADR-0022, decisión 15).
+    migración del cambio es la del `id_publico` (ADR-0022, decisión 15). Sus llaves son `id_publico`, `reporte`,
+    `titulo`, `desde`, `hasta`, `pedida_en`, `estado` y `archivos` (`csv` y `xlsx`), y la app la lee campo por campo,
+    como las demás respuestas del módulo: una que no es del contrato cuenta como falla del servidor.
   - `GET descargas/{descarga:id_publico}/{formato}`, con `csv` o `xlsx`: el archivo. Pregunta a
     `Autorizacion::puedeDescargarLaExportacion()`; a otra cuenta le responde 404. Lo entrega el mismo descargador que
     usa la ruta de Filament (`$export->exporter::getDownloader($format)($export)`; ADR-0022, contexto). Un formato que
@@ -514,6 +530,25 @@ Resumen. El detalle de cada fila va después.
   (`node_modules/expo-file-system/mocks/FileSystem.ts`, de la versión 58.0.14). La prueba reemplaza con `jest.spyOn`
   `File.downloadFileAsync`, para que pase por el servidor simulado, que comprueba el encabezado `Authorization` y
   entrega el contenido, y `Directory.pickDirectoryAsync`, para simular que la persona cierra el selector.
+- **Los contratos con la app.** El servidor simulado de las pruebas de la app no prueba nada si no responde como el
+  real: sus respuestas se escriben a mano, y una llave de más o de menos pasa las pruebas y la app real dice "Algo
+  salió mal" (así pasó con `zona_horaria` del monitoreo, la lista y la ficha de los repartidores y el semáforo de
+  F-I07). Por eso cada ruta de `/api/administracion` tiene sus contratos en `servidor/tests/Contratos/administracion/`:
+  un JSON por ruta y por estado (con datos, vacío, con un indicador en espera de su DD, 422, 409, 404 y 503), con la
+  petición (`GET /api/administracion/repartidores/{repartidor}`), el código y el cuerpo de la respuesta real para los
+  datos que siembra su prueba.
+  - **El servidor los escribe y los vigila.** Una prueba por ruta, en la de su función de
+    `servidor/tests/Feature/AdministracionEnLaApp/`, compara la forma de la respuesta con la de su contrato
+    (`Soporte\ContratosDeLaApp`): cada llave, en cada nivel, con el tipo de su valor. Los valores no cuentan. Si la
+    forma cambia, la prueba falla; si el cambio es del contrato de esta sección, se reescribe el archivo con
+    `CONTRATOS_ESCRIBIR=1` y la prueba de la app dice si la app lo sigue. `ContratosTest` comprueba además que cada
+    ruta de `/api/administracion` tiene al menos un contrato: una ruta nueva sin el suyo falla.
+  - **La app los lee.** `movil/__tests__/administracion/contratos.test.ts` pasa cada contrato por el cliente de la
+    administración y por la función de la app que lee esa respuesta, y espera lo que la pantalla necesita: sin falla
+    con datos, y en un error la falla que muestra, con el campo de su 422. Comprueba que la app pide la ruta y el método
+    del contrato, que el servidor simulado responde la misma petición con el mismo código y la misma forma (null aparte)
+    y que cada contrato tiene su caso: un contrato nuevo pide decir qué hace la app con él. Los 422 de la validación de
+    la edición los pone cada prueba a mano: esos no se comparan con el simulado.
 - **La de `abrir-el-panel.test.tsx` se reemplaza** por la de la entrada de la administración a su módulo.
 - **Las del panel no cambian,** y siguen en verde después de mover las reglas de la sección 3.
 

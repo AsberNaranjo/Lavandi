@@ -354,7 +354,7 @@ describe('administracion-app-E48: los indicadores de socios', () => {
     indicadores().cambiarSinFiltros('socios', {
       ...socios,
       calificacion_por_lavanderia: {
-        cortes_del_semaforo: null,
+        semaforo_configurado: false,
         lavanderias: socios.calificacion_por_lavanderia.lavanderias.map((lavanderia) => ({
           ...lavanderia,
           semaforo: null,

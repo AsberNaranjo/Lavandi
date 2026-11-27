@@ -24,9 +24,13 @@
 //                  monto_promedio: { promedio, promedio_texto, promedio_anterior, promedio_anterior_texto, diferencia,
 //                                    tendencia: subio | bajo | igual | null, tendencia_texto }   cada uno puede ser null
 //     socios       activas_frente_a_registradas: { en_espera: ["DD-083"] }
-//                  calificacion_por_lavanderia: { cortes_del_semaforo: { alto, bajo } | null,
+//                  calificacion_por_lavanderia: { semaforo_configurado: true | false,
 //                                                 lavanderias: [ { id_publico, lugar, lavanderia, promedio, semaforo,
 //                                                                  semaforo_texto } ] }
+//                                     semaforo_configurado: si la configuración trae los dos cortes; sin ellos, ningún
+//                                     semáforo, como el "Sin cortes configurados" del panel. Las cifras de los cortes no
+//                                     llegan: las fija EL CLIENTE (DD-114) y la pantalla no las muestra (imágenes 46 y 47
+//                                     de la Propuesta 06)
 //                  entregas_por_repartidor: { repartidores: [ { id_publico, repartidor, plaza, entregas } ] }
 //     financiero   ingresos_brutos: { periodos: [ { inicio, periodo, pagos, ingresos, ingresos_texto } ] }
 //                  comisiones: { en_espera: ["DD-020", "DD-013"] }
@@ -140,7 +144,8 @@ export interface RepartidorConEntregas {
 export interface IndicadoresDeSocios {
   activas_frente_a_registradas: EnEspera;
   calificacion_por_lavanderia: {
-    cortes_del_semaforo: { alto: number; bajo: number } | null;
+    /** Si la configuración trae los dos cortes del semáforo; sin ellos, ninguna lavandería lleva color. */
+    semaforo_configurado: boolean;
     lavanderias: LavanderiaDelRanking[];
   };
   entregas_por_repartidor: { repartidores: RepartidorConEntregas[] };
@@ -445,27 +450,18 @@ function leerRepartidor(valor: unknown): RepartidorConEntregas | null {
   return { id_publico: valor.id_publico, repartidor: valor.repartidor, plaza: valor.plaza, entregas: valor.entregas };
 }
 
-function leerCortes(valor: unknown): { alto: number; bajo: number } | null | undefined {
-  if (valor === null) {
-    return null;
-  }
-  const alto = esObjeto(valor) ? numero(valor.alto) : null;
-  const bajo = esObjeto(valor) ? numero(valor.bajo) : null;
-  return alto === null || bajo === null ? undefined : { alto, bajo };
-}
-
 function leerSocios(valor: Record<string, unknown>): IndicadoresDeSocios | null {
   const activas = leerEnEspera(valor.activas_frente_a_registradas);
   const calificacion = valor.calificacion_por_lavanderia;
-  const cortes = esObjeto(calificacion) ? leerCortes(calificacion.cortes_del_semaforo) : undefined;
+  const configurado = esObjeto(calificacion) ? calificacion.semaforo_configurado : undefined;
   const lavanderias = listaDentro(calificacion, 'lavanderias', leerLavanderiaDelRanking);
   const repartidores = listaDentro(valor.entregas_por_repartidor, 'repartidores', leerRepartidor);
-  if (!activas || cortes === undefined || !lavanderias || !repartidores) {
+  if (!activas || typeof configurado !== 'boolean' || !lavanderias || !repartidores) {
     return null;
   }
   return {
     activas_frente_a_registradas: activas,
-    calificacion_por_lavanderia: { cortes_del_semaforo: cortes, lavanderias },
+    calificacion_por_lavanderia: { semaforo_configurado: configurado, lavanderias },
     entregas_por_repartidor: { repartidores },
   };
 }

@@ -19,9 +19,12 @@
 //          404 { message: "No existe la descarga." } o { message: "No existe ese archivo." }
 //
 // Las tres rutas de JSON van por el cliente de la administración (src/administracion/api.ts), que pone el token, cierra
-// la sesión con un 401 (administracion-app-E05) y da el 404 como "no-existe". El archivo no es JSON: lo baja
-// expo-file-system con el mismo token (ADR-0022, alternativa 6), con la dirección que arma direccionDelArchivo().
+// la sesión con un 401 (administracion-app-E05) y da el 404 como "no-existe". Como las demás consultas del módulo, cada
+// descarga se lee campo por campo: una respuesta fuera del contrato no se pinta a medias, cuenta como falla del servidor.
+// El archivo no es JSON: lo baja expo-file-system con el mismo token (ADR-0022, alternativa 6), con la dirección que
+// arma direccionDelArchivo().
 import { direccionDe } from '../../configuracion/api';
+import { esObjeto } from '../../configuracion/lectura';
 import {
   PREFIJO_DE_LA_ADMINISTRACION,
   type PedirALaAdministracion,
@@ -33,19 +36,21 @@ import {
  * su código en la API. F-I06, F-I10 y las comisiones del periodo no tienen descarga mientras su regla no exista
  * (administracion-app-E63).
  */
-export type CodigoDelReporte =
-  | 'pedidos-totales'
-  | 'pedidos-por-estado'
-  | 'usuarios-activos'
-  | 'usuarios-que-vuelven-a-pedir'
-  | 'monto-promedio-por-pedido'
-  | 'calificacion-por-lavanderia'
-  | 'entregas-por-repartidor'
-  | 'ingresos-brutos'
-  | 'pedidos-por-colonia'
-  | 'pedidos-por-zona'
-  | 'ingresos-por-periodo'
-  | 'conciliacion-con-la-pasarela';
+export const CODIGOS_DE_LOS_REPORTES = [
+  'pedidos-totales',
+  'pedidos-por-estado',
+  'usuarios-activos',
+  'usuarios-que-vuelven-a-pedir',
+  'monto-promedio-por-pedido',
+  'calificacion-por-lavanderia',
+  'entregas-por-repartidor',
+  'ingresos-brutos',
+  'pedidos-por-colonia',
+  'pedidos-por-zona',
+  'ingresos-por-periodo',
+  'conciliacion-con-la-pasarela',
+] as const;
+export type CodigoDelReporte = (typeof CODIGOS_DE_LOS_REPORTES)[number];
 
 /** El reporte que no lleva granularidad: la conciliación, que va por su periodo (CreacionDeDescarga::reglas()). */
 export const REPORTE_SIN_GRANULARIDAD: CodigoDelReporte = 'conciliacion-con-la-pasarela';
@@ -65,7 +70,8 @@ export const GRANULARIDAD_POR_OMISION: Granularidad = 'dia';
  * generandose: la cola todavía no la termina; lista: sus dos archivos se bajan; no_se_pudo: la cola terminó sin escribir
  * su archivo, y se pide otra vez (ADR-0022, decisión 15).
  */
-export type EstadoDeLaDescarga = 'generandose' | 'lista' | 'no_se_pudo';
+export const ESTADOS_DE_LA_DESCARGA = ['generandose', 'lista', 'no_se_pudo'] as const;
+export type EstadoDeLaDescarga = (typeof ESTADOS_DE_LA_DESCARGA)[number];
 
 /** Los dos formatos del archivo. */
 export type Formato = 'csv' | 'xlsx';
@@ -117,27 +123,83 @@ export const TIPO_DEL_ARCHIVO: Record<Formato, string> = {
 
 const RUTA = 'descargas';
 
+const FUERA_DEL_CONTRATO = { ok: false, motivo: 'servidor' } as const;
+
 /** Pide la descarga de un reporte: el servidor la crea y pone en cola su archivo (administracion-app-E56). */
-export function pedirLaDescarga(
+export async function pedirLaDescarga(
   pedir: PedirALaAdministracion,
   peticion: PeticionDeDescarga,
 ): Promise<ResultadoDeLaAdministracion<{ descarga: Descarga }>> {
-  return pedir<{ descarga: Descarga }>(RUTA, { metodo: 'POST', cuerpo: peticion });
+  return conLaDescarga(await pedir<unknown>(RUTA, { metodo: 'POST', cuerpo: peticion }));
 }
 
 /** Una descarga de la cuenta, con su estado (administracion-app-E57). */
-export function consultarLaDescarga(
+export async function consultarLaDescarga(
   pedir: PedirALaAdministracion,
   idPublico: string,
 ): Promise<ResultadoDeLaAdministracion<{ descarga: Descarga }>> {
-  return pedir<{ descarga: Descarga }>(`${RUTA}/${encodeURIComponent(idPublico)}`);
+  return conLaDescarga(await pedir<unknown>(`${RUTA}/${encodeURIComponent(idPublico)}`));
 }
 
 /** Las descargas vivas de la cuenta, de la más nueva a la más vieja, y sus días de vida (administracion-app-E59). */
-export function consultarLasDescargas(
+export async function consultarLasDescargas(
   pedir: PedirALaAdministracion,
 ): Promise<ResultadoDeLaAdministracion<ListaDeDescargas>> {
-  return pedir<ListaDeDescargas>(RUTA);
+  const resultado = await pedir<unknown>(RUTA);
+  if (!resultado.ok) {
+    return resultado;
+  }
+  const { datos } = resultado;
+  const descargas = esObjeto(datos) && Array.isArray(datos.descargas) ? datos.descargas.map(leerDescarga) : null;
+  const diasDeVida = esObjeto(datos) ? datos.dias_de_vida : undefined;
+  if (!descargas || !descargas.every((una) => una !== null) || !Number.isInteger(diasDeVida)) {
+    return FUERA_DEL_CONTRATO;
+  }
+  return { ok: true, datos: { descargas: descargas as Descarga[], dias_de_vida: diasDeVida as number } };
+}
+
+// { "descarga": { ... } }: la descarga leída, o falla del servidor si no es del contrato.
+function conLaDescarga(
+  resultado: ResultadoDeLaAdministracion<unknown>,
+): ResultadoDeLaAdministracion<{ descarga: Descarga }> {
+  if (!resultado.ok) {
+    return resultado;
+  }
+  const descarga = esObjeto(resultado.datos) ? leerDescarga(resultado.datos.descarga) : null;
+  return descarga ? { ok: true, datos: { descarga } } : FUERA_DEL_CONTRATO;
+}
+
+/** Una descarga leída campo por campo; null si no es del contrato. */
+function leerDescarga(valor: unknown): Descarga | null {
+  if (
+    !esObjeto(valor) ||
+    typeof valor.id_publico !== 'string' ||
+    !CODIGOS_DE_LOS_REPORTES.includes(valor.reporte as CodigoDelReporte) ||
+    typeof valor.titulo !== 'string' ||
+    !textoOVacio(valor.desde) ||
+    !textoOVacio(valor.hasta) ||
+    !textoOVacio(valor.pedida_en) ||
+    !ESTADOS_DE_LA_DESCARGA.includes(valor.estado as EstadoDeLaDescarga) ||
+    !esObjeto(valor.archivos) ||
+    typeof valor.archivos.csv !== 'string' ||
+    typeof valor.archivos.xlsx !== 'string'
+  ) {
+    return null;
+  }
+  return {
+    id_publico: valor.id_publico,
+    reporte: valor.reporte as CodigoDelReporte,
+    titulo: valor.titulo,
+    desde: valor.desde,
+    hasta: valor.hasta,
+    pedida_en: valor.pedida_en,
+    estado: valor.estado as EstadoDeLaDescarga,
+    archivos: { csv: valor.archivos.csv, xlsx: valor.archivos.xlsx },
+  };
+}
+
+function textoOVacio(valor: unknown): valor is string | null {
+  return valor === null || typeof valor === 'string';
 }
 
 /** La dirección completa del archivo de una descarga en ese formato, de la dirección base del entorno (base-E07). */

@@ -122,14 +122,13 @@ export const ENTREGADO: PedidoGuardado = {
   entrega: null,
 };
 
-/** El pedido activo como sale en "pedidos". */
+/** El pedido activo como sale en "pedidos": su folio, su estado, su plaza y su recolección, sin la zona horaria. */
 export function pedidoComoSale(pedido: PedidoGuardado) {
   return {
     id_publico: pedido.id_publico,
     folio: pedido.folio,
     estado: { codigo: pedido.estado, nombre: NOMBRES_DEL_ESTADO[pedido.estado] },
     plaza: pedido.plaza,
-    zona_horaria: 'America/Mexico_City',
     ventana: {
       inicio: `${pedido.fecha}T${pedido.hora_inicio}:00-06:00`,
       fin: `${pedido.fecha}T${pedido.hora_fin}:00-06:00`,
