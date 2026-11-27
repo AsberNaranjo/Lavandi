@@ -104,17 +104,17 @@ export const DD_DE_LOS_INDICADORES = {
 } as const;
 
 /**
- * Bajo el rango, cada cuánto se ponen al día las cifras, con el intervalo de la respuesta, como lo dice el panel
- * (App\Indicadores\Refresco::descripcion()): "Las cifras se actualizan solas cada 30 segundos.". Sin intervalo, nada:
- * la pantalla no se consulta sola.
+ * Bajo el rango, cada cuánto se ponen al día las cifras, con el intervalo de la respuesta, con las mismas palabras del
+ * panel (App\Indicadores\Refresco::descripcion()): "Las cifras se actualizan solas cada 30 segundos.". Como el panel,
+ * la unidad va siempre en plural, también con "1s". Sin intervalo, nada: la pantalla no se consulta sola, y la frase del
+ * panel para ese caso habla de recargar la página.
  */
 export function cadaCuantoSeActualizan(refresco: Refresco | null): string | undefined {
   if (refresco === null) {
     return undefined;
   }
   const { cantidad, unidad } = refresco;
-  const nombre = unidad === 's' ? 'segundo' : 'milisegundo';
-  return `Las cifras se actualizan solas cada ${cantidad} ${cantidad === 1 ? nombre : `${nombre}s`}.`;
+  return `Las cifras se actualizan solas cada ${cantidad} ${unidad === 's' ? 'segundos' : 'milisegundos'}.`;
 }
 
 /**

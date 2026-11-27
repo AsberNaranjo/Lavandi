@@ -352,19 +352,32 @@ describe('administracion-app-E51: los indicadores se ponen al día solos', () =>
     expect(categoriasConsultadas(servidor())).toHaveLength(3);
   });
 
+  test('administracion-app-E51 — con "1s" dice lo mismo que el panel (Refresco::descripcion()), con la unidad en plural', async () => {
+    indicadores().refresco = '1s';
+    await abrirLosIndicadores('ios');
+
+    expect(screen.getByText('Las cifras se actualizan solas cada 1 segundos.')).toBeOnTheScreen();
+  });
+
   test('administracion-app-E51 — sin intervalo en la respuesta (null), la pantalla no se consulta sola: pide solo al cambiar de pestaña', async () => {
     indicadores().refresco = null;
     await abrirLosIndicadores('android');
-    await waitFor(() => expect(categoriasConsultadas(servidor())).toHaveLength(2));
     expect(screen.queryByText(/Las cifras se actualizan solas/)).not.toBeOnTheScreen();
 
+    // La respuesta que dijo que no hay intervalo ya es la de la pestaña que se ve: no se pide otra vez.
     await pasan(10 * TREINTA_SEGUNDOS);
-    expect(categoriasConsultadas(servidor())).toEqual(['operaciones', 'operaciones']);
+    expect(categoriasConsultadas(servidor())).toEqual(['operaciones']);
 
     await elegirLaPestana('Socios');
     await screen.findByTestId('indicador-calificacion-por-lavanderia');
     await pasan(10 * TREINTA_SEGUNDOS);
-    expect(categoriasConsultadas(servidor())).toEqual(['operaciones', 'operaciones', 'socios']);
+    expect(categoriasConsultadas(servidor())).toEqual(['operaciones', 'socios']);
+
+    // Volver a una pestaña la pide de nuevo, aunque sea la primera.
+    await elegirLaPestana('Operaciones');
+    await waitFor(() => expect(categoriasConsultadas(servidor())).toEqual(['operaciones', 'socios', 'operaciones']));
+    await pasan(10 * TREINTA_SEGUNDOS);
+    expect(categoriasConsultadas(servidor())).toEqual(['operaciones', 'socios', 'operaciones']);
   });
 
   test.each(PLATAFORMAS)(
