@@ -8,7 +8,6 @@
 import { mensajeGeneral } from '../../acceso/mensajes';
 import { pedidoConFolio } from '../../estados/textos';
 import { TEXTOS_DEL_HISTORIAL } from '../../historial/textos';
-import { TEXTOS_DEL_RESUMEN } from '../../pedido/textos';
 import type { FallaDeLaAdministracion } from '../api';
 import { TEXTOS_DE_LA_ADMINISTRACION } from '../textos';
 import type { FilaDeLaConciliacion } from './api';
@@ -66,11 +65,6 @@ export const DD_DE_LOS_REPORTES = {
   comisionesDelPeriodo: ['DD-020'],
   comisionDeLaPasarela: ['DD-013'],
 } as const;
-
-/** "Por confirmar · DD-012, DD-016": la marca del resumen del pedido con las DD que espera (design.md, sección 5). */
-export function porConfirmar(dds: readonly string[]): string {
-  return `${TEXTOS_DEL_RESUMEN.porConfirmar} · ${dds.join(', ')}`;
-}
 
 /** "Pedido F2G7H4JS · Plaza de prueba Durango", o "Sin pedido" en un movimiento sin pedido, como el panel. */
 export function pedidoDeLaFila({ folio, plaza }: Pick<FilaDeLaConciliacion, 'folio' | 'plaza'>): string {

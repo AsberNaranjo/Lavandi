@@ -11,7 +11,8 @@
 // - La hoja es la del Selector (src/piezas/Selector.tsx), con el mismo Modal: en iPhone, la hoja nativa (pageSheet), que
 //   se cierra deslizándola; en Android, a toda la pantalla, y se cierra con el regreso del sistema.
 // - Los ingresos la abren sin "Este mes" ni "Mes anterior", que administracion-app-E37 no nombra; los indicadores le
-//   suman sus atajos y su aviso "Vale para las cinco categorías." con la tarea 18.4.
+//   suman sus atajos y su aviso "Vale para las cinco categorías." con la tarea 18.4. Cada atajo es un enlace bajo las
+//   dos fechas que las llena con sus días al tocarlo, como si se escribieran: "Aplicar" los manda.
 //
 // No es uno de los seis componentes del design system: se arma con las piezas y los tokens (ADR-0013).
 import { useState } from 'react';
@@ -20,6 +21,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Boton } from '../../piezas/Boton';
 import { CampoDeTexto } from '../../piezas/CampoDeTexto';
+import { Enlace } from '../../piezas/Enlace';
 import { Pestanas } from '../../piezas/Pestanas';
 import { letra } from '../../tema/letra';
 import { accesibilidad, color, espaciado, grosor, radio, tipografia } from '../../tema/theme';
@@ -41,8 +43,16 @@ interface Propiedades {
   ajustado: { desde: string; hasta: string } | null;
   /** Una línea bajo el título, en el tono suave. */
   aviso?: string;
+  /** Los enlaces bajo las dos fechas que las llenan, cada uno con sus días DD/MM/AAAA al tocarlo. */
+  atajos?: readonly AtajoDelRango[];
   alAplicar: (rango: RangoElegido) => void;
   alCerrar: () => void;
+}
+
+/** Un atajo de la hoja: su texto y los dos días que pone en los campos, calculados al tocarlo. */
+export interface AtajoDelRango {
+  texto: string;
+  dias: () => { desde: string; hasta: string };
 }
 
 const PESTANAS = GRANULARIDADES.map((clave) => ({ clave, texto: TEXTOS.granularidades[clave] }));
@@ -66,7 +76,7 @@ export function HojaDelRango({ abierta, alCerrar, ...contenido }: Propiedades) {
   );
 }
 
-function ContenidoDeLaHoja({ elegido, ajustado, aviso, alAplicar, alCerrar }: Omit<Propiedades, 'abierta'>) {
+function ContenidoDeLaHoja({ elegido, ajustado, aviso, atajos = [], alAplicar, alCerrar }: Omit<Propiedades, 'abierta'>) {
   const [escrito, setEscrito] = useState<RangoElegido>(elegido);
   const [errores, setErrores] = useState<Partial<Record<Campo, string>>>({});
   const ajuste = comoSeAjusta(escrito.granularidad, mismoRango(escrito, elegido) ? ajustado : null);
@@ -82,6 +92,10 @@ function ContenidoDeLaHoja({ elegido, ajustado, aviso, alAplicar, alCerrar }: Om
     if (!nuevos.desde && !nuevos.hasta) {
       alAplicar(escrito);
     }
+  }
+
+  function usarAtajo({ dias }: AtajoDelRango) {
+    setEscrito((anterior) => ({ ...anterior, ...dias() }));
   }
 
   function elegirGranularidad(granularidad: Granularidad) {
@@ -118,6 +132,13 @@ function ContenidoDeLaHoja({ elegido, ajustado, aviso, alAplicar, alCerrar }: Om
             </View>
           ))}
         </View>
+        {atajos.length > 0 ? (
+          <View style={estilos.atajos}>
+            {atajos.map((atajo) => (
+              <Enlace key={atajo.texto} texto={atajo.texto} alTocar={() => usarAtajo(atajo)} />
+            ))}
+          </View>
+        ) : null}
         <View style={estilos.verPor}>
           <Text style={[estilos.etiqueta, letra('cuerpo', 'semifuerte')]}>{TEXTOS.verPor}</Text>
           <Pestanas pestanas={PESTANAS} elegida={escrito.granularidad} alElegir={elegirGranularidad} />
@@ -183,6 +204,12 @@ const estilos = StyleSheet.create({
   },
   fecha: {
     flex: 1,
+  },
+  // Los atajos en una fila que se parte si no cabe, con 20 entre uno y otro (imagen 42: .fila-enl).
+  atajos: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    columnGap: espaciado[4] + espaciado[1],
   },
   verPor: {
     gap: espaciado[1],
