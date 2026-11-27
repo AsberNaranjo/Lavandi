@@ -1,22 +1,36 @@
 // Spec: openspec/changes/administracion-en-la-app/specs/administracion-en-la-app/spec.md, requisito "Descarga de los
 // reportes en CSV y en Excel desde la app": administracion-app-E56 (pedir la descarga de un reporte), E57 (mientras se
-// genera y cuando está lista), E59 (las descargas de la cuenta) y E60 (el rango de la descarga); y del requisito "La
-// administración inicia sesión en la app", E03 (la entrada a Descargas desde el inicio del módulo) y E05 (la sesión
-// vence en esta pantalla). Tareas 20.1 y 20.3. El contrato: "Descarga de reportes en formato CSV y Excel para cualquier
+// genera y cuando está lista), E59 (las descargas de la cuenta), E60 (el rango de la descarga) y la parte vigente de E63
+// (la app no ofrece "Descargar" en los reportes que esperan respuesta); del requisito "Indicadores del A.5 en la app",
+// E53 (un indicador que espera una respuesta no ofrece su descarga); y del requisito "La administración inicia sesión en
+// la app", E03 (la entrada a Descargas desde el inicio del módulo) y E05 (la sesión vence en esta pantalla). Tareas 20.1
+// y 20.3. El contrato: "Descarga de reportes en formato CSV y Excel para cualquier
 // rango de fechas" (NSV-2026-001-v8.pdf:22:ANEXO A, Sección A.5) y "Reportes exportables generados correctamente en
 // formato CSV o Excel" (NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.4). Cómo se construye: ADR-0022, decisión 15.
 //
 // La pantalla Descargas se prueba en la app real, con las rutas de movil/app/ (ADR-0017). La pieza que pide la descarga
-// (src/administracion/descargas/PedirDescarga.tsx) todavía no está en ninguna pantalla: la ponen indicadores, ingresos y
-// conciliación (tarea 20.1, paquete A24). Se prueba en una pantalla de prueba con su "Descargar", dentro del proveedor de
-// sesión de la app, con el inicio de sesión real a un lado. Las dos, en iPhone y en Android, con el servidor simulado de
-// la administración (__tests__/apoyo/administracion.ts) y sus descargas (__tests__/apoyo/administracion/descargas.ts).
-// Guardar el archivo en el teléfono (E58) está en guardar-archivo.test.tsx.
+// (src/administracion/descargas/PedirDescarga.tsx) se prueba de dos modos:
+// - sola, en una pantalla de prueba con su "Descargar", dentro del proveedor de sesión de la app, con el inicio de sesión
+//   real a un lado: lo que hace la pieza con cualquier reporte;
+// - en la app real, desde las tres pantallas que la ponen (tarea 20.1): Indicadores, un reporte por indicador con cifra;
+//   Ingresos; y Conciliación, después de conciliar. Cada una con su rango por omisión (E56, E57 y E60), y sin "Descargar"
+//   en lo que espera una respuesta (E53 y la parte vigente de E63: F-I06, F-I10 y las comisiones del periodo).
+// Todo en iPhone y en Android, con el servidor simulado de la administración (__tests__/apoyo/administracion.ts), sus
+// descargas (__tests__/apoyo/administracion/descargas.ts), sus indicadores (indicadores.ts) y sus reportes financieros
+// (reportes-financieros.ts). Guardar el archivo en el teléfono (E58) está en guardar-archivo.test.tsx.
 import { Directory } from 'expo-file-system';
 import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import { useState } from 'react';
-import { AppState, Text, View, type AppStateStatus, type NativeEventSubscription } from 'react-native';
+import {
+  Alert,
+  AppState,
+  Text,
+  View,
+  type AlertButton,
+  type AppStateStatus,
+  type NativeEventSubscription,
+} from 'react-native';
 
 import InicioDeSesion from '../../app/inicio-de-sesion';
 import { MENSAJES } from '../../src/acceso/mensajes';
@@ -45,6 +59,19 @@ import {
   MENSAJE_DEL_REPORTE,
   NO_EXISTE_LA_DESCARGA,
 } from '../apoyo/administracion/descargas';
+import {
+  consultasDeLosIndicadores,
+  RANGO_DE_OCTUBRE_POR_SEMANA,
+  RANGO_DEL_MES_EN_CURSO,
+  usarLosIndicadores,
+} from '../apoyo/administracion/indicadores';
+import {
+  conciliacionesPedidas,
+  consultasDeLosIngresos,
+  INGRESOS_DE_MARZO_POR_SEMANA,
+  INGRESOS_DEL_MES_EN_CURSO,
+  usarLosReportesFinancieros,
+} from '../apoyo/administracion/reportes-financieros';
 
 // La primera pantalla tarda más mientras Jest prepara el entorno.
 jest.setTimeout(60_000);
@@ -55,6 +82,9 @@ const RUTA_DE_LAS_DESCARGAS = '/administracion/descargas';
 const CINCO_SEGUNDOS = 5_000;
 
 const servidor = usarElServidorDeLaAdministracion('administracion-descargas');
+// Las tres pantallas que ponen la pieza piden sus cifras a estos manejadores; las demás pruebas no los tocan.
+usarLosIndicadores(servidor);
+usarLosReportesFinancieros(servidor);
 let descargas: DescargasDelServidor;
 
 // Los oyentes de AppState que registró la app, para mandarla al fondo y traerla al frente.
@@ -942,4 +972,518 @@ describe('administracion-app-E60: el rango de la descarga', () => {
     ).toBeOnTheScreen();
     expect(descargas.pedidas()).toEqual([]);
   });
+});
+
+// --- La pieza en las pantallas que la ponen (tarea 20.1) ------------------------------------------------------------
+//
+// Indicadores, Ingresos y Conciliación, en la app real. Sin rango elegido, cada una usa el que da el servidor simulado:
+// en Indicadores, el mes en curso hasta hoy por día (RANGO_DEL_MES_EN_CURSO); en Ingresos, el de
+// INGRESOS_DEL_MES_EN_CURSO; en Conciliación, el periodo que se concilió.
+
+const PANTALLA_DE_LOS_INDICADORES = '/administracion/indicadores';
+const PANTALLA_DE_LOS_INGRESOS = '/administracion/ingresos';
+const PANTALLA_DE_LA_CONCILIACION = '/administracion/conciliacion';
+
+// Cada cuánto se ponen al día solas las cifras de Indicadores: indicadores.refresco del servidor simulado.
+const TREINTA_SEGUNDOS = 30_000;
+
+/** El rango que usó el servidor en Indicadores sin rango elegido, como lo manda la pieza por omisión. */
+const DEL_MES_EN_CURSO = {
+  desde: RANGO_DEL_MES_EN_CURSO.desde,
+  hasta: RANGO_DEL_MES_EN_CURSO.hasta,
+  granularidad: RANGO_DEL_MES_EN_CURSO.granularidad,
+};
+
+/** El rango que usó el servidor en Ingresos sin rango elegido, como lo manda la pieza por omisión. */
+const DE_LOS_INGRESOS = {
+  desde: INGRESOS_DEL_MES_EN_CURSO.rango.desde,
+  hasta: INGRESOS_DEL_MES_EN_CURSO.rango.hasta,
+  granularidad: INGRESOS_DEL_MES_EN_CURSO.rango.granularidad,
+};
+
+type Tarjeta = ReturnType<typeof within>;
+
+/** Abre Indicadores sin rango elegido y espera las cifras de Operaciones. */
+async function abrirLosIndicadores(plataforma: Plataforma) {
+  await abrirLaAppConLaAdministracion(plataforma, PANTALLA_DE_LOS_INDICADORES);
+  await screen.findByText(RANGO_DEL_MES_EN_CURSO.descripcion);
+  await screen.findByTestId('indicador-pedidos-totales');
+}
+
+/** Toca la pestaña de esa categoría, en la fila de las categorías, y espera la tarjeta de ese indicador. */
+async function elegirLaCategoria(nombre: string, indicador: string): Promise<Tarjeta> {
+  await fireEvent.press(within(screen.getAllByTestId('pestanas')[0]).getByRole('tab', { name: nombre }));
+  return within(await screen.findByTestId(indicador));
+}
+
+/**
+ * Toca el "Descargar" del encabezado de la tarjeta de un indicador: se va del encabezado y la pieza se abre en la
+ * tarjeta, bajo su gráfica (imagen 51).
+ */
+async function tocarDescargar(tarjeta: Tarjeta, titulo: string) {
+  await fireEvent.press(tarjeta.getByRole('link', { name: `Descargar ${titulo}` }));
+  expect(tarjeta.getByTestId('pedir-descarga')).toBeOnTheScreen();
+  expect(tarjeta.queryByText('Descargar')).not.toBeOnTheScreen();
+}
+
+/** "Pedir la descarga" en la pieza abierta en esa tarjeta: puede haber otra abierta en otra tarjeta de la pestaña. */
+async function pedirEn(tarjeta: Tarjeta) {
+  const enLaTarjeta = within(tarjeta.getByTestId('pedir-descarga'));
+  await fireEvent.press(enLaTarjeta.getByRole('button', { name: 'Pedir la descarga' }));
+}
+
+/** Los "Descargar" de los indicadores que se ven, como los lee el lector de pantalla. */
+function descargasDeLosIndicadores(): string[] {
+  return screen
+    .getAllByRole('link', { name: /^Descargar / })
+    .map((enlace) => enlace.props.accessibilityLabel as string);
+}
+
+/** Abre Ingresos sin rango elegido. */
+async function abrirLosIngresos(plataforma: Plataforma) {
+  await abrirLaAppConLaAdministracion(plataforma, PANTALLA_DE_LOS_INGRESOS);
+  await screen.findByText(INGRESOS_DEL_MES_EN_CURSO.rango.descripcion);
+}
+
+/** Abre Conciliación, que antes de conciliar no pide nada. */
+async function abrirLaConciliacion(plataforma: Plataforma) {
+  await abrirLaAppConLaAdministracion(plataforma, PANTALLA_DE_LA_CONCILIACION);
+  await screen.findByRole('button', { name: 'Conciliar un periodo' });
+}
+
+/** Escribe el periodo, DD/MM/AAAA, toca "Conciliar un periodo", lo confirma en el diálogo y espera el reporte. */
+async function conciliar(desde: string, hasta: string) {
+  const dialogo = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+  await fireEvent.changeText(screen.getByLabelText('Desde'), desde);
+  await fireEvent.changeText(screen.getByLabelText('Hasta'), hasta);
+  await fireEvent.press(screen.getByRole('button', { name: 'Conciliar un periodo' }));
+  const botones = dialogo.mock.calls[dialogo.mock.calls.length - 1][2] as AlertButton[];
+  await act(async () => {
+    botones.find((boton) => boton.text === 'Conciliar')?.onPress?.();
+  });
+  await screen.findByTestId('resumen-de-la-conciliacion');
+}
+
+describe('administracion-app-E56: "Descargar" en Indicadores, Ingresos y Conciliación', () => {
+  test.each(PLATAFORMAS)(
+    'administracion-app-E56 — (%s) en Indicadores, "Descargar" de los pedidos totales se va del encabezado y abre la pieza en su tarjeta con el rango y la granularidad de la pantalla por omisión; "Cancelar" lo regresa y "Pedir la descarga" pide su reporte',
+    async (plataforma) => {
+      await abrirLosIndicadores(plataforma);
+      const tarjeta = within(screen.getByTestId('indicador-pedidos-totales'));
+
+      await tocarDescargar(tarjeta, 'Pedidos totales');
+      expect(pieza().getByLabelText('Desde').props.value).toBe('01/11/2026');
+      expect(pieza().getByLabelText('Hasta').props.value).toBe('04/11/2026');
+      expect(pieza().getByRole('tab', { name: 'Día', selected: true })).toBeOnTheScreen();
+      // La gráfica sigue arriba de la pieza.
+      expect(tarjeta.getByTestId('grafica-de-barras')).toBeOnTheScreen();
+
+      await fireEvent.press(pieza().getByRole('button', { name: 'Cancelar' }));
+      expect(tarjeta.queryByTestId('pedir-descarga')).not.toBeOnTheScreen();
+      expect(tarjeta.getByRole('link', { name: 'Descargar Pedidos totales' })).toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([]);
+
+      await tocarDescargar(tarjeta, 'Pedidos totales');
+      await pedirLaDescarga();
+
+      expect(await pieza().findByText('El archivo se está generando.')).toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([{ reporte: 'pedidos-totales', ...DEL_MES_EN_CURSO }]);
+      expect(laCreada()).toMatchObject({ reporte: 'pedidos-totales', estado: 'generandose' });
+      expect(pieza().getByText('Del 01/11/2026 al 04/11/2026, por día')).toBeOnTheScreen();
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E56 — (%s) en Indicadores, cada indicador con cifra lleva su "Descargar" y pide su propio reporte: F-I01 a F-I05, F-I07 a F-I09, y F-I11 por colonia o por zona, según la agrupación elegida',
+    async (plataforma) => {
+      // Nacen listas: cada tarjeta ofrece guardarla sin consultar nada más.
+      descargas.estadoAlNacer = 'lista';
+      await abrirLosIndicadores(plataforma);
+      // La tabla de F-I01 junto al anterior es el mismo reporte que sus barras: no trae otro "Descargar" (imagen 41).
+      const comparados = within(screen.getByTestId('indicador-pedidos-totales-comparados'));
+      expect(comparados.queryByText('Descargar')).not.toBeOnTheScreen();
+
+      // La categoría, la tarjeta del indicador, su nombre y el reporte que pide.
+      const indicadores: [string, string, string, CodigoDelReporte][] = [
+        ['Operaciones', 'indicador-pedidos-totales', 'Pedidos totales', 'pedidos-totales'],
+        ['Operaciones', 'indicador-pedidos-por-estado', 'Pedidos por estado', 'pedidos-por-estado'],
+        ['Usuarios', 'indicador-usuarios-activos', 'Usuarios activos', 'usuarios-activos'],
+        [
+          'Usuarios',
+          'indicador-vuelven-a-pedir',
+          'Vuelven a pedir, por mes de registro',
+          'usuarios-que-vuelven-a-pedir',
+        ],
+        ['Usuarios', 'indicador-monto-promedio', 'Monto promedio por pedido', 'monto-promedio-por-pedido'],
+        [
+          'Socios',
+          'indicador-calificacion-por-lavanderia',
+          'Calificación por lavandería',
+          'calificacion-por-lavanderia',
+        ],
+        ['Socios', 'indicador-entregas-por-repartidor', 'Entregas por repartidor', 'entregas-por-repartidor'],
+        ['Financiero', 'indicador-ingresos-brutos', 'Ingresos brutos', 'ingresos-brutos'],
+        ['Geográfico', 'indicador-mapa-de-calor', 'Pedidos por colonia', 'pedidos-por-colonia'],
+      ];
+      for (const [categoria, indicador, titulo] of indicadores) {
+        const tarjeta = await elegirLaCategoria(categoria, indicador);
+        await tocarDescargar(tarjeta, titulo);
+        await pedirEn(tarjeta);
+        expect(await tarjeta.findByRole('button', { name: 'Guardar .csv' })).toBeOnTheScreen();
+      }
+
+      // Por zona de servicio, la misma tarjeta pide el reporte de las zonas.
+      await fireEvent.press(screen.getByRole('tab', { name: 'Zona de servicio' }));
+      await screen.findByRole('header', { name: 'Pedidos por zona' });
+      const porZona = within(screen.getByTestId('indicador-mapa-de-calor'));
+      await tocarDescargar(porZona, 'Pedidos por zona');
+      await pedirEn(porZona);
+      expect(await porZona.findByRole('button', { name: 'Guardar .csv' })).toBeOnTheScreen();
+
+      expect(descargas.pedidas()).toEqual([
+        ...indicadores.map(([, , , reporte]) => ({ reporte, ...DEL_MES_EN_CURSO })),
+        { reporte: 'pedidos-por-zona', ...DEL_MES_EN_CURSO },
+      ]);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E56 — (%s) en Indicadores, con un rango elegido, la pieza ofrece el que usó el servidor, ya ajustado a semanas completas, y su granularidad',
+    async (plataforma) => {
+      await abrirLosIndicadores(plataforma);
+      await fireEvent.press(screen.getByRole('link', { name: 'Cambiar' }));
+      const hoja = within(await screen.findByTestId('hoja-del-rango'));
+      await fireEvent.changeText(hoja.getByLabelText('Desde'), '01102026');
+      await fireEvent.changeText(hoja.getByLabelText('Hasta'), '31102026');
+      await fireEvent.press(hoja.getByRole('tab', { name: 'Semana' }));
+      await fireEvent.press(hoja.getByRole('button', { name: 'Aplicar' }));
+      await screen.findByText(RANGO_DE_OCTUBRE_POR_SEMANA.descripcion);
+
+      await tocarDescargar(within(screen.getByTestId('indicador-pedidos-totales')), 'Pedidos totales');
+
+      expect(pieza().getByLabelText('Desde').props.value).toBe('28/09/2026');
+      expect(pieza().getByLabelText('Hasta').props.value).toBe('01/11/2026');
+      expect(pieza().getByRole('tab', { name: 'Semana', selected: true })).toBeOnTheScreen();
+      await pedirLaDescarga();
+      expect(await pieza().findByText('Del 28/09/2026 al 01/11/2026, por semana')).toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([
+        { reporte: 'pedidos-totales', desde: '2026-09-28', hasta: '2026-11-01', granularidad: 'semana' },
+      ]);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E56 — (%s) en Ingresos, "Descargar" bajo la tabla abre la pieza en su lugar con el rango y la granularidad de la pantalla por omisión; "Cancelar" lo regresa y "Pedir la descarga" pide el reporte de los ingresos',
+    async (plataforma) => {
+      await abrirLosIngresos(plataforma);
+
+      await fireEvent.press(screen.getByRole('button', { name: 'Descargar' }));
+
+      expect(screen.queryByRole('button', { name: 'Descargar' })).not.toBeOnTheScreen();
+      expect(within(screen.getByTestId('descarga-del-reporte')).getByTestId('pedir-descarga')).toBeOnTheScreen();
+      expect(pieza().getByLabelText('Desde').props.value).toBe('01/03/2027');
+      expect(pieza().getByLabelText('Hasta').props.value).toBe('05/03/2027');
+      expect(pieza().getByRole('tab', { name: 'Día', selected: true })).toBeOnTheScreen();
+
+      await fireEvent.press(pieza().getByRole('button', { name: 'Cancelar' }));
+      expect(screen.queryByTestId('pedir-descarga')).not.toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([]);
+
+      await fireEvent.press(screen.getByRole('button', { name: 'Descargar' }));
+      await pedirLaDescarga();
+
+      expect(await pieza().findByText('El archivo se está generando.')).toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([{ reporte: 'ingresos-por-periodo', ...DE_LOS_INGRESOS }]);
+      expect(pieza().getByText('Del 01/03/2027 al 05/03/2027, por día')).toBeOnTheScreen();
+      // Las cifras siguen en la pantalla, sin pedirlas otra vez.
+      expect(screen.getByTestId('tabla-de-los-periodos')).toBeOnTheScreen();
+      expect(consultasDeLosIngresos(servidor())).toEqual([{}]);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E56 — (%s) en Ingresos, con un rango elegido, la pieza ofrece el que usó el servidor y su granularidad',
+    async (plataforma) => {
+      await abrirLosIngresos(plataforma);
+      await fireEvent.press(screen.getByRole('link', { name: 'Cambiar' }));
+      const hoja = within(await screen.findByTestId('hoja-del-rango'));
+      await fireEvent.changeText(hoja.getByLabelText('Hasta'), '31032027');
+      await fireEvent.press(hoja.getByRole('tab', { name: 'Semana' }));
+      await fireEvent.press(hoja.getByRole('button', { name: 'Aplicar' }));
+      await screen.findByText(INGRESOS_DE_MARZO_POR_SEMANA.rango.descripcion);
+
+      await fireEvent.press(screen.getByRole('button', { name: 'Descargar' }));
+
+      expect(pieza().getByLabelText('Desde').props.value).toBe('01/03/2027');
+      expect(pieza().getByLabelText('Hasta').props.value).toBe('04/04/2027');
+      expect(pieza().getByRole('tab', { name: 'Semana', selected: true })).toBeOnTheScreen();
+      await pedirLaDescarga();
+      expect(await pieza().findByText('Del 01/03/2027 al 04/04/2027, por semana')).toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([
+        { reporte: 'ingresos-por-periodo', desde: '2027-03-01', hasta: '2027-04-04', granularidad: 'semana' },
+      ]);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E56 — (%s) en Conciliación, "Descargar" llega después de conciliar, junto a "Otro periodo", y pide el reporte de la conciliación con el periodo conciliado, sin granularidad y sin volver a conciliar',
+    async (plataforma) => {
+      await abrirLaConciliacion(plataforma);
+      // Antes de conciliar no hay reporte que descargar.
+      expect(screen.queryByRole('button', { name: 'Descargar' })).not.toBeOnTheScreen();
+
+      await conciliar('01/03/2027', '31/03/2027');
+      await fireEvent.press(screen.getByRole('button', { name: 'Descargar' }));
+
+      expect(within(screen.getByTestId('descarga-del-reporte')).getByTestId('pedir-descarga')).toBeOnTheScreen();
+      expect(pieza().getByLabelText('Desde').props.value).toBe('01/03/2027');
+      expect(pieza().getByLabelText('Hasta').props.value).toBe('31/03/2027');
+      expect(pieza().queryByText('Ver por')).not.toBeOnTheScreen();
+      // "Otro periodo" se queda, debajo de la pieza.
+      expect(screen.getByRole('button', { name: 'Otro periodo' })).toBeOnTheScreen();
+
+      await fireEvent.press(pieza().getByRole('button', { name: 'Cancelar' }));
+      expect(screen.queryByTestId('pedir-descarga')).not.toBeOnTheScreen();
+      await fireEvent.press(screen.getByRole('button', { name: 'Descargar' }));
+      await pedirLaDescarga();
+
+      expect(await pieza().findByText('El archivo se está generando.')).toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([
+        { reporte: 'conciliacion-con-la-pasarela', desde: '2027-03-01', hasta: '2027-03-31' },
+      ]);
+      expect(pieza().getByText('Del 01/03/2027 al 31/03/2027')).toBeOnTheScreen();
+      // La pasarela se leyó una vez, al conciliar: la descarga usa los movimientos ya guardados.
+      expect(conciliacionesPedidas(servidor())).toHaveLength(1);
+      expect(screen.getByTestId('resumen-de-la-conciliacion')).toBeOnTheScreen();
+    },
+  );
+});
+
+describe('administracion-app-E57: la espera y el archivo listo en Indicadores, Ingresos y Conciliación', () => {
+  test.each(PLATAFORMAS)(
+    'administracion-app-E57 — (%s) en Indicadores, la tarjeta dice que el archivo se está generando, consulta su estado cada 5 s y, lista, ofrece "Guardar .csv" y "Guardar .xlsx" y deja de consultar',
+    async (plataforma) => {
+      await abrirLosIndicadores(plataforma);
+      const tarjeta = within(screen.getByTestId('indicador-pedidos-totales'));
+      await tocarDescargar(tarjeta, 'Pedidos totales');
+      jest.useFakeTimers();
+      await pedirLaDescarga();
+      expect(await pieza().findByText('El archivo se está generando.')).toBeOnTheScreen();
+      const creada = laCreada();
+      await waitFor(() => expect(descargas.consultasDe(creada.id_publico)).toBe(1));
+
+      expect(pieza().getByText('Se revisa cada 5 s mientras esta pantalla está abierta.')).toBeOnTheScreen();
+      await pasan(CINCO_SEGUNDOS);
+      expect(descargas.consultasDe(creada.id_publico)).toBe(2);
+
+      descargas.de(creada.id_publico).estado = 'lista';
+      await pasan(CINCO_SEGUNDOS);
+
+      expect(await tarjeta.findByRole('button', { name: 'Guardar .csv' })).toBeOnTheScreen();
+      expect(tarjeta.getByRole('button', { name: 'Guardar .xlsx' })).toBeOnTheScreen();
+      expect(tarjeta.queryByText('El archivo se está generando.')).not.toBeOnTheScreen();
+      const consultas = descargas.consultasDe(creada.id_publico);
+      await pasan(CINCO_SEGUNDOS * 3);
+      expect(descargas.consultasDe(creada.id_publico)).toBe(consultas);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E56 y administracion-app-E57 — (%s) en Indicadores, cuando las cifras se ponen al día solas, la pieza sigue abierta con lo que se escribió y, ya pedida, sigue esperando su archivo',
+    async (plataforma) => {
+      jest.useFakeTimers();
+      await abrirLosIndicadores(plataforma);
+      const tarjeta = within(screen.getByTestId('indicador-pedidos-totales'));
+      await tocarDescargar(tarjeta, 'Pedidos totales');
+      await escribir('Desde', '02112026');
+
+      await pasan(TREINTA_SEGUNDOS);
+
+      expect(consultasDeLosIndicadores(servidor())).toHaveLength(2);
+      expect(pieza().getByLabelText('Desde').props.value).toBe('02/11/2026');
+      await pedirLaDescarga();
+      expect(await tarjeta.findByText('El archivo se está generando.')).toBeOnTheScreen();
+      const creada = laCreada();
+
+      await pasan(TREINTA_SEGUNDOS);
+
+      expect(consultasDeLosIndicadores(servidor())).toHaveLength(3);
+      expect(tarjeta.getByText('El archivo se está generando.')).toBeOnTheScreen();
+      expect(tarjeta.queryByRole('link', { name: 'Descargar Pedidos totales' })).not.toBeOnTheScreen();
+      descargas.de(creada.id_publico).estado = 'lista';
+      await pasan(CINCO_SEGUNDOS);
+      expect(await tarjeta.findByRole('button', { name: 'Guardar .csv' })).toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([
+        { reporte: 'pedidos-totales', ...DEL_MES_EN_CURSO, desde: '2026-11-02' },
+      ]);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E57 — (%s) en Indicadores, con la app al fondo no consulta la descarga que se genera; al frente, sí',
+    async (plataforma) => {
+      await abrirLosIndicadores(plataforma);
+      await tocarDescargar(within(screen.getByTestId('indicador-pedidos-totales')), 'Pedidos totales');
+      jest.useFakeTimers();
+      await pedirLaDescarga();
+      const creada = laCreada();
+      await waitFor(() => expect(descargas.consultasDe(creada.id_publico)).toBe(1));
+
+      await mandarLaAppA('background');
+      await pasan(CINCO_SEGUNDOS * 3);
+      expect(descargas.consultasDe(creada.id_publico)).toBe(1);
+      await mandarLaAppA('active');
+      expect(descargas.consultasDe(creada.id_publico)).toBe(2);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E57 — (%s) en Ingresos, si no se pudo generar lo dice y "Pedirla otra vez" la pide con el mismo rango',
+    async (plataforma) => {
+      await abrirLosIngresos(plataforma);
+      await fireEvent.press(screen.getByRole('button', { name: 'Descargar' }));
+      jest.useFakeTimers();
+      await pedirLaDescarga();
+      expect(await pieza().findByText('El archivo se está generando.')).toBeOnTheScreen();
+      const creada = laCreada();
+      await waitFor(() => expect(descargas.consultasDe(creada.id_publico)).toBe(1));
+
+      // La cola la dio por terminada sin su archivo: el trabajo que lo escribe falló.
+      descargas.de(creada.id_publico).estado = 'no_se_pudo';
+      await pasan(CINCO_SEGUNDOS);
+
+      expect(await pieza().findByText('No se pudo generar el archivo.')).toBeOnTheScreen();
+      expect(pieza().queryByRole('button', { name: /^Guardar/ })).not.toBeOnTheScreen();
+      await fireEvent.press(pieza().getByRole('button', { name: 'Pedirla otra vez' }));
+
+      expect(await pieza().findByText('El archivo se está generando.')).toBeOnTheScreen();
+      const pedida = { reporte: 'ingresos-por-periodo', ...DE_LOS_INGRESOS };
+      expect(descargas.pedidas()).toEqual([pedida, pedida]);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E57 y administracion-app-E58 — (%s) en Conciliación, la que llega lista ofrece "Guardar .csv" y "Guardar .xlsx" sin consultar su estado, y guarda el archivo',
+    async (plataforma) => {
+      descargas.estadoAlNacer = 'lista';
+      await abrirLaConciliacion(plataforma);
+      await conciliar('01/03/2027', '31/03/2027');
+      await fireEvent.press(screen.getByRole('button', { name: 'Descargar' }));
+      await pedirLaDescarga();
+
+      expect(await pieza().findByRole('button', { name: 'Guardar .csv' })).toBeOnTheScreen();
+      expect(pieza().getByRole('button', { name: 'Guardar .xlsx' })).toBeOnTheScreen();
+      expect(descargas.consultasDe(laCreada().id_publico)).toBe(0);
+
+      bajarConElServidor(servidor());
+      jest.spyOn(Directory, 'pickDirectoryAsync').mockResolvedValue(carpetaElegida());
+      await fireEvent.press(pieza().getByRole('button', { name: 'Guardar .csv' }));
+
+      expect(await pieza().findByText('Se guardó el archivo .csv en la carpeta Descargas.')).toBeOnTheScreen();
+    },
+  );
+});
+
+describe('administracion-app-E60: el rango de la descarga en Indicadores, Ingresos y Conciliación', () => {
+  test.each(PLATAFORMAS)(
+    'administracion-app-E60 — (%s) en Indicadores, el rango al revés recibe el 422 del servidor junto a "Hasta" y no se crea ninguna descarga',
+    async (plataforma) => {
+      await abrirLosIndicadores(plataforma);
+      await tocarDescargar(within(screen.getByTestId('indicador-pedidos-por-estado')), 'Pedidos por estado');
+
+      await escribir('Desde', '04112026');
+      await escribir('Hasta', '01112026');
+      await pedirLaDescarga();
+
+      expect(
+        await within(pieza().getByTestId('campo-hasta')).findByText(MENSAJE_DEL_RANGO_AL_REVES),
+      ).toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([
+        { reporte: 'pedidos-por-estado', desde: '2026-11-04', hasta: '2026-11-01', granularidad: 'dia' },
+      ]);
+      expect(descargas.descargas).toEqual([]);
+      expect(pieza().queryByText('El archivo se está generando.')).not.toBeOnTheScreen();
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E60 — (%s) en Ingresos, del 10 al 20 de marzo manda los dos días, incluidos',
+    async (plataforma) => {
+      await abrirLosIngresos(plataforma);
+      await fireEvent.press(screen.getByRole('button', { name: 'Descargar' }));
+
+      await escribir('Desde', '10032027');
+      await escribir('Hasta', '20032027');
+      await pedirLaDescarga();
+
+      expect(await pieza().findByText('Del 10/03/2027 al 20/03/2027, por día')).toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([
+        { reporte: 'ingresos-por-periodo', desde: '2027-03-10', hasta: '2027-03-20', granularidad: 'dia' },
+      ]);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E60 — (%s) en Conciliación, el rango al revés recibe el 422 junto a "Hasta" sin crear nada, y uno de dos años se acepta',
+    async (plataforma) => {
+      await abrirLaConciliacion(plataforma);
+      await conciliar('01/03/2027', '31/03/2027');
+      await fireEvent.press(screen.getByRole('button', { name: 'Descargar' }));
+
+      await escribir('Desde', '31032027');
+      await escribir('Hasta', '01032027');
+      await pedirLaDescarga();
+
+      expect(
+        await within(pieza().getByTestId('campo-hasta')).findByText(MENSAJE_DEL_RANGO_AL_REVES),
+      ).toBeOnTheScreen();
+      expect(descargas.descargas).toEqual([]);
+
+      await escribir('Desde', '01032025');
+      await escribir('Hasta', '31032027');
+      await pedirLaDescarga();
+
+      expect(await pieza().findByText('El archivo se está generando.')).toBeOnTheScreen();
+      expect(descargas.pedidas()).toEqual([
+        { reporte: 'conciliacion-con-la-pasarela', desde: '2027-03-31', hasta: '2027-03-01' },
+        { reporte: 'conciliacion-con-la-pasarela', desde: '2025-03-01', hasta: '2027-03-31' },
+      ]);
+      expect(laCreada()).toMatchObject({ desde: '2025-03-01', hasta: '2027-03-31' });
+    },
+  );
+});
+
+describe('administracion-app-E53 y administracion-app-E63: lo que espera una respuesta no ofrece "Descargar"', () => {
+  test.each(PLATAFORMAS)(
+    'administracion-app-E53 y administracion-app-E63 — (%s) en Indicadores, las lavanderías activas frente a registradas (F-I06) y las comisiones (F-I10) no ofrecen "Descargar"; los indicadores con cifra de su pestaña, sí',
+    async (plataforma) => {
+      await abrirLosIndicadores(plataforma);
+
+      const activas = await elegirLaCategoria('Socios', 'indicador-activas-frente-a-registradas');
+      expect(activas.queryByText('Descargar')).not.toBeOnTheScreen();
+      expect(activas.queryByRole('link')).not.toBeOnTheScreen();
+      expect(descargasDeLosIndicadores()).toEqual([
+        'Descargar Calificación por lavandería',
+        'Descargar Entregas por repartidor',
+      ]);
+
+      const comisiones = await elegirLaCategoria('Financiero', 'indicador-comisiones');
+      expect(comisiones.queryByText('Descargar')).not.toBeOnTheScreen();
+      expect(comisiones.queryByRole('link')).not.toBeOnTheScreen();
+      expect(descargasDeLosIndicadores()).toEqual(['Descargar Ingresos brutos']);
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E63 — (%s) en Ingresos, las comisiones del periodo no ofrecen "Descargar": el único de la pantalla es el de los ingresos',
+    async (plataforma) => {
+      await abrirLosIngresos(plataforma);
+
+      const comisiones = within(screen.getByTestId('renglon-comisiones-del-periodo'));
+      expect(comisiones.getByText('Por confirmar · DD-020')).toBeOnTheScreen();
+      expect(comisiones.queryByText('Descargar')).not.toBeOnTheScreen();
+      expect(screen.getAllByText('Descargar')).toHaveLength(1);
+      expect(within(screen.getByTestId('cifras-del-periodo')).queryByText('Descargar')).not.toBeOnTheScreen();
+    },
+  );
 });
