@@ -206,7 +206,7 @@ class CatalogoTest extends TestCase
         return "/api/codigos-postales/{$codigoPostal}/colonias";
     }
 
-    #[TestDox('alta-lavanderias-E01: la cuenta de una lavandería consulta el catálogo para registrar su dirección; la administración no')]
+    #[TestDox('alta-lavanderias-E01: la cuenta de una lavandería consulta el catálogo para registrar su dirección; la administración, con su token, lee los municipios para editar la de una lavandería (administracion-app-E14), y no las colonias')]
     public function test_alta_lavanderias_e01_la_lavanderia_consulta_el_catalogo(): void
     {
         CatalogoDePrueba::territorio();
@@ -220,11 +220,19 @@ class CatalogoTest extends TestCase
         $this->withToken($token)->getJson('/api/codigos-postales/34000/colonias')->assertOk();
 
         $this->app['auth']->forgetGuards();
-        // Con su token de administración, el real: el 403 sale de la regla del catálogo, que no la admite, y no de un
-        // token sin la habilidad (ADR-0022, decisión 3; registro-E33).
+        // Con su token de administración, el real (ADR-0022, decisión 3; registro-E33): los municipios sí, que la edición
+        // de la lavandería ofrece para elegir (adenda del 2026-11-26 de ADR-0022, decisión 6); las colonias no, y el 403
+        // sale de la regla del catálogo, que no la admite, y no de un token sin la habilidad.
         $administracion = Usuario::factory()->conRol(Rol::ADMINISTRACION)->create();
-        $this->withToken(app(TokensDeLaApp::class)->crear($administracion)->plainTextToken)
+        $deLaAdministracion = app(TokensDeLaApp::class)->crear($administracion)->plainTextToken;
+        $this->withToken($deLaAdministracion)
             ->getJson('/api/catalogos/municipios')
-            ->assertForbidden();
+            ->assertOk()
+            ->assertJsonPath('municipios.0.codigo', CatalogoDePrueba::MATAMOROS);
+        $this->app['auth']->forgetGuards();
+        $this->withToken($deLaAdministracion)
+            ->getJson('/api/codigos-postales/34000/colonias')
+            ->assertForbidden()
+            ->assertJsonMissingPath('colonias');
     }
 }

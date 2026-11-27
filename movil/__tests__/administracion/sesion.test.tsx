@@ -28,6 +28,7 @@ import {
   prepararElTelefonoConLaAdministracion,
   respuesta,
   RUTA_DEL_INICIO,
+  RUTAS_DE_LOS_CONTEOS,
   TOKEN_DE_LA_ADMINISTRACION,
   usarElServidorDeLaAdministracion,
   type Plataforma,
@@ -221,7 +222,15 @@ describe('administracion-app-E05: la sesión vence o se revoca', () => {
       await abrirLaAppConLaAdministracion(plataforma);
 
       await esperarElInicioDelModulo();
-      expect(servidor().peticiones().map(({ metodo, ruta }) => `${metodo} ${ruta}`)).toEqual(['GET /cuenta']);
+      // La cuenta, y los dos conteos del inicio (administracion-app-E03), con el mismo token: ningún 401.
+      await waitFor(() =>
+        expect(servidor().peticiones().map(({ metodo, ruta }) => `${metodo} ${ruta}`)).toEqual([
+          'GET /cuenta',
+          `GET ${RUTAS_DE_LOS_CONTEOS.repartidores}`,
+          `GET ${RUTAS_DE_LOS_CONTEOS.monitoreo}`,
+        ]),
+      );
+      expect(await screen.findByTestId('conteo-monitoreo')).toBeOnTheScreen();
       await expect(leerToken()).resolves.toBe(TOKEN_DE_LA_ADMINISTRACION);
     },
   );

@@ -85,6 +85,12 @@ Las técnicas están en ADR-0022 y no se repiten. Aquí, cómo se aplican.
 
 - **El grupo de rutas se parte en dos:** `cuenta` y `sesion` con `autorizar:usuario,lavanderia,repartidor,administracion`;
   `catalogos/municipios` y `codigos-postales/{codigo_postal}/colonias` con los tres roles que los usan.
+- **El catálogo de municipios, también para la administración** (adenda del 2026-11-26 de ADR-0022, decisión 6, por
+  delegación de Arthur, C-245). La edición de la lavandería elige el municipio de esa lista
+  (`movil/src/direcciones/useMunicipios.ts`), y administracion-app-E14 pide que la administración lo cambie. Es un
+  catálogo sin datos personales. `catalogos/municipios` va en su propio grupo, con
+  `autorizar:usuario,lavanderia,repartidor,administracion`; las colonias por código postal siguen con los tres roles,
+  porque la edición no las pide. Un token de administración sin la habilidad no lo abre (administracion-app-E06).
 - **La pieza que crea los tokens,** `App\Identidad\TokensDeLaApp` (ADR-0022, decisión 3), reemplaza las cuatro llamadas
   a `createToken()` (en `9f6b7e5`: `SesionController.php:84`, `SesionConGoogleController.php:30`,
   `RegistroController.php:23` y `RepartidorController.php:85`). Hoy los cuatro llaman a `TokensDeLaApp::crear()`
@@ -161,9 +167,11 @@ Resumen. El detalle de cada fila va después.
   - `GET lavanderias/{lavanderia}`: la ficha con sus datos editables (nombre, dirección, foto, servicios y precios,
     horario, descripción y fotos), su estado, su plaza y qué transiciones permite ahora, en `transiciones`: la lista de
     las que permite, en el orden de los botones del panel (`suspender`, `levantar_suspension`, `dar_de_baja`). Es la
-    misma forma que la ficha del repartidor (F-D02).
+    misma forma que la ficha del repartidor (F-D02). Trae además `fotos_leidas`, la marca de las fotos de esa lectura
+    (abajo, "Las fotos leídas al abrir").
   - `PATCH lavanderias/{lavanderia}`: la edición. Con fotos va en multipart por `POST` con `_method=PATCH`, como
-    `PATCH /api/socio/lavanderias/{lavanderia}`.
+    `PATCH /api/socio/lavanderias/{lavanderia}`. Con la lista de fotos va `fotos_leidas`, la marca de la ficha con que
+    se abrió la edición, tal cual.
   - `POST lavanderias/{lavanderia}/suspension`, `DELETE lavanderias/{lavanderia}/suspension` y
     `POST lavanderias/{lavanderia}/baja`.
 - **Clases de dominio:** `Autorizacion::lavanderiasDelPanel()`; `App\Lavanderias\EstadoDeLaLavanderia`
@@ -172,6 +180,22 @@ Resumen. El detalle de cada fila va después.
   la validación que hoy vive en `EditLavanderia::handleRecordUpdate()`, movida antes de la ruta (sección 3);
   `App\Lavanderias\ReglasDeLaLavanderia` y `App\Lavanderias\FotosDeLaLavanderia`. La ficha puede salir con
   `App\Http\Resources\LavanderiaDelSocioResource`, que ya usa la edición del panel.
+- **Las fotos leídas al abrir** (administracion-app-E14). El panel nombra cada foto por su lugar en la lista que leyó
+  al abrir la página, guarda sus rutas (`EditLavanderia::$fotosAlAbrir`) y se las pasa a `editar()`, que rechaza la
+  lista si las fotos cambiaron desde entonces (`FotosDeLaLavanderia::reemplazarTodas()`, con
+  `FotosDeLaLavanderia::FOTOS_QUE_CAMBIARON`). La API hace lo mismo con la lectura de la app:
+  - la ficha trae `fotos_leidas`, una marca de las fotos de esa lectura: sus rutas en su orden, cifradas con la llave
+    de la aplicación (`FotosDeLaLavanderia::marcaDeLaLectura()`). La ruta no sale de la API, ni siquiera en la marca, y
+    la app no la puede cambiar. Es un texto que cambia en cada respuesta y que la app no lee;
+  - la app la guarda al abrir la edición y la devuelve tal cual, con la lista de fotos;
+  - la ruta saca de la marca las rutas leídas (`FotosDeLaLavanderia::rutasDeLaMarca()`) y se las pasa a `editar()` como
+    `fotosLeidas`, igual que el panel: la regla vive en `reemplazarTodas()`, no en la ruta. Sin la marca, o con una
+    que no dio el servidor, las rutas leídas son ninguna, y la lista de una lavandería con fotos se rechaza igual;
+  - si se rechaza, responde 422 en `fotos` con el mensaje de `FotosDeLaLavanderia` y nada cambia; la app lo pone junto
+    a las fotos, y la persona vuelve a abrir la edición. Sin la lista de fotos, la marca no cuenta.
+  - **Alternativas descartadas:** un `id_publico` en `lavanderia_fotos`, que pide una segunda migración en este cambio
+    (ADR-0016, regla 9; ADR-0022, decisión 15); y mandar las rutas, que nunca salen como campo de la API
+    (`App\Models\LavanderiaFoto`).
 - **Pantallas** (imágenes 06 a 13 y 57 a 61 de la Propuesta 6):
   - la lista, con la búsqueda; el alta va en ámbar con "Por confirmar · DD-053", sin botón (06);
   - la ficha, con "Editar" en cualquier estado, también de baja, como el panel
@@ -474,7 +498,9 @@ Resumen. El detalle de cada fila va después.
   pedidos trae). Sin repartidores pendientes, Repartidores va sin insignia (imagen 56). La maqueta no dice cuándo se
   consultan ni qué pasa si la consulta falla; se decide aquí, como aplicación técnica: el inicio los consulta cada vez
   que queda a la vista, sin consulta periódica, y si una consulta falla su entrada va sin insignia y el inicio sigue
-  igual. Hasta la tarea 10.3 el inicio no consulta nada (`movil/app/administracion/index.tsx:1-11`).
+  igual. Con la tarea 10.3 lo hace `movil/src/administracion/useConteosDelInicio.ts`, con las mismas funciones de las
+  dos pantallas, y cada insignia lleva su texto ("2 pendientes", "3 activos", en singular con uno), en el color de
+  atención y en el de información de los tokens, como las imágenes 03 y 56.
 - **Los textos** son los del panel de respaldo, del servidor y de la app, citados en cada pantalla de la Propuesta 6,
   para que la app y el panel digan lo mismo. La app adapta solo estos:
   - "La baja no se deshace desde la app.", donde el panel dice "desde el panel", en la confirmación de dar de baja una
@@ -488,7 +514,9 @@ Resumen. El detalle de cada fila va después.
 
   El mensaje del 409 no se adapta: es el de `TransicionNoPermitida`, con el estado como lo guarda la base ("Una
   lavandería en estado baja no se puede suspender."; `servidor/app/Lavanderias/TransicionNoPermitida.php:16`;
-  administracion-app-E12, imagen 58). Otro texto cambiaría la clase de dominio y, con ella, el panel.
+  administracion-app-E12, imagen 58). Otro texto cambiaría la clase de dominio y, con ella, el panel. Tampoco el 422 de
+  las fotos que cambiaron desde que se abrió la edición, que dice "página" como en el panel
+  (`FotosDeLaLavanderia::FOTOS_QUE_CAMBIARON`; administracion-app-E14).
 - **Lo que espera una DD** va en ámbar, con la marca "Por confirmar" del resumen del pedido
   (`movil/src/pedido/ResumenDelPedido.tsx:100`) seguida de su número ("Por confirmar · DD-104"), sin cifra ni botón.
 
@@ -505,11 +533,12 @@ Resumen. El detalle de cada fila va después.
   - la prueba de cobertura de la autorización (autorizacion-E01) recorre las rutas nuevas sin cambios;
   - **autorizacion-E02 y E14 sí cambian** (su delta en `specs/autorizacion/spec.md`), porque hoy fijan que la
     administración no tiene módulo en la API:
-    - `servidor/tests/Feature/Autorizacion/RolPorModuloTest.php`: la cuenta y la sesión, comunes a los cuatro roles, y
-      el catálogo del territorio, a los tres de siempre; las rutas bajo `api/administracion/` como Módulo D, que admite
-      solo a la administración; la comprobación de que la administración es rechazada, solo en las rutas de los
-      Módulos A, B y C (en `9f6b7e5`, en todas: `:115`; hoy, solo en esas: `:132-137`); y la administración entre las
-      cuentas que llegan a su módulo;
+    - `servidor/tests/Feature/Autorizacion/RolPorModuloTest.php`: la cuenta, la sesión y el catálogo de municipios,
+      comunes a los cuatro roles, y las colonias del catálogo, a los tres de siempre (los municipios se sumaron con la
+      tarea 4.3; adenda del 2026-11-26 de ADR-0022, decisión 6); las rutas bajo `api/administracion/` como Módulo D,
+      que admite solo a la administración; la comprobación de que la administración es rechazada, solo en las rutas de
+      los Módulos A, B y C (en `9f6b7e5`, en todas: `:115`; hoy, solo en esas: `:136-142`); y la administración entre
+      las cuentas que llegan a su módulo;
     - `servidor/tests/Feature/Autorizacion/Soporte/LlamadasSinEfecto.php`: el token sale de `TokensDeLaApp` (en
       `9f6b7e5`, `createToken('app')`, que lleva `*`: `:39`; hoy, `:41`), así la cuenta de administración llega con su
       habilidad `administracion` y no recibe 403 en su propio módulo;

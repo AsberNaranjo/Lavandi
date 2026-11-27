@@ -9,6 +9,7 @@ use App\Direcciones\Punto;
 use App\Http\Resources\LavanderiaDelSocioResource;
 use App\Lavanderias\EdicionDeLavanderia;
 use App\Lavanderias\EstadoDeLaLavanderia;
+use App\Lavanderias\FotosDeLaLavanderia;
 use App\Lavanderias\TransicionNoPermitida;
 use App\Models\EstadoPedido;
 use App\Models\Lavanderia;
@@ -40,7 +41,9 @@ use Tests\TestCase;
  *
  * Cada respuesta se compara con lo que dan, para los mismos datos, las clases que usa el panel web de respaldo:
  * Autorizacion::lavanderiasDelPanel(), el recurso de la lavandería que ya usa su edición, EdicionDeLavanderia (con la
- * validación que antes vivía en el panel) y EstadoDeLaLavanderia (administracion-app-E11). Las pruebas del panel
+ * validación que antes vivía en el panel) y EstadoDeLaLavanderia (administracion-app-E11). La ficha trae además la marca
+ * de las fotos que se leyeron (fotos_leidas), que la app devuelve con la lista de fotos: la edición cuenta los lugares
+ * sobre esas fotos y la rechaza si cambiaron, como el panel con las que leyó al abrir la página. Las pruebas del panel
  * (tests/Feature/AltaLavanderias/PanelEdicionTest.php, PanelSuspensionTest.php y PanelBajaTest.php) siguen sin cambios.
  * Cada ruta la abre solo la administración con su token, real, de App\Identidad\TokensDeLaApp (administracion-app-E06 y
  * E07). El alta (E17, DD-053) y los pedidos en curso (E18, DD-104) esperan su decisión: no tienen ruta.
@@ -147,13 +150,19 @@ class LavanderiasTest extends TestCase
         $lavanderia->update(['descripcion' => 'Descripción de prueba de la ficha.']);
         $this->conFotos($lavanderia, 3);
 
-        $ficha = $this->pedirComoLaAdministracion('GET', self::LISTA."/{$lavanderia->id_publico}")->assertOk()->json('lavanderia');
+        $ficha = $this->sinLaMarca(
+            $this->pedirComoLaAdministracion('GET', self::LISTA."/{$lavanderia->id_publico}")->assertOk()->json('lavanderia'),
+            $lavanderia,
+        );
 
         $this->assertSame($this->fichaSegunElDominio($lavanderia), $ficha);
         // El ULID en mayúsculas es el mismo: la misma ficha.
         $this->assertSame(
             $ficha,
-            $this->pedirComoLaAdministracion('GET', self::LISTA.'/'.Str::upper($lavanderia->id_publico))->assertOk()->json('lavanderia'),
+            $this->sinLaMarca(
+                $this->pedirComoLaAdministracion('GET', self::LISTA.'/'.Str::upper($lavanderia->id_publico))->assertOk()->json('lavanderia'),
+                $lavanderia,
+            ),
         );
         // Sus datos editables son los que ve su socio en la app.
         $this->assertSame(
@@ -247,7 +256,7 @@ class LavanderiasTest extends TestCase
             ->json('lavanderia');
 
         // La respuesta es la ficha ya con los cambios, y la lavandería la ve en su perfil de la app.
-        $this->assertSame($this->fichaSegunElDominio($lavanderia), $ficha);
+        $this->assertSame($this->fichaSegunElDominio($lavanderia), $this->sinLaMarca($ficha, $lavanderia));
         $this->assertSame('Lavandería de prueba Editada', $ficha['nombre']);
         $this->assertSame(['19.00', '26.50'], array_column($ficha['servicios'], 'precio'));
         $this->assertSame($datos['ventanas'], $ficha['ventanas']);
@@ -281,7 +290,7 @@ class LavanderiasTest extends TestCase
                 'descripcion' => "Descripción de prueba editada {$estado}.",
             ])->assertOk()->json('lavanderia');
 
-            $this->assertSame($this->fichaSegunElDominio($lavanderia), $ficha, $estado);
+            $this->assertSame($this->fichaSegunElDominio($lavanderia), $this->sinLaMarca($ficha, $lavanderia), $estado);
             $this->assertSame(
                 [$estado, $transiciones, "Lavandería de prueba editada {$estado}", "Descripción de prueba editada {$estado}."],
                 [$ficha['estado'], $ficha['transiciones'], $ficha['nombre'], $ficha['descripcion']],
@@ -302,9 +311,11 @@ class LavanderiasTest extends TestCase
         $lavanderia = $this->registrada();
         [$primera, $segunda, $tercera] = $this->conFotos($lavanderia, 3);
 
-        // La nueva va en medio: en multipart, Laravel junta los textos antes que los archivos, y el orden se respeta.
+        // La nueva va en medio: en multipart, Laravel junta los textos antes que los archivos, y el orden se respeta. Los
+        // lugares son los de la lectura de la ficha, que va con su marca.
         $this->editarEnMultipart($lavanderia->id_publico, [
             'fotos' => [0 => 2, 1 => $this->fotoDePrueba('nueva.jpg'), 2 => 0],
+            'fotos_leidas' => $this->marcaDeLaFicha($lavanderia),
         ])->assertOk()->assertJsonCount(3, 'lavanderia.fotos');
 
         $rutas = $this->rutasEnOrden($lavanderia);
@@ -363,10 +374,62 @@ class LavanderiasTest extends TestCase
         $this->assertSame($consultas, $this->geocodificador->consultas);
 
         // Las reglas de la lista de fotos, también: una foto que no tiene se rechaza en su lugar.
-        $this->pedirComoLaAdministracion('PATCH', self::LISTA."/{$lavanderia->id_publico}", ['fotos' => [0, 7]])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['fotos.1']);
+        $this->pedirComoLaAdministracion('PATCH', self::LISTA."/{$lavanderia->id_publico}", [
+            'fotos' => [0, 7],
+            'fotos_leidas' => $this->marcaDeLaFicha($lavanderia),
+        ])->assertUnprocessable()->assertJsonValidationErrors(['fotos.1']);
         $this->assertSame($antes, $this->fotoDeLaBase());
+    }
+
+    #[TestDox('administracion-app-E14 y administracion-app-E11: las fotos se cuentan sobre las que se leyeron al abrir, como el panel: si su socio las cambió después, la lista responde 422 en fotos con el mensaje de FotosDeLaLavanderia, el mismo que da EdicionDeLavanderia con esas fotos leídas, y nada cambia; sin la marca de la lectura, o con una que no dio el servidor, también; con la marca de una lectura nueva, se guarda; y sin lista de fotos, la marca no cuenta')]
+    public function test_administracion_app_e14_las_fotos_se_cuentan_sobre_las_leidas_al_abrir(): void
+    {
+        $this->prepararAlta();
+        $cuenta = $this->cuentaDeLavanderia();
+        $lavanderia = $this->registrada($cuenta);
+        [$primera, $segunda, $tercera] = $this->conFotos($lavanderia, 3);
+        $url = self::LISTA."/{$lavanderia->id_publico}";
+
+        // La administración abre la edición, y su socio, desde su app, quita la segunda foto.
+        $leida = $this->marcaDeLaFicha($lavanderia);
+        $this->editar($cuenta, $lavanderia->id_publico, ['fotos' => [0, 2]])->assertOk();
+        $archivos = $this->archivosDeFotos();
+
+        // Con los lugares de su lectura, [1, 0] nombraría la tercera foto como la segunda: se rechaza.
+        $respuesta = $this->pedirComoLaAdministracion('PATCH', $url, ['fotos' => [1, 0], 'fotos_leidas' => $leida])
+            ->assertUnprocessable();
+
+        $this->assertSame(['fotos' => [FotosDeLaLavanderia::FOTOS_QUE_CAMBIARON]], $respuesta->json('errors'));
+        $this->assertSame([$primera, $tercera], $this->rutasEnOrden($lavanderia));
+        $this->assertSame($archivos, $this->archivosDeFotos());
+
+        // Es lo que da la clase que usa el panel con las fotos que leyó: la API no copia la regla.
+        $this->assertSame(
+            $respuesta->json('errors'),
+            $this->erroresDeLaEdicion($lavanderia, ['fotos' => [1, 0]], [$primera, $segunda, $tercera]),
+        );
+
+        // Sin la marca, o con una que no dio el servidor, la lista no nombra las fotos que tiene: también se rechaza.
+        foreach ([[], ['fotos_leidas' => 'una-marca-que-no-dio-el-servidor'], ['fotos_leidas' => ['no', 'es', 'texto']]] as $marca) {
+            $this->pedirComoLaAdministracion('PATCH', $url, ['fotos' => [1, 0], ...$marca])
+                ->assertUnprocessable()
+                ->assertExactJson([
+                    'message' => FotosDeLaLavanderia::FOTOS_QUE_CAMBIARON,
+                    'errors' => ['fotos' => [FotosDeLaLavanderia::FOTOS_QUE_CAMBIARON]],
+                ]);
+        }
+        $this->assertSame([$primera, $tercera], $this->rutasEnOrden($lavanderia));
+
+        // Al volver a abrir la edición, la marca nueva cuenta los lugares sobre las dos fotos que tiene.
+        $this->pedirComoLaAdministracion('PATCH', $url, ['fotos' => [1, 0], 'fotos_leidas' => $this->marcaDeLaFicha($lavanderia)])
+            ->assertOk()
+            ->assertJsonCount(2, 'lavanderia.fotos');
+        $this->assertSame([$tercera, $primera], $this->rutasEnOrden($lavanderia));
+
+        // Sin lista de fotos, la marca no cuenta: el nombre se guarda aunque las fotos hayan cambiado.
+        $this->pedirComoLaAdministracion('PATCH', $url, ['nombre' => 'Lavandería de prueba con otro nombre', 'fotos_leidas' => $leida])
+            ->assertOk()
+            ->assertJsonPath('lavanderia.nombre', 'Lavandería de prueba con otro nombre');
     }
 
     #[TestDox('administracion-app-E14: una dirección nueva fuera de las zonas responde 422 en la dirección con su motivo, y si la geocodificación no responde, 503; en los dos casos nada cambia')]
@@ -749,6 +812,51 @@ class LavanderiasTest extends TestCase
             'plaza' => ['nombre' => Plaza::query()->findOrFail($actual->id_plazas)->nombre],
             'transiciones' => $this->transicionesSegunElDominio($actual),
         ];
+    }
+
+    /**
+     * La ficha sin la marca de su lectura, después de comprobar que la marca nombra las fotos que la lavandería tiene, en
+     * su orden: la marca es un texto cifrado que cambia en cada respuesta, así que se compara por lo que nombra.
+     *
+     * @param  array<string, mixed>  $ficha
+     * @return array<string, mixed>
+     */
+    private function sinLaMarca(array $ficha, Lavanderia $lavanderia): array
+    {
+        $this->assertIsString($ficha['fotos_leidas'] ?? null);
+        $this->assertSame($this->rutasEnOrden($lavanderia), app(FotosDeLaLavanderia::class)->rutasDeLaMarca($ficha['fotos_leidas']));
+
+        return array_diff_key($ficha, array_flip(['fotos_leidas']));
+    }
+
+    /**
+     * La marca de las fotos de la ficha que la administración abre ahora: la que la app devuelve con la lista de fotos.
+     */
+    private function marcaDeLaFicha(Lavanderia $lavanderia): string
+    {
+        return $this->pedirComoLaAdministracion('GET', self::LISTA."/{$lavanderia->id_publico}")
+            ->assertOk()
+            ->json('lavanderia.fotos_leidas');
+    }
+
+    /**
+     * Los errores que da la edición del panel para esos datos, con esas fotos leídas al abrir.
+     *
+     * @param  array<string, mixed>  $datos
+     * @param  list<string>  $fotosLeidas
+     * @return array<string, list<string>>
+     */
+    private function erroresDeLaEdicion(Lavanderia $lavanderia, array $datos, array $fotosLeidas): array
+    {
+        $edicion = app(EdicionDeLavanderia::class);
+
+        try {
+            $edicion->editar($lavanderia, $edicion->validar($datos), fotosLeidas: $fotosLeidas);
+        } catch (ValidationException $error) {
+            return $error->errors();
+        }
+
+        $this->fail('La edición aceptó las fotos.');
     }
 
     /**

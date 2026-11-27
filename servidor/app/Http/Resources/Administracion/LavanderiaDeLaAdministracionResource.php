@@ -4,6 +4,7 @@ namespace App\Http\Resources\Administracion;
 
 use App\Http\Resources\LavanderiaDelSocioResource;
 use App\Lavanderias\EstadoDeLaLavanderia;
+use App\Lavanderias\FotosDeLaLavanderia;
 use App\Models\Lavanderia;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -16,7 +17,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * - En la ficha, además, sus datos editables tal como los ve y los edita su socio en la app, con el mismo recurso que
  *   usa la edición del panel (App\Http\Resources\LavanderiaDelSocioResource), y las transiciones de estado que permite
  *   ahora. Cuáles permite lo decide App\Lavanderias\EstadoDeLaLavanderia con sus puede…(), no este recurso (ADR-0022,
- *   decisión 9).
+ *   decisión 9). Y la marca de las fotos de esta lectura, que la app devuelve al editar la lista de fotos
+ *   (FotosDeLaLavanderia::marcaDeLaLectura(); administracion-app-E14).
  *
  * Como el del socio, no lleva llaves internas, ni la ruta de una foto, ni la cuenta de su socio (ADR-0016, regla 5). La
  * plaza va por su nombre, como en el recurso del repartidor.
@@ -58,8 +60,9 @@ class LavanderiaDeLaAdministracionResource extends JsonResource
     }
 
     /**
-     * La ficha: lo del recurso del socio, el resumen y las transiciones, en el orden de los botones del panel
-     * (App\Filament\Resources\Lavanderias\Actions\AccionesDeEstado). Espera la lavandería de cargar().
+     * La ficha: lo del recurso del socio, el resumen, las transiciones, en el orden de los botones del panel
+     * (App\Filament\Resources\Lavanderias\Actions\AccionesDeEstado), y la marca de las fotos leídas. Espera la
+     * lavandería de cargar().
      *
      * @return array<string, mixed>
      */
@@ -75,6 +78,7 @@ class LavanderiaDeLaAdministracionResource extends JsonResource
                 self::LEVANTAR_SUSPENSION => $estado->puedeLevantarseLaSuspension($this->resource),
                 self::DAR_DE_BAJA => $estado->puedeDarseDeBaja($this->resource),
             ])),
+            'fotos_leidas' => app(FotosDeLaLavanderia::class)->marcaDeLaLectura($this->resource),
         ];
     }
 }

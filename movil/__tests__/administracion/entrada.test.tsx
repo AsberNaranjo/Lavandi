@@ -9,13 +9,14 @@
 // decisión 69 de acta-2026-11-20-modelo-y-pasarela.md). Cómo se construye es de ADR-0022 (decisiones 1, 5, 11, 17 y 19).
 //
 // Se abre la app real, con las rutas de movil/app/ (ADR-0017), en iPhone y en Android, con el servidor simulado de la
-// administración (__tests__/apoyo/administracion.ts). Que cada entrada del inicio abra su pantalla lo prueba cada
-// función en la suya.
+// administración (__tests__/apoyo/administracion.ts), y para los conteos del inicio, sus repartidores
+// (__tests__/apoyo/administracion/repartidores.ts) y su monitoreo (__tests__/apoyo/administracion/monitoreo.ts). Que
+// cada entrada del inicio abra su pantalla lo prueba cada función en la suya.
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 
 import { userEvent } from '@testing-library/react-native';
-import { renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
+import { act, fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import * as WebBrowser from 'expo-web-browser';
 import { NitroModules } from 'react-native-nitro-modules';
 
@@ -30,10 +31,28 @@ import {
   PLATAFORMAS,
   respuesta,
   RUTA_DEL_INICIO,
+  RUTAS_DE_LOS_CONTEOS,
   TOKEN_DE_LA_ADMINISTRACION,
   usarElServidorDeLaAdministracion,
   type Plataforma,
 } from '../apoyo/administracion';
+import {
+  CONFIRMADO,
+  consultasDelMonitoreo,
+  EN_PROCESO,
+  ENTREGADO,
+  PedidosDelMonitoreo,
+  RECOLECTADO,
+} from '../apoyo/administracion/monitoreo';
+import {
+  ACTIVO,
+  consultas,
+  DE_BAJA,
+  OTRO_PENDIENTE,
+  PENDIENTE,
+  RepartidoresDelServidor,
+  SUSPENDIDO,
+} from '../apoyo/administracion/repartidores';
 import { LAVANDERIA_DEL_SOCIO } from '../apoyo/lavanderia';
 import {
   CUENTA_DEL_REPARTIDOR,
@@ -82,6 +101,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  jest.useRealTimers();
   if (clienteOriginal === undefined) {
     delete process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
   } else {
@@ -124,6 +144,16 @@ function sinNadaDelPanel() {
   expect(screen.queryByRole('link', { name: /panel/i })).not.toBeOnTheScreen();
   expect(navegador.openBrowserAsync).not.toHaveBeenCalled();
 }
+
+/** Más que el intervalo de las pantallas que se ponen al día solas (ADR-0007): el inicio no es una de ellas. */
+const TRES_VECES_TREINTA_SEGUNDOS = 3 * 30_000;
+
+/** Lo que pide la app al abrir el inicio del módulo con la sesión guardada: la cuenta y los dos conteos. */
+const AL_ABRIR_EL_INICIO = [
+  'GET /cuenta',
+  `GET ${RUTAS_DE_LOS_CONTEOS.repartidores}`,
+  `GET ${RUTAS_DE_LOS_CONTEOS.monitoreo}`,
+];
 
 /** Las peticiones que la app hizo, como "GET /cuenta". */
 function peticionesHechas(): string[] {
@@ -178,7 +208,7 @@ describe('administracion-app-E02: la app abre el módulo de la administración',
       await renderRouter(APP, { initialUrl: '/' });
 
       await esperarElInicioDelModulo();
-      expect(peticionesHechas()).toEqual(['GET /cuenta']);
+      await waitFor(() => expect(peticionesHechas()).toEqual(AL_ABRIR_EL_INICIO));
       expect(screen.queryByLabelText('Contraseña')).not.toBeOnTheScreen();
     },
   );
@@ -242,8 +272,8 @@ describe('administracion-app-E02: la app abre el módulo de la administración',
         await abrirLaAppConLaAdministracion(plataforma, otra);
 
         await esperarElInicioDelModulo();
-        // Ninguna pantalla de otro módulo llegó a pedir lo suyo.
-        expect(peticionesHechas()).toEqual(['GET /cuenta']);
+        // Ninguna pantalla de otro módulo llegó a pedir lo suyo: solo el inicio, sus dos conteos.
+        await waitFor(() => expect(peticionesHechas()).toEqual(AL_ABRIR_EL_INICIO));
         await screen.unmount();
       }
     },
@@ -270,10 +300,186 @@ describe('administracion-app-E03: el inicio del módulo', () => {
       expect(screen.getByRole('header', { name: 'Estado del negocio' })).toBeOnTheScreen();
       // "Cerrar sesión", fijo abajo, fuera del contenido.
       expect(within(screen.getByTestId('acciones')).getByRole('button', { name: 'Cerrar sesión' })).toBeOnTheScreen();
-      // El inicio no consulta nada: solo la cuenta, al abrir la app.
-      expect(peticionesHechas()).toEqual(['GET /cuenta']);
+      // El inicio pide sus dos conteos, y nada más.
+      await waitFor(() => expect(peticionesHechas()).toEqual(AL_ABRIR_EL_INICIO));
     },
   );
+
+  describe('los dos conteos del inicio (imágenes 03 y 56 de la Propuesta 06; design.md, sección 5)', () => {
+    let repartidores: RepartidoresDelServidor;
+    let pedidos: PedidosDelMonitoreo;
+
+    beforeEach(() => {
+      repartidores = new RepartidoresDelServidor([ACTIVO, PENDIENTE, SUSPENDIDO, OTRO_PENDIENTE, DE_BAJA]);
+      pedidos = new PedidosDelMonitoreo([EN_PROCESO, CONFIRMADO, RECOLECTADO, ENTREGADO]);
+      servidor().agregar(repartidores.manejador);
+      servidor().agregar(pedidos.manejador);
+    });
+
+    /** La insignia junto a esa entrada del inicio, o null si no lleva. */
+    function insigniaDe(seccion: 'repartidores' | 'monitoreo') {
+      return screen.queryByTestId(`conteo-${seccion}`);
+    }
+
+    /** Las entradas del inicio y su insignia, en el orden en que se ven: "Repartidores · 2 pendientes". */
+    function entradasConSuInsignia(): string[] {
+      return screen
+        .getAllByText(/^(Repartidores|Monitoreo de pedidos|\d+ (pendientes?|activos?))$/)
+        .map((texto) => texto.props.children as string)
+        .reduce<string[]>(
+          (entradas, texto) =>
+            /^\d/.test(texto) ? [...entradas.slice(0, -1), `${entradas[entradas.length - 1]} · ${texto}`] : [...entradas, texto],
+          [],
+        );
+    }
+
+    test.each(PLATAFORMAS)(
+      'administracion-app-E03 — (%s) junto a Repartidores, cuántos están pendientes de alta, y junto a Monitoreo de pedidos, cuántos pedidos activos hay, cada uno en su insignia: los mismos que dan esas pantallas',
+      async (plataforma) => {
+        await abrirLaAppConLaAdministracion(plataforma);
+
+        await esperarElInicioDelModulo();
+        expect(await screen.findByTestId('conteo-repartidores')).toHaveTextContent('2 pendientes');
+        expect(await screen.findByTestId('conteo-monitoreo')).toHaveTextContent('3 activos');
+        // Cada insignia, a la derecha de su entrada, y ninguna en las demás.
+        expect(entradasConSuInsignia()).toEqual(['Repartidores · 2 pendientes', 'Monitoreo de pedidos · 3 activos']);
+        expect(screen.getAllByText(/^\d+ (pendientes?|activos?)$/)).toHaveLength(2);
+        // De las mismas rutas que sus pantallas, con el token de la sesión: los pendientes son los de estado pendiente
+        // (administracion-app-E19), y los activos, los que trae el monitoreo, sin el entregado (administracion-app-E28).
+        expect(
+          servidor()
+            .peticiones()
+            .filter(({ ruta }) => ruta.startsWith('/administracion'))
+            .map(({ metodo, ruta, autorizacion }) => `${metodo} ${ruta} ${autorizacion}`),
+        ).toEqual([
+          `GET ${RUTAS_DE_LOS_CONTEOS.repartidores} Bearer ${TOKEN_DE_LA_ADMINISTRACION}`,
+          `GET ${RUTAS_DE_LOS_CONTEOS.monitoreo} Bearer ${TOKEN_DE_LA_ADMINISTRACION}`,
+        ]);
+        // El enlace sigue diciendo solo su sección.
+        expect(screen.getByRole('link', { name: 'Repartidores' })).toBeOnTheScreen();
+        expect(screen.getByRole('link', { name: 'Monitoreo de pedidos' })).toBeOnTheScreen();
+      },
+    );
+
+    test.each(PLATAFORMAS)(
+      'administracion-app-E03 — (%s) sin repartidores pendientes, Repartidores va sin insignia y la de los pedidos activos sigue (imagen 56); con uno, en singular',
+      async (plataforma) => {
+        repartidores.cambiar(PENDIENTE.id_publico, { estado: 'activo' });
+        repartidores.cambiar(OTRO_PENDIENTE.id_publico, { estado: 'baja' });
+        pedidos.poner([EN_PROCESO, ENTREGADO]);
+
+        await abrirLaAppConLaAdministracion(plataforma);
+
+        await esperarElInicioDelModulo();
+        expect(await screen.findByTestId('conteo-monitoreo')).toHaveTextContent('1 activo');
+        await waitFor(() => expect(consultas(servidor(), RUTAS_DE_LOS_CONTEOS.repartidores)).toBe(1));
+        expect(insigniaDe('repartidores')).not.toBeOnTheScreen();
+        expect(entradasConSuInsignia()).toEqual(['Repartidores', 'Monitoreo de pedidos · 1 activo']);
+
+        await screen.unmount();
+        repartidores.cambiar(OTRO_PENDIENTE.id_publico, { estado: 'pendiente' });
+        pedidos.poner([ENTREGADO]);
+        await abrirLaAppConLaAdministracion(plataforma);
+
+        await esperarElInicioDelModulo();
+        expect(await screen.findByTestId('conteo-repartidores')).toHaveTextContent('1 pendiente');
+        // Sin pedidos activos, el monitoreo dice que son cero: solo Repartidores va sin insignia cuando no hay.
+        expect(await screen.findByTestId('conteo-monitoreo')).toHaveTextContent('0 activos');
+      },
+    );
+
+    test.each(PLATAFORMAS)(
+      'administracion-app-E03 — (%s) los consulta cada vez que el inicio queda a la vista: al volver de Repartidores, los pide otra vez y muestra los de ahora',
+      async (plataforma) => {
+        await abrirLaAppConLaAdministracion(plataforma);
+        await esperarElInicioDelModulo();
+        expect(await screen.findByTestId('conteo-repartidores')).toHaveTextContent('2 pendientes');
+        expect(await screen.findByTestId('conteo-monitoreo')).toHaveTextContent('3 activos');
+
+        // Va a Repartidores; mientras, uno de los pendientes recibe su alta y un pedido se entrega.
+        await fireEvent.press(screen.getByRole('link', { name: 'Repartidores' }));
+        await waitFor(() => expect(screen).toHavePathname(RUTAS_DE_LOS_CONTEOS.repartidores));
+        await screen.findByRole('header', { name: 'Repartidores' });
+        repartidores.cambiar(PENDIENTE.id_publico, { estado: 'activo' });
+        pedidos.cambiar(RECOLECTADO.id_publico, 'entregado');
+
+        // De vuelta, el inicio queda a la vista otra vez y los pide de nuevo.
+        await fireEvent.press(screen.getByRole('button', { name: 'Regresar' }));
+        await waitFor(() => expect(screen).toHavePathname(RUTA_DEL_INICIO));
+        await waitFor(() => expect(screen.getByTestId('conteo-repartidores')).toHaveTextContent('1 pendiente'));
+        await waitFor(() => expect(screen.getByTestId('conteo-monitoreo')).toHaveTextContent('2 activos'));
+        // La lista de Repartidores la pidió su pantalla una vez; el inicio, dos.
+        expect(consultas(servidor(), RUTAS_DE_LOS_CONTEOS.repartidores)).toBe(3);
+        expect(consultasDelMonitoreo(servidor())).toBe(2);
+      },
+    );
+
+    describe('con el reloj de la prueba', () => {
+      // El reloj de verdad vuelve después de desmontar la app, en el afterEach del archivo.
+      beforeEach(() => {
+        jest.useFakeTimers();
+      });
+
+      test.each(PLATAFORMAS)(
+        'administracion-app-E03 — (%s) con el inicio a la vista, el tiempo no trae otra consulta: no se pone al día solo',
+        async (plataforma) => {
+          await abrirLaAppConLaAdministracion(plataforma, RUTA_DEL_INICIO);
+          await esperarElInicioDelModulo();
+          expect(await screen.findByTestId('conteo-repartidores')).toHaveTextContent('2 pendientes');
+          expect(await screen.findByTestId('conteo-monitoreo')).toHaveTextContent('3 activos');
+
+          await act(() => jest.advanceTimersByTimeAsync(TRES_VECES_TREINTA_SEGUNDOS));
+
+          expect(consultas(servidor(), RUTAS_DE_LOS_CONTEOS.repartidores)).toBe(1);
+          expect(consultasDelMonitoreo(servidor())).toBe(1);
+        },
+      );
+    });
+
+    test.each(PLATAFORMAS)(
+      'administracion-app-E03 — (%s) si la consulta de los repartidores falla, Repartidores va sin insignia y el inicio sigue igual, con la de los pedidos activos',
+      async (plataforma) => {
+        servidor().interceptar = ({ metodo, ruta }) =>
+          metodo === 'GET' && ruta === RUTAS_DE_LOS_CONTEOS.repartidores
+            ? respuesta(500, { message: 'Server Error' })
+            : undefined;
+
+        await abrirLaAppConLaAdministracion(plataforma);
+
+        await esperarElInicioDelModulo();
+        expect(await screen.findByTestId('conteo-monitoreo')).toHaveTextContent('3 activos');
+        await waitFor(() => expect(consultas(servidor(), RUTAS_DE_LOS_CONTEOS.repartidores)).toBe(1));
+        expect(insigniaDe('repartidores')).not.toBeOnTheScreen();
+        // El inicio sigue igual: sus diez entradas, sin ningún mensaje de error, y la sesión sigue.
+        expect(screen.getAllByRole('link')).toHaveLength(ENTRADAS.length);
+        expect(screen.queryByRole('alert')).not.toBeOnTheScreen();
+        expect(screen).toHavePathname(RUTA_DEL_INICIO);
+        await expect(leerToken()).resolves.toBe(TOKEN_DE_LA_ADMINISTRACION);
+      },
+    );
+
+    test.each(PLATAFORMAS)(
+      'administracion-app-E03 — (%s) si la consulta del monitoreo no llega, Monitoreo de pedidos va sin insignia y el inicio sigue igual, con la de los pendientes',
+      async (plataforma) => {
+        servidor().interceptar = ({ metodo, ruta }) => {
+          if (metodo === 'GET' && ruta === RUTAS_DE_LOS_CONTEOS.monitoreo) {
+            throw new TypeError('Network request failed');
+          }
+          return undefined;
+        };
+
+        await abrirLaAppConLaAdministracion(plataforma);
+
+        await esperarElInicioDelModulo();
+        expect(await screen.findByTestId('conteo-repartidores')).toHaveTextContent('2 pendientes');
+        await waitFor(() => expect(consultasDelMonitoreo(servidor())).toBe(1));
+        expect(insigniaDe('monitoreo')).not.toBeOnTheScreen();
+        expect(screen.getAllByRole('link')).toHaveLength(ENTRADAS.length);
+        expect(screen.queryByRole('alert')).not.toBeOnTheScreen();
+        expect(screen).toHavePathname(RUTA_DEL_INICIO);
+      },
+    );
+  });
 
   test.each(PLATAFORMAS)(
     'administracion-app-E03 — (%s) ningún texto del inicio trae el nombre del producto',

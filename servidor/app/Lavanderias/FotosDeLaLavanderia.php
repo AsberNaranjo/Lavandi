@@ -5,9 +5,12 @@ namespace App\Lavanderias;
 use App\Fotos\AlmacenDeFotos;
 use App\Models\Lavanderia;
 use App\Models\LavanderiaFoto;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Validation\ValidationException;
+use JsonException;
 
 /**
  * Las fotos de la lavandería en el almacenamiento privado de fotos del entorno (App\Fotos\AlmacenDeFotos; ADR-0006). En
@@ -21,6 +24,11 @@ use Illuminate\Validation\ValidationException;
  * En la edición, la lavandería y el panel mantienen la lista completa y ordenada de sus fotos, de una al máximo de la
  * configuración (alta-lavanderias-E26 a E31; acta-2026-11-20-modelo-y-pasarela.md, decisión 44, DD-097): la lista que
  * llega reemplaza a la anterior, como los servicios y las ventanas.
+ *
+ * El panel y la API de la administración nombran cada foto por su lugar en la lectura con que se abrió la edición, y
+ * la lista se rechaza si las fotos cambiaron desde entonces (reemplazarTodas() con las rutas leídas). El panel guarda
+ * esas rutas en la página; la API las entrega con la ficha en una marca cifrada que la app devuelve con la lista
+ * (marcaDeLaLectura() y rutasDeLaMarca(); administracion-app-E14).
  */
 final class FotosDeLaLavanderia
 {
@@ -113,6 +121,39 @@ final class FotosDeLaLavanderia
         }
 
         return $quitadas->pluck('ruta')->values()->all();
+    }
+
+    /**
+     * Las fotos de la lavandería como están ahora, en la marca que la ficha de la API de la administración entrega como
+     * fotos_leidas (administracion-app-E14): sus rutas en su orden, cifradas con la llave de la app, así ninguna ruta
+     * sale de la API y nadie la cambia. La app la devuelve con la lista de fotos, y la edición cuenta los lugares sobre
+     * esas fotos, como el panel con las que leyó al abrir la página.
+     */
+    public function marcaDeLaLectura(Lavanderia $lavanderia): string
+    {
+        return Crypt::encryptString(json_encode($this->enOrden($lavanderia)->pluck('ruta')->all(), JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * Las rutas que nombra una marca de marcaDeLaLectura(), para editar() y reemplazarTodas(). Una marca que no viene, o
+     * que no salió de aquí, no nombra ninguna foto: la lista vacía, y reemplazarTodas() rechaza la lista de fotos de una
+     * lavandería que sí las tiene.
+     *
+     * @return list<string>
+     */
+    public function rutasDeLaMarca(mixed $marca): array
+    {
+        if (! is_string($marca)) {
+            return [];
+        }
+
+        try {
+            $rutas = json_decode(Crypt::decryptString($marca), true, flags: JSON_THROW_ON_ERROR);
+        } catch (DecryptException|JsonException) {
+            return [];
+        }
+
+        return is_array($rutas) && array_is_list($rutas) && array_all($rutas, fn (mixed $ruta): bool => is_string($ruta)) ? $rutas : [];
     }
 
     /**

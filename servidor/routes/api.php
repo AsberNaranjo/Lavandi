@@ -62,12 +62,17 @@ Route::middleware(['auth:sanctum', 'autorizar:usuario,lavanderia,repartidor,admi
 });
 
 // El catálogo del territorio para la dirección asistida (direcciones, C-238): la del usuario y la de la lavandería que se
-// registra (alta-lavanderias-E01). Sigue con los tres roles de siempre, sin la administración (ADR-0022, decisión 6). El
-// contrato está en el controlador.
-Route::middleware(['auth:sanctum', 'autorizar:usuario,lavanderia,repartidor'])->group(function () {
-    // Sin where en el código postal a propósito: uno que no son cinco números responde 422, no 404 (direcciones-E20).
+// registra (alta-lavanderias-E01). El contrato está en el controlador.
+// - Los municipios, también para la administración, que cambia el de una lavandería al editarla (administracion-app-E14;
+//   adenda del 2026-11-26 de ADR-0022, decisión 6). Es un catálogo sin datos personales.
+// - Las colonias de un código postal, con los tres roles de siempre, sin la administración (ADR-0022, decisión 6).
+Route::middleware(['auth:sanctum', 'autorizar:usuario,lavanderia,repartidor,administracion'])->group(function () {
     Route::get('catalogos/municipios', [CatalogoDelTerritorioController::class, 'municipios'])
         ->name('catalogos.municipios');
+});
+
+Route::middleware(['auth:sanctum', 'autorizar:usuario,lavanderia,repartidor'])->group(function () {
+    // Sin where en el código postal a propósito: uno que no son cinco números responde 422, no 404 (direcciones-E20).
     Route::get('codigos-postales/{codigo_postal}/colonias', [CatalogoDelTerritorioController::class, 'colonias'])
         ->name('codigos-postales.colonias');
 });

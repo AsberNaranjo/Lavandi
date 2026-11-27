@@ -1,7 +1,7 @@
 ---
 estado: vigente
 grado: D
-fuente: acta-2026-11-20-modelo-y-pasarela.md C-247 y decisión 69 (C); delegación de C-236 y C-245 (C); C-134 (C); NSV-2026-001-v8.pdf:3:Cláusula I (entregables 3 y 4), :5:Cláusula II, :10:Cláusula X, :15:ANEXO A, Sección A.2, :19-20:ANEXO A, Sección A.3, :21:ANEXO A, Secciones A.4.3 y A.4.4, y :22:ANEXO A, Sección A.5 (A); servidor/routes/api.php, servidor/app/Autorizacion/Autorizacion.php, servidor/app/Http/Middleware/Autorizar.php, servidor/app/Http/Controllers/Api/SesionController.php, servidor/app/Identidad/EntradaConGoogle.php, servidor/config/sanctum.php, servidor/database/migrations/2026_11_24_200000_crear_exports.php, servidor/app/Models/Concerns/TieneIdPublico.php, servidor/app/Exportacion/EscribirArchivoDelReporte.php, servidor/tests/Feature/Autorizacion/, movil/package.json, movil/app/_layout.tsx y movil/src/sesion/modulos.ts (B); ADR-0003, ADR-0005, ADR-0007, ADR-0009, ADR-0013, ADR-0016, ADR-0017, ADR-0018 y ADR-0019 (D); DD-040 y DD-141 (B); código instalado de Laravel v13.43.0, Sanctum v4.5.0, Filament v5.11.4 y expo-file-system 58.0.14 (E, SIN VERIFICAR en el teléfono)
+fuente: acta-2026-11-20-modelo-y-pasarela.md C-247 y decisión 69 (C); delegación de C-236 y C-245 (C); adenda del 2026-11-26: delegación de Arthur, C-245 (C), y servidor/routes/api.php (B); C-134 (C); NSV-2026-001-v8.pdf:3:Cláusula I (entregables 3 y 4), :5:Cláusula II, :10:Cláusula X, :15:ANEXO A, Sección A.2, :19-20:ANEXO A, Sección A.3, :21:ANEXO A, Secciones A.4.3 y A.4.4, y :22:ANEXO A, Sección A.5 (A); servidor/routes/api.php, servidor/app/Autorizacion/Autorizacion.php, servidor/app/Http/Middleware/Autorizar.php, servidor/app/Http/Controllers/Api/SesionController.php, servidor/app/Identidad/EntradaConGoogle.php, servidor/config/sanctum.php, servidor/database/migrations/2026_11_24_200000_crear_exports.php, servidor/app/Models/Concerns/TieneIdPublico.php, servidor/app/Exportacion/EscribirArchivoDelReporte.php, servidor/tests/Feature/Autorizacion/, movil/package.json, movil/app/_layout.tsx y movil/src/sesion/modulos.ts (B); ADR-0003, ADR-0005, ADR-0007, ADR-0009, ADR-0013, ADR-0016, ADR-0017, ADR-0018 y ADR-0019 (D); DD-040 y DD-141 (B); código instalado de Laravel v13.43.0, Sanctum v4.5.0, Filament v5.11.4 y expo-file-system 58.0.14 (E, SIN VERIFICAR en el teléfono)
 fecha: 2026-11-24
 dueño: Arthur Naranjo
 adr: ADR-0022
@@ -244,7 +244,8 @@ solo pone la administración dentro de la app (Cláusula I) y dice qué hace (M�
    muestra el mensaje de `id_token` bajo el botón de Google.
 6. **`GET /api/cuenta` y `DELETE /api/sesion` son también de la administración.** La cuenta le dice a la app que el
    rol es `administracion`. El catálogo del territorio (`catalogos/municipios` y las colonias por código postal) se queda
-   para los tres roles que lo usan.
+   para los tres roles que lo usan. La lista de municipios la cambió la adenda del 2026-11-26: también es de la
+   administración.
 
 **La API de la administración**
 
@@ -453,3 +454,30 @@ solo pone la administración dentro de la app (Cláusula I) y dice qué hace (M�
 - **ADRs relacionados:** [[ADR-0003-backend-y-lenguaje]], [[ADR-0005-autenticacion]], [[ADR-0007-tiempo-real]],
   [[ADR-0009-mapas]], [[ADR-0010-pasarela-de-pago]], [[ADR-0013-adaptador-de-tokens]], [[ADR-0016-modelo-de-datos]],
   [[ADR-0017-navegacion-de-la-app]], [[ADR-0018-sesion-y-recuperacion]] y [[ADR-0019-autorizacion]].
+
+## Adenda del 2026-11-26: la administración lee el catálogo de municipios
+
+**Contexto.**
+
+- administracion-app-E14 pide que la administración cambie "su dirección con su municipio" al editar una lavandería, y
+  la edición elige el municipio de `GET /api/catalogos/municipios` (`movil/src/direcciones/useMunicipios.ts`), como el
+  registro de la lavandería.
+- La decisión 6 dejaba ese catálogo para los tres roles de los Módulos A, B y C. Con el 403, la edición mostraba el
+  municipio que tenía sin poder cambiarlo (tarea 4.3 de `openspec/changes/administracion-en-la-app/tasks.md`).
+
+**Decisión.**
+
+- **La administración lee `GET /api/catalogos/municipios`**, con su token de administración. Es un catálogo sin datos
+  personales: los municipios del territorio con su estado.
+- La ruta va en su propio grupo, con `autorizar:usuario,lavanderia,repartidor,administracion`, por el componente de
+  autorización (ADR-0019). Un token de administración sin la habilidad no la abre (decisión 8).
+- **Las colonias por código postal siguen con los tres roles**: la edición de la lavandería no las pide.
+- **Alternativa descartada:** servir el catálogo bajo `/api/administracion` con el mismo controlador. Duplica la ruta y
+  obliga al formulario de la lavandería a recibir de dónde salen los municipios.
+
+**Trazabilidad.** Escenarios: administracion-app-E14, registro-E33 y autorizacion-E02 (deltas en
+`openspec/changes/administracion-en-la-app/specs/`). Pruebas: `servidor/tests/Feature/Autorizacion/RolPorModuloTest.php`,
+`servidor/tests/Feature/Registro/CuentaDeLosRolesDeLaAppTest.php` y
+`servidor/tests/Feature/Direcciones/CatalogoTest.php`. Cierra el bloqueo de la tarea 4.3.
+
+**La tomó** la sesión principal del 2026-11-26 por delegación de Arthur Naranjo (C-245).

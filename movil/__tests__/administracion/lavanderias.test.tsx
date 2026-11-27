@@ -19,6 +19,7 @@ import {
   PLATAFORMAS,
   respuesta,
   RUTA_DEL_INICIO,
+  RUTAS_DE_LOS_CONTEOS,
   usarElServidorDeLaAdministracion,
   type Plataforma,
 } from '../apoyo/administracion';
@@ -126,8 +127,11 @@ describe('administracion-app-E03: la entrada a Lavanderías', () => {
       await waitFor(() => expect(screen).toHavePathname(RUTA_DE_LAS_LAVANDERIAS));
       expect(await screen.findByRole('header', { name: 'Lavanderías' })).toBeOnTheScreen();
       expect(await screen.findByTestId('lista-de-lavanderias')).toBeOnTheScreen();
+      // Antes, el inicio pidió sus dos conteos (administracion-app-E03).
       expect(servidor().peticiones().map(({ metodo, ruta }) => `${metodo} ${ruta}`)).toEqual([
         'GET /cuenta',
+        `GET ${RUTAS_DE_LOS_CONTEOS.repartidores}`,
+        `GET ${RUTAS_DE_LOS_CONTEOS.monitoreo}`,
         `GET ${RUTA_DE_LAS_LAVANDERIAS}`,
       ]);
 

@@ -284,7 +284,7 @@ class ReportesFinancierosTest extends TestCase
         $this->assertSame($respuesta->json(), $otraVez->json());
     }
 
-    #[TestDox('administracion-app-E38: con la fecha de fin anterior a la de inicio, la conciliación responde 422 en la fecha de fin con "La fecha de fin no puede ser anterior a la de inicio."; sin las fechas, 422 en las dos; y en ningún caso lee la pasarela ni guarda nada')]
+    #[TestDox('administracion-app-E38: con la fecha de fin anterior a la de inicio, la conciliación responde 422 en la fecha de fin con "La fecha de fin no puede ser anterior a la de inicio."; sin las fechas, 422 en las dos; con fechas que se entienden pero no vienen en AAAA-MM-DD, 422 en cada una (App\Validacion\RangoDeFechas); y en ningún caso lee la pasarela ni guarda nada')]
     public function test_administracion_app_e38_un_rango_al_reves_responde_422(): void
     {
         $this->pagadoEl('2027-03-05 10:00:00', '150.00');
@@ -297,6 +297,12 @@ class ReportesFinancierosTest extends TestCase
 
         $sinFechas = $this->llamarConToken($token, 'POST', self::CONCILIACIONES)->assertUnprocessable();
         $this->assertEqualsCanonicalizing(['desde', 'hasta'], array_keys($sinFechas->json('errors')));
+
+        // Una fecha que se entiende pero no viene en AAAA-MM-DD no se toma como otro periodo: la regla del rango la
+        // rechaza en su campo (date_format:Y-m-d).
+        $enOtroFormato = $this->llamarConToken($token, 'POST', self::CONCILIACIONES, ['desde' => '03/01/2027', 'hasta' => '1 March 2027'])
+            ->assertUnprocessable();
+        $this->assertEqualsCanonicalizing(['desde', 'hasta'], array_keys($enOtroFormato->json('errors')));
 
         $this->assertSame([], $this->lecturasDeLaPasarela());
         $this->assertSame($antes, $this->fotoDeLaBase());

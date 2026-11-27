@@ -5,16 +5,19 @@
 El sistema DEBE (MUST) dejar que cada cuenta use solo las funciones del módulo de su rol: usuario (Módulo A), socio
 lavandería (Módulo B), socio repartidor (Módulo C) o administración (Módulo D, en la app, con las rutas de
 `/api/administracion`, y en el panel web, que queda como respaldo interno). Las rutas de un módulo rechazan a los demás
-roles sin devolver datos. La consulta de la propia cuenta y el cierre de la sesión son comunes a los cuatro roles; el
-catálogo del territorio, solo a los tres que lo usan (usuario, socio lavandería y socio repartidor).
+roles sin devolver datos. La consulta de la propia cuenta, el cierre de la sesión y la lista de municipios del catálogo
+del territorio son comunes a los cuatro roles: la administración elige de esa lista el municipio de una lavandería al
+editarla (administracion-app-E14). Las colonias por código postal, solo a los tres que las usan (usuario, socio
+lavandería y socio repartidor).
 
 Cita: A → `NSV-2026-001-v8.pdf:20:ANEXO A, Sección A.3`, `NSV-2026-001-v8.pdf:21:ANEXO A, Sección A.4.3` (los cuatro
 módulos), `NSV-2026-001-v8.pdf:18:ANEXO A, Sección A.3` (Módulo C #1), `NSV-2026-001-v8.pdf:19:ANEXO A, Sección A.3`
 (Módulo D #1 y #2: "Alta") y `NSV-2026-001-v8.pdf:44:ANEXO D, Sección D.1` ("Pantalla de control reservada al dueño del
 negocio") · A → `NSV-2026-001-v8.pdf:3:Cláusula I` ("Aplicación única para iPhone y Android, con módulo de usuario,
 módulo de socio lavandería, módulo de socio repartidor y panel de administración") · D → ADR-0005, ADR-0003 y ADR-0022
-(decisiones 6, 7, 8 y 18) · C → C-247 y decisión 69 de `acta-2026-11-20-modelo-y-pasarela.md`, que reemplazan la vista
-reducida de C-140 y la decisión 56. Que el panel web quede como respaldo viene de C-247, no del contrato
+(decisiones 6, 7, 8 y 18, y la adenda del 2026-11-26 de la decisión 6) · C → C-247 y decisión 69 de
+`acta-2026-11-20-modelo-y-pasarela.md`, que reemplazan la vista reducida de C-140 y la decisión 56; C → C-245 (la
+adenda, por delegación de Arthur). Que el panel web quede como respaldo viene de C-247, no del contrato
 
 #### Scenario: autorizacion-E02 — Ningún rol entra al módulo de otro
 
@@ -23,8 +26,8 @@ reducida de C-140 y la decisión 56. Que el panel web quede como respaldo viene 
 - **CUANDO** cada una llama a las rutas de los módulos que no son el suyo
 - **ENTONCES** todas esas llamadas se rechazan sin devolver datos
 - **Y** cada cuenta sí llega a las rutas de su propio módulo: la administración, a las de `/api/administracion`
-- **Y** la consulta de la cuenta y el cierre de la sesión admiten a los cuatro roles, y el catálogo del territorio solo
-  al usuario, a la lavandería y al repartidor
+- **Y** la consulta de la cuenta, el cierre de la sesión y la lista de municipios admiten a los cuatro roles, y las
+  colonias por código postal solo al usuario, a la lavandería y al repartidor
 - **Y** cada llamada de la prueba lleva un token real de su cuenta, creado por la misma pieza que crea los tokens de la
   app (ADR-0022, decisión 3), no uno simulado
 

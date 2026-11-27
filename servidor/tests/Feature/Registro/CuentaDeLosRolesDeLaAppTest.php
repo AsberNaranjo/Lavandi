@@ -15,8 +15,9 @@ use Tests\TestCase;
  * La cuenta y el cierre de la sesión son de toda cuenta con un rol de la app, no solo del usuario: con el rol, la app
  * sabe a qué módulo entra (ANEXO A, Sección A.3; NSV-2026-001-v8.pdf:3:Cláusula I). La administración también, con su
  * token de administración: C-247 y la decisión 69 del acta del 2026-11-20 reemplazan la decisión 31, que la dejaba
- * fuera (ADR-0022, decisiones 1, 6 y 8). Un token suyo sin la habilidad no las abre, y el catálogo del territorio sigue
- * con los tres roles de siempre.
+ * fuera (ADR-0022, decisiones 1, 6 y 8). Un token suyo sin la habilidad no las abre. Del catálogo del territorio, la
+ * administración lee los municipios, para cambiar el de una lavandería (administracion-app-E14; adenda del 2026-11-26 de
+ * ADR-0022, decisión 6); las colonias de un código postal siguen con los tres roles de siempre.
  *
  * Los tokens son los reales, de App\Identidad\TokensDeLaApp, y van con withToken().
  *
@@ -109,19 +110,28 @@ class CuentaDeLosRolesDeLaAppTest extends TestCase
         $this->assertSame(1, $administracion->tokens()->count());
     }
 
-    #[TestDox('registro-E33: el catálogo del territorio sigue solo para el usuario, la lavandería y el repartidor: la administración, con su token, recibe 403 sin datos')]
-    public function test_registro_e33_el_catalogo_del_territorio_sigue_sin_la_administracion(): void
+    #[TestDox('registro-E33: el catálogo de municipios lo leen los cuatro roles, también la administración con su token; las colonias de un código postal siguen solo para el usuario, la lavandería y el repartidor: la administración recibe 403 sin datos')]
+    public function test_registro_e33_la_administracion_lee_los_municipios_y_no_las_colonias(): void
     {
-        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+        $administracion = $this->cuentaDeAdministracion();
+        $token = $this->tokenDeLaApp($administracion);
 
-        foreach (['/api/catalogos/municipios', '/api/codigos-postales/34000/colonias'] as $url) {
-            $this->llamarConToken($token, 'GET', $url)->assertForbidden()->assertExactJson(self::RESPUESTA_SIN_ACCESO);
-        }
+        $this->llamarConToken($token, 'GET', '/api/catalogos/municipios')->assertOk()->assertJsonStructure(['municipios']);
+        $this->llamarConToken($token, 'GET', '/api/codigos-postales/34000/colonias')
+            ->assertForbidden()
+            ->assertExactJson(self::RESPUESTA_SIN_ACCESO);
 
         foreach (self::ROLES_QUE_NO_SON_DE_ADMINISTRACION as $rol) {
-            $this->llamarConToken($this->tokenDeLaApp($this->cuentaQueOperaComo($rol)), 'GET', '/api/catalogos/municipios')
-                ->assertOk();
+            $deOtroRol = $this->tokenDeLaApp($this->cuentaQueOperaComo($rol));
+
+            $this->llamarConToken($deOtroRol, 'GET', '/api/catalogos/municipios')->assertOk();
+            $this->llamarConToken($deOtroRol, 'GET', '/api/codigos-postales/34000/colonias')->assertOk();
         }
+
+        // Un token de administración sin la habilidad tampoco abre el catálogo (administracion-app-E06).
+        $this->llamarConToken($this->tokenSinLaHabilidad($administracion), 'GET', '/api/catalogos/municipios')
+            ->assertForbidden()
+            ->assertExactJson(self::RESPUESTA_SIN_ACCESO);
     }
 
     #[TestDox('administracion-app-E09: a una cuenta sin ningún rol de la app, POST /api/sesion le responde 403 sin token, con un mensaje que no menciona el panel')]

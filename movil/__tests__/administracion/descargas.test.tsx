@@ -45,6 +45,7 @@ import {
   prepararElTelefonoConLaAdministracion,
   respuesta,
   RUTA_DEL_INICIO,
+  RUTAS_DE_LOS_CONTEOS,
   TOKEN_DE_LA_ADMINISTRACION,
   usarElServidorDeLaAdministracion,
   type Plataforma,
@@ -225,8 +226,11 @@ describe('administracion-app-E03: la entrada a Descargas', () => {
       await waitFor(() => expect(screen).toHavePathname(RUTA_DE_LAS_DESCARGAS));
       expect(await screen.findByRole('header', { name: 'Descargas' })).toBeOnTheScreen();
       expect(await screen.findByText('Tus descargas de los últimos 7 días.')).toBeOnTheScreen();
+      // Antes, el inicio pidió sus dos conteos (administracion-app-E03).
       expect(servidor().peticiones().map(({ metodo, ruta }) => `${metodo} ${ruta}`)).toEqual([
         'GET /cuenta',
+        `GET ${RUTAS_DE_LOS_CONTEOS.repartidores}`,
+        `GET ${RUTAS_DE_LOS_CONTEOS.monitoreo}`,
         `GET ${RUTA_DE_LAS_DESCARGAS}`,
       ]);
 

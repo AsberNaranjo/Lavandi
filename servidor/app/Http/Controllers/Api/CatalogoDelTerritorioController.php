@@ -18,10 +18,16 @@ use Illuminate\Http\JsonResponse;
  *
  * Contrato para la app. Las dos rutas llevan sesión y pasan por el componente de autorización, como las demás:
  *
- *     Authorization: Bearer <token de la sesión>        (auth:sanctum y autorizar:usuario)
+ *     Authorization: Bearer <token de la sesión>        (auth:sanctum y autorizar:<roles>)
  *
  *     401  { "message": "Unauthenticated." }              sin sesión
- *     403  { "message": "Esta cuenta no tiene acceso." }  la cuenta no tiene el rol de usuario
+ *     403  { "message": "Esta cuenta no tiene acceso." }  la cuenta no tiene uno de los roles de la ruta, o es de
+ *                                                         administración y su token no lleva la habilidad
+ *                                                         administracion (administracion-app-E06)
+ *
+ * Los roles de cada ruta: los municipios, el usuario, la lavandería, el repartidor y la administración, que cambia el
+ * de una lavandería al editarla (administracion-app-E14; adenda del 2026-11-26 de ADR-0022, decisión 6); las colonias,
+ * los tres primeros (registro-E33).
  *
  * ---------------------------------------------------------------------------------------------------------------------
  *

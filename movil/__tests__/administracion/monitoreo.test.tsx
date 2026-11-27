@@ -151,18 +151,22 @@ describe('administracion-app-E03: cada entrada abre su pantalla dentro de la app
     async (plataforma) => {
       await abrirLaAppConLaAdministracion(plataforma, RUTA_DEL_INICIO);
       await screen.findByRole('header', { name: 'Administración' });
+      // El inicio pide el monitoreo para su conteo de pedidos activos (administracion-app-E03).
+      await waitFor(() => expect(consultas()).toBe(1));
 
       await fireEvent.press(screen.getByRole('link', { name: 'Monitoreo de pedidos' }));
 
       await waitFor(() => expect(screen).toHavePathname(RUTA_DEL_MONITOREO));
       expect(await screen.findByRole('header', { name: 'Monitoreo de pedidos' })).toBeOnTheScreen();
       expect(await screen.findByTestId(`pedido-${EN_PROCESO.id_publico}`)).toBeOnTheScreen();
-      expect(consultas()).toBe(1);
+      expect(consultas()).toBe(2);
 
       await fireEvent.press(screen.getByRole('button', { name: 'Regresar' }));
 
       await waitFor(() => expect(screen).toHavePathname(RUTA_DEL_INICIO));
       expect(await screen.findByRole('header', { name: 'Administración' })).toBeOnTheScreen();
+      // De vuelta a la vista, el inicio vuelve a pedir su conteo.
+      await waitFor(() => expect(consultas()).toBe(3));
     },
   );
 });
@@ -179,12 +183,14 @@ describe('administracion-app-E05: la sesión vence o se revoca', () => {
     async (plataforma) => {
       await abrirLaAppConLaAdministracion(plataforma, RUTA_DEL_INICIO);
       await screen.findByRole('header', { name: 'Administración' });
+      // El conteo del inicio ya llegó, con la sesión todavía viva (administracion-app-E03).
+      expect(await screen.findByTestId('conteo-monitoreo')).toBeOnTheScreen();
       servidor().vencerLaSesion();
 
       await fireEvent.press(screen.getByRole('link', { name: 'Monitoreo de pedidos' }));
 
       await esperarElInicioDeSesion();
-      expect(consultas()).toBe(1);
+      expect(consultas()).toBe(2);
     },
   );
 
@@ -389,18 +395,22 @@ describe('administracion-app-E29: el monitoreo se pone al día solo', () => {
     async (plataforma) => {
       await abrirLaAppConLaAdministracion(plataforma, RUTA_DEL_INICIO);
       await screen.findByRole('header', { name: 'Administración' });
+      // El inicio pide el monitoreo una vez para su conteo, sin consulta periódica (administracion-app-E03).
+      await waitFor(() => expect(consultas()).toBe(1));
       await fireEvent.press(screen.getByRole('link', { name: 'Monitoreo de pedidos' }));
       await screen.findByTestId(`pedido-${RECOLECTADO.id_publico}`);
-      expect(consultas()).toBe(1);
+      expect(consultas()).toBe(2);
 
       await fireEvent.press(screen.getByRole('button', { name: 'Regresar' }));
       await waitFor(() => expect(screen).toHavePathname(RUTA_DEL_INICIO));
+      // De vuelta a la vista, el inicio pide su conteo una vez, y nada más.
+      await waitFor(() => expect(consultas()).toBe(3));
       await pasan(3 * TREINTA_SEGUNDOS);
-      expect(consultas()).toBe(1);
+      expect(consultas()).toBe(3);
 
       await act(() => router.push(RUTA_DEL_MONITOREO));
 
-      await waitFor(() => expect(consultas()).toBe(2));
+      await waitFor(() => expect(consultas()).toBe(4));
       expect(await screen.findByTestId(`pedido-${RECOLECTADO.id_publico}`)).toBeOnTheScreen();
     },
   );
