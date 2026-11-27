@@ -160,6 +160,9 @@ function descargas(conUna: boolean) {
   };
 }
 
+
+/** La marca de las fotos leídas solo viaja cuando la edición cambia las fotos (api.ts); estas ediciones no las cambian. */
+const SIN_FOTOS = '';
 const CASOS: Record<string, Caso> = {
   // F-D01, la gestión de lavanderías.
   'lavanderias.lista': {
@@ -184,12 +187,12 @@ const CASOS: Record<string, Caso> = {
   },
   'lavanderias.edicion': {
     escenario: 'administracion-app-E14',
-    leer: (pedir) => editarLavanderia(pedir, ACTIVA.datos.id_publico, { nombre: 'Lavandería de prueba Editada' }),
+    leer: (pedir) => editarLavanderia(pedir, ACTIVA.datos.id_publico, { nombre: 'Lavandería de prueba Editada' }, SIN_FOTOS),
     simulado: lavanderias,
   },
   'lavanderias.edicion-invalida': {
     escenario: 'administracion-app-E14',
-    leer: (pedir) => editarLavanderia(pedir, ACTIVA.datos.id_publico, { nombre: '' }),
+    leer: (pedir) => editarLavanderia(pedir, ACTIVA.datos.id_publico, { nombre: '' }, SIN_FOTOS),
     campo: 'nombre',
     simulado: null,
   },

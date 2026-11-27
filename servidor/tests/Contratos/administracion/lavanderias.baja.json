@@ -3,7 +3,7 @@
     "estado": 200,
     "cuerpo": {
         "lavanderia": {
-            "id_publico": "01m8dcefy42kvcv03yy2r1ydw5",
+            "id_publico": "01m8det379wsacbxe8v35rayx7",
             "nombre": "Lavandería de prueba del contrato",
             "descripcion": "Descripción de prueba del contrato.",
             "direccion": {
@@ -19,16 +19,16 @@
             },
             "foto": {
                 "url": "https://archivos.prueba.invalid/archivo?firma=prueba",
-                "vence_en": "2026-11-27T03:13:15Z"
+                "vence_en": "2026-11-27T03:54:32Z"
             },
             "fotos": [
                 {
                     "url": "https://archivos.prueba.invalid/archivo?firma=prueba",
-                    "vence_en": "2026-11-27T03:13:15Z"
+                    "vence_en": "2026-11-27T03:54:32Z"
                 },
                 {
                     "url": "https://archivos.prueba.invalid/archivo?firma=prueba",
-                    "vence_en": "2026-11-27T03:13:15Z"
+                    "vence_en": "2026-11-27T03:54:32Z"
                 }
             ],
             "maximo_de_fotos": 5,
@@ -59,7 +59,8 @@
             "plaza": {
                 "nombre": "Plaza de prueba 1"
             },
-            "transiciones": []
+            "transiciones": [],
+            "fotos_leidas": "eyJpdiI6IjVpeGhOZ3FCcFplMGJpRWJYcitOTVE9PSIsInZhbHVlIjoiOHdFNXE0YWxDZGxPVVEvcFFFZWFNNG51ZTRJa0dDMDBCRnVOVDc3eHp5QmRSamJTMVVEc041b2VOejE5cVdKVjA2NXBJSGljZUZDdDhUU0s1VHBodG5jNHpFV0VNQTNVNUhlczRySTB5WitTckZFMzUwZmZ4VnUrLzFSbzZOYS9kOW8zc2tPYUVpNmJjWTNqNVJJOTIvR3VpMzFZeUU1VFBtWkJrVURHQmdJTGtmalhpNW0xbU5STEtTT0tGNVBFcTRWMHpiLzY4aVpVcXhiajAvMUVadz09IiwibWFjIjoiYzdmYzA3MTYzNTI2YzMyZDdlYjk5MzBmZjRkNWU1NDA0Mjg0MmQ5OTYyYjAwOGFkMTA3ZWZiYTg3NDk3ZTc3MSIsInRhZyI6IiJ9"
         }
     }
 }
