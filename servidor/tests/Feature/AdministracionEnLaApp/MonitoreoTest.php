@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\AdministracionEnLaApp\Soporte\ContratosDeLaApp;
 use Tests\Feature\AdministracionEnLaApp\Soporte\SesionesDeLaApp;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
 use Tests\Feature\Confirmacion\Soporte\PedidosDePrueba;
@@ -52,6 +53,7 @@ use Tests\TestCase;
 class MonitoreoTest extends TestCase
 {
     use AgendaDePrueba;
+    use ContratosDeLaApp;
     use EstadosDePrueba;
     use LavanderiasDePrueba;
     use PedidosDeLaLavanderiaDePrueba;
@@ -293,6 +295,21 @@ class MonitoreoTest extends TestCase
         $this->pedidoConfirmadoEn($this->lavanderia, $this->cuentaDeUsuario(), '10:00');
 
         $this->assertSoloEntraLaAdministracion('GET', self::MONITOREO);
+    }
+
+    #[TestDox('administracion-app-E28: el contrato del monitoreo con la app: cada pedido con su id_publico, su folio, su estado operativo, su plaza y su recolección, sin la zona horaria, y sus marcadores; sin pedidos activos, las dos listas vacías (design.md, F-D04)')]
+    public function test_administracion_app_e28_el_contrato_del_monitoreo(): void
+    {
+        $administracion = $this->cuentaDeAdministracion();
+        $this->assertCumpleSuContrato('monitoreo.vacio', 'GET /api/administracion/monitoreo', $this->monitoreoDe($administracion));
+
+        $this->sembrarElMonitoreo();
+        $respuesta = $this->monitoreoDe($administracion);
+
+        $this->assertCumpleSuContrato('monitoreo', 'GET /api/administracion/monitoreo', $respuesta);
+        foreach ($respuesta->json('pedidos') as $pedido) {
+            $this->assertSame(self::LLAVES_DEL_PEDIDO, array_keys($pedido));
+        }
     }
 
     /**

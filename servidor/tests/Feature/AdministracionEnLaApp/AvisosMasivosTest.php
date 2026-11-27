@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Testing\TestResponse;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\TestDox;
+use Tests\Feature\AdministracionEnLaApp\Soporte\ContratosDeLaApp;
 use Tests\Feature\AdministracionEnLaApp\Soporte\SesionesDeLaApp;
 use Tests\Feature\AltaLavanderias\Soporte\PanelDePrueba;
 use Tests\Feature\Avisos\Soporte\FcmSimulado;
@@ -49,6 +50,7 @@ use Tests\TestCase;
  */
 class AvisosMasivosTest extends TestCase
 {
+    use ContratosDeLaApp;
     use FcmSimulado;
     use PanelDePrueba;
     use RefreshDatabase;
@@ -351,6 +353,40 @@ class AvisosMasivosTest extends TestCase
         $this->assertSame([self::TITULO], AvisoMasivo::query()->pluck('titulo')->all());
         Queue::assertNothingPushed();
         Http::assertNothingSent();
+    }
+
+    #[TestDox('administracion-app-E43: el contrato de los avisos enviados con la app: uno ya contado, otro en la cola y uno de otra cuenta de administración, sin su correo; sin avisos, la lista vacía')]
+    public function test_administracion_app_e43_el_contrato_de_los_avisos_enviados(): void
+    {
+        $this->simularFcm();
+        Queue::fake();
+        $this->tresCuentasConTelefono();
+        $administracion = $this->cuentaDeAdministracion();
+        $token = $this->tokenDeLaApp($administracion);
+        $creacion = app(CreacionDeAvisoMasivo::class);
+
+        $this->assertCumpleSuContrato('avisos-masivos.lista-vacia', 'GET /api/administracion/avisos-masivos', $this->llamarConToken($token, 'GET', self::RUTA));
+
+        $contado = $creacion->crear($this->cuentaDeAdministracion(), 'Aviso de prueba de otra cuenta', 'Texto de prueba de otra cuenta.');
+        app()->call([new MandarAvisoMasivo($contado), 'handle']);
+        $creacion->crear($administracion, self::TITULO, self::MENSAJE);
+
+        $this->assertCumpleSuContrato('avisos-masivos.lista', 'GET /api/administracion/avisos-masivos', $this->llamarConToken($token, 'GET', self::RUTA));
+    }
+
+    #[TestDox('administracion-app-E42: el contrato del aviso nuevo con la app: el 201 con el aviso en la cola, y el 422 con el error de cada campo')]
+    public function test_administracion_app_e42_el_contrato_del_aviso_nuevo(): void
+    {
+        Queue::fake();
+        $administracion = $this->cuentaDeAdministracion();
+
+        $this->assertCumpleSuContrato('avisos-masivos.nuevo', 'POST /api/administracion/avisos-masivos', $this->mandar($administracion), 201);
+        $this->assertCumpleSuContrato(
+            'avisos-masivos.nuevo-invalido',
+            'POST /api/administracion/avisos-masivos',
+            $this->mandar($administracion, ['titulo' => '', 'mensaje' => str_repeat('a', 1001)]),
+            422,
+        );
     }
 
     /**

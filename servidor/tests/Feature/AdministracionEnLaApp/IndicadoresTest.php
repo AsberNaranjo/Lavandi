@@ -38,6 +38,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Feature\Administracion\Soporte\PagosDelPeriodoDePrueba;
+use Tests\Feature\AdministracionEnLaApp\Soporte\ContratosDeLaApp;
 use Tests\Feature\AdministracionEnLaApp\Soporte\SesionesDeLaApp;
 use Tests\Feature\Agenda\Soporte\AgendaDePrueba;
 use Tests\Feature\AltaLavanderias\Soporte\PanelDePrueba;
@@ -77,6 +78,7 @@ use Tests\TestCase;
 class IndicadoresTest extends TestCase
 {
     use AgendaDePrueba;
+    use ContratosDeLaApp;
     use EstadosDePrueba;
     use IndicadoresDePrueba;
     use LavanderiasDePrueba;
@@ -89,6 +91,9 @@ class IndicadoresTest extends TestCase
     use SesionesDeLaApp;
 
     private const INDICADORES = '/api/administracion/indicadores/';
+
+    /** La ruta de los indicadores en los contratos con la app. */
+    private const PETICION = 'GET /api/administracion/indicadores/{categoria}';
 
     /** Las cinco categorías del A.5, en su orden. */
     private const CATEGORIAS = ['operaciones', 'usuarios', 'socios', 'financiero', 'geografico'];
@@ -526,6 +531,61 @@ class IndicadoresTest extends TestCase
         foreach (self::CATEGORIAS as $categoria) {
             $this->assertSoloEntraLaAdministracion('GET', self::INDICADORES.$categoria, self::SEMANA);
         }
+    }
+
+    #[TestDox('administracion-app-E46: el contrato de la pestaña Operaciones con la app: el rango, el intervalo y los pedidos totales y por estado')]
+    public function test_administracion_app_e46_el_contrato_de_operaciones(): void
+    {
+        $this->sembrarOperaciones();
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+
+        $this->assertCumpleSuContrato('indicadores.operaciones', self::PETICION, $this->indicadores($token, 'operaciones', self::SEMANA));
+    }
+
+    #[TestDox('administracion-app-E47: el contrato de la pestaña Usuarios con la app: con pedidos con monto, el promedio y su tendencia; sin pedidos, el promedio, la tendencia y el porcentaje en null')]
+    public function test_administracion_app_e47_el_contrato_de_usuarios(): void
+    {
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+        $this->assertCumpleSuContrato('indicadores.usuarios-sin-pedidos', self::PETICION, $this->indicadores($token, 'usuarios', self::SEMANA));
+
+        $this->sembrarUsuarios();
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+
+        $this->assertCumpleSuContrato('indicadores.usuarios', self::PETICION, $this->indicadores($token, 'usuarios', self::SEMANA));
+    }
+
+    #[TestDox('administracion-app-E48 y administracion-app-E53: el contrato de la pestaña Socios con la app: F-I06 en espera de su DD y sin cifra, el ranking con semaforo_configurado y sin las cifras de los cortes (DD-114), y las entregas; sin cortes, semaforo_configurado en false y sin colores')]
+    public function test_administracion_app_e48_el_contrato_de_socios(): void
+    {
+        $this->cortes('4.5', '4.0');
+        $this->sembrarElRanking();
+        $this->sembrarLasEntregas();
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+
+        $socios = $this->indicadores($token, 'socios', self::SEMANA);
+        $this->assertCumpleSuContrato('indicadores.socios', self::PETICION, $socios);
+        $socios->assertJsonPath('indicadores.activas_frente_a_registradas', ['en_espera' => ['DD-083']])
+            ->assertJsonMissingPath('indicadores.calificacion_por_lavanderia.cortes_del_semaforo');
+
+        $this->cortes(null, null);
+        $this->assertCumpleSuContrato('indicadores.socios-sin-cortes', self::PETICION, $this->indicadores($token, 'socios', self::SEMANA));
+    }
+
+    #[TestDox('administracion-app-E49 y administracion-app-E53: el contrato de la pestaña Financiero con la app: los ingresos brutos de cada periodo y F-I10 en espera de sus DD, sin cifra')]
+    public function test_administracion_app_e49_el_contrato_de_financiero(): void
+    {
+        $this->sembrarEneroYFebrero();
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+
+        $this->assertCumpleSuContrato('indicadores.financiero', self::PETICION, $this->indicadores($token, 'financiero', self::ENERO_Y_FEBRERO));
+    }
+
+    #[TestDox('administracion-app-E45: el contrato de una categoría que no existe con la app: el 404 con su mensaje')]
+    public function test_administracion_app_e45_el_contrato_de_una_categoria_que_no_existe(): void
+    {
+        $token = $this->tokenDeLaApp($this->cuentaDeAdministracion());
+
+        $this->assertCumpleSuContrato('indicadores.no-existe', self::PETICION, $this->indicadores($token, 'comisiones'), 404);
     }
 
     /**

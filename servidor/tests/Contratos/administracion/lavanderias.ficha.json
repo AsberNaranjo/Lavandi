@@ -1,0 +1,68 @@
+{
+    "peticion": "GET /api/administracion/lavanderias/{lavanderia}",
+    "estado": 200,
+    "cuerpo": {
+        "lavanderia": {
+            "id_publico": "01m8dceet90eeyhg60j2yx87bn",
+            "nombre": "Lavandería de prueba del contrato",
+            "descripcion": "Descripción de prueba del contrato.",
+            "direccion": {
+                "calle": "Calle de prueba",
+                "numero": "123",
+                "colonia": "Colonia de prueba",
+                "codigo_postal": "99000",
+                "municipio": {
+                    "codigo": "99001",
+                    "nombre": "Municipio de prueba",
+                    "estado": "Estado de prueba"
+                }
+            },
+            "foto": {
+                "url": "https://archivos.prueba.invalid/archivo?firma=prueba",
+                "vence_en": "2026-11-27T03:13:14Z"
+            },
+            "fotos": [
+                {
+                    "url": "https://archivos.prueba.invalid/archivo?firma=prueba",
+                    "vence_en": "2026-11-27T03:13:14Z"
+                },
+                {
+                    "url": "https://archivos.prueba.invalid/archivo?firma=prueba",
+                    "vence_en": "2026-11-27T03:13:14Z"
+                }
+            ],
+            "maximo_de_fotos": 5,
+            "servicios": [
+                {
+                    "tipo": "estandar",
+                    "nombre": "Lavado estándar",
+                    "precio": "18.50",
+                    "unidad": {
+                        "codigo": "kg",
+                        "nombre": "kilo"
+                    }
+                }
+            ],
+            "ventanas": [
+                {
+                    "dia_semana": 1,
+                    "hora_inicio": "10:00",
+                    "hora_fin": "11:00"
+                },
+                {
+                    "dia_semana": 4,
+                    "hora_inicio": "10:00",
+                    "hora_fin": "11:00"
+                }
+            ],
+            "estado": "activa",
+            "plaza": {
+                "nombre": "Plaza de prueba 1"
+            },
+            "transiciones": [
+                "suspender",
+                "dar_de_baja"
+            ]
+        }
+    }
+}

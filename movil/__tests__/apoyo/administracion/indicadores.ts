@@ -157,9 +157,12 @@ export const LAVANDERIA_SIN_CALIFICACIONES = '01jd8x6m3v2c9q4w5e7r8tind4';
 export const REPARTIDOR_CON_PLAZA = '01jd8x6m3v2c9q4w5e7r8tinr1';
 export const REPARTIDOR_SIN_PLAZA = '01jd8x6m3v2c9q4w5e7r8tinr2';
 
-/** Las cuatro lavanderías del ranking, con los cortes 4.5 y 4.0 de la configuración. No dependen del rango. */
+/**
+ * Las cuatro lavanderías del ranking, con los dos cortes en la configuración: el servidor dice que el semáforo está
+ * configurado y no manda sus cifras (DD-114). No dependen del rango.
+ */
 const CALIFICACION_POR_LAVANDERIA = {
-  cortes_del_semaforo: { alto: 4.5, bajo: 4.0 },
+  semaforo_configurado: true,
   lavanderias: [
     {
       id_publico: LAVANDERIA_VERDE,

@@ -12,7 +12,7 @@
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import type { RepartidorDeLaAdministracion } from '../../../src/administracion/repartidores/api';
+import type { RepartidorEnLaLista } from '../../../src/administracion/repartidores/api';
 import { estadoYPlazaEnTexto, InsigniaYPlaza } from '../../../src/administracion/repartidores/InsigniaYPlaza';
 import { rutaDelRepartidor } from '../../../src/administracion/repartidores/rutas';
 import {
@@ -64,7 +64,7 @@ export default function Repartidores() {
 
 // Un repartidor de la lista: toda la fila se toca y se anuncia como un solo enlace, "Repartidor de prueba 3, Pendiente,
 // Sin plaza".
-function FilaDelRepartidor({ repartidor, alTocar }: { repartidor: RepartidorDeLaAdministracion; alTocar: () => void }) {
+function FilaDelRepartidor({ repartidor, alTocar }: { repartidor: RepartidorEnLaLista; alTocar: () => void }) {
   const nombre = repartidor.nombre ?? TEXTOS.sinNombre;
   return (
     <Pressable

@@ -82,19 +82,33 @@ export function useApiDeLaAdministracion(): PedirALaAdministracion {
       if (!token) {
         return { ok: false, motivo: 'sin-sesion' };
       }
-      const respuesta = await pedirConEstado<T>(`${PREFIJO_DE_LA_ADMINISTRACION}/${ruta.replace(/^\/+/, '')}`, {
-        ...peticion,
-        token,
-      });
-      if (!respuesta.resultado.ok && respuesta.resultado.motivo === 'sin-sesion') {
+      const resultado = await pedirConElToken<T>(token, ruta, peticion);
+      if (!resultado.ok && resultado.motivo === 'sin-sesion') {
         await salir(token);
       }
-      return conLasFallasDeLaAdministracion(respuesta);
+      return resultado;
     },
     [token, salir],
   );
 
   return pedir;
+}
+
+/**
+ * La petición a una ruta de la administración con ese token, leída como la lee el cliente del módulo: el 409 y el 404
+ * con su propio motivo. No hace nada con la sesión: un 401 sale como "sin-sesion" y lo atiende quien llama, como
+ * useApiDeLaAdministracion(). Nunca lanza.
+ */
+export async function pedirConElToken<T>(
+  token: string,
+  ruta: string,
+  peticion: PeticionALaAdministracion = { metodo: 'GET' },
+): Promise<ResultadoDeLaAdministracion<T>> {
+  const respuesta = await pedirConEstado<T>(`${PREFIJO_DE_LA_ADMINISTRACION}/${ruta.replace(/^\/+/, '')}`, {
+    ...peticion,
+    token,
+  });
+  return conLasFallasDeLaAdministracion(respuesta);
 }
 
 // El 409 y el 404 con su propio motivo, cada uno con el mensaje del servidor; lo demás, como lo leyó el cliente de la app.

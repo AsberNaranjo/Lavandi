@@ -5,13 +5,14 @@
 // - Las plazas del alta (GET plazas) solo se piden si el servidor dice que se puede dar de alta (administracion-app-E20).
 // - Cada acción pide antes su confirmación, con el diálogo del sistema (src/administracion/confirmar.ts); con "Cancelar"
 //   no manda nada. Al confirmarla, la manda y pone en la ficha al repartidor que devolvió el servidor, con su estado
-//   nuevo y las acciones que ese estado permite.
+//   nuevo y las transiciones que ese estado permite.
 // - Con un 409, otra sesión ya lo cambió: el mensaje del servidor va arriba y la ficha se vuelve a pedir
 //   (administracion-app-E12). Con un 422 del alta, su error va junto a la plaza. Lo demás, arriba, con los mensajes de la
 //   app. Con un 401, el cliente ya volvió al inicio de sesión.
 // - Mientras una acción va, los botones quedan ocupados: no sale otra encima.
 //
-// La app no decide qué se puede: muestra los botones de "acciones" y el servidor aplica la regla (ADR-0022, decisión 9).
+// La app no decide qué se puede: muestra los botones de "transiciones" y el servidor aplica la regla (ADR-0022,
+// decisión 9).
 import { useMemo, useRef, useState } from 'react';
 
 import {
@@ -69,7 +70,7 @@ export function useFichaDelRepartidor(idPublico: string | undefined): FichaDelRe
       [idPublico],
     ),
   );
-  const conAlta = ficha.datos?.acciones.dar_de_alta === true;
+  const conAlta = ficha.datos?.transiciones.includes('dar_de_alta') === true;
   const plazas = useLectura(conAlta ? consultarPlazas : null);
   const [enviando, setEnviando] = useState<AccionDeEstado | null>(null);
   const [falla, setFalla] = useState<FallaDeLaAdministracion | null>(null);

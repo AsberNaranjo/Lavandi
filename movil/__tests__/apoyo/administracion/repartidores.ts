@@ -1,9 +1,11 @@
 // Apoyo de las pruebas de la gestión de repartidores en la app (F-D02; administracion-app-E19 a E23). No es una prueba:
 // Jest no lo corre como tal (testPathIgnorePatterns en package.json). Son los manejadores que la prueba registra en el
 // servidor simulado de la administración (__tests__/apoyo/administracion.ts), con el contrato del comentario de
-// servidor/app/Http/Controllers/Api/Administracion/RepartidoresController.php y PlazasController.php:
+// servidor/app/Http/Controllers/Api/Administracion/RepartidoresController.php y PlazasController.php, con la forma de
+// sus respuestas reales (servidor/tests/Contratos/administracion/; __tests__/administracion/contratos.test.ts):
 //
-// - GET /administracion/repartidores, GET /administracion/repartidores/{id_publico} y GET /administracion/plazas;
+// - GET /administracion/repartidores, con cada uno solo en su resumen (su nombre, su estado y su plaza);
+//   GET /administracion/repartidores/{id_publico}, la ficha con sus transiciones; y GET /administracion/plazas;
 // - POST …/alta con la plaza, POST y DELETE …/suspension y POST …/baja, con las transiciones de
 //   App\Repartidores\EstadoDelRepartidor y el 409 con el mensaje de App\Repartidores\TransicionNoPermitida;
 // - PATCH /administracion/repartidores/{id_publico}, también en multipart por POST con _method=PATCH, que pone lo que
@@ -22,7 +24,7 @@ export interface FotoDelRepartidor {
   vence_en: string;
 }
 
-/** El repartidor como lo guarda el servidor simulado: lo de la API, sin las acciones, que salen de su estado. */
+/** El repartidor como lo guarda el servidor simulado: lo de su ficha, sin las transiciones, que salen de su estado. */
 export interface RepartidorGuardado {
   id_publico: string;
   nombre: string | null;
@@ -114,20 +116,31 @@ export function transicionNoPermitida(estado: EstadoDelRepartidor, accion: strin
   return `Un repartidor en estado ${estado} no se puede ${accion}.`;
 }
 
-/** Las acciones que permite cada estado, como los puede…() de App\Repartidores\EstadoDelRepartidor. */
-export function accionesDe(estado: EstadoDelRepartidor) {
-  return {
+/**
+ * Las transiciones que permite cada estado, como los puede…() de App\Repartidores\EstadoDelRepartidor, en el orden de
+ * los botones del panel.
+ */
+export function transicionesDe(estado: EstadoDelRepartidor): string[] {
+  const permite = {
     dar_de_alta: estado === 'pendiente',
     suspender: estado === 'activo',
     levantar_suspension: estado === 'suspendido',
     // El pendiente de aquí nunca se dio de alta (repartidor-E31).
     dar_de_baja: estado !== 'baja',
   };
+  return Object.entries(permite)
+    .filter(([, si]) => si)
+    .map(([transicion]) => transicion);
 }
 
-/** El repartidor como sale en todas las respuestas de la API. */
+/** La ficha del repartidor, como sale en todas las respuestas que la traen. */
 export function comoSale(repartidor: RepartidorGuardado) {
-  return { ...repartidor, acciones: accionesDe(repartidor.estado) };
+  return { ...repartidor, transiciones: transicionesDe(repartidor.estado) };
+}
+
+/** El repartidor en la lista: solo su id_publico, su nombre, su estado y su plaza (resumen() de su recurso). */
+export function enLaLista({ id_publico, nombre, estado, plaza }: RepartidorGuardado) {
+  return { id_publico, nombre, estado, plaza };
 }
 
 const RUTA = '/administracion/repartidores';
@@ -161,7 +174,7 @@ export class RepartidoresDelServidor {
       return respuesta(200, { plazas: this.plazas });
     }
     if (metodo === 'GET' && ruta === RUTA) {
-      return respuesta(200, { repartidores: this.repartidores.map(comoSale) });
+      return respuesta(200, { repartidores: this.repartidores.map(enLaLista) });
     }
     const partes = /^\/administracion\/repartidores\/([^/]+)(?:\/(alta|suspension|baja))?$/.exec(ruta);
     if (!partes) {
@@ -185,7 +198,7 @@ export class RepartidoresDelServidor {
       return this.transicion(repartidor, 'levantar de una suspensión', 'suspendido', { estado: 'activo' });
     }
     if (accion === 'baja' && metodo === 'POST') {
-      return accionesDe(repartidor.estado).dar_de_baja
+      return transicionesDe(repartidor.estado).includes('dar_de_baja')
         ? this.aplicar(repartidor, { estado: 'baja' })
         : respuesta(409, { message: transicionNoPermitida(repartidor.estado, 'dar de baja') });
     }

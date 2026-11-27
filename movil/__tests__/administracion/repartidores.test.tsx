@@ -217,15 +217,10 @@ describe('administracion-app-E19: la lista y la ficha de los repartidores', () =
     },
   );
 
-  test('administracion-app-E19 — los botones salen de las acciones que da el servidor, no del estado: la app no decide ninguna regla', async () => {
+  test('administracion-app-E19 — los botones salen de las transiciones que da el servidor, no del estado: la app no decide ninguna regla', async () => {
     servidor().interceptar = ({ metodo, ruta }) =>
       metodo === 'GET' && ruta === rutaDeLaFicha(ACTIVO)
-        ? respuesta(200, {
-            repartidor: {
-              ...comoSale(ACTIVO),
-              acciones: { dar_de_alta: false, suspender: false, levantar_suspension: false, dar_de_baja: true },
-            },
-          })
+        ? respuesta(200, { repartidor: { ...comoSale(ACTIVO), transiciones: ['dar_de_baja'] } })
         : undefined;
 
     await abrirLaFicha('android', ACTIVO);
