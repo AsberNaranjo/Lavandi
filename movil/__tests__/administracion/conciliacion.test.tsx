@@ -7,9 +7,11 @@
 // la administración la hace en la app (C-247); cómo, lo decide ADR-0022 (decisiones 9 y 11). La regla es la del panel
 // (administracion-E20 y E21): el servidor lee la pasarela, compara y responde el reporte; la app muestra cada diferencia
 // con su tipo y no decide ninguna. La regla del rango (App\Validacion\RangoDeFechas) también es del servidor: su 422 va
-// junto al campo. Las pantallas son las imágenes 32 a 35 de la Propuesta 6 (C-248), con la confirmación y los textos
-// del panel de respaldo (servidor/app/Filament/Pages/Conciliacion.php). La comisión de la pasarela
-// (administracion-app-E41; DD-013) solo deja su lugar. No se pone al día sola.
+// junto al campo. El servidor no impone el formato de las fechas (el contrato de ConciliacionesController): la app no
+// confirma un periodo con una fecha vacía, a medias o que no existe, y lo dice junto a su campo, como el filtro de "Mis
+// pedidos". Las pantallas son las imágenes 32 a 35 de la Propuesta 6 (C-248), con la confirmación y los textos del
+// panel de respaldo (servidor/app/Filament/Pages/Conciliacion.php). La comisión de la pasarela (administracion-app-E41;
+// DD-013) solo deja su lugar, el de la imagen 33. No se pone al día sola.
 //
 // Se abre la app real, con las rutas de movil/app/ (ADR-0017), en iPhone y en Android, con el servidor simulado de la
 // administración (__tests__/apoyo/administracion.ts), los reportes del contrato de ConciliacionesController
@@ -51,6 +53,25 @@ const reportes = usarLosReportesFinancieros(servidor);
 const RUTA_DE_LA_PANTALLA = '/administracion/conciliacion';
 const INSTRUCCIONES = 'Elige un periodo y concilia para leer los pagos de la pasarela.';
 const PASARELA_NO_DISPONIBLE = 'La pasarela no está disponible por ahora. Intenta conciliar otra vez más tarde.';
+const FECHA_INVALIDA = 'Escribe la fecha como DD/MM/AAAA.';
+
+type Campo = 'desde' | 'hasta';
+
+// Las fechas que la app no manda. El servidor no impone el formato: con "05/03/202" o "11/30/2026" (el mes primero) la
+// regla "date" de Laravel pasa, Rango::deLosFiltros() la toma como no dada y la conciliación corre sobre otro periodo;
+// vacía o con un día que no existe, el 422 sale en inglés.
+const FECHAS_QUE_NO_SE_MANDAN: readonly { caso: string; desde: string; hasta: string; conError: readonly Campo[] }[] = [
+  { caso: 'los dos campos vacíos', desde: '', hasta: '', conError: ['desde', 'hasta'] },
+  { caso: '"Desde" vacío', desde: '', hasta: '31/03/2027', conError: ['desde'] },
+  { caso: '"Desde" a medias, 05/03/202', desde: '05/03/202', hasta: '31/03/2027', conError: ['desde'] },
+  { caso: '"Hasta" el 31/11/2026, que no existe', desde: '01/11/2026', hasta: '31/11/2026', conError: ['hasta'] },
+  { caso: '"Hasta" con el mes primero, 11/30/2026', desde: '01/11/2026', hasta: '11/30/2026', conError: ['hasta'] },
+];
+
+/** Las plataformas por cada fecha que no se manda. */
+const CADA_FECHA_QUE_NO_SE_MANDA = PLATAFORMAS.flatMap((plataforma) =>
+  FECHAS_QUE_NO_SE_MANDAN.map((fechas) => [plataforma, fechas.caso, fechas] as const),
+);
 
 // Más que el intervalo de cualquier consulta periódica de la app (30 s, ADR-0007; 5 s, adenda de ADR-0010).
 const CINCO_MINUTOS = 5 * 60_000;
@@ -91,11 +112,16 @@ async function tocar(botones: AlertButton[], texto: string) {
   });
 }
 
-/** Escribe el periodo, como DD/MM/AAAA, toca "Conciliar un periodo" y lo confirma. */
-async function conciliar(desde: string, hasta: string) {
+/** Escribe el periodo, como DD/MM/AAAA, y toca "Conciliar un periodo". */
+async function pedirLaConciliacion(desde: string, hasta: string) {
   await fireEvent.changeText(screen.getByLabelText('Desde'), desde);
   await fireEvent.changeText(screen.getByLabelText('Hasta'), hasta);
   await fireEvent.press(screen.getByRole('button', { name: 'Conciliar un periodo' }));
+}
+
+/** Escribe el periodo, como DD/MM/AAAA, toca "Conciliar un periodo" y lo confirma. */
+async function conciliar(desde: string, hasta: string) {
+  await pedirLaConciliacion(desde, hasta);
   await tocar(ultimoDialogo().botones, 'Conciliar');
 }
 
@@ -131,7 +157,7 @@ describe('administracion-app-E03: la entrada Conciliación abre su pantalla dent
       expect(await screen.findByRole('header', { name: 'Conciliación' })).toBeOnTheScreen();
       expect(screen.getByText(INSTRUCCIONES)).toBeOnTheScreen();
       // Antes de conciliar no hay nada que pedir: sin leer la pasarela, todo pago parecería un pedido sin movimiento.
-      expect(servidor().peticiones().filter(({ ruta }) => ruta.startsWith('/administracion'))).toEqual([]);
+      expect(servidor().peticiones().filter(({ ruta }) => ruta.startsWith(RUTA_DE_LAS_CONCILIACIONES))).toEqual([]);
 
       await fireEvent.press(screen.getByRole('button', { name: 'Regresar' }));
 
@@ -176,13 +202,14 @@ describe('administracion-app-E38: conciliar un periodo', () => {
 
       expect(await screen.findByText('Del 01/03/2027 al 31/03/2027')).toBeOnTheScreen();
       expect(conciliacionesPedidas(servidor())).toEqual([MARZO]);
-      // Cuántas filas hay de cada resultado, los cuatro y en el orden del servidor; la comisión de la pasarela espera
-      // DD-013 (administracion-app-E41).
+      // Cuántas filas hay de cada resultado, los cuatro, en el orden de la imagen 33. Debajo, el lugar de la comisión
+      // de la pasarela, en ámbar y sin cifra: es de la imagen 33 (C-248) y espera a administracion-app-E41 (DD-013);
+      // E38 no lo nombra.
       expect(resumen()).toEqual([
         'Conciliado: 1',
+        'Monto que no coincide: 1',
         'Movimiento sin pedido: 1',
         'Pedido pagado sin movimiento: 1',
-        'Monto que no coincide: 1',
         'Comisión de la pasarela: Por confirmar · DD-013',
       ]);
       // Cada diferencia con su tipo, de la más antigua a la más nueva; después, las conciliadas.
@@ -253,9 +280,9 @@ describe('administracion-app-E38: conciliar un periodo', () => {
       expect(screen.getByText('No hay pagos ni movimientos de la pasarela en el periodo.')).toBeOnTheScreen();
       expect(resumen()).toEqual([
         'Conciliado: 0',
+        'Monto que no coincide: 0',
         'Movimiento sin pedido: 0',
         'Pedido pagado sin movimiento: 0',
-        'Monto que no coincide: 0',
         'Comisión de la pasarela: Por confirmar · DD-013',
       ]);
       expect(screen.queryByRole('header', { name: 'Diferencias' })).not.toBeOnTheScreen();
@@ -277,6 +304,50 @@ describe('administracion-app-E38: conciliar un periodo', () => {
       expect(screen.getAllByText(FIN_ANTERIOR)).toHaveLength(1);
       expect(screen.queryByTestId('resumen-de-la-conciliacion')).not.toBeOnTheScreen();
       expect(screen.getByRole('button', { name: 'Conciliar un periodo' })).toBeOnTheScreen();
+    },
+  );
+
+  test.each(CADA_FECHA_QUE_NO_SE_MANDA)(
+    'administracion-app-E38 — (%s) con %s, "Escribe la fecha como DD/MM/AAAA." va junto a su campo y no se confirma ni se manda nada',
+    async (plataforma, _caso, { desde, hasta, conError }) => {
+      await abrirLaConciliacion(plataforma);
+
+      await pedirLaConciliacion(desde, hasta);
+
+      expect(dialogo).not.toHaveBeenCalled();
+      expect(conciliacionesPedidas(servidor())).toEqual([]);
+      for (const campo of ['desde', 'hasta'] as const) {
+        const junto = within(screen.getByTestId(`campo-${campo}`));
+        if (conError.includes(campo)) {
+          expect(junto.getByText(FECHA_INVALIDA)).toBeOnTheScreen();
+        } else {
+          expect(junto.queryByRole('alert')).not.toBeOnTheScreen();
+        }
+      }
+      // Solo junto a su campo, y ningún mensaje del validador del servidor.
+      expect(screen.getAllByText(FECHA_INVALIDA)).toHaveLength(conError.length);
+      expect(screen.queryByText(/The (desde|hasta) field/)).not.toBeOnTheScreen();
+      expect(screen.queryByTestId('resumen-de-la-conciliacion')).not.toBeOnTheScreen();
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E38 — (%s) al corregir la fecha, el error se va y se concilia el periodo escrito, en AAAA-MM-DD',
+    async (plataforma) => {
+      await abrirLaConciliacion(plataforma);
+      await pedirLaConciliacion('05/03/202', '31/03/2027');
+      expect(within(screen.getByTestId('campo-desde')).getByText(FECHA_INVALIDA)).toBeOnTheScreen();
+
+      await conciliar('01/03/2027', '31/03/2027');
+
+      expect(await screen.findByText('Del 01/03/2027 al 31/03/2027')).toBeOnTheScreen();
+      expect(conciliacionesPedidas(servidor())).toEqual([MARZO]);
+      expect(screen.queryByText(FECHA_INVALIDA)).not.toBeOnTheScreen();
+
+      // De vuelta al periodo, sin el error de antes.
+      await fireEvent.press(screen.getByRole('button', { name: 'Otro periodo' }));
+      expect(screen.getByLabelText('Desde').props.value).toBe('01/03/2027');
+      expect(screen.queryByText(FECHA_INVALIDA)).not.toBeOnTheScreen();
     },
   );
 
@@ -306,22 +377,27 @@ describe('administracion-app-E38: conciliar un periodo', () => {
       expect(screen.queryByText('No se pudo leer la pasarela')).not.toBeOnTheScreen();
     },
   );
+});
 
-  // Sin escenario propio: si no hay conexión, el mensaje general de la app, sin reporte.
-  test('administracion-app-E38 — sin conexión lo dice y no hay reporte', async () => {
-    servidor().interceptar = ({ ruta }) => {
-      if (ruta === RUTA_DE_LAS_CONCILIACIONES) {
-        throw new TypeError('Network request failed');
-      }
-      return undefined;
-    };
-    await abrirLaConciliacion('ios');
+// Lo general de la app, sin escenario propio: administracion-app-E38 no habla de la conexión.
+describe('la conciliación sin conexión, como el resto de la app', () => {
+  test(
+    'comportamiento general de la app, sin escenario propio — sin conexión, la conciliación lo dice y no hay reporte',
+    async () => {
+      servidor().interceptar = ({ ruta }) => {
+        if (ruta === RUTA_DE_LAS_CONCILIACIONES) {
+          throw new TypeError('Network request failed');
+        }
+        return undefined;
+      };
+      await abrirLaConciliacion('ios');
 
-    await conciliar('01/03/2027', '31/03/2027');
+      await conciliar('01/03/2027', '31/03/2027');
 
-    expect(await screen.findByText(MENSAJES.sinConexion)).toBeOnTheScreen();
-    expect(screen.queryByTestId('resumen-de-la-conciliacion')).not.toBeOnTheScreen();
-  });
+      expect(await screen.findByText(MENSAJES.sinConexion)).toBeOnTheScreen();
+      expect(screen.queryByTestId('resumen-de-la-conciliacion')).not.toBeOnTheScreen();
+    },
+  );
 });
 
 describe('administracion-app-E38: la pantalla no se pone al día sola', () => {

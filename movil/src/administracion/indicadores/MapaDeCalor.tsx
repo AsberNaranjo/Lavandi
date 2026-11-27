@@ -15,12 +15,21 @@
 // provider en ningún caso. Quien lo usa revisa antes si la compilación puede montarlo (src/cercanas/mapa.ts). El mapa
 // no se vuelve a crear con cada consulta: cambian sus figuras. Se encuadra cuando cambian los lugares de las figuras
 // (otro rango, otra agrupación) y no cuando solo cambian sus cifras, así la consulta periódica no mueve lo que se ve; el
-// encuadre espera a que el mapa esté listo (onMapReady), como el del monitoreo (src/administracion/monitoreo/).
+// encuadre espera a que el mapa esté listo (onMapReady), como el del monitoreo (src/administracion/monitoreo/). Mientras
+// tanto, el mapa ya abre sobre las figuras que trae la respuesta (initialRegion) y no en la región de la plataforma. Sin
+// figuras (por colonia, sin pedidos en el rango) no hay lugar que mostrar y abre donde lo deje la plataforma, como el
+// panel, que abre en el mundo entero; la tabla dice que no hay pedidos.
+//
+// El letrero de cada figura es una vista propia dentro del Marker. En Android, mientras el Marker sigue los cambios de
+// esa vista (tracksViewChanges, true por omisión), la librería la vuelve a dibujar sin parar; aquí no los sigue y el
+// letrero se dibuja al montarse. Lo que dice cambia poco: la letra de una colonia va con su lugar en la lista, que es su
+// llave, y el número de pedidos de una zona es parte de la llave de su letrero, así que con otra cifra el letrero se
+// monta otra vez y se dibuja con ella.
 //
 // Colores y medidas de theme.ts (ADR-0013), por la capa semántica; los de cada figura, los del servidor.
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import MapView, { Circle, Marker, Polygon, type LatLng } from 'react-native-maps';
+import MapView, { Circle, Marker, Polygon, type LatLng, type Region } from 'react-native-maps';
 
 import { letra } from '../../tema/letra';
 import { color, espaciado, grosor, radio, tipografia } from '../../tema/theme';
@@ -75,10 +84,32 @@ function lugaresDelMapa(mapa: ElMapaDeCalor): LatLng[] {
   return mapa.zonas.flatMap(({ poligonos }) => poligonos.flatMap(({ contorno }) => contorno.map(enElMapa)));
 }
 
+/**
+ * La región con la que abre el mapa, la de la caja que encierra los lugares: con uno solo, unas cuadras alrededor de él.
+ * Sin lugares, ninguna: no hay de dónde sacarla.
+ */
+function regionDeLosLugares(lugares: LatLng[]): Region | undefined {
+  if (lugares.length === 0) {
+    return undefined;
+  }
+  const latitudes = lugares.map(({ latitude }) => latitude);
+  const longitudes = lugares.map(({ longitude }) => longitude);
+  const [sur, norte] = [Math.min(...latitudes), Math.max(...latitudes)];
+  const [oeste, este] = [Math.min(...longitudes), Math.max(...longitudes)];
+  return {
+    latitude: (sur + norte) / 2,
+    longitude: (oeste + este) / 2,
+    latitudeDelta: Math.max(norte - sur, ABARCA_CON_UNO_EN_GRADOS),
+    longitudeDelta: Math.max(este - oeste, ABARCA_CON_UNO_EN_GRADOS),
+  };
+}
+
 export function MapaDeCalor({ mapa }: { mapa: ElMapaDeCalor }) {
   const referencia = useRef<MapView>(null);
   const [listo, setListo] = useState(false);
   const lugares = lugaresDelMapa(mapa);
+  // La librería lee la región inicial solo al crear el mapa: la de las figuras con que abre.
+  const [regionInicial] = useState(() => regionDeLosLugares(lugares));
   // Los lugares de las figuras, para encuadrar solo cuando cambian.
   const firma = `${mapa.agrupacion}:${lugares.map(({ latitude, longitude }) => `${latitude},${longitude}`).join(';')}`;
   const encuadrada = useRef<string | null>(null);
@@ -97,8 +128,7 @@ export function MapaDeCalor({ mapa }: { mapa: ElMapaDeCalor }) {
     } else {
       referencia.current?.fitToCoordinates(lugares, { edgePadding: MARGEN_DEL_ENCUADRE, animated: true });
     }
-    // La firma resume los lugares: encuadrar otra vez solo si cambia.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- la firma resume los lugares: se encuadra solo si cambia
   }, [listo, firma]);
 
   return (
@@ -108,6 +138,7 @@ export function MapaDeCalor({ mapa }: { mapa: ElMapaDeCalor }) {
         testID="mapa"
         style={StyleSheet.absoluteFill}
         accessibilityLabel={TEXTOS.elMapa[mapa.agrupacion]}
+        initialRegion={regionInicial}
         onMapReady={() => setListo(true)}
       >
         {mapa.agrupacion === 'colonia'
@@ -137,6 +168,7 @@ function CirculoDeLaColonia({ colonia, indice }: { colonia: ColoniaDelMapa; indi
         testID={`colonia-${indice}`}
         coordinate={centro}
         anchor={{ x: 0.5, y: 0.5 }}
+        tracksViewChanges={false}
         title={coloniaEnTexto(colonia)}
         description={pedidosEnTexto(colonia.pedidos)}
         accessibilityLabel={`${letraDeLaFila} · ${coloniaEnTexto(colonia)}: ${pedidosEnTexto(colonia.pedidos)}`}
@@ -165,9 +197,12 @@ function ZonaPintada({ zona, indice }: { zona: ZonaDelMapa; indice: number }) {
       ))}
       {zona.poligonos.length > 0 ? (
         <Marker
+          // Con otro número de pedidos, el letrero se monta otra vez: sin seguir los cambios, así se dibuja con él.
+          key={zona.pedidos}
           testID={`zona-${indice}`}
           coordinate={enElMapa(centroDeLaZona(zona))}
           anchor={{ x: 0.5, y: 0.5 }}
+          tracksViewChanges={false}
           title={zona.zona}
           description={pedidosEnTexto(zona.pedidos)}
           accessibilityLabel={`${zona.zona}: ${pedidosEnTexto(zona.pedidos)}`}

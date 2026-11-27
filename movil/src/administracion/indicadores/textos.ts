@@ -6,7 +6,6 @@
 // indicador sin cifra, también. Ninguno trae el nombre del producto ni el dominio (CLAUDE.md §5; administracion-app-E03).
 import { mensajeGeneral } from '../../acceso/mensajes';
 import { TEXTOS as TEXTOS_DE_LAS_CERCANAS } from '../../cercanas/textos';
-import { TEXTOS_DEL_RESUMEN } from '../../pedido/textos';
 import type { SentidoDeLaTendencia } from '../../piezas/IndicadorDestacado';
 import type { FallaDeLaAdministracion } from '../api';
 import { TEXTOS_DE_LAS_DESCARGAS } from '../descargas/textos';
@@ -113,23 +112,18 @@ export function descargarElIndicador(titulo: string): string {
   return `${TEXTOS_DE_LAS_DESCARGAS.descargar} ${titulo}`;
 }
 
-/** "Por confirmar · DD-020, DD-013": la marca del resumen del pedido con las DD que espera (design.md, sección 5). */
-export function porConfirmar(dds: readonly string[]): string {
-  return `${TEXTOS_DEL_RESUMEN.porConfirmar} · ${dds.join(', ')}`;
-}
-
 /**
- * Bajo el rango, cada cuánto se ponen al día las cifras, con el intervalo de la respuesta, como lo dice el panel
- * (App\Indicadores\Refresco::descripcion()): "Las cifras se actualizan solas cada 30 segundos.". Sin intervalo, nada:
- * la pantalla no se consulta sola.
+ * Bajo el rango, cada cuánto se ponen al día las cifras, con el intervalo de la respuesta, con las mismas palabras del
+ * panel (App\Indicadores\Refresco::descripcion()): "Las cifras se actualizan solas cada 30 segundos.". Como el panel,
+ * la unidad va siempre en plural, también con "1s". Sin intervalo, nada: la pantalla no se consulta sola, y la frase del
+ * panel para ese caso habla de recargar la página.
  */
 export function cadaCuantoSeActualizan(refresco: Refresco | null): string | undefined {
   if (refresco === null) {
     return undefined;
   }
   const { cantidad, unidad } = refresco;
-  const nombre = unidad === 's' ? 'segundo' : 'milisegundo';
-  return `Las cifras se actualizan solas cada ${cantidad} ${cantidad === 1 ? nombre : `${nombre}s`}.`;
+  return `Las cifras se actualizan solas cada ${cantidad} ${unidad === 's' ? 'segundos' : 'milisegundos'}.`;
 }
 
 /**

@@ -33,14 +33,17 @@ que cruce cliente, recolector y administrador (C-246, C-247).
 - **Las tomas del video** del cliente, la lavandería y el repartidor, con el pedido de prueba SJN67S4E:
   `notas-locales/video-final-tomas/`.
 
-**Lo que sigue.**
-1. La implementación en 4 lotes, con 24 paquetes. El lote 1 (A01 a A04) está corriendo.
-2. Grabar la administración en el emulador.
-3. El video final.
-4. El PR hacia `nhadadn/Lavandi`.
+- **El lote 1** (A01 a A04): la sesión de la administración, su grupo de rutas, las reglas que pasaron de Filament a
+  clases de dominio y la entrada del módulo en la app. Aprobados los cuatro, sin bloqueantes; unidos en `c998b7a`.
+- **La spec al pie de la letra de la Propuesta 6** (`1acadf4`): lo que los mocks dejaron en "Lo que queda abierto" de
+  su `NOTAS.md` quedó fijado en la spec y en el design.md antes de las pantallas.
 
-**Lo que los mocks dejaron para la spec** (está en `NOTAS.md` de la Propuesta 6, "Lo que queda abierto"): las líneas
-de E03, E14 y design.md §4 y §5, el mensaje de "falta el título" y tres textos adaptados del panel. Se fijan antes de
-construir las pantallas del lote 3.
+**Lo que sigue.**
+1. Los paquetes A05 a A24. El 2026-11-25 se reinició el equipo a media corrida: los paquetes que ya tenían trabajo
+   (A05 a A11 y A13 a A17) siguen en sus worktrees, con la spec de `1acadf4` mezclada; A12 y A18 a A24 empiezan sobre
+   esa misma base. A22 sale de A14 (las gráficas) y A24 de A23 (las descargas).
+2. Unir los paquetes en esta rama y correr las suites completas.
+3. Grabar la administración en el emulador y cerrar el video final.
+4. El PR hacia `nhadadn/Lavandi`.
 
 **Al terminar.** `situacion: terminada`, con el enlace al PR y al video.

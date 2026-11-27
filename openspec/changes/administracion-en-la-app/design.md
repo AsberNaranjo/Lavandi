@@ -127,9 +127,11 @@ Las pruebas del panel siguen pasando sin cambios:
 | `App\Filament\EstadosDelPedido` | El nombre operativo de cada estado (ADR-0021) | El panel, `MarcadoresDelMonitoreo`, la ficha del usuario (`HistorialDelUsuario`) y el monitoreo de la API | El lote 0, antes de la ficha del usuario y del monitoreo. **Ya se movió** con la tarea 1.7: hoy es `App\Pedidos\NombresDelEstado` |
 | `App\Filament\Resources\Lavanderias\Pages\EditLavanderia::handleRecordUpdate()` | Qué campos cambiaron respecto de lo que se leyó al abrir, y que se validan solo esos con `ReglasDeLaLavanderia::para()` y sus mensajes | El panel y la API, desde `EdicionDeLavanderia` | El lote 1, antes de la edición por la API |
 | `App\Filament\Resources\Repartidores\Pages\EditRepartidor::handleRecordUpdate()` | Los textos recortados y el vacío como nulo; las reglas de `RegistroDeRepartidorRequest::reglasDeLosDatos()` solo de los campos que llegan; `CorreoSinCuenta` salvo la propia cuenta | El panel y la API, desde `EdicionDeRepartidor` | El lote 2, antes de la edición por la API |
+| `App\Filament\Resources\Repartidores\Actions\AccionesDeEstado::plazasActivas()` | Las plazas del alta: las activas de las que la cuenta ve en el panel (`plazasDelPanel()`), como pide repartidor-E05 ("entre las plazas activas", `openspec/changes/repartidor/design.md:209`) | El alta del panel, el de la API y `GET plazas`, desde `App\Repartidores\PlazasDelAlta` (`de()` y `laElegida()`) | El lote 2, antes del alta por la API |
 | `App\Filament\Resources\Usuarios\HistorialDelUsuario` | Qué pedidos van en la ficha, su fecha en la hora de la plaza y su monto | La ficha del panel y la de la API | El lote 3 |
 | El formulario de `App\Filament\Pages\Conciliacion` y los campos de `ExportadorDeIndicador::getOptionsFormComponents()` | La regla del rango: las dos fechas, y la de fin no anterior a la de inicio, con su mensaje | La conciliación y la descarga, del panel y de la API | El lote 6; la descarga la usa en el lote 9. **La regla ya se movió** a `App\Validacion\RangoDeFechas` (`reglas()` y `mensajes()`), que el panel toma por `App\Filament\CamposDelRango`; faltan las dos rutas (tareas 13.2 y 19.2) |
-| `CreateAvisoMasivo` y `AvisoMasivoForm` | Qué se guarda con el aviso, que sale en cola después de guardarlo, y los topes del título (255) y del texto (1000) | El panel y la API | El lote 7 |
+| `CreateAvisoMasivo` y `AvisoMasivoForm` | Qué se guarda con el aviso, que sale en cola después de guardarlo, y los topes del título (255) y del texto (1000). Ya se movió con la tarea 15.1: hoy es `App\Avisos\CreacionDeAvisoMasivo`, que recorta el título y el texto antes de validarlos, como el middleware `TrimStrings` de la API, y trae los mensajes de sus reglas; el formulario del panel recorta igual sus dos campos y toma de ella sus reglas y sus mensajes, como `App\Filament\CamposDelRango` toma los de `RangoDeFechas`, así que muestra esos mensajes en lugar de los de Laravel por defecto | El panel y la API | El lote 7 |
+| `App\Filament\Widgets\Indicadores\MapaDeCalor::agrupacion()` | Qué agrupación del mapa de calor vale: por colonia o por zona; por colonia si no se eligió una que exista | El mapa del panel y la API | El lote 8, con la tarea 17.3. **Ya se movió**: hoy es `App\Indicadores\AgrupacionDelMapa` (`elegida()` y `opciones()`) |
 | `App\Filament\Actions\DescargarReporte::generar()` | Cómo se crea la descarga de la cuenta y se pone en cola su archivo | El botón del panel y la API | El lote 9 |
 
 Cada lado sigue convirtiendo los errores a su forma: el panel los pone bajo `data.<campo>` de su formulario, y la API
@@ -157,7 +159,9 @@ Resumen. El detalle de cada fila va después.
 - **Rutas:**
   - `GET lavanderias`: todas, de todas las plazas, con su nombre, su estado y su plaza, con búsqueda por nombre.
   - `GET lavanderias/{lavanderia}`: la ficha con sus datos editables (nombre, dirección, foto, servicios y precios,
-    horario, descripción y fotos), su estado, su plaza y qué transiciones permite ahora.
+    horario, descripción y fotos), su estado, su plaza y qué transiciones permite ahora, en `transiciones`: la lista de
+    las que permite, en el orden de los botones del panel (`suspender`, `levantar_suspension`, `dar_de_baja`). Es la
+    misma forma que la ficha del repartidor (F-D02).
   - `PATCH lavanderias/{lavanderia}`: la edición. Con fotos va en multipart por `POST` con `_method=PATCH`, como
     `PATCH /api/socio/lavanderias/{lavanderia}`.
   - `POST lavanderias/{lavanderia}/suspension`, `DELETE lavanderias/{lavanderia}/suspension` y
@@ -188,18 +192,30 @@ Resumen. El detalle de cada fila va después.
 #### F-D02 — Gestión de repartidores
 
 - **Rutas:**
-  - `GET repartidores`: todos, en cualquier estado, también los pendientes sin plaza y los de baja.
-  - `GET repartidores/{repartidor}`: la ficha, con qué transiciones permite.
+  - `GET repartidores`: todos, en cualquier estado, también los pendientes sin plaza y los de baja, cada uno con su
+    nombre, su estado y su plaza, o ninguna (`id_publico`, `nombre`, `estado` y `plaza`, como la lista de F-D01). Del
+    registro más nuevo al más viejo, como la lista del panel.
+  - `GET repartidores/{repartidor}`: la ficha, con su nombre, su teléfono, su correo, su foto, su tipo de vehículo, su
+    estado y su plaza, como los ve él en su perfil (`App\Http\Resources\RepartidorResource`, sin `puede_operar`), y
+    qué transiciones permite en `transiciones`: la lista de las que permite, en el orden de los botones del panel
+    (`dar_de_alta`, `suspender`, `levantar_suspension`, `dar_de_baja`). Es la misma forma que la ficha de F-D01.
   - `PATCH repartidores/{repartidor}`: nombre, teléfono, correo, foto y tipo de vehículo; con foto, en multipart.
-  - `POST repartidores/{repartidor}/alta` con la plaza; `POST` y `DELETE repartidores/{repartidor}/suspension`;
-    `POST repartidores/{repartidor}/baja`.
-  - `GET plazas`: las plazas para el alta.
+  - `POST repartidores/{repartidor}/alta` con la plaza por su nombre, que es único
+    (`servidor/database/migrations/2026_11_21_100000_crear_plazas_zonas_y_parametros_plaza.php:24`): la plaza no tiene
+    identificador público y su llave interna no sale (ADR-0016, regla 5). Sin plaza, o vacía, responde 422 en `plaza`
+    con "Elige la plaza."; con una que no es de `GET plazas`, porque no existe o no está activa, con "Esa plaza no está
+    entre las del alta.". `POST` y `DELETE repartidores/{repartidor}/suspension`; `POST repartidores/{repartidor}/baja`.
+  - `GET plazas`: las plazas para el alta, `{ "plazas": [ { "nombre": "…" } ] }`, por nombre.
 - **Clases de dominio:** `Autorizacion::repartidoresDelPanel()` y `plazasDelPanel()`;
+  `App\Repartidores\PlazasDelAlta` (`de()`, las activas de `plazasDelPanel()`, y `laElegida()`, la plaza del alta con
+  su 422), con la regla que vivía en `AccionesDeEstado::plazasActivas()` (sección 3);
   `App\Repartidores\EstadoDelRepartidor` (`darDeAlta()`, `suspender()`, `levantarSuspension()`, `darDeBaja()` y sus
   `puede…()`); `App\Repartidores\EdicionDeRepartidor::editar()`, con la validación que hoy vive en
   `EditRepartidor::handleRecordUpdate()` (las reglas de `RegistroDeRepartidorRequest` y `App\Validacion\CorreoSinCuenta`),
   movida antes de la ruta (sección 3). La API no la copia.
-- **Pantallas:** la lista, la ficha y la edición.
+- **Pantallas:** la lista, la ficha y la edición. La lista los ordena por estado, con lo que ya trae `estado`: primero
+  los pendientes sin plaza, luego los activos, los suspendidos y los de baja (imágenes 14 y 62 de la Propuesta 6); el
+  servidor da el orden del panel.
 - **Reglas:** repartidor-E05 a E09 y E31.
 
 #### F-D03 — Gestión de usuarios
@@ -278,6 +294,12 @@ Resumen. El detalle de cada fila va después.
 - **Rutas:** `GET avisos-masivos`, los enviados, del más reciente al más antiguo, con su título, su texto, cuándo y
   quién lo mandó y a cuántos teléfonos salió ("En cola" mientras no se cuentan); `POST avisos-masivos` con título y
   texto.
+- **Quién lo mandó** (administracion-app-E43) va como "esta cuenta u otra", porque el correo de otra cuenta de
+  administración no sale en ninguna respuesta de `/api/administracion` (delta de autorizacion-E14): la ruta dice si lo
+  mandó la cuenta de la sesión (`enviado_por_esta_cuenta`) y no trae el correo, el nombre ni la llave de quien lo
+  mandó. La app pone, en el aviso propio, el correo de la cuenta, que ya tiene de `GET /api/cuenta` (como la imagen
+  36). El texto del aviso que mandó otra cuenta no lo fijan E43 ni la imagen 36: lo decide Arthur antes de la tarea
+  16.1 (`mocks/Lavandi - Propuesta 06 - Administracion/NOTAS.md`, «Lo que queda abierto», punto 9).
 - **Clases de dominio:** `Autorizacion::avisosMasivosDelPanel()` y `puedeMandarAvisosMasivos()`; la creación movida
   desde `CreateAvisoMasivo` (sección 3); `App\Avisos\MandarAvisoMasivo`, en cola.
 - **Pantallas:** la lista y "Escribir aviso", con su confirmación: sale a todos los teléfonos registrados (imágenes 36
@@ -285,7 +307,7 @@ Resumen. El detalle de cada fila va después.
   de 1000 caracteres"): es un texto de la app, que sale de los topes de administracion-E23. Sin título, el error de
   `titulo` es "Escribe el título.", con el estilo de los mensajes de `CambiarPerfilRequest` ("Escribe tu nombre.");
   vive con la creación movida a la clase de dominio (tareas 15.1 y 15.2). "A quién le llega" lleva el texto del panel
-  (`servidor/app/Filament/Resources/AvisosMasivos/Schemas/AvisoMasivoForm.php:39`), y el aviso a un segmento va en
+  (`servidor/app/Filament/Resources/AvisosMasivos/Schemas/AvisoMasivoForm.php:51`), y el aviso a un segmento va en
   ámbar con "Por confirmar · DD-113", sin ofrecerlo.
 - **Reglas:** administracion-E23.
 - **Bloqueado:** el aviso a un segmento, E24 (BR-32, DD-113). La pantalla no ofrece segmentos.

@@ -29,8 +29,8 @@ use Tests\TestCase;
  * - Que cada ruta del panel rechace a los demás roles lo recorre autorizacion-E03.
  *
  * Escenario: autorizacion-E02 · Spec: openspec/changes/autorizacion-por-rol/specs/autorizacion/spec.md, con el delta de
- * openspec/changes/administracion-en-la-app/specs/autorizacion/spec.md · Tareas 1.2 de autorizacion-por-rol y 1.6 de
- * administracion-en-la-app
+ * openspec/changes/administracion-en-la-app/specs/autorizacion/spec.md · Tareas 1.2 de autorizacion-por-rol, y 1.6 y
+ * 3.1 de administracion-en-la-app
  */
 class RolPorModuloTest extends TestCase
 {
@@ -97,12 +97,9 @@ class RolPorModuloTest extends TestCase
 
         $this->assertSame([], $fueraDeSuModulo);
 
-        // Los Módulos A, B y C tienen rutas, y las comunes existen: la prueba no pasa en vacío. El Módulo D entra a esta
-        // comprobación con su primera ruta, en la tarea 3.1 de openspec/changes/administracion-en-la-app/tasks.md.
-        $this->assertSame([], array_keys(array_filter(
-            ['A' => $porModulo['A'], 'B' => $porModulo['B'], 'C' => $porModulo['C']],
-            fn (int $rutas): bool => $rutas === 0,
-        )));
+        // Los cuatro módulos tienen rutas, y las comunes existen: la prueba no pasa en vacío. El Módulo D entró con sus
+        // primeras rutas, las de las lavanderías (tarea 3.1 de openspec/changes/administracion-en-la-app/tasks.md).
+        $this->assertSame([], array_keys(array_filter($porModulo, fn (int $rutas): bool => $rutas === 0)));
         $this->assertSame([], array_values(array_diff(
             [...self::COMUNES_DE_LA_APP, ...self::DEL_CATALOGO],
             array_keys($this->rutasDeLaApiConRol()),

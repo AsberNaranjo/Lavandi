@@ -27,7 +27,8 @@ export type Falla =
 export type Resultado<T> = { ok: true; datos: T } | Falla;
 
 export interface Peticion {
-  metodo: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  /** PUT, para las rutas que reemplazan un valor entero, como el porcentaje de comisión (administracion-app-E33). */
+  metodo: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   cuerpo?: unknown;
   /**
    * Un formulario multipart en lugar del cuerpo JSON, para las rutas que reciben un archivo, como la foto de la

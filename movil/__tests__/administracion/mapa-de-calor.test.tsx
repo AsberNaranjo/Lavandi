@@ -28,6 +28,7 @@ import {
 import {
   consultasDeLosIndicadores,
   HOY,
+  POR_ZONA,
   RANGO_DEL_MES_EN_CURSO,
   usarLosIndicadores,
 } from '../apoyo/administracion/indicadores';
@@ -278,12 +279,66 @@ describe('administracion-app-E50: el mapa de calor por colonia o por zona', () =
     },
   );
 
+  test.each(PLATAFORMAS)(
+    'administracion-app-E50 — (%s) antes de estar listo, el mapa ya abre sobre las figuras de la respuesta, por colonia y por zona',
+    async (plataforma) => {
+      await abrirElMapaDeCalor(plataforma);
+
+      // La caja de las tres colonias, de 24.01 a 24.03 de latitud y de -104.66 a -104.64 de longitud.
+      expect(screen.getByTestId('mapa').props.initialRegion).toEqual({
+        latitude: expect.closeTo(24.02, 6),
+        longitude: expect.closeTo(-104.65, 6),
+        latitudeDelta: expect.closeTo(0.02, 6),
+        longitudeDelta: expect.closeTo(0.02, 6),
+      });
+
+      // La de los contornos de las tres zonas, también la del Sur, sin pedidos: de 23.97 a 24.06 y de -104.67 a
+      // -104.62.
+      await verPorZona();
+      expect(screen.getByTestId('mapa').props.initialRegion).toEqual({
+        latitude: expect.closeTo(24.015, 6),
+        longitude: expect.closeTo(-104.645, 6),
+        latitudeDelta: expect.closeTo(0.09, 6),
+        longitudeDelta: expect.closeTo(0.05, 6),
+      });
+    },
+  );
+
+  test.each(PLATAFORMAS)(
+    'administracion-app-E50 — (%s) los letreros no siguen los cambios de su vista, y el de una zona dice su nueva cifra cuando la consulta trae otra',
+    async (plataforma) => {
+      await abrirElMapaDeCalor(plataforma);
+      expect(screen.getByTestId('colonia-0').props.tracksViewChanges).toBe(false);
+
+      await verPorZona();
+      expect(screen.getByTestId('zona-0').props.tracksViewChanges).toBe(false);
+      expect(textosDe(screen.getByTestId('zona-0'))).toEqual(['Zona de prueba Durango Centro', '6']);
+
+      // Un pedido más en el Centro: la siguiente consulta lo trae y el letrero lo dice, igual que la tabla.
+      const [centro, ...lasDemas] = (POR_ZONA.mapa_de_calor as { zonas: Record<string, unknown>[] }).zonas;
+      indicadores().cambiarSinFiltros(
+        'geografico',
+        { mapa_de_calor: { agrupacion: 'zona', zonas: [{ ...centro, pedidos: 7 }, ...lasDemas] } },
+        'zona',
+      );
+      await act(() => jest.advanceTimersByTimeAsync(TREINTA_SEGUNDOS));
+
+      await waitFor(() =>
+        expect(textosDe(screen.getByTestId('zona-0'))).toEqual(['Zona de prueba Durango Centro', '7']),
+      );
+      expect(screen.getByTestId('zona-0').props.tracksViewChanges).toBe(false);
+      expect(filasDeLaTabla()[0]).toBe('Zona de prueba Durango Centro, Plaza de prueba Durango. Pedidos: 7');
+    },
+  );
+
   test('administracion-app-E50 — sin pedidos en el rango, el mapa va sin figuras y en lugar de la tabla lo dice como el panel', async () => {
     indicadores().cambiarSinFiltros('geografico', { mapa_de_calor: { agrupacion: 'colonia', colonias: [] } });
     await abrirElMapaDeCalor('ios');
 
     expect(screen.getByTestId('mapa')).toBeOnTheScreen();
     expect(screen.queryAllByTestId(/^circulo-/)).toHaveLength(0);
+    // Sin figuras no hay de dónde sacar la región: abre donde lo deje la plataforma, como el panel.
+    expect(screen.getByTestId('mapa').props.initialRegion).toBeUndefined();
     expect(screen.getByText('No hay pedidos en el rango.')).toBeOnTheScreen();
     expect(screen.queryByTestId('tabla-del-mapa')).not.toBeOnTheScreen();
   });

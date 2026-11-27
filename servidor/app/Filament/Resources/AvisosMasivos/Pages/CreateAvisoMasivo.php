@@ -2,17 +2,19 @@
 
 namespace App\Filament\Resources\AvisosMasivos\Pages;
 
-use App\Avisos\MandarAvisoMasivo;
+use App\Avisos\CreacionDeAvisoMasivo;
 use App\Filament\Resources\AvisosMasivos\AvisoMasivoResource;
-use App\Models\AvisoMasivo;
+use App\Models\Usuario;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
 
 /**
- * Escribir y mandar un aviso masivo (administracion-E23). Al guardarlo, el aviso queda con la cuenta que lo mandó, la
- * hora y sin plaza ni segmento, porque es global; su salida por FCM va en cola (App\Avisos\MandarAvisoMasivo), así
- * que el panel no espera a Google.
+ * Escribir y mandar un aviso masivo (administracion-E23). Lo crea App\Avisos\CreacionDeAvisoMasivo, la misma clase que
+ * usa la API de la administración (administracion-app-E11): el aviso queda con la cuenta que lo mandó, la hora y sin
+ * plaza ni segmento, porque es global, y su salida por FCM va en cola (App\Avisos\MandarAvisoMasivo), así que el panel
+ * no espera a Google.
  */
 class CreateAvisoMasivo extends CreateRecord
 {
@@ -22,26 +24,13 @@ class CreateAvisoMasivo extends CreateRecord
 
     /**
      * @param  array<string, mixed>  $data
-     * @return array<string, mixed>
      */
-    protected function mutateFormDataBeforeCreate(array $data): array
+    protected function handleRecordCreation(array $data): Model
     {
-        return [
-            'titulo' => $data['titulo'],
-            'mensaje' => $data['mensaje'],
-            'id_plazas' => null,
-            'segmento' => null,
-            'id_usuarios' => Filament::auth()->id(),
-            'enviado_en' => now(),
-        ];
-    }
+        /** @var Usuario $cuenta */
+        $cuenta = Filament::auth()->user();
 
-    protected function afterCreate(): void
-    {
-        /** @var AvisoMasivo $aviso */
-        $aviso = $this->getRecord();
-
-        MandarAvisoMasivo::dispatch($aviso)->afterCommit();
+        return app(CreacionDeAvisoMasivo::class)->crear($cuenta, $data['titulo'], $data['mensaje']);
     }
 
     public function getTitle(): string

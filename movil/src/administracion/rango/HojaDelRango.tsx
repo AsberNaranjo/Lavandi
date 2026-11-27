@@ -6,6 +6,8 @@
 // - Se abre con el rango elegido, o con el que usó el servidor si todavía no se eligió ninguno.
 // - Los días del rango ajustado los da el servidor (App\Indicadores\Rango): van en la frase del ajuste solo mientras la
 //   hoja muestra el rango que el servidor ya ajustó; si se cambia algo, la frase dice cómo se ajusta, sin días.
+// - "Aplicar" solo aplica días vacíos, para que el servidor ponga los suyos, o fechas DD/MM/AAAA que existen: una a
+//   medias o que no existe, como el 31/02, lo dice junto a su campo y la hoja sigue abierta (rango.ts).
 // - La hoja es la del Selector (src/piezas/Selector.tsx), con el mismo Modal: en iPhone, la hoja nativa (pageSheet), que
 //   se cierra deslizándola; en Android, a toda la pantalla, y se cierra con el regreso del sistema.
 // - Los ingresos la abren sin "Este mes" ni "Mes anterior", que administracion-app-E37 no nombra; los indicadores le
@@ -23,7 +25,14 @@ import { Enlace } from '../../piezas/Enlace';
 import { Pestanas } from '../../piezas/Pestanas';
 import { letra } from '../../tema/letra';
 import { accesibilidad, color, espaciado, grosor, radio, tipografia } from '../../tema/theme';
-import { conDiagonales, GRANULARIDADES, mismoRango, type Granularidad, type RangoElegido } from './rango';
+import {
+  conDiagonales,
+  GRANULARIDADES,
+  mismoRango,
+  sePuedeAplicar,
+  type Granularidad,
+  type RangoElegido,
+} from './rango';
 import { comoSeAjusta, TEXTOS_DEL_RANGO as TEXTOS } from './textos';
 
 interface Propiedades {
@@ -48,6 +57,10 @@ export interface AtajoDelRango {
 
 const PESTANAS = GRANULARIDADES.map((clave) => ({ clave, texto: TEXTOS.granularidades[clave] }));
 
+type Campo = 'desde' | 'hasta';
+
+const CAMPOS: readonly Campo[] = ['desde', 'hasta'];
+
 export function HojaDelRango({ abierta, alCerrar, ...contenido }: Propiedades) {
   return (
     <Modal
@@ -65,10 +78,20 @@ export function HojaDelRango({ abierta, alCerrar, ...contenido }: Propiedades) {
 
 function ContenidoDeLaHoja({ elegido, ajustado, aviso, atajos = [], alAplicar, alCerrar }: Omit<Propiedades, 'abierta'>) {
   const [escrito, setEscrito] = useState<RangoElegido>(elegido);
+  const [errores, setErrores] = useState<Partial<Record<Campo, string>>>({});
   const ajuste = comoSeAjusta(escrito.granularidad, mismoRango(escrito, elegido) ? ajustado : null);
 
-  function escribir(campo: 'desde' | 'hasta', texto: string) {
+  function escribir(campo: Campo, texto: string) {
     setEscrito((anterior) => ({ ...anterior, [campo]: conDiagonales(texto) }));
+  }
+
+  function aplicar() {
+    const conError = (campo: Campo) => (sePuedeAplicar(escrito[campo]) ? undefined : TEXTOS.fechaInvalida);
+    const nuevos = { desde: conError('desde'), hasta: conError('hasta') };
+    setErrores(nuevos);
+    if (!nuevos.desde && !nuevos.hasta) {
+      alAplicar(escrito);
+    }
   }
 
   function usarAtajo({ dias }: AtajoDelRango) {
@@ -96,7 +119,7 @@ function ContenidoDeLaHoja({ elegido, ajustado, aviso, atajos = [], alAplicar, a
       <ScrollView style={estilos.ocupa} contentContainerStyle={estilos.contenido} keyboardShouldPersistTaps="handled">
         {aviso ? <Text style={[estilos.suave, letra('cuerpo', 'regular')]}>{aviso}</Text> : null}
         <View style={estilos.fechas}>
-          {(['desde', 'hasta'] as const).map((campo) => (
+          {CAMPOS.map((campo) => (
             <View key={campo} style={estilos.fecha}>
               <CampoDeTexto
                 nombre={campo}
@@ -104,6 +127,7 @@ function ContenidoDeLaHoja({ elegido, ajustado, aviso, atajos = [], alAplicar, a
                 tipo="fecha"
                 valor={escrito[campo]}
                 alCambiar={(texto) => escribir(campo, texto)}
+                error={errores[campo]}
               />
             </View>
           ))}
@@ -122,7 +146,7 @@ function ContenidoDeLaHoja({ elegido, ajustado, aviso, atajos = [], alAplicar, a
         {ajuste ? <Text style={[estilos.suave, letra('cuerpo', 'regular')]}>{ajuste}</Text> : null}
       </ScrollView>
       <View style={estilos.acciones}>
-        <Boton onPress={() => alAplicar(escrito)}>{TEXTOS.aplicar}</Boton>
+        <Boton onPress={aplicar}>{TEXTOS.aplicar}</Boton>
       </View>
     </SafeAreaView>
   );

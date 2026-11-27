@@ -5,6 +5,7 @@ namespace Tests\Feature\Autorizacion;
 use App\Cobro\Desarrollo\CobroSimulado;
 use App\Models\Direccion;
 use App\Models\Pedido;
+use App\Models\Repartidor;
 use App\Models\Rol;
 use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -115,11 +116,17 @@ class UsuarioAisladoTest extends TestCase
                 // El cobro del pedido de Beto, que consulta "Procesando pago" (pago-E08).
                 'pago' => [$this->pedidoDeBeto->cobro->id_publico => 'el cobro del pedido de Beto'],
                 'direccion' => [$this->direccionDeBeto->id_publico => 'la dirección de Beto'],
+                // Un repartidor, para las rutas que lo llevan en un parámetro: hoy, solo las de la administración de la
+                // tarea 5.1 de administracion-en-la-app, que al usuario le responden 403 con cualquier valor.
+                'repartidor' => [Repartidor::factory()->en($this->plaza)->create()->id_publico => 'un repartidor'],
+                // Las rutas de la cuenta de un usuario son del Módulo D (administracion-app-E24): la de Beto.
+                'usuario' => [$this->beto->id_publico => 'la cuenta de Beto'],
                 'descarga' => [$descarga->id_publico => 'la descarga de la administración'],
             ],
             // El perfil de las lavanderías es público en el Módulo A (Módulo A #5); el catálogo, de todos; el formato de
-            // una descarga, también.
-            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000', 'formato' => 'csv'],
+            // una descarga y una categoría del A.5, de las rutas de la administración que llegan con la tarea 17.1 de
+            // administracion-en-la-app, también.
+            publicos: ['lavanderia' => $this->lavanderia->id_publico, 'codigo_postal' => '00000', 'formato' => 'csv', 'categoria' => 'operaciones'],
             datosAjenos: [
                 $descarga->id_publico => 'el id_publico de la descarga de la administración',
                 $this->pedidoDeBeto->id_publico => 'el id_publico del pedido de Beto',

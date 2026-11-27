@@ -8,7 +8,7 @@
 // El registro va en multipart, porque lleva la foto. La edición va en JSON, salvo que lleve una foto nueva: entonces va
 // en multipart por POST con _method=PATCH, porque PHP solo lee los archivos de un POST. Los servicios, las ventanas y
 // las fotos siempre van completos: los que no vienen dejan de ofrecerse, y las fotos que no vienen se quitan.
-import { pedir, pedirConEstado, type Falla, type Resultado } from '../configuracion/api';
+import { pedir, pedirConEstado, type Falla, type Peticion, type Resultado } from '../configuracion/api';
 import { agregarFoto } from '../configuracion/foto-del-formulario';
 import { esObjeto } from '../configuracion/lectura';
 
@@ -154,15 +154,23 @@ export async function editarLavanderia(
   idPublico: string,
   cambios: CambiosDeLaLavanderia,
 ): Promise<ResultadoDelEnvio> {
-  const ruta = rutaDe(idPublico);
+  return enviar(rutaDe(idPublico), { ...peticionDeLaEdicion(cambios), token });
+}
+
+/**
+ * La petición de la edición, sin el token: en JSON, o en multipart por POST con _method=PATCH si lleva una foto nueva,
+ * sola o en la lista de fotos. La usa también la edición de la administración, que manda los mismos campos a su ruta
+ * (src/administracion/lavanderias/api.ts; administracion-app-E14).
+ */
+export function peticionDeLaEdicion(cambios: CambiosDeLaLavanderia): Omit<Peticion, 'token'> {
   if (cambios.foto || cambios.fotos?.some((foto) => typeof foto !== 'number')) {
-    return enviar(ruta, { metodo: 'POST', token, formulario: formularioDe(cambios, 'PATCH') });
+    return { metodo: 'POST', formulario: formularioDe(cambios, 'PATCH') };
   }
   const cuerpo = limpio(cambios);
   if (cambios.fotos) {
     cuerpo[CONTRATO_DE_LA_LAVANDERIA_DEL_SOCIO.fotos] = cambios.fotos;
   }
-  return enviar(ruta, { metodo: 'PATCH', token, cuerpo });
+  return { metodo: 'PATCH', cuerpo };
 }
 
 function rutaDe(idPublico: string): string {

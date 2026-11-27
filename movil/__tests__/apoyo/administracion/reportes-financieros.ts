@@ -8,7 +8,8 @@
 //   el servidor real (App\Indicadores\Rango, App\Finanzas\Ingresos y App\Finanzas\Pesos); aquí van ya calculados;
 // - POST /administracion/conciliaciones con desde y hasta: el reporte de marzo, con un pago de cada resultado; otro
 //   periodo, sin pagos ni movimientos; 422 en hasta con el mensaje de App\Validacion\RangoDeFechas si la fecha de fin es
-//   anterior a la de inicio; y 503 con "No se pudo leer la pasarela" si la pasarela no responde, sin guardar nada.
+//   anterior a la de inicio; 422 con el mensaje del validador de Laravel, en inglés, en la fecha que falta o que no
+//   viene en AAAA-MM-DD; y 503 con "No se pudo leer la pasarela" si la pasarela no responde, sin guardar nada.
 //
 // Los datos son de prueba, los mismos de servidor/tests/Feature/AdministracionEnLaApp/ReportesFinancierosTest.php: marzo
 // de 2027, con folios, órdenes y montos ficticios.
@@ -22,6 +23,15 @@ export const FIN_ANTERIOR = 'La fecha de fin no puede ser anterior a la de inici
 
 /** El 503 de la conciliación cuando la pasarela no responde (ConciliacionesController::SIN_PASARELA). */
 export const SIN_PASARELA = 'No se pudo leer la pasarela';
+
+/**
+ * Los mensajes del validador de Laravel para una fecha de la conciliación que falta o que no es fecha, en inglés: el
+ * servidor no trae lang/es y RangoDeFechas solo trae el del rango al revés (el contrato de ConciliacionesController).
+ */
+export const MENSAJES_DEL_VALIDADOR = {
+  falta: (campo: string) => `The ${campo} field is required.`,
+  noEsFecha: (campo: string) => `The ${campo} field must be a valid date.`,
+} as const;
 
 type Granularidad = 'dia' | 'semana' | 'mes';
 
@@ -242,7 +252,7 @@ export class ReportesFinancierosDelServidor {
     const desde = esObjeto(cuerpo) ? cuerpo.desde : undefined;
     const hasta = esObjeto(cuerpo) ? cuerpo.hasta : undefined;
     if (typeof desde !== 'string' || typeof hasta !== 'string' || !DIA.test(desde) || !DIA.test(hasta)) {
-      return undefined;
+      return sinFecha({ desde, hasta });
     }
     if (hasta < desde) {
       return respuesta(422, { message: FIN_ANTERIOR, errors: { hasta: [FIN_ANTERIOR] } });
@@ -252,6 +262,27 @@ export class ReportesFinancierosDelServidor {
     }
     return respuesta(200, reporteDe({ desde, hasta }, this.filasPorPeriodo.get(`${desde}|${hasta}`) ?? []));
   }
+}
+
+/**
+ * El 422 de una fecha que falta o que no viene en AAAA-MM-DD, con el mensaje del validador de Laravel en la suya y el
+ * "message" de Laravel: el primer error y cuántos más hay. El servidor real acepta algunas fechas en otro formato, como
+ * "03/01/2027", y concilia otro periodo (el contrato de ConciliacionesController); aquí cualquier otro formato es 422.
+ * La app no manda ninguna de las dos: no confirma un periodo con una fecha vacía, a medias o que no existe.
+ */
+function sinFecha(periodo: { desde: unknown; hasta: unknown }) {
+  const errores: Record<string, string[]> = {};
+  for (const [campo, valor] of Object.entries(periodo)) {
+    if (typeof valor !== 'string' || valor === '') {
+      errores[campo] = [MENSAJES_DEL_VALIDADOR.falta(campo)];
+    } else if (!DIA.test(valor)) {
+      errores[campo] = [MENSAJES_DEL_VALIDADOR.noEsFecha(campo)];
+    }
+  }
+  const mensajes = Object.values(errores).flat();
+  const mas = mensajes.length - 1;
+  const message = mas > 0 ? `${mensajes[0]} (and ${mas} more error${mas > 1 ? 's' : ''})` : mensajes[0];
+  return respuesta(422, { message, errors: errores });
 }
 
 /** La consulta de unos filtros, con sus claves en orden, para compararla sin importar el orden en que llegaron. */

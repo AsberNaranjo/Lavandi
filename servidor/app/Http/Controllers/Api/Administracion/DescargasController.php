@@ -90,7 +90,9 @@ use Symfony\Component\HttpFoundation\Response;
  *          la pasarela.
  *     422  { "message": "…", "errors": { "reporte" | "desde" | "hasta" | "granularidad": ["…"] } }
  *          "Ese no es un reporte que se pueda descargar.", "La fecha de fin no puede ser anterior a la de inicio."
- *          (exportacion-E06) o "Elige ver el reporte por día, por semana o por mes."; no crea ninguna descarga.
+ *          (exportacion-E06) o "Elige ver el reporte por día, por semana o por mes."; una fecha que no viene en
+ *          AAAA-MM-DD, como "December 5, 2026", también responde 422 en su campo (administracion-app-E60). En ninguno
+ *          crea una descarga.
  *
  *     GET /api/administracion/descargas                       (administracion-app-E59)
  *

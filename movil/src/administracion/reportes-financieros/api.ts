@@ -12,13 +12,23 @@
 //               total: { pagos, ingresos: "350.00", ingresos_texto: "$350.00" },
 //               periodos: [ { inicio, periodo: "Semana del 01/03/2027", pagos, ingresos, ingresos_texto } ] }
 //
-//     POST /api/administracion/conciliaciones   { desde: AAAA-MM-DD, hasta: AAAA-MM-DD }, los dos obligatorios
+//     POST /api/administracion/conciliaciones   { desde: AAAA-MM-DD, hasta: AAAA-MM-DD }, los dos días incluidos; los
+//         dos obligatorios. La app los manda siempre en AAAA-MM-DD: el servidor no impone ese formato (ver el 422)
 //         200 { rango: { desde, hasta, descripcion },
 //               resumen: [ { resultado, resultado_texto, cuantos } ],     siempre los cuatro, en su orden
 //               filas: [ { resultado, resultado_texto, orden, folio, plaza, fecha, monto_plataforma,
 //                          monto_plataforma_texto, monto_pasarela, monto_pasarela_texto } ] }
-//         422 con el error de cada campo, como "La fecha de fin no puede ser anterior a la de inicio." en hasta
+//         422 { message, errors: { hasta: ["La fecha de fin no puede ser anterior a la de inicio."] } }
+//             también sin alguna de las dos fechas, o con una que no es fecha, en la suya. No lee la pasarela. En esos
+//             dos casos el mensaje es el del validador de Laravel, en inglés: RangoDeFechas solo trae el del rango al
+//             revés. La regla pide una fecha, no su formato: una fecha que se entiende pero no viene en AAAA-MM-DD
+//             ("03/01/2027", "1 March 2027") no da 422. Rango::deLosFiltros() solo lee AAAA-MM-DD y la toma como no
+//             dada: el inicio pasa al día 1 del mes en curso y el fin a hoy, y si quedan al revés se voltean. La
+//             conciliación corre entonces sobre ese otro periodo; "rango", en el 200, dice el que de verdad se usó
 //         503 { message: "No se pudo leer la pasarela" }: no guarda nada; se puede conciliar otra vez más tarde
+//
+// Por eso la pantalla no confirma un periodo con una fecha vacía, a medias o que no existe: lo dice junto a su campo,
+// en español, y no manda nada (app/administracion/conciliacion.tsx). Lo único que deja al 422 es el rango al revés.
 //
 // Las cifras, el rango ajustado, los textos de cada monto y de cada resultado y la regla del rango los da el servidor,
 // con las mismas clases que el panel (ADR-0022, decisión 9): la app no calcula ni valida ninguno. Las comisiones del
@@ -142,8 +152,9 @@ export async function consultarIngresos(
 }
 
 /**
- * POST conciliaciones con el periodo, AAAA-MM-DD: el servidor lee la pasarela, guarda sus movimientos y responde el
- * reporte (administracion-app-E38). El 422 sale con el error de cada campo; el 503, como la pasarela que no respondió.
+ * POST conciliaciones con el periodo, los dos días en AAAA-MM-DD: el servidor lee la pasarela, guarda sus movimientos y
+ * responde el reporte (administracion-app-E38). El 422 sale con el error de cada campo; el 503, como la pasarela que no
+ * respondió.
  */
 export async function conciliarPeriodo(
   pedir: PedirALaAdministracion,
@@ -155,7 +166,8 @@ export async function conciliarPeriodo(
     cuerpo: { [desde]: periodo.desde, [hasta]: periodo.hasta },
   });
   if (!resultado.ok) {
-    // El cliente no dice el código de cada error del servidor: el 503 de la pasarela se reconoce por su mensaje.
+    // El cliente de la administración no pasa el código de este error: el 503 de la pasarela se reconoce por su
+    // mensaje, el texto literal de ConciliacionesController::SIN_PASARELA. Si ese texto cambia, aquí también.
     return resultado.motivo === 'servidor' && resultado.mensaje === sinPasarela
       ? { ok: false, motivo: 'sin-pasarela' }
       : resultado;

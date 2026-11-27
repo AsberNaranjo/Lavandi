@@ -9,8 +9,9 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
 
 /**
- * Las validaciones del registro de la lavandería, escritas una sola vez: las usan el registro de la app, la edición de
- * la app y la edición del panel (openspec/changes/alta-de-lavanderias/design.md, "Decisions"; NSV-2026-001-v8.pdf:17:
+ * Las validaciones del registro de la lavandería, escritas una sola vez: las usan el registro de la app y la edición,
+ * que pasa por App\Lavanderias\EdicionDeLavanderia::validar() en la app del socio, en la API de la administración y en
+ * el panel (openspec/changes/alta-de-lavanderias/design.md, "Decisions"; NSV-2026-001-v8.pdf:17:
  * ANEXO A, Sección A.3, Módulo B #1 y #6; :19:Módulo D #1). La forma de cada campo está en
  * App\Http\Controllers\Api\LavanderiaDelSocioController.
  *
@@ -24,7 +25,10 @@ final class ReglasDeLaLavanderia
     /** Los datos del registro, por su campo (Módulo B #1). */
     public const CAMPOS = ['nombre', 'direccion', 'foto', 'servicios', 'ventanas'];
 
-    /** Los datos de la edición, en la app y en el panel: los del registro, la descripción y la lista de fotos. */
+    /**
+     * Los datos de la edición, en la app, en la API de la administración y en el panel: los del registro, la descripción
+     * y la lista de fotos.
+     */
     public const CAMPOS_DE_LA_EDICION = [...self::CAMPOS, 'descripcion', 'fotos'];
 
     /**

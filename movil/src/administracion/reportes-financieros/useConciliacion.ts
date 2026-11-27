@@ -3,12 +3,14 @@
 // con el periodo que escribió, y guarda el reporte que respondió el servidor hasta que pida otro periodo. Sin consulta
 // periódica: el reporte no se pone al día solo (design.md, F-D06).
 //
+// El periodo llega ya en AAAA-MM-DD: la pantalla no confirma una fecha a medias o que no existe, porque el servidor no
+// impone el formato y conciliaría otro periodo (ConciliacionesController).
+//
 // Si la conciliación no sale (el 422 de un campo, la pasarela que no respondió o sin conexión), no hay reporte nuevo: la
 // pantalla sigue en el periodo, con la falla.
 import { useCallback, useState } from 'react';
 
 import { useApiDeLaAdministracion } from '../api';
-import { diaParaElServidor } from '../rango/rango';
 import { conciliarPeriodo, type FallaDeLaConciliacion, type ReporteDeLaConciliacion } from './api';
 
 export interface Conciliacion {
@@ -18,7 +20,7 @@ export interface Conciliacion {
   falla: FallaDeLaConciliacion | null;
   /** Mientras el servidor lee la pasarela. */
   conciliando: boolean;
-  /** Concilia el periodo, con los dos días como se escribieron, DD/MM/AAAA. */
+  /** Concilia el periodo, con los dos días en AAAA-MM-DD. */
   conciliar(periodo: { desde: string; hasta: string }): Promise<void>;
   /** Deja el reporte y vuelve al periodo. */
   otroPeriodo(): void;
@@ -31,13 +33,10 @@ export function useConciliacion(): Conciliacion {
   const [conciliando, setConciliando] = useState(false);
 
   const conciliar = useCallback(
-    async ({ desde, hasta }: { desde: string; hasta: string }) => {
+    async (periodo: { desde: string; hasta: string }) => {
       setConciliando(true);
       setFalla(null);
-      const resultado = await conciliarPeriodo(pedir, {
-        desde: diaParaElServidor(desde),
-        hasta: diaParaElServidor(hasta),
-      });
+      const resultado = await conciliarPeriodo(pedir, periodo);
       setConciliando(false);
       if (resultado.ok) {
         setReporte(resultado.datos);

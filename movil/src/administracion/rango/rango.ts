@@ -4,12 +4,14 @@
 // app, como el filtro de "Mis pedidos" (src/historial/fechas.ts), sin librería de calendario. Al servidor va como
 // AAAA-MM-DD.
 //
-// La app no ajusta el rango ni lo valida: lo hace App\Indicadores\Rango en el servidor, que responde el rango que usó,
-// ya ajustado a periodos completos, y su descripción ("Del 26/10/2026 al 29/11/2026, por semana"). Un día que no se
-// entiende va como se escribió y el servidor dice qué pasa con él (ADR-0022, decisión 9).
+// La app no ajusta el rango: lo hace App\Indicadores\Rango en el servidor, que responde el rango que usó, ya ajustado a
+// periodos completos, y su descripción ("Del 26/10/2026 al 29/11/2026, por semana") (ADR-0022, decisión 9). Lo que sí
+// revisa la app es lo que se escribió, como el filtro de "Mis pedidos" (src/historial/FiltroPorFecha.tsx): una fecha a
+// medias o que no existe, como el 31/02, no se manda, y lo dice junto a su campo. El servidor no impone el formato: ese
+// día lo tomaría como no dado y respondería otro rango sin decirlo.
 import { conDiagonales, fechaDeTexto } from '../../historial/fechas';
 
-export { conDiagonales };
+export { conDiagonales, fechaDeTexto };
 
 /** Cómo se agrupan las cifras en el tiempo, con el valor de App\Indicadores\Granularidad. */
 export const GRANULARIDADES = ['dia', 'semana', 'mes'] as const;
@@ -39,12 +41,20 @@ export function diaALaVista(dia: string): string {
 }
 
 /**
- * Un día como lo escribió la administración, como va al servidor: AAAA-MM-DD si es una fecha DD/MM/AAAA que existe;
- * si no, tal cual, y el servidor dice qué pasa con él.
+ * Si un día escrito en la hoja del rango se puede aplicar: vacío, para que el servidor ponga el suyo, o una fecha
+ * DD/MM/AAAA que existe.
+ */
+export function sePuedeAplicar(escrito: string): boolean {
+  const limpio = escrito.trim();
+  return limpio === '' || fechaDeTexto(limpio) !== null;
+}
+
+/**
+ * Un día como lo escribió la administración, como va al servidor: AAAA-MM-DD, o vacío si no se escribió, y entonces no
+ * va. La hoja del rango solo aplica días que se pueden aplicar (sePuedeAplicar): nunca manda uno a medias.
  */
 export function diaParaElServidor(escrito: string): string {
-  const limpio = escrito.trim();
-  return fechaDeTexto(limpio) ?? limpio;
+  return fechaDeTexto(escrito.trim()) ?? '';
 }
 
 /** Lo que muestra la hoja con el rango que usó el servidor, cuando la administración todavía no eligió otro. */

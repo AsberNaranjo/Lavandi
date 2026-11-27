@@ -7,7 +7,8 @@
 // - al abrir, la primera consulta sale con los 30 s de omisión; si la respuesta trae otro intervalo, la consulta empieza
 //   de nuevo con él, así que sale una consulta más en ese momento;
 // - si la respuesta no trae intervalo (null: la configuración no tiene uno que sirva), la pantalla no se consulta sola:
-//   pide al abrirse o al volver a ella, al cambiar de pestaña, de rango o de agrupación, y con "Intentar de nuevo";
+//   pide al abrirse o al volver a ella, al cambiar de pestaña, de rango o de agrupación, y con "Intentar de nuevo". La
+//   respuesta que dijo que no hay intervalo ya es la de lo que se ve: no se pide otra vez lo mismo en ese momento;
 // - cambiar de pestaña, de rango o de agrupación consulta de inmediato y vuelve a contar desde ahí; la respuesta que
 //   todavía venía en camino para lo anterior ya no se pinta.
 //
@@ -15,7 +16,7 @@
 // queda lo último que llegó y se dice por qué; la siguiente que llega lo quita. Con un 401, el cliente de la
 // administración ya cerró la sesión y abrió el inicio de sesión (administracion-app-E05).
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { CADA_CUANTO_SE_CONSULTA_MS, useConsultaPeriodica } from '../../estados/useConsultaPeriodica';
 import { useApiDeLaAdministracion, type FallaDeLaAdministracion, type ResultadoDeLaAdministracion } from '../api';
@@ -64,6 +65,10 @@ interface Llegada {
   pedidaCon: PedidaCon;
 }
 
+function mismaPedida(una: PedidaCon, otra: PedidaCon): boolean {
+  return una.categoria === otra.categoria && una.elegido === otra.elegido && una.agrupacion === otra.agrupacion;
+}
+
 function filtrosDe(rango: RangoElegido): FiltrosDeLosIndicadores {
   return {
     desde: diaParaElServidor(rango.desde),
@@ -84,6 +89,8 @@ export function useIndicadores(): LosIndicadores {
   const [intervalo, setIntervalo] = useState<number | null>(CADA_CUANTO_SE_CONSULTA_MS);
   // Sin intervalo, cada "Intentar de nuevo" pide otra vez.
   const [vuelta, setVuelta] = useState(0);
+  // Lo que pidió la consulta periódica cuya respuesta dijo que no hay intervalo: esa respuesta ya está a la vista.
+  const sinIntervaloDesde = useRef<PedidaCon | null>(null);
 
   const consulta = useCallback(async (): Promise<Llegada> => {
     const pedidaCon = { categoria, elegido, agrupacion };
@@ -101,16 +108,31 @@ export function useIndicadores(): LosIndicadores {
     }
   }, []);
 
+  const alLlegarLaPeriodica = useCallback(
+    (llegada: Llegada) => {
+      const { resultado, pedidaCon } = llegada;
+      sinIntervaloDesde.current = resultado.ok && resultado.datos.refresco === null ? pedidaCon : null;
+      alLlegar(llegada);
+    },
+    [alLlegar],
+  );
+
   const reiniciar = useConsultaPeriodica(
     intervalo === null ? null : consulta,
-    alLlegar,
+    alLlegarLaPeriodica,
     intervalo ?? CADA_CUANTO_SE_CONSULTA_MS,
   );
 
-  // Sin intervalo, una sola consulta cada vez que la pantalla queda a la vista o cambia lo que se pide.
+  // Sin intervalo, una sola consulta cada vez que la pantalla queda a la vista o cambia lo que se pide. Justo después de
+  // la respuesta periódica que quitó el intervalo, no: ya es la de lo que se pide. Después, sí.
   useFocusEffect(
     useCallback(() => {
       if (intervalo !== null) {
+        return;
+      }
+      const recienLlegada = sinIntervaloDesde.current;
+      sinIntervaloDesde.current = null;
+      if (recienLlegada !== null && mismaPedida(recienLlegada, { categoria, elegido, agrupacion })) {
         return;
       }
       let vigente = true;
@@ -122,9 +144,8 @@ export function useIndicadores(): LosIndicadores {
       return () => {
         vigente = false;
       };
-      // vuelta: "Intentar de nuevo" pide otra vez lo mismo.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [intervalo, consulta, alLlegar, vuelta]),
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- vuelta: "Intentar de nuevo" pide otra vez lo mismo
+    }, [intervalo, consulta, alLlegar, vuelta, categoria, elegido, agrupacion]),
   );
 
   const consultarDeNuevo = useCallback(() => {

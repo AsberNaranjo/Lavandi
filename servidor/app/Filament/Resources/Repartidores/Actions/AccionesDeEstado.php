@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\Repartidores\Actions;
 
-use App\Autorizacion\Autorizacion;
 use App\Models\Plaza;
 use App\Models\Repartidor;
 use App\Models\Usuario;
 use App\Repartidores\EstadoDelRepartidor;
+use App\Repartidores\PlazasDelAlta;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
@@ -49,7 +49,7 @@ final class AccionesDeEstado
             ->visible(fn (Repartidor $record): bool => app(EstadoDelRepartidor::class)->puedeDarseDeAlta($record))
             ->action(function (Repartidor $record, array $data, Action $action): void {
                 /** @var Plaza $plaza */
-                $plaza = app(Autorizacion::class)->plazasDelPanel(self::cuenta())->findOrFail($data['plaza']);
+                $plaza = app(PlazasDelAlta::class)->de(self::cuenta())->findOrFail($data['plaza']);
                 app(EstadoDelRepartidor::class)->darDeAlta($record, $plaza);
                 $action->success();
             })
@@ -111,14 +111,14 @@ final class AccionesDeEstado
     }
 
     /**
-     * Las plazas activas que ve la administración, por su llave: "Durango".
+     * Las plazas del alta, las activas que ve la administración, por su llave: "Durango". Cuáles son lo dice
+     * App\Repartidores\PlazasDelAlta, que usa también la API de la administración.
      *
      * @return array<int, string>
      */
     private static function plazasActivas(): array
     {
-        return app(Autorizacion::class)->plazasDelPanel(self::cuenta())
-            ->where('activa', true)
+        return app(PlazasDelAlta::class)->de(self::cuenta())
             ->orderBy('nombre')
             ->pluck('nombre', 'id_plazas')
             ->all();
