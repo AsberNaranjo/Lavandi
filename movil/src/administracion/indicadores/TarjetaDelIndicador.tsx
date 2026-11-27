@@ -1,6 +1,6 @@
 // La tarjeta de un indicador del A.5 en la app (imágenes 41 a 50 y 69 de la Propuesta 06): su nombre arriba, como
-// encabezado, y debajo su gráfica o su tabla. Lo que espera una DD va en ámbar con la marca "Por confirmar" del resumen
-// del pedido (src/pedido/ResumenDelPedido.tsx) seguida de su número, sin cifra (design.md, sección 5):
+// encabezado, y debajo su gráfica o su tabla. Lo que espera una DD va en ámbar con la marca del módulo
+// (src/administracion/MarcaPorConfirmar.tsx), "Por confirmar" seguida de su número, sin cifra (design.md, sección 5):
 //
 // - RenglonQueEspera: bajo la gráfica de un indicador que ya tiene cifra, lo que todavía no decide su regla
 //   ("Cancelados", "Cortes del semáforo"…), con su marca a la derecha (administracion-app-E55);
@@ -14,7 +14,8 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { letra } from '../../tema/letra';
 import { color, espaciado, grosor, radio, tipografia } from '../../tema/theme';
-import { porConfirmar, TEXTOS_DE_LOS_INDICADORES as TEXTOS } from './textos';
+import { MarcaPorConfirmar, porConfirmar } from '../MarcaPorConfirmar';
+import { TEXTOS_DE_LOS_INDICADORES as TEXTOS } from './textos';
 
 interface Propiedades {
   titulo: string;
@@ -40,11 +41,10 @@ export function NotaDelIndicador({ children }: { children: string }) {
 
 /** Lo que espera una DD bajo la gráfica: su nombre a la izquierda y la marca a la derecha, en un solo anuncio. */
 export function RenglonQueEspera({ etiqueta, dds, testID }: { etiqueta: string; dds: readonly string[]; testID: string }) {
-  const marca = porConfirmar(dds);
   return (
-    <View accessible accessibilityLabel={`${etiqueta}: ${marca}`} testID={testID} style={estilos.renglon}>
+    <View accessible accessibilityLabel={`${etiqueta}: ${porConfirmar(dds)}`} testID={testID} style={estilos.renglon}>
       <Text style={[estilos.etiqueta, letra('cuerpo', 'regular')]}>{etiqueta}</Text>
-      <Marca texto={marca} />
+      <MarcaPorConfirmar dds={dds} />
     </View>
   );
 }
@@ -55,22 +55,13 @@ export function IndicadorEnEspera({ titulo, dds, testID }: { titulo: string; dds
     <TarjetaDelIndicador titulo={titulo} testID={testID}>
       <NotaDelIndicador>{TEXTOS.sinCifra}</NotaDelIndicador>
       <View style={estilos.sola}>
-        <Marca texto={porConfirmar(dds)} />
+        <MarcaPorConfirmar dds={dds} />
       </View>
     </TarjetaDelIndicador>
   );
 }
 
-// La marca "Por confirmar · DD-…": su borde además del color (design system, reglas transversales).
-function Marca({ texto }: { texto: string }) {
-  return (
-    <View style={estilos.marca}>
-      <Text style={[estilos.textoDeLaMarca, letra('cuerpo', 'semifuerte')]}>{texto}</Text>
-    </View>
-  );
-}
-
-// Las medidas de las maquetas (.tarj, .tcard, .par, .renglon y .marca).
+// Las medidas de las maquetas (.tarj, .tcard, .par y .renglon).
 const estilos = StyleSheet.create({
   tarjeta: {
     gap: espaciado[3],
@@ -105,18 +96,5 @@ const estilos = StyleSheet.create({
   // La marca sola, al principio de su renglón y de su ancho (imágenes 46 y 48).
   sola: {
     flexDirection: 'row',
-  },
-  marca: {
-    flexShrink: 1,
-    paddingHorizontal: espaciado[2],
-    paddingVertical: espaciado[1],
-    borderWidth: grosor.control,
-    borderColor: color.estado.atencion,
-    borderRadius: radio.chico,
-    backgroundColor: color.semantico.superficie,
-  },
-  textoDeLaMarca: {
-    color: color.estado.atencion,
-    fontSize: tipografia.escala.menor,
   },
 });

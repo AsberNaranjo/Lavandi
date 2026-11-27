@@ -6,7 +6,6 @@
 // indicador sin cifra, también. Ninguno trae el nombre del producto ni el dominio (CLAUDE.md §5; administracion-app-E03).
 import { mensajeGeneral } from '../../acceso/mensajes';
 import { TEXTOS as TEXTOS_DE_LAS_CERCANAS } from '../../cercanas/textos';
-import { TEXTOS_DEL_RESUMEN } from '../../pedido/textos';
 import type { SentidoDeLaTendencia } from '../../piezas/IndicadorDestacado';
 import type { FallaDeLaAdministracion } from '../api';
 import type { Granularidad } from '../rango/rango';
@@ -103,11 +102,6 @@ export const DD_DE_LOS_INDICADORES = {
   cortesDelSemaforo: ['DD-114'],
   comoSeAgrupanLasBarras: ['DD-115'],
 } as const;
-
-/** "Por confirmar · DD-020, DD-013": la marca del resumen del pedido con las DD que espera (design.md, sección 5). */
-export function porConfirmar(dds: readonly string[]): string {
-  return `${TEXTOS_DEL_RESUMEN.porConfirmar} · ${dds.join(', ')}`;
-}
 
 /**
  * Bajo el rango, cada cuánto se ponen al día las cifras, con el intervalo de la respuesta, como lo dice el panel

@@ -2,14 +2,14 @@
 // regla todavía espera una DD, la marca "Por confirmar" con su número, en ámbar y con borde, sin cifra (design.md,
 // sección 5; administracion-app-E37). La usan las cifras del periodo de los ingresos (imagen 31 de la Propuesta 06) y
 // el resumen de la conciliación (imagen 33). Es la tarjeta de TarjetaDeCifras (src/piezas/), que solo lleva números:
-// aquí la cifra puede ser un monto en texto, como lo da el servidor ("$3,250.00"), y la marca la del resumen del pedido
-// (src/pedido/ResumenDelPedido.tsx). Cada renglón se lee en un solo anuncio: "Pagos confirmados: 13".
+// aquí la cifra puede ser un monto en texto, como lo da el servidor ("$3,250.00"), y la marca la del módulo
+// (src/administracion/MarcaPorConfirmar.tsx). Cada renglón se lee en un solo anuncio: "Pagos confirmados: 13".
 import { Fragment } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { letra } from '../../tema/letra';
 import { color, espaciado, grosor, radio, tipografia } from '../../tema/theme';
-import { porConfirmar } from './textos';
+import { MarcaPorConfirmar, porConfirmar } from '../MarcaPorConfirmar';
 
 /** Un renglón con su cifra, o uno cuya regla espera esas DD. La clave nombra su testID: `renglon-<clave>`. */
 export type Renglon =
@@ -39,13 +39,15 @@ function RenglonConCifra({ clave, etiqueta, valor, destacado = false }: Extract<
 }
 
 function RenglonQueEspera({ clave, etiqueta, esperaA }: Extract<Renglon, { esperaA: readonly string[] }>) {
-  const marca = porConfirmar(esperaA);
   return (
-    <View accessible accessibilityLabel={`${etiqueta}: ${marca}`} testID={`renglon-${clave}`} style={estilos.renglon}>
+    <View
+      accessible
+      accessibilityLabel={`${etiqueta}: ${porConfirmar(esperaA)}`}
+      testID={`renglon-${clave}`}
+      style={estilos.renglon}
+    >
       <Text style={[estilos.etiqueta, letra('cuerpo', 'regular')]}>{etiqueta}</Text>
-      <View style={estilos.marca}>
-        <Text style={[estilos.textoDeLaMarca, letra('cuerpo', 'semifuerte')]}>{marca}</Text>
-      </View>
+      <MarcaPorConfirmar dds={esperaA} />
     </View>
   );
 }
@@ -85,18 +87,5 @@ const estilos = StyleSheet.create({
   // El total del periodo, la cifra principal de la pantalla (imagen 31).
   destacado: {
     fontSize: tipografia.escala.titulo,
-  },
-  // La marca "Por confirmar" del resumen del pedido.
-  marca: {
-    flexShrink: 1,
-    paddingHorizontal: espaciado[2],
-    paddingVertical: espaciado[1],
-    borderWidth: grosor.control,
-    borderColor: color.estado.atencion,
-    borderRadius: radio.chico,
-  },
-  textoDeLaMarca: {
-    color: color.estado.atencion,
-    fontSize: tipografia.escala.menor,
   },
 });
